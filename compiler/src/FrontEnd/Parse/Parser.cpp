@@ -15,6 +15,7 @@
 #include "FrontEnd/AST/ASTForStmt.hpp"
 #include "FrontEnd/AST/ASTFunctionCall.hpp"
 #include "FrontEnd/AST/ASTFunctionDecl.hpp"
+#include "FrontEnd/AST/ASTFunctionPrototype.hpp"
 #include "FrontEnd/AST/ASTIfStmt.hpp"
 #include "FrontEnd/AST/ASTIntegerLiteral.hpp"
 #include "FrontEnd/AST/ASTNode.hpp"
@@ -73,11 +74,20 @@ std::unique_ptr<ASTNode> Parser::ParseFunctionDecl() {
   ParameterList = ParseParameterList();
   Require(TokenType::CLOSE_PAREN);
 
-  auto Block = ParseBlock();
+  if (PeekCurrent().Type == TokenType::OPEN_CURLY_BRACKET) {
+    auto Block = ParseBlock();
 
-  return std::make_unique<ASTFunctionDecl>(
-      ReturnType.Type, std::string(FunctionName.Data), std::move(ParameterList),
-      std::move(Block), ReturnType.LineNo, ReturnType.ColumnNo);
+    return std::make_unique<ASTFunctionDecl>(
+        ReturnType.Type, std::string(FunctionName.Data),
+        std::move(ParameterList), std::move(Block), ReturnType.LineNo,
+        ReturnType.ColumnNo);
+  }
+
+  Require(TokenType::SEMICOLON);
+  return std::make_unique<ASTFunctionPrototype>(
+      ReturnType.Type, std::string(FunctionName.Data),
+      std::move(ParameterList), ReturnType.LineNo,
+      ReturnType.ColumnNo);
 }
 
 std::unique_ptr<ASTNode> Parser::ParseFunctionCall() {

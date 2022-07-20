@@ -28,6 +28,7 @@ class ASTFloatingPointLiteral;
 class ASTForStmt;
 class ASTFunctionDecl;
 class ASTFunctionCall;
+class ASTFunctionPrototype;
 class ASTIfStmt;
 class ASTIntegerLiteral;
 class ASTReturnStmt;
@@ -89,6 +90,8 @@ private:
   Visit(const frontEnd::ASTFunctionDecl *) const override; // Implemented.
   virtual void
   Visit(const frontEnd::ASTFunctionCall *) const override; // Implemented.
+  virtual void
+  Visit(const frontEnd::ASTFunctionPrototype *) const override {}
 
   // The rest.
   virtual void

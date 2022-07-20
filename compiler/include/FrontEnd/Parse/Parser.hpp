@@ -23,6 +23,7 @@ public:
   std::unique_ptr<ASTCompoundStmt> Parse();
 
 private:
+  /// Function with or without body (prototype).
   std::unique_ptr<ASTNode> ParseFunctionDecl();
 
   /// Function call with optional argument list.

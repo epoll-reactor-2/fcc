@@ -19,8 +19,9 @@ class ASTContinueStmt;
 class ASTDoWhileStmt;
 class ASTFloatingPointLiteral;
 class ASTForStmt;
-class ASTFunctionDecl;
 class ASTFunctionCall;
+class ASTFunctionDecl;
+class ASTFunctionPrototype;
 class ASTIfStmt;
 class ASTIntegerLiteral;
 class ASTReturnStmt;
@@ -44,6 +45,7 @@ public:
   virtual void Visit(const ASTForStmt *) const = 0;
   virtual void Visit(const ASTFunctionDecl *) const = 0;
   virtual void Visit(const ASTFunctionCall *) const = 0;
+  virtual void Visit(const ASTFunctionPrototype *) const = 0;
   virtual void Visit(const ASTIfStmt *) const = 0;
   virtual void Visit(const ASTIntegerLiteral *) const = 0;
   virtual void Visit(const ASTReturnStmt *) const = 0;
