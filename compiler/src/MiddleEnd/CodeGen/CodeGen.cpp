@@ -16,6 +16,7 @@
 #include "FrontEnd/AST/ASTForStmt.hpp"
 #include "FrontEnd/AST/ASTFunctionCall.hpp"
 #include "FrontEnd/AST/ASTFunctionDecl.hpp"
+#include "FrontEnd/AST/ASTFunctionPrototype.hpp"
 #include "FrontEnd/AST/ASTIfStmt.hpp"
 #include "FrontEnd/AST/ASTIntegerLiteral.hpp"
 #include "FrontEnd/AST/ASTReturnStmt.hpp"
@@ -298,10 +299,10 @@ void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) const {
 namespace {
 
 /// Create part (without body and return type) of function IR from AST.
-class FunctionBuilder {
+template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
 public:
   FunctionBuilder(llvm::LLVMContext &TheCtx, llvm::Module &TheModule,
-                  const frontEnd::ASTFunctionDecl *TheDecl)
+                  const ASTFunctionDeclOrPrototype *TheDecl)
       : Ctx(TheCtx), Module(TheModule), Decl(TheDecl) {}
 
   llvm::Function *Build() {
@@ -342,7 +343,7 @@ private:
 
   llvm::LLVMContext &Ctx;
   llvm::Module &Module;
-  const frontEnd::ASTFunctionDecl *Decl;
+  const ASTFunctionDeclOrPrototype *Decl;
 };
 
 } // namespace
@@ -394,6 +395,13 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
   }
 
   LastEmitted = CodeBuilder.CreateCall(Callee, Args);
+}
+
+void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) const {
+  FunctionBuilder FunctionBuilder(LLVMCtx, LLVMModule, Stmt);
+
+  llvm::Function *Func = FunctionBuilder.Build();
+  VariablesMapping.emplace(Stmt->GetName(), Func);
 }
 
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) const {

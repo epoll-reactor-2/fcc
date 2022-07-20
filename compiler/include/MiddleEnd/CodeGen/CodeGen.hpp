@@ -91,7 +91,7 @@ private:
   virtual void
   Visit(const frontEnd::ASTFunctionCall *) const override; // Implemented.
   virtual void
-  Visit(const frontEnd::ASTFunctionPrototype *) const override {}
+  Visit(const frontEnd::ASTFunctionPrototype *) const override; // Implemented.
 
   // The rest.
   virtual void

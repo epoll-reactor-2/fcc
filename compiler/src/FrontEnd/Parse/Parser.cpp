@@ -85,9 +85,8 @@ std::unique_ptr<ASTNode> Parser::ParseFunctionDecl() {
 
   Require(TokenType::SEMICOLON);
   return std::make_unique<ASTFunctionPrototype>(
-      ReturnType.Type, std::string(FunctionName.Data),
-      std::move(ParameterList), ReturnType.LineNo,
-      ReturnType.ColumnNo);
+      ReturnType.Type, std::string(FunctionName.Data), std::move(ParameterList),
+      ReturnType.LineNo, ReturnType.ColumnNo);
 }
 
 std::unique_ptr<ASTNode> Parser::ParseFunctionCall() {
