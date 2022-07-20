@@ -15,6 +15,7 @@
 #include "FrontEnd/AST/ASTForStmt.hpp"
 #include "FrontEnd/AST/ASTFunctionCall.hpp"
 #include "FrontEnd/AST/ASTFunctionDecl.hpp"
+#include "FrontEnd/AST/ASTFunctionPrototype.hpp"
 #include "FrontEnd/AST/ASTIfStmt.hpp"
 #include "FrontEnd/AST/ASTIntegerLiteral.hpp"
 #include "FrontEnd/AST/ASTNode.hpp"
@@ -231,17 +232,17 @@ private:
 
     Indent += 2;
     PrintIndent();
-    PrintWithTextPosition("FunctionRetType", FunctionDecl,
+    PrintWithTextPosition("FunctionDeclRetType", FunctionDecl,
                           /*NewLineNeeded=*/false);
     OutStream << TokenToString(FunctionDecl->GetReturnType()) << std::endl;
 
     PrintIndent();
-    PrintWithTextPosition("FunctionName", FunctionDecl,
+    PrintWithTextPosition("FunctionDeclName", FunctionDecl,
                           /*NewLineNeeded=*/false);
     OutStream << FunctionDecl->GetName() << std::endl;
 
     PrintIndent();
-    PrintWithTextPosition("FunctionArgs", FunctionDecl,
+    PrintWithTextPosition("FunctionDeclArgs", FunctionDecl,
                           /*NewLineNeeded=*/true);
 
     Indent += 2;
@@ -252,7 +253,7 @@ private:
     Indent -= 2;
 
     PrintIndent();
-    PrintWithTextPosition("FunctionBody", FunctionDecl,
+    PrintWithTextPosition("FunctionDeclBody", FunctionDecl,
                           /*NewLineNeeded=*/true);
 
     Indent += 2;
@@ -268,11 +269,31 @@ private:
 
     Indent += 2;
     PrintIndent();
-    PrintWithTextPosition("FunctionArgs", FunctionCall,
+    PrintWithTextPosition("FunctionCallArgs", FunctionCall,
                           /*NewLineNeeded=*/true);
 
     Indent += 2;
     for (const auto &Argument : FunctionCall->GetArguments()) {
+      PrintIndent();
+      Argument->Accept(this);
+    }
+    Indent -= 2;
+
+    Indent -= 2;
+  }
+
+  void Visit(const ASTFunctionPrototype *FunctionPrototype) const override {
+    PrintWithTextPosition("FunctionPrototype", FunctionPrototype,
+                          /*NewLineNeeded=*/false);
+    OutStream << FunctionPrototype->GetName() << std::endl;
+
+    Indent += 2;
+    PrintIndent();
+    PrintWithTextPosition("FunctionPrototypeArgs", FunctionPrototype,
+                          /*NewLineNeeded=*/true);
+
+    Indent += 2;
+    for (const auto &Argument : FunctionPrototype->GetArguments()) {
       PrintIndent();
       Argument->Accept(this);
     }
