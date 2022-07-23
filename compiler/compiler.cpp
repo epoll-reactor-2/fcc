@@ -36,8 +36,7 @@ std::string DoLLVMCodeGen(std::string_view InputPath, std::string_view OutputPat
 
 void DumpLexemes(std::string_view InputPath) {
   auto Tokens = DoLexicalAnalysis(InputPath);
-
-  for (fe::Token T : Tokens) {
+  for (const fe::Token &T : Tokens) {
     std::cout << "Token " << std::setw(20) << fe::TokenToString(T.Type);
     std::cout << "  " << T.Data;
     std::cout << std::endl;
@@ -55,17 +54,9 @@ void DumpLLVMIR(std::string_view InputPath, std::string_view OutputPath) {
 }
 
 void BuildCode(std::string_view InputPath, std::string_view OutputPath) {
-  std::ifstream File(InputPath.data());
-  std::string Program(
-      (std::istreambuf_iterator<char>(File)),
-      (std::istreambuf_iterator<char>()));
-  fe::Lexer Lex(&*Program.begin(), &*Program.end());
-  auto Tokens = Lex.Analyze();
-  fe::Parser Parser(&*Tokens.begin(), &*Tokens.end());
-  auto AST = Parser.Parse();
-  me::CodeGen CodeGen(AST.get());
-
-  CodeGen.CreateCode(OutputPath);
+  auto AST = DoSyntaxAnalysis(InputPath);
+  me::CodeGen CodeGenerator(AST.get());
+  CodeGenerator.CreateCode(OutputPath);
 }
 
 int main(int Argc, char *Argv[]) {
@@ -110,7 +101,7 @@ int main(int Argc, char *Argv[]) {
           llvm::cl::cat(CompilerCategory));
 
   llvm::cl::HideUnrelatedOptions(CompilerCategory);
-  llvm::cl::ParseCommandLineOptions(Argc, Argv, "Weak Language\n");
+  llvm::cl::ParseCommandLineOptions(Argc, Argv);
 
   std::string InputFilename = InputFilenameOpt;
   std::string OutputFilename = OutputFilenameOpt.empty()
