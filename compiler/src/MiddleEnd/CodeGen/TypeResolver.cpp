@@ -41,6 +41,8 @@ llvm::Type *TypeResolver::Resolve(frontEnd::TokenType T) {
     return llvm::Type::getInt8Ty(LLVMCtx);
   case TokenType::FLOAT:
     return llvm::Type::getFloatTy(LLVMCtx);
+  case TokenType::STRING:
+    return llvm::Type::getInt8PtrTy(LLVMCtx);
   default:
     weak::CompileError() << "Wrong type: " << frontEnd::TokenToString(T);
     weak::UnreachablePoint("");
@@ -61,6 +63,8 @@ llvm::Type *TypeResolver::ResolveExceptVoid(frontEnd::TokenType T) {
     return llvm::Type::getFloatTy(LLVMCtx);
   case TokenType::BOOLEAN:
     return llvm::Type::getInt8Ty(LLVMCtx);
+  case TokenType::STRING:
+    return llvm::Type::getInt8PtrTy(LLVMCtx);
   default:
     weak::CompileError() << "Wrong type: " << frontEnd::TokenToString(T);
     weak::UnreachablePoint("");

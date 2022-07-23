@@ -61,7 +61,8 @@ private:
   Visit(const frontEnd::ASTIntegerLiteral *) const override; // Implemented.
   virtual void Visit(
       const frontEnd::ASTFloatingPointLiteral *) const override; // Implemented.
-  virtual void Visit(const frontEnd::ASTStringLiteral *) const override {}
+  virtual void
+  Visit(const frontEnd::ASTStringLiteral *) const override; // Implemented.
 
   // Operators.
   virtual void

@@ -36,6 +36,107 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
 
+namespace {
+
+/// Create part (without body and return type) of function IR from AST.
+template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
+public:
+  FunctionBuilder(llvm::LLVMContext &TheCtx, llvm::Module &TheModule,
+                  const ASTFunctionDeclOrPrototype *TheDecl)
+      : Ctx(TheCtx), Module(TheModule), Decl(TheDecl) {}
+
+  llvm::Function *Build() {
+    llvm::FunctionType *Signature = CreateSignature();
+    llvm::Function *Func = llvm::Function::Create(
+        Signature, llvm::Function::ExternalLinkage, Decl->GetName(), &Module);
+
+    unsigned Idx{0U};
+    for (llvm::Argument &Arg : Func->args())
+      Arg.setName(ExtractSymbol(Decl->GetArguments()[Idx++].get()));
+
+    return Func;
+  }
+
+private:
+  llvm::FunctionType *CreateSignature() {
+    weak::middleEnd::TypeResolver TypeResolver(Ctx);
+    llvm::SmallVector<llvm::Type *, 16> ArgTypes;
+
+    for (const auto &Arg : Decl->GetArguments())
+      ArgTypes.push_back(TypeResolver.ResolveExceptVoid(Arg.get()));
+
+    llvm::FunctionType *Signature = llvm::FunctionType::get(
+        /// Return type.
+        TypeResolver.Resolve(Decl->GetReturnType()),
+        /// Arguments.
+        ArgTypes,
+        /// Variadic parameters?
+        false);
+
+    return Signature;
+  }
+
+  static const std::string &ExtractSymbol(const weak::frontEnd::ASTNode *Node) {
+    const auto *VarDecl = static_cast<const weak::frontEnd::ASTVarDecl *>(Node);
+    return VarDecl->GetSymbolName();
+  }
+
+  llvm::LLVMContext &Ctx;
+  llvm::Module &Module;
+  const ASTFunctionDeclOrPrototype *Decl;
+};
+
+} // namespace
+
+namespace {
+
+/// Create string literal (actually an array of 8-bit integers).
+class StringLiteralBuilder {
+public:
+  StringLiteralBuilder(llvm::LLVMContext &TheCtx, llvm::Module &TheModule)
+      : Ctx(TheCtx), Module(TheModule) {}
+
+  llvm::Constant *Build(std::string_view Data) {
+    llvm::Constant *DataArray = CreateDataArray(Data);
+
+    llvm::GlobalVariable *GlobalVar = new llvm::GlobalVariable(
+        Module, DataArray->getType(), true,
+        llvm::GlobalVariable::ExternalLinkage, DataArray);
+
+    return llvm::ConstantExpr::getBitCast(
+        GlobalVar, llvm::Type::getInt8Ty(Ctx)->getPointerTo());
+  }
+
+private:
+  llvm::Constant *CreateDataArray(std::string_view Data) {
+    std::vector<llvm::Constant *> Chars;
+    Chars.reserve(Data.size());
+
+    for (char C : Data) {
+      auto *CharConstantPtr =
+          llvm::ConstantInt::get(llvm::Type::getInt8Ty(Ctx), C);
+      Chars.push_back(CharConstantPtr);
+    }
+    /// Since we are working with libc, we are expecting, that all strings
+    /// will be ended with '\0'.
+    Chars.push_back(CreateNullTerminator());
+
+    llvm::Constant *DataArray = llvm::ConstantArray::get(
+        llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), Chars.size()), Chars);
+
+    return DataArray;
+  }
+
+  llvm::Constant *CreateNullTerminator() {
+    return llvm::ConstantInt::get(llvm::Type::getInt8Ty(Ctx), 0);
+  }
+
+  llvm::LLVMContext &Ctx;
+  llvm::Module &Module;
+};
+
+} // namespace
+
 namespace weak {
 namespace middleEnd {
 
@@ -66,6 +167,11 @@ void CodeGen::Visit(const frontEnd::ASTIntegerLiteral *Stmt) const {
 void CodeGen::Visit(const frontEnd::ASTFloatingPointLiteral *Stmt) const {
   llvm::APFloat Float(Stmt->GetValue());
   LastEmitted = llvm::ConstantFP::get(LLVMCtx, Float);
+}
+
+void CodeGen::Visit(const frontEnd::ASTStringLiteral *Stmt) const {
+  StringLiteralBuilder Builder(LLVMCtx, LLVMModule);
+  LastEmitted = Builder.Build(Stmt->GetValue());
 }
 
 void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
@@ -149,10 +255,7 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
 void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) const {
   Stmt->GetOperand()->Accept(this);
 
-  llvm::APInt Int(
-      /*numBits=*/32,
-      /*val=*/1,
-      /*isSigned=*/false);
+  llvm::APInt Int(32, 1, false);
   llvm::Value *Step = llvm::ConstantInt::get(LLVMCtx, Int);
 
   if (Stmt->GetOperand()->GetASTType() != frontEnd::ASTType::SYMBOL) {
@@ -296,58 +399,6 @@ void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) const {
   CodeBuilder.SetInsertPoint(MergeBB);
 }
 
-namespace {
-
-/// Create part (without body and return type) of function IR from AST.
-template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
-public:
-  FunctionBuilder(llvm::LLVMContext &TheCtx, llvm::Module &TheModule,
-                  const ASTFunctionDeclOrPrototype *TheDecl)
-      : Ctx(TheCtx), Module(TheModule), Decl(TheDecl) {}
-
-  llvm::Function *Build() {
-    llvm::FunctionType *Signature = CreateSignature();
-    llvm::Function *Func = llvm::Function::Create(
-        Signature, llvm::Function::ExternalLinkage, Decl->GetName(), &Module);
-
-    unsigned Idx{0U};
-    for (llvm::Argument &Arg : Func->args())
-      Arg.setName(ExtractSymbol(Decl->GetArguments()[Idx++].get()));
-
-    return Func;
-  }
-
-private:
-  llvm::FunctionType *CreateSignature() {
-    middleEnd::TypeResolver TypeResolver(Ctx);
-    llvm::SmallVector<llvm::Type *, 16> ArgTypes;
-
-    for (const auto &Arg : Decl->GetArguments())
-      ArgTypes.push_back(TypeResolver.ResolveExceptVoid(Arg.get()));
-
-    llvm::FunctionType *Signature = llvm::FunctionType::get(
-        // Return type.
-        TypeResolver.Resolve(Decl->GetReturnType()),
-        // Arguments.
-        ArgTypes,
-        // Variadic parameters?
-        false);
-
-    return Signature;
-  }
-
-  static const std::string &ExtractSymbol(const frontEnd::ASTNode *Node) {
-    const auto *VarDecl = static_cast<const frontEnd::ASTVarDecl *>(Node);
-    return VarDecl->GetSymbolName();
-  }
-
-  llvm::LLVMContext &Ctx;
-  llvm::Module &Module;
-  const ASTFunctionDeclOrPrototype *Decl;
-};
-
-} // namespace
-
 void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) const {
   FunctionBuilder FunctionBuilder(LLVMCtx, LLVMModule, Decl);
 
@@ -454,6 +505,15 @@ void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) const {
 
 std::string CodeGen::ToString() {
   std::string Result;
+
+  for (const auto &Global : LLVMModule.getGlobalList()) {
+    llvm::raw_string_ostream Stream(Result);
+    Stream << Global;
+    Stream << '\n';
+    Stream.flush();
+  }
+
+  Result += '\n';
 
   for (const auto &F : LLVMModule.getFunctionList()) {
     llvm::raw_string_ostream Stream(Result);
