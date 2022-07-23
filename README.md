@@ -11,104 +11,85 @@ which uses LLVM.
 * meaningful warnings and error messages;
 * API for external utilities (such as static analysis, code formatting tools).
 
-## Example
-
-The program
-```c
-int fact(int n) {
-    if ((n == 0) || (n == 1)) {
-        return 1;
-    }
-    return n * fact(n - 1);
-}
+## Command line
+Let me show how we can use it from command line:
+```
+$ cat example.wl
+// Declared in libc.
+int puts(string arg);
 
 int main() {
-    return fact(5);
+	string input = "Hello, World!";
+	return puts(input);
 }
 ```
-compiled to LLVM IR
-```asm
-define i32 @fact(i32 %n) {
-entry:
-  %0 = icmp eq i32 %n, 0
-  %1 = icmp eq i32 %n, 1
-  %2 = select i1 %0, i1 true, i1 %1
-  %condition = icmp ne i1 %2, false
-  br i1 %condition, label %if.then, label %if.end
+If we're want to view tokens:
+```
+$ ./Compiler -i example.wl -dump-lexemes
+Token                <INT>  
+Token             <SYMBOL>  puts
+Token                    (  
+Token             <STRING>  
+Token             <SYMBOL>  arg
+Token                    )  
+Token                    ;  
+Token                <INT>  
+Token             <SYMBOL>  main
+Token                    (  
+Token                    )  
+Token                    {  
+Token             <STRING>  
+Token             <SYMBOL>  input
+Token                    =  
+Token       STRING LITERAL  Hello, World!
+Token                    ;  
+Token             <RETURN>  
+Token             <SYMBOL>  puts
+Token                    (  
+Token             <SYMBOL>  input
+Token                    )  
+Token                    ;  
+Token                    }
+```
+If we're want to view syntax tree:
+```
+$ ./Compiler -i example.wl -dump-ast
+CompoundStmt <line:0, col:0>
+  FunctionPrototype <line:2, col:1> puts
+    FunctionPrototypeArgs <line:2, col:1>
+      VarDeclStmt <line:2, col:10> <STRING> arg
+  FunctionDecl <line:4, col:1>
+    FunctionDeclRetType <line:4, col:1> <INT>
+    FunctionDeclName <line:4, col:1> main
+    FunctionDeclArgs <line:4, col:1>
+    FunctionDeclBody <line:4, col:1>
+      CompoundStmt <line:4, col:12>
+        VarDeclStmt <line:5, col:2> <STRING> input
+          StringLiteral <line:5, col:17> Hello, World!
+        ReturnStmt <line:6, col:2>
+          FunctionCall <line:6, col:9> puts
+            FunctionCallArgs <line:6, col:9>
+              Symbol <line:6, col:14> input
+```
+If we're want to view LLVM IR:
+```
+$ ./Compiler -i example.wl -dump-llvm
+@0 = constant [14 x i8] c"Hello, World!\00"
 
-if.then:                                          ; preds = %entry
-  ret i32 1
-  br label %if.end
-
-if.end:                                           ; preds = %if.then, %entry
-  %4 = sub i32 %n, 1
-  %5 = call i32 @fact(i32 %4)
-  %6 = mul i32 %n, %5
-  ret i32 %6
-}
+declare i32 @puts(i8*)
 
 define i32 @main() {
 entry:
-  %0 = call i32 @fact(i32 5)
+  %input = alloca i8*, align 8
+  store i8* getelementptr inbounds ([14 x i8], [14 x i8]* @0, i32 0, i32 0), i8** %input, align 8
+  %input1 = load i8*, i8** %input, align 8
+  %0 = call i32 @puts(i8* %input1)
   ret i32 %0
 }
-
 ```
-and next can be compiled to target assembly
-```asm
-	.text
-	.file	"factorial.ll"
-	.globl	fact                    # -- Begin function fact
-	.p2align	4, 0x90
-	.type	fact,@function
-fact:                                   # @fact
-	.cfi_startproc
-# %bb.0:                                # %entry
-	testl	$-2, %edi
-	jne	.LBB0_2
-# %bb.1:                                # %if.then
-	movl	$1, %eax
-	retq
-.LBB0_2:                                # %if.end
-	pushq	%rbx
-	.cfi_def_cfa_offset 16
-	.cfi_offset %rbx, -16
-	movl	%edi, %ebx
-	leal	-1(%rbx), %edi
-	callq	fact@PLT
-	imull	%ebx, %eax
-	popq	%rbx
-	.cfi_def_cfa_offset 8
-	retq
-.Lfunc_end0:
-	.size	fact, .Lfunc_end0-fact
-	.cfi_endproc
-                                        # -- End function
-	.globl	main                    # -- Begin function main
-	.p2align	4, 0x90
-	.type	main,@function
-main:                                   # @main
-	.cfi_startproc
-# %bb.0:                                # %entry
-	pushq	%rax
-	.cfi_def_cfa_offset 16
-	movl	$5, %edi
-	callq	fact@PLT
-	popq	%rcx
-	.cfi_def_cfa_offset 8
-	retq
-.Lfunc_end1:
-	.size	main, .Lfunc_end1-main
-	.cfi_endproc
-                                        # -- End function
-	.section	".note.GNU-stack","",@progbits
+And if we're want just to get executable file:
 ```
-which successfully runs as executable file
-```
-$ strace ./binary
-...
-brk(NULL)                               = 0x55e086f32000
-brk(0x55e086f53000)                     = 0x55e086f53000
-exit_group(120)                         = ?
-+++ exited with 120 +++
+$ ./Compiler -i example.wl -o example
+$ ./example
+Hello, World!
 ```
