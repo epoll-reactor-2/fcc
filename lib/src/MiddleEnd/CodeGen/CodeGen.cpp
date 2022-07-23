@@ -148,8 +148,6 @@ CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
 void CodeGen::CreateCode(std::string_view ObjectFilePath) {
   Root->Accept(this);
 
-  llvm::outs() << "Compiled code:\n" << ToString();
-
   TargetCodeBuilder TargetBuilder(LLVMModule, ObjectFilePath);
   TargetBuilder.Build();
 }
