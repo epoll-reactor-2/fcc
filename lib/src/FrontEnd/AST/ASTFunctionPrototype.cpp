@@ -19,7 +19,7 @@ ASTFunctionPrototype::ASTFunctionPrototype(
       Name(std::move(TheName)), Arguments(std::move(TheArguments)) {}
 
 ASTType ASTFunctionPrototype::GetASTType() const {
-  return ASTType::FUNCTION_DECL;
+  return ASTType::FUNCTION_PROTOTYPE;
 }
 
 void ASTFunctionPrototype::Accept(const ASTVisitor *Visitor) const {
