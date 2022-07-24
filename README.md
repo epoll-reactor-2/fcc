@@ -6,10 +6,12 @@ This is an implementation of simple (or not so simple, XD) compiler,
 which uses LLVM.
 
 ## TODO
-* Complete code generation;
-* graph-based optimizations;
-* meaningful warnings and error messages;
-* API for external utilities (such as static analysis, code formatting tools).
+* Preprocessing;
+* something similar to standard library (libc wrappers);
+* well-defined type system;
+* scopes;
+* handling of multiple definitions;
+* graph-based optimizations.
 
 ## Command line
 Let me show how we can use it from command line:
