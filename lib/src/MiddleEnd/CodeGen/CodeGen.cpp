@@ -26,6 +26,7 @@
 #include "FrontEnd/AST/ASTVarDecl.hpp"
 #include "FrontEnd/AST/ASTWhileStmt.hpp"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
+#include "MiddleEnd/CodeGen/TypeCheck.hpp"
 #include "MiddleEnd/CodeGen/TypeResolver.hpp"
 #include "Utility/Diagnostic.hpp"
 #include "llvm/ADT/APFloat.h"
@@ -182,6 +183,9 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
 
   if (!L || !R)
     return;
+
+  TypeCheck TypeChecker;
+  TypeChecker.AssertSame(Stmt, L, R);
 
   using frontEnd::TokenType;
   switch (auto T = Stmt->GetOperation()) {

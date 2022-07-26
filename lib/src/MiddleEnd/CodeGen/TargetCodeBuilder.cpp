@@ -42,6 +42,8 @@ static void Link(std::string_view Filename, std::string_view OutObjectPath) {
   CompileCmd += Filename;
   CompileCmd += " -o ";
   CompileCmd += OutObjectPath;
+  CompileCmd += " && strace ./";
+  CompileCmd += OutObjectPath;
   system(CompileCmd.c_str());
 }
 
