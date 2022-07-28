@@ -154,7 +154,7 @@ void CodeGen::CreateCode(std::string_view ObjectFilePath) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTBooleanLiteral *Stmt) const {
-  llvm::APInt Int(8, Stmt->GetValue(), false);
+  llvm::APInt Int(1, Stmt->GetValue(), false);
   LastEmitted = llvm::ConstantInt::get(LLVMCtx, Int);
 }
 
@@ -248,8 +248,9 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
     break;
   default:
     LastEmitted = nullptr;
-    weak::CompileError() << "Invalid binary operator: "
-                         << frontEnd::TokenToString(T);
+
+    EmitLocalizedCompileError(Stmt)
+        << "Invalid binary operator: " << frontEnd::TokenToString(T);
     break;
   }
 }
@@ -261,7 +262,8 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) const {
   llvm::Value *Step = llvm::ConstantInt::get(LLVMCtx, Int);
 
   if (Stmt->GetOperand()->GetASTType() != frontEnd::ASTType::SYMBOL) {
-    weak::CompileError() << "Variable as argument of unary operator expected";
+    EmitLocalizedCompileError(Stmt)
+        << "Variable as argument of unary operator expected";
     return;
   }
 
@@ -286,9 +288,7 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) const {
     break;
   }
   default: {
-    unsigned LineNo = Stmt->GetLineNo();
-    unsigned ColumnNo = Stmt->GetColumnNo();
-    weak::CompileError(LineNo, ColumnNo) << "Unknown unary operator.";
+    EmitLocalizedCompileError(Stmt) << "Unknown unary operator.";
     break;
   }
   } // switch
@@ -427,15 +427,16 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) const {
 void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
   llvm::Function *Callee = LLVMModule.getFunction(Stmt->GetName());
   if (!Callee) {
-    weak::CompileError() << "Unknown function: " << Stmt->GetName();
+    EmitLocalizedCompileError(Stmt) << "Unknown function: " << Stmt->GetName();
     return;
   }
 
   const auto &FunArgs = Stmt->GetArguments();
 
   if (Callee->arg_size() != FunArgs.size()) {
-    weak::CompileError() << "Arguments size mismatch (" << Callee->arg_size()
-                         << " vs " << FunArgs.size() << ")";
+    EmitLocalizedCompileError(Stmt)
+        << "Arguments size mismatch (" << Callee->arg_size() << " vs "
+        << FunArgs.size() << ")";
     return;
   }
 
@@ -460,7 +461,8 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) const {
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) const {
   llvm::Value *V = VariablesMapping[Stmt->GetName()];
   if (!V) {
-    weak::CompileError() << "Unknown variable name: " << Stmt->GetName();
+    EmitLocalizedCompileError(Stmt)
+        << "Unknown variable name: " << Stmt->GetName();
     return;
   }
 

@@ -5,6 +5,7 @@
  */
 
 #include "Utility/Diagnostic.hpp"
+#include "FrontEnd/AST/ASTNode.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -84,4 +85,11 @@ weak::OstreamRAII weak::CompileError() {
 
 weak::OstreamRAII weak::CompileError(unsigned LineNo, unsigned ColumnNo) {
   return MakeMessage(Diagnostic::DiagLevel::ERROR, LineNo, ColumnNo);
+}
+
+weak::OstreamRAII
+weak::EmitLocalizedCompileError(const weak::frontEnd::ASTNode *Node) {
+  unsigned LineNo = Node->GetLineNo();
+  unsigned ColumnNo = Node->GetColumnNo();
+  return weak::CompileError(LineNo, ColumnNo);
 }

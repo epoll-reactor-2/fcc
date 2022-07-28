@@ -25,12 +25,14 @@ public:
   TypeResolver(llvm::LLVMContext &);
 
   /// Convert given parameter (including void) to corresponding LLVM type.
-  llvm::Type *Resolve(frontEnd::TokenType);
+  llvm::Type *Resolve(frontEnd::TokenType, unsigned LineNo = 0U,
+                      unsigned ColumnNo = 0U);
   /// \copydoc TypeResolver::Resolve(frontEnd::TokenType)
   llvm::Type *Resolve(const frontEnd::ASTNode *);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
-  llvm::Type *ResolveExceptVoid(frontEnd::TokenType);
+  llvm::Type *ResolveExceptVoid(frontEnd::TokenType, unsigned LineNo = 0U,
+                                unsigned ColumnNo = 0U);
   /// \copydoc TypeResolver::ResolveExceptVoid(frontEnd::TokenType)
   llvm::Type *ResolveExceptVoid(const frontEnd::ASTNode *);
 

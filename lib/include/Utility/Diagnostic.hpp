@@ -12,6 +12,12 @@
 class Diagnostic;
 
 namespace weak {
+namespace frontEnd {
+class ASTNode;
+} // namespace frontEnd
+} // namespace weak
+
+namespace weak {
 
 /// This requires the string as first argument in diagnostic messages.
 struct OstreamRAII {
@@ -34,6 +40,12 @@ OstreamRAII CompileError();
 
 /// Print diagnostic message with ERROR flag and terminate program.
 OstreamRAII CompileError(unsigned LineNo, unsigned ColumnNo);
+
+/// Print diagnostic message (with position in text) with ERROR flag and
+/// terminate program.
+/// \param Node used to extract line and column number.
+weak::OstreamRAII
+EmitLocalizedCompileError(const weak::frontEnd::ASTNode *Node);
 
 } // namespace weak
 

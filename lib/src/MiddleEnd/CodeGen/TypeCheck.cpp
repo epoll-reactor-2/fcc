@@ -17,9 +17,7 @@ void TypeCheck::AssertSame(const frontEnd::ASTNode *Node, llvm::Value *L,
   if (L->getType() == R->getType())
     return;
 
-  unsigned LineNo = Node->GetLineNo();
-  unsigned ColumnNo = Node->GetColumnNo();
-  weak::CompileError(LineNo, ColumnNo)
+  EmitLocalizedCompileError(Node)
       << "Type mismatch: " << TypeToString(L->getType()) << " and "
       << TypeToString(R->getType());
 }
