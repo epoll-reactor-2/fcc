@@ -25,12 +25,25 @@ void RunFromFile(std::string_view Path) {
 
   using namespace std::string_view_literals;
   if (TargetPath.substr(0, "ExpectError"sv.size()) == "ExpectError") {
+    if (Program.substr(0, 3) != "// ") {
+      llvm::errs() << "Expected comment with error message";
+      exit(-1);
+    }
+
+    std::string ExpectedErrorMsg = Program.substr(
+        "// "sv.length(), Program.find_first_of('\n') - "// "sv.length());
+
     try {
       CodeGen.CreateCode(TargetPath);
-      llvm::errs() << "Expected error!";
+      llvm::errs() << "Expected error";
       exit(-1);
     } catch (std::exception &Error) {
-      llvm::errs() << "Catched expected error: " << Error.what() << '\n';
+      if (std::string(Error.what()) != ExpectedErrorMsg) {
+        llvm::errs() << "Errors mismatch:\n\t" << Error.what()
+          << "\ngot, but\n\t" << ExpectedErrorMsg << "\nexpected";
+        exit(-1);
+      }
+      llvm::errs() << "Caught expected error: " << Error.what() << '\n';
     }
   } else {
     CodeGen.CreateCode(TargetPath);
