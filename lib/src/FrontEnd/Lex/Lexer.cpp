@@ -154,7 +154,7 @@ namespace frontEnd {
 
 Lexer::Lexer(const char *TheBufferStart, const char *TheBufferEnd)
     : BufferStart(TheBufferStart), BufferEnd(TheBufferEnd),
-      CurrentBufferPtr(TheBufferStart), CurrentLineNo(0U), CurrentColumnNo(0U) {
+      CurrentBufferPtr(TheBufferStart), CurrentLineNo(1U), CurrentColumnNo(1U) {
   assert(BufferStart);
   assert(BufferEnd);
   assert(BufferStart <= BufferEnd);
@@ -189,7 +189,7 @@ const std::vector<Token> &Lexer::Analyze() {
 Token Lexer::AnalyzeDigit() {
   std::string Digit;
   bool DotErrorOccurred = false;
-  unsigned DotErrorColumn = 0U;
+  unsigned DotErrorColumn = 1U;
   unsigned DotsReached = 0U;
 
   while (std::isdigit(PeekCurrent()) || PeekCurrent() == '.') {
@@ -251,8 +251,8 @@ Token Lexer::AnalyzeSymbol() {
   if (LexKeywords.find(Symbol) != LexKeywords.end())
     return MakeToken("", LexKeywords.at(Symbol));
 
-  unsigned LineNo = CurrentLineNo + 1;
-  unsigned ColumnNo = CurrentColumnNo + 1;
+  unsigned LineNo = CurrentLineNo;
+  unsigned ColumnNo = CurrentColumnNo;
 
   NormalizeColumnPosition(Symbol, TokenType::SYMBOL, ColumnNo);
 
@@ -261,7 +261,7 @@ Token Lexer::AnalyzeSymbol() {
 
 Token Lexer::AnalyzeOperator() {
   std::string Operator(1, PeekNext());
-  unsigned SavedColumnNo = 0U;
+  unsigned SavedColumnNo = 1U;
   bool SearchFailed = false;
   char WrongOperator = '\0';
 
@@ -271,7 +271,7 @@ Token Lexer::AnalyzeOperator() {
       Operator.pop_back();
       --CurrentBufferPtr;
 
-      if (CurrentColumnNo > 0U)
+      if (CurrentColumnNo > 1U)
         --CurrentColumnNo;
 
       if (PeekCurrent() == '\n')
@@ -284,7 +284,7 @@ Token Lexer::AnalyzeOperator() {
     char Next = *CurrentBufferPtr++;
     SavedColumnNo = CurrentColumnNo;
     if (Next == '\n') {
-      CurrentColumnNo = 0U;
+      CurrentColumnNo = 1U;
       CurrentLineNo++;
     }
     ++CurrentColumnNo;
@@ -292,8 +292,8 @@ Token Lexer::AnalyzeOperator() {
   }
 
   if (SearchFailed && !Operator.empty()) {
-    return Token("", LexOperators.at(Operator), CurrentLineNo + 1,
-                 SavedColumnNo - Operator.length() + 1);
+    return Token("", LexOperators.at(Operator), CurrentLineNo,
+                 SavedColumnNo - Operator.length());
   }
 
   --CurrentColumnNo;
@@ -349,7 +349,7 @@ char Lexer::PeekNext() {
   char Atom = *CurrentBufferPtr++;
   if (Atom == '\n') {
     CurrentLineNo++;
-    CurrentColumnNo = 0U;
+    CurrentColumnNo = 1U;
   } else {
     CurrentColumnNo++;
   }
@@ -359,8 +359,8 @@ char Lexer::PeekNext() {
 char Lexer::PeekCurrent() const { return *CurrentBufferPtr; }
 
 Token Lexer::MakeToken(std::string_view Data, TokenType Type) const {
-  unsigned LineNo = CurrentLineNo + 1;
-  unsigned ColumnNo = CurrentColumnNo + 1;
+  unsigned LineNo = CurrentLineNo;
+  unsigned ColumnNo = CurrentColumnNo;
 
   NormalizeColumnPosition(Data, Type, ColumnNo);
   return Token(Data, Type, LineNo, ColumnNo);

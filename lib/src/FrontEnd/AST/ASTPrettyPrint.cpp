@@ -34,7 +34,7 @@ namespace {
 
 class ASTPrintVisitor : public ASTVisitor {
 public:
-  ASTPrintVisitor(ASTNode *TheRootNode, std::ostream &TheOutStream)
+  ASTPrintVisitor(const ASTNode *TheRootNode, std::ostream &TheOutStream)
       : RootNode(TheRootNode), Indent(0U), OutStream(TheOutStream) {}
 
   void Print() { RootNode->Accept(this); }
@@ -367,7 +367,7 @@ private:
 
   void PrintIndent() const { OutStream << std::string(Indent, ' '); }
 
-  ASTNode *RootNode;
+  const ASTNode *RootNode;
   mutable unsigned Indent;
   std::ostream &OutStream;
 };
@@ -376,10 +376,15 @@ private:
 
 namespace weak {
 
+void frontEnd::ASTPrettyPrint(const ASTNode *RootNode,
+                              std::ostream &OutStream) {
+  ASTPrintVisitor Printer(RootNode, OutStream);
+  Printer.Print();
+}
+
 void frontEnd::ASTPrettyPrint(const std::unique_ptr<ASTNode> &RootNode,
                               std::ostream &OutStream) {
-  ASTPrintVisitor Printer(RootNode.get(), OutStream);
-  Printer.Print();
+  ASTPrettyPrint(RootNode.get(), OutStream);
 }
 
 } // namespace weak

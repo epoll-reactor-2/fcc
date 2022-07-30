@@ -18,6 +18,9 @@ namespace frontEnd {
 void ASTPrettyPrint(const std::unique_ptr<ASTNode> &RootNode,
                     std::ostream &OutStream);
 
+/// \copydoc ASTPrettyPrint(const std::unique_ptr<ASTNode> &, std::ostream &)
+void ASTPrettyPrint(const ASTNode *RootNode, std::ostream &OutStream);
+
 } // namespace frontEnd
 } // namespace weak
 

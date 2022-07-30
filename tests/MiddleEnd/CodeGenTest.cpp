@@ -18,6 +18,7 @@ void RunFromFile(std::string_view Path) {
   auto Tokens = Lex.Analyze();
   fe::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
+
   me::CodeGen CodeGen(AST.get());
 
   std::string TargetPath(Path.substr(Path.find_last_of('/') + 1));

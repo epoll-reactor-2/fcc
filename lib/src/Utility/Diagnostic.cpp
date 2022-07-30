@@ -24,7 +24,7 @@ public:
 
   void EmitLabel() {
     ErrBuf << ((Level == DiagLevel::ERROR) ? "ERROR" : "WARN");
-    ErrBuf << " at line " << LineNo + 1 << ", column " << ColumnNo + 1 << ": ";
+    ErrBuf << " at line " << LineNo << ", column " << ColumnNo << ": ";
   }
 
   void EmitEmptyLabel() {
