@@ -20,9 +20,8 @@ TypeResolver::TypeResolver(llvm::LLVMContext &TheLLVMCtx)
 const frontEnd::ASTVarDecl *
 TypeResolver::GetVarDecl(const frontEnd::ASTNode *Node) {
   using frontEnd::ASTType;
-  if (Node->GetASTType() != ASTType::VAR_DECL) {
-    EmitLocalizedCompileError(Node) << "Expected parameter";
-  }
+  if (Node->GetASTType() != ASTType::VAR_DECL)
+    weak::CompileError(Node) << "Expected parameter";
 
   const auto *Decl = static_cast<const frontEnd::ASTVarDecl *>(Node);
   return Decl;

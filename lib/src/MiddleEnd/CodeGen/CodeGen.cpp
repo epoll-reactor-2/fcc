@@ -270,7 +270,7 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
   default:
     LastEmitted = nullptr;
 
-    EmitLocalizedCompileError(Stmt)
+    weak::CompileError(Stmt)
         << "Invalid binary operator: " << frontEnd::TokenToString(T);
     break;
   }
@@ -283,7 +283,7 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) const {
   llvm::Value *Step = llvm::ConstantInt::get(LLVMCtx, Int);
 
   if (Stmt->GetOperand()->GetASTType() != frontEnd::ASTType::SYMBOL) {
-    EmitLocalizedCompileError(Stmt)
+    weak::CompileError(Stmt)
         << "Variable as argument of unary operator expected";
     return;
   }
@@ -309,7 +309,7 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) const {
     break;
   }
   default: {
-    EmitLocalizedCompileError(Stmt) << "Unknown unary operator.";
+    weak::CompileError(Stmt) << "Unknown unary operator.";
     break;
   }
   } // switch
@@ -454,14 +454,14 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) const {
 void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
   llvm::Function *Callee = LLVMModule.getFunction(Stmt->GetName());
   if (!Callee) {
-    EmitLocalizedCompileError(Stmt) << "Unknown function: " << Stmt->GetName();
+    weak::CompileError(Stmt) << "Unknown function: " << Stmt->GetName();
     return;
   }
 
   const auto &FunArgs = Stmt->GetArguments();
 
   if (Callee->arg_size() != FunArgs.size()) {
-    EmitLocalizedCompileError(Stmt)
+    weak::CompileError(Stmt)
         << "Arguments size mismatch (" << Callee->arg_size() << " vs "
         << FunArgs.size() << ")";
     return;
@@ -493,8 +493,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) const {
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) const {
   llvm::Value *V = VariablesMapping[Stmt->GetName()];
   if (!V) {
-    EmitLocalizedCompileError(Stmt)
-        << "Unknown variable name: " << Stmt->GetName();
+    weak::CompileError(Stmt) << "Unknown variable name: " << Stmt->GetName();
     return;
   }
 

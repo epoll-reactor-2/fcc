@@ -87,8 +87,7 @@ weak::OstreamRAII weak::CompileError(unsigned LineNo, unsigned ColumnNo) {
   return MakeMessage(Diagnostic::DiagLevel::ERROR, LineNo, ColumnNo);
 }
 
-weak::OstreamRAII
-weak::EmitLocalizedCompileError(const weak::frontEnd::ASTNode *Node) {
+weak::OstreamRAII weak::CompileError(const weak::frontEnd::ASTNode *Node) {
   unsigned LineNo = Node->GetLineNo();
   unsigned ColumnNo = Node->GetColumnNo();
   return weak::CompileError(LineNo, ColumnNo);

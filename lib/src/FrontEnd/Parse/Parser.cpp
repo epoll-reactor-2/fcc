@@ -52,7 +52,7 @@ std::unique_ptr<ASTCompoundStmt> Parser::Parse() {
       GlobalEntities.push_back(ParseFunctionDecl());
       break;
     default:
-      CompileError(Current.LineNo, Current.ColumnNo)
+      weak::CompileError(Current.LineNo, Current.ColumnNo)
           << "Functions as global statements supported only.";
       break;
     }
@@ -67,7 +67,7 @@ std::unique_ptr<ASTNode> Parser::ParseFunctionDecl() {
   std::vector<std::unique_ptr<ASTNode>> ParameterList;
 
   if (FunctionName.Type != TokenType::SYMBOL)
-    CompileError(FunctionName.LineNo, FunctionName.ColumnNo)
+    weak::CompileError(FunctionName.LineNo, FunctionName.ColumnNo)
         << "Function name expected.";
 
   Require(TokenType::OPEN_PAREN);
@@ -129,9 +129,9 @@ std::unique_ptr<ASTNode> Parser::ParseVarDecl() {
                                         ParseLogicalOr(), DataType.LineNo,
                                         DataType.ColumnNo);
 
-  CompileError(Current.LineNo, Current.ColumnNo)
+  weak::CompileError(Current.LineNo, Current.ColumnNo)
       << "Assignment operator expected.";
-  UnreachablePoint();
+  weak::UnreachablePoint();
 }
 
 const Token &Parser::ParseType() {
@@ -144,8 +144,9 @@ const Token &Parser::ParseType() {
     PeekNext();
     return Current;
   default:
-    CompileError(Current.LineNo, Current.ColumnNo) << "Data type expected.";
-    UnreachablePoint();
+    weak::CompileError(Current.LineNo, Current.ColumnNo)
+        << "Data type expected.";
+    weak::UnreachablePoint();
   }
 }
 
@@ -162,7 +163,7 @@ std::unique_ptr<ASTNode> Parser::ParseParameter() {
   const Token &VariableName = PeekNext();
 
   if (VariableName.Type != TokenType::SYMBOL)
-    CompileError(VariableName.LineNo, VariableName.ColumnNo)
+    weak::CompileError(VariableName.LineNo, VariableName.ColumnNo)
         << "Variable name expected.";
 
   return std::make_unique<ASTVarDecl>(
@@ -271,9 +272,9 @@ std::unique_ptr<ASTNode> Parser::ParseStatement() {
   case TokenType::DEC: // Fall through.
     return ParsePrefixUnary();
   default:
-    CompileError(Current.LineNo, Current.ColumnNo)
+    weak::CompileError(Current.LineNo, Current.ColumnNo)
         << "Unexpected token: " << TokenToString(Current.Type);
-    UnreachablePoint();
+    weak::UnreachablePoint();
   }
 }
 
@@ -305,7 +306,7 @@ std::unique_ptr<ASTNode> Parser::ParseIterationStatement() {
   case TokenType::WHILE:
     return ParseWhileStatement();
   default:
-    UnreachablePoint("Should not reach here.");
+    weak::UnreachablePoint("Should not reach here.");
   }
 }
 
@@ -722,8 +723,8 @@ std::unique_ptr<ASTNode> Parser::ParseConstant() {
         Current.Type == TokenType::TRUE, Current.LineNo, Current.ColumnNo);
 
   default:
-    CompileError(Current.LineNo, Current.ColumnNo) << "Literal expected.";
-    UnreachablePoint();
+    weak::CompileError(Current.LineNo, Current.ColumnNo) << "Literal expected.";
+    weak::UnreachablePoint();
   }
 }
 
@@ -778,10 +779,10 @@ const Token &Parser::Require(const std::vector<TokenType> &Expected) {
     /// token.
     return *(CurrentBufferPtr - 1);
 
-  CompileError(CurrentBufferPtr->LineNo, CurrentBufferPtr->ColumnNo)
+  weak::CompileError(CurrentBufferPtr->LineNo, CurrentBufferPtr->ColumnNo)
       << "Expected " << TokensToString(Expected) << ", got "
       << TokenToString(CurrentBufferPtr->Type);
-  UnreachablePoint();
+  weak::UnreachablePoint();
 }
 
 const Token &Parser::Require(TokenType Expected) {
@@ -789,11 +790,9 @@ const Token &Parser::Require(TokenType Expected) {
 }
 
 void Parser::CheckIfHaveMoreTokens() const {
-  if (CurrentBufferPtr == BufferEnd) {
-    CompileError(CurrentBufferPtr->LineNo, CurrentBufferPtr->LineNo)
+  if (CurrentBufferPtr == BufferEnd)
+    weak::CompileError(CurrentBufferPtr->LineNo, CurrentBufferPtr->LineNo)
         << "End of buffer reached.";
-    UnreachablePoint();
-  }
 }
 
 } // namespace frontEnd

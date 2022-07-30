@@ -44,8 +44,7 @@ OstreamRAII CompileError(unsigned LineNo, unsigned ColumnNo);
 /// Print diagnostic message (with position in text) with ERROR flag and
 /// terminate program.
 /// \param Node used to extract line and column number.
-weak::OstreamRAII
-EmitLocalizedCompileError(const weak::frontEnd::ASTNode *Node);
+weak::OstreamRAII CompileError(const weak::frontEnd::ASTNode *Node);
 
 } // namespace weak
 

@@ -297,9 +297,9 @@ Token Lexer::AnalyzeOperator() {
   }
 
   --CurrentColumnNo;
-  CompileError(CurrentLineNo, CurrentColumnNo)
+  weak::CompileError(CurrentLineNo, CurrentColumnNo)
       << "Unknown character sequence: " << WrongOperator;
-  UnreachablePoint();
+  weak::UnreachablePoint();
 }
 
 void Lexer::ProcessComment() {
