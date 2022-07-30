@@ -14,12 +14,17 @@ namespace middleEnd {
 
 void TypeCheck::AssertSame(const frontEnd::ASTNode *Node, llvm::Value *L,
                            llvm::Value *R) {
-  if (L->getType() == R->getType())
+  AssertSame(Node, L->getType(), R->getType());
+}
+
+void TypeCheck::AssertSame(const frontEnd::ASTNode *Node, llvm::Type *L,
+                           llvm::Type *R) {
+  if (L == R)
     return;
 
   EmitLocalizedCompileError(Node)
-      << "Type mismatch: " << TypeToString(L->getType()) << " and "
-      << TypeToString(R->getType());
+      << "Type mismatch: " << TypeToString(L) << " got, but " << TypeToString(R)
+      << " expected";
 }
 
 std::string TypeCheck::TypeToString(llvm::Type *T) {

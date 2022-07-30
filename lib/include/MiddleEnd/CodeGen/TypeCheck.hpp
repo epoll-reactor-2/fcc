@@ -23,6 +23,8 @@ public:
   /// Ensure that given types are same or emit compile error on mismatch.
   void AssertSame(const frontEnd::ASTNode *Node, llvm::Value *L,
                   llvm::Value *R);
+  /// Ensure that given types are same or emit compile error on mismatch.
+  void AssertSame(const frontEnd::ASTNode *Node, llvm::Type *L, llvm::Type *R);
 
 private:
   static std::string TypeToString(llvm::Type *T);

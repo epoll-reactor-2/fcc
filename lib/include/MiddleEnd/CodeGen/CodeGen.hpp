@@ -55,61 +55,44 @@ public:
 
 private:
   // Literals.
-  virtual void
-  Visit(const frontEnd::ASTBooleanLiteral *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTIntegerLiteral *) const override; // Implemented.
-  virtual void Visit(
-      const frontEnd::ASTFloatingPointLiteral *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTStringLiteral *) const override; // Implemented.
+  virtual void Visit(const frontEnd::ASTBooleanLiteral *) const override;
+  virtual void Visit(const frontEnd::ASTIntegerLiteral *) const override;
+  virtual void Visit(const frontEnd::ASTFloatingPointLiteral *) const override;
+  virtual void Visit(const frontEnd::ASTStringLiteral *) const override;
 
   // Operators.
-  virtual void
-  Visit(const frontEnd::ASTBinaryOperator *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTUnaryOperator *) const override; // Implemented.
+  virtual void Visit(const frontEnd::ASTBinaryOperator *) const override;
+  virtual void Visit(const frontEnd::ASTUnaryOperator *) const override;
 
   // Inside-loop statements.
   virtual void Visit(const frontEnd::ASTBreakStmt *) const override {}
   virtual void Visit(const frontEnd::ASTContinueStmt *) const override {}
 
   // Loop statements.
-  virtual void
-  Visit(const frontEnd::ASTForStmt *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTWhileStmt *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTDoWhileStmt *) const override; // Implemented.
+  virtual void Visit(const frontEnd::ASTForStmt *) const override;
+  virtual void Visit(const frontEnd::ASTWhileStmt *) const override;
+  virtual void Visit(const frontEnd::ASTDoWhileStmt *) const override;
 
   // Condition statements.
-  virtual void
-  Visit(const frontEnd::ASTIfStmt *) const override; // Implemented.
+  virtual void Visit(const frontEnd::ASTIfStmt *) const override;
 
   // Function statements.
-  virtual void
-  Visit(const frontEnd::ASTFunctionDecl *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTFunctionCall *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTFunctionPrototype *) const override; // Implemented.
+  virtual void Visit(const frontEnd::ASTFunctionDecl *) const override;
+  virtual void Visit(const frontEnd::ASTFunctionCall *) const override;
+  virtual void Visit(const frontEnd::ASTFunctionPrototype *) const override;
 
   // The rest.
-  virtual void
-  Visit(const frontEnd::ASTSymbol *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTCompoundStmt *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTReturnStmt *) const override; // Implemented.
-  virtual void
-  Visit(const frontEnd::ASTVarDecl *) const override; // Implemented.
+  virtual void Visit(const frontEnd::ASTSymbol *) const override;
+  virtual void Visit(const frontEnd::ASTCompoundStmt *) const override;
+  virtual void Visit(const frontEnd::ASTReturnStmt *) const override;
+  virtual void Visit(const frontEnd::ASTVarDecl *) const override;
 
   frontEnd::ASTNode *Root;
   mutable llvm::Value *LastEmitted;
   mutable llvm::LLVMContext LLVMCtx;
   mutable llvm::Module LLVMModule;
   mutable llvm::IRBuilder<> CodeBuilder;
-  mutable std::map<std::string, llvm::Value *> VariablesMapping;
+  mutable std::map<std::string, llvm::AllocaInst *> VariablesMapping;
   mutable bool IsReturnValue;
 };
 

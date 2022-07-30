@@ -138,6 +138,27 @@ private:
 
 } // namespace
 
+namespace {
+
+// Create temporary alloca instruction. Used to generate function parameters.
+class TemporaryAllocaBuilder {
+public:
+  TemporaryAllocaBuilder(llvm::Function *TheFunc)
+      : Func(TheFunc),
+        CodeBuilder(&Func->getEntryBlock(), Func->getEntryBlock().begin()) {}
+
+  llvm::AllocaInst *Build(llvm::Type *Type, std::string_view Name) {
+    llvm::AllocaInst *Alloca = CodeBuilder.CreateAlloca(Type, nullptr, Name);
+    return Alloca;
+  }
+
+private:
+  llvm::Function *Func;
+  llvm::IRBuilder<> CodeBuilder;
+};
+
+} // namespace
+
 namespace weak {
 namespace middleEnd {
 
@@ -408,9 +429,15 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) const {
   llvm::BasicBlock *CFGBlock = llvm::BasicBlock::Create(LLVMCtx, "entry", Func);
   CodeBuilder.SetInsertPoint(CFGBlock);
 
+  TemporaryAllocaBuilder AllocaBuilder(Func);
+
   VariablesMapping.clear();
-  for (auto &Arg : Func->args())
-    VariablesMapping.emplace(Arg.getName(), &Arg);
+  for (auto &Arg : Func->args()) {
+    llvm::AllocaInst *Alloca =
+        AllocaBuilder.Build(Arg.getType(), Arg.getName().str());
+    CodeBuilder.CreateStore(&Arg, Alloca);
+    VariablesMapping.emplace(Arg.getName().str(), Alloca);
+  }
 
   Decl->GetBody()->Accept(this);
 
@@ -442,10 +469,17 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
 
   llvm::SmallVector<llvm::Value *, 16> Args;
   for (size_t I = 0; I < FunArgs.size(); ++I) {
-    FunArgs.at(I)->Accept(this);
+    const auto *AST = FunArgs[I].get();
+
+    AST->Accept(this);
+
+    auto *InstrType = LastEmitted->getType();
+    auto *ExpectedType = Callee->getArg(I)->getType();
+
+    TypeCheck TypeChecker;
+    TypeChecker.AssertSame(AST, InstrType, ExpectedType);
+
     Args.push_back(LastEmitted);
-    if (!Args.back())
-      return;
   }
 
   LastEmitted = CodeBuilder.CreateCall(Callee, Args);
@@ -453,9 +487,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
 
 void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) const {
   FunctionBuilder FunctionBuilder(LLVMCtx, LLVMModule, Stmt);
-
-  llvm::Function *Func = FunctionBuilder.Build();
-  VariablesMapping.emplace(Stmt->GetName(), Func);
+  FunctionBuilder.Build();
 }
 
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) const {
