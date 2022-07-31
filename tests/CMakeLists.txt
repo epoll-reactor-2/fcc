@@ -30,20 +30,23 @@ function(DeleteOldInputFiles)
   endforeach()
 endfunction()
 
-function(CopyInputFiles)
-  file(GLOB_RECURSE input_files "*.wl")
-  foreach (file ${input_files})
+function(CopyInputFiles SourcePath TargetPath)
+  message(STATUS "SourcePath = ${SourcePath}")
+  message(STATUS "TargetPath = ${TargetPath}")
+  file(GLOB_RECURSE InputFiles "${SourcePath}/*.wl")
+  foreach (file ${InputFiles})
     get_filename_component(name ${file} NAME_WE)
-    message(STATUS "Put test file to: ${CMAKE_CURRENT_BINARY_DIR}/${name}")
+    message(STATUS "Put test file to: ${CMAKE_CURRENT_BINARY_DIR}/${TargetPath}/${name}")
     file(
       COPY ${file}
-      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${TargetPath}
     )
   endforeach()
 endfunction()
 
 DeleteOldInputFiles()
-CopyInputFiles()
+CopyInputFiles("FrontEnd/Input/Parser" "Parser")
+CopyInputFiles("MiddleEnd/Input/CodeGen" "CodeGen")
 
 file(GLOB_RECURSE test_files "*.cpp")
 foreach(file ${test_files})
