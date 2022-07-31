@@ -14,8 +14,7 @@ class Diagnostic {
 public:
   enum struct DiagLevel { WARN, ERROR } const Level;
 
-  Diagnostic(enum DiagLevel TheLevel)
-      : Level(TheLevel) {}
+  Diagnostic(enum DiagLevel TheLevel) : Level(TheLevel) {}
 
   static void ClearErrBuf() { std::ostringstream().swap(ErrBuf); }
 
@@ -29,8 +28,6 @@ public:
     ErrBuf << ": ";
   }
 
-//  unsigned LineNo;
-//  unsigned ColumnNo;
   static inline std::ostringstream ErrBuf;
 };
 

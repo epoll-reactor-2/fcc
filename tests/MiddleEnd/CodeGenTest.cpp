@@ -9,7 +9,7 @@ namespace fe = weak::frontEnd;
 namespace me = weak::middleEnd;
 
 void RunFromFile(std::string_view Path) {
-  llvm::errs() << "Testing file " << Path << "...\n";
+  llvm::outs() << "Testing file " << Path << "...\n";
   std::ifstream File(Path.data());
   std::string Program(
     (std::istreambuf_iterator<char>(File)),
@@ -44,20 +44,18 @@ void RunFromFile(std::string_view Path) {
           << "\ngot, but\n\t" << ExpectedErrorMsg << "\nexpected";
         exit(-1);
       }
-      llvm::errs() << "Caught expected error: " << Error.what() << '\n';
+      llvm::outs() << "Caught expected error: " << Error.what() << '\n';
     }
   } else {
     CodeGen.CreateCode(TargetPath);
-    llvm::errs() << CodeGen.ToString();
+    llvm::outs() << CodeGen.ToString();
   }
 }
 
 int main() {
   auto Directory = std::filesystem::directory_iterator(
     std::filesystem::current_path());
-  for (const auto &File : Directory) {
-    if (File.path().extension() == ".wl") {
+  for (const auto &File : Directory)
+    if (File.path().extension() == ".wl")
       RunFromFile(File.path().native());
-    }
-  }
 }

@@ -462,8 +462,8 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
 
   if (Callee->arg_size() != FunArgs.size()) {
     weak::CompileError(Stmt)
-        << "Arguments size mismatch (" << Callee->arg_size() << " vs "
-        << FunArgs.size() << ")";
+        << "Arguments size mismatch: " << FunArgs.size() << " got, but "
+        << Callee->arg_size() << " expected";
     return;
   }
 
@@ -493,7 +493,8 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) const {
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) const {
   llvm::Value *V = VariablesMapping[Stmt->GetName()];
   if (!V) {
-    weak::CompileError(Stmt) << "Unknown variable name: " << Stmt->GetName();
+    weak::CompileError(Stmt)
+        << "Variable `" << Stmt->GetName() << "` not found";
     return;
   }
 
