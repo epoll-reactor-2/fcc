@@ -19,12 +19,12 @@ public:
   static void ClearErrBuf() { std::ostringstream().swap(ErrBuf); }
 
   void EmitLabel(unsigned LineNo, unsigned ColumnNo) {
-    ErrBuf << ((Level == DiagLevel::ERROR) ? "ERROR" : "WARN");
+    ErrBuf << ((Level == DiagLevel::ERROR) ? "Error" : "Warning");
     ErrBuf << " at line " << LineNo << ", column " << ColumnNo << ": ";
   }
 
   void EmitEmptyLabel() {
-    ErrBuf << ((Level == DiagLevel::ERROR) ? "ERROR" : "WARN");
+    ErrBuf << ((Level == DiagLevel::ERROR) ? "Error" : "Warning");
     ErrBuf << ": ";
   }
 
