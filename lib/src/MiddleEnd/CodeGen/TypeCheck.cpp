@@ -22,8 +22,8 @@ void TypeCheck::AssertSame(const frontEnd::ASTNode *Node, llvm::Type *L,
   if (L == R)
     return;
 
-  weak::CompileError(Node) << "Type mismatch: " << TypeToString(L)
-                           << " got, but " << TypeToString(R) << " expected";
+  weak::CompileError(Node) << "Type mismatch: " << TypeToString(L) << " and "
+                           << TypeToString(R);
 }
 
 std::string TypeCheck::TypeToString(llvm::Type *T) {

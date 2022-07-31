@@ -1,4 +1,4 @@
-// Error at line 8, column 14: Type mismatch: i8* got, but i32 expected
+// Error at line 8, column 14: Type mismatch: i8* and i32
 int f(int arg) {
     return arg;
 }
