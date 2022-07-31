@@ -454,7 +454,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) const {
 void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
   llvm::Function *Callee = LLVMModule.getFunction(Stmt->GetName());
   if (!Callee) {
-    weak::CompileError(Stmt) << "Unknown function: " << Stmt->GetName();
+    weak::CompileError(Stmt) << "Function `" << Stmt->GetName() << "` not found";
     return;
   }
 
