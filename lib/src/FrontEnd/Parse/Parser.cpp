@@ -53,7 +53,7 @@ std::unique_ptr<ASTCompoundStmt> Parser::Parse() {
       break;
     default:
       weak::CompileError(Current.LineNo, Current.ColumnNo)
-          << "Functions as global statements supported only.";
+          << "Functions as global statements supported only";
       break;
     }
   }
@@ -68,7 +68,7 @@ std::unique_ptr<ASTNode> Parser::ParseFunctionDecl() {
 
   if (FunctionName.Type != TokenType::SYMBOL)
     weak::CompileError(FunctionName.LineNo, FunctionName.ColumnNo)
-        << "Function name expected.";
+        << "Function name expected";
 
   Require(TokenType::OPEN_PAREN);
   ParameterList = ParseParameterList();
@@ -130,7 +130,7 @@ std::unique_ptr<ASTNode> Parser::ParseVarDecl() {
                                         DataType.ColumnNo);
 
   weak::CompileError(Current.LineNo, Current.ColumnNo)
-      << "Assignment operator expected.";
+      << "Assignment operator expected";
   weak::UnreachablePoint();
 }
 
@@ -145,7 +145,7 @@ const Token &Parser::ParseType() {
     return Current;
   default:
     weak::CompileError(Current.LineNo, Current.ColumnNo)
-        << "Data type expected.";
+        << "Data type expected";
     weak::UnreachablePoint();
   }
 }
@@ -164,7 +164,7 @@ std::unique_ptr<ASTNode> Parser::ParseParameter() {
 
   if (VariableName.Type != TokenType::SYMBOL)
     weak::CompileError(VariableName.LineNo, VariableName.ColumnNo)
-        << "Variable name expected.";
+        << "Variable name expected";
 
   return std::make_unique<ASTVarDecl>(
       DataType.Type, std::string(VariableName.Data),
@@ -306,7 +306,7 @@ std::unique_ptr<ASTNode> Parser::ParseIterationStatement() {
   case TokenType::WHILE:
     return ParseWhileStatement();
   default:
-    weak::UnreachablePoint("Should not reach here.");
+    weak::UnreachablePoint("Should not reach here");
   }
 }
 
@@ -723,7 +723,7 @@ std::unique_ptr<ASTNode> Parser::ParseConstant() {
         Current.Type == TokenType::TRUE, Current.LineNo, Current.ColumnNo);
 
   default:
-    weak::CompileError(Current.LineNo, Current.ColumnNo) << "Literal expected.";
+    weak::CompileError(Current.LineNo, Current.ColumnNo) << "Literal expected";
     weak::UnreachablePoint();
   }
 }
@@ -792,7 +792,7 @@ const Token &Parser::Require(TokenType Expected) {
 void Parser::CheckIfHaveMoreTokens() const {
   if (CurrentBufferPtr == BufferEnd)
     weak::CompileError(CurrentBufferPtr->LineNo, CurrentBufferPtr->LineNo)
-        << "End of buffer reached.";
+        << "End of buffer reached";
 }
 
 } // namespace frontEnd

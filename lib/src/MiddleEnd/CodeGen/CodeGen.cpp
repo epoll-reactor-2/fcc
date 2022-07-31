@@ -309,7 +309,7 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) const {
     break;
   }
   default: {
-    weak::CompileError(Stmt) << "Unknown unary operator.";
+    weak::CompileError(Stmt) << "Unknown unary operator";
     break;
   }
   } // switch
@@ -454,7 +454,8 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) const {
 void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
   llvm::Function *Callee = LLVMModule.getFunction(Stmt->GetName());
   if (!Callee) {
-    weak::CompileError(Stmt) << "Function `" << Stmt->GetName() << "` not found";
+    weak::CompileError(Stmt)
+        << "Function `" << Stmt->GetName() << "` not found";
     return;
   }
 
