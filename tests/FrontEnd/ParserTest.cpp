@@ -7,6 +7,13 @@
 
 namespace fe = weak::frontEnd;
 
+/// This gets all contents of first comment placed
+/// at the very beginning of input program.
+/// F.e.
+/// // This is
+/// // extracted part,
+/// // splitted into lines.
+/// int main() { return 0; }
 std::string getExpectedAST(std::string Program) {
   std::string ExpectedAST;
   ExpectedAST.reserve(4096);
