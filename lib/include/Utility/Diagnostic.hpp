@@ -26,7 +26,7 @@ struct OstreamRAII {
   std::ostream &operator<<(const char *);
 };
 
-/// Simply terminate process.
+/// Throw an exception with given message.
 [[noreturn]] void UnreachablePoint(const char * = "");
 
 /// Print diagnostic message with WARN flag.
