@@ -26,6 +26,8 @@ public:
   TokenType GetOperation() const;
   const std::unique_ptr<ASTNode> &GetLHS() const;
   const std::unique_ptr<ASTNode> &GetRHS() const;
+  std::unique_ptr<ASTNode> &&GetLHS();
+  std::unique_ptr<ASTNode> &&GetRHS();
 
 private:
   TokenType Operation;

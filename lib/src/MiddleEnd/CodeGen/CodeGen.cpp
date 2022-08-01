@@ -194,6 +194,34 @@ void CodeGen::Visit(const frontEnd::ASTStringLiteral *Stmt) const {
   LastEmitted = Builder.Build(Stmt->GetValue());
 }
 
+static frontEnd::TokenType ResolveAssignmentOperation(frontEnd::TokenType T) {
+  using frontEnd::TokenType;
+  switch (T) {
+  case TokenType::MUL_ASSIGN:
+    return TokenType::STAR;
+  case TokenType::DIV_ASSIGN:
+    return TokenType::SLASH;
+  case TokenType::MOD_ASSIGN:
+    return TokenType::MOD;
+  case TokenType::PLUS_ASSIGN:
+    return TokenType::PLUS;
+  case TokenType::MINUS_ASSIGN:
+    return TokenType::MINUS;
+  case TokenType::SHL_ASSIGN:
+    return TokenType::SHL;
+  case TokenType::SHR_ASSIGN:
+    return TokenType::SHR;
+  case TokenType::BIT_AND_ASSIGN:
+    return TokenType::BIT_AND;
+  case TokenType::BIT_OR_ASSIGN:
+    return TokenType::BIT_OR;
+  case TokenType::XOR_ASSIGN:
+    return TokenType::XOR;
+  default:
+    weak::UnreachablePoint("Should not reach here");
+  }
+}
+
 void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
   /// \todo: Make type checking, e.g. decide how to handle
   ///        expressions such as 1 + 2.0.
@@ -214,6 +242,30 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
     auto *Assignment =
         static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
     CodeBuilder.CreateStore(R, VariablesMapping[Assignment->GetName()]);
+    break;
+  }
+  case TokenType::MUL_ASSIGN:
+  case TokenType::DIV_ASSIGN:
+  case TokenType::MOD_ASSIGN:
+  case TokenType::PLUS_ASSIGN:
+  case TokenType::MINUS_ASSIGN:
+  case TokenType::SHL_ASSIGN:
+  case TokenType::SHR_ASSIGN:
+  case TokenType::BIT_AND_ASSIGN:
+  case TokenType::BIT_OR_ASSIGN:
+  case TokenType::XOR_ASSIGN: { // Fall through.
+    auto *Assignment =
+        static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
+    auto ExplicitAssignmentAST = std::make_unique<frontEnd::ASTBinaryOperator>(
+        // lhs = lhs op rhs
+        TokenType::ASSIGN,
+        std::make_unique<frontEnd::ASTSymbol>(Assignment->GetName()),
+        std::make_unique<frontEnd::ASTBinaryOperator>(
+            ResolveAssignmentOperation(Stmt->GetOperation()),
+            const_cast<frontEnd::ASTBinaryOperator *>(Stmt)->GetLHS(),
+            const_cast<frontEnd::ASTBinaryOperator *>(Stmt)->GetRHS(),
+            Stmt->GetLineNo(), Stmt->GetColumnNo()));
+    ExplicitAssignmentAST->Accept(this);
     break;
   }
   case TokenType::PLUS:

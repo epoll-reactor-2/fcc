@@ -32,5 +32,12 @@ const std::unique_ptr<ASTNode> &ASTBinaryOperator::GetRHS() const {
   return RHS;
 }
 
+std::unique_ptr<ASTNode> &&ASTBinaryOperator::GetLHS() {
+  return std::move(LHS);
+}
+std::unique_ptr<ASTNode> &&ASTBinaryOperator::GetRHS() {
+  return std::move(RHS);
+}
+
 } // namespace frontEnd
 } // namespace weak
