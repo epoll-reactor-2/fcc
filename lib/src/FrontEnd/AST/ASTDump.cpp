@@ -1,10 +1,10 @@
-/* ASTPrettyPrint.cpp - helper function to dump AST to stdout.
+/* ASTDump.cpp - helper function to dump AST to stdout.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTPrettyPrint.hpp"
+#include "FrontEnd/AST/ASTDump.hpp"
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
 #include "FrontEnd/AST/ASTBreakStmt.hpp"
@@ -32,12 +32,12 @@ using namespace weak::frontEnd;
 
 namespace {
 
-class ASTPrintVisitor : public ASTVisitor {
+class ASTDumpVisitor : public ASTVisitor {
 public:
-  ASTPrintVisitor(const ASTNode *TheRootNode, std::ostream &TheOutStream)
+  ASTDumpVisitor(const ASTNode *TheRootNode, std::ostream &TheOutStream)
       : RootNode(TheRootNode), Indent(0U), OutStream(TheOutStream) {}
 
-  void Print() { RootNode->Accept(this); }
+  void Dump() { RootNode->Accept(this); }
 
 private:
   void Visit(const ASTBinaryOperator *Binary) const override {
@@ -376,15 +376,14 @@ private:
 
 namespace weak {
 
-void frontEnd::ASTPrettyPrint(const ASTNode *RootNode,
-                              std::ostream &OutStream) {
-  ASTPrintVisitor Printer(RootNode, OutStream);
-  Printer.Print();
+void frontEnd::ASTDump(const ASTNode *RootNode, std::ostream &OutStream) {
+  ASTDumpVisitor DumpVisitor(RootNode, OutStream);
+  DumpVisitor.Dump();
 }
 
-void frontEnd::ASTPrettyPrint(const std::unique_ptr<ASTNode> &RootNode,
-                              std::ostream &OutStream) {
-  ASTPrettyPrint(RootNode.get(), OutStream);
+void frontEnd::ASTDump(const std::unique_ptr<ASTNode> &RootNode,
+                       std::ostream &OutStream) {
+  ASTDump(RootNode.get(), OutStream);
 }
 
 } // namespace weak

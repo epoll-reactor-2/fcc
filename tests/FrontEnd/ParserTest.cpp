@@ -1,5 +1,5 @@
 #include "FrontEnd/Parse/Parser.hpp"
-#include "FrontEnd/AST/ASTPrettyPrint.hpp"
+#include "FrontEnd/AST/ASTDump.hpp"
 #include "FrontEnd/Lex/Lexer.hpp"
 #include <iostream>
 #include <fstream>
@@ -42,7 +42,7 @@ void TestAST(std::string_view Path) {
   auto AST = Parser.Parse();
 
   std::ostringstream ASTStream;
-  fe::ASTPrettyPrint(AST.get(), ASTStream);
+  fe::ASTDump(AST.get(), ASTStream);
 
   std::string GeneratedAST = ASTStream.str();
   std::string ExpectedAST = getExpectedAST(Program);
