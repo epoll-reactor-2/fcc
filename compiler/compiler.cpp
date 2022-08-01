@@ -1,4 +1,4 @@
-#include "FrontEnd/AST/ASTPrettyPrint.hpp"
+#include "FrontEnd/AST/ASTDump.hpp"
 #include "FrontEnd/Lex/Lexer.hpp"
 #include "FrontEnd/Parse/Parser.hpp"
 #include "MiddleEnd/CodeGen/CodeGen.hpp"
@@ -45,7 +45,7 @@ void DumpLexemes(std::string_view InputPath) {
 
 void DumpAST(std::string_view InputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
-  fe::ASTPrettyPrint(AST, std::cout);
+  fe::ASTDump(AST, std::cout);
 }
 
 void DumpLLVMIR(std::string_view InputPath, std::string_view OutputPath) {
