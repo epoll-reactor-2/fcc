@@ -22,9 +22,7 @@ ASTFunctionDecl::ASTFunctionDecl(
 
 ASTType ASTFunctionDecl::GetASTType() const { return ASTType::FUNCTION_DECL; }
 
-void ASTFunctionDecl::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTFunctionDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 TokenType ASTFunctionDecl::GetReturnType() const { return ReturnType; }
 

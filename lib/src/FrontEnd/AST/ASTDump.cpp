@@ -34,13 +34,13 @@ namespace {
 
 class ASTDumpVisitor : public ASTVisitor {
 public:
-  ASTDumpVisitor(const ASTNode *TheRootNode, std::ostream &TheOutStream)
+  ASTDumpVisitor(ASTNode *TheRootNode, std::ostream &TheOutStream)
       : RootNode(TheRootNode), Indent(0U), OutStream(TheOutStream) {}
 
   void Dump() { RootNode->Accept(this); }
 
 private:
-  void Visit(const ASTBinaryOperator *Binary) const override {
+  void Visit(const ASTBinaryOperator *Binary) override {
     PrintWithTextPosition("BinaryOperator", Binary, /*NewLineNeeded=*/false);
     OutStream << TokenToString(Binary->GetOperation()) << std::endl;
     Indent += 2;
@@ -54,16 +54,16 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTBooleanLiteral *Boolean) const override {
+  void Visit(const ASTBooleanLiteral *Boolean) override {
     PrintWithTextPosition("BooleanLiteral", Boolean, /*NewLineNeeded=*/false);
     OutStream << std::boolalpha << Boolean->GetValue() << std::endl;
   }
 
-  void Visit(const ASTBreakStmt *BreakStmt) const override {
+  void Visit(const ASTBreakStmt *BreakStmt) override {
     PrintWithTextPosition("BreakStmt", BreakStmt, /*NewLineNeeded=*/true);
   }
 
-  void Visit(const ASTCompoundStmt *CompoundStmt) const override {
+  void Visit(const ASTCompoundStmt *CompoundStmt) override {
     PrintWithTextPosition("CompoundStmt", CompoundStmt, /*NewLineNeeded=*/true);
 
     Indent += 2;
@@ -74,23 +74,23 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTContinueStmt *ContinueStmt) const override {
+  void Visit(const ASTContinueStmt *ContinueStmt) override {
     PrintWithTextPosition("ContinueStmt", ContinueStmt, /*NewLineNeeded=*/true);
   }
 
-  void Visit(const ASTFloatingPointLiteral *Float) const override {
+  void Visit(const ASTFloatingPointLiteral *Float) override {
     PrintWithTextPosition("FloatingPointLiteral", Float,
                           /*NewLineNeeded=*/false);
     OutStream << Float->GetValue() << std::endl;
   }
 
-  void Visit(const ASTForStmt *ForStmt) const override {
+  void Visit(const ASTForStmt *ForStmt) override {
     PrintWithTextPosition("ForStmt", ForStmt,
                           /*NewLineNeeded=*/true);
 
     Indent += 2;
 
-    if (const auto *Init = ForStmt->GetInit().get()) {
+    if (auto *Init = ForStmt->GetInit().get()) {
       PrintIndent();
       PrintWithTextPosition("ForStmtInit", Init,
                             /*NewLineNeeded=*/true);
@@ -100,7 +100,7 @@ private:
       Indent -= 2;
     }
 
-    if (const auto *Condition = ForStmt->GetCondition().get()) {
+    if (auto *Condition = ForStmt->GetCondition().get()) {
       PrintIndent();
       PrintWithTextPosition("ForStmtCondition", Condition,
                             /*NewLineNeeded=*/true);
@@ -110,7 +110,7 @@ private:
       Indent -= 2;
     }
 
-    if (const auto *Increment = ForStmt->GetIncrement().get()) {
+    if (auto *Increment = ForStmt->GetIncrement().get()) {
       PrintIndent();
       PrintWithTextPosition("ForStmtIncrement", Increment,
                             /*NewLineNeeded=*/true);
@@ -133,7 +133,7 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTIfStmt *IfStmt) const override {
+  void Visit(const ASTIfStmt *IfStmt) override {
     PrintWithTextPosition("IfStmt", IfStmt, /*NewLineNeeded=*/true);
     Indent += 2;
 
@@ -169,13 +169,13 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTIntegerLiteral *Integer) const override {
+  void Visit(const ASTIntegerLiteral *Integer) override {
     PrintWithTextPosition("IntegerLiteral", Integer,
                           /*NewLineNeeded=*/false);
     OutStream << Integer->GetValue() << std::endl;
   }
 
-  void Visit(const ASTReturnStmt *ReturnStmt) const override {
+  void Visit(const ASTReturnStmt *ReturnStmt) override {
     PrintWithTextPosition("ReturnStmt", ReturnStmt, /*NewLineNeeded=*/true);
     Indent += 2;
 
@@ -187,19 +187,19 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTStringLiteral *String) const override {
+  void Visit(const ASTStringLiteral *String) override {
     PrintWithTextPosition("StringLiteral", String,
                           /*NewLineNeeded=*/false);
     OutStream << String->GetValue() << std::endl;
   }
 
-  void Visit(const ASTSymbol *Symbol) const override {
+  void Visit(const ASTSymbol *Symbol) override {
     PrintWithTextPosition("Symbol", Symbol,
                           /*NewLineNeeded=*/false);
     OutStream << Symbol->GetName() << std::endl;
   }
 
-  void Visit(const ASTUnaryOperator *Unary) const override {
+  void Visit(const ASTUnaryOperator *Unary) override {
     OutStream << (Unary->PrefixOrPostfix == ASTUnaryOperator::UnaryType::PREFIX
                       ? "Prefix "
                       : "Postfix ");
@@ -214,7 +214,7 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTVarDecl *VarDecl) const override {
+  void Visit(const ASTVarDecl *VarDecl) override {
     PrintWithTextPosition("VarDeclStmt", VarDecl, /*NewLineNeeded=*/false);
     OutStream << TokenToString(VarDecl->GetDataType()) << " "
               << VarDecl->GetSymbolName() << std::endl;
@@ -227,7 +227,7 @@ private:
     }
   }
 
-  void Visit(const ASTFunctionDecl *FunctionDecl) const override {
+  void Visit(const ASTFunctionDecl *FunctionDecl) override {
     PrintWithTextPosition("FunctionDecl", FunctionDecl, /*NewLineNeeded=*/true);
 
     Indent += 2;
@@ -262,7 +262,7 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTFunctionCall *FunctionCall) const override {
+  void Visit(const ASTFunctionCall *FunctionCall) override {
     PrintWithTextPosition("FunctionCall", FunctionCall,
                           /*NewLineNeeded=*/false);
     OutStream << FunctionCall->GetName() << std::endl;
@@ -282,7 +282,7 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTFunctionPrototype *FunctionPrototype) const override {
+  void Visit(const ASTFunctionPrototype *FunctionPrototype) override {
     PrintWithTextPosition("FunctionPrototype", FunctionPrototype,
                           /*NewLineNeeded=*/false);
     OutStream << FunctionPrototype->GetName() << std::endl;
@@ -302,16 +302,16 @@ private:
     Indent -= 2;
   }
 
-  void Visit(const ASTDoWhileStmt *DoWhileStmt) const override {
+  void Visit(const ASTDoWhileStmt *DoWhileStmt) override {
     CommonWhileStmtVisit(DoWhileStmt, /*IsDoWhile=*/true);
   }
 
-  void Visit(const ASTWhileStmt *WhileStmt) const override {
+  void Visit(const ASTWhileStmt *WhileStmt) override {
     CommonWhileStmtVisit(WhileStmt, /*IsDoWhile=*/false);
   }
 
   template <typename WhileNode>
-  void CommonWhileStmtVisit(const WhileNode *WhileStmt, bool IsDoWhile) const {
+  void CommonWhileStmtVisit(const WhileNode *WhileStmt, bool IsDoWhile) {
     using namespace std::string_literals;
     PrintWithTextPosition((IsDoWhile ? "Do"s : ""s) + "WhileStmt", WhileStmt,
                           /*NewLineNeeded=*/true);
@@ -367,8 +367,8 @@ private:
 
   void PrintIndent() const { OutStream << std::string(Indent, ' '); }
 
-  const ASTNode *RootNode;
-  mutable unsigned Indent;
+  ASTNode *RootNode;
+  unsigned Indent;
   std::ostream &OutStream;
 };
 
@@ -376,7 +376,7 @@ private:
 
 namespace weak {
 
-void frontEnd::ASTDump(const ASTNode *RootNode, std::ostream &OutStream) {
+void frontEnd::ASTDump(ASTNode *RootNode, std::ostream &OutStream) {
   ASTDumpVisitor DumpVisitor(RootNode, OutStream);
   DumpVisitor.Dump();
 }

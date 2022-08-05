@@ -18,9 +18,7 @@ ASTType ASTBooleanLiteral::GetASTType() const {
   return ASTType::BOOLEAN_LITERAL;
 }
 
-void ASTBooleanLiteral::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTBooleanLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 bool ASTBooleanLiteral::GetValue() const { return Value; }
 

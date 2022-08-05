@@ -174,22 +174,22 @@ void CodeGen::CreateCode(std::string_view ObjectFilePath) {
   TargetBuilder.Build();
 }
 
-void CodeGen::Visit(const frontEnd::ASTBooleanLiteral *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTBooleanLiteral *Stmt) {
   llvm::APInt Int(1, Stmt->GetValue(), false);
   LastEmitted = llvm::ConstantInt::get(LLVMCtx, Int);
 }
 
-void CodeGen::Visit(const frontEnd::ASTIntegerLiteral *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTIntegerLiteral *Stmt) {
   llvm::APInt Int(32, Stmt->GetValue(), false);
   LastEmitted = llvm::ConstantInt::get(LLVMCtx, Int);
 }
 
-void CodeGen::Visit(const frontEnd::ASTFloatingPointLiteral *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTFloatingPointLiteral *Stmt) {
   llvm::APFloat Float(Stmt->GetValue());
   LastEmitted = llvm::ConstantFP::get(LLVMCtx, Float);
 }
 
-void CodeGen::Visit(const frontEnd::ASTStringLiteral *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTStringLiteral *Stmt) {
   StringLiteralBuilder Builder(LLVMCtx, LLVMModule);
   LastEmitted = Builder.Build(Stmt->GetValue());
 }
@@ -222,7 +222,7 @@ static frontEnd::TokenType ResolveAssignmentOperation(frontEnd::TokenType T) {
   }
 }
 
-void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   /// \todo: Make type checking, e.g. decide how to handle
   ///        expressions such as 1 + 2.0.
   Stmt->GetLHS()->Accept(this);
@@ -328,7 +328,7 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) const {
   }
 }
 
-void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
   Stmt->GetOperand()->Accept(this);
 
   llvm::APInt Int(32, 1, false);
@@ -367,7 +367,7 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) const {
   } // switch
 }
 
-void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) {
   /// \todo: Generate code with respect to empty for parameters,
   ///        e.g for (;;), or for(int i = 0; ; ++i). Also
   ///        break,continue statements should be implemented.
@@ -394,7 +394,7 @@ void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) const {
   CodeBuilder.SetInsertPoint(ForEndBB);
 }
 
-void CodeGen::Visit(const frontEnd::ASTWhileStmt *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTWhileStmt *Stmt) {
   llvm::Function *Func = CodeBuilder.GetInsertBlock()->getParent();
 
   llvm::BasicBlock *WhileCondBB =
@@ -415,7 +415,7 @@ void CodeGen::Visit(const frontEnd::ASTWhileStmt *Stmt) const {
   CodeBuilder.SetInsertPoint(WhileEndBB);
 }
 
-void CodeGen::Visit(const frontEnd::ASTDoWhileStmt *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTDoWhileStmt *Stmt) {
   llvm::Function *Func = CodeBuilder.GetInsertBlock()->getParent();
 
   llvm::BasicBlock *DoWhileBodyBB =
@@ -432,7 +432,7 @@ void CodeGen::Visit(const frontEnd::ASTDoWhileStmt *Stmt) const {
   CodeBuilder.SetInsertPoint(DoWhileEndBB);
 }
 
-void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) {
   Stmt->GetCondition()->Accept(this);
   llvm::Value *Condition = LastEmitted;
 
@@ -474,7 +474,7 @@ void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) const {
   CodeBuilder.SetInsertPoint(MergeBB);
 }
 
-void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) const {
+void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
   FunctionBuilder FunctionBuilder(LLVMCtx, LLVMModule, Decl);
 
   llvm::Function *Func = FunctionBuilder.Build();
@@ -503,7 +503,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) const {
   }
 }
 
-void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
   llvm::Function *Callee = LLVMModule.getFunction(Stmt->GetName());
   if (!Callee) {
     weak::CompileError(Stmt)
@@ -522,7 +522,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
 
   llvm::SmallVector<llvm::Value *, 16> Args;
   for (size_t I = 0; I < FunArgs.size(); ++I) {
-    const auto *AST = FunArgs[I].get();
+    auto *AST = FunArgs[I].get();
 
     AST->Accept(this);
 
@@ -538,12 +538,12 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) const {
   LastEmitted = CodeBuilder.CreateCall(Callee, Args);
 }
 
-void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
   FunctionBuilder FunctionBuilder(LLVMCtx, LLVMModule, Stmt);
   FunctionBuilder.Build();
 }
 
-void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
   llvm::Value *V = VariablesMapping[Stmt->GetName()];
   if (!V) {
     weak::CompileError(Stmt)
@@ -561,19 +561,19 @@ void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) const {
     LastEmitted = V;
 }
 
-void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) const {
+void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
   for (const auto &Stmt : Stmts->GetStmts()) {
     Stmt->Accept(this);
   }
 }
 
-void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) const {
+void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
   Stmt->GetOperand()->Accept(this);
   CodeBuilder.CreateRet(LastEmitted);
   IsReturnValue = true;
 }
 
-void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) const {
+void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
   Decl->GetDeclareBody()->Accept(this);
 
   /// Alloca needed to be able to store mutable variables.
@@ -592,7 +592,7 @@ void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) const {
   }
 }
 
-std::string CodeGen::ToString() {
+std::string CodeGen::ToString() const {
   std::string Result;
 
   for (const auto &Global : LLVMModule.getGlobalList()) {

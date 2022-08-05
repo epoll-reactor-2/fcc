@@ -18,9 +18,7 @@ ASTType ASTIntegerLiteral::GetASTType() const {
   return ASTType::INTEGER_LITERAL;
 }
 
-void ASTIntegerLiteral::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTIntegerLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 signed ASTIntegerLiteral::GetValue() const { return Value; }
 

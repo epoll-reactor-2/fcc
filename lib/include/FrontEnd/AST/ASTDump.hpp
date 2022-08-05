@@ -18,7 +18,7 @@ namespace frontEnd {
 void ASTDump(const std::unique_ptr<ASTNode> &RootNode, std::ostream &OutStream);
 
 /// \copydoc ASTDump(const std::unique_ptr<ASTNode> &, std::ostream &)
-void ASTDump(const ASTNode *RootNode, std::ostream &OutStream);
+void ASTDump(ASTNode *RootNode, std::ostream &OutStream);
 
 } // namespace frontEnd
 } // namespace weak

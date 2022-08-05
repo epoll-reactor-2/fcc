@@ -19,7 +19,7 @@ ASTType ASTFloatingPointLiteral::GetASTType() const {
   return ASTType::FLOATING_POINT_LITERAL;
 }
 
-void ASTFloatingPointLiteral::Accept(const ASTVisitor *Visitor) const {
+void ASTFloatingPointLiteral::Accept(ASTVisitor *Visitor) {
   Visitor->Visit(this);
 }
 

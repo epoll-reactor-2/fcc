@@ -18,9 +18,7 @@ ASTFunctionCall::ASTFunctionCall(
 
 ASTType ASTFunctionCall::GetASTType() const { return ASTType::FUNCTION_CALL; }
 
-void ASTFunctionCall::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTFunctionCall::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 const std::string &ASTFunctionCall::GetName() const { return Name; }
 

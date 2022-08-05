@@ -19,9 +19,7 @@ ASTIfStmt::ASTIfStmt(std::unique_ptr<ASTNode> &&TheCondition,
 
 ASTType ASTIfStmt::GetASTType() const { return ASTType::IF_STMT; }
 
-void ASTIfStmt::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTIfStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 std::unique_ptr<ASTNode> &&ASTIfStmt::GetCondition() {
   return std::move(Condition);

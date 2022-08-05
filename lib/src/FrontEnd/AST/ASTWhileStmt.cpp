@@ -18,9 +18,7 @@ ASTWhileStmt::ASTWhileStmt(std::unique_ptr<ASTNode> &&TheCondition,
 
 ASTType ASTWhileStmt::GetASTType() const { return ASTType::WHILE_STMT; }
 
-void ASTWhileStmt::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTWhileStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 std::unique_ptr<ASTNode> &&ASTWhileStmt::GetCondition() {
   return std::move(Condition);

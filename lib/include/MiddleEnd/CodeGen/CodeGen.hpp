@@ -15,33 +15,6 @@
 #include <map>
 
 namespace weak {
-namespace frontEnd {
-
-class ASTNode;
-class ASTBinaryOperator;
-class ASTBooleanLiteral;
-class ASTBreakStmt;
-class ASTCompoundStmt;
-class ASTContinueStmt;
-class ASTDoWhileStmt;
-class ASTFloatingPointLiteral;
-class ASTForStmt;
-class ASTFunctionDecl;
-class ASTFunctionCall;
-class ASTFunctionPrototype;
-class ASTIfStmt;
-class ASTIntegerLiteral;
-class ASTReturnStmt;
-class ASTStringLiteral;
-class ASTSymbol;
-class ASTUnaryOperator;
-class ASTVarDecl;
-class ASTWhileStmt;
-
-} // namespace frontEnd
-} // namespace weak
-
-namespace weak {
 namespace middleEnd {
 
 class CodeGen : private frontEnd::ASTVisitor {
@@ -51,49 +24,49 @@ public:
   /// \todo: Move object file formation somewhere else.
   void CreateCode(std::string_view ObjectFilePath);
 
-  std::string ToString();
+  std::string ToString() const;
 
 private:
   // Literals.
-  virtual void Visit(const frontEnd::ASTBooleanLiteral *) const override;
-  virtual void Visit(const frontEnd::ASTIntegerLiteral *) const override;
-  virtual void Visit(const frontEnd::ASTFloatingPointLiteral *) const override;
-  virtual void Visit(const frontEnd::ASTStringLiteral *) const override;
+  void Visit(const frontEnd::ASTBooleanLiteral *) override;
+  void Visit(const frontEnd::ASTIntegerLiteral *) override;
+  void Visit(const frontEnd::ASTFloatingPointLiteral *) override;
+  void Visit(const frontEnd::ASTStringLiteral *) override;
 
   // Operators.
-  virtual void Visit(const frontEnd::ASTBinaryOperator *) const override;
-  virtual void Visit(const frontEnd::ASTUnaryOperator *) const override;
+  void Visit(const frontEnd::ASTBinaryOperator *) override;
+  void Visit(const frontEnd::ASTUnaryOperator *) override;
 
   // Inside-loop statements.
-  virtual void Visit(const frontEnd::ASTBreakStmt *) const override {}
-  virtual void Visit(const frontEnd::ASTContinueStmt *) const override {}
+  void Visit(const frontEnd::ASTBreakStmt *) override {}
+  void Visit(const frontEnd::ASTContinueStmt *) override {}
 
   // Loop statements.
-  virtual void Visit(const frontEnd::ASTForStmt *) const override;
-  virtual void Visit(const frontEnd::ASTWhileStmt *) const override;
-  virtual void Visit(const frontEnd::ASTDoWhileStmt *) const override;
+  void Visit(const frontEnd::ASTForStmt *) override;
+  void Visit(const frontEnd::ASTWhileStmt *) override;
+  void Visit(const frontEnd::ASTDoWhileStmt *) override;
 
   // Condition statements.
-  virtual void Visit(const frontEnd::ASTIfStmt *) const override;
+  void Visit(const frontEnd::ASTIfStmt *) override;
 
   // Function statements.
-  virtual void Visit(const frontEnd::ASTFunctionDecl *) const override;
-  virtual void Visit(const frontEnd::ASTFunctionCall *) const override;
-  virtual void Visit(const frontEnd::ASTFunctionPrototype *) const override;
+  void Visit(const frontEnd::ASTFunctionDecl *) override;
+  void Visit(const frontEnd::ASTFunctionCall *) override;
+  void Visit(const frontEnd::ASTFunctionPrototype *) override;
 
   // The rest.
-  virtual void Visit(const frontEnd::ASTSymbol *) const override;
-  virtual void Visit(const frontEnd::ASTCompoundStmt *) const override;
-  virtual void Visit(const frontEnd::ASTReturnStmt *) const override;
-  virtual void Visit(const frontEnd::ASTVarDecl *) const override;
+  void Visit(const frontEnd::ASTSymbol *) override;
+  void Visit(const frontEnd::ASTCompoundStmt *) override;
+  void Visit(const frontEnd::ASTReturnStmt *) override;
+  void Visit(const frontEnd::ASTVarDecl *) override;
 
   frontEnd::ASTNode *Root;
-  mutable llvm::Value *LastEmitted;
-  mutable llvm::LLVMContext LLVMCtx;
-  mutable llvm::Module LLVMModule;
-  mutable llvm::IRBuilder<> CodeBuilder;
-  mutable std::map<std::string, llvm::AllocaInst *> VariablesMapping;
-  mutable bool IsReturnValue;
+  llvm::Value *LastEmitted;
+  llvm::LLVMContext LLVMCtx;
+  llvm::Module LLVMModule;
+  llvm::IRBuilder<> CodeBuilder;
+  std::map<std::string, llvm::AllocaInst *> VariablesMapping;
+  bool IsReturnValue;
 };
 
 } // namespace middleEnd

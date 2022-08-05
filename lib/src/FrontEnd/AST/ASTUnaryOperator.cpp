@@ -22,9 +22,7 @@ ASTType ASTUnaryOperator::GetASTType() const {
                                                : ASTType::PREFIX_UNARY;
 }
 
-void ASTUnaryOperator::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTUnaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 TokenType ASTUnaryOperator::GetOperation() const { return Operation; }
 

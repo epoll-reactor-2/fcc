@@ -22,9 +22,7 @@ ASTType ASTFunctionPrototype::GetASTType() const {
   return ASTType::FUNCTION_PROTOTYPE;
 }
 
-void ASTFunctionPrototype::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTFunctionPrototype::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 TokenType ASTFunctionPrototype::GetReturnType() const { return ReturnType; }
 

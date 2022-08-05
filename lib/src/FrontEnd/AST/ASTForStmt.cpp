@@ -21,9 +21,7 @@ ASTForStmt::ASTForStmt(std::unique_ptr<ASTNode> &&TheInit,
 
 ASTType ASTForStmt::GetASTType() const { return ASTType::FOR_STMT; }
 
-void ASTForStmt::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTForStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 std::unique_ptr<ASTNode> &&ASTForStmt::GetInit() { return std::move(Init); }
 

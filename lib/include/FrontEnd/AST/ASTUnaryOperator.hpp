@@ -23,7 +23,7 @@ public:
                    unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
 
   ASTType GetASTType() const override;
-  void Accept(const ASTVisitor *) const override;
+  void Accept(ASTVisitor *) override;
 
   TokenType GetOperation() const;
   const std::unique_ptr<ASTNode> &GetOperand() const;

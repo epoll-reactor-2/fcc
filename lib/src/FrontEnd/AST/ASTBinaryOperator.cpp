@@ -19,9 +19,7 @@ ASTBinaryOperator::ASTBinaryOperator(TokenType TheOperation,
 
 ASTType ASTBinaryOperator::GetASTType() const { return ASTType::BINARY; }
 
-void ASTBinaryOperator::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTBinaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 TokenType ASTBinaryOperator::GetOperation() const { return Operation; }
 

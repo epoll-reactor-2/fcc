@@ -17,9 +17,7 @@ ASTSymbol::ASTSymbol(std::string TheValue, unsigned TheLineNo,
 
 ASTType ASTSymbol::GetASTType() const { return ASTType::SYMBOL; }
 
-void ASTSymbol::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTSymbol::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 void ASTSymbol::SetSSAIndex(int Index) { SSAIndex = Index; }
 

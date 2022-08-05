@@ -16,9 +16,7 @@ ASTCompoundStmt::ASTCompoundStmt(std::vector<std::unique_ptr<ASTNode>> &&stmts,
 
 ASTType ASTCompoundStmt::GetASTType() const { return ASTType::COMPOUND_STMT; }
 
-void ASTCompoundStmt::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTCompoundStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 std::vector<std::unique_ptr<ASTNode>> &&ASTCompoundStmt::GetStmts() {
   return std::move(Stmts);

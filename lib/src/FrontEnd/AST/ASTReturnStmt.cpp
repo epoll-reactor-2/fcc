@@ -16,9 +16,7 @@ ASTReturnStmt::ASTReturnStmt(std::unique_ptr<ASTNode> &&TheOperand,
 
 ASTType ASTReturnStmt::GetASTType() const { return ASTType::RETURN_STMT; }
 
-void ASTReturnStmt::Accept(const ASTVisitor *Visitor) const {
-  Visitor->Visit(this);
-}
+void ASTReturnStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 const std::unique_ptr<ASTNode> &ASTReturnStmt::GetOperand() const {
   return Operand;
