@@ -122,15 +122,22 @@ std::unique_ptr<ASTNode> Parser::ParseFunctionCall() {
 std::unique_ptr<ASTNode> Parser::ParseVarDecl() {
   const Token &DataType = ParseType();
   std::string VariableName = PeekNext().Data;
-  const Token &Current = PeekNext(); // Assignment op.
+  const Token &Current = PeekNext();
 
   if (Current.Type == TokenType::ASSIGN)
     return std::make_unique<ASTVarDecl>(DataType.Type, std::move(VariableName),
                                         ParseLogicalOr(), DataType.LineNo,
                                         DataType.ColumnNo);
 
+  if (Current.Type == TokenType::OPEN_PAREN) {
+    --CurrentBufferPtr; // Open paren.
+    --CurrentBufferPtr; // Function name.
+    --CurrentBufferPtr; // Data type.
+    return ParseFunctionDecl();
+  }
+
   weak::CompileError(Current.LineNo, Current.ColumnNo)
-      << "Assignment operator expected";
+      << "Assign value or function declarator expected";
   weak::UnreachablePoint();
 }
 
