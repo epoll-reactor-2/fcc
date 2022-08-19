@@ -577,6 +577,13 @@ void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
+  llvm::Function *Func = CodeBuilder.GetInsertBlock()->getParent();
+
+  if (Func->getReturnType()->isVoidTy()) {
+    weak::CompileError(Stmt) << "Cannot return value from void function";
+    weak::UnreachablePoint();
+  }
+
   Stmt->GetOperand()->Accept(this);
   CodeBuilder.CreateRet(LastEmitted);
   IsReturnValue = true;
