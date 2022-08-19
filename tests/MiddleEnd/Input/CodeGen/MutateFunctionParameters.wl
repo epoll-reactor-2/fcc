@@ -5,7 +5,7 @@ int f(int arg1, int arg2) {
 }
 
 int main() {
-    int arg1 = 100;
-    int arg2 = 200;
-    return f(arg1, arg2);
+    int v1 = 100;
+    int v2 = 200;
+    return f(v1, v2);
 }

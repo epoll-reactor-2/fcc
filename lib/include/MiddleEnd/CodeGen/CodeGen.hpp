@@ -8,6 +8,7 @@
 #define WEAK_COMPILER_MIDDLE_END_CODEGEN_HPP
 
 #include "FrontEnd/AST/ASTVisitor.hpp"
+#include "MiddleEnd/Storage/DeclsStorage.hpp"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
@@ -65,7 +66,7 @@ private:
   llvm::LLVMContext LLVMCtx;
   llvm::Module LLVMModule;
   llvm::IRBuilder<> CodeBuilder;
-  std::map<std::string, llvm::AllocaInst *> VariablesMapping;
+  DeclsStorage DeclStorage;
   bool IsReturnValue;
 };
 

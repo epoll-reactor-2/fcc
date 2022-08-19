@@ -164,7 +164,7 @@ namespace middleEnd {
 
 CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
     : Root(TheRoot), LastEmitted(nullptr), LLVMCtx(),
-      LLVMModule("LLVM Module", LLVMCtx), CodeBuilder(LLVMCtx),
+      LLVMModule("LLVM Module", LLVMCtx), CodeBuilder(LLVMCtx), DeclStorage(),
       IsReturnValue(false) {}
 
 void CodeGen::CreateCode(std::string_view ObjectFilePath) {
@@ -241,7 +241,8 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   case TokenType::ASSIGN: {
     auto *Assignment =
         static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
-    CodeBuilder.CreateStore(R, VariablesMapping[Assignment->GetName()]);
+    llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
+    CodeBuilder.CreateStore(R, Variable);
     break;
   }
   case TokenType::MUL_ASSIGN:
@@ -351,13 +352,13 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
     // the store operation was performed, when variable was
     // created or assigned, so we can safely do store.
     CodeBuilder.CreateStore(LastEmitted,
-                            VariablesMapping[SymbolOperand->GetName()]);
+                            DeclStorage.Lookup(SymbolOperand->GetName()));
     break;
   }
   case TokenType::DEC: {
     LastEmitted = CodeBuilder.CreateSub(LastEmitted, Step);
     CodeBuilder.CreateStore(LastEmitted,
-                            VariablesMapping[SymbolOperand->GetName()]);
+                            DeclStorage.Lookup(SymbolOperand->GetName()));
     break;
   }
   default: {
@@ -368,6 +369,7 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) {
+  DeclStorage.StartScope();
   /// \todo: Generate code with respect to empty for parameters,
   ///        e.g for (;;), or for(int i = 0; ; ++i). Also
   ///        break,continue statements should be implemented.
@@ -392,6 +394,8 @@ void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) {
   Stmt->GetIncrement()->Accept(this);
   CodeBuilder.CreateBr(ForCondBB);
   CodeBuilder.SetInsertPoint(ForEndBB);
+
+  DeclStorage.EndScope();
 }
 
 void CodeGen::Visit(const frontEnd::ASTWhileStmt *Stmt) {
@@ -483,18 +487,22 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
 
   TemporaryAllocaBuilder AllocaBuilder(Func);
 
-  VariablesMapping.clear();
+  DeclStorage.StartScope();
+
   for (auto &Arg : Func->args()) {
     llvm::AllocaInst *Alloca =
         AllocaBuilder.Build(Arg.getType(), Arg.getName().str());
     CodeBuilder.CreateStore(&Arg, Alloca);
-    VariablesMapping.emplace(Arg.getName().str(), Alloca);
+    DeclStorage.Push(Arg.getName().str(), Alloca);
   }
 
   Decl->GetBody()->Accept(this);
 
+  DeclStorage.EndScope();
+
+  llvm::verifyFunction(*Func);
+
   if (IsReturnValue) {
-    llvm::verifyFunction(*Func);
     LastEmitted = Func;
     IsReturnValue = false;
   } else {
@@ -544,7 +552,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
-  llvm::Value *V = VariablesMapping[Stmt->GetName()];
+  llvm::Value *V = DeclStorage.Lookup(Stmt->GetName());
   if (!V) {
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetName() << "` not found";
@@ -562,9 +570,10 @@ void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
-  for (const auto &Stmt : Stmts->GetStmts()) {
+  DeclStorage.StartScope();
+  for (const auto &Stmt : Stmts->GetStmts())
     Stmt->Accept(this);
-  }
+  DeclStorage.EndScope();
 }
 
 void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
@@ -579,16 +588,15 @@ void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
   /// Alloca needed to be able to store mutable variables.
   /// We should also do load and store before and after
   /// every use of Alloca variable.
-  if (VariablesMapping.count(Decl->GetSymbolName()) != 0) {
-    llvm::Value *Alloca = VariablesMapping[Decl->GetSymbolName()];
-    CodeBuilder.CreateStore(LastEmitted, Alloca);
+  if (llvm::AllocaInst *Variable = DeclStorage.Lookup(Decl->GetSymbolName())) {
+    CodeBuilder.CreateStore(LastEmitted, Variable);
   } else {
     TypeResolver TypeResolver(LLVMCtx);
     llvm::AllocaInst *Alloca = CodeBuilder.CreateAlloca(
         TypeResolver.ResolveExceptVoid(Decl->GetDataType()), nullptr,
         Decl->GetSymbolName());
     CodeBuilder.CreateStore(LastEmitted, Alloca);
-    VariablesMapping.emplace(Decl->GetSymbolName(), Alloca);
+    DeclStorage.Push(Decl->GetSymbolName(), Alloca);
   }
 }
 

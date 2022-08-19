@@ -54,7 +54,7 @@ void RunFromFile(std::string_view Path) {
 
 int main() {
   auto Directory = std::filesystem::directory_iterator(
-    std::filesystem::current_path());
+    std::filesystem::current_path().concat("/CodeGen"));
   for (const auto &File : Directory)
     if (File.path().extension() == ".wl")
       RunFromFile(File.path().native());
