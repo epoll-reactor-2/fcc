@@ -25,6 +25,7 @@
 #include "FrontEnd/AST/ASTUnaryOperator.hpp"
 #include "FrontEnd/AST/ASTVarDecl.hpp"
 #include "FrontEnd/AST/ASTWhileStmt.hpp"
+#include "MiddleEnd/CodeGen/ScalarExprEmitter.hpp"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
 #include "MiddleEnd/CodeGen/TypeCheck.hpp"
 #include "MiddleEnd/CodeGen/TypeResolver.hpp"
@@ -159,12 +160,6 @@ private:
 
 } // namespace
 
-static void WrongFloatOpsCompileError(const weak::frontEnd::ASTNode *Stmt,
-                                      weak::frontEnd::TokenType T) {
-  weak::CompileError(Stmt) << "Cannot apply `"
-                           << weak::frontEnd::TokenToString(T) << "` to floats";
-}
-
 namespace weak {
 namespace middleEnd {
 
@@ -239,15 +234,12 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   TypeCheck TypeChecker;
   TypeChecker.AssertSame(Stmt, L, R);
 
-  // No sense to check right operand when they are of same types with left one.
-  // \todo: Make well-designed type checks to emit right IR instructions for
-  //        each type (below in switch-case).
-  bool IsFloatOperands = L->getType() == llvm::Type::getFloatTy(IRCtx);
+  ScalarExprEmitter ScalarEmitter(IRCtx, IRBuilder);
 
   using frontEnd::TokenType;
   switch (auto T = Stmt->GetOperation()) {
   case TokenType::ASSIGN: {
-    auto *Assignment =
+    const auto *Assignment =
         static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
     llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
     IRBuilder.CreateStore(R, Variable);
@@ -255,147 +247,41 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   }
   case TokenType::MUL_ASSIGN:
   case TokenType::DIV_ASSIGN:
-  case TokenType::MOD_ASSIGN:
   case TokenType::PLUS_ASSIGN:
   case TokenType::MINUS_ASSIGN:
+  case TokenType::MOD_ASSIGN:
   case TokenType::SHL_ASSIGN:
   case TokenType::SHR_ASSIGN:
   case TokenType::BIT_AND_ASSIGN:
   case TokenType::BIT_OR_ASSIGN:
-  case TokenType::XOR_ASSIGN: { // Fall through.
+  case TokenType::XOR_ASSIGN: {
     auto *Assignment =
         static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
-    auto ExplicitAssignmentAST = std::make_unique<frontEnd::ASTBinaryOperator>(
-        // lhs = lhs op rhs
-        TokenType::ASSIGN,
-        std::make_unique<frontEnd::ASTSymbol>(Assignment->GetName()),
-        std::make_unique<frontEnd::ASTBinaryOperator>(
-            ResolveAssignmentOperation(Stmt->GetOperation()),
-            const_cast<frontEnd::ASTBinaryOperator *>(Stmt)->GetLHS(),
-            const_cast<frontEnd::ASTBinaryOperator *>(Stmt)->GetRHS(),
-            Stmt->GetLineNo(), Stmt->GetColumnNo()));
-    ExplicitAssignmentAST->Accept(this);
+    llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
+    TokenType Op = ResolveAssignmentOperation(T);
+    LastInstr = ScalarEmitter.EmitBinOp(Stmt, Op, L, R);
+    IRBuilder.CreateStore(LastInstr, Variable);
     break;
   }
-  case TokenType::PLUS: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFAdd(L, R);
-    else
-      LastInstr = IRBuilder.CreateAdd(L, R);
+  case TokenType::PLUS:
+  case TokenType::MINUS:
+  case TokenType::STAR:
+  case TokenType::SLASH:
+  case TokenType::LE:
+  case TokenType::LT:
+  case TokenType::GE:
+  case TokenType::GT:
+  case TokenType::EQ:
+  case TokenType::NEQ:
+  case TokenType::OR:
+  case TokenType::AND:
+  case TokenType::BIT_OR:
+  case TokenType::BIT_AND:
+  case TokenType::XOR:
+  case TokenType::SHL:
+  case TokenType::SHR:
+    LastInstr = ScalarEmitter.EmitBinOp(Stmt, T, L, R);
     break;
-  }
-  case TokenType::MINUS: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFSub(L, R);
-    else
-      LastInstr = IRBuilder.CreateSub(L, R);
-    break;
-  }
-  case TokenType::STAR: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFMul(L, R);
-    else
-      LastInstr = IRBuilder.CreateMul(L, R);
-    break;
-  }
-  case TokenType::SLASH: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFDiv(L, R);
-    else
-      LastInstr = IRBuilder.CreateSDiv(L, R);
-    break;
-  }
-  case TokenType::LE: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFCmpOLE(L, R);
-    else
-      LastInstr = IRBuilder.CreateICmpSLE(L, R);
-    break;
-  }
-  case TokenType::LT: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFCmpOLT(L, R);
-    else
-      LastInstr = IRBuilder.CreateICmpSLT(L, R);
-    break;
-  }
-  case TokenType::GE: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFCmpOGE(L, R);
-    else
-      LastInstr = IRBuilder.CreateICmpSGE(L, R);
-    break;
-  }
-  case TokenType::GT: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFCmpOGT(L, R);
-    else
-      LastInstr = IRBuilder.CreateICmpSGT(L, R);
-    break;
-  }
-  case TokenType::EQ: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFCmpOEQ(L, R);
-    else
-      LastInstr = IRBuilder.CreateICmpEQ(L, R);
-    break;
-  }
-  case TokenType::NEQ: {
-    if (IsFloatOperands)
-      LastInstr = IRBuilder.CreateFCmpONE(L, R);
-    else
-      LastInstr = IRBuilder.CreateICmpNE(L, R);
-    break;
-  }
-  case TokenType::OR: {
-    if (!IsFloatOperands)
-      LastInstr = IRBuilder.CreateLogicalOr(L, R);
-    else
-      WrongFloatOpsCompileError(Stmt, T);
-    break;
-  }
-  case TokenType::AND: {
-    if (!IsFloatOperands)
-      LastInstr = IRBuilder.CreateLogicalAnd(L, R);
-    else
-      WrongFloatOpsCompileError(Stmt, T);
-    break;
-  }
-  case TokenType::BIT_OR: {
-    if (!IsFloatOperands)
-      LastInstr = IRBuilder.CreateOr(L, R);
-    else
-      WrongFloatOpsCompileError(Stmt, T);
-    break;
-  }
-  case TokenType::BIT_AND: {
-    if (!IsFloatOperands)
-      LastInstr = IRBuilder.CreateAnd(L, R);
-    else
-      WrongFloatOpsCompileError(Stmt, T);
-    break;
-  }
-  case TokenType::XOR: {
-    if (!IsFloatOperands)
-      LastInstr = IRBuilder.CreateXor(L, R);
-    else
-      WrongFloatOpsCompileError(Stmt, T);
-    break;
-  }
-  case TokenType::SHL: {
-    if (!IsFloatOperands)
-      LastInstr = IRBuilder.CreateShl(L, R);
-    else
-      WrongFloatOpsCompileError(Stmt, T);
-    break;
-  }
-  case TokenType::SHR: {
-    if (!IsFloatOperands)
-      LastInstr = IRBuilder.CreateAShr(L, R);
-    else
-      WrongFloatOpsCompileError(Stmt, T);
-    break;
-  }
   default: {
     LastInstr = nullptr;
 
@@ -403,7 +289,7 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
         << "Invalid binary operator: " << frontEnd::TokenToString(T);
     break;
   }
-  }
+  } // switch
 }
 
 void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
