@@ -62,10 +62,10 @@ private:
   void Visit(const frontEnd::ASTVarDecl *) override;
 
   frontEnd::ASTNode *Root;
-  llvm::Value *LastEmitted;
-  llvm::LLVMContext LLVMCtx;
-  llvm::Module LLVMModule;
-  llvm::IRBuilder<> CodeBuilder;
+  llvm::Value *LastInstr;
+  llvm::LLVMContext IRCtx;
+  llvm::Module IRModule;
+  llvm::IRBuilder<> IRBuilder;
   DeclsStorage DeclStorage;
 };
 

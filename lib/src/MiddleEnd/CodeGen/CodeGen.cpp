@@ -163,34 +163,34 @@ namespace weak {
 namespace middleEnd {
 
 CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
-    : Root(TheRoot), LastEmitted(nullptr), LLVMCtx(),
-      LLVMModule("LLVM Module", LLVMCtx), CodeBuilder(LLVMCtx), DeclStorage() {}
+    : Root(TheRoot), LastInstr(nullptr), IRCtx(),
+      IRModule("LLVM Module", IRCtx), IRBuilder(IRCtx), DeclStorage() {}
 
 void CodeGen::CreateCode(std::string_view ObjectFilePath) {
   Root->Accept(this);
 
-  TargetCodeBuilder TargetBuilder(LLVMModule, ObjectFilePath);
+  TargetCodeBuilder TargetBuilder(IRModule, ObjectFilePath);
   TargetBuilder.Build();
 }
 
 void CodeGen::Visit(const frontEnd::ASTBooleanLiteral *Stmt) {
   llvm::APInt Int(1, Stmt->GetValue(), false);
-  LastEmitted = llvm::ConstantInt::get(LLVMCtx, Int);
+  LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
 void CodeGen::Visit(const frontEnd::ASTIntegerLiteral *Stmt) {
   llvm::APInt Int(32, Stmt->GetValue(), false);
-  LastEmitted = llvm::ConstantInt::get(LLVMCtx, Int);
+  LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
 void CodeGen::Visit(const frontEnd::ASTFloatingPointLiteral *Stmt) {
   llvm::APFloat Float(Stmt->GetValue());
-  LastEmitted = llvm::ConstantFP::get(LLVMCtx, Float);
+  LastInstr = llvm::ConstantFP::get(IRCtx, Float);
 }
 
 void CodeGen::Visit(const frontEnd::ASTStringLiteral *Stmt) {
-  StringLiteralBuilder Builder(LLVMCtx, LLVMModule);
-  LastEmitted = Builder.Build(Stmt->GetValue());
+  StringLiteralBuilder Builder(IRCtx, IRModule);
+  LastInstr = Builder.Build(Stmt->GetValue());
 }
 
 static frontEnd::TokenType ResolveAssignmentOperation(frontEnd::TokenType T) {
@@ -225,9 +225,9 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   /// \todo: Make type checking, e.g. decide how to handle
   ///        expressions such as 1 + 2.0.
   Stmt->GetLHS()->Accept(this);
-  llvm::Value *L = LastEmitted;
+  llvm::Value *L = LastInstr;
   Stmt->GetRHS()->Accept(this);
-  llvm::Value *R = LastEmitted;
+  llvm::Value *R = LastInstr;
 
   if (!L || !R)
     return;
@@ -241,7 +241,7 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
     auto *Assignment =
         static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
     llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
-    CodeBuilder.CreateStore(R, Variable);
+    IRBuilder.CreateStore(R, Variable);
     break;
   }
   case TokenType::MUL_ASSIGN:
@@ -269,58 +269,58 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
     break;
   }
   case TokenType::PLUS:
-    LastEmitted = CodeBuilder.CreateAdd(L, R);
+    LastInstr = IRBuilder.CreateAdd(L, R);
     break;
   case TokenType::MINUS:
-    LastEmitted = CodeBuilder.CreateSub(L, R);
+    LastInstr = IRBuilder.CreateSub(L, R);
     break;
   case TokenType::STAR:
-    LastEmitted = CodeBuilder.CreateMul(L, R);
+    LastInstr = IRBuilder.CreateMul(L, R);
     break;
   case TokenType::SLASH:
-    LastEmitted = CodeBuilder.CreateSDiv(L, R);
+    LastInstr = IRBuilder.CreateSDiv(L, R);
     break;
   case TokenType::LE:
-    LastEmitted = CodeBuilder.CreateICmpSLE(L, R);
+    LastInstr = IRBuilder.CreateICmpSLE(L, R);
     break;
   case TokenType::LT:
-    LastEmitted = CodeBuilder.CreateICmpSLT(L, R);
+    LastInstr = IRBuilder.CreateICmpSLT(L, R);
     break;
   case TokenType::GE:
-    LastEmitted = CodeBuilder.CreateICmpSGE(L, R);
+    LastInstr = IRBuilder.CreateICmpSGE(L, R);
     break;
   case TokenType::GT:
-    LastEmitted = CodeBuilder.CreateICmpSGT(L, R);
+    LastInstr = IRBuilder.CreateICmpSGT(L, R);
     break;
   case TokenType::EQ:
-    LastEmitted = CodeBuilder.CreateICmpEQ(L, R);
+    LastInstr = IRBuilder.CreateICmpEQ(L, R);
     break;
   case TokenType::NEQ:
-    LastEmitted = CodeBuilder.CreateICmpNE(L, R);
+    LastInstr = IRBuilder.CreateICmpNE(L, R);
     break;
   case TokenType::OR:
-    LastEmitted = CodeBuilder.CreateLogicalOr(L, R);
+    LastInstr = IRBuilder.CreateLogicalOr(L, R);
     break;
   case TokenType::AND:
-    LastEmitted = CodeBuilder.CreateLogicalAnd(L, R);
+    LastInstr = IRBuilder.CreateLogicalAnd(L, R);
     break;
   case TokenType::BIT_OR:
-    LastEmitted = CodeBuilder.CreateOr(L, R);
+    LastInstr = IRBuilder.CreateOr(L, R);
     break;
   case TokenType::BIT_AND:
-    LastEmitted = CodeBuilder.CreateAnd(L, R);
+    LastInstr = IRBuilder.CreateAnd(L, R);
     break;
   case TokenType::XOR:
-    LastEmitted = CodeBuilder.CreateXor(L, R);
+    LastInstr = IRBuilder.CreateXor(L, R);
     break;
   case TokenType::SHL:
-    LastEmitted = CodeBuilder.CreateShl(L, R);
+    LastInstr = IRBuilder.CreateShl(L, R);
     break;
   case TokenType::SHR:
-    LastEmitted = CodeBuilder.CreateAShr(L, R);
+    LastInstr = IRBuilder.CreateAShr(L, R);
     break;
   default:
-    LastEmitted = nullptr;
+    LastInstr = nullptr;
 
     weak::CompileError(Stmt)
         << "Invalid binary operator: " << frontEnd::TokenToString(T);
@@ -332,7 +332,7 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
   Stmt->GetOperand()->Accept(this);
 
   llvm::APInt Int(32, 1, false);
-  llvm::Value *Step = llvm::ConstantInt::get(LLVMCtx, Int);
+  llvm::Value *Step = llvm::ConstantInt::get(IRCtx, Int);
 
   if (Stmt->GetOperand()->GetASTType() != frontEnd::ASTType::SYMBOL) {
     weak::CompileError(Stmt)
@@ -346,18 +346,18 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
   using frontEnd::TokenType;
   switch (Stmt->GetOperation()) {
   case TokenType::INC: {
-    LastEmitted = CodeBuilder.CreateAdd(LastEmitted, Step);
+    LastInstr = IRBuilder.CreateAdd(LastInstr, Step);
     // If we're expecting that unary operand is a variable,
     // the store operation was performed, when variable was
     // created or assigned, so we can safely do store.
-    CodeBuilder.CreateStore(LastEmitted,
-                            DeclStorage.Lookup(SymbolOperand->GetName()));
+    IRBuilder.CreateStore(LastInstr,
+                          DeclStorage.Lookup(SymbolOperand->GetName()));
     break;
   }
   case TokenType::DEC: {
-    LastEmitted = CodeBuilder.CreateSub(LastEmitted, Step);
-    CodeBuilder.CreateStore(LastEmitted,
-                            DeclStorage.Lookup(SymbolOperand->GetName()));
+    LastInstr = IRBuilder.CreateSub(LastInstr, Step);
+    IRBuilder.CreateStore(LastInstr,
+                          DeclStorage.Lookup(SymbolOperand->GetName()));
     break;
   }
   default: {
@@ -374,115 +374,113 @@ void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) {
   ///        break,continue statements should be implemented.
   Stmt->GetInit()->Accept(this);
 
-  llvm::Function *Func = CodeBuilder.GetInsertBlock()->getParent();
+  llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
   llvm::BasicBlock *ForCondBB =
-      llvm::BasicBlock::Create(LLVMCtx, "for.cond", Func);
+      llvm::BasicBlock::Create(IRCtx, "for.cond", Func);
   llvm::BasicBlock *ForBodyBB =
-      llvm::BasicBlock::Create(LLVMCtx, "for.body", Func);
-  llvm::BasicBlock *ForEndBB =
-      llvm::BasicBlock::Create(LLVMCtx, "for.end", Func);
+      llvm::BasicBlock::Create(IRCtx, "for.body", Func);
+  llvm::BasicBlock *ForEndBB = llvm::BasicBlock::Create(IRCtx, "for.end", Func);
 
-  CodeBuilder.CreateBr(ForCondBB);
-  CodeBuilder.SetInsertPoint(ForCondBB);
+  IRBuilder.CreateBr(ForCondBB);
+  IRBuilder.SetInsertPoint(ForCondBB);
 
   Stmt->GetCondition()->Accept(this);
-  CodeBuilder.CreateCondBr(LastEmitted, ForBodyBB, ForEndBB);
-  CodeBuilder.SetInsertPoint(ForBodyBB);
+  IRBuilder.CreateCondBr(LastInstr, ForBodyBB, ForEndBB);
+  IRBuilder.SetInsertPoint(ForBodyBB);
   Stmt->GetBody()->Accept(this);
   Stmt->GetIncrement()->Accept(this);
-  CodeBuilder.CreateBr(ForCondBB);
-  CodeBuilder.SetInsertPoint(ForEndBB);
+  IRBuilder.CreateBr(ForCondBB);
+  IRBuilder.SetInsertPoint(ForEndBB);
 
   DeclStorage.EndScope();
 }
 
 void CodeGen::Visit(const frontEnd::ASTWhileStmt *Stmt) {
-  llvm::Function *Func = CodeBuilder.GetInsertBlock()->getParent();
+  llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
   llvm::BasicBlock *WhileCondBB =
-      llvm::BasicBlock::Create(LLVMCtx, "while.cond", Func);
+      llvm::BasicBlock::Create(IRCtx, "while.cond", Func);
   llvm::BasicBlock *WhileBodyBB =
-      llvm::BasicBlock::Create(LLVMCtx, "while.body", Func);
+      llvm::BasicBlock::Create(IRCtx, "while.body", Func);
   llvm::BasicBlock *WhileEndBB =
-      llvm::BasicBlock::Create(LLVMCtx, "while.end", Func);
+      llvm::BasicBlock::Create(IRCtx, "while.end", Func);
 
-  CodeBuilder.CreateBr(WhileCondBB);
-  CodeBuilder.SetInsertPoint(WhileCondBB);
+  IRBuilder.CreateBr(WhileCondBB);
+  IRBuilder.SetInsertPoint(WhileCondBB);
 
   Stmt->GetCondition()->Accept(this);
-  CodeBuilder.CreateCondBr(LastEmitted, WhileBodyBB, WhileEndBB);
-  CodeBuilder.SetInsertPoint(WhileBodyBB);
+  IRBuilder.CreateCondBr(LastInstr, WhileBodyBB, WhileEndBB);
+  IRBuilder.SetInsertPoint(WhileBodyBB);
   Stmt->GetBody()->Accept(this);
-  CodeBuilder.CreateBr(WhileCondBB);
-  CodeBuilder.SetInsertPoint(WhileEndBB);
+  IRBuilder.CreateBr(WhileCondBB);
+  IRBuilder.SetInsertPoint(WhileEndBB);
 }
 
 void CodeGen::Visit(const frontEnd::ASTDoWhileStmt *Stmt) {
-  llvm::Function *Func = CodeBuilder.GetInsertBlock()->getParent();
+  llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
   llvm::BasicBlock *DoWhileBodyBB =
-      llvm::BasicBlock::Create(LLVMCtx, "do.while.body", Func);
+      llvm::BasicBlock::Create(IRCtx, "do.while.body", Func);
   llvm::BasicBlock *DoWhileEndBB =
-      llvm::BasicBlock::Create(LLVMCtx, "do.while.end", Func);
+      llvm::BasicBlock::Create(IRCtx, "do.while.end", Func);
 
-  CodeBuilder.CreateBr(DoWhileBodyBB);
-  CodeBuilder.SetInsertPoint(DoWhileBodyBB);
+  IRBuilder.CreateBr(DoWhileBodyBB);
+  IRBuilder.SetInsertPoint(DoWhileBodyBB);
 
   Stmt->GetBody()->Accept(this);
   Stmt->GetCondition()->Accept(this);
-  CodeBuilder.CreateCondBr(LastEmitted, DoWhileBodyBB, DoWhileEndBB);
-  CodeBuilder.SetInsertPoint(DoWhileEndBB);
+  IRBuilder.CreateCondBr(LastInstr, DoWhileBodyBB, DoWhileEndBB);
+  IRBuilder.SetInsertPoint(DoWhileEndBB);
 }
 
 void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) {
   Stmt->GetCondition()->Accept(this);
-  llvm::Value *Condition = LastEmitted;
+  llvm::Value *Condition = LastInstr;
 
   /// \todo: I am not sure if we should always compare with 0.
   unsigned sizeBits = Condition->getType()->getPrimitiveSizeInBits();
-  Condition = CodeBuilder.CreateICmpNE(
-      Condition,
-      llvm::ConstantInt::get(LLVMCtx, llvm::APInt(sizeBits, 0, false)),
+  Condition = IRBuilder.CreateICmpNE(
+      Condition, llvm::ConstantInt::get(IRCtx, llvm::APInt(sizeBits, 0, false)),
       "condition");
 
-  llvm::Function *Func = CodeBuilder.GetInsertBlock()->getParent();
+  llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
-  llvm::BasicBlock *ThenBB = llvm::BasicBlock::Create(LLVMCtx, "if.then", Func);
-  llvm::BasicBlock *ElseBB = llvm::BasicBlock::Create(LLVMCtx, "if.else");
-  llvm::BasicBlock *MergeBB = llvm::BasicBlock::Create(LLVMCtx, "if.end");
+  auto *ThenBB = llvm::BasicBlock::Create(IRCtx, "if.then", Func);
+  auto *ElseBB = llvm::BasicBlock::Create(IRCtx, "if.else");
+  auto *MergeBB = llvm::BasicBlock::Create(IRCtx, "if.end");
 
   if (Stmt->GetElseBody())
-    CodeBuilder.CreateCondBr(Condition, ThenBB, ElseBB);
+    IRBuilder.CreateCondBr(Condition, ThenBB, ElseBB);
   else
-    CodeBuilder.CreateCondBr(Condition, ThenBB, MergeBB);
+    IRBuilder.CreateCondBr(Condition, ThenBB, MergeBB);
 
-  CodeBuilder.SetInsertPoint(ThenBB);
+  IRBuilder.SetInsertPoint(ThenBB);
   Stmt->GetThenBody()->Accept(this);
-  CodeBuilder.CreateBr(MergeBB);
+  IRBuilder.CreateBr(MergeBB);
 
   if (!Stmt->GetElseBody()) {
     Func->getBasicBlockList().push_back(MergeBB);
-    CodeBuilder.SetInsertPoint(MergeBB);
+    IRBuilder.SetInsertPoint(MergeBB);
     return;
   }
 
   Func->getBasicBlockList().push_back(ElseBB);
-  CodeBuilder.SetInsertPoint(ElseBB);
+  IRBuilder.SetInsertPoint(ElseBB);
 
   Stmt->GetElseBody()->Accept(this);
-  CodeBuilder.CreateBr(MergeBB);
+  IRBuilder.CreateBr(MergeBB);
 
   Func->getBasicBlockList().push_back(MergeBB);
-  CodeBuilder.SetInsertPoint(MergeBB);
+  IRBuilder.SetInsertPoint(MergeBB);
 }
 
 void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
-  FunctionBuilder FunctionBuilder(LLVMCtx, LLVMModule, Decl);
+  FunctionBuilder FunctionBuilder(IRCtx, IRModule, Decl);
 
   llvm::Function *Func = FunctionBuilder.Build();
-  llvm::BasicBlock *CFGBlock = llvm::BasicBlock::Create(LLVMCtx, "entry", Func);
-  CodeBuilder.SetInsertPoint(CFGBlock);
+  llvm::BasicBlock *CFGBlock = llvm::BasicBlock::Create(IRCtx, "entry", Func);
+  IRBuilder.SetInsertPoint(CFGBlock);
 
   TemporaryAllocaBuilder AllocaBuilder(Func);
 
@@ -491,18 +489,18 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
   for (auto &Arg : Func->args()) {
     llvm::AllocaInst *Alloca =
         AllocaBuilder.Build(Arg.getType(), Arg.getName().str());
-    CodeBuilder.CreateStore(&Arg, Alloca);
+    IRBuilder.CreateStore(&Arg, Alloca);
     DeclStorage.Push(Arg.getName().str(), Alloca);
   }
 
   Decl->GetBody()->Accept(this);
   DeclStorage.EndScope();
   llvm::verifyFunction(*Func);
-  LastEmitted = nullptr;
+  LastInstr = nullptr;
 }
 
 void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
-  llvm::Function *Callee = LLVMModule.getFunction(Stmt->GetName());
+  llvm::Function *Callee = IRModule.getFunction(Stmt->GetName());
   if (!Callee) {
     weak::CompileError(Stmt)
         << "Function `" << Stmt->GetName() << "` not found";
@@ -524,20 +522,20 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
 
     AST->Accept(this);
 
-    auto *InstrType = LastEmitted->getType();
+    auto *InstrType = LastInstr->getType();
     auto *ExpectedType = Callee->getArg(I)->getType();
 
     TypeCheck TypeChecker;
     TypeChecker.AssertSame(AST, InstrType, ExpectedType);
 
-    Args.push_back(LastEmitted);
+    Args.push_back(LastInstr);
   }
 
-  LastEmitted = CodeBuilder.CreateCall(Callee, Args);
+  LastInstr = IRBuilder.CreateCall(Callee, Args);
 }
 
 void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
-  FunctionBuilder FunctionBuilder(LLVMCtx, LLVMModule, Stmt);
+  FunctionBuilder FunctionBuilder(IRCtx, IRModule, Stmt);
   FunctionBuilder.Build();
 }
 
@@ -552,11 +550,11 @@ void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
   llvm::AllocaInst *Alloca = llvm::dyn_cast<llvm::AllocaInst>(V);
   if (Alloca)
     // Variable.
-    LastEmitted = CodeBuilder.CreateLoad(Alloca->getAllocatedType(), Alloca,
-                                         Stmt->GetName());
+    LastInstr = IRBuilder.CreateLoad(Alloca->getAllocatedType(), Alloca,
+                                     Stmt->GetName());
   else
-    // Function Parameter.
-    LastEmitted = V;
+    // Function parameter.
+    LastInstr = V;
 }
 
 void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
@@ -567,7 +565,7 @@ void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
-  llvm::Function *Func = CodeBuilder.GetInsertBlock()->getParent();
+  llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
   if (Func->getReturnType()->isVoidTy()) {
     weak::CompileError(Stmt) << "Cannot return value from void function";
@@ -575,7 +573,7 @@ void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
   }
 
   Stmt->GetOperand()->Accept(this);
-  CodeBuilder.CreateRet(LastEmitted);
+  IRBuilder.CreateRet(LastInstr);
 }
 
 void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
@@ -585,13 +583,13 @@ void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
   /// We should also do load and store before and after
   /// every use of Alloca variable.
   if (llvm::AllocaInst *Variable = DeclStorage.Lookup(Decl->GetSymbolName())) {
-    CodeBuilder.CreateStore(LastEmitted, Variable);
+    IRBuilder.CreateStore(LastInstr, Variable);
   } else {
-    TypeResolver TypeResolver(LLVMCtx);
-    llvm::AllocaInst *Alloca = CodeBuilder.CreateAlloca(
+    TypeResolver TypeResolver(IRCtx);
+    llvm::AllocaInst *Alloca = IRBuilder.CreateAlloca(
         TypeResolver.ResolveExceptVoid(Decl->GetDataType()), nullptr,
         Decl->GetSymbolName());
-    CodeBuilder.CreateStore(LastEmitted, Alloca);
+    IRBuilder.CreateStore(LastInstr, Alloca);
     DeclStorage.Push(Decl->GetSymbolName(), Alloca);
   }
 }
@@ -599,7 +597,7 @@ void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
 std::string CodeGen::ToString() const {
   std::string Result;
 
-  for (const auto &Global : LLVMModule.getGlobalList()) {
+  for (const auto &Global : IRModule.getGlobalList()) {
     llvm::raw_string_ostream Stream(Result);
     Stream << Global;
     Stream << '\n';
@@ -608,7 +606,7 @@ std::string CodeGen::ToString() const {
 
   Result += '\n';
 
-  for (const auto &F : LLVMModule.getFunctionList()) {
+  for (const auto &F : IRModule.getFunctionList()) {
     llvm::raw_string_ostream Stream(Result);
     Stream << F;
     Stream << '\n';
