@@ -164,8 +164,7 @@ namespace middleEnd {
 
 CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
     : Root(TheRoot), LastEmitted(nullptr), LLVMCtx(),
-      LLVMModule("LLVM Module", LLVMCtx), CodeBuilder(LLVMCtx), DeclStorage(),
-      IsReturnValue(false) {}
+      LLVMModule("LLVM Module", LLVMCtx), CodeBuilder(LLVMCtx), DeclStorage() {}
 
 void CodeGen::CreateCode(std::string_view ObjectFilePath) {
   Root->Accept(this);
@@ -497,18 +496,9 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
   }
 
   Decl->GetBody()->Accept(this);
-
   DeclStorage.EndScope();
-
   llvm::verifyFunction(*Func);
-
-  if (IsReturnValue) {
-    LastEmitted = Func;
-    IsReturnValue = false;
-  } else {
-    Func->eraseFromParent();
-    LastEmitted = nullptr;
-  }
+  LastEmitted = nullptr;
 }
 
 void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
@@ -586,7 +576,6 @@ void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
 
   Stmt->GetOperand()->Accept(this);
   CodeBuilder.CreateRet(LastEmitted);
-  IsReturnValue = true;
 }
 
 void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {

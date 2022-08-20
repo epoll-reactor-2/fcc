@@ -67,7 +67,6 @@ private:
   llvm::Module LLVMModule;
   llvm::IRBuilder<> CodeBuilder;
   DeclsStorage DeclStorage;
-  bool IsReturnValue;
 };
 
 } // namespace middleEnd
