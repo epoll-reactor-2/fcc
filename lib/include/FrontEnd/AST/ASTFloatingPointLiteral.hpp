@@ -14,16 +14,16 @@ namespace frontEnd {
 
 class ASTFloatingPointLiteral : public ASTNode {
 public:
-  ASTFloatingPointLiteral(double TheValue, unsigned TheLineNo = 0U,
+  ASTFloatingPointLiteral(float TheValue, unsigned TheLineNo = 0U,
                           unsigned TheColumnNo = 0U);
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
-  double GetValue() const;
+  float GetValue() const;
 
 private:
-  double Value;
+  float Value;
 };
 
 } // namespace frontEnd

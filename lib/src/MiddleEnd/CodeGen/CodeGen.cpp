@@ -159,6 +159,12 @@ private:
 
 } // namespace
 
+static void WrongFloatOpsCompileError(const weak::frontEnd::ASTNode *Stmt,
+                                      weak::frontEnd::TokenType T) {
+  weak::CompileError(Stmt) << "Cannot apply `"
+                           << weak::frontEnd::TokenToString(T) << "` to floats";
+}
+
 namespace weak {
 namespace middleEnd {
 
@@ -222,8 +228,6 @@ static frontEnd::TokenType ResolveAssignmentOperation(frontEnd::TokenType T) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
-  /// \todo: Make type checking, e.g. decide how to handle
-  ///        expressions such as 1 + 2.0.
   Stmt->GetLHS()->Accept(this);
   llvm::Value *L = LastInstr;
   Stmt->GetRHS()->Accept(this);
@@ -234,6 +238,11 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
 
   TypeCheck TypeChecker;
   TypeChecker.AssertSame(Stmt, L, R);
+
+  // No sense to check right operand when they are of same types with left one.
+  // \todo: Make well-designed type checks to emit right IR instructions for
+  //        each type (below in switch-case).
+  bool IsFloatOperands = L->getType() == llvm::Type::getFloatTy(IRCtx);
 
   using frontEnd::TokenType;
   switch (auto T = Stmt->GetOperation()) {
@@ -268,63 +277,132 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
     ExplicitAssignmentAST->Accept(this);
     break;
   }
-  case TokenType::PLUS:
-    LastInstr = IRBuilder.CreateAdd(L, R);
+  case TokenType::PLUS: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFAdd(L, R);
+    else
+      LastInstr = IRBuilder.CreateAdd(L, R);
     break;
-  case TokenType::MINUS:
-    LastInstr = IRBuilder.CreateSub(L, R);
+  }
+  case TokenType::MINUS: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFSub(L, R);
+    else
+      LastInstr = IRBuilder.CreateSub(L, R);
     break;
-  case TokenType::STAR:
-    LastInstr = IRBuilder.CreateMul(L, R);
+  }
+  case TokenType::STAR: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFMul(L, R);
+    else
+      LastInstr = IRBuilder.CreateMul(L, R);
     break;
-  case TokenType::SLASH:
-    LastInstr = IRBuilder.CreateSDiv(L, R);
+  }
+  case TokenType::SLASH: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFDiv(L, R);
+    else
+      LastInstr = IRBuilder.CreateSDiv(L, R);
     break;
-  case TokenType::LE:
-    LastInstr = IRBuilder.CreateICmpSLE(L, R);
+  }
+  case TokenType::LE: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFCmpOLE(L, R);
+    else
+      LastInstr = IRBuilder.CreateICmpSLE(L, R);
     break;
-  case TokenType::LT:
-    LastInstr = IRBuilder.CreateICmpSLT(L, R);
+  }
+  case TokenType::LT: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFCmpOLT(L, R);
+    else
+      LastInstr = IRBuilder.CreateICmpSLT(L, R);
     break;
-  case TokenType::GE:
-    LastInstr = IRBuilder.CreateICmpSGE(L, R);
+  }
+  case TokenType::GE: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFCmpOGE(L, R);
+    else
+      LastInstr = IRBuilder.CreateICmpSGE(L, R);
     break;
-  case TokenType::GT:
-    LastInstr = IRBuilder.CreateICmpSGT(L, R);
+  }
+  case TokenType::GT: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFCmpOGT(L, R);
+    else
+      LastInstr = IRBuilder.CreateICmpSGT(L, R);
     break;
-  case TokenType::EQ:
-    LastInstr = IRBuilder.CreateICmpEQ(L, R);
+  }
+  case TokenType::EQ: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFCmpOEQ(L, R);
+    else
+      LastInstr = IRBuilder.CreateICmpEQ(L, R);
     break;
-  case TokenType::NEQ:
-    LastInstr = IRBuilder.CreateICmpNE(L, R);
+  }
+  case TokenType::NEQ: {
+    if (IsFloatOperands)
+      LastInstr = IRBuilder.CreateFCmpONE(L, R);
+    else
+      LastInstr = IRBuilder.CreateICmpNE(L, R);
     break;
-  case TokenType::OR:
-    LastInstr = IRBuilder.CreateLogicalOr(L, R);
+  }
+  case TokenType::OR: {
+    if (!IsFloatOperands)
+      LastInstr = IRBuilder.CreateLogicalOr(L, R);
+    else
+      WrongFloatOpsCompileError(Stmt, T);
     break;
-  case TokenType::AND:
-    LastInstr = IRBuilder.CreateLogicalAnd(L, R);
+  }
+  case TokenType::AND: {
+    if (!IsFloatOperands)
+      LastInstr = IRBuilder.CreateLogicalAnd(L, R);
+    else
+      WrongFloatOpsCompileError(Stmt, T);
     break;
-  case TokenType::BIT_OR:
-    LastInstr = IRBuilder.CreateOr(L, R);
+  }
+  case TokenType::BIT_OR: {
+    if (!IsFloatOperands)
+      LastInstr = IRBuilder.CreateOr(L, R);
+    else
+      WrongFloatOpsCompileError(Stmt, T);
     break;
-  case TokenType::BIT_AND:
-    LastInstr = IRBuilder.CreateAnd(L, R);
+  }
+  case TokenType::BIT_AND: {
+    if (!IsFloatOperands)
+      LastInstr = IRBuilder.CreateAnd(L, R);
+    else
+      WrongFloatOpsCompileError(Stmt, T);
     break;
-  case TokenType::XOR:
-    LastInstr = IRBuilder.CreateXor(L, R);
+  }
+  case TokenType::XOR: {
+    if (!IsFloatOperands)
+      LastInstr = IRBuilder.CreateXor(L, R);
+    else
+      WrongFloatOpsCompileError(Stmt, T);
     break;
-  case TokenType::SHL:
-    LastInstr = IRBuilder.CreateShl(L, R);
+  }
+  case TokenType::SHL: {
+    if (!IsFloatOperands)
+      LastInstr = IRBuilder.CreateShl(L, R);
+    else
+      WrongFloatOpsCompileError(Stmt, T);
     break;
-  case TokenType::SHR:
-    LastInstr = IRBuilder.CreateAShr(L, R);
+  }
+  case TokenType::SHR: {
+    if (!IsFloatOperands)
+      LastInstr = IRBuilder.CreateAShr(L, R);
+    else
+      WrongFloatOpsCompileError(Stmt, T);
     break;
-  default:
+  }
+  default: {
     LastInstr = nullptr;
 
     weak::CompileError(Stmt)
         << "Invalid binary operator: " << frontEnd::TokenToString(T);
     break;
+  }
   }
 }
 

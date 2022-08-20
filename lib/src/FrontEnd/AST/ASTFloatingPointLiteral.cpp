@@ -10,7 +10,7 @@
 namespace weak {
 namespace frontEnd {
 
-ASTFloatingPointLiteral::ASTFloatingPointLiteral(double TheValue,
+ASTFloatingPointLiteral::ASTFloatingPointLiteral(float TheValue,
                                                  unsigned TheLineNo,
                                                  unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), Value(TheValue) {}
@@ -23,7 +23,7 @@ void ASTFloatingPointLiteral::Accept(ASTVisitor *Visitor) {
   Visitor->Visit(this);
 }
 
-double ASTFloatingPointLiteral::GetValue() const { return Value; }
+float ASTFloatingPointLiteral::GetValue() const { return Value; }
 
 } // namespace frontEnd
 } // namespace weak

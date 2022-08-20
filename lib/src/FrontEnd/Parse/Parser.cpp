@@ -718,7 +718,7 @@ std::unique_ptr<ASTNode> Parser::ParseConstant() {
 
   case TokenType::FLOATING_POINT_LITERAL:
     return std::make_unique<ASTFloatingPointLiteral>(
-        std::stod(Current.Data), Current.LineNo, Current.ColumnNo);
+        std::stof(Current.Data), Current.LineNo, Current.ColumnNo);
 
   case TokenType::STRING_LITERAL:
     return std::make_unique<ASTStringLiteral>(Current.Data, Current.LineNo,
