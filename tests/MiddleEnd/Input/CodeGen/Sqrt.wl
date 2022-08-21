@@ -11,7 +11,7 @@ float sqrt(float value) {
         root = tmp_value;
     }
 
-    return value;
+    return root;
 }
 
 int main() {
