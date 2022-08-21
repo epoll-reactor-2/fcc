@@ -95,3 +95,8 @@ $ ./Compiler -i example.wl -o example
 $ ./example
 Hello, World!
 ```
+
+## Comparison with IR from clang
+This is an example of sqrt function LLVM IR (on the left - clang++, on the right - weak compiler)
+
+![alt text](https://github.com/epoll-reactor/weak_compiler/blob/introduce-llvm/images/sqrt-clang-comparison.png?raw=true)
