@@ -14,8 +14,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-enable_testing()
+string(
+    COMPARE EQUAL
+    "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}"
+    IS_TOP_PROJECT
+)
 
 add_subdirectory(lib)
-add_subdirectory(tests)
-add_subdirectory(compiler)
+
+if (IS_TOP_PROJECT)
+    enable_testing()
+    add_subdirectory(tests)
+    add_subdirectory(compiler)
+endif()
