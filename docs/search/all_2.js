@@ -1,27 +1,9 @@
 var searchData=
 [
-  ['char_0',['CHAR',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a027acd3aa6b1dd7f26119d3cf0f9a063',1,'weak::frontEnd']]],
-  ['checkifhavemoretokens_1',['CheckIfHaveMoreTokens',['../classweak_1_1frontEnd_1_1Parser.html#ab4c4f2990ce5a7924410bf10bc53d4c3',1,'weak::frontEnd::Parser']]],
-  ['close_5fbox_5fbracket_2',['CLOSE_BOX_BRACKET',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649afc9c02d3a44fe5c2022b6fd04c410243',1,'weak::frontEnd']]],
-  ['close_5fcurly_5fbracket_3',['CLOSE_CURLY_BRACKET',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a7e397940b62bda10c257d28dfd15585b',1,'weak::frontEnd']]],
-  ['close_5fparen_4',['CLOSE_PAREN',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649afed549d82d419e104f9010a675525244',1,'weak::frontEnd']]],
-  ['closingquotecheck_5',['ClosingQuoteCheck',['../classweak_1_1frontEnd_1_1anonymous__namespace_02Lexer_8cpp_03_1_1LexStringLiteralCheck.html#a504fb5b7d89f81bd06dd4d335f364f0a',1,'weak::frontEnd::anonymous_namespace{Lexer.cpp}::LexStringLiteralCheck']]],
-  ['codegen_6',['CodeGen',['../classweak_1_1middleEnd_1_1Storage.html#af3bddd49af1d5de96d7c9301706866f0',1,'weak::middleEnd::Storage::CodeGen()'],['../classweak_1_1middleEnd_1_1CodeGen.html#a00299247d3165566a98f42359898bf5f',1,'weak::middleEnd::CodeGen::CodeGen()'],['../classweak_1_1middleEnd_1_1CodeGen.html',1,'weak::middleEnd::CodeGen']]],
-  ['codegen_2ecpp_7',['CodeGen.cpp',['../CodeGen_8cpp.html',1,'']]],
-  ['codegen_2ehpp_8',['CodeGen.hpp',['../CodeGen_8hpp.html',1,'']]],
-  ['columnno_9',['ColumnNo',['../classweak_1_1frontEnd_1_1ASTNode.html#a7b9dc20274e55a20a93e1e8bfa6089ef',1,'weak::frontEnd::ASTNode::ColumnNo()'],['../structweak_1_1frontEnd_1_1Token.html#a87495653817b192606c2e171be5c8b93',1,'weak::frontEnd::Token::ColumnNo()']]],
-  ['comma_10',['COMMA',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a4d9b3e9fc12849d060371eb65154c751',1,'weak::frontEnd']]],
-  ['commonwhilestmtvisit_11',['CommonWhileStmtVisit',['../classanonymous__namespace_02ASTPrettyPrint_8cpp_03_1_1ASTPrintVisitor.html#a13dee08691b621aa9de6854a79527482',1,'anonymous_namespace{ASTPrettyPrint.cpp}::ASTPrintVisitor']]],
-  ['compileerror_12',['CompileError',['../namespaceweak.html#aa5438354f7f3b961edc68238b1dd56b0',1,'weak::CompileError(unsigned LineNo, unsigned ColumnNo)'],['../namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237',1,'weak::CompileError()']]],
-  ['compilewarning_13',['CompileWarning',['../namespaceweak.html#a00712649da5b4e5011571afb7bdcfc97',1,'weak::CompileWarning(unsigned LineNo, unsigned ColumnNo)'],['../namespaceweak.html#a42da0e444faf964525111a177a902859',1,'weak::CompileWarning()']]],
-  ['compound_5fstmt_14',['COMPOUND_STMT',['../namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaf78e279d6b0afba2361c50e0594557a8',1,'weak::frontEnd']]],
-  ['condition_15',['Condition',['../classweak_1_1frontEnd_1_1ASTWhileStmt.html#ae2bbf5489bd2034e9445a4093c2393ed',1,'weak::frontEnd::ASTWhileStmt::Condition()'],['../classweak_1_1frontEnd_1_1ASTIfStmt.html#a342790fa5e22eeecefe57711897574e2',1,'weak::frontEnd::ASTIfStmt::Condition()'],['../classweak_1_1frontEnd_1_1ASTForStmt.html#a2350b16cf96bdb142782e28958dcba8c',1,'weak::frontEnd::ASTForStmt::Condition()'],['../classweak_1_1frontEnd_1_1ASTDoWhileStmt.html#aa7066474e412aa3ca4d274508150e562',1,'weak::frontEnd::ASTDoWhileStmt::Condition()']]],
-  ['continue_16',['CONTINUE',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a2f453cfe638e57e27bb0c9512436111e',1,'weak::frontEnd']]],
-  ['continue_5fstmt_17',['CONTINUE_STMT',['../namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba724a73699b23aa5de52397262b133295',1,'weak::frontEnd']]],
-  ['createcode_18',['CreateCode',['../classweak_1_1middleEnd_1_1CodeGen.html#a18ba470affced2071d27e883d3651366',1,'weak::middleEnd::CodeGen']]],
-  ['currentattribute_19',['CurrentAttribute',['../classweak_1_1middleEnd_1_1Storage.html#a9d25a79372b2cf4bb23fd909aceb62a1',1,'weak::middleEnd::Storage']]],
-  ['currentbufferptr_20',['CurrentBufferPtr',['../classweak_1_1frontEnd_1_1Parser.html#a5dc355c9b6b1adee68c6ef947345918d',1,'weak::frontEnd::Parser::CurrentBufferPtr()'],['../classweak_1_1frontEnd_1_1Lexer.html#afa2583ea1d4b3b8525d6a69019e89437',1,'weak::frontEnd::Lexer::CurrentBufferPtr()']]],
-  ['currentcolumnno_21',['CurrentColumnNo',['../classweak_1_1frontEnd_1_1Lexer.html#a8074fe48f8540a24dcbf67e91dc04dcd',1,'weak::frontEnd::Lexer']]],
-  ['currentlineno_22',['CurrentLineNo',['../classweak_1_1frontEnd_1_1Lexer.html#a4d2dd6ef634b043942d162d6d2bf6bb4',1,'weak::frontEnd::Lexer']]],
-  ['currentscopedepth_23',['CurrentScopeDepth',['../classweak_1_1middleEnd_1_1Storage.html#ae4150e5240720a57a80577c81b682bd4',1,'weak::middleEnd::Storage']]]
+  ['dolexicalanalysis_0',['DoLexicalAnalysis',['../compiler_8cpp.html#ab1ab0d3db72ae2d6c8fedb9c061a9f0d',1,'compiler.cpp']]],
+  ['dollvmcodegen_1',['DoLLVMCodeGen',['../compiler_8cpp.html#a34722ced4e1783683bbb5c3123c636b9',1,'compiler.cpp']]],
+  ['dosyntaxanalysis_2',['DoSyntaxAnalysis',['../compiler_8cpp.html#aa630ace3b86ef8ebc9f03cc6e57fd67b',1,'compiler.cpp']]],
+  ['dumpast_3',['DumpAST',['../compiler_8cpp.html#ac1cb3b4aa138f94ba116b452687ef3cf',1,'compiler.cpp']]],
+  ['dumplexemes_4',['DumpLexemes',['../compiler_8cpp.html#ae376b6cfb3a01619b7602daeeba23432',1,'compiler.cpp']]],
+  ['dumpllvmir_5',['DumpLLVMIR',['../compiler_8cpp.html#abccd8d9b5d09c07b52128a1d330300be',1,'compiler.cpp']]]
 ];
