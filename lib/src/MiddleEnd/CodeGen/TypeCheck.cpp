@@ -12,18 +12,18 @@
 namespace weak {
 namespace middleEnd {
 
-void TypeCheck::AssertSame(const frontEnd::ASTNode *Node, llvm::Value *L,
+void TypeCheck::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Value *L,
                            llvm::Value *R) {
-  AssertSame(Node, L->getType(), R->getType());
+  AssertSame(InformAST, L->getType(), R->getType());
 }
 
-void TypeCheck::AssertSame(const frontEnd::ASTNode *Node, llvm::Type *L,
+void TypeCheck::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
                            llvm::Type *R) {
   if (L == R)
     return;
 
-  weak::CompileError(Node) << "Type mismatch: " << TypeToString(L) << " and "
-                           << TypeToString(R);
+  weak::CompileError(InformAST)
+      << "Type mismatch: " << TypeToString(L) << " and " << TypeToString(R);
 }
 
 std::string TypeCheck::TypeToString(llvm::Type *T) {
