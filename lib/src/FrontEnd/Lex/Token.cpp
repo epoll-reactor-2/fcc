@@ -47,7 +47,7 @@ const char *weak::frontEnd::TokenToString(TokenType Type) {
   case TokenType::FLOATING_POINT_LITERAL:
     return "<FLOAT LITERAL>";
   case TokenType::STRING_LITERAL:
-    return "STRING LITERAL";
+    return "<STRING LITERAL>";
   case TokenType::SYMBOL:
     return "<SYMBOL>";
   case TokenType::ASSIGN:

@@ -25,7 +25,7 @@ int main() {
 	return puts(input);
 }
 ```
-If we're want to view tokens:
+If we're want to see tokens:
 ```
 $ ./Compiler -i example.wl -dump-lexemes
 Token                <INT>  
@@ -43,7 +43,7 @@ Token                    {
 Token             <STRING>  
 Token             <SYMBOL>  input
 Token                    =  
-Token       STRING LITERAL  Hello, World!
+Token     <STRING LITERAL>  Hello, World!
 Token                    ;  
 Token             <RETURN>  
 Token             <SYMBOL>  puts
@@ -53,27 +53,27 @@ Token                    )
 Token                    ;  
 Token                    }
 ```
-If we're want to view syntax tree:
+If we're want to see syntax tree:
 ```
 $ ./Compiler -i example.wl -dump-ast
 CompoundStmt <line:0, col:0>
-  FunctionPrototype <line:2, col:1> puts
-    FunctionPrototypeArgs <line:2, col:1>
-      VarDeclStmt <line:2, col:10> <STRING> arg
-  FunctionDecl <line:4, col:1>
-    FunctionDeclRetType <line:4, col:1> <INT>
-    FunctionDeclName <line:4, col:1> main
-    FunctionDeclArgs <line:4, col:1>
-    FunctionDeclBody <line:4, col:1>
-      CompoundStmt <line:4, col:12>
-        VarDeclStmt <line:5, col:2> <STRING> input
-          StringLiteral <line:5, col:17> Hello, World!
-        ReturnStmt <line:6, col:2>
-          FunctionCall <line:6, col:9> puts
-            FunctionCallArgs <line:6, col:9>
-              Symbol <line:6, col:14> input
+  FunctionPrototype <line:1, col:1> puts
+    FunctionPrototypeArgs <line:1, col:1>
+      VarDeclStmt <line:1, col:10> <STRING> arg
+  FunctionDecl <line:3, col:1>
+    FunctionDeclRetType <line:3, col:1> <INT>
+    FunctionDeclName <line:3, col:1> main
+    FunctionDeclArgs <line:3, col:1>
+    FunctionDeclBody <line:3, col:1>
+      CompoundStmt <line:3, col:12>
+        VarDeclStmt <line:4, col:2> <STRING> input
+          StringLiteral <line:4, col:17> Hello, World!
+        ReturnStmt <line:5, col:2>
+          FunctionCall <line:5, col:9> puts
+            FunctionCallArgs <line:5, col:9>
+              Symbol <line:5, col:14> input
 ```
-If we're want to view LLVM IR:
+If we're want to see LLVM IR:
 ```
 $ ./Compiler -i example.wl -dump-llvm
 @0 = constant [14 x i8] c"Hello, World!\00"
