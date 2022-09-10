@@ -1,19 +1,29 @@
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://epoll-reactor.github.io/weak_compiler/index.html)
 
-# Compiler
-
+# Impregnation
 This is an implementation of simple (or not so simple, XD) compiler,
 which uses LLVM.
 
-## TODO
-* Preprocessing;
-* something similar to standard library (libc wrappers);
-* well-defined type system;
-* scopes;
-* handling of multiple definitions;
-* graph-based optimizations.
+# Conception
 
-## Command line
+## About
+
+This project designed to be modular, easy-embeddedable to other projects
+(like it was done [there](https://github.com/epoll-reactor/algorithm_bot/blob/master/bot/src/modules/compiler.cpp)).
+
+There is a front-end (building of AST), which can be connected to many back-ends,
+such as LLVM (which is already implemented), and other code generators, including
+self-written ones.
+
+## Language
+
+This is a classical example of C-like programming language with static strong
+type system. It means, any implicit conversions are not allowed, and we should
+use cast functions like `static_cast` in C++. However, this is not implemented
+because of the undecided way of embedding built-in functions to language.
+
+## Interface & capabilities
+
 Let me show how we can use it from command line:
 ```
 $ cat example.wl
@@ -43,7 +53,7 @@ Token                    {
 Token             <STRING>  
 Token             <SYMBOL>  input
 Token                    =  
-Token     <STRING LITERAL>  Hello, World!
+Token     <STRING_LITERAL>  Hello, World!
 Token                    ;  
 Token             <RETURN>  
 Token             <SYMBOL>  puts
@@ -96,7 +106,20 @@ $ ./example
 Hello, World!
 ```
 
-## Comparison with IR from clang
-This is an example of sqrt function LLVM IR (on the left - clang++, on the right - weak compiler)
+# Termination
 
-![alt text](https://github.com/epoll-reactor/weak_compiler/blob/introduce-llvm/images/sqrt-clang-comparison.png?raw=true)
+## TODO
+* Self-written back-end
+  * IR
+  * register allocation
+  * linker (and way to combine many source files to one executable)
+* optimizations
+  * graph-based
+    * SSA (implemented in master)
+  * instructions combining
+  * and others...
+* something similar to standard library (libc wrappers)
+* well-defined type system
+* scopes
+* handling of multiple definitions
+* clear API to be able to develop freestanding utilities (such as code formatters, static analyzers)
