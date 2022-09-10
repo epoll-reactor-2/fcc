@@ -1,9 +1,4 @@
 var searchData=
 [
-  ['dolexicalanalysis_0',['DoLexicalAnalysis',['../compiler_8cpp.html#ab1ab0d3db72ae2d6c8fedb9c061a9f0d',1,'compiler.cpp']]],
-  ['dollvmcodegen_1',['DoLLVMCodeGen',['../compiler_8cpp.html#a34722ced4e1783683bbb5c3123c636b9',1,'compiler.cpp']]],
-  ['dosyntaxanalysis_2',['DoSyntaxAnalysis',['../compiler_8cpp.html#aa630ace3b86ef8ebc9f03cc6e57fd67b',1,'compiler.cpp']]],
-  ['dumpast_3',['DumpAST',['../compiler_8cpp.html#ac1cb3b4aa138f94ba116b452687ef3cf',1,'compiler.cpp']]],
-  ['dumplexemes_4',['DumpLexemes',['../compiler_8cpp.html#ae376b6cfb3a01619b7602daeeba23432',1,'compiler.cpp']]],
-  ['dumpllvmir_5',['DumpLLVMIR',['../compiler_8cpp.html#abccd8d9b5d09c07b52128a1d330300be',1,'compiler.cpp']]]
+  ['build_0',['Build',['../classweak_1_1middleEnd_1_1TargetCodeBuilder.html#a48dd22758ebc58db5233d25310f5d7a6',1,'weak::middleEnd::TargetCodeBuilder::Build()'],['../classanonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#ade31fa82711ef1efe1b0152f27408f43',1,'anonymous_namespace{CodeGen.cpp}::FunctionBuilder::Build()'],['../classanonymous__namespace_02CodeGen_8cpp_03_1_1StringLiteralBuilder.html#aae697676924d89b6bb04a1d53c667889',1,'anonymous_namespace{CodeGen.cpp}::StringLiteralBuilder::Build()'],['../classanonymous__namespace_02CodeGen_8cpp_03_1_1TemporaryAllocaBuilder.html#a7a1459704f28b04685e756cd22386473',1,'anonymous_namespace{CodeGen.cpp}::TemporaryAllocaBuilder::Build()']]]
 ];
