@@ -62,14 +62,14 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_e955afc72e8af59637c9070b8690ff98.html">compiler</a></li><li class="navelem"><a class="el" href="dir_eebe51738905dab8230bae824f4c1b77.html">src</a></li><li class="navelem"><a class="el" href="dir_08923b099800228346547baa2ae0a142.html">MiddleEnd</a></li><li class="navelem"><a class="el" href="dir_9965c320f4301128bdd7cd364380dc5c.html">CodeGen</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_97aefd0d527b934f1d99a682da8fe6a9.html">lib</a></li><li class="navelem"><a class="el" href="dir_a065c5f60305fee3569f887679366939.html">src</a></li><li class="navelem"><a class="el" href="dir_fb819cc2b5cc178d117b2a1ec259a68f.html">MiddleEnd</a></li><li class="navelem"><a class="el" href="dir_f8a04748a972d5eb62b43bd24de68688.html">CodeGen</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">CodeGen.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -84,6 +84,7 @@ $(function() {
 <code>#include &quot;<a class="el" href="ASTForStmt_8hpp_source.html">FrontEnd/AST/ASTForStmt.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ASTFunctionCall_8hpp_source.html">FrontEnd/AST/ASTFunctionCall.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ASTFunctionDecl_8hpp_source.html">FrontEnd/AST/ASTFunctionDecl.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ASTFunctionPrototype_8hpp_source.html">FrontEnd/AST/ASTFunctionPrototype.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ASTIfStmt_8hpp_source.html">FrontEnd/AST/ASTIfStmt.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ASTIntegerLiteral_8hpp_source.html">FrontEnd/AST/ASTIntegerLiteral.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ASTReturnStmt_8hpp_source.html">FrontEnd/AST/ASTReturnStmt.hpp</a>&quot;</code><br />
@@ -92,22 +93,34 @@ $(function() {
 <code>#include &quot;<a class="el" href="ASTUnaryOperator_8hpp_source.html">FrontEnd/AST/ASTUnaryOperator.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ASTVarDecl_8hpp_source.html">FrontEnd/AST/ASTVarDecl.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ASTWhileStmt_8hpp_source.html">FrontEnd/AST/ASTWhileStmt.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ScalarExprEmitter_8hpp_source.html">MiddleEnd/CodeGen/ScalarExprEmitter.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="TargetCodeBuilder_8hpp_source.html">MiddleEnd/CodeGen/TargetCodeBuilder.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="TypeCheck_8hpp_source.html">MiddleEnd/CodeGen/TypeCheck.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="TypeResolver_8hpp_source.html">MiddleEnd/CodeGen/TypeResolver.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Diagnostic_8hpp_source.html">Utility/Diagnostic.hpp</a>&quot;</code><br />
 <code>#include &quot;llvm/ADT/APFloat.h&quot;</code><br />
-<code>#include &quot;llvm/ADT/STLExtras.h&quot;</code><br />
 <code>#include &quot;llvm/IR/BasicBlock.h&quot;</code><br />
 <code>#include &quot;llvm/IR/Constants.h&quot;</code><br />
 <code>#include &quot;llvm/IR/DerivedTypes.h&quot;</code><br />
 <code>#include &quot;llvm/IR/Function.h&quot;</code><br />
-<code>#include &quot;llvm/IR/IRBuilder.h&quot;</code><br />
-<code>#include &quot;llvm/IR/LLVMContext.h&quot;</code><br />
-<code>#include &quot;llvm/IR/Module.h&quot;</code><br />
 <code>#include &quot;llvm/IR/Type.h&quot;</code><br />
 <code>#include &quot;llvm/IR/Verifier.h&quot;</code><br />
-<code>#include &lt;iostream&gt;</code><br />
-<code>#include &lt;map&gt;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html">anonymous_namespace{CodeGen.cpp}::FunctionBuilder&lt; ASTFunctionDeclOrPrototype &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create part (without body and return type) of function IR from AST.  <a href="classanonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02CodeGen_8cpp_03_1_1StringLiteralBuilder.html">anonymous_namespace{CodeGen.cpp}::StringLiteralBuilder</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create string literal (actually an array of 8-bit integers).  <a href="classanonymous__namespace_02CodeGen_8cpp_03_1_1StringLiteralBuilder.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02CodeGen_8cpp_03_1_1TemporaryAllocaBuilder.html">anonymous_namespace{CodeGen.cpp}::TemporaryAllocaBuilder</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
+<tr class="memitem:namespaceanonymous__namespace_02CodeGen_8cpp_03"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02CodeGen_8cpp_03.html">anonymous_namespace{CodeGen.cpp}</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespaceweak"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html">weak</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespaceweak_1_1middleEnd"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1middleEnd.html">weak::middleEnd</a></td></tr>
@@ -115,136 +128,9 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:af33fde2eb758317657e698b5ca112a9e"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CodeGen_8cpp.html#af33fde2eb758317657e698b5ca112a9e">LogLLVMError</a> (std::string &amp;&amp;Msg)</td></tr>
-<tr class="separator:af33fde2eb758317657e698b5ca112a9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a76a92e41626d174b8af6101b3bf63b55"><td class="memItemLeft" align="right" valign="top">static std::unique_ptr&lt; llvm::LLVMContext &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CodeGen_8cpp.html#a76a92e41626d174b8af6101b3bf63b55">TheContext</a> = std::make_unique&lt;llvm::LLVMContext&gt;()</td></tr>
-<tr class="separator:a76a92e41626d174b8af6101b3bf63b55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9866a79b57423c67ddb9f48aae54adb"><td class="memItemLeft" align="right" valign="top">static std::unique_ptr&lt; llvm::Module &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CodeGen_8cpp.html#aa9866a79b57423c67ddb9f48aae54adb">TheModule</a> = std::make_unique&lt;llvm::Module&gt;(&quot;LLVM Module&quot;, *TheContext)</td></tr>
-<tr class="separator:aa9866a79b57423c67ddb9f48aae54adb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a540edd6c6be1f119a8f3bcdf0e2dad"><td class="memItemLeft" align="right" valign="top">static std::unique_ptr&lt; llvm::IRBuilder&lt;&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CodeGen_8cpp.html#a8a540edd6c6be1f119a8f3bcdf0e2dad">Builder</a> = std::make_unique&lt;llvm::IRBuilder&lt;&gt;&gt;(*<a class="el" href="CodeGen_8cpp.html#a76a92e41626d174b8af6101b3bf63b55">TheContext</a>)</td></tr>
-<tr class="separator:a8a540edd6c6be1f119a8f3bcdf0e2dad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29a545116cb13d19b439cbb8d6a3585a"><td class="memItemLeft" align="right" valign="top">static std::map&lt; std::string, llvm::Value * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="CodeGen_8cpp.html#a29a545116cb13d19b439cbb8d6a3585a">NamedValues</a></td></tr>
-<tr class="separator:a29a545116cb13d19b439cbb8d6a3585a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e8ce8a1fdac1c48ddc5828a16a46181"><td class="memItemLeft" align="right" valign="top">static frontEnd::TokenType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1middleEnd.html#a4e8ce8a1fdac1c48ddc5828a16a46181">weak::middleEnd::ResolveAssignmentOperation</a> (frontEnd::TokenType T)</td></tr>
+<tr class="separator:a4e8ce8a1fdac1c48ddc5828a16a46181"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="af33fde2eb758317657e698b5ca112a9e" name="af33fde2eb758317657e698b5ca112a9e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af33fde2eb758317657e698b5ca112a9e">&#9670;&nbsp;</a></span>LogLLVMError()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void LogLLVMError </td>
-          <td>(</td>
-          <td class="paramtype">std::string &amp;&amp;&#160;</td>
-          <td class="paramname"><em>Msg</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a id="a8a540edd6c6be1f119a8f3bcdf0e2dad" name="a8a540edd6c6be1f119a8f3bcdf0e2dad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8a540edd6c6be1f119a8f3bcdf0e2dad">&#9670;&nbsp;</a></span>Builder</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::unique_ptr&lt;llvm::IRBuilder&lt;&gt; &gt; Builder = std::make_unique&lt;llvm::IRBuilder&lt;&gt;&gt;(*<a class="el" href="CodeGen_8cpp.html#a76a92e41626d174b8af6101b3bf63b55">TheContext</a>)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a29a545116cb13d19b439cbb8d6a3585a" name="a29a545116cb13d19b439cbb8d6a3585a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a29a545116cb13d19b439cbb8d6a3585a">&#9670;&nbsp;</a></span>NamedValues</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::map&lt;std::string, llvm::Value *&gt; NamedValues</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a76a92e41626d174b8af6101b3bf63b55" name="a76a92e41626d174b8af6101b3bf63b55"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a76a92e41626d174b8af6101b3bf63b55">&#9670;&nbsp;</a></span>TheContext</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::unique_ptr&lt;llvm::LLVMContext&gt; TheContext = std::make_unique&lt;llvm::LLVMContext&gt;()</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="aa9866a79b57423c67ddb9f48aae54adb" name="aa9866a79b57423c67ddb9f48aae54adb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9866a79b57423c67ddb9f48aae54adb">&#9670;&nbsp;</a></span>TheModule</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::unique_ptr&lt;llvm::Module&gt; TheModule = std::make_unique&lt;llvm::Module&gt;(&quot;LLVM Module&quot;, *TheContext)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -9,15 +9,16 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
 
-namespace weak {
-namespace middleEnd {
-
-void TypeCheck::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Value *L,
-                           llvm::Value *R) {
-  AssertSame(InformAST, L->getType(), R->getType());
+static std::string TypeToString(llvm::Type *T) {
+  std::string Type;
+  llvm::raw_string_ostream Stream(Type);
+  T->print(Stream);
+  return Stream.str();
 }
 
-void TypeCheck::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
+namespace weak {
+
+void middleEnd::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
                            llvm::Type *R) {
   if (L == R)
     return;
@@ -26,12 +27,9 @@ void TypeCheck::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
       << "Type mismatch: " << TypeToString(L) << " and " << TypeToString(R);
 }
 
-std::string TypeCheck::TypeToString(llvm::Type *T) {
-  std::string Type;
-  llvm::raw_string_ostream Stream(Type);
-  T->print(Stream);
-  return Stream.str();
+void middleEnd::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Value *L,
+                           llvm::Value *R) {
+  AssertSame(InformAST, L->getType(), R->getType());
 }
 
-} // namespace middleEnd
 } // namespace weak

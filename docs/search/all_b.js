@@ -1,16 +1,8 @@
 var searchData=
 [
-  ['open_5fbox_5fbracket_0',['OPEN_BOX_BRACKET',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649ae87698d3112352fecfcd72d61d3142ba',1,'weak::frontEnd']]],
-  ['open_5fcurly_5fbracket_1',['OPEN_CURLY_BRACKET',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649ad7a6a14e5ac11249db28485fd67850e7',1,'weak::frontEnd']]],
-  ['open_5fparen_2',['OPEN_PAREN',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a6c2dade246bdfba9000824b34e9aa744',1,'weak::frontEnd']]],
-  ['operand_3',['Operand',['../classweak_1_1frontEnd_1_1ASTReturnStmt.html#ae32ea37fa8df28c28cc533f0072fffc6',1,'weak::frontEnd::ASTReturnStmt::Operand()'],['../classweak_1_1frontEnd_1_1ASTUnaryOperator.html#ab5bf5bff224a01d4b43ef0c48e89b9a7',1,'weak::frontEnd::ASTUnaryOperator::Operand()']]],
-  ['operation_4',['Operation',['../classweak_1_1frontEnd_1_1ASTBinaryOperator.html#aa2a1b534ee3bbe5fae98f6e3c2c6c63b',1,'weak::frontEnd::ASTBinaryOperator::Operation()'],['../classweak_1_1frontEnd_1_1ASTUnaryOperator.html#a2949bff83136c8b3475f9ab69f3975b9',1,'weak::frontEnd::ASTUnaryOperator::Operation()']]],
-  ['operator_21_3d_5',['operator!=',['../structweak_1_1frontEnd_1_1Token.html#a24b44242f4543d3ee4c5cf53e74c39ba',1,'weak::frontEnd::Token']]],
-  ['operator_3c_3c_6',['operator&lt;&lt;',['../structweak_1_1OstreamRAII.html#ad5fda7190067e87578cf7ff6118effa6',1,'weak::OstreamRAII']]],
-  ['operator_3d_7',['operator=',['../classweak_1_1Uncopyable.html#ab9a88896b6d2fcc0a66a855df7c814da',1,'weak::Uncopyable::operator=(Uncopyable &amp;&amp;)=default'],['../classweak_1_1Uncopyable.html#aedc606aab42df2c6f51f69aca40a9fd8',1,'weak::Uncopyable::operator=(const Uncopyable &amp;)=delete'],['../classweak_1_1Unmovable.html#a730404778ea104b8f211d8b81826c1a7',1,'weak::Unmovable::operator=(Unmovable &amp;&amp;)=delete'],['../classweak_1_1Unmovable.html#a8ade652d73d9e669b3f3e532967671b0',1,'weak::Unmovable::operator=(const Unmovable &amp;)=default']]],
-  ['operator_3d_3d_8',['operator==',['../structweak_1_1frontEnd_1_1Token.html#aed498ca22b2fb168c84a4397b0f40f07',1,'weak::frontEnd::Token']]],
-  ['or_9',['OR',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a1d00e7dce692e8dc3f6877f035e3a616',1,'weak::frontEnd']]],
-  ['ostreamraii_10',['OstreamRAII',['../structweak_1_1OstreamRAII.html',1,'weak']]],
-  ['outstream_11',['OutStream',['../classanonymous__namespace_02ASTPrettyPrint_8cpp_03_1_1ASTPrintVisitor.html#a23a90e3428ab33000a25003082cd4fdd',1,'anonymous_namespace{ASTPrettyPrint.cpp}::ASTPrintVisitor']]],
-  ['overload_12',['Overload',['../namespaceweak_1_1anonymous__namespace_02VariantOverload_8hpp_03.html#a28d95baaf4041370a1e175f321dd838c',1,'weak::anonymous_namespace{VariantOverload.hpp}::Overload(Ts...) -&gt; Overload&lt; Ts... &gt;'],['../structweak_1_1anonymous__namespace_02VariantOverload_8hpp_03_1_1Overload.html',1,'weak::anonymous_namespace{VariantOverload.hpp}::Overload&lt; Ts &gt;']]]
+  ['name_0',['Name',['../classweak_1_1frontEnd_1_1ASTFunctionCall.html#ab66b92b480ae5c84ce25cf3b02fce2d3',1,'weak::frontEnd::ASTFunctionCall::Name()'],['../classweak_1_1frontEnd_1_1ASTFunctionDecl.html#a0f598c10152223387126cf1f52ecead1',1,'weak::frontEnd::ASTFunctionDecl::Name()'],['../classweak_1_1frontEnd_1_1ASTFunctionPrototype.html#a06a589268f7a0f79b33d41b9f4f5d7ee',1,'weak::frontEnd::ASTFunctionPrototype::Name()']]],
+  ['neq_1',['NEQ',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a375b332cf2e0c6d522baf007ef7cb554',1,'weak::frontEnd']]],
+  ['none_2',['NONE',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649ab50339a10e1de285ac99d4c3990b8693',1,'weak::frontEnd']]],
+  ['normalizecolumnposition_3',['NormalizeColumnPosition',['../Lexer_8cpp.html#a29899e16aa496567bc82b0ac41deebd5',1,'Lexer.cpp']]],
+  ['not_4',['NOT',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a10df3d67626099df882920ba6552f16d',1,'weak::frontEnd']]]
 ];

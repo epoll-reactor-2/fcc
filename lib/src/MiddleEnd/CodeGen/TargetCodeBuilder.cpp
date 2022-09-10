@@ -54,7 +54,6 @@ TargetCodeBuilder::TargetCodeBuilder(llvm::Module &TheModule,
                                      std::string_view TheObjectFilePath)
     : Module(TheModule), ObjectFilePath(TheObjectFilePath) {}
 
-/// \todo: Organize.
 void TargetCodeBuilder::Build() {
   InitializeLLVMTargets();
 

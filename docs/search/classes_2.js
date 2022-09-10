@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['diagnostic_0',['Diagnostic',['../classanonymous__namespace_02Diagnostic_8cpp_03_1_1Diagnostic.html',1,'anonymous_namespace{Diagnostic.cpp}']]]
+  ['declrecord_0',['DeclRecord',['../structweak_1_1middleEnd_1_1DeclsStorage_1_1DeclRecord.html',1,'weak::middleEnd::DeclsStorage']]],
+  ['declsstorage_1',['DeclsStorage',['../classweak_1_1middleEnd_1_1DeclsStorage.html',1,'weak::middleEnd']]],
+  ['diagnostic_2',['Diagnostic',['../classDiagnostic.html',1,'']]]
 ];

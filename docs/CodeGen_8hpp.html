@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_e955afc72e8af59637c9070b8690ff98.html">compiler</a></li><li class="navelem"><a class="el" href="dir_fa41cb32550f3d9356b1cdea9998f6d5.html">include</a></li><li class="navelem"><a class="el" href="dir_9e92129a8b6d805c7e7be8e91f84750f.html">MiddleEnd</a></li><li class="navelem"><a class="el" href="dir_a2322811bf70b3626d8e53c8200183f2.html">CodeGen</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_97aefd0d527b934f1d99a682da8fe6a9.html">lib</a></li><li class="navelem"><a class="el" href="dir_5a30104352ef4255dc24354b02eb2d20.html">include</a></li><li class="navelem"><a class="el" href="dir_ef40113abe23eff518c8d6198c415015.html">MiddleEnd</a></li><li class="navelem"><a class="el" href="dir_1a7d0ab02aaa2085ddc30cc00cf5ea6c.html">CodeGen</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -73,7 +73,12 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="ASTVisitor_8hpp_source.html">FrontEnd/AST/ASTVisitor.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="DeclsStorage_8hpp_source.html">MiddleEnd/Storage/DeclsStorage.hpp</a>&quot;</code><br />
+<code>#include &quot;llvm/IR/IRBuilder.h&quot;</code><br />
+<code>#include &quot;llvm/IR/LLVMContext.h&quot;</code><br />
+<code>#include &quot;llvm/IR/Module.h&quot;</code><br />
 <code>#include &quot;llvm/IR/Value.h&quot;</code><br />
+<code>#include &lt;map&gt;</code><br />
 </div>
 <p><a href="CodeGen_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -85,8 +90,6 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceweak"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html">weak</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespaceweak_1_1frontEnd"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1frontEnd.html">weak::frontEnd</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespaceweak_1_1middleEnd"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1middleEnd.html">weak::middleEnd</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>

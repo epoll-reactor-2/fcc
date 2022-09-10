@@ -62,29 +62,102 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_e955afc72e8af59637c9070b8690ff98.html">compiler</a></li><li class="navelem"><a class="el" href="dir_eebe51738905dab8230bae824f4c1b77.html">src</a></li><li class="navelem"><a class="el" href="dir_93f0ca6b1ba2aa3d0ab178b97cfd1d1f.html">Utility</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_97aefd0d527b934f1d99a682da8fe6a9.html">lib</a></li><li class="navelem"><a class="el" href="dir_a065c5f60305fee3569f887679366939.html">src</a></li><li class="navelem"><a class="el" href="dir_41eff1bd0ae58cdf6edb53571df3ebcf.html">Utility</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">Diagnostic.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="Diagnostic_8hpp_source.html">Utility/Diagnostic.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ASTNode_8hpp_source.html">FrontEnd/AST/ASTNode.hpp</a>&quot;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;sstream&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02Diagnostic_8cpp_03_1_1Diagnostic.html">anonymous_namespace{Diagnostic.cpp}::Diagnostic</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDiagnostic.html">Diagnostic</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
-Namespaces</h2></td></tr>
-<tr class="memitem:namespaceanonymous__namespace_02Diagnostic_8cpp_03"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceanonymous__namespace_02Diagnostic_8cpp_03.html">anonymous_namespace{Diagnostic.cpp}</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a1b6be7e88560181ade4a6e30a9a04cef"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Diagnostic_8cpp.html#a1b6be7e88560181ade4a6e30a9a04cef">MakeMessage</a> (<a class="el" href="classDiagnostic.html#a7c718d2c38df9edcc27997e56df4ed67">Diagnostic::DiagLevel</a> Level)</td></tr>
+<tr class="separator:a1b6be7e88560181ade4a6e30a9a04cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98a89be9427d315444a81568ecef4a06"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Diagnostic_8cpp.html#a98a89be9427d315444a81568ecef4a06">MakeMessage</a> (<a class="el" href="classDiagnostic.html#a7c718d2c38df9edcc27997e56df4ed67">Diagnostic::DiagLevel</a> Level, unsigned LineNo, unsigned ColumnNo)</td></tr>
+<tr class="separator:a98a89be9427d315444a81568ecef4a06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a1b6be7e88560181ade4a6e30a9a04cef" name="a1b6be7e88560181ade4a6e30a9a04cef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b6be7e88560181ade4a6e30a9a04cef">&#9670;&nbsp;</a></span>MakeMessage() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a> MakeMessage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDiagnostic.html#a7c718d2c38df9edcc27997e56df4ed67">Diagnostic::DiagLevel</a>&#160;</td>
+          <td class="paramname"><em>Level</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a98a89be9427d315444a81568ecef4a06" name="a98a89be9427d315444a81568ecef4a06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98a89be9427d315444a81568ecef4a06">&#9670;&nbsp;</a></span>MakeMessage() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a> MakeMessage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDiagnostic.html#a7c718d2c38df9edcc27997e56df4ed67">Diagnostic::DiagLevel</a>&#160;</td>
+          <td class="paramname"><em>Level</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>LineNo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned&#160;</td>
+          <td class="paramname"><em>ColumnNo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

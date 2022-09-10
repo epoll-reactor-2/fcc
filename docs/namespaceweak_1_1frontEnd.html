@@ -102,6 +102,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionDecl.html">ASTFunctionDecl</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionPrototype.html">ASTFunctionPrototype</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTIfStmt.html">ASTIfStmt</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTIntegerLiteral.html">ASTIntegerLiteral</a></td></tr>
@@ -160,6 +162,7 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaf2edfb46759b12f62a22b75757c64fad">FUNCTION_DECL</a>
 , <br />
 &#160;&#160;<a class="el" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbafe8f37b06a5aa2e00985a4efffab6c2b">FUNCTION_CALL</a>
+, <a class="el" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbabe2e9240b7f0f3ebeaefd7eded605608">FUNCTION_PROTOTYPE</a>
 <br />
  }</td></tr>
 <tr class="separator:a0a382c2a6f386a8773b485076c2f2abb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -246,8 +249,10 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a352ae30589e2ee9c46e4b93553bf485b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1frontEnd.html#a352ae30589e2ee9c46e4b93553bf485b">ASTPrettyPrint</a> (const std::unique_ptr&lt; <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> &gt; &amp;RootNode, std::ostream &amp;OutStream)</td></tr>
-<tr class="separator:a352ae30589e2ee9c46e4b93553bf485b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae77cc5801e2b9e8c827f0f3e84835bfa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1frontEnd.html#ae77cc5801e2b9e8c827f0f3e84835bfa">ASTDump</a> (const std::unique_ptr&lt; <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> &gt; &amp;RootNode, std::ostream &amp;OutStream)</td></tr>
+<tr class="separator:ae77cc5801e2b9e8c827f0f3e84835bfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f3304121798cc6ce0fd1c5af344f639"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1frontEnd.html#a7f3304121798cc6ce0fd1c5af344f639">ASTDump</a> (<a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> *RootNode, std::ostream &amp;OutStream)</td></tr>
+<tr class="separator:a7f3304121798cc6ce0fd1c5af344f639"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeacd5dac29c0d96c7ba1e455339579b7"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1frontEnd.html#aeacd5dac29c0d96c7ba1e455339579b7">TokenToString</a> (<a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">TokenType</a> Type)</td></tr>
 <tr class="separator:aeacd5dac29c0d96c7ba1e455339579b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74eb8c7e410264cfe7c3cf5155798a32"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1frontEnd.html#a74eb8c7e410264cfe7c3cf5155798a32">TokensToString</a> (const std::vector&lt; <a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">TokenType</a> &gt; &amp;Tokens)</td></tr>
@@ -295,6 +300,7 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="a0a382c2a6f386a8773b485076c2f2abbaf78e279d6b0afba2361c50e0594557a8" name="a0a382c2a6f386a8773b485076c2f2abbaf78e279d6b0afba2361c50e0594557a8"></a>COMPOUND_STMT&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a0a382c2a6f386a8773b485076c2f2abbaf2edfb46759b12f62a22b75757c64fad" name="a0a382c2a6f386a8773b485076c2f2abbaf2edfb46759b12f62a22b75757c64fad"></a>FUNCTION_DECL&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a0a382c2a6f386a8773b485076c2f2abbafe8f37b06a5aa2e00985a4efffab6c2b" name="a0a382c2a6f386a8773b485076c2f2abbafe8f37b06a5aa2e00985a4efffab6c2b"></a>FUNCTION_CALL&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a0a382c2a6f386a8773b485076c2f2abbabe2e9240b7f0f3ebeaefd7eded605608" name="a0a382c2a6f386a8773b485076c2f2abbabe2e9240b7f0f3ebeaefd7eded605608"></a>FUNCTION_PROTOTYPE&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -385,14 +391,45 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a352ae30589e2ee9c46e4b93553bf485b" name="a352ae30589e2ee9c46e4b93553bf485b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a352ae30589e2ee9c46e4b93553bf485b">&#9670;&nbsp;</a></span>ASTPrettyPrint()</h2>
+<a id="a7f3304121798cc6ce0fd1c5af344f639" name="a7f3304121798cc6ce0fd1c5af344f639"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f3304121798cc6ce0fd1c5af344f639">&#9670;&nbsp;</a></span>ASTDump() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void weak::frontEnd::ASTPrettyPrint </td>
+          <td class="memname">void weak::frontEnd::ASTDump </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> *&#160;</td>
+          <td class="paramname"><em>RootNode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>OutStream</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p></p>
+<p >Show visual representation of Syntax Tree beginning with RootNode. </p>
+
+</div>
+</div>
+<a id="ae77cc5801e2b9e8c827f0f3e84835bfa" name="ae77cc5801e2b9e8c827f0f3e84835bfa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae77cc5801e2b9e8c827f0f3e84835bfa">&#9670;&nbsp;</a></span>ASTDump() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void weak::frontEnd::ASTDump </td>
           <td>(</td>
           <td class="paramtype">const std::unique_ptr&lt; <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>RootNode</em>, </td>

@@ -72,8 +72,6 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
-<tr class="memitem:namespaceweak_1_1anonymous__namespace_02VariantOverload_8hpp_03"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1anonymous__namespace_02VariantOverload_8hpp_03.html">anonymous_namespace{VariantOverload.hpp}</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespaceweak_1_1frontEnd"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1frontEnd.html">frontEnd</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespaceweak_1_1middleEnd"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1middleEnd.html">middleEnd</a></td></tr>
@@ -82,7 +80,9 @@ Namespaces</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1OstreamRAII.html">OstreamRAII</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This requires the string as first argument in diagnostic messages.  <a href="structweak_1_1OstreamRAII.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1Overload.html">Overload</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper binding for std::visit.  <a href="structweak_1_1Overload.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Uncopyable.html">Uncopyable</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -92,7 +92,7 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a101d70640437cebcc229779e2eb9f2c9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#a101d70640437cebcc229779e2eb9f2c9">UnreachablePoint</a> (const char *=&quot;&quot;)</td></tr>
-<tr class="memdesc:a101d70640437cebcc229779e2eb9f2c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simply terminate process.  <a href="namespaceweak.html#a101d70640437cebcc229779e2eb9f2c9">More...</a><br /></td></tr>
+<tr class="memdesc:a101d70640437cebcc229779e2eb9f2c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Throw an exception with given message.  <a href="namespaceweak.html#a101d70640437cebcc229779e2eb9f2c9">More...</a><br /></td></tr>
 <tr class="separator:a101d70640437cebcc229779e2eb9f2c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42da0e444faf964525111a177a902859"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structweak_1_1OstreamRAII.html">OstreamRAII</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#a42da0e444faf964525111a177a902859">CompileWarning</a> ()</td></tr>
 <tr class="memdesc:a42da0e444faf964525111a177a902859"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with WARN flag.  <a href="namespaceweak.html#a42da0e444faf964525111a177a902859">More...</a><br /></td></tr>
@@ -101,15 +101,21 @@ Functions</h2></td></tr>
 <tr class="memdesc:a00712649da5b4e5011571afb7bdcfc97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with WARN flag.  <a href="namespaceweak.html#a00712649da5b4e5011571afb7bdcfc97">More...</a><br /></td></tr>
 <tr class="separator:a00712649da5b4e5011571afb7bdcfc97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8fc005bbaa3fae23d9edbd2ff45d0237"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structweak_1_1OstreamRAII.html">OstreamRAII</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">CompileError</a> ()</td></tr>
-<tr class="memdesc:a8fc005bbaa3fae23d9edbd2ff45d0237"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with ERROR flag and terminate program.  <a href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">More...</a><br /></td></tr>
+<tr class="memdesc:a8fc005bbaa3fae23d9edbd2ff45d0237"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with ERROR flag and throw exception.  <a href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">More...</a><br /></td></tr>
 <tr class="separator:a8fc005bbaa3fae23d9edbd2ff45d0237"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5438354f7f3b961edc68238b1dd56b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structweak_1_1OstreamRAII.html">OstreamRAII</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#aa5438354f7f3b961edc68238b1dd56b0">CompileError</a> (unsigned LineNo, unsigned ColumnNo)</td></tr>
-<tr class="memdesc:aa5438354f7f3b961edc68238b1dd56b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with ERROR flag and terminate program.  <a href="namespaceweak.html#aa5438354f7f3b961edc68238b1dd56b0">More...</a><br /></td></tr>
+<tr class="memdesc:aa5438354f7f3b961edc68238b1dd56b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with ERROR flag and throw exception.  <a href="namespaceweak.html#aa5438354f7f3b961edc68238b1dd56b0">More...</a><br /></td></tr>
 <tr class="separator:aa5438354f7f3b961edc68238b1dd56b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70ea12a9d8928d355c27d69ebe3f7f7b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#a70ea12a9d8928d355c27d69ebe3f7f7b">CompileError</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a> *Node)</td></tr>
+<tr class="separator:a70ea12a9d8928d355c27d69ebe3f7f7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada219f6de6e016df71e9ffa88d78e77e"><td class="memTemplParams" colspan="2">template&lt;typename... Ts&gt; </td></tr>
+<tr class="memitem:ada219f6de6e016df71e9ffa88d78e77e"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceweak.html#ada219f6de6e016df71e9ffa88d78e77e">Overload</a> (Ts...) -&gt; <a class="el" href="structweak_1_1Overload.html">Overload</a>&lt; Ts... &gt;</td></tr>
+<tr class="memdesc:ada219f6de6e016df71e9ffa88d78e77e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper binding for std::visit.  <a href="namespaceweak.html#ada219f6de6e016df71e9ffa88d78e77e">More...</a><br /></td></tr>
+<tr class="separator:ada219f6de6e016df71e9ffa88d78e77e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a8fc005bbaa3fae23d9edbd2ff45d0237" name="a8fc005bbaa3fae23d9edbd2ff45d0237"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8fc005bbaa3fae23d9edbd2ff45d0237">&#9670;&nbsp;</a></span>CompileError() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fc005bbaa3fae23d9edbd2ff45d0237">&#9670;&nbsp;</a></span>CompileError() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -123,12 +129,37 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Print diagnostic message with ERROR flag and terminate program. </p>
+<p>Print diagnostic message with ERROR flag and throw exception. </p>
+
+</div>
+</div>
+<a id="a70ea12a9d8928d355c27d69ebe3f7f7b" name="a70ea12a9d8928d355c27d69ebe3f7f7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70ea12a9d8928d355c27d69ebe3f7f7b">&#9670;&nbsp;</a></span>CompileError() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a> weak::CompileError </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a> *&#160;</td>
+          <td class="paramname"><em>Node</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Print diagnostic message (with position in text) with ERROR flag and throw exception.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Node</td><td>used to extract line and column number. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
 <a id="aa5438354f7f3b961edc68238b1dd56b0" name="aa5438354f7f3b961edc68238b1dd56b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5438354f7f3b961edc68238b1dd56b0">&#9670;&nbsp;</a></span>CompileError() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5438354f7f3b961edc68238b1dd56b0">&#9670;&nbsp;</a></span>CompileError() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -153,7 +184,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Print diagnostic message with ERROR flag and terminate program. </p>
+<p>Print diagnostic message with ERROR flag and throw exception. </p>
 
 </div>
 </div>
@@ -206,6 +237,28 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ada219f6de6e016df71e9ffa88d78e77e" name="ada219f6de6e016df71e9ffa88d78e77e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada219f6de6e016df71e9ffa88d78e77e">&#9670;&nbsp;</a></span>Overload()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename... Ts&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structweak_1_1Overload.html">weak::Overload</a> </td>
+          <td>(</td>
+          <td class="paramtype">Ts...&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td> -&gt;  <a class="el" href="structweak_1_1Overload.html">Overload</a>&lt; Ts... &gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Helper binding for std::visit. </p>
+
+</div>
+</div>
 <a id="a101d70640437cebcc229779e2eb9f2c9" name="a101d70640437cebcc229779e2eb9f2c9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a101d70640437cebcc229779e2eb9f2c9">&#9670;&nbsp;</a></span>UnreachablePoint()</h2>
 
@@ -222,7 +275,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Simply terminate process. </p>
+<p>Throw an exception with given message. </p>
 
 </div>
 </div>

@@ -78,8 +78,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a08fdca0461445495a71d0879bc315763"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1frontEnd_1_1Token.html#a08fdca0461445495a71d0879bc315763">Token</a> (std::string_view TheData, <a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">TokenType</a> TheType, unsigned TheLineNo, unsigned TheColumnNo, unsigned TheAttribute=0U)</td></tr>
-<tr class="separator:a08fdca0461445495a71d0879bc315763"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26df88a606b1c04709d93e7bf5ad0147"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1frontEnd_1_1Token.html#a26df88a606b1c04709d93e7bf5ad0147">Token</a> (std::string_view TheData, <a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">TokenType</a> TheType, unsigned TheLineNo, unsigned TheColumnNo)</td></tr>
+<tr class="separator:a26df88a606b1c04709d93e7bf5ad0147"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed498ca22b2fb168c84a4397b0f40f07"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1frontEnd_1_1Token.html#aed498ca22b2fb168c84a4397b0f40f07">operator==</a> (const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> &amp;rhs) const</td></tr>
 <tr class="separator:aed498ca22b2fb168c84a4397b0f40f07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24b44242f4543d3ee4c5cf53e74c39ba"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1frontEnd_1_1Token.html#a24b44242f4543d3ee4c5cf53e74c39ba">operator!=</a> (const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> &amp;rhs) const</td></tr>
@@ -99,12 +99,10 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a87495653817b192606c2e171be5c8b93"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1frontEnd_1_1Token.html#a87495653817b192606c2e171be5c8b93">ColumnNo</a></td></tr>
 <tr class="memdesc:a87495653817b192606c2e171be5c8b93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Position in source text.  <a href="structweak_1_1frontEnd_1_1Token.html#a87495653817b192606c2e171be5c8b93">More...</a><br /></td></tr>
 <tr class="separator:a87495653817b192606c2e171be5c8b93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad552632e714f895373f372e438e3d8b9"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1frontEnd_1_1Token.html#ad552632e714f895373f372e438e3d8b9">Attribute</a></td></tr>
-<tr class="separator:ad552632e714f895373f372e438e3d8b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a08fdca0461445495a71d0879bc315763" name="a08fdca0461445495a71d0879bc315763"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a08fdca0461445495a71d0879bc315763">&#9670;&nbsp;</a></span>Token()</h2>
+<a id="a26df88a606b1c04709d93e7bf5ad0147" name="a26df88a606b1c04709d93e7bf5ad0147"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26df88a606b1c04709d93e7bf5ad0147">&#9670;&nbsp;</a></span>Token()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -131,13 +129,7 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">unsigned&#160;</td>
-          <td class="paramname"><em>TheColumnNo</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned&#160;</td>
-          <td class="paramname"><em>TheAttribute</em> = <code>0U</code>&#160;</td>
+          <td class="paramname"><em>TheColumnNo</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -187,21 +179,6 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="ad552632e714f895373f372e438e3d8b9" name="ad552632e714f895373f372e438e3d8b9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad552632e714f895373f372e438e3d8b9">&#9670;&nbsp;</a></span>Attribute</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned weak::frontEnd::Token::Attribute</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p >Integer value used to represent variable in symbol table. Used by CFG builder/analyzer and code generator. </p>
-
-</div>
-</div>
 <a id="a87495653817b192606c2e171be5c8b93" name="a87495653817b192606c2e171be5c8b93"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a87495653817b192606c2e171be5c8b93">&#9670;&nbsp;</a></span>ColumnNo</h2>
 

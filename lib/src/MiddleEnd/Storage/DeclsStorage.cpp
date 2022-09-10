@@ -1,3 +1,9 @@
+/* DeclsStorage.hpp - Storage for LLVM declarations.
+ * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
+ *
+ * This file is distributed under the MIT license.
+ */
+
 #include "MiddleEnd/Storage/DeclsStorage.hpp"
 
 namespace std {

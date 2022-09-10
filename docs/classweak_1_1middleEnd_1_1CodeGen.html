@@ -81,97 +81,119 @@ $(function() {
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a00299247d3165566a98f42359898bf5f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a00299247d3165566a98f42359898bf5f">CodeGen</a> (<a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *TheRoot)</td></tr>
 <tr class="separator:a00299247d3165566a98f42359898bf5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18ba470affced2071d27e883d3651366"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a18ba470affced2071d27e883d3651366">CreateCode</a> ()</td></tr>
-<tr class="separator:a18ba470affced2071d27e883d3651366"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8105f30ffb9e9b06b59a2fd6aa5d375"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ad8105f30ffb9e9b06b59a2fd6aa5d375">CreateCode</a> (std::string_view ObjectFilePath)</td></tr>
+<tr class="memdesc:ad8105f30ffb9e9b06b59a2fd6aa5d375"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert AST to LLVM IR starting from root node (usually CompoundStmt).  <a href="classweak_1_1middleEnd_1_1CodeGen.html#ad8105f30ffb9e9b06b59a2fd6aa5d375">More...</a><br /></td></tr>
+<tr class="separator:ad8105f30ffb9e9b06b59a2fd6aa5d375"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab756a3715fbe19b27d7b14ba5b786821"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ab756a3715fbe19b27d7b14ba5b786821">ToString</a> () const</td></tr>
+<tr class="memdesc:ab756a3715fbe19b27d7b14ba5b786821"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create visual representation.  <a href="classweak_1_1middleEnd_1_1CodeGen.html#ab756a3715fbe19b27d7b14ba5b786821">More...</a><br /></td></tr>
+<tr class="separator:ab756a3715fbe19b27d7b14ba5b786821"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:aed1bc22e0e0efa86b5fe7b55e448c24f"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#aed1bc22e0e0efa86b5fe7b55e448c24f">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">frontEnd::ASTBinaryOperator</a> *) const override</td></tr>
-<tr class="separator:aed1bc22e0e0efa86b5fe7b55e448c24f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f5afe41930646774137b13689d3a301"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a3f5afe41930646774137b13689d3a301">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBooleanLiteral.html">frontEnd::ASTBooleanLiteral</a> *) const override</td></tr>
-<tr class="separator:a3f5afe41930646774137b13689d3a301"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf9366d1e2a8a3ed170d91236f9e1b33"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#acf9366d1e2a8a3ed170d91236f9e1b33">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">frontEnd::ASTBreakStmt</a> *) const override</td></tr>
-<tr class="separator:acf9366d1e2a8a3ed170d91236f9e1b33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad48686b27ecc463cfbedf1e33d9fbb15"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ad48686b27ecc463cfbedf1e33d9fbb15">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTCompoundStmt.html">frontEnd::ASTCompoundStmt</a> *) const override</td></tr>
-<tr class="separator:ad48686b27ecc463cfbedf1e33d9fbb15"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a558da3909aaeb757fcc4b85900c12737"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a558da3909aaeb757fcc4b85900c12737">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">frontEnd::ASTContinueStmt</a> *) const override</td></tr>
-<tr class="separator:a558da3909aaeb757fcc4b85900c12737"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa42aa6702bf83f0339d5577e94d956a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#afa42aa6702bf83f0339d5577e94d956a">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTDoWhileStmt.html">frontEnd::ASTDoWhileStmt</a> *) const override</td></tr>
-<tr class="separator:afa42aa6702bf83f0339d5577e94d956a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a77bbb7154eaf57941967f67c6ce7136b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a77bbb7154eaf57941967f67c6ce7136b">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFloatingPointLiteral.html">frontEnd::ASTFloatingPointLiteral</a> *) const override</td></tr>
-<tr class="separator:a77bbb7154eaf57941967f67c6ce7136b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfa00f5b5a1e02a658141515e5fad997"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#adfa00f5b5a1e02a658141515e5fad997">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTForStmt.html">frontEnd::ASTForStmt</a> *) const override</td></tr>
-<tr class="separator:adfa00f5b5a1e02a658141515e5fad997"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa1707cc324e7bf937fef2648b1f53744"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#aa1707cc324e7bf937fef2648b1f53744">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionDecl.html">frontEnd::ASTFunctionDecl</a> *) const override</td></tr>
-<tr class="separator:aa1707cc324e7bf937fef2648b1f53744"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39addf9652a252ee6c4deb6b5a3a2f29"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a39addf9652a252ee6c4deb6b5a3a2f29">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionCall.html">frontEnd::ASTFunctionCall</a> *) const override</td></tr>
-<tr class="separator:a39addf9652a252ee6c4deb6b5a3a2f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9502203411b2a754c14367b2854a608c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a9502203411b2a754c14367b2854a608c">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIfStmt.html">frontEnd::ASTIfStmt</a> *) const override</td></tr>
-<tr class="separator:a9502203411b2a754c14367b2854a608c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22fd43989a9531a335475535f27b5a79"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a22fd43989a9531a335475535f27b5a79">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIntegerLiteral.html">frontEnd::ASTIntegerLiteral</a> *) const override</td></tr>
-<tr class="separator:a22fd43989a9531a335475535f27b5a79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad67eab5b3b461b6e93197aea7eec38e7"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ad67eab5b3b461b6e93197aea7eec38e7">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTReturnStmt.html">frontEnd::ASTReturnStmt</a> *) const override</td></tr>
-<tr class="separator:ad67eab5b3b461b6e93197aea7eec38e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6496858fc219e46851331136a0477fd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ab6496858fc219e46851331136a0477fd">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTStringLiteral.html">frontEnd::ASTStringLiteral</a> *) const override</td></tr>
-<tr class="separator:ab6496858fc219e46851331136a0477fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe3edd6bb8cf1ae7cdcc08fea5f06458"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#abe3edd6bb8cf1ae7cdcc08fea5f06458">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTSymbol.html">frontEnd::ASTSymbol</a> *) const override</td></tr>
-<tr class="separator:abe3edd6bb8cf1ae7cdcc08fea5f06458"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef8f5c238e4dc211a20ad9f620fee890"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#aef8f5c238e4dc211a20ad9f620fee890">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTUnaryOperator.html">frontEnd::ASTUnaryOperator</a> *) const override</td></tr>
-<tr class="separator:aef8f5c238e4dc211a20ad9f620fee890"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a318f9abbcaa5b4c40ef3c8a7c6ac04a0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a318f9abbcaa5b4c40ef3c8a7c6ac04a0">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTVarDecl.html">frontEnd::ASTVarDecl</a> *) const override</td></tr>
-<tr class="separator:a318f9abbcaa5b4c40ef3c8a7c6ac04a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa60277c1c7d2f2c182af2d7a285981ef"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#aa60277c1c7d2f2c182af2d7a285981ef">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTWhileStmt.html">frontEnd::ASTWhileStmt</a> *) const override</td></tr>
-<tr class="separator:aa60277c1c7d2f2c182af2d7a285981ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae54766a9141d1c7d4e5c4d71972e7b7c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ae54766a9141d1c7d4e5c4d71972e7b7c">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBooleanLiteral.html">frontEnd::ASTBooleanLiteral</a> *) override</td></tr>
+<tr class="separator:ae54766a9141d1c7d4e5c4d71972e7b7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6837ae8d37962f9d70a5e37825f39289"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a6837ae8d37962f9d70a5e37825f39289">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIntegerLiteral.html">frontEnd::ASTIntegerLiteral</a> *) override</td></tr>
+<tr class="separator:a6837ae8d37962f9d70a5e37825f39289"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf89f93478bce39c4b3c0c3e5ff6eb01"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#acf89f93478bce39c4b3c0c3e5ff6eb01">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFloatingPointLiteral.html">frontEnd::ASTFloatingPointLiteral</a> *) override</td></tr>
+<tr class="separator:acf89f93478bce39c4b3c0c3e5ff6eb01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0855051e8776071efee664bd0326eb3a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a0855051e8776071efee664bd0326eb3a">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTStringLiteral.html">frontEnd::ASTStringLiteral</a> *) override</td></tr>
+<tr class="separator:a0855051e8776071efee664bd0326eb3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6834894e15200f9cf5ec635de47dfd2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ad6834894e15200f9cf5ec635de47dfd2">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">frontEnd::ASTBinaryOperator</a> *) override</td></tr>
+<tr class="separator:ad6834894e15200f9cf5ec635de47dfd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d5cb3f5a1c41ac4b13776b334d7b733"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a2d5cb3f5a1c41ac4b13776b334d7b733">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTUnaryOperator.html">frontEnd::ASTUnaryOperator</a> *) override</td></tr>
+<tr class="separator:a2d5cb3f5a1c41ac4b13776b334d7b733"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d75396438012ff427546194f92fddf4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a5d75396438012ff427546194f92fddf4">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">frontEnd::ASTBreakStmt</a> *) override</td></tr>
+<tr class="separator:a5d75396438012ff427546194f92fddf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3efd352982227a22edfcdb058b55c31c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a3efd352982227a22edfcdb058b55c31c">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">frontEnd::ASTContinueStmt</a> *) override</td></tr>
+<tr class="separator:a3efd352982227a22edfcdb058b55c31c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a210c25b1d1651f1149919b114e908d65"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a210c25b1d1651f1149919b114e908d65">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTForStmt.html">frontEnd::ASTForStmt</a> *) override</td></tr>
+<tr class="separator:a210c25b1d1651f1149919b114e908d65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9a6333d74e53eff83ebb152a3ee844d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#aa9a6333d74e53eff83ebb152a3ee844d">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTWhileStmt.html">frontEnd::ASTWhileStmt</a> *) override</td></tr>
+<tr class="separator:aa9a6333d74e53eff83ebb152a3ee844d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8dac9eea65342b7c266801048b70f61"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ac8dac9eea65342b7c266801048b70f61">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTDoWhileStmt.html">frontEnd::ASTDoWhileStmt</a> *) override</td></tr>
+<tr class="separator:ac8dac9eea65342b7c266801048b70f61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58ed73c3d02742ab82a47957a4d1b38f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a58ed73c3d02742ab82a47957a4d1b38f">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIfStmt.html">frontEnd::ASTIfStmt</a> *) override</td></tr>
+<tr class="separator:a58ed73c3d02742ab82a47957a4d1b38f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac62d872be248776b7a7d48ac77f473ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ac62d872be248776b7a7d48ac77f473ef">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionDecl.html">frontEnd::ASTFunctionDecl</a> *) override</td></tr>
+<tr class="separator:ac62d872be248776b7a7d48ac77f473ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2e90387611000e827db699a4b31650d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ad2e90387611000e827db699a4b31650d">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionCall.html">frontEnd::ASTFunctionCall</a> *) override</td></tr>
+<tr class="separator:ad2e90387611000e827db699a4b31650d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d3c7d1a21628dc75b67966a4e8c43db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a0d3c7d1a21628dc75b67966a4e8c43db">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionPrototype.html">frontEnd::ASTFunctionPrototype</a> *) override</td></tr>
+<tr class="separator:a0d3c7d1a21628dc75b67966a4e8c43db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cbb3fc930b8e46648fb9a9c1d1d925f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a8cbb3fc930b8e46648fb9a9c1d1d925f">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTSymbol.html">frontEnd::ASTSymbol</a> *) override</td></tr>
+<tr class="separator:a8cbb3fc930b8e46648fb9a9c1d1d925f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21e6a8b00eba70d9b5a1f7bd5b0135f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a21e6a8b00eba70d9b5a1f7bd5b0135f2">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTCompoundStmt.html">frontEnd::ASTCompoundStmt</a> *) override</td></tr>
+<tr class="separator:a21e6a8b00eba70d9b5a1f7bd5b0135f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a6741afc6da9e60b94120cba650cc14"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a7a6741afc6da9e60b94120cba650cc14">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTReturnStmt.html">frontEnd::ASTReturnStmt</a> *) override</td></tr>
+<tr class="separator:a7a6741afc6da9e60b94120cba650cc14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90fc096773d02b160f7a2ac576f63d59"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a90fc096773d02b160f7a2ac576f63d59">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTVarDecl.html">frontEnd::ASTVarDecl</a> *) override</td></tr>
+<tr class="separator:a90fc096773d02b160f7a2ac576f63d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classweak_1_1frontEnd_1_1ASTVisitor')"><img src="closed.png" alt="-"/>&#160;Private Member Functions inherited from <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html">weak::frontEnd::ASTVisitor</a></td></tr>
 <tr class="memitem:a6aab74ef896cd7e5213f13ea52a5b68f inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a6aab74ef896cd7e5213f13ea52a5b68f">~ASTVisitor</a> () noexcept=default</td></tr>
 <tr class="separator:a6aab74ef896cd7e5213f13ea52a5b68f inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b2d189de72b4e2f44fbf8b7ee4deea3 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a7b2d189de72b4e2f44fbf8b7ee4deea3">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">ASTBinaryOperator</a> *) const =0</td></tr>
-<tr class="separator:a7b2d189de72b4e2f44fbf8b7ee4deea3 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61bb6e37e3b4c326056681fb77118bfa inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a61bb6e37e3b4c326056681fb77118bfa">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBooleanLiteral.html">ASTBooleanLiteral</a> *) const =0</td></tr>
-<tr class="separator:a61bb6e37e3b4c326056681fb77118bfa inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bc906ffa1e32f4967d8e93a9d24de8e inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a4bc906ffa1e32f4967d8e93a9d24de8e">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">ASTBreakStmt</a> *) const =0</td></tr>
-<tr class="separator:a4bc906ffa1e32f4967d8e93a9d24de8e inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dd1ea35c67b64edfbd54738cd0a07d5 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a8dd1ea35c67b64edfbd54738cd0a07d5">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> *) const =0</td></tr>
-<tr class="separator:a8dd1ea35c67b64edfbd54738cd0a07d5 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aede98f45ddb393ce21de70710541d33a inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#aede98f45ddb393ce21de70710541d33a">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">ASTContinueStmt</a> *) const =0</td></tr>
-<tr class="separator:aede98f45ddb393ce21de70710541d33a inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a938d0ce7aea19617e46be912309dcb33 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a938d0ce7aea19617e46be912309dcb33">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTDoWhileStmt.html">ASTDoWhileStmt</a> *) const =0</td></tr>
-<tr class="separator:a938d0ce7aea19617e46be912309dcb33 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf5c4a1e5640ffcb3ff642abebf7f784 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#abf5c4a1e5640ffcb3ff642abebf7f784">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFloatingPointLiteral.html">ASTFloatingPointLiteral</a> *) const =0</td></tr>
-<tr class="separator:abf5c4a1e5640ffcb3ff642abebf7f784 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac28f196c4fd20695a146ceb85c55e9f3 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ac28f196c4fd20695a146ceb85c55e9f3">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTForStmt.html">ASTForStmt</a> *) const =0</td></tr>
-<tr class="separator:ac28f196c4fd20695a146ceb85c55e9f3 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3251585758f9773137d6f80f4f43fb5 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ab3251585758f9773137d6f80f4f43fb5">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionDecl.html">ASTFunctionDecl</a> *) const =0</td></tr>
-<tr class="separator:ab3251585758f9773137d6f80f4f43fb5 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70b8319d677df989a7d0642b44cd5ebf inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a70b8319d677df989a7d0642b44cd5ebf">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionCall.html">ASTFunctionCall</a> *) const =0</td></tr>
-<tr class="separator:a70b8319d677df989a7d0642b44cd5ebf inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b61bfbd2e2129ffff7ebd6d5f49dd76 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a3b61bfbd2e2129ffff7ebd6d5f49dd76">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIfStmt.html">ASTIfStmt</a> *) const =0</td></tr>
-<tr class="separator:a3b61bfbd2e2129ffff7ebd6d5f49dd76 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8900785d847b4a7ab26094ef6096d956 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a8900785d847b4a7ab26094ef6096d956">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIntegerLiteral.html">ASTIntegerLiteral</a> *) const =0</td></tr>
-<tr class="separator:a8900785d847b4a7ab26094ef6096d956 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a131c98f6d7a3842643de2a866450ddb8 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a131c98f6d7a3842643de2a866450ddb8">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTReturnStmt.html">ASTReturnStmt</a> *) const =0</td></tr>
-<tr class="separator:a131c98f6d7a3842643de2a866450ddb8 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45313c7aa630be188518c756b52c085d inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a45313c7aa630be188518c756b52c085d">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTStringLiteral.html">ASTStringLiteral</a> *) const =0</td></tr>
-<tr class="separator:a45313c7aa630be188518c756b52c085d inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e47d356993857b30f40747d22b178e2 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a9e47d356993857b30f40747d22b178e2">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTSymbol.html">ASTSymbol</a> *) const =0</td></tr>
-<tr class="separator:a9e47d356993857b30f40747d22b178e2 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a897f8ac780d521cf0d78eb0e5f9c46e7 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a897f8ac780d521cf0d78eb0e5f9c46e7">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTUnaryOperator.html">ASTUnaryOperator</a> *) const =0</td></tr>
-<tr class="separator:a897f8ac780d521cf0d78eb0e5f9c46e7 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af3c8a73808f7cd7a758e729515183ab9 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#af3c8a73808f7cd7a758e729515183ab9">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTVarDecl.html">ASTVarDecl</a> *) const =0</td></tr>
-<tr class="separator:af3c8a73808f7cd7a758e729515183ab9 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb9470ea3c3a428174198efe31e3d680 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#adb9470ea3c3a428174198efe31e3d680">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTWhileStmt.html">ASTWhileStmt</a> *) const =0</td></tr>
-<tr class="separator:adb9470ea3c3a428174198efe31e3d680 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f4b2dba7cd9a4216be22e48af5260ac inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a2f4b2dba7cd9a4216be22e48af5260ac">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">ASTBinaryOperator</a> *)=0</td></tr>
+<tr class="separator:a2f4b2dba7cd9a4216be22e48af5260ac inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70780454e7321f24a89bdf0f44f42a4a inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a70780454e7321f24a89bdf0f44f42a4a">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBooleanLiteral.html">ASTBooleanLiteral</a> *)=0</td></tr>
+<tr class="separator:a70780454e7321f24a89bdf0f44f42a4a inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44f92dfea558607e4ad59029c2fe9dee inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a44f92dfea558607e4ad59029c2fe9dee">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">ASTBreakStmt</a> *)=0</td></tr>
+<tr class="separator:a44f92dfea558607e4ad59029c2fe9dee inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60c5d8cb946f587c05b544040cc67887 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a60c5d8cb946f587c05b544040cc67887">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> *)=0</td></tr>
+<tr class="separator:a60c5d8cb946f587c05b544040cc67887 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45b5af91a5c0ecd3c78f2505489823f9 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a45b5af91a5c0ecd3c78f2505489823f9">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">ASTContinueStmt</a> *)=0</td></tr>
+<tr class="separator:a45b5af91a5c0ecd3c78f2505489823f9 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a791e751f0864fb6013cb059470abd918 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a791e751f0864fb6013cb059470abd918">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTDoWhileStmt.html">ASTDoWhileStmt</a> *)=0</td></tr>
+<tr class="separator:a791e751f0864fb6013cb059470abd918 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d261a9378eb8f9d62b8f842c5f90329 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a3d261a9378eb8f9d62b8f842c5f90329">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFloatingPointLiteral.html">ASTFloatingPointLiteral</a> *)=0</td></tr>
+<tr class="separator:a3d261a9378eb8f9d62b8f842c5f90329 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad41e50ce172e962615bd11644e2f295a inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ad41e50ce172e962615bd11644e2f295a">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTForStmt.html">ASTForStmt</a> *)=0</td></tr>
+<tr class="separator:ad41e50ce172e962615bd11644e2f295a inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94f31d26fcb0a1c076454484b50749a2 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a94f31d26fcb0a1c076454484b50749a2">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionDecl.html">ASTFunctionDecl</a> *)=0</td></tr>
+<tr class="separator:a94f31d26fcb0a1c076454484b50749a2 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1cb583895966313e6e0da071815bdad inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ab1cb583895966313e6e0da071815bdad">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionCall.html">ASTFunctionCall</a> *)=0</td></tr>
+<tr class="separator:ab1cb583895966313e6e0da071815bdad inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a124964bce8121c5b2a075312f4a2bd3b inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a124964bce8121c5b2a075312f4a2bd3b">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionPrototype.html">ASTFunctionPrototype</a> *)=0</td></tr>
+<tr class="separator:a124964bce8121c5b2a075312f4a2bd3b inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5f8aec550e0f7d5f0e578fc3ff3b145 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ad5f8aec550e0f7d5f0e578fc3ff3b145">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIfStmt.html">ASTIfStmt</a> *)=0</td></tr>
+<tr class="separator:ad5f8aec550e0f7d5f0e578fc3ff3b145 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90e736013223de71f1b78c96167e5315 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a90e736013223de71f1b78c96167e5315">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIntegerLiteral.html">ASTIntegerLiteral</a> *)=0</td></tr>
+<tr class="separator:a90e736013223de71f1b78c96167e5315 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36585e19816a557b4829f47435aec54b inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a36585e19816a557b4829f47435aec54b">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTReturnStmt.html">ASTReturnStmt</a> *)=0</td></tr>
+<tr class="separator:a36585e19816a557b4829f47435aec54b inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97141c1e98489c768b9ba1b51df29fe6 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a97141c1e98489c768b9ba1b51df29fe6">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTStringLiteral.html">ASTStringLiteral</a> *)=0</td></tr>
+<tr class="separator:a97141c1e98489c768b9ba1b51df29fe6 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cd541992d2fb763a56843cefa84a88f inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a6cd541992d2fb763a56843cefa84a88f">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTSymbol.html">ASTSymbol</a> *)=0</td></tr>
+<tr class="separator:a6cd541992d2fb763a56843cefa84a88f inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f7de93240b0b043e123f63d8e358299 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a1f7de93240b0b043e123f63d8e358299">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTUnaryOperator.html">ASTUnaryOperator</a> *)=0</td></tr>
+<tr class="separator:a1f7de93240b0b043e123f63d8e358299 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a106f2ca89dbc50baf808ce15859d81fe inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a106f2ca89dbc50baf808ce15859d81fe">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTVarDecl.html">ASTVarDecl</a> *)=0</td></tr>
+<tr class="separator:a106f2ca89dbc50baf808ce15859d81fe inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c8529fa1e93000e45abb0178be158b3 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a1c8529fa1e93000e45abb0178be158b3">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTWhileStmt.html">ASTWhileStmt</a> *)=0</td></tr>
+<tr class="separator:a1c8529fa1e93000e45abb0178be158b3 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:affc1ea552c969c94b3af8e19dc18a463"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#affc1ea552c969c94b3af8e19dc18a463">Root</a></td></tr>
+<tr class="memdesc:affc1ea552c969c94b3af8e19dc18a463"><td class="mdescLeft">&#160;</td><td class="mdescRight">Anayzed root AST node.  <a href="classweak_1_1middleEnd_1_1CodeGen.html#affc1ea552c969c94b3af8e19dc18a463">More...</a><br /></td></tr>
 <tr class="separator:affc1ea552c969c94b3af8e19dc18a463"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa55bb539f6561059d621bf1177c020d"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#afa55bb539f6561059d621bf1177c020d">LastEmitted</a></td></tr>
-<tr class="separator:afa55bb539f6561059d621bf1177c020d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a75dfbbd7cb2dda8f03682b51d83d50e3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a75dfbbd7cb2dda8f03682b51d83d50e3">IsReturnValue</a></td></tr>
-<tr class="separator:a75dfbbd7cb2dda8f03682b51d83d50e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7419f740d2d17d9e55e282c83e39969a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classweak_1_1middleEnd_1_1DeclsStorage.html">DeclsStorage</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a7419f740d2d17d9e55e282c83e39969a">DeclStorage</a></td></tr>
+<tr class="memdesc:a7419f740d2d17d9e55e282c83e39969a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variables pool.  <a href="classweak_1_1middleEnd_1_1CodeGen.html#a7419f740d2d17d9e55e282c83e39969a">More...</a><br /></td></tr>
+<tr class="separator:a7419f740d2d17d9e55e282c83e39969a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec015a0d15c6b2ce85a7e2462bea5935"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#aec015a0d15c6b2ce85a7e2462bea5935">LastInstr</a></td></tr>
+<tr class="separator:aec015a0d15c6b2ce85a7e2462bea5935"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3ffc4fa068d2736f1a249baed8e7bca"><td class="memItemLeft" align="right" valign="top">llvm::LLVMContext&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ae3ffc4fa068d2736f1a249baed8e7bca">IRCtx</a></td></tr>
+<tr class="memdesc:ae3ffc4fa068d2736f1a249baed8e7bca"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff.  <a href="classweak_1_1middleEnd_1_1CodeGen.html#ae3ffc4fa068d2736f1a249baed8e7bca">More...</a><br /></td></tr>
+<tr class="separator:ae3ffc4fa068d2736f1a249baed8e7bca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4619ef8ec569b883811bdd8600dc538"><td class="memItemLeft" align="right" valign="top">llvm::Module&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#aa4619ef8ec569b883811bdd8600dc538">IRModule</a></td></tr>
+<tr class="memdesc:aa4619ef8ec569b883811bdd8600dc538"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff.  <a href="classweak_1_1middleEnd_1_1CodeGen.html#aa4619ef8ec569b883811bdd8600dc538">More...</a><br /></td></tr>
+<tr class="separator:aa4619ef8ec569b883811bdd8600dc538"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f557565bc0bc3ce899f363f30841132"><td class="memItemLeft" align="right" valign="top">llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a2f557565bc0bc3ce899f363f30841132">IRBuilder</a></td></tr>
+<tr class="memdesc:a2f557565bc0bc3ce899f363f30841132"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff.  <a href="classweak_1_1middleEnd_1_1CodeGen.html#a2f557565bc0bc3ce899f363f30841132">More...</a><br /></td></tr>
+<tr class="separator:a2f557565bc0bc3ce899f363f30841132"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p >LLVM IR generator.</p>
+<p >Implemented as AST visitor because it still does not operates on CFG. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a00299247d3165566a98f42359898bf5f" name="a00299247d3165566a98f42359898bf5f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a00299247d3165566a98f42359898bf5f">&#9670;&nbsp;</a></span>CodeGen()</h2>
 
@@ -191,8 +213,8 @@ Private Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a18ba470affced2071d27e883d3651366" name="a18ba470affced2071d27e883d3651366"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18ba470affced2071d27e883d3651366">&#9670;&nbsp;</a></span>CreateCode()</h2>
+<a id="ad8105f30ffb9e9b06b59a2fd6aa5d375" name="ad8105f30ffb9e9b06b59a2fd6aa5d375"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8105f30ffb9e9b06b59a2fd6aa5d375">&#9670;&nbsp;</a></span>CreateCode()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -200,16 +222,38 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="memname">void weak::middleEnd::CodeGen::CreateCode </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>ObjectFilePath</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
+<p>Convert AST to LLVM IR starting from root node (usually CompoundStmt). </p>
+
 </div>
 </div>
-<a id="aed1bc22e0e0efa86b5fe7b55e448c24f" name="aed1bc22e0e0efa86b5fe7b55e448c24f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed1bc22e0e0efa86b5fe7b55e448c24f">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/18]</span></h2>
+<a id="ab756a3715fbe19b27d7b14ba5b786821" name="ab756a3715fbe19b27d7b14ba5b786821"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab756a3715fbe19b27d7b14ba5b786821">&#9670;&nbsp;</a></span>ToString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string weak::middleEnd::CodeGen::ToString </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create visual representation. </p>
+
+</div>
+</div>
+<a id="ad6834894e15200f9cf5ec635de47dfd2" name="ad6834894e15200f9cf5ec635de47dfd2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6834894e15200f9cf5ec635de47dfd2">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -222,7 +266,7 @@ Private Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">frontEnd::ASTBinaryOperator</a> *&#160;</td>
           <td class="paramname"><em>Stmt</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -232,12 +276,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a7b2d189de72b4e2f44fbf8b7ee4deea3">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a2f4b2dba7cd9a4216be22e48af5260ac">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="a3f5afe41930646774137b13689d3a301" name="a3f5afe41930646774137b13689d3a301"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3f5afe41930646774137b13689d3a301">&#9670;&nbsp;</a></span>Visit() <span class="overload">[2/18]</span></h2>
+<a id="ae54766a9141d1c7d4e5c4d71972e7b7c" name="ae54766a9141d1c7d4e5c4d71972e7b7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae54766a9141d1c7d4e5c4d71972e7b7c">&#9670;&nbsp;</a></span>Visit() <span class="overload">[2/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -246,26 +290,26 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTBooleanLiteral.html">frontEnd::ASTBooleanLiteral</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a61bb6e37e3b4c326056681fb77118bfa">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a70780454e7321f24a89bdf0f44f42a4a">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="acf9366d1e2a8a3ed170d91236f9e1b33" name="acf9366d1e2a8a3ed170d91236f9e1b33"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acf9366d1e2a8a3ed170d91236f9e1b33">&#9670;&nbsp;</a></span>Visit() <span class="overload">[3/18]</span></h2>
+<a id="a5d75396438012ff427546194f92fddf4" name="a5d75396438012ff427546194f92fddf4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d75396438012ff427546194f92fddf4">&#9670;&nbsp;</a></span>Visit() <span class="overload">[3/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -274,11 +318,11 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">frontEnd::ASTBreakStmt</a> *&#160;</td>
           <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -288,12 +332,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a4bc906ffa1e32f4967d8e93a9d24de8e">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a44f92dfea558607e4ad59029c2fe9dee">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="ad48686b27ecc463cfbedf1e33d9fbb15" name="ad48686b27ecc463cfbedf1e33d9fbb15"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad48686b27ecc463cfbedf1e33d9fbb15">&#9670;&nbsp;</a></span>Visit() <span class="overload">[4/18]</span></h2>
+<a id="a21e6a8b00eba70d9b5a1f7bd5b0135f2" name="a21e6a8b00eba70d9b5a1f7bd5b0135f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21e6a8b00eba70d9b5a1f7bd5b0135f2">&#9670;&nbsp;</a></span>Visit() <span class="overload">[4/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -306,7 +350,7 @@ Private Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTCompoundStmt.html">frontEnd::ASTCompoundStmt</a> *&#160;</td>
           <td class="paramname"><em>Stmts</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -316,12 +360,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a8dd1ea35c67b64edfbd54738cd0a07d5">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a60c5d8cb946f587c05b544040cc67887">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="a558da3909aaeb757fcc4b85900c12737" name="a558da3909aaeb757fcc4b85900c12737"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a558da3909aaeb757fcc4b85900c12737">&#9670;&nbsp;</a></span>Visit() <span class="overload">[5/18]</span></h2>
+<a id="a3efd352982227a22edfcdb058b55c31c" name="a3efd352982227a22edfcdb058b55c31c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3efd352982227a22edfcdb058b55c31c">&#9670;&nbsp;</a></span>Visit() <span class="overload">[5/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -330,11 +374,11 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">frontEnd::ASTContinueStmt</a> *&#160;</td>
           <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -344,12 +388,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#aede98f45ddb393ce21de70710541d33a">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a45b5af91a5c0ecd3c78f2505489823f9">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="afa42aa6702bf83f0339d5577e94d956a" name="afa42aa6702bf83f0339d5577e94d956a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa42aa6702bf83f0339d5577e94d956a">&#9670;&nbsp;</a></span>Visit() <span class="overload">[6/18]</span></h2>
+<a id="ac8dac9eea65342b7c266801048b70f61" name="ac8dac9eea65342b7c266801048b70f61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8dac9eea65342b7c266801048b70f61">&#9670;&nbsp;</a></span>Visit() <span class="overload">[6/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -358,26 +402,26 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTDoWhileStmt.html">frontEnd::ASTDoWhileStmt</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a938d0ce7aea19617e46be912309dcb33">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a791e751f0864fb6013cb059470abd918">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="a77bbb7154eaf57941967f67c6ce7136b" name="a77bbb7154eaf57941967f67c6ce7136b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a77bbb7154eaf57941967f67c6ce7136b">&#9670;&nbsp;</a></span>Visit() <span class="overload">[7/18]</span></h2>
+<a id="acf89f93478bce39c4b3c0c3e5ff6eb01" name="acf89f93478bce39c4b3c0c3e5ff6eb01"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf89f93478bce39c4b3c0c3e5ff6eb01">&#9670;&nbsp;</a></span>Visit() <span class="overload">[7/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -386,26 +430,26 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTFloatingPointLiteral.html">frontEnd::ASTFloatingPointLiteral</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#abf5c4a1e5640ffcb3ff642abebf7f784">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a3d261a9378eb8f9d62b8f842c5f90329">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="adfa00f5b5a1e02a658141515e5fad997" name="adfa00f5b5a1e02a658141515e5fad997"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adfa00f5b5a1e02a658141515e5fad997">&#9670;&nbsp;</a></span>Visit() <span class="overload">[8/18]</span></h2>
+<a id="a210c25b1d1651f1149919b114e908d65" name="a210c25b1d1651f1149919b114e908d65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a210c25b1d1651f1149919b114e908d65">&#9670;&nbsp;</a></span>Visit() <span class="overload">[8/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -414,26 +458,27 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTForStmt.html">frontEnd::ASTForStmt</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>: Generate code with respect to empty for parameters, e.g for (;;), or for(int i = 0; ; ++i). Also break,continue statements should be implemented. </dd></dl>
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ac28f196c4fd20695a146ceb85c55e9f3">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ad41e50ce172e962615bd11644e2f295a">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="a39addf9652a252ee6c4deb6b5a3a2f29" name="a39addf9652a252ee6c4deb6b5a3a2f29"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a39addf9652a252ee6c4deb6b5a3a2f29">&#9670;&nbsp;</a></span>Visit() <span class="overload">[9/18]</span></h2>
+<a id="ad2e90387611000e827db699a4b31650d" name="ad2e90387611000e827db699a4b31650d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2e90387611000e827db699a4b31650d">&#9670;&nbsp;</a></span>Visit() <span class="overload">[9/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -446,7 +491,7 @@ Private Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionCall.html">frontEnd::ASTFunctionCall</a> *&#160;</td>
           <td class="paramname"><em>Stmt</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -456,12 +501,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a70b8319d677df989a7d0642b44cd5ebf">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ab1cb583895966313e6e0da071815bdad">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="aa1707cc324e7bf937fef2648b1f53744" name="aa1707cc324e7bf937fef2648b1f53744"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa1707cc324e7bf937fef2648b1f53744">&#9670;&nbsp;</a></span>Visit() <span class="overload">[10/18]</span></h2>
+<a id="ac62d872be248776b7a7d48ac77f473ef" name="ac62d872be248776b7a7d48ac77f473ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac62d872be248776b7a7d48ac77f473ef">&#9670;&nbsp;</a></span>Visit() <span class="overload">[10/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -474,7 +519,7 @@ Private Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionDecl.html">frontEnd::ASTFunctionDecl</a> *&#160;</td>
           <td class="paramname"><em>Decl</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -484,12 +529,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ab3251585758f9773137d6f80f4f43fb5">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a94f31d26fcb0a1c076454484b50749a2">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="a9502203411b2a754c14367b2854a608c" name="a9502203411b2a754c14367b2854a608c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9502203411b2a754c14367b2854a608c">&#9670;&nbsp;</a></span>Visit() <span class="overload">[11/18]</span></h2>
+<a id="a0d3c7d1a21628dc75b67966a4e8c43db" name="a0d3c7d1a21628dc75b67966a4e8c43db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d3c7d1a21628dc75b67966a4e8c43db">&#9670;&nbsp;</a></span>Visit() <span class="overload">[11/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -498,26 +543,55 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTIfStmt.html">frontEnd::ASTIfStmt</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTFunctionPrototype.html">frontEnd::ASTFunctionPrototype</a> *&#160;</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a3b61bfbd2e2129ffff7ebd6d5f49dd76">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a124964bce8121c5b2a075312f4a2bd3b">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="a22fd43989a9531a335475535f27b5a79" name="a22fd43989a9531a335475535f27b5a79"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a22fd43989a9531a335475535f27b5a79">&#9670;&nbsp;</a></span>Visit() <span class="overload">[12/18]</span></h2>
+<a id="a58ed73c3d02742ab82a47957a4d1b38f" name="a58ed73c3d02742ab82a47957a4d1b38f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58ed73c3d02742ab82a47957a4d1b38f">&#9670;&nbsp;</a></span>Visit() <span class="overload">[12/19]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTIfStmt.html">frontEnd::ASTIfStmt</a> *&#160;</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000003">Todo:</a></b></dt><dd>: I am not sure if we should always compare with 0. </dd></dl>
+
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#ad5f8aec550e0f7d5f0e578fc3ff3b145">weak::frontEnd::ASTVisitor</a>.</p>
+
+</div>
+</div>
+<a id="a6837ae8d37962f9d70a5e37825f39289" name="a6837ae8d37962f9d70a5e37825f39289"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6837ae8d37962f9d70a5e37825f39289">&#9670;&nbsp;</a></span>Visit() <span class="overload">[13/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -530,7 +604,7 @@ Private Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTIntegerLiteral.html">frontEnd::ASTIntegerLiteral</a> *&#160;</td>
           <td class="paramname"><em>Stmt</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -540,12 +614,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a8900785d847b4a7ab26094ef6096d956">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a90e736013223de71f1b78c96167e5315">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="ad67eab5b3b461b6e93197aea7eec38e7" name="ad67eab5b3b461b6e93197aea7eec38e7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad67eab5b3b461b6e93197aea7eec38e7">&#9670;&nbsp;</a></span>Visit() <span class="overload">[13/18]</span></h2>
+<a id="a7a6741afc6da9e60b94120cba650cc14" name="a7a6741afc6da9e60b94120cba650cc14"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a6741afc6da9e60b94120cba650cc14">&#9670;&nbsp;</a></span>Visit() <span class="overload">[14/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -558,7 +632,7 @@ Private Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTReturnStmt.html">frontEnd::ASTReturnStmt</a> *&#160;</td>
           <td class="paramname"><em>Stmt</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -568,12 +642,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a131c98f6d7a3842643de2a866450ddb8">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a36585e19816a557b4829f47435aec54b">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="ab6496858fc219e46851331136a0477fd" name="ab6496858fc219e46851331136a0477fd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab6496858fc219e46851331136a0477fd">&#9670;&nbsp;</a></span>Visit() <span class="overload">[14/18]</span></h2>
+<a id="a0855051e8776071efee664bd0326eb3a" name="a0855051e8776071efee664bd0326eb3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0855051e8776071efee664bd0326eb3a">&#9670;&nbsp;</a></span>Visit() <span class="overload">[15/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -582,26 +656,26 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTStringLiteral.html">frontEnd::ASTStringLiteral</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a45313c7aa630be188518c756b52c085d">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a97141c1e98489c768b9ba1b51df29fe6">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="abe3edd6bb8cf1ae7cdcc08fea5f06458" name="abe3edd6bb8cf1ae7cdcc08fea5f06458"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abe3edd6bb8cf1ae7cdcc08fea5f06458">&#9670;&nbsp;</a></span>Visit() <span class="overload">[15/18]</span></h2>
+<a id="a8cbb3fc930b8e46648fb9a9c1d1d925f" name="a8cbb3fc930b8e46648fb9a9c1d1d925f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8cbb3fc930b8e46648fb9a9c1d1d925f">&#9670;&nbsp;</a></span>Visit() <span class="overload">[16/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -614,7 +688,7 @@ Private Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTSymbol.html">frontEnd::ASTSymbol</a> *&#160;</td>
           <td class="paramname"><em>Stmt</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -624,12 +698,12 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a9e47d356993857b30f40747d22b178e2">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a6cd541992d2fb763a56843cefa84a88f">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="aef8f5c238e4dc211a20ad9f620fee890" name="aef8f5c238e4dc211a20ad9f620fee890"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aef8f5c238e4dc211a20ad9f620fee890">&#9670;&nbsp;</a></span>Visit() <span class="overload">[16/18]</span></h2>
+<a id="a2d5cb3f5a1c41ac4b13776b334d7b733" name="a2d5cb3f5a1c41ac4b13776b334d7b733"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d5cb3f5a1c41ac4b13776b334d7b733">&#9670;&nbsp;</a></span>Visit() <span class="overload">[17/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -638,26 +712,26 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTUnaryOperator.html">frontEnd::ASTUnaryOperator</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a897f8ac780d521cf0d78eb0e5f9c46e7">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a1f7de93240b0b043e123f63d8e358299">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
-<a id="a318f9abbcaa5b4c40ef3c8a7c6ac04a0" name="a318f9abbcaa5b4c40ef3c8a7c6ac04a0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a318f9abbcaa5b4c40ef3c8a7c6ac04a0">&#9670;&nbsp;</a></span>Visit() <span class="overload">[17/18]</span></h2>
+<a id="a90fc096773d02b160f7a2ac576f63d59" name="a90fc096773d02b160f7a2ac576f63d59"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90fc096773d02b160f7a2ac576f63d59">&#9670;&nbsp;</a></span>Visit() <span class="overload">[18/19]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -670,7 +744,36 @@ Private Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTVarDecl.html">frontEnd::ASTVarDecl</a> *&#160;</td>
           <td class="paramname"><em>Decl</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Alloca needed to be able to store mutable variables. We should also do load and store before and after every use of Alloca variable.</p>
+
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a106f2ca89dbc50baf808ce15859d81fe">weak::frontEnd::ASTVisitor</a>.</p>
+
+</div>
+</div>
+<a id="aa9a6333d74e53eff83ebb152a3ee844d" name="aa9a6333d74e53eff83ebb152a3ee844d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9a6333d74e53eff83ebb152a3ee844d">&#9670;&nbsp;</a></span>Visit() <span class="overload">[19/19]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTWhileStmt.html">frontEnd::ASTWhileStmt</a> *&#160;</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -680,41 +783,13 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#af3c8a73808f7cd7a758e729515183ab9">weak::frontEnd::ASTVisitor</a>.</p>
-
-</div>
-</div>
-<a id="aa60277c1c7d2f2c182af2d7a285981ef" name="aa60277c1c7d2f2c182af2d7a285981ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa60277c1c7d2f2c182af2d7a285981ef">&#9670;&nbsp;</a></span>Visit() <span class="overload">[18/18]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual void weak::middleEnd::CodeGen::Visit </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTWhileStmt.html">frontEnd::ASTWhileStmt</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#adb9470ea3c3a428174198efe31e3d680">weak::frontEnd::ASTVisitor</a>.</p>
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a1c8529fa1e93000e45abb0178be158b3">weak::frontEnd::ASTVisitor</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="a75dfbbd7cb2dda8f03682b51d83d50e3" name="a75dfbbd7cb2dda8f03682b51d83d50e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a75dfbbd7cb2dda8f03682b51d83d50e3">&#9670;&nbsp;</a></span>IsReturnValue</h2>
+<a id="a7419f740d2d17d9e55e282c83e39969a" name="a7419f740d2d17d9e55e282c83e39969a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7419f740d2d17d9e55e282c83e39969a">&#9670;&nbsp;</a></span>DeclStorage</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -723,20 +798,22 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool weak::middleEnd::CodeGen::IsReturnValue</td>
+          <td class="memname"><a class="el" href="classweak_1_1middleEnd_1_1DeclsStorage.html">DeclsStorage</a> weak::middleEnd::CodeGen::DeclStorage</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">mutable</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
+<p>Variables pool. </p>
+
 </div>
 </div>
-<a id="afa55bb539f6561059d621bf1177c020d" name="afa55bb539f6561059d621bf1177c020d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa55bb539f6561059d621bf1177c020d">&#9670;&nbsp;</a></span>LastEmitted</h2>
+<a id="a2f557565bc0bc3ce899f363f30841132" name="a2f557565bc0bc3ce899f363f30841132"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f557565bc0bc3ce899f363f30841132">&#9670;&nbsp;</a></span>IRBuilder</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -745,15 +822,88 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">llvm::Value* weak::middleEnd::CodeGen::LastEmitted</td>
+          <td class="memname">llvm::IRBuilder weak::middleEnd::CodeGen::IRBuilder</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">mutable</span><span class="mlabel">private</span></span>  </td>
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>LLVM stuff. </p>
+
+</div>
+</div>
+<a id="ae3ffc4fa068d2736f1a249baed8e7bca" name="ae3ffc4fa068d2736f1a249baed8e7bca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3ffc4fa068d2736f1a249baed8e7bca">&#9670;&nbsp;</a></span>IRCtx</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">llvm::LLVMContext weak::middleEnd::CodeGen::IRCtx</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>LLVM stuff. </p>
+
+</div>
+</div>
+<a id="aa4619ef8ec569b883811bdd8600dc538" name="aa4619ef8ec569b883811bdd8600dc538"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4619ef8ec569b883811bdd8600dc538">&#9670;&nbsp;</a></span>IRModule</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">llvm::Module weak::middleEnd::CodeGen::IRModule</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>LLVM stuff. </p>
+
+</div>
+</div>
+<a id="aec015a0d15c6b2ce85a7e2462bea5935" name="aec015a0d15c6b2ce85a7e2462bea5935"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec015a0d15c6b2ce85a7e2462bea5935">&#9670;&nbsp;</a></span>LastInstr</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">llvm::Value* weak::middleEnd::CodeGen::LastInstr</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Consequence of using visitor pattern. since we cannot return anything from visit functions. </p>
 
 </div>
 </div>
@@ -776,6 +926,8 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Anayzed root AST node. </p>
 
 </div>
 </div>

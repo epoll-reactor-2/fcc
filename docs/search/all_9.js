@@ -1,12 +1,22 @@
 var searchData=
 [
-  ['main_0',['main',['../Main_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4',1,'Main.cpp']]],
-  ['main_2ecpp_1',['Main.cpp',['../Main_8cpp.html',1,'']]],
-  ['maketoken_2',['MakeToken',['../classweak_1_1frontEnd_1_1Lexer.html#a9a152cd428e564a343e25a29b36ce01d',1,'weak::frontEnd::Lexer']]],
-  ['match_3',['Match',['../classweak_1_1frontEnd_1_1Parser.html#a15c4a23eafa94aa8125be7ea51457dc9',1,'weak::frontEnd::Parser::Match(const std::vector&lt; TokenType &gt; &amp;Expected)'],['../classweak_1_1frontEnd_1_1Parser.html#ad86ff100dd90f6527a10c98597fb5119',1,'weak::frontEnd::Parser::Match(TokenType Expected)']]],
-  ['minus_4',['MINUS',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649affc0d9b54a1fe677c4c9e6b050e67c81',1,'weak::frontEnd']]],
-  ['minus_5fassign_5',['MINUS_ASSIGN',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a0812c786d5a21de2f9a401a992f4a520',1,'weak::frontEnd']]],
-  ['mod_6',['MOD',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649ac5a28f4b35a2884fa3277150ac5d0967',1,'weak::frontEnd']]],
-  ['mod_5fassign_7',['MOD_ASSIGN',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649af84fa2f9d621813f1bbf791a8cd38696',1,'weak::frontEnd']]],
-  ['mul_5fassign_8',['MUL_ASSIGN',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a5fd0e402a4ec935a7aea493e096887ca',1,'weak::frontEnd']]]
+  ['lastdigitrequire_0',['LastDigitRequire',['../classweak_1_1frontEnd_1_1anonymous__namespace_02Lexer_8cpp_03_1_1LexDigitCheck.html#ad6a3dccb332d29e2706b3d9d72898799',1,'weak::frontEnd::anonymous_namespace{Lexer.cpp}::LexDigitCheck']]],
+  ['lastinstr_1',['LastInstr',['../classweak_1_1middleEnd_1_1CodeGen.html#aec015a0d15c6b2ce85a7e2462bea5935',1,'weak::middleEnd::CodeGen']]],
+  ['le_2',['LE',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649acfe6055d2e0503be378bb63449ec7ba6',1,'weak::frontEnd']]],
+  ['level_3',['Level',['../classDiagnostic.html#ad5bef9aa8f12a3c51d2d0be0509c15c9',1,'Diagnostic']]],
+  ['lexdigitcheck_4',['LexDigitCheck',['../classweak_1_1frontEnd_1_1anonymous__namespace_02Lexer_8cpp_03_1_1LexDigitCheck.html#a79ace52d619b19432dea93c025ed474f',1,'weak::frontEnd::anonymous_namespace{Lexer.cpp}::LexDigitCheck::LexDigitCheck()'],['../classweak_1_1frontEnd_1_1anonymous__namespace_02Lexer_8cpp_03_1_1LexDigitCheck.html',1,'weak::frontEnd::anonymous_namespace{Lexer.cpp}::LexDigitCheck']]],
+  ['lexer_5',['Lexer',['../classweak_1_1frontEnd_1_1Lexer.html#a9ef9006e810778b62bbcf431145247b2',1,'weak::frontEnd::Lexer::Lexer()'],['../classweak_1_1frontEnd_1_1Lexer.html',1,'weak::frontEnd::Lexer']]],
+  ['lexer_2ecpp_6',['Lexer.cpp',['../Lexer_8cpp.html',1,'']]],
+  ['lexer_2ehpp_7',['Lexer.hpp',['../Lexer_8hpp.html',1,'']]],
+  ['lexkeywords_8',['LexKeywords',['../namespaceweak_1_1frontEnd_1_1anonymous__namespace_02Lexer_8cpp_03.html#a4066c73ecff64cd5bf9eb0f5d5b2b74c',1,'weak::frontEnd::anonymous_namespace{Lexer.cpp}']]],
+  ['lexoperators_9',['LexOperators',['../namespaceweak_1_1frontEnd_1_1anonymous__namespace_02Lexer_8cpp_03.html#ae681c10fd8bea7b094e9a56357cb31c9',1,'weak::frontEnd::anonymous_namespace{Lexer.cpp}']]],
+  ['lexstringliteralcheck_10',['LexStringLiteralCheck',['../classweak_1_1frontEnd_1_1anonymous__namespace_02Lexer_8cpp_03_1_1LexStringLiteralCheck.html#ad41cb2383c2e2f7987ff97a824e7cf46',1,'weak::frontEnd::anonymous_namespace{Lexer.cpp}::LexStringLiteralCheck::LexStringLiteralCheck()'],['../classweak_1_1frontEnd_1_1anonymous__namespace_02Lexer_8cpp_03_1_1LexStringLiteralCheck.html',1,'weak::frontEnd::anonymous_namespace{Lexer.cpp}::LexStringLiteralCheck']]],
+  ['lhs_11',['LHS',['../classweak_1_1frontEnd_1_1ASTBinaryOperator.html#a296d6447fe4e3e49d1c8235818ae8dbb',1,'weak::frontEnd::ASTBinaryOperator']]],
+  ['lineno_12',['LineNo',['../classweak_1_1frontEnd_1_1ASTNode.html#a1a88461ca0b29f8492a679aa2f0edeaa',1,'weak::frontEnd::ASTNode::LineNo()'],['../structweak_1_1frontEnd_1_1Token.html#ad27e5a8da5d753c4bab6da1d743346f4',1,'weak::frontEnd::Token::LineNo()']]],
+  ['link_13',['Link',['../TargetCodeBuilder_8cpp.html#acd398e57313bfa06ff9b8717ccc909aa',1,'TargetCodeBuilder.cpp']]],
+  ['llvm_14',['llvm',['../namespacellvm.html',1,'']]],
+  ['llvmctx_15',['LLVMCtx',['../classweak_1_1middleEnd_1_1TypeResolver.html#a7aba358950a0760eb8ed701b29b91cf3',1,'weak::middleEnd::TypeResolver']]],
+  ['lookup_16',['Lookup',['../classweak_1_1middleEnd_1_1DeclsStorage.html#ac3baadf59232461e07ae24ded549cde7',1,'weak::middleEnd::DeclsStorage']]],
+  ['loopsdepth_17',['LoopsDepth',['../classweak_1_1frontEnd_1_1Parser.html#a231ae34bd77436d66b20af0200f868c0',1,'weak::frontEnd::Parser']]],
+  ['lt_18',['LT',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649ac562607189d77eb9dfb707464c1e7b0b',1,'weak::frontEnd']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['normalizecolumnposition_0',['NormalizeColumnPosition',['../Lexer_8cpp.html#a29899e16aa496567bc82b0ac41deebd5',1,'Lexer.cpp']]]
+  ['initializellvmtargets_0',['InitializeLLVMTargets',['../TargetCodeBuilder_8cpp.html#a646a0758bed27e1a63adc3049b36a36f',1,'TargetCodeBuilder.cpp']]],
+  ['isalphanumeric_1',['IsAlphanumeric',['../Lexer_8cpp.html#a0364c44b3e411507644a1b1954192fdc',1,'Lexer.cpp']]]
 ];

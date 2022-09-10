@@ -67,7 +67,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">weak::middleEnd Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -76,9 +77,129 @@ $(function() {
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html">CodeGen</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1Storage.html">Storage</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1DeclsStorage.html">DeclsStorage</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage for LLVM declarations.  <a href="classweak_1_1middleEnd_1_1DeclsStorage.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html">ScalarExprEmitter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generator of operations on numeric data types.  <a href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1TargetCodeBuilder.html">TargetCodeBuilder</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builder of executable code from LLVM IR.  <a href="classweak_1_1middleEnd_1_1TargetCodeBuilder.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1TypeResolver.html">TypeResolver</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper class to translate frontend types to LLVM.  <a href="classweak_1_1middleEnd_1_1TypeResolver.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:aa1aeebb4210251f04c4a3e112de51664"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1middleEnd.html#aa1aeebb4210251f04c4a3e112de51664">AssertSame</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *InformAST, llvm::Value *L, llvm::Value *R)</td></tr>
+<tr class="memdesc:aa1aeebb4210251f04c4a3e112de51664"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensure that given types are same or emit compile error on mismatch.  <a href="namespaceweak_1_1middleEnd.html#aa1aeebb4210251f04c4a3e112de51664">More...</a><br /></td></tr>
+<tr class="separator:aa1aeebb4210251f04c4a3e112de51664"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab219099733d93a6c3057f62c9b56faea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1middleEnd.html#ab219099733d93a6c3057f62c9b56faea">AssertSame</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *InformAST, llvm::Type *L, llvm::Type *R)</td></tr>
+<tr class="memdesc:ab219099733d93a6c3057f62c9b56faea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensure that given types are same or emit compile error on mismatch.  <a href="namespaceweak_1_1middleEnd.html#ab219099733d93a6c3057f62c9b56faea">More...</a><br /></td></tr>
+<tr class="separator:ab219099733d93a6c3057f62c9b56faea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e8ce8a1fdac1c48ddc5828a16a46181"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">frontEnd::TokenType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1middleEnd.html#a4e8ce8a1fdac1c48ddc5828a16a46181">ResolveAssignmentOperation</a> (<a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">frontEnd::TokenType</a> T)</td></tr>
+<tr class="separator:a4e8ce8a1fdac1c48ddc5828a16a46181"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ab219099733d93a6c3057f62c9b56faea" name="ab219099733d93a6c3057f62c9b56faea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab219099733d93a6c3057f62c9b56faea">&#9670;&nbsp;</a></span>AssertSame() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void weak::middleEnd::AssertSame </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *&#160;</td>
+          <td class="paramname"><em>InformAST</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">llvm::Type *&#160;</td>
+          <td class="paramname"><em>L</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">llvm::Type *&#160;</td>
+          <td class="paramname"><em>R</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ensure that given types are same or emit compile error on mismatch. </p>
+
+</div>
+</div>
+<a id="aa1aeebb4210251f04c4a3e112de51664" name="aa1aeebb4210251f04c4a3e112de51664"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1aeebb4210251f04c4a3e112de51664">&#9670;&nbsp;</a></span>AssertSame() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void weak::middleEnd::AssertSame </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *&#160;</td>
+          <td class="paramname"><em>InformAST</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">llvm::Value *&#160;</td>
+          <td class="paramname"><em>L</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">llvm::Value *&#160;</td>
+          <td class="paramname"><em>R</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ensure that given types are same or emit compile error on mismatch. </p>
+
+</div>
+</div>
+<a id="a4e8ce8a1fdac1c48ddc5828a16a46181" name="a4e8ce8a1fdac1c48ddc5828a16a46181"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e8ce8a1fdac1c48ddc5828a16a46181">&#9670;&nbsp;</a></span>ResolveAssignmentOperation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">frontEnd::TokenType</a> weak::middleEnd::ResolveAssignmentOperation </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">frontEnd::TokenType</a>&#160;</td>
+          <td class="paramname"><em>T</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -17,19 +17,13 @@ class Value;
 namespace weak {
 namespace middleEnd {
 
-/// Type checker.
-class TypeCheck {
-public:
-  /// Ensure that given types are same or emit compile error on mismatch.
-  void AssertSame(const frontEnd::ASTNode *InformAST, llvm::Value *L,
-                  llvm::Value *R);
-  /// Ensure that given types are same or emit compile error on mismatch.
-  void AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
-                  llvm::Type *R);
+/// Ensure that given types are same or emit compile error on mismatch.
+void AssertSame(const frontEnd::ASTNode *InformAST, llvm::Value *L,
+                llvm::Value *R);
 
-private:
-  static std::string TypeToString(llvm::Type *T);
-};
+/// Ensure that given types are same or emit compile error on mismatch.
+void AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
+                llvm::Type *R);
 
 } // namespace middleEnd
 } // namespace weak

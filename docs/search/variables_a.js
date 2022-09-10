@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['records_0',['Records',['../classweak_1_1middleEnd_1_1Storage.html#a41c855be854b9cd909afc99862371962',1,'weak::middleEnd::Storage']]],
-  ['returntype_1',['ReturnType',['../classweak_1_1frontEnd_1_1ASTFunctionDecl.html#ab050fa0109f7631bb0d3b727767b1baf',1,'weak::frontEnd::ASTFunctionDecl']]],
-  ['rhs_2',['RHS',['../classweak_1_1frontEnd_1_1ASTBinaryOperator.html#a967e7792b7d4837e9193ea2248ba733f',1,'weak::frontEnd::ASTBinaryOperator']]],
-  ['root_3',['Root',['../classweak_1_1middleEnd_1_1CodeGen.html#affc1ea552c969c94b3af8e19dc18a463',1,'weak::middleEnd::CodeGen']]],
-  ['rootnode_4',['RootNode',['../classanonymous__namespace_02ASTPrettyPrint_8cpp_03_1_1ASTPrintVisitor.html#ac57bbb8488269b12dde4c6e133645e87',1,'anonymous_namespace{ASTPrettyPrint.cpp}::ASTPrintVisitor']]]
+  ['objectfilepath_0',['ObjectFilePath',['../classweak_1_1middleEnd_1_1TargetCodeBuilder.html#a7051356620d037c6accf59fc113ae5c1',1,'weak::middleEnd::TargetCodeBuilder']]],
+  ['operand_1',['Operand',['../classweak_1_1frontEnd_1_1ASTReturnStmt.html#ae32ea37fa8df28c28cc533f0072fffc6',1,'weak::frontEnd::ASTReturnStmt::Operand()'],['../classweak_1_1frontEnd_1_1ASTUnaryOperator.html#ab5bf5bff224a01d4b43ef0c48e89b9a7',1,'weak::frontEnd::ASTUnaryOperator::Operand()']]],
+  ['operation_2',['Operation',['../classweak_1_1frontEnd_1_1ASTBinaryOperator.html#aa2a1b534ee3bbe5fae98f6e3c2c6c63b',1,'weak::frontEnd::ASTBinaryOperator::Operation()'],['../classweak_1_1frontEnd_1_1ASTUnaryOperator.html#a2949bff83136c8b3475f9ab69f3975b9',1,'weak::frontEnd::ASTUnaryOperator::Operation()']]],
+  ['outstream_3',['OutStream',['../classanonymous__namespace_02ASTDump_8cpp_03_1_1ASTDumpVisitor.html#a39907c9a4f02b5a5bfe59e2ec0fbbf0e',1,'anonymous_namespace{ASTDump.cpp}::ASTDumpVisitor']]]
 ];

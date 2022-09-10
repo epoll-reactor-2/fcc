@@ -164,8 +164,8 @@ namespace weak {
 namespace middleEnd {
 
 CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
-    : Root(TheRoot), LastInstr(nullptr), IRCtx(),
-      IRModule("LLVM Module", IRCtx), IRBuilder(IRCtx), DeclStorage() {}
+    : Root(TheRoot), DeclStorage(), LastInstr(nullptr), IRCtx(),
+      IRModule("LLVM Module", IRCtx), IRBuilder(IRCtx) {}
 
 void CodeGen::CreateCode(std::string_view ObjectFilePath) {
   Root->Accept(this);
@@ -231,8 +231,7 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   if (!L || !R)
     return;
 
-  TypeCheck TypeChecker;
-  TypeChecker.AssertSame(Stmt, L, R);
+  weak::middleEnd::AssertSame(Stmt, L, R);
 
   ScalarExprEmitter ScalarEmitter(IRCtx, IRBuilder);
 
@@ -489,8 +488,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
     auto *InstrType = LastInstr->getType();
     auto *ExpectedType = Callee->getArg(I)->getType();
 
-    TypeCheck TypeChecker;
-    TypeChecker.AssertSame(AST, InstrType, ExpectedType);
+    weak::middleEnd::AssertSame(AST, InstrType, ExpectedType);
 
     Args.push_back(LastInstr);
   }

@@ -24,23 +24,55 @@ class ASTNode;
 namespace weak {
 namespace middleEnd {
 
+/// Generator of operations on numeric data types.
 class ScalarExprEmitter {
 public:
   ScalarExprEmitter(llvm::LLVMContext &, llvm::IRBuilder<> &);
 
+  /// Emit operation supported by integral or floating points.
+  ///
+  /// \note
+  ///         - Set of supported operations is depend on given L and R types.
+  ///         - Requires same LLVM types.
+  /// \param  InformAST AST node of expression. Used to emit localized error
+  ///                   messages.
+  /// \param  T         Operation to be emitted.
+  /// \param  L         Left operand.
+  /// \param  R         Right operand.
+  /// \return           Created operation.
   llvm::Value *EmitBinOp(const frontEnd::ASTNode *InformAST,
                          frontEnd::TokenType T, llvm::Value *L, llvm::Value *R);
 
+  /// Emit operation supported only by integral type.
+  ///
+  /// \note   Requires same LLVM types.
+  /// \param  InformAST AST node of expression. Used to emit localized error
+  ///                   messages.
+  /// \param  T         Operation to be emitted.
+  /// \param  L         Left operand.
+  /// \param  R         Right operand.
+  /// \return           Created operation.
   llvm::Value *EmitIntegralBinOp(const frontEnd::ASTNode *InformAST,
                                  frontEnd::TokenType T, llvm::Value *L,
                                  llvm::Value *R);
 
+  /// Emit operation supported only by floating points.
+  ///
+  /// \note   Requires same LLVM types.
+  /// \param  InformAST AST node of expression. Used to emit localized error
+  ///                   messages.
+  /// \param  T         Operation to be emitted.
+  /// \param  L         Left operand.
+  /// \param  R         Right operand.
+  /// \return           Created operation.
   llvm::Value *EmitFloatBinOp(const frontEnd::ASTNode *InformAST,
                               frontEnd::TokenType T, llvm::Value *L,
                               llvm::Value *R);
 
 private:
+  /// Reference to global LLVM stuff.
   llvm::LLVMContext &IRCtx;
+  /// Reference to global LLVM stuff.
   llvm::IRBuilder<> &IRBuilder;
 };
 

@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_e955afc72e8af59637c9070b8690ff98.html">compiler</a></li><li class="navelem"><a class="el" href="dir_fa41cb32550f3d9356b1cdea9998f6d5.html">include</a></li><li class="navelem"><a class="el" href="dir_768de7ff3d2548aa428e730310ab6a56.html">Utility</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_97aefd0d527b934f1d99a682da8fe6a9.html">lib</a></li><li class="navelem"><a class="el" href="dir_5a30104352ef4255dc24354b02eb2d20.html">include</a></li><li class="navelem"><a class="el" href="dir_7ddeb0e38665516afaa2ca7a2444ee6b.html">Utility</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -80,18 +80,19 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This requires the string as first argument in diagnostic messages.  <a href="structweak_1_1OstreamRAII.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceweak"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html">weak</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespaceweak_1_1frontEnd"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak_1_1frontEnd.html">weak::frontEnd</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a101d70640437cebcc229779e2eb9f2c9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#a101d70640437cebcc229779e2eb9f2c9">weak::UnreachablePoint</a> (const char *=&quot;&quot;)</td></tr>
-<tr class="memdesc:a101d70640437cebcc229779e2eb9f2c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simply terminate process.  <a href="namespaceweak.html#a101d70640437cebcc229779e2eb9f2c9">More...</a><br /></td></tr>
+<tr class="memdesc:a101d70640437cebcc229779e2eb9f2c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Throw an exception with given message.  <a href="namespaceweak.html#a101d70640437cebcc229779e2eb9f2c9">More...</a><br /></td></tr>
 <tr class="separator:a101d70640437cebcc229779e2eb9f2c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42da0e444faf964525111a177a902859"><td class="memItemLeft" align="right" valign="top">OstreamRAII&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#a42da0e444faf964525111a177a902859">weak::CompileWarning</a> ()</td></tr>
 <tr class="memdesc:a42da0e444faf964525111a177a902859"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with WARN flag.  <a href="namespaceweak.html#a42da0e444faf964525111a177a902859">More...</a><br /></td></tr>
@@ -100,11 +101,13 @@ Functions</h2></td></tr>
 <tr class="memdesc:a00712649da5b4e5011571afb7bdcfc97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with WARN flag.  <a href="namespaceweak.html#a00712649da5b4e5011571afb7bdcfc97">More...</a><br /></td></tr>
 <tr class="separator:a00712649da5b4e5011571afb7bdcfc97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8fc005bbaa3fae23d9edbd2ff45d0237"><td class="memItemLeft" align="right" valign="top">OstreamRAII&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">weak::CompileError</a> ()</td></tr>
-<tr class="memdesc:a8fc005bbaa3fae23d9edbd2ff45d0237"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with ERROR flag and terminate program.  <a href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">More...</a><br /></td></tr>
+<tr class="memdesc:a8fc005bbaa3fae23d9edbd2ff45d0237"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with ERROR flag and throw exception.  <a href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">More...</a><br /></td></tr>
 <tr class="separator:a8fc005bbaa3fae23d9edbd2ff45d0237"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5438354f7f3b961edc68238b1dd56b0"><td class="memItemLeft" align="right" valign="top">OstreamRAII&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#aa5438354f7f3b961edc68238b1dd56b0">weak::CompileError</a> (unsigned LineNo, unsigned ColumnNo)</td></tr>
-<tr class="memdesc:aa5438354f7f3b961edc68238b1dd56b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with ERROR flag and terminate program.  <a href="namespaceweak.html#aa5438354f7f3b961edc68238b1dd56b0">More...</a><br /></td></tr>
+<tr class="memdesc:aa5438354f7f3b961edc68238b1dd56b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print diagnostic message with ERROR flag and throw exception.  <a href="namespaceweak.html#aa5438354f7f3b961edc68238b1dd56b0">More...</a><br /></td></tr>
 <tr class="separator:aa5438354f7f3b961edc68238b1dd56b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70ea12a9d8928d355c27d69ebe3f7f7b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceweak.html#a70ea12a9d8928d355c27d69ebe3f7f7b">weak::CompileError</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a> *Node)</td></tr>
+<tr class="separator:a70ea12a9d8928d355c27d69ebe3f7f7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->
