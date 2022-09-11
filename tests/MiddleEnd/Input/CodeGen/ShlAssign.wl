@@ -1,3 +1,4 @@
+// 4
 int main() {
     int val = 1;
     val <<= 2;

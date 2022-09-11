@@ -1,3 +1,4 @@
+// 0
 int puts(string str);
 
 int main() {
@@ -5,5 +6,5 @@ int main() {
     puts(data);
     data = "World";
     puts(data);
-    return 100;
+    return 0;
 }

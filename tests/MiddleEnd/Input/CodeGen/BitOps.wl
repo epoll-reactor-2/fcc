@@ -1,3 +1,4 @@
+// 0
 int main() {
     int v1 = 1;
     int v2 = 1;

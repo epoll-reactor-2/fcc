@@ -1,7 +1,8 @@
+// 1
 int main() {
-	int result = 0;
+	int result = 1000;
 	for (int i = 0; i < 1000; ++i) {
-		--result;
+		++result;
 	}
-	return result;
+	return result == 2000;
 }

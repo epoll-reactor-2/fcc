@@ -1,3 +1,5 @@
+// 0
+// Actually stub until we cannot cast float to int.
 float sqrt(float value) {
     float tmp = 0.0;
     float number = value;

@@ -1,5 +1,6 @@
+// 8
 int main() {
-    int val = 1;
+    int val = 10;
     val -= 2;
     return val;
 }

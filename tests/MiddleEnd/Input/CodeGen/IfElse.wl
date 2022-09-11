@@ -1,4 +1,6 @@
-int main(int arg) {
+// 111
+int main() {
+    bool arg = true;
     if (arg) {
         return 111;
     } else {

@@ -1,3 +1,4 @@
+// 1
 int main() {
     bool value = true;
     value = value & true; // true
