@@ -81,9 +81,15 @@ $(function() {
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a00299247d3165566a98f42359898bf5f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a00299247d3165566a98f42359898bf5f">CodeGen</a> (<a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *TheRoot)</td></tr>
 <tr class="separator:a00299247d3165566a98f42359898bf5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8105f30ffb9e9b06b59a2fd6aa5d375"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ad8105f30ffb9e9b06b59a2fd6aa5d375">CreateCode</a> (std::string_view ObjectFilePath)</td></tr>
-<tr class="memdesc:ad8105f30ffb9e9b06b59a2fd6aa5d375"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert AST to LLVM IR starting from root node (usually CompoundStmt).  <a href="classweak_1_1middleEnd_1_1CodeGen.html#ad8105f30ffb9e9b06b59a2fd6aa5d375">More...</a><br /></td></tr>
-<tr class="separator:ad8105f30ffb9e9b06b59a2fd6aa5d375"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18ba470affced2071d27e883d3651366"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a18ba470affced2071d27e883d3651366">CreateCode</a> ()</td></tr>
+<tr class="memdesc:a18ba470affced2071d27e883d3651366"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert AST to LLVM IR starting from root node (usually CompoundStmt).  <a href="classweak_1_1middleEnd_1_1CodeGen.html#a18ba470affced2071d27e883d3651366">More...</a><br /></td></tr>
+<tr class="separator:a18ba470affced2071d27e883d3651366"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b040a56bfe0ec2823b9f286a8129861"><td class="memItemLeft" align="right" valign="top">llvm::Module &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a1b040a56bfe0ec2823b9f286a8129861">GetModule</a> ()</td></tr>
+<tr class="separator:a1b040a56bfe0ec2823b9f286a8129861"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ccc258c57b1ff5d6170847a92388845"><td class="memItemLeft" align="right" valign="top">const llvm::SymbolTableList&lt; llvm::GlobalVariable &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a1ccc258c57b1ff5d6170847a92388845">GetGlobalVariables</a> () const</td></tr>
+<tr class="separator:a1ccc258c57b1ff5d6170847a92388845"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43b7deda017a25d22178813f3ebddf5f"><td class="memItemLeft" align="right" valign="top">const llvm::SymbolTableList&lt; llvm::Function &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a43b7deda017a25d22178813f3ebddf5f">GetGlobalFunctions</a> () const</td></tr>
+<tr class="separator:a43b7deda017a25d22178813f3ebddf5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab756a3715fbe19b27d7b14ba5b786821"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ab756a3715fbe19b27d7b14ba5b786821">ToString</a> () const</td></tr>
 <tr class="memdesc:ab756a3715fbe19b27d7b14ba5b786821"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create visual representation.  <a href="classweak_1_1middleEnd_1_1CodeGen.html#ab756a3715fbe19b27d7b14ba5b786821">More...</a><br /></td></tr>
 <tr class="separator:ab756a3715fbe19b27d7b14ba5b786821"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -213,8 +219,8 @@ Private Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="ad8105f30ffb9e9b06b59a2fd6aa5d375" name="ad8105f30ffb9e9b06b59a2fd6aa5d375"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8105f30ffb9e9b06b59a2fd6aa5d375">&#9670;&nbsp;</a></span>CreateCode()</h2>
+<a id="a18ba470affced2071d27e883d3651366" name="a18ba470affced2071d27e883d3651366"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18ba470affced2071d27e883d3651366">&#9670;&nbsp;</a></span>CreateCode()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -222,14 +228,64 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="memname">void weak::middleEnd::CodeGen::CreateCode </td>
           <td>(</td>
-          <td class="paramtype">std::string_view&#160;</td>
-          <td class="paramname"><em>ObjectFilePath</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Convert AST to LLVM IR starting from root node (usually CompoundStmt). </p>
+
+</div>
+</div>
+<a id="a43b7deda017a25d22178813f3ebddf5f" name="a43b7deda017a25d22178813f3ebddf5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43b7deda017a25d22178813f3ebddf5f">&#9670;&nbsp;</a></span>GetGlobalFunctions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const llvm::SymbolTableList&lt; llvm::Function &gt; &amp; weak::middleEnd::CodeGen::GetGlobalFunctions </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1ccc258c57b1ff5d6170847a92388845" name="a1ccc258c57b1ff5d6170847a92388845"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ccc258c57b1ff5d6170847a92388845">&#9670;&nbsp;</a></span>GetGlobalVariables()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const llvm::SymbolTableList&lt; llvm::GlobalVariable &gt; &amp; weak::middleEnd::CodeGen::GetGlobalVariables </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1b040a56bfe0ec2823b9f286a8129861" name="a1b040a56bfe0ec2823b9f286a8129861"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b040a56bfe0ec2823b9f286a8129861">&#9670;&nbsp;</a></span>GetModule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">llvm::Module &amp; weak::middleEnd::CodeGen::GetModule </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

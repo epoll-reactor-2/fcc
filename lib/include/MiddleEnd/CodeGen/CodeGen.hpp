@@ -26,7 +26,13 @@ public:
   CodeGen(frontEnd::ASTNode *TheRoot);
 
   /// Convert AST to LLVM IR starting from root node (usually CompoundStmt).
-  void CreateCode(std::string_view ObjectFilePath);
+  void CreateCode();
+
+  llvm::Module &GetModule();
+
+  const llvm::SymbolTableList<llvm::GlobalVariable> &GetGlobalVariables() const;
+
+  const llvm::SymbolTableList<llvm::Function> &GetGlobalFunctions() const;
 
   /// Create visual representation.
   std::string ToString() const;

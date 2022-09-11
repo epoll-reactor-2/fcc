@@ -2,6 +2,7 @@
 #include "FrontEnd/Lex/Lexer.hpp"
 #include "FrontEnd/Parse/Parser.hpp"
 #include "MiddleEnd/CodeGen/CodeGen.hpp"
+#include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
 #include "llvm/Support/CommandLine.h"
 #include <fstream>
 #include <iostream>
@@ -30,7 +31,7 @@ std::unique_ptr<fe::ASTNode> DoSyntaxAnalysis(std::string_view InputPath) {
 std::string DoLLVMCodeGen(std::string_view InputPath, std::string_view OutputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
   me::CodeGen CodeGenerator(AST.get());
-  CodeGenerator.CreateCode(OutputPath);
+  CodeGenerator.CreateCode();
   return CodeGenerator.ToString();
 }
 
@@ -55,8 +56,10 @@ void DumpLLVMIR(std::string_view InputPath, std::string_view OutputPath) {
 
 void BuildCode(std::string_view InputPath, std::string_view OutputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
-  me::CodeGen CodeGenerator(AST.get());
-  CodeGenerator.CreateCode(OutputPath);
+  me::CodeGen CodeGen(AST.get());
+  CodeGen.CreateCode();
+  weak::middleEnd::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), OutputPath);
+  TargetCodeBuilder.Build();
 }
 
 int main(int Argc, char *Argv[]) {

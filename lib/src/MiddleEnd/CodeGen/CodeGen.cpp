@@ -26,7 +26,6 @@
 #include "FrontEnd/AST/ASTVarDecl.hpp"
 #include "FrontEnd/AST/ASTWhileStmt.hpp"
 #include "MiddleEnd/CodeGen/ScalarExprEmitter.hpp"
-#include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
 #include "MiddleEnd/CodeGen/TypeCheck.hpp"
 #include "MiddleEnd/CodeGen/TypeResolver.hpp"
 #include "Utility/Diagnostic.hpp"
@@ -167,20 +166,15 @@ CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
     : Root(TheRoot), DeclStorage(), LastInstr(nullptr), IRCtx(),
       IRModule("LLVM Module", IRCtx), IRBuilder(IRCtx) {}
 
-void CodeGen::CreateCode(std::string_view ObjectFilePath) {
-  Root->Accept(this);
-
-  TargetCodeBuilder TargetBuilder(IRModule, ObjectFilePath);
-  TargetBuilder.Build();
-}
+void CodeGen::CreateCode() { Root->Accept(this); }
 
 void CodeGen::Visit(const frontEnd::ASTBooleanLiteral *Stmt) {
-  llvm::APInt Int(1, Stmt->GetValue(), false);
+  llvm::APInt Int(/*numBits=*/1, Stmt->GetValue(), false);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
 void CodeGen::Visit(const frontEnd::ASTIntegerLiteral *Stmt) {
-  llvm::APInt Int(32, Stmt->GetValue(), false);
+  llvm::APInt Int(/*numBits=*/32, Stmt->GetValue(), false);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
@@ -402,9 +396,9 @@ void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) {
   llvm::Value *Condition = LastInstr;
 
   /// \todo: I am not sure if we should always compare with 0.
-  unsigned sizeBits = Condition->getType()->getPrimitiveSizeInBits();
+  unsigned numBits = Condition->getType()->getPrimitiveSizeInBits();
   Condition = IRBuilder.CreateICmpNE(
-      Condition, llvm::ConstantInt::get(IRCtx, llvm::APInt(sizeBits, 0, false)),
+      Condition, llvm::ConstantInt::get(IRCtx, llvm::APInt(numBits, 0, false)),
       "condition");
 
   llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
@@ -556,10 +550,22 @@ void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
   }
 }
 
+llvm::Module &CodeGen::GetModule() { return IRModule; }
+
+const llvm::SymbolTableList<llvm::GlobalVariable> &
+CodeGen::GetGlobalVariables() const {
+  return IRModule.getGlobalList();
+}
+
+const llvm::SymbolTableList<llvm::Function> &
+CodeGen::GetGlobalFunctions() const {
+  return IRModule.getFunctionList();
+}
+
 std::string CodeGen::ToString() const {
   std::string Result;
 
-  for (const auto &Global : IRModule.getGlobalList()) {
+  for (const auto &Global : GetGlobalVariables()) {
     llvm::raw_string_ostream Stream(Result);
     Stream << Global;
     Stream << '\n';
@@ -568,7 +574,7 @@ std::string CodeGen::ToString() const {
 
   Result += '\n';
 
-  for (const auto &F : IRModule.getFunctionList()) {
+  for (const auto &F : GetGlobalFunctions()) {
     llvm::raw_string_ostream Stream(Result);
     Stream << F;
     Stream << '\n';

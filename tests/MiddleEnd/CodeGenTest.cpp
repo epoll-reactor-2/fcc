@@ -1,6 +1,7 @@
 #include "FrontEnd/Lex/Lexer.hpp"
 #include "FrontEnd/Parse/Parser.hpp"
 #include "MiddleEnd/CodeGen/CodeGen.hpp"
+#include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
 #include "TestHelpers.hpp"
 #include <fstream>
 #include <filesystem>
@@ -35,7 +36,7 @@ void RunFromFile(std::string_view Path) {
         "// "sv.length(), Program.find_first_of('\n') - "// "sv.length());
 
     try {
-      CodeGen.CreateCode(TargetPath);
+      CodeGen.CreateCode();
       llvm::errs() << "Expected error";
       exit(-1);
     } catch (std::exception &Error) {
@@ -47,8 +48,10 @@ void RunFromFile(std::string_view Path) {
       llvm::outs() << "Caught expected error: " << Error.what() << '\n';
     }
   } else {
-    CodeGen.CreateCode(TargetPath);
+    CodeGen.CreateCode();
     llvm::outs() << CodeGen.ToString();
+    weak::middleEnd::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), TargetPath);
+    TargetCodeBuilder.Build();
   }
 }
 
