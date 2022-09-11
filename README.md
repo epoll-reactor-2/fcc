@@ -1,6 +1,7 @@
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://epoll-reactor.github.io/weak_compiler/index.html)
 
 # Impregnation
+
 This is an implementation of simple (or not so simple, XD) compiler,
 which uses LLVM.
 
@@ -108,18 +109,25 @@ Hello, World!
 
 # Termination
 
+## Comparison with clang
+
+Example of sqrt function (on the left - clang++, on the right - weak compiler).
+
+![alt text](https://github.com/epoll-reactor/weak_compiler/blob/introduce-llvm/images/sqrt-clang-comparison.png?raw=true)
+
 ## TODO
-* Self-written back-end
+
+* self-written back-end
   * IR
   * register allocation
   * linker (and way to combine many source files to one executable)
-* optimizations
-  * graph-based
-    * SSA (implemented in master)
-  * instructions combining
-  * and others...
+  * optimizations
+    * graph-based
+      * SSA (implemented in master)
+    * instructions combining
+    * and others...
 * something similar to standard library (libc wrappers)
 * well-defined type system
-* scopes
+* ~~scopes~~
 * handling of multiple definitions
 * clear API to be able to develop freestanding utilities (such as code formatters, static analyzers)
