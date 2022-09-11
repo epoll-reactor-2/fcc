@@ -6,13 +6,13 @@
 //    FunctionDeclBody <line:33, col:1>
 //      CompoundStmt <line:33, col:10>
 //        BinaryOperator <line:34, col:14> =
-//          BinaryOperator <line:34, col:5> >>
+//          BinaryOperator <line:34, col:5> <<
 //            Symbol <line:34, col:3> a
 //            BinaryOperator <line:34, col:10> +
 //              Symbol <line:34, col:8> b
 //              Symbol <line:34, col:12> c
 //          BinaryOperator <line:34, col:27> =
-//            BinaryOperator <line:34, col:18> >>
+//            BinaryOperator <line:34, col:18> <<
 //              Symbol <line:34, col:16> a
 //              BinaryOperator <line:34, col:23> +
 //                Symbol <line:34, col:21> b

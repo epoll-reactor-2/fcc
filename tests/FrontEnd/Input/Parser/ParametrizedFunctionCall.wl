@@ -8,7 +8,7 @@
 //        FunctionCall <line:19, col:3> do_work
 //          FunctionCallArgs <line:19, col:3>
 //            IntegerLiteral <line:19, col:11> 1
-//            BinaryOperator <line:19, col:24> >>
+//            BinaryOperator <line:19, col:24> <<
 //              BinaryOperator <line:19, col:16> +
 //                Symbol <line:19, col:14> a
 //                BinaryOperator <line:19, col:20> *
