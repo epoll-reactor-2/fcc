@@ -52,6 +52,7 @@ void RunFromFile(std::string_view Path) {
     llvm::outs() << CodeGen.ToString();
     weak::middleEnd::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), TargetPath);
     TargetCodeBuilder.Build();
+    system(("strace ./" + TargetPath).c_str());
   }
 }
 
