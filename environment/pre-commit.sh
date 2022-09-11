@@ -1,4 +1,4 @@
 echo "Running pre-commit hook..."
-doxygen
+# doxygen
 find lib -regextype posix-extended -regex ".*\.[hc]pp" | xargs clang-format -i
 git add --update

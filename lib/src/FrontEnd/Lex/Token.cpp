@@ -95,9 +95,9 @@ const char *weak::frontEnd::TokenToString(TokenType Type) {
   case TokenType::LE:
     return "<=";
   case TokenType::SHL:
-    return ">>";
-  case TokenType::SHR:
     return "<<";
+  case TokenType::SHR:
+    return ">>";
   case TokenType::PLUS:
     return "+";
   case TokenType::MINUS:
