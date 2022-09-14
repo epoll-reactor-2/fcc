@@ -1,4 +1,4 @@
-// 42
+// 1
 int f(int arg1, int arg2) {
     --arg1;
     --arg2;
@@ -6,5 +6,6 @@ int f(int arg1, int arg2) {
 }
 
 int main() {
-    return f(100, 200);
+    int res = f(100, 200);
+    return res == 298;
 }
