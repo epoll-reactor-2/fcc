@@ -129,7 +129,7 @@ private:
   }
 
   llvm::Constant *CreateNullTerminator() {
-    return llvm::ConstantInt::get(llvm::Type::getInt8Ty(Ctx), 0);
+    return llvm::ConstantInt::getNullValue(llvm::Type::getInt8Ty(Ctx));
   }
 
   llvm::LLVMContext &Ctx;
