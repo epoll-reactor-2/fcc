@@ -271,9 +271,8 @@ std::unique_ptr<ASTNode> Parser::ParseStatement() {
   case TokenType::CHAR:
   case TokenType::FLOAT:
   case TokenType::STRING:
-  case TokenType::BOOLEAN: // Fall through.
-    return ParseVarDecl();
-  case TokenType::SYMBOL:
+  case TokenType::BOOLEAN:
+  case TokenType::SYMBOL: // Fall through.
     return ParseExpression();
   case TokenType::INC:
   case TokenType::DEC: // Fall through.
@@ -406,6 +405,7 @@ std::unique_ptr<ASTNode> Parser::ParseLoopStatement() {
 std::unique_ptr<ASTNode> Parser::ParseJumpStatement() {
   const Token &ReturnStmt = Require(TokenType::RETURN);
   if (Match(TokenType::SEMICOLON)) {
+    // This is `return;` case.
     // Rollback to allow match ';' in block parse function.
     --CurrentBufferPtr;
     return std::make_unique<ASTReturnStmt>(nullptr, ReturnStmt.LineNo,
@@ -422,19 +422,11 @@ std::unique_ptr<ASTNode> Parser::ParseExpression() {
   switch (PeekCurrent().Type) {
   case TokenType::INT:
   case TokenType::CHAR:
+  case TokenType::FLOAT:
   case TokenType::STRING:
   case TokenType::BOOLEAN: // Fall through.
     return ParseVarDecl();
   default:
-    break;
-  }
-  PeekNext();
-  switch (PeekCurrent().Type) {
-  case TokenType::OPEN_PAREN:
-    --CurrentBufferPtr;
-    return ParseFunctionCall();
-  default:
-    --CurrentBufferPtr;
     return ParseAssignment();
   }
 }
@@ -730,7 +722,8 @@ std::unique_ptr<ASTNode> Parser::ParseConstant() {
         Current.Type == TokenType::TRUE, Current.LineNo, Current.ColumnNo);
 
   default:
-    weak::CompileError(Current.LineNo, Current.ColumnNo) << "Literal expected";
+    weak::CompileError(Current.LineNo, Current.ColumnNo)
+        << "Literal expected, got " << TokenToString(Current.Type);
     weak::UnreachablePoint();
   }
 }

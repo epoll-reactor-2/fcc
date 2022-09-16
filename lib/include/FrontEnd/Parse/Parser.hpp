@@ -71,7 +71,8 @@ private:
   /// Return statement.
   std::unique_ptr<ASTNode> ParseJumpStatement();
 
-  /// Unary/binary statement, literal, symbol or function call.
+  /// Unary/binary statement, literal, symbol, assignment, variable declaration
+  /// or function call.
   std::unique_ptr<ASTNode> ParseExpression();
 
   std::unique_ptr<ASTNode> ParseAssignment();
