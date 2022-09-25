@@ -29,6 +29,10 @@ private:
   /// Function call with optional argument list.
   std::unique_ptr<ASTNode> ParseFunctionCall();
 
+  std::unique_ptr<ASTNode> ParseVarDeclWithoutInitializer();
+
+  std::unique_ptr<ASTNode> ParseArrayDecl();
+
   std::unique_ptr<ASTNode> ParseVarDecl();
 
   /// Int, char, string, bool.

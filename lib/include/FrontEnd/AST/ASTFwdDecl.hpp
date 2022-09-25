@@ -11,6 +11,7 @@ namespace weak {
 namespace frontEnd {
 
 class ASTNode;
+class ASTArrayDecl;
 class ASTBinaryOperator;
 class ASTBooleanLiteral;
 class ASTBreakStmt;

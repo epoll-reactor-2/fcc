@@ -1,7 +1,7 @@
 var searchData=
 [
   ['data_0',['Data',['../structweak_1_1frontEnd_1_1Token.html#afd8bf7be48647eb5ee65955fe71a99eb',1,'weak::frontEnd::Token']]],
-  ['datatype_1',['DataType',['../classweak_1_1frontEnd_1_1ASTVarDecl.html#a3b40ee9dc90d7a674dcfb331329f95d6',1,'weak::frontEnd::ASTVarDecl']]],
+  ['datatype_1',['DataType',['../classweak_1_1frontEnd_1_1ASTVarDecl.html#a3b40ee9dc90d7a674dcfb331329f95d6',1,'weak::frontEnd::ASTVarDecl::DataType()'],['../classweak_1_1frontEnd_1_1ASTArrayDecl.html#ab9f4cce038546b1005d4afdca62ccc95',1,'weak::frontEnd::ASTArrayDecl::DataType()']]],
   ['dec_2',['DEC',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a38344a4d87bb35ec197f26fad338b6ab',1,'weak::frontEnd']]],
   ['decl_3',['Decl',['../classanonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#a83ed42d743b92a06d49f6872b72d1184',1,'anonymous_namespace{CodeGen.cpp}::FunctionBuilder']]],
   ['declarebody_4',['DeclareBody',['../classweak_1_1frontEnd_1_1ASTVarDecl.html#ac9fe7d6c36b10d6f81e48e50441e4206',1,'weak::frontEnd::ASTVarDecl']]],

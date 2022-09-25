@@ -5,6 +5,7 @@
  */
 
 #include "FrontEnd/Parse/Parser.hpp"
+#include "FrontEnd/AST/ASTArrayDecl.hpp"
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
 #include "FrontEnd/AST/ASTBreakStmt.hpp"
@@ -119,40 +120,99 @@ std::unique_ptr<ASTNode> Parser::ParseFunctionCall() {
   return Finish();
 }
 
-std::unique_ptr<ASTNode> Parser::ParseVarDecl() {
+std::unique_ptr<ASTNode> Parser::ParseVarDeclWithoutInitializer() {
+  const Token &DataType = ParseType();
+  const Token &VariableName = PeekNext();
+
+  if (VariableName.Type != TokenType::SYMBOL)
+    weak::CompileError(VariableName.LineNo, VariableName.ColumnNo)
+        << "Variable name expected";
+
+  return std::make_unique<ASTVarDecl>(
+      DataType.Type, std::string(VariableName.Data),
+      /*DeclareBody=*/nullptr, DataType.LineNo, DataType.ColumnNo);
+}
+
+std::unique_ptr<ASTNode> Parser::ParseArrayDecl() {
   const Token &DataType = ParseType();
   std::string VariableName = PeekNext().Data;
   const Token &Current = PeekNext();
 
-  if (Current.Type == TokenType::ASSIGN)
+  std::vector<unsigned> ArityList;
+
+  --CurrentBufferPtr;
+  while (true) {
+    Require(TokenType::OPEN_BOX_BRACKET);
+
+    const auto Constant = ParseConstant();
+
+    if (Constant->GetASTType() != ASTType::INTEGER_LITERAL)
+      weak::CompileError(Current.LineNo, Current.ColumnNo)
+          << "Integer size declarator expected";
+
+    const auto *IntegralConstant =
+        static_cast<const ASTIntegerLiteral *>(Constant.get());
+
+    ArityList.push_back(IntegralConstant->GetValue());
+
+    Require(TokenType::CLOSE_BOX_BRACKET);
+
+    const auto Type = PeekCurrent().Type;
+
+    if (Type == TokenType::COMMA ||       // Function parameter.
+        Type == TokenType::CLOSE_PAREN || // Last function parameter.
+        Type == TokenType::SEMICOLON)     // End of declaration.
+      break;
+  }
+
+  return std::make_unique<ASTArrayDecl>(DataType.Type, std::move(VariableName),
+                                        std::move(ArityList), DataType.LineNo,
+                                        DataType.ColumnNo);
+}
+
+std::unique_ptr<ASTNode> Parser::ParseVarDecl() {
+  const Token &DataType = ParseType();
+  std::string VariableName = PeekNext().Data;
+  const Token &Current = PeekNext();
+  const TokenType Last = Current.Type;
+
+  if (Last == TokenType::ASSIGN)
     return std::make_unique<ASTVarDecl>(DataType.Type, std::move(VariableName),
                                         ParseLogicalOr(), DataType.LineNo,
                                         DataType.ColumnNo);
 
-  if (Current.Type == TokenType::OPEN_PAREN) {
+  // This is placed here because language supports nested functions.
+  if (Last == TokenType::OPEN_PAREN) {
     --CurrentBufferPtr; // Open paren.
     --CurrentBufferPtr; // Function name.
     --CurrentBufferPtr; // Data type.
     return ParseFunctionDecl();
   }
 
+  if (Last == TokenType::OPEN_BOX_BRACKET) {
+    --CurrentBufferPtr; // Open paren.
+    --CurrentBufferPtr; // Declaration name.
+    --CurrentBufferPtr; // Data type.
+    return ParseArrayDecl();
+  }
+
   weak::CompileError(Current.LineNo, Current.ColumnNo)
-      << "Assign value or function declarator expected";
+      << "Expected function, variable or array declaration";
   weak::UnreachablePoint();
 }
 
 const Token &Parser::ParseType() {
-  switch (const Token &Current = PeekCurrent(); Current.Type) {
+  switch (const auto &T = PeekCurrent(); T.Type) {
   case TokenType::INT:
   case TokenType::FLOAT:
   case TokenType::CHAR:
   case TokenType::STRING:
   case TokenType::BOOLEAN: // Fall through.
     PeekNext();
-    return Current;
+    return T;
   default:
-    weak::CompileError(Current.LineNo, Current.ColumnNo)
-        << "Data type expected";
+    weak::CompileError(T.LineNo, T.ColumnNo)
+        << "Data type expected, got " << TokenToString(T.Type);
     weak::UnreachablePoint();
   }
 }
@@ -166,16 +226,13 @@ const Token &Parser::ParseReturnType() {
 }
 
 std::unique_ptr<ASTNode> Parser::ParseParameter() {
-  const Token &DataType = ParseType();
-  const Token &VariableName = PeekNext();
+  unsigned Offset = 0U;
+  ++Offset; // Data type.
+  ++Offset; // Parameter name.
+  if ((CurrentBufferPtr + Offset)->Type == TokenType::OPEN_BOX_BRACKET)
+    return ParseArrayDecl();
 
-  if (VariableName.Type != TokenType::SYMBOL)
-    weak::CompileError(VariableName.LineNo, VariableName.ColumnNo)
-        << "Variable name expected";
-
-  return std::make_unique<ASTVarDecl>(
-      DataType.Type, std::string(VariableName.Data),
-      /*DeclareBody=*/nullptr, DataType.LineNo, DataType.ColumnNo);
+  return ParseVarDeclWithoutInitializer();
 }
 
 std::vector<std::unique_ptr<ASTNode>> Parser::ParseParameterList() {
@@ -215,6 +272,7 @@ std::unique_ptr<ASTCompoundStmt> Parser::ParseBlock() {
     case ASTType::RETURN_STMT:
     case ASTType::DO_WHILE_STMT:
     case ASTType::VAR_DECL:
+    case ASTType::ARRAY_DECL:
     case ASTType::FUNCTION_CALL: // Fall through.
       Require(TokenType::SEMICOLON);
       break;
@@ -759,9 +817,8 @@ static std::string TokensToString(const std::vector<TokenType> &Tokens) {
   std::string Result;
 
   for (const auto &T : Tokens) {
-    Result += "(";
     Result += TokenToString(T);
-    Result += "), ";
+    Result += ", ";
   }
 
   if (!Result.empty()) {

@@ -23,8 +23,9 @@ enum struct ASTType {
   // Variable reference.
   SYMBOL,
 
-  // Assignments (e.g int Value = 0).
+  // Declarations.
   VAR_DECL,
+  ARRAY_DECL,
 
   // Function parameter (e.g int Value).
   PARAMETER,

@@ -5,6 +5,7 @@
  */
 
 #include "FrontEnd/AST/ASTDump.hpp"
+#include "FrontEnd/AST/ASTArrayDecl.hpp"
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
 #include "FrontEnd/AST/ASTBreakStmt.hpp"
@@ -28,6 +29,25 @@
 #include "FrontEnd/AST/ASTWhileStmt.hpp"
 #include <iostream>
 
+template <typename RAIt>
+static std::string IntegerRangeToString(RAIt Begin, RAIt End) {
+  std::string Output;
+  Output.reserve(std::distance(Begin, End));
+
+  Output += "[";
+  for (; Begin != End; ++Begin)
+    Output += std::to_string(*Begin) + "][";
+
+  if (!Output.empty()) {
+    Output.pop_back();
+    Output.pop_back();
+  }
+
+  Output += "]";
+
+  return Output;
+}
+
 using namespace weak::frontEnd;
 
 namespace {
@@ -40,6 +60,16 @@ public:
   void Dump() { RootNode->Accept(this); }
 
 private:
+  void Visit(const ASTArrayDecl *Decl) override {
+    PrintWithTextPosition("ArrayDecl", Decl, /*NewLineNeeded=*/false);
+
+    const auto &ArityList = Decl->GetArityList();
+    OutStream << TokenToString(Decl->GetDataType()) << " "
+              << IntegerRangeToString(ArityList.cbegin(), ArityList.cend())
+              << " ";
+    OutStream << Decl->GetSymbolName() << std::endl;
+  }
+
   void Visit(const ASTBinaryOperator *Binary) override {
     PrintWithTextPosition("BinaryOperator", Binary, /*NewLineNeeded=*/false);
     OutStream << TokenToString(Binary->GetOperation()) << std::endl;

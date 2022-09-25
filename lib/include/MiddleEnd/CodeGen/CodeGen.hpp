@@ -65,11 +65,17 @@ private:
   void Visit(const frontEnd::ASTFunctionCall *) override;
   void Visit(const frontEnd::ASTFunctionPrototype *) override;
 
+  // Declarations.
+  void Visit(const frontEnd::ASTArrayDecl *) override {
+#warning "Code gen for array decl is not implemented"
+  }
+
+  void Visit(const frontEnd::ASTVarDecl *) override;
+
   // The rest.
   void Visit(const frontEnd::ASTSymbol *) override;
   void Visit(const frontEnd::ASTCompoundStmt *) override;
   void Visit(const frontEnd::ASTReturnStmt *) override;
-  void Visit(const frontEnd::ASTVarDecl *) override;
 
   /// Anayzed root AST node.
   frontEnd::ASTNode *Root;

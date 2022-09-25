@@ -94,48 +94,50 @@ $(function() {
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>  <span class="comment">// Variable reference.</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba8fc5a0642a90632e8418ca52c3ec761d">SYMBOL</a>,</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  <span class="comment">// Assignments (e.g int Value = 0).</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  <span class="comment">// Declarations.</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaac09f681a30d715be1c6efacd730262d">VAR_DECL</a>,</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <span class="comment">// Function parameter (e.g int Value).</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbabf1d4bbf6ed8626603df4a7cac94ee8c">PARAMETER</a>,</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <span class="comment">// Iteration statements.</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba50e2e173829592be93e1b1fb86c82dc1">BREAK_STMT</a>,</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba724a73699b23aa5de52397262b133295">CONTINUE_STMT</a>,</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="comment">// Operand-Operator-Operand (also with [] operator).</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba98ad0e8750ae10ad556ed7a62affb452">BINARY</a>,</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="comment">// Operand-Operator.</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba6cd3651873b2fcb5c27f09a6cb8a9738">PREFIX_UNARY</a>,</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba88b1ed5cf93322b2f7c76e1c4f33b8e4">POSTFIX_UNARY</a>,</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="comment">// Branches.</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba305d413ba7c7459976d92e83cd48a7ff">IF_STMT</a>,</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="comment">// Loops.</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaba8a68a1601696e450f05d1809d48437">FOR_STMT</a>,</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbac47fc7692e9a0f6839fe9c6d4ec8bc73">WHILE_STMT</a>,</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba33f8e96b1c83a87886efc13caa9cef10">DO_WHILE_STMT</a>,</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="comment">// Jump statements.</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba9eeeea6ff7f6f2e3a6b03baf772e159e">RETURN_STMT</a>,</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="comment">// Body for block statements.</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaf78e279d6b0afba2361c50e0594557a8">COMPOUND_STMT</a>,</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="comment">// Functions.</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaf2edfb46759b12f62a22b75757c64fad">FUNCTION_DECL</a>,</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbafe8f37b06a5aa2e00985a4efffab6c2b">FUNCTION_CALL</a>,</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbabe2e9240b7f0f3ebeaefd7eded605608">FUNCTION_PROTOTYPE</a>,</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>};</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>} <span class="comment">// namespace frontEnd</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>} <span class="comment">// namespace weak</span></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_FRONTEND_AST_AST_TYPES_ENUM_HPP</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba0f7e3500746bbb4bcabf06e177aae6e0">ARRAY_DECL</a>,</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <span class="comment">// Function parameter (e.g int Value).</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbabf1d4bbf6ed8626603df4a7cac94ee8c">PARAMETER</a>,</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <span class="comment">// Iteration statements.</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba50e2e173829592be93e1b1fb86c82dc1">BREAK_STMT</a>,</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba724a73699b23aa5de52397262b133295">CONTINUE_STMT</a>,</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="comment">// Operand-Operator-Operand (also with [] operator).</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba98ad0e8750ae10ad556ed7a62affb452">BINARY</a>,</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="comment">// Operand-Operator.</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba6cd3651873b2fcb5c27f09a6cb8a9738">PREFIX_UNARY</a>,</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba88b1ed5cf93322b2f7c76e1c4f33b8e4">POSTFIX_UNARY</a>,</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="comment">// Branches.</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba305d413ba7c7459976d92e83cd48a7ff">IF_STMT</a>,</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <span class="comment">// Loops.</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaba8a68a1601696e450f05d1809d48437">FOR_STMT</a>,</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbac47fc7692e9a0f6839fe9c6d4ec8bc73">WHILE_STMT</a>,</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba33f8e96b1c83a87886efc13caa9cef10">DO_WHILE_STMT</a>,</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="comment">// Jump statements.</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba9eeeea6ff7f6f2e3a6b03baf772e159e">RETURN_STMT</a>,</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="comment">// Body for block statements.</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaf78e279d6b0afba2361c50e0594557a8">COMPOUND_STMT</a>,</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <span class="comment">// Functions.</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaf2edfb46759b12f62a22b75757c64fad">FUNCTION_DECL</a>,</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbafe8f37b06a5aa2e00985a4efffab6c2b">FUNCTION_CALL</a>,</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  <a class="code hl_enumvalue" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbabe2e9240b7f0f3ebeaefd7eded605608">FUNCTION_PROTOTYPE</a>,</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>};</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>} <span class="comment">// namespace frontEnd</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>} <span class="comment">// namespace weak</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_FRONTEND_AST_AST_TYPES_ENUM_HPP</span></div>
 <div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abb"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abb">weak::frontEnd::ASTType</a></div><div class="ttdeci">ASTType</div><div class="ttdef"><b>Definition:</b> ASTTypesEnum.hpp:13</div></div>
+<div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abba0f7e3500746bbb4bcabf06e177aae6e0"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba0f7e3500746bbb4bcabf06e177aae6e0">weak::frontEnd::ASTType::ARRAY_DECL</a></div><div class="ttdeci">@ ARRAY_DECL</div></div>
 <div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abba305d413ba7c7459976d92e83cd48a7ff"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba305d413ba7c7459976d92e83cd48a7ff">weak::frontEnd::ASTType::IF_STMT</a></div><div class="ttdeci">@ IF_STMT</div></div>
 <div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abba33f8e96b1c83a87886efc13caa9cef10"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba33f8e96b1c83a87886efc13caa9cef10">weak::frontEnd::ASTType::DO_WHILE_STMT</a></div><div class="ttdeci">@ DO_WHILE_STMT</div></div>
 <div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abba50e2e173829592be93e1b1fb86c82dc1"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba50e2e173829592be93e1b1fb86c82dc1">weak::frontEnd::ASTType::BREAK_STMT</a></div><div class="ttdeci">@ BREAK_STMT</div></div>
@@ -158,7 +160,7 @@ $(function() {
 <div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abbaf2edfb46759b12f62a22b75757c64fad"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaf2edfb46759b12f62a22b75757c64fad">weak::frontEnd::ASTType::FUNCTION_DECL</a></div><div class="ttdeci">@ FUNCTION_DECL</div></div>
 <div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abbaf78e279d6b0afba2361c50e0594557a8"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbaf78e279d6b0afba2361c50e0594557a8">weak::frontEnd::ASTType::COMPOUND_STMT</a></div><div class="ttdeci">@ COMPOUND_STMT</div></div>
 <div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abbafe8f37b06a5aa2e00985a4efffab6c2b"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abbafe8f37b06a5aa2e00985a4efffab6c2b">weak::frontEnd::ASTType::FUNCTION_CALL</a></div><div class="ttdeci">@ FUNCTION_CALL</div></div>
-<div class="ttc" id="anamespaceweak_html"><div class="ttname"><a href="namespaceweak.html">weak</a></div><div class="ttdef"><b>Definition:</b> ASTBinaryOperator.hpp:14</div></div>
+<div class="ttc" id="anamespaceweak_html"><div class="ttname"><a href="namespaceweak.html">weak</a></div><div class="ttdef"><b>Definition:</b> ASTArrayDecl.hpp:15</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
