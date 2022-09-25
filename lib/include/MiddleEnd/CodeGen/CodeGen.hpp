@@ -69,10 +69,12 @@ private:
   void Visit(const frontEnd::ASTArrayDecl *) override {
 #warning "Code gen for array decl is not implemented"
   }
-
   void Visit(const frontEnd::ASTVarDecl *) override;
 
   // The rest.
+  void Visit(const frontEnd::ASTArrayAccess *) override {
+#warning "Code gen for array access operator is not implemented"
+  }
   void Visit(const frontEnd::ASTSymbol *) override;
   void Visit(const frontEnd::ASTCompoundStmt *) override;
   void Visit(const frontEnd::ASTReturnStmt *) override;

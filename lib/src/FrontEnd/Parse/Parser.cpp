@@ -5,6 +5,7 @@
  */
 
 #include "FrontEnd/Parse/Parser.hpp"
+#include "FrontEnd/AST/ASTArrayAccess.hpp"
 #include "FrontEnd/AST/ASTArrayDecl.hpp"
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
@@ -273,6 +274,7 @@ std::unique_ptr<ASTCompoundStmt> Parser::ParseBlock() {
     case ASTType::DO_WHILE_STMT:
     case ASTType::VAR_DECL:
     case ASTType::ARRAY_DECL:
+    case ASTType::ARRAY_ACCESS:
     case ASTType::FUNCTION_CALL: // Fall through.
       Require(TokenType::SEMICOLON);
       break;
@@ -474,6 +476,17 @@ std::unique_ptr<ASTNode> Parser::ParseJumpStatement() {
   // the assignment operator.
   return std::make_unique<ASTReturnStmt>(ParseExpression(), ReturnStmt.LineNo,
                                          ReturnStmt.ColumnNo);
+}
+
+std::unique_ptr<ASTNode> Parser::ParseArrayAccessOperator() {
+  const Token &Symbol = PeekNext();
+
+  Require(TokenType::OPEN_BOX_BRACKET);
+  auto Expr = ParseExpression();
+  Require(TokenType::CLOSE_BOX_BRACKET);
+
+  return std::make_unique<ASTArrayAccess>(
+      std::move(Symbol.Data), std::move(Expr), Symbol.LineNo, Symbol.ColumnNo);
 }
 
 std::unique_ptr<ASTNode> Parser::ParseExpression() {
@@ -738,16 +751,28 @@ std::unique_ptr<ASTNode> Parser::ParsePostfixUnary() {
   return Expr;
 }
 
+std::unique_ptr<ASTNode> Parser::ParseSymbolProduction() {
+  const Token &StartOfExpression = *(CurrentBufferPtr - 1);
+  switch (const Token &Current = PeekCurrent(); Current.Type) {
+  case TokenType::OPEN_PAREN: {
+    --CurrentBufferPtr;
+    return ParseFunctionCall();
+  }
+  case TokenType::OPEN_BOX_BRACKET: {
+    --CurrentBufferPtr;
+    return ParseArrayAccessOperator();
+  }
+  default:
+    return std::make_unique<ASTSymbol>(StartOfExpression.Data,
+                                       StartOfExpression.LineNo,
+                                       StartOfExpression.ColumnNo);
+  }
+}
+
 std::unique_ptr<ASTNode> Parser::ParsePrimary() {
   switch (const Token &Current = PeekNext(); Current.Type) {
-  case TokenType::SYMBOL: {
-    if (PeekCurrent().Type == TokenType::OPEN_PAREN) {
-      --CurrentBufferPtr;
-      return ParseFunctionCall();
-    }
-    return std::make_unique<ASTSymbol>(Current.Data, Current.LineNo,
-                                       Current.ColumnNo);
-  }
+  case TokenType::SYMBOL:
+    return ParseSymbolProduction();
   case TokenType::OPEN_PAREN: {
     /// We expect all binary/unary/constant statements expect assignment.
     auto Expr = ParseLogicalOr();

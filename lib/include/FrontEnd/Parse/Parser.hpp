@@ -33,6 +33,8 @@ private:
 
   std::unique_ptr<ASTNode> ParseArrayDecl();
 
+  std::unique_ptr<ASTNode> ParseArrayAccessOperator();
+
   std::unique_ptr<ASTNode> ParseVarDecl();
 
   /// Int, char, string, bool.
@@ -104,6 +106,9 @@ private:
   std::unique_ptr<ASTNode> ParsePrefixUnary();
 
   std::unique_ptr<ASTNode> ParsePostfixUnary();
+
+  /// Symbol, function call or array access.
+  std::unique_ptr<ASTNode> ParseSymbolProduction();
 
   std::unique_ptr<ASTNode> ParsePrimary();
 

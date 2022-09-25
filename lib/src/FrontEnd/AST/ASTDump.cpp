@@ -5,6 +5,7 @@
  */
 
 #include "FrontEnd/AST/ASTDump.hpp"
+#include "FrontEnd/AST/ASTArrayAccess.hpp"
 #include "FrontEnd/AST/ASTArrayDecl.hpp"
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
@@ -60,6 +61,17 @@ public:
   void Dump() { RootNode->Accept(this); }
 
 private:
+  void Visit(const ASTArrayAccess *Decl) override {
+    PrintWithTextPosition("ArrayAccess", Decl, /*NewLineNeeded=*/false);
+
+    OutStream << Decl->GetSymbolName() << std::endl;
+
+    Indent += 2;
+    PrintIndent();
+    Decl->GetIndex()->Accept(this);
+    Indent -= 2;
+  }
+
   void Visit(const ASTArrayDecl *Decl) override {
     PrintWithTextPosition("ArrayDecl", Decl, /*NewLineNeeded=*/false);
 

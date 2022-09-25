@@ -17,6 +17,7 @@ public:
   virtual ~ASTVisitor() noexcept = default;
 
   virtual void Visit(const ASTArrayDecl *) = 0;
+  virtual void Visit(const ASTArrayAccess *) = 0;
   virtual void Visit(const ASTBinaryOperator *) = 0;
   virtual void Visit(const ASTBooleanLiteral *) = 0;
   virtual void Visit(const ASTBreakStmt *) = 0;

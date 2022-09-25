@@ -27,19 +27,15 @@ enum struct ASTType {
   VAR_DECL,
   ARRAY_DECL,
 
-  // Function parameter (e.g int Value).
-  PARAMETER,
-
   // Iteration statements.
   BREAK_STMT,
   CONTINUE_STMT,
 
-  // Operand-Operator-Operand (also with [] operator).
+  // Operators.
   BINARY,
-
-  // Operand-Operator.
   PREFIX_UNARY,
   POSTFIX_UNARY,
+  ARRAY_ACCESS,
 
   // Branches.
   IF_STMT,
