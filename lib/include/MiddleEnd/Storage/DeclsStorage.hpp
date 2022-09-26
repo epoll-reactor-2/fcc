@@ -17,7 +17,7 @@ class AllocaInst;
 namespace weak {
 namespace middleEnd {
 
-/// Storage for LLVM declarations.
+/// \brief Storage for LLVM declarations.
 class DeclsStorage {
   /// Entity stored inside. Needed to handle
   /// erasure of IR objects with the end of
@@ -30,10 +30,9 @@ class DeclsStorage {
   };
 
 public:
-  DeclsStorage();
-
   /// Begin new scope; increment scope depth.
   void StartScope();
+
   /// Terminate scope, destroy all stored variables; decrement scope depth.
   void EndScope();
 
@@ -46,7 +45,7 @@ public:
   llvm::AllocaInst *Lookup(std::string_view Name);
 
 private:
-  unsigned CurrentDepth;
+  unsigned CurrentDepth{0U};
 
   using Hash = size_t;
   std::unordered_multimap<Hash, DeclRecord> InnerScopes;

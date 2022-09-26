@@ -54,7 +54,7 @@ enum struct ASTType {
   // Functions.
   FUNCTION_DECL,
   FUNCTION_CALL,
-  FUNCTION_PROTOTYPE,
+  FUNCTION_PROTOTYPE
 };
 
 } // namespace frontEnd

@@ -18,7 +18,7 @@
 namespace weak {
 namespace middleEnd {
 
-/// LLVM IR generator.
+/// \brief LLVM IR generator.
 ///
 /// Implemented as AST visitor because it still does not operates on CFG.
 class CodeGen : private frontEnd::ASTVisitor {
@@ -30,11 +30,13 @@ public:
 
   llvm::Module &GetModule();
 
+  /// Get list of already created global variables.
   const llvm::SymbolTableList<llvm::GlobalVariable> &GetGlobalVariables() const;
 
+  /// Get list of already created functions.
   const llvm::SymbolTableList<llvm::Function> &GetGlobalFunctions() const;
 
-  /// Create visual representation.
+  /// Create and get visual representation.
   std::string ToString() const;
 
 private:
@@ -79,11 +81,11 @@ private:
   void Visit(const frontEnd::ASTCompoundStmt *) override;
   void Visit(const frontEnd::ASTReturnStmt *) override;
 
-  /// Anayzed root AST node.
+  /// Analyzed root AST node.
   frontEnd::ASTNode *Root;
   /// Variables pool.
   DeclsStorage DeclStorage;
-  /// Consequence of using visitor pattern. since we cannot return anything from
+  /// Consequence of using visitor pattern, since we cannot return anything from
   /// visit functions.
   llvm::Value *LastInstr;
   /// LLVM stuff.

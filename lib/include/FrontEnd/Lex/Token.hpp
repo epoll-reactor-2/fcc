@@ -13,7 +13,6 @@ namespace weak {
 namespace frontEnd {
 
 enum struct TokenType {
-  NONE,
   // Keywords.
   BOOLEAN,
   BREAK,
@@ -84,12 +83,12 @@ enum struct TokenType {
 const char *TokenToString(TokenType Type);
 
 struct Token {
-  Token(std::string_view TheData, TokenType TheType, unsigned TheLineNo,
+  Token(std::string TheData, TokenType TheType, unsigned TheLineNo,
         unsigned TheColumnNo);
 
-  bool operator==(const Token &rhs) const;
+  bool operator==(const Token &RHS) const;
 
-  bool operator!=(const Token &rhs) const;
+  bool operator!=(const Token &RHS) const;
 
   /// Data if any (digits, symbols, literals).
   std::string Data;

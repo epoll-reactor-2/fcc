@@ -135,14 +135,13 @@ const char *weak::frontEnd::TokenToString(TokenType Type) {
   }
 }
 
-Token::Token(std::string_view TheData, TokenType TheType, unsigned TheLineNo,
+Token::Token(std::string TheData, TokenType TheType, unsigned TheLineNo,
              unsigned TheColumnNo)
-    : Data(TheData), Type(TheType), LineNo(TheLineNo), ColumnNo(TheColumnNo) {}
+    : Data(std::move(TheData)), Type(TheType), LineNo(TheLineNo),
+      ColumnNo(TheColumnNo) {}
 
-bool Token::operator==(const Token &rhs) const {
-  return (Data == rhs.Data) && (Type == rhs.Type);
+bool Token::operator==(const Token &RHS) const {
+  return (Data == RHS.Data) && (Type == RHS.Type);
 }
 
-bool Token::operator!=(const Token &rhs) const {
-  return (Data != rhs.Data) || (Type != rhs.Type);
-}
+bool Token::operator!=(const Token &RHS) const { return !(*this == RHS); }

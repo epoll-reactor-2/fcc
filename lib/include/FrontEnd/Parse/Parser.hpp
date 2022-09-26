@@ -17,6 +17,7 @@ namespace frontEnd {
 /// \brief LL(1) Syntax analyzer.
 class Parser {
 public:
+  /// \note Requires random access memory layout of buffer.
   Parser(const Token *TheBufferStart, const Token *TheBufferEnd);
 
   /// Transform token stream to AST.
@@ -29,27 +30,31 @@ private:
   /// Function call with optional argument list.
   std::unique_ptr<ASTNode> ParseFunctionCall();
 
+  /// Expressions like `int variable`. Used in function parameters.
   std::unique_ptr<ASTNode> ParseVarDeclWithoutInitializer();
 
+  /// Array declaration of any arity, beginning from 1.
   std::unique_ptr<ASTNode> ParseArrayDecl();
 
+  /// < id > [ < expression > ].
   std::unique_ptr<ASTNode> ParseArrayAccessOperator();
 
+  /// Variable declaration with initializer.
   std::unique_ptr<ASTNode> ParseVarDecl();
 
-  /// Int, char, string, bool.
+  /// Int, float, char, string, bool.
   const Token &ParseType();
 
   /// All from ParseType() or void.
   const Token &ParseReturnType();
 
-  /// {Data type} {id}.
+  /// < type > < id > | < type > < id > [ < integral-literal > ].
   std::unique_ptr<ASTNode> ParseParameter();
 
-  /// ({Data type} {id} ,?)*
+  /// ( (< type > < id > ,?)* ).
   std::vector<std::unique_ptr<ASTNode>> ParseParameterList();
 
-  /// Block of code between '{' and '}'.
+  /// { < iteration-stmt >* }.
   std::unique_ptr<ASTCompoundStmt> ParseBlock();
 
   /// Block of code with break and continue statements.
@@ -110,6 +115,7 @@ private:
   /// Symbol, function call or array access.
   std::unique_ptr<ASTNode> ParseSymbolProduction();
 
+  /// Symbol, parentheses expression or constant.
   std::unique_ptr<ASTNode> ParsePrimary();
 
   /// Integral, floating-point, string or boolean literal.
@@ -129,18 +135,20 @@ private:
   /// matches given token type, otherwise return false.
   bool Match(TokenType Expected);
 
-  /// Does the Match job, but terminates program with log message on error.
+  /// Does the Match job, but emits compile error on mismatch.
   const Token &Require(const std::vector<TokenType> &Expected);
 
-  /// Does the Match job, but terminates program with log message on error.
+  /// Does the Match job, but emits compile error on mismatch.
   const Token &Require(TokenType Expected);
 
+  /// Ensure we can move CurrentBufferPtr forward or emit compile error, if
+  /// we're reached BufferEnd.
   void CheckIfHaveMoreTokens() const;
 
   /// First token in input stream.
   const Token *BufferStart;
 
-  /// Last token in input stream.
+  /// Pointer to after-last token in input stream, like std::end().
   const Token *BufferEnd;
 
   /// Current token to be processed.

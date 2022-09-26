@@ -86,6 +86,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a6aab74ef896cd7e5213f13ea52a5b68f inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0135118f32a93d6e2b5759881684b11 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#af0135118f32a93d6e2b5759881684b11">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayDecl.html">ASTArrayDecl</a> *)=0</td></tr>
 <tr class="separator:af0135118f32a93d6e2b5759881684b11 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ac86490f397144b3009a3a8ef37abd9 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a1ac86490f397144b3009a3a8ef37abd9">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayAccess.html">ASTArrayAccess</a> *)=0</td></tr>
+<tr class="separator:a1ac86490f397144b3009a3a8ef37abd9 inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f4b2dba7cd9a4216be22e48af5260ac inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a2f4b2dba7cd9a4216be22e48af5260ac">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">ASTBinaryOperator</a> *)=0</td></tr>
 <tr class="separator:a2f4b2dba7cd9a4216be22e48af5260ac inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70780454e7321f24a89bdf0f44f42a4a inherit pub_methods_classweak_1_1frontEnd_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a70780454e7321f24a89bdf0f44f42a4a">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBooleanLiteral.html">ASTBooleanLiteral</a> *)=0</td></tr>
@@ -127,6 +129,8 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
+<tr class="memitem:a87fa4383c1795593adf4af0abef41a08"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02ASTDump_8cpp_03_1_1ASTDumpVisitor.html#a87fa4383c1795593adf4af0abef41a08">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayAccess.html">ASTArrayAccess</a> *Decl) override</td></tr>
+<tr class="separator:a87fa4383c1795593adf4af0abef41a08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a617bc81c287810e9bacd92051197c8cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02ASTDump_8cpp_03_1_1ASTDumpVisitor.html#a617bc81c287810e9bacd92051197c8cf">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayDecl.html">ASTArrayDecl</a> *Decl) override</td></tr>
 <tr class="separator:a617bc81c287810e9bacd92051197c8cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4872326d90bd54e2e737f3a32b9fb625"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classanonymous__namespace_02ASTDump_8cpp_03_1_1ASTDumpVisitor.html#a4872326d90bd54e2e737f3a32b9fb625">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">ASTBinaryOperator</a> *Binary) override</td></tr>
@@ -352,8 +356,36 @@ template&lt;typename WhileNode &gt; </div>
 
 </div>
 </div>
+<a id="a87fa4383c1795593adf4af0abef41a08" name="a87fa4383c1795593adf4af0abef41a08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87fa4383c1795593adf4af0abef41a08">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/21]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void anonymous_namespace{ASTDump.cpp}::ASTDumpVisitor::Visit </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayAccess.html">ASTArrayAccess</a> *&#160;</td>
+          <td class="paramname"><em>Decl</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a1ac86490f397144b3009a3a8ef37abd9">weak::frontEnd::ASTVisitor</a>.</p>
+
+</div>
+</div>
 <a id="a617bc81c287810e9bacd92051197c8cf" name="a617bc81c287810e9bacd92051197c8cf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a617bc81c287810e9bacd92051197c8cf">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a617bc81c287810e9bacd92051197c8cf">&#9670;&nbsp;</a></span>Visit() <span class="overload">[2/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -381,7 +413,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a4872326d90bd54e2e737f3a32b9fb625" name="a4872326d90bd54e2e737f3a32b9fb625"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4872326d90bd54e2e737f3a32b9fb625">&#9670;&nbsp;</a></span>Visit() <span class="overload">[2/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4872326d90bd54e2e737f3a32b9fb625">&#9670;&nbsp;</a></span>Visit() <span class="overload">[3/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -409,7 +441,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="ac7ee41cb50f8c0e057972a6dff2c0c3b" name="ac7ee41cb50f8c0e057972a6dff2c0c3b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac7ee41cb50f8c0e057972a6dff2c0c3b">&#9670;&nbsp;</a></span>Visit() <span class="overload">[3/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7ee41cb50f8c0e057972a6dff2c0c3b">&#9670;&nbsp;</a></span>Visit() <span class="overload">[4/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -437,7 +469,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="ac6583cc5aec50032fbd00dbc42ab9bfe" name="ac6583cc5aec50032fbd00dbc42ab9bfe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac6583cc5aec50032fbd00dbc42ab9bfe">&#9670;&nbsp;</a></span>Visit() <span class="overload">[4/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6583cc5aec50032fbd00dbc42ab9bfe">&#9670;&nbsp;</a></span>Visit() <span class="overload">[5/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -465,7 +497,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a80729badf6464e084e39532fd9f284aa" name="a80729badf6464e084e39532fd9f284aa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a80729badf6464e084e39532fd9f284aa">&#9670;&nbsp;</a></span>Visit() <span class="overload">[5/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a80729badf6464e084e39532fd9f284aa">&#9670;&nbsp;</a></span>Visit() <span class="overload">[6/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -493,7 +525,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="ad65ceb3259f17b4ff57089e742f444d5" name="ad65ceb3259f17b4ff57089e742f444d5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad65ceb3259f17b4ff57089e742f444d5">&#9670;&nbsp;</a></span>Visit() <span class="overload">[6/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad65ceb3259f17b4ff57089e742f444d5">&#9670;&nbsp;</a></span>Visit() <span class="overload">[7/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -521,7 +553,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="ab9571de9e451e59c70c599bf3ff42d62" name="ab9571de9e451e59c70c599bf3ff42d62"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab9571de9e451e59c70c599bf3ff42d62">&#9670;&nbsp;</a></span>Visit() <span class="overload">[7/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9571de9e451e59c70c599bf3ff42d62">&#9670;&nbsp;</a></span>Visit() <span class="overload">[8/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -549,7 +581,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a9c1e7e83e0bed9075f6bf7637d0aa39c" name="a9c1e7e83e0bed9075f6bf7637d0aa39c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9c1e7e83e0bed9075f6bf7637d0aa39c">&#9670;&nbsp;</a></span>Visit() <span class="overload">[8/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c1e7e83e0bed9075f6bf7637d0aa39c">&#9670;&nbsp;</a></span>Visit() <span class="overload">[9/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -577,7 +609,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a15b63b56bb87a31bfa90d0cd212fa046" name="a15b63b56bb87a31bfa90d0cd212fa046"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a15b63b56bb87a31bfa90d0cd212fa046">&#9670;&nbsp;</a></span>Visit() <span class="overload">[9/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a15b63b56bb87a31bfa90d0cd212fa046">&#9670;&nbsp;</a></span>Visit() <span class="overload">[10/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -605,7 +637,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="aa1095617022d41073763e44949e4c64f" name="aa1095617022d41073763e44949e4c64f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa1095617022d41073763e44949e4c64f">&#9670;&nbsp;</a></span>Visit() <span class="overload">[10/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1095617022d41073763e44949e4c64f">&#9670;&nbsp;</a></span>Visit() <span class="overload">[11/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -633,7 +665,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="abc2a188b88b7183c3ec11954c3da8674" name="abc2a188b88b7183c3ec11954c3da8674"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abc2a188b88b7183c3ec11954c3da8674">&#9670;&nbsp;</a></span>Visit() <span class="overload">[11/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abc2a188b88b7183c3ec11954c3da8674">&#9670;&nbsp;</a></span>Visit() <span class="overload">[12/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -661,7 +693,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a166419ce3fb5c09a3b0f8c734428d4f3" name="a166419ce3fb5c09a3b0f8c734428d4f3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a166419ce3fb5c09a3b0f8c734428d4f3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[12/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a166419ce3fb5c09a3b0f8c734428d4f3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[13/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -689,7 +721,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a4ed78f9254c2cbd5615e494d3652ed3a" name="a4ed78f9254c2cbd5615e494d3652ed3a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4ed78f9254c2cbd5615e494d3652ed3a">&#9670;&nbsp;</a></span>Visit() <span class="overload">[13/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ed78f9254c2cbd5615e494d3652ed3a">&#9670;&nbsp;</a></span>Visit() <span class="overload">[14/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -717,7 +749,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a89d1cc25f039425bad0d175ffa9dced2" name="a89d1cc25f039425bad0d175ffa9dced2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89d1cc25f039425bad0d175ffa9dced2">&#9670;&nbsp;</a></span>Visit() <span class="overload">[14/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a89d1cc25f039425bad0d175ffa9dced2">&#9670;&nbsp;</a></span>Visit() <span class="overload">[15/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -745,7 +777,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a76d91f60aed6908bda35685d13c5c547" name="a76d91f60aed6908bda35685d13c5c547"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a76d91f60aed6908bda35685d13c5c547">&#9670;&nbsp;</a></span>Visit() <span class="overload">[15/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a76d91f60aed6908bda35685d13c5c547">&#9670;&nbsp;</a></span>Visit() <span class="overload">[16/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -773,7 +805,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="ae25990e5e4c9376adcb4b110e00f1bc3" name="ae25990e5e4c9376adcb4b110e00f1bc3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae25990e5e4c9376adcb4b110e00f1bc3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[16/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae25990e5e4c9376adcb4b110e00f1bc3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[17/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -801,7 +833,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a35d6fa6f1c6240adbc29a614e4510073" name="a35d6fa6f1c6240adbc29a614e4510073"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a35d6fa6f1c6240adbc29a614e4510073">&#9670;&nbsp;</a></span>Visit() <span class="overload">[17/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a35d6fa6f1c6240adbc29a614e4510073">&#9670;&nbsp;</a></span>Visit() <span class="overload">[18/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -829,7 +861,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="ae9e89f92d350cf134a965b5c922b4f0e" name="ae9e89f92d350cf134a965b5c922b4f0e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae9e89f92d350cf134a965b5c922b4f0e">&#9670;&nbsp;</a></span>Visit() <span class="overload">[18/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9e89f92d350cf134a965b5c922b4f0e">&#9670;&nbsp;</a></span>Visit() <span class="overload">[19/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -857,7 +889,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a1715172803308df81b4677687cbda749" name="a1715172803308df81b4677687cbda749"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1715172803308df81b4677687cbda749">&#9670;&nbsp;</a></span>Visit() <span class="overload">[19/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1715172803308df81b4677687cbda749">&#9670;&nbsp;</a></span>Visit() <span class="overload">[20/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -885,7 +917,7 @@ template&lt;typename WhileNode &gt; </div>
 </div>
 </div>
 <a id="a173a1fdeee307395eb45ee0911f819ab" name="a173a1fdeee307395eb45ee0911f819ab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a173a1fdeee307395eb45ee0911f819ab">&#9670;&nbsp;</a></span>Visit() <span class="overload">[20/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a173a1fdeee307395eb45ee0911f819ab">&#9670;&nbsp;</a></span>Visit() <span class="overload">[21/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

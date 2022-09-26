@@ -23,7 +23,7 @@ public:
   ///
   /// \note In debugging purposes this function uses clang to somehow emit
   ///       executable file.
-  /// \todo Decide how properly do emitting of binaries without bash stubs.
+  /// \todo Judge how properly do emitting of binaries without bash stubs.
   void Build();
 
 private:

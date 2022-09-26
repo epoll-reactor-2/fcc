@@ -358,12 +358,12 @@ char Lexer::PeekNext() {
 
 char Lexer::PeekCurrent() const { return *CurrentBufferPtr; }
 
-Token Lexer::MakeToken(std::string_view Data, TokenType Type) const {
+Token Lexer::MakeToken(std::string Data, TokenType Type) const {
   unsigned LineNo = CurrentLineNo;
   unsigned ColumnNo = CurrentColumnNo;
 
   NormalizeColumnPosition(Data, Type, ColumnNo);
-  return Token(Data, Type, LineNo, ColumnNo);
+  return Token(std::move(Data), Type, LineNo, ColumnNo);
 }
 
 } // namespace frontEnd

@@ -42,7 +42,7 @@ private:
   /// Get current character from input without moving to the next one.
   char PeekCurrent() const;
 
-  Token MakeToken(std::string_view Data, TokenType Type) const;
+  Token MakeToken(std::string Data, TokenType Type) const;
 
   /// Internal buffer.
   std::vector<Token> ProcessedTokens;

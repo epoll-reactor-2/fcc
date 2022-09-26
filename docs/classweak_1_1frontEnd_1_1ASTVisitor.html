@@ -81,6 +81,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a6aab74ef896cd7e5213f13ea52a5b68f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0135118f32a93d6e2b5759881684b11"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#af0135118f32a93d6e2b5759881684b11">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayDecl.html">ASTArrayDecl</a> *)=0</td></tr>
 <tr class="separator:af0135118f32a93d6e2b5759881684b11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ac86490f397144b3009a3a8ef37abd9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a1ac86490f397144b3009a3a8ef37abd9">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayAccess.html">ASTArrayAccess</a> *)=0</td></tr>
+<tr class="separator:a1ac86490f397144b3009a3a8ef37abd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f4b2dba7cd9a4216be22e48af5260ac"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a2f4b2dba7cd9a4216be22e48af5260ac">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">ASTBinaryOperator</a> *)=0</td></tr>
 <tr class="separator:a2f4b2dba7cd9a4216be22e48af5260ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70780454e7321f24a89bdf0f44f42a4a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a70780454e7321f24a89bdf0f44f42a4a">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBooleanLiteral.html">ASTBooleanLiteral</a> *)=0</td></tr>
@@ -147,8 +149,36 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a1ac86490f397144b3009a3a8ef37abd9" name="a1ac86490f397144b3009a3a8ef37abd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ac86490f397144b3009a3a8ef37abd9">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/21]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void weak::frontEnd::ASTVisitor::Visit </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayAccess.html">ASTArrayAccess</a> *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="classanonymous__namespace_02ASTDump_8cpp_03_1_1ASTDumpVisitor.html#a87fa4383c1795593adf4af0abef41a08">anonymous_namespace{ASTDump.cpp}::ASTDumpVisitor</a>, and <a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a44eb633d1bf42cf355e9eeec0538c0eb">weak::middleEnd::CodeGen</a>.</p>
+
+</div>
+</div>
 <a id="af0135118f32a93d6e2b5759881684b11" name="af0135118f32a93d6e2b5759881684b11"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af0135118f32a93d6e2b5759881684b11">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af0135118f32a93d6e2b5759881684b11">&#9670;&nbsp;</a></span>Visit() <span class="overload">[2/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -176,7 +206,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a2f4b2dba7cd9a4216be22e48af5260ac" name="a2f4b2dba7cd9a4216be22e48af5260ac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f4b2dba7cd9a4216be22e48af5260ac">&#9670;&nbsp;</a></span>Visit() <span class="overload">[2/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f4b2dba7cd9a4216be22e48af5260ac">&#9670;&nbsp;</a></span>Visit() <span class="overload">[3/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -204,7 +234,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a70780454e7321f24a89bdf0f44f42a4a" name="a70780454e7321f24a89bdf0f44f42a4a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a70780454e7321f24a89bdf0f44f42a4a">&#9670;&nbsp;</a></span>Visit() <span class="overload">[3/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a70780454e7321f24a89bdf0f44f42a4a">&#9670;&nbsp;</a></span>Visit() <span class="overload">[4/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -232,7 +262,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a44f92dfea558607e4ad59029c2fe9dee" name="a44f92dfea558607e4ad59029c2fe9dee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a44f92dfea558607e4ad59029c2fe9dee">&#9670;&nbsp;</a></span>Visit() <span class="overload">[4/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a44f92dfea558607e4ad59029c2fe9dee">&#9670;&nbsp;</a></span>Visit() <span class="overload">[5/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -260,7 +290,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a60c5d8cb946f587c05b544040cc67887" name="a60c5d8cb946f587c05b544040cc67887"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a60c5d8cb946f587c05b544040cc67887">&#9670;&nbsp;</a></span>Visit() <span class="overload">[5/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a60c5d8cb946f587c05b544040cc67887">&#9670;&nbsp;</a></span>Visit() <span class="overload">[6/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -288,7 +318,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a45b5af91a5c0ecd3c78f2505489823f9" name="a45b5af91a5c0ecd3c78f2505489823f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a45b5af91a5c0ecd3c78f2505489823f9">&#9670;&nbsp;</a></span>Visit() <span class="overload">[6/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a45b5af91a5c0ecd3c78f2505489823f9">&#9670;&nbsp;</a></span>Visit() <span class="overload">[7/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -316,7 +346,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a791e751f0864fb6013cb059470abd918" name="a791e751f0864fb6013cb059470abd918"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a791e751f0864fb6013cb059470abd918">&#9670;&nbsp;</a></span>Visit() <span class="overload">[7/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a791e751f0864fb6013cb059470abd918">&#9670;&nbsp;</a></span>Visit() <span class="overload">[8/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -344,7 +374,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a3d261a9378eb8f9d62b8f842c5f90329" name="a3d261a9378eb8f9d62b8f842c5f90329"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3d261a9378eb8f9d62b8f842c5f90329">&#9670;&nbsp;</a></span>Visit() <span class="overload">[8/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d261a9378eb8f9d62b8f842c5f90329">&#9670;&nbsp;</a></span>Visit() <span class="overload">[9/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -372,7 +402,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ad41e50ce172e962615bd11644e2f295a" name="ad41e50ce172e962615bd11644e2f295a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad41e50ce172e962615bd11644e2f295a">&#9670;&nbsp;</a></span>Visit() <span class="overload">[9/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad41e50ce172e962615bd11644e2f295a">&#9670;&nbsp;</a></span>Visit() <span class="overload">[10/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -400,7 +430,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ab1cb583895966313e6e0da071815bdad" name="ab1cb583895966313e6e0da071815bdad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab1cb583895966313e6e0da071815bdad">&#9670;&nbsp;</a></span>Visit() <span class="overload">[10/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1cb583895966313e6e0da071815bdad">&#9670;&nbsp;</a></span>Visit() <span class="overload">[11/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -428,7 +458,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a94f31d26fcb0a1c076454484b50749a2" name="a94f31d26fcb0a1c076454484b50749a2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a94f31d26fcb0a1c076454484b50749a2">&#9670;&nbsp;</a></span>Visit() <span class="overload">[11/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a94f31d26fcb0a1c076454484b50749a2">&#9670;&nbsp;</a></span>Visit() <span class="overload">[12/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -456,7 +486,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a124964bce8121c5b2a075312f4a2bd3b" name="a124964bce8121c5b2a075312f4a2bd3b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a124964bce8121c5b2a075312f4a2bd3b">&#9670;&nbsp;</a></span>Visit() <span class="overload">[12/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a124964bce8121c5b2a075312f4a2bd3b">&#9670;&nbsp;</a></span>Visit() <span class="overload">[13/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -484,7 +514,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ad5f8aec550e0f7d5f0e578fc3ff3b145" name="ad5f8aec550e0f7d5f0e578fc3ff3b145"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad5f8aec550e0f7d5f0e578fc3ff3b145">&#9670;&nbsp;</a></span>Visit() <span class="overload">[13/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5f8aec550e0f7d5f0e578fc3ff3b145">&#9670;&nbsp;</a></span>Visit() <span class="overload">[14/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -512,7 +542,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a90e736013223de71f1b78c96167e5315" name="a90e736013223de71f1b78c96167e5315"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a90e736013223de71f1b78c96167e5315">&#9670;&nbsp;</a></span>Visit() <span class="overload">[14/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a90e736013223de71f1b78c96167e5315">&#9670;&nbsp;</a></span>Visit() <span class="overload">[15/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -540,7 +570,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a36585e19816a557b4829f47435aec54b" name="a36585e19816a557b4829f47435aec54b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a36585e19816a557b4829f47435aec54b">&#9670;&nbsp;</a></span>Visit() <span class="overload">[15/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a36585e19816a557b4829f47435aec54b">&#9670;&nbsp;</a></span>Visit() <span class="overload">[16/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -568,7 +598,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a97141c1e98489c768b9ba1b51df29fe6" name="a97141c1e98489c768b9ba1b51df29fe6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a97141c1e98489c768b9ba1b51df29fe6">&#9670;&nbsp;</a></span>Visit() <span class="overload">[16/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a97141c1e98489c768b9ba1b51df29fe6">&#9670;&nbsp;</a></span>Visit() <span class="overload">[17/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -596,7 +626,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a6cd541992d2fb763a56843cefa84a88f" name="a6cd541992d2fb763a56843cefa84a88f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6cd541992d2fb763a56843cefa84a88f">&#9670;&nbsp;</a></span>Visit() <span class="overload">[17/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cd541992d2fb763a56843cefa84a88f">&#9670;&nbsp;</a></span>Visit() <span class="overload">[18/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -624,7 +654,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a1f7de93240b0b043e123f63d8e358299" name="a1f7de93240b0b043e123f63d8e358299"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1f7de93240b0b043e123f63d8e358299">&#9670;&nbsp;</a></span>Visit() <span class="overload">[18/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f7de93240b0b043e123f63d8e358299">&#9670;&nbsp;</a></span>Visit() <span class="overload">[19/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -652,7 +682,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a106f2ca89dbc50baf808ce15859d81fe" name="a106f2ca89dbc50baf808ce15859d81fe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a106f2ca89dbc50baf808ce15859d81fe">&#9670;&nbsp;</a></span>Visit() <span class="overload">[19/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a106f2ca89dbc50baf808ce15859d81fe">&#9670;&nbsp;</a></span>Visit() <span class="overload">[20/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -680,7 +710,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a1c8529fa1e93000e45abb0178be158b3" name="a1c8529fa1e93000e45abb0178be158b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c8529fa1e93000e45abb0178be158b3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[20/20]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c8529fa1e93000e45abb0178be158b3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[21/21]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
