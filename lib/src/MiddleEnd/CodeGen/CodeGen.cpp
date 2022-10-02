@@ -6,6 +6,8 @@
 
 #include "MiddleEnd/CodeGen/CodeGen.hpp"
 
+#include "FrontEnd/AST/ASTArrayAccess.hpp"
+#include "FrontEnd/AST/ASTArrayDecl.hpp"
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
 #include "FrontEnd/AST/ASTBreakStmt.hpp"
@@ -110,7 +112,7 @@ public:
 
 private:
   llvm::Constant *CreateDataArray(std::string_view Data) {
-    std::vector<llvm::Constant *> Chars;
+    llvm::SmallVector<llvm::Constant *> Chars;
     Chars.reserve(Data.size());
 
     for (char C : Data) {
@@ -122,10 +124,12 @@ private:
     /// will be ended with '\0'.
     Chars.push_back(CreateNullTerminator());
 
-    llvm::Constant *DataArray = llvm::ConstantArray::get(
-        llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), Chars.size()), Chars);
+    size_t ArraySize = Chars.size();
+    llvm::Constant *Array = llvm::ConstantArray::get(
+        llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), ArraySize),
+        std::move(Chars));
 
-    return DataArray;
+    return Array;
   }
 
   llvm::Constant *CreateNullTerminator() {
@@ -163,8 +167,8 @@ namespace weak {
 namespace middleEnd {
 
 CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
-    : Root(TheRoot), DeclStorage(), LastInstr(nullptr), IRCtx(),
-      IRModule("LLVM Module", IRCtx), IRBuilder(IRCtx) {}
+    : Root(TheRoot), DeclStorage(), LastInstr(nullptr), LastArrayPtr(nullptr),
+      IRCtx(), IRModule("LLVM Module", IRCtx), IRBuilder(IRCtx) {}
 
 void CodeGen::CreateCode() { Root->Accept(this); }
 
@@ -219,6 +223,8 @@ static frontEnd::TokenType ResolveAssignmentOperation(frontEnd::TokenType T) {
 void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   Stmt->GetLHS()->Accept(this);
   llvm::Value *L = LastInstr;
+  /// This is needed only in case of assignment to array element.
+  llvm::Value *AssignmentArrayPtr = LastArrayPtr;
   Stmt->GetRHS()->Accept(this);
   llvm::Value *R = LastInstr;
 
@@ -232,10 +238,15 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   using frontEnd::TokenType;
   switch (auto T = Stmt->GetOperation()) {
   case TokenType::ASSIGN: {
-    const auto *Assignment =
-        static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
-    llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
-    IRBuilder.CreateStore(R, Variable);
+    if (Stmt->GetLHS()->GetASTType() == frontEnd::ASTType::ARRAY_ACCESS) {
+      IRBuilder.CreateStore(R, AssignmentArrayPtr);
+    } else {
+      const auto *Assignment =
+          static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
+      llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
+      IRBuilder.CreateStore(R, Variable);
+    }
+    LastArrayPtr = nullptr;
     break;
   }
   case TokenType::MUL_ASSIGN:
@@ -277,6 +288,7 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
     break;
   default: {
     LastInstr = nullptr;
+    LastArrayPtr = nullptr;
 
     weak::CompileError(Stmt)
         << "Invalid binary operator: " << frontEnd::TokenToString(T);
@@ -495,6 +507,47 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
   FunctionBuilder.Build();
 }
 
+void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
+  llvm::Value *V = DeclStorage.Lookup(Stmt->GetSymbolName());
+  if (!V) {
+    weak::CompileError(Stmt)
+        << "Variable `" << Stmt->GetSymbolName() << "` not found";
+    return;
+  }
+
+  llvm::AllocaInst *Alloca = llvm::dyn_cast<llvm::AllocaInst>(V);
+
+  if (Alloca)
+    // Variable.
+    LastInstr = IRBuilder.CreateLoad(Alloca->getAllocatedType(), Alloca,
+                                     Stmt->GetSymbolName());
+  else
+    // Function parameter.
+    LastInstr = V;
+
+  llvm::Value *Array = LastInstr;
+
+  Stmt->GetIndex()->Accept(this);
+
+  llvm::Value *Index = LastInstr;
+
+  if (Index->getType() != llvm::Type::getInt32Ty(IRCtx)) {
+    weak::CompileError(Stmt) << "Expected 32-bit integer as array index";
+    weak::UnreachablePoint();
+  }
+
+  /// If you have a question about this, please see
+  /// https://llvm.org/docs/GetElementPtr.html.
+  llvm::Value *Zero = llvm::ConstantInt::get(IRCtx, llvm::APInt(32, 0, true));
+
+  /// This is for assignments through a pointer.
+  LastArrayPtr = IRBuilder.CreateInBoundsGEP(
+      Array->getType(), llvm::getPointerOperand(Array), {Zero, Index});
+  /// This is for normal array values usage.
+  LastInstr = IRBuilder.CreateLoad(
+      LastArrayPtr->getType()->getPointerElementType(), LastArrayPtr);
+}
+
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
   llvm::Value *V = DeclStorage.Lookup(Stmt->GetName());
   if (!V) {
@@ -532,22 +585,37 @@ void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
   IRBuilder.CreateRet(LastInstr);
 }
 
+void CodeGen::Visit(const frontEnd::ASTArrayDecl *Stmt) {
+  llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
+
+  TypeResolver TypeResolver(IRCtx);
+  TemporaryAllocaBuilder AllocaBuilder(Func);
+
+  llvm::Type *UnderlyingType = TypeResolver.Resolve(Stmt->GetDataType());
+  llvm::AllocaInst *Alloca = IRBuilder.CreateAlloca(
+      llvm::ArrayType::get(UnderlyingType, Stmt->GetArityList()[0]));
+
+  DeclStorage.Push(Stmt->GetSymbolName(), Alloca);
+}
+
 void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
   Decl->GetDeclareBody()->Accept(this);
 
   /// Alloca needed to be able to store mutable variables.
   /// We should also do load and store before and after
   /// every use of Alloca variable.
-  if (llvm::AllocaInst *Variable = DeclStorage.Lookup(Decl->GetSymbolName())) {
-    IRBuilder.CreateStore(LastInstr, Variable);
-  } else {
-    TypeResolver TypeResolver(IRCtx);
-    llvm::AllocaInst *Alloca = IRBuilder.CreateAlloca(
-        TypeResolver.ResolveExceptVoid(Decl->GetDataType()), nullptr,
-        Decl->GetSymbolName());
-    IRBuilder.CreateStore(LastInstr, Alloca);
-    DeclStorage.Push(Decl->GetSymbolName(), Alloca);
+  if (DeclStorage.Lookup(Decl->GetSymbolName())) {
+    weak::CompileError(Decl)
+        << "Variable `" << Decl->GetSymbolName() << "` already declared";
+    weak::UnreachablePoint();
   }
+
+  TypeResolver TypeResolver(IRCtx);
+  llvm::AllocaInst *Alloca = IRBuilder.CreateAlloca(
+      TypeResolver.ResolveExceptVoid(Decl->GetDataType()), nullptr,
+      Decl->GetSymbolName());
+  IRBuilder.CreateStore(LastInstr, Alloca);
+  DeclStorage.Push(Decl->GetSymbolName(), Alloca);
 }
 
 llvm::Module &CodeGen::GetModule() { return IRModule; }

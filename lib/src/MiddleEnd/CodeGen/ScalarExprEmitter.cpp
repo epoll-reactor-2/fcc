@@ -8,6 +8,13 @@
 #include "Utility/Diagnostic.hpp"
 #include "llvm/IR/Value.h"
 
+static std::string TypeToString(llvm::Type *T) {
+  std::string Type;
+  llvm::raw_string_ostream Stream(Type);
+  T->print(Stream);
+  return Stream.str();
+}
+
 namespace weak {
 namespace middleEnd {
 
@@ -33,8 +40,10 @@ llvm::Value *ScalarExprEmitter::EmitBinOp(const frontEnd::ASTNode *InformAST,
   if (IsFloatOperands)
     return EmitFloatBinOp(InformAST, T, L, R);
 
-  weak::UnreachablePoint(
-      "ScalarExprEmitter::EmitRegularBinOp: Invalid operands passed");
+  weak::CompileError(InformAST)
+      << "Cannot emit binary instruction, invalid operands: "
+      << TypeToString(L->getType()) << " and " << TypeToString(R->getType());
+  weak::UnreachablePoint();
 }
 
 llvm::Value *

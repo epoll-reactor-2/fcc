@@ -68,15 +68,11 @@ private:
   void Visit(const frontEnd::ASTFunctionPrototype *) override;
 
   // Declarations.
-  void Visit(const frontEnd::ASTArrayDecl *) override {
-#warning "Code gen for array decl is not implemented"
-  }
+  void Visit(const frontEnd::ASTArrayDecl *) override;
   void Visit(const frontEnd::ASTVarDecl *) override;
 
   // The rest.
-  void Visit(const frontEnd::ASTArrayAccess *) override {
-#warning "Code gen for array access operator is not implemented"
-  }
+  void Visit(const frontEnd::ASTArrayAccess *) override;
   void Visit(const frontEnd::ASTSymbol *) override;
   void Visit(const frontEnd::ASTCompoundStmt *) override;
   void Visit(const frontEnd::ASTReturnStmt *) override;
@@ -88,6 +84,13 @@ private:
   /// Consequence of using visitor pattern, since we cannot return anything from
   /// visit functions.
   llvm::Value *LastInstr;
+  /// This is needed because there are two contexts of usage of array values:
+  /// 1) array element is reassigned;
+  /// 2) array element is accessed.
+  ///
+  /// So we store pointer to array element there, and the value itself normally
+  /// in LastInstr.
+  llvm::Value *LastArrayPtr;
   /// LLVM stuff.
   llvm::LLVMContext IRCtx;
   /// LLVM stuff.
