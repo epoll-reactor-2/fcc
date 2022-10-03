@@ -42,7 +42,7 @@ public:
   /// Try to retrieve variable by name.
   ///
   /// \return Stored value if present, null otherwise.
-  llvm::AllocaInst *Lookup(std::string_view Name);
+  llvm::AllocaInst *Lookup(std::string_view Name) const;
 
 private:
   unsigned CurrentDepth{0U};

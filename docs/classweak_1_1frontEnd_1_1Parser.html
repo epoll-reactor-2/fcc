@@ -194,10 +194,10 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:ad86ff100dd90f6527a10c98597fb5119"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#ad86ff100dd90f6527a10c98597fb5119">Match</a> (<a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">TokenType</a> Expected)</td></tr>
 <tr class="separator:ad86ff100dd90f6527a10c98597fb5119"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac79effbd0b8f6020ab847081d16ab1f8"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#ac79effbd0b8f6020ab847081d16ab1f8">Require</a> (const std::vector&lt; <a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">TokenType</a> &gt; &amp;Expected)</td></tr>
-<tr class="memdesc:ac79effbd0b8f6020ab847081d16ab1f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but terminates program with log message on error.  <a href="classweak_1_1frontEnd_1_1Parser.html#ac79effbd0b8f6020ab847081d16ab1f8">More...</a><br /></td></tr>
+<tr class="memdesc:ac79effbd0b8f6020ab847081d16ab1f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but emits compile error on mismatch.  <a href="classweak_1_1frontEnd_1_1Parser.html#ac79effbd0b8f6020ab847081d16ab1f8">More...</a><br /></td></tr>
 <tr class="separator:ac79effbd0b8f6020ab847081d16ab1f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ca31d26f3e6951385895627e5a6b200"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#a3ca31d26f3e6951385895627e5a6b200">Require</a> (<a class="el" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">TokenType</a> Expected)</td></tr>
-<tr class="memdesc:a3ca31d26f3e6951385895627e5a6b200"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but terminates program with log message on error.  <a href="classweak_1_1frontEnd_1_1Parser.html#a3ca31d26f3e6951385895627e5a6b200">More...</a><br /></td></tr>
+<tr class="memdesc:a3ca31d26f3e6951385895627e5a6b200"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but emits compile error on mismatch.  <a href="classweak_1_1frontEnd_1_1Parser.html#a3ca31d26f3e6951385895627e5a6b200">More...</a><br /></td></tr>
 <tr class="separator:a3ca31d26f3e6951385895627e5a6b200"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4c4f2990ce5a7924410bf10bc53d4c3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#ab4c4f2990ce5a7924410bf10bc53d4c3">CheckIfHaveMoreTokens</a> () const</td></tr>
 <tr class="separator:ab4c4f2990ce5a7924410bf10bc53d4c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -208,7 +208,7 @@ Private Attributes</h2></td></tr>
 <tr class="memdesc:a010dd76e0cbb621a333acf969928e360"><td class="mdescLeft">&#160;</td><td class="mdescRight">First token in input stream.  <a href="classweak_1_1frontEnd_1_1Parser.html#a010dd76e0cbb621a333acf969928e360">More...</a><br /></td></tr>
 <tr class="separator:a010dd76e0cbb621a333acf969928e360"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4541fc2ec869ef51a16d9e55138c9037"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#a4541fc2ec869ef51a16d9e55138c9037">BufferEnd</a></td></tr>
-<tr class="memdesc:a4541fc2ec869ef51a16d9e55138c9037"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last token in input stream.  <a href="classweak_1_1frontEnd_1_1Parser.html#a4541fc2ec869ef51a16d9e55138c9037">More...</a><br /></td></tr>
+<tr class="memdesc:a4541fc2ec869ef51a16d9e55138c9037"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to after-last token in input stream, like std::end().  <a href="classweak_1_1frontEnd_1_1Parser.html#a4541fc2ec869ef51a16d9e55138c9037">More...</a><br /></td></tr>
 <tr class="separator:a4541fc2ec869ef51a16d9e55138c9037"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5dc355c9b6b1adee68c6ef947345918d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#a5dc355c9b6b1adee68c6ef947345918d">CurrentBufferPtr</a></td></tr>
 <tr class="memdesc:a5dc355c9b6b1adee68c6ef947345918d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current token to be processed.  <a href="classweak_1_1frontEnd_1_1Parser.html#a5dc355c9b6b1adee68c6ef947345918d">More...</a><br /></td></tr>
@@ -245,6 +245,7 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>Requires random access memory layout of buffer. </dd></dl>
 
 </div>
 </div>
@@ -1394,7 +1395,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Does the Match job, but terminates program with log message on error. </p>
+<p>Does the Match job, but emits compile error on mismatch. </p>
 <p >Something from vector successfully matched and located in previous token.</p>
 
 </div>
@@ -1423,7 +1424,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Does the Match job, but terminates program with log message on error. </p>
+<p>Does the Match job, but emits compile error on mismatch. </p>
 
 </div>
 </div>
@@ -1448,7 +1449,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Last token in input stream. </p>
+<p>Pointer to after-last token in input stream, like std::end(). </p>
 
 </div>
 </div>

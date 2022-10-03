@@ -17,7 +17,7 @@ void DeclsStorage::Push(std::string_view Name, llvm::AllocaInst *Value) {
   InnerScopes.emplace(std::hash{}(Name), DeclRecord{CurrentDepth, Value});
 }
 
-llvm::AllocaInst *DeclsStorage::Lookup(std::string_view Name) {
+llvm::AllocaInst *DeclsStorage::Lookup(std::string_view Name) const {
   auto It = InnerScopes.find(std::hash{}(Name));
 
   if (It == InnerScopes.end())

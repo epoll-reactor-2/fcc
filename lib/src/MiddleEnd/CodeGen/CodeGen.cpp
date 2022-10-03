@@ -39,6 +39,7 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
 
+namespace weak {
 namespace {
 
 /// Create part (without body and return type) of function IR from AST.
@@ -62,7 +63,7 @@ public:
 
 private:
   llvm::FunctionType *CreateSignature() {
-    weak::middleEnd::TypeResolver TypeResolver(Ctx);
+    middleEnd::TypeResolver TypeResolver(Ctx);
     llvm::SmallVector<llvm::Type *, 16> ArgTypes;
 
     for (const auto &Arg : Decl->GetArguments())
@@ -79,8 +80,8 @@ private:
     return Signature;
   }
 
-  static const std::string &ExtractSymbol(const weak::frontEnd::ASTNode *Node) {
-    const auto *VarDecl = static_cast<const weak::frontEnd::ASTVarDecl *>(Node);
+  static const std::string &ExtractSymbol(const frontEnd::ASTNode *Node) {
+    const auto *VarDecl = static_cast<const frontEnd::ASTVarDecl *>(Node);
     return VarDecl->GetSymbolName();
   }
 
@@ -144,6 +145,43 @@ private:
 
 namespace {
 
+class AssignmentIRBuilder {
+public:
+  AssignmentIRBuilder(llvm::IRBuilder<> &TheIRBuilder,
+                      const middleEnd::DeclsStorage &TheDeclStorage)
+      : IRBuilder(TheIRBuilder), DeclStorage(TheDeclStorage) {}
+
+  void Build(const frontEnd::ASTBinaryOperator *Stmt, llvm::Value *RHS,
+             llvm::Value *ArrayPtr) {
+    const auto *LHS = Stmt->GetLHS().get();
+
+    if (LHS->GetASTType() == frontEnd::ASTType::ARRAY_ACCESS) {
+      BuildArrayAssignment(RHS, ArrayPtr);
+      return;
+    }
+
+    BuildRegularAssignment(LHS, RHS);
+  }
+
+private:
+  void BuildArrayAssignment(llvm::Value *RHS, llvm::Value *ArrayPtr) {
+    IRBuilder.CreateStore(RHS, ArrayPtr);
+  }
+
+  void BuildRegularAssignment(const frontEnd::ASTNode *LHS, llvm::Value *RHS) {
+    const auto *Symbol = static_cast<const frontEnd::ASTSymbol *>(LHS);
+    llvm::AllocaInst *Variable = DeclStorage.Lookup(Symbol->GetName());
+    IRBuilder.CreateStore(RHS, Variable);
+  }
+
+  llvm::IRBuilder<> &IRBuilder;
+  const middleEnd::DeclsStorage &DeclStorage;
+};
+
+} // namespace
+
+namespace {
+
 // Create temporary alloca instruction. Used to generate function parameters.
 class TemporaryAllocaBuilder {
 public:
@@ -163,7 +201,6 @@ private:
 
 } // namespace
 
-namespace weak {
 namespace middleEnd {
 
 CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
@@ -238,14 +275,8 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   using frontEnd::TokenType;
   switch (auto T = Stmt->GetOperation()) {
   case TokenType::ASSIGN: {
-    if (Stmt->GetLHS()->GetASTType() == frontEnd::ASTType::ARRAY_ACCESS) {
-      IRBuilder.CreateStore(R, AssignmentArrayPtr);
-    } else {
-      const auto *Assignment =
-          static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
-      llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
-      IRBuilder.CreateStore(R, Variable);
-    }
+    AssignmentIRBuilder Builder(IRBuilder, DeclStorage);
+    Builder.Build(Stmt, R, AssignmentArrayPtr);
     LastArrayPtr = nullptr;
     break;
   }

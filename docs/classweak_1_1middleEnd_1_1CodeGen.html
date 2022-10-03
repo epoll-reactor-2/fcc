@@ -199,6 +199,8 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a7419f740d2d17d9e55e282c83e39969a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec015a0d15c6b2ce85a7e2462bea5935"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#aec015a0d15c6b2ce85a7e2462bea5935">LastInstr</a></td></tr>
 <tr class="separator:aec015a0d15c6b2ce85a7e2462bea5935"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac02df4c54d6d4ed9d48f58eb22656989"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ac02df4c54d6d4ed9d48f58eb22656989">LastArrayPtr</a></td></tr>
+<tr class="separator:ac02df4c54d6d4ed9d48f58eb22656989"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3ffc4fa068d2736f1a249baed8e7bca"><td class="memItemLeft" align="right" valign="top">llvm::LLVMContext&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#ae3ffc4fa068d2736f1a249baed8e7bca">IRCtx</a></td></tr>
 <tr class="memdesc:ae3ffc4fa068d2736f1a249baed8e7bca"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff.  <a href="classweak_1_1middleEnd_1_1CodeGen.html#ae3ffc4fa068d2736f1a249baed8e7bca">More...</a><br /></td></tr>
 <tr class="separator:ae3ffc4fa068d2736f1a249baed8e7bca"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -338,16 +340,19 @@ Private Attributes</h2></td></tr>
           <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayAccess.html">frontEnd::ASTArrayAccess</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
+<p >If you have a question about this, please see <a href="https://llvm.org/docs/GetElementPtr.html">https://llvm.org/docs/GetElementPtr.html</a>.</p>
+<p >This is for assignments through a pointer.</p>
+<p >This is for normal array values usage.</p>
 
 <p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a1ac86490f397144b3009a3a8ef37abd9">weak::frontEnd::ASTVisitor</a>.</p>
 
@@ -366,13 +371,13 @@ Private Attributes</h2></td></tr>
           <td class="memname">void weak::middleEnd::CodeGen::Visit </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayDecl.html">frontEnd::ASTArrayDecl</a> *&#160;</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramname"><em>Stmt</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -404,6 +409,7 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p >This is needed only in case of assignment to array element.</p>
 
 <p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a2f4b2dba7cd9a4216be22e48af5260ac">weak::frontEnd::ASTVisitor</a>.</p>
 
@@ -1010,6 +1016,30 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>LLVM stuff. </p>
+
+</div>
+</div>
+<a id="ac02df4c54d6d4ed9d48f58eb22656989" name="ac02df4c54d6d4ed9d48f58eb22656989"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac02df4c54d6d4ed9d48f58eb22656989">&#9670;&nbsp;</a></span>LastArrayPtr</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">llvm::Value* weak::middleEnd::CodeGen::LastArrayPtr</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >This is needed because there are two contexts of usage of array values: 1) array element is reassigned; 2) array element is accessed.</p>
+<p >So we store pointer to array element there, and the value itself normally in LastInstr. </p>
 
 </div>
 </div>

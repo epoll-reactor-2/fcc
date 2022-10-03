@@ -1,12 +1,12 @@
 var searchData=
 [
   ['data_0',['Data',['../structweak_1_1frontEnd_1_1Token.html#afd8bf7be48647eb5ee65955fe71a99eb',1,'weak::frontEnd::Token']]],
-  ['datatype_1',['DataType',['../classweak_1_1frontEnd_1_1ASTVarDecl.html#a3b40ee9dc90d7a674dcfb331329f95d6',1,'weak::frontEnd::ASTVarDecl::DataType()'],['../classweak_1_1frontEnd_1_1ASTArrayDecl.html#ab9f4cce038546b1005d4afdca62ccc95',1,'weak::frontEnd::ASTArrayDecl::DataType()']]],
+  ['datatype_1',['DataType',['../classweak_1_1frontEnd_1_1ASTArrayDecl.html#ab9f4cce038546b1005d4afdca62ccc95',1,'weak::frontEnd::ASTArrayDecl::DataType()'],['../classweak_1_1frontEnd_1_1ASTVarDecl.html#a3b40ee9dc90d7a674dcfb331329f95d6',1,'weak::frontEnd::ASTVarDecl::DataType()']]],
   ['dec_2',['DEC',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a38344a4d87bb35ec197f26fad338b6ab',1,'weak::frontEnd']]],
   ['decl_3',['Decl',['../classanonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#a83ed42d743b92a06d49f6872b72d1184',1,'anonymous_namespace{CodeGen.cpp}::FunctionBuilder']]],
   ['declarebody_4',['DeclareBody',['../classweak_1_1frontEnd_1_1ASTVarDecl.html#ac9fe7d6c36b10d6f81e48e50441e4206',1,'weak::frontEnd::ASTVarDecl']]],
   ['declrecord_5',['DeclRecord',['../structweak_1_1middleEnd_1_1DeclsStorage_1_1DeclRecord.html',1,'weak::middleEnd::DeclsStorage']]],
-  ['declsstorage_6',['DeclsStorage',['../classweak_1_1middleEnd_1_1DeclsStorage.html#a4bbee81989f85dd16031336ec04525df',1,'weak::middleEnd::DeclsStorage::DeclsStorage()'],['../classweak_1_1middleEnd_1_1DeclsStorage.html',1,'weak::middleEnd::DeclsStorage']]],
+  ['declsstorage_6',['DeclsStorage',['../classweak_1_1middleEnd_1_1DeclsStorage.html',1,'weak::middleEnd']]],
   ['declsstorage_2ecpp_7',['DeclsStorage.cpp',['../DeclsStorage_8cpp.html',1,'']]],
   ['declsstorage_2ehpp_8',['DeclsStorage.hpp',['../DeclsStorage_8hpp.html',1,'']]],
   ['declstorage_9',['DeclStorage',['../classweak_1_1middleEnd_1_1CodeGen.html#a7419f740d2d17d9e55e282c83e39969a',1,'weak::middleEnd::CodeGen']]],
