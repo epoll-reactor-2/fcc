@@ -353,16 +353,14 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
+  if (Stmt->GetOperand()->GetASTType() != frontEnd::ASTType::SYMBOL)
+    weak::CompileError(Stmt)
+        << "Variable as argument of unary operator expected";
+
   Stmt->GetOperand()->Accept(this);
 
   llvm::APInt Int(32, 1, false);
   llvm::Value *Step = llvm::ConstantInt::get(IRCtx, Int);
-
-  if (Stmt->GetOperand()->GetASTType() != frontEnd::ASTType::SYMBOL) {
-    weak::CompileError(Stmt)
-        << "Variable as argument of unary operator expected";
-    return;
-  }
 
   auto *SymbolOperand =
       static_cast<const frontEnd::ASTSymbol *>(Stmt->GetOperand().get());
@@ -525,20 +523,16 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
 
 void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
   llvm::Function *Callee = IRModule.getFunction(Stmt->GetName());
-  if (!Callee) {
+  if (!Callee)
     weak::CompileError(Stmt)
         << "Function `" << Stmt->GetName() << "` not found";
-    return;
-  }
 
   const auto &FunArgs = Stmt->GetArguments();
 
-  if (Callee->arg_size() != FunArgs.size()) {
+  if (Callee->arg_size() != FunArgs.size())
     weak::CompileError(Stmt)
         << "Arguments size mismatch: " << FunArgs.size() << " got, but "
         << Callee->arg_size() << " expected";
-    return;
-  }
 
   llvm::SmallVector<llvm::Value *, 16> Args;
   for (size_t I = 0; I < FunArgs.size(); ++I) {
@@ -565,11 +559,9 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
 void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
   /// \todo: Think, how to implement bound checking.
   llvm::Value *V = DeclStorage.Lookup(Stmt->GetSymbolName());
-  if (!V) {
+  if (!V)
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetSymbolName() << "` not found";
-    return;
-  }
 
   llvm::AllocaInst *Alloca = llvm::dyn_cast<llvm::AllocaInst>(V);
 
@@ -587,10 +579,8 @@ void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
 
   llvm::Value *Index = LastInstr;
 
-  if (Index->getType() != llvm::Type::getInt32Ty(IRCtx)) {
+  if (Index->getType() != llvm::Type::getInt32Ty(IRCtx))
     weak::CompileError(Stmt) << "Expected 32-bit integer as array index";
-    weak::UnreachablePoint();
-  }
 
   /// If you have a question about this, please see
   /// https://llvm.org/docs/GetElementPtr.html.
@@ -606,11 +596,9 @@ void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
 
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
   llvm::Value *V = DeclStorage.Lookup(Stmt->GetName());
-  if (!V) {
+  if (!V)
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetName() << "` not found";
-    return;
-  }
 
   llvm::AllocaInst *Alloca = llvm::dyn_cast<llvm::AllocaInst>(V);
   if (Alloca)
@@ -632,10 +620,8 @@ void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
 void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
   llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
-  if (Func->getReturnType()->isVoidTy()) {
+  if (Func->getReturnType()->isVoidTy())
     weak::CompileError(Stmt) << "Cannot return value from void function";
-    weak::UnreachablePoint();
-  }
 
   Stmt->GetOperand()->Accept(this);
   IRBuilder.CreateRet(LastInstr);
@@ -662,11 +648,9 @@ void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
   /// Alloca needed to be able to store mutable variables.
   /// We should also do load and store before and after
   /// every use of Alloca variable.
-  if (DeclStorage.Lookup(Decl->GetSymbolName())) {
+  if (DeclStorage.Lookup(Decl->GetSymbolName()))
     weak::CompileError(Decl)
         << "Variable `" << Decl->GetSymbolName() << "` already declared";
-    weak::UnreachablePoint();
-  }
 
   TypeResolver TypeResolver(IRCtx);
   llvm::AllocaInst *Alloca = IRBuilder.CreateAlloca(
