@@ -1,7 +1,7 @@
 // 20
 int main() {
-    int array[3];
-    array[1] = 10;
-    array[2] = array[1];
-    return array[1] + array[2];
+    int mem[2];
+    mem[0] = 10;
+    mem[1] = mem[0];
+    return mem[0] + mem[1];
 }

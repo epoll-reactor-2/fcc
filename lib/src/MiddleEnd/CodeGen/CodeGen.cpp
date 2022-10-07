@@ -66,8 +66,8 @@ private:
     middleEnd::TypeResolver TypeResolver(Ctx);
     llvm::SmallVector<llvm::Type *, 16> ArgTypes;
 
-    for (const auto &Arg : Decl->GetArguments())
-      ArgTypes.push_back(TypeResolver.ResolveExceptVoid(Arg.get()));
+    for (const auto &ArgAST : Decl->GetArguments())
+      ArgTypes.push_back(ResolveParamType(ArgAST.get()));
 
     llvm::FunctionType *Signature = llvm::FunctionType::get(
         /// Return type.
@@ -80,9 +80,33 @@ private:
     return Signature;
   }
 
-  static const std::string &ExtractSymbol(const frontEnd::ASTNode *Node) {
+  llvm::Type *ResolveParamType(const frontEnd::ASTNode *ArgAST) {
+    const auto ASTType = ArgAST->GetASTType();
+    AssertDeclaration(ASTType);
+
+    middleEnd::TypeResolver TypeResolver(Ctx);
+    if (ASTType == frontEnd::ASTType::VAR_DECL) {
+      /// Variable.
+      return TypeResolver.ResolveExceptVoid(ArgAST);
+    }
+    /// Array.
+    const auto *ArrayDecl = static_cast<const frontEnd::ASTArrayDecl *>(ArgAST);
+    llvm::Type *UnderlyingType =
+        TypeResolver.ResolveExceptVoid(ArrayDecl->GetDataType());
+    /// \todo: Temporarily we get only first dimension as parameter and
+    ///        don't do something else.
+    return llvm::ArrayType::get(UnderlyingType, ArrayDecl->GetArityList()[0]);
+  }
+
+  const std::string &ExtractSymbol(const frontEnd::ASTNode *Node) {
+    AssertDeclaration(Node->GetASTType());
     const auto *VarDecl = static_cast<const frontEnd::ASTVarDecl *>(Node);
     return VarDecl->GetSymbolName();
+  }
+
+  void AssertDeclaration(const frontEnd::ASTType ASTType) {
+    assert(ASTType == frontEnd::ASTType::VAR_DECL ||
+           ASTType == frontEnd::ASTType::ARRAY_DECL);
   }
 
   llvm::LLVMContext &Ctx;
@@ -539,6 +563,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
+  /// \todo: Think, how to implement bound checking.
   llvm::Value *V = DeclStorage.Lookup(Stmt->GetSymbolName());
   if (!V) {
     weak::CompileError(Stmt)
@@ -623,6 +648,8 @@ void CodeGen::Visit(const frontEnd::ASTArrayDecl *Stmt) {
   TemporaryAllocaBuilder AllocaBuilder(Func);
 
   llvm::Type *UnderlyingType = TypeResolver.Resolve(Stmt->GetDataType());
+  /// \todo: Temporarily we get only first dimension as parameter and don't
+  ///        do something else.
   llvm::AllocaInst *Alloca = IRBuilder.CreateAlloca(
       llvm::ArrayType::get(UnderlyingType, Stmt->GetArityList()[0]));
 
