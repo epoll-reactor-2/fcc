@@ -85,10 +85,10 @@ private:
     AssertDeclaration(ASTType);
 
     middleEnd::TypeResolver TypeResolver(Ctx);
-    if (ASTType == frontEnd::ASTType::VAR_DECL) {
+    if (ASTType == frontEnd::ASTType::VAR_DECL)
       /// Variable.
       return TypeResolver.ResolveExceptVoid(ArgAST);
-    }
+
     /// Array.
     const auto *ArrayDecl = static_cast<const frontEnd::ASTArrayDecl *>(ArgAST);
     llvm::Type *UnderlyingType =
@@ -104,9 +104,11 @@ private:
     return VarDecl->GetSymbolName();
   }
 
-  void AssertDeclaration(const frontEnd::ASTType ASTType) {
-    assert(ASTType == frontEnd::ASTType::VAR_DECL ||
-           ASTType == frontEnd::ASTType::ARRAY_DECL);
+  void AssertDeclaration(frontEnd::ASTType Type) {
+    if (Type != frontEnd::ASTType::VAR_DECL &&
+        Type != frontEnd::ASTType::ARRAY_DECL)
+      weak::UnreachablePoint(
+          "Internal error: passed wrong AST nodes as function parameters");
   }
 
   llvm::LLVMContext &Ctx;
@@ -179,12 +181,10 @@ public:
              llvm::Value *ArrayPtr) {
     const auto *LHS = Stmt->GetLHS().get();
 
-    if (LHS->GetASTType() == frontEnd::ASTType::ARRAY_ACCESS) {
+    if (LHS->GetASTType() == frontEnd::ASTType::ARRAY_ACCESS)
       BuildArrayAssignment(RHS, ArrayPtr);
-      return;
-    }
-
-    BuildRegularAssignment(LHS, RHS);
+    else
+      BuildRegularAssignment(LHS, RHS);
   }
 
 private:
@@ -214,8 +214,7 @@ public:
         CodeBuilder(&Func->getEntryBlock(), Func->getEntryBlock().begin()) {}
 
   llvm::AllocaInst *Build(llvm::Type *Type, std::string_view Name) {
-    llvm::AllocaInst *Alloca = CodeBuilder.CreateAlloca(Type, nullptr, Name);
-    return Alloca;
+    return CodeBuilder.CreateAlloca(Type, /*ArraySize=*/nullptr, Name);
   }
 
 private:

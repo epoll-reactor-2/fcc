@@ -3,8 +3,8 @@
 
 using namespace weak::frontEnd;
 
-static Token MakeToken(std::string_view Data, TokenType Type) {
-  return {Data, Type, 0U, 0U};
+static Token MakeToken(std::string Data, TokenType Type) {
+  return Token(std::move(Data), Type, 0U, 0U);
 }
 
 static void RunLexerTest(std::string_view Input,
