@@ -75,15 +75,15 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Create part (without body and return type) of function IR from AST.  
+<p>Create function header (without body) from AST.  
  <a href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a3034b7b800635806493b28734ae0c8e5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#a3034b7b800635806493b28734ae0c8e5">FunctionBuilder</a> (llvm::LLVMContext &amp;TheCtx, llvm::Module &amp;TheModule, const ASTFunctionDeclOrPrototype *TheDecl)</td></tr>
 <tr class="separator:a3034b7b800635806493b28734ae0c8e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa925d69a6a03f1c5a01db3c317f010f1"><td class="memItemLeft" align="right" valign="top">llvm::Function *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#aa925d69a6a03f1c5a01db3c317f010f1">Build</a> ()</td></tr>
-<tr class="separator:aa925d69a6a03f1c5a01db3c317f010f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b9d27779ca2c0b3775e1a60f2822a8e"><td class="memItemLeft" align="right" valign="top">llvm::Function *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#a7b9d27779ca2c0b3775e1a60f2822a8e">BuildSignature</a> ()</td></tr>
+<tr class="separator:a7b9d27779ca2c0b3775e1a60f2822a8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -107,7 +107,7 @@ Private Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename ASTFunctionDeclOrPrototype&gt;<br />
-class weak::anonymous_namespace{CodeGen.cpp}::FunctionBuilder&lt; ASTFunctionDeclOrPrototype &gt;</div><p >Create part (without body and return type) of function IR from AST. </p>
+class weak::anonymous_namespace{CodeGen.cpp}::FunctionBuilder&lt; ASTFunctionDeclOrPrototype &gt;</div><p >Create function header (without body) from AST. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a3034b7b800635806493b28734ae0c8e5" name="a3034b7b800635806493b28734ae0c8e5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3034b7b800635806493b28734ae0c8e5">&#9670;&nbsp;</a></span>FunctionBuilder()</h2>
@@ -182,8 +182,8 @@ template&lt;typename ASTFunctionDeclOrPrototype &gt; </div>
 
 </div>
 </div>
-<a id="aa925d69a6a03f1c5a01db3c317f010f1" name="aa925d69a6a03f1c5a01db3c317f010f1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa925d69a6a03f1c5a01db3c317f010f1">&#9670;&nbsp;</a></span>Build()</h2>
+<a id="a7b9d27779ca2c0b3775e1a60f2822a8e" name="a7b9d27779ca2c0b3775e1a60f2822a8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b9d27779ca2c0b3775e1a60f2822a8e">&#9670;&nbsp;</a></span>BuildSignature()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -194,7 +194,7 @@ template&lt;typename ASTFunctionDeclOrPrototype &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">llvm::Function * weak::anonymous_namespace{CodeGen.cpp}<a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#a3034b7b800635806493b28734ae0c8e5">::FunctionBuilder</a>&lt; ASTFunctionDeclOrPrototype &gt;::Build </td>
+          <td class="memname">llvm::Function * weak::anonymous_namespace{CodeGen.cpp}<a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1FunctionBuilder.html#a3034b7b800635806493b28734ae0c8e5">::FunctionBuilder</a>&lt; ASTFunctionDeclOrPrototype &gt;::BuildSignature </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -206,6 +206,7 @@ template&lt;typename ASTFunctionDeclOrPrototype &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>: Always external linkage? Come here after making multiple files compilation. </dd></dl>
 
 </div>
 </div>
@@ -294,7 +295,7 @@ template&lt;typename ASTFunctionDeclOrPrototype &gt; </div>
 </div><div class="memdoc">
 <p >Variable.</p>
 <p >Array.</p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>: Temporarily we get only first dimension as parameter and don't do something else. </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000003">Todo:</a></b></dt><dd>: Temporarily we get only first dimension as parameter and don't do something else. </dd></dl>
 
 </div>
 </div>

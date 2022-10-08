@@ -12,20 +12,13 @@ namespace frontEnd {
 
 ASTSymbol::ASTSymbol(std::string TheValue, unsigned TheLineNo,
                      unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Value(std::move(TheValue)), SSAIndex(0) {
-}
+    : ASTNode(TheLineNo, TheColumnNo), Value(std::move(TheValue)) {}
 
 ASTType ASTSymbol::GetASTType() const { return ASTType::SYMBOL; }
 
 void ASTSymbol::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-void ASTSymbol::SetSSAIndex(int Index) { SSAIndex = Index; }
-
 const std::string &ASTSymbol::GetName() const { return Value; }
-
-std::string ASTSymbol::GetSSAName() const {
-  return Value + "#" + std::to_string(SSAIndex);
-}
 
 } // namespace frontEnd
 } // namespace weak
