@@ -12,6 +12,7 @@
 namespace llvm {
 class Type;
 class Value;
+class AllocaInst;
 } // namespace llvm
 
 namespace weak {
@@ -24,6 +25,13 @@ void AssertSame(const frontEnd::ASTNode *InformAST, llvm::Value *L,
 /// Ensure that given types are same or emit compile error on mismatch.
 void AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
                 llvm::Type *R);
+
+/// Ensure that given index does not walk beyond the array boundary.
+///
+/// This is simple check for cases, when user provides array accessing by
+/// constant integer, like **arr[100]**, when **arr** has size 10.
+void AssertNotOutOfRange(const frontEnd::ASTNode *InformAST,
+                         llvm::AllocaInst *ArrayAlloca, llvm::Value *Index);
 
 } // namespace middleEnd
 } // namespace weak

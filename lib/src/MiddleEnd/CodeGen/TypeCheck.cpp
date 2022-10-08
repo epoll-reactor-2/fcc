@@ -6,6 +6,7 @@
 
 #include "MiddleEnd/CodeGen/TypeCheck.hpp"
 #include "Utility/Diagnostic.hpp"
+#include "llvm/IR/Instructions.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
 
@@ -30,6 +31,25 @@ void middleEnd::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
 void middleEnd::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Value *L,
                            llvm::Value *R) {
   AssertSame(InformAST, L->getType(), R->getType());
+}
+
+void middleEnd::AssertNotOutOfRange(const frontEnd::ASTNode *InformAST,
+                                    llvm::AllocaInst *ArrayAlloca,
+                                    llvm::Value *Index) {
+  auto *ConstantArray =
+      static_cast<llvm::ArrayType *>(ArrayAlloca->getAllocatedType());
+  int64_t ArraySize = ConstantArray->getNumElements();
+
+  if (!(Index->getType()->isIntegerTy()))
+    return;
+
+  if (auto *I = llvm::dyn_cast<llvm::ConstantInt>(Index)) {
+    int64_t NumericIndex = I->getSExtValue();
+    if (NumericIndex >= ArraySize)
+      weak::CompileError(InformAST)
+          << "Out of range! Index (which is " << NumericIndex
+          << ") >= array size (which is " << ArraySize << ")";
+  }
 }
 
 } // namespace weak

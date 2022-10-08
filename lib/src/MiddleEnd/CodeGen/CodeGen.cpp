@@ -561,7 +561,6 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
-  /// \todo: Think, how to implement bound checking.
   llvm::Value *V = DeclStorage.Lookup(Stmt->GetSymbolName());
   if (!V)
     weak::CompileError(Stmt)
@@ -578,13 +577,13 @@ void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
     LastInstr = V;
 
   llvm::Value *Array = LastInstr;
-
   Stmt->GetIndex()->Accept(this);
-
   llvm::Value *Index = LastInstr;
 
   if (Index->getType() != llvm::Type::getInt32Ty(IRCtx))
     weak::CompileError(Stmt) << "Expected 32-bit integer as array index";
+
+  weak::middleEnd::AssertNotOutOfRange(Stmt, Alloca, Index);
 
   /// If you have a question about this, please see
   /// https://llvm.org/docs/GetElementPtr.html.
