@@ -518,6 +518,9 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
   DeclStorage.EndScope();
   llvm::verifyFunction(*Func);
   LastInstr = nullptr;
+
+  if (Decl->GetReturnType() == frontEnd::TokenType::VOID)
+    IRBuilder.CreateRetVoid();
 }
 
 void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
