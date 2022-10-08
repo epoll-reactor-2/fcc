@@ -69,7 +69,7 @@ $(function() {
   <div class="headertitle"><div class="title">ScalarExprEmitter.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="ScalarExprEmitter_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/* ScalarExprEmitter.hpp - Generator of operations on numeric data types.</span></div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/* ScalarExprEmitter.hpp - Generator of operations on numeric data types.</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright (C) 2022 epoll-reactor &lt;glibcxx.chrono@gmail.com&gt;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * This file is distributed under the MIT license.</span></div>
@@ -78,36 +78,36 @@ $(function() {
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#ifndef WEAK_COMPILER_MIDDLE_END_SCALAR_EXPR_EMITTER_HPP</span></div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#define WEAK_COMPILER_MIDDLE_END_SCALAR_EXPR_EMITTER_HPP</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="Token_8hpp.html">FrontEnd/Lex/Token.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;FrontEnd/Lex/Token.hpp&quot;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;llvm/IR/IRBuilder.h&quot;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;llvm/IR/LLVMContext.h&quot;</span></div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="namespacellvm.html">   14</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacellvm.html">llvm</a> {</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">namespace </span>llvm {</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">class </span>Value;</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>} <span class="comment">// namespace llvm</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceweak.html">weak</a> {</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">namespace </span>weak {</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keyword">namespace </span>frontEnd {</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">class </span>ASTNode;</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>} <span class="comment">// namespace frontEnd</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>} <span class="comment">// namespace weak</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceweak.html">weak</a> {</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">namespace </span>weak {</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">namespace </span>middleEnd {</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html">   28</a></span><span class="keyword">class </span><a class="code hl_class" href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html">ScalarExprEmitter</a> {</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <a class="code hl_function" href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#a28dae07d2f7f96419fdb041b8dcd7152">ScalarExprEmitter</a>(llvm::LLVMContext &amp;, llvm::IRBuilder&lt;&gt; &amp;);</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <a class="code hl_class" href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html">ScalarExprEmitter</a>(llvm::LLVMContext &amp;, llvm::IRBuilder&lt;&gt; &amp;);</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  llvm::Value *<a class="code hl_function" href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#ab659e344a3800c9ffe2ea410f47138be">EmitBinOp</a>(<span class="keyword">const</span> <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *InformAST,</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                         <a class="code hl_enumeration" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">frontEnd::TokenType</a> T, llvm::Value *L, llvm::Value *R);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                         frontEnd::TokenType T, llvm::Value *L, llvm::Value *R);</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  llvm::Value *<a class="code hl_function" href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#a9e7dce7698fbd6c4d96fa236819e33e5">EmitIntegralBinOp</a>(<span class="keyword">const</span> <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *InformAST,</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>                                 <a class="code hl_enumeration" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">frontEnd::TokenType</a> T, llvm::Value *L,</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>                                 frontEnd::TokenType T, llvm::Value *L,</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>                                 llvm::Value *R);</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  llvm::Value *<a class="code hl_function" href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#afc298157b3a75afd1e900f153d7e2351">EmitFloatBinOp</a>(<span class="keyword">const</span> <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *InformAST,</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>                              <a class="code hl_enumeration" href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">frontEnd::TokenType</a> T, llvm::Value *L,</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>                              frontEnd::TokenType T, llvm::Value *L,</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>                              llvm::Value *R);</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keyword">private</span>:</div>
@@ -119,18 +119,13 @@ $(function() {
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>} <span class="comment">// namespace weak</span></div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_MIDDLE_END_SCALAR_EXPR_EMITTER_HPP</span></div>
-<div class="ttc" id="aToken_8hpp_html"><div class="ttname"><a href="Token_8hpp.html">Token.hpp</a></div></div>
 <div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a></div><div class="ttdef"><b>Definition:</b> ASTNode.hpp:18</div></div>
 <div class="ttc" id="aclassweak_1_1middleEnd_1_1ScalarExprEmitter_html"><div class="ttname"><a href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html">weak::middleEnd::ScalarExprEmitter</a></div><div class="ttdoc">Generator of operations on numeric data types.</div><div class="ttdef"><b>Definition:</b> ScalarExprEmitter.hpp:28</div></div>
-<div class="ttc" id="aclassweak_1_1middleEnd_1_1ScalarExprEmitter_html_a28dae07d2f7f96419fdb041b8dcd7152"><div class="ttname"><a href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#a28dae07d2f7f96419fdb041b8dcd7152">weak::middleEnd::ScalarExprEmitter::ScalarExprEmitter</a></div><div class="ttdeci">ScalarExprEmitter(llvm::LLVMContext &amp;, llvm::IRBuilder&lt;&gt; &amp;)</div><div class="ttdef"><b>Definition:</b> ScalarExprEmitter.cpp:21</div></div>
 <div class="ttc" id="aclassweak_1_1middleEnd_1_1ScalarExprEmitter_html_a49efced09c68cea50fc4351ea30ffc1f"><div class="ttname"><a href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#a49efced09c68cea50fc4351ea30ffc1f">weak::middleEnd::ScalarExprEmitter::IRBuilder</a></div><div class="ttdeci">llvm::IRBuilder &amp; IRBuilder</div><div class="ttdoc">Reference to global LLVM stuff.</div><div class="ttdef"><b>Definition:</b> ScalarExprEmitter.hpp:76</div></div>
 <div class="ttc" id="aclassweak_1_1middleEnd_1_1ScalarExprEmitter_html_a9e7dce7698fbd6c4d96fa236819e33e5"><div class="ttname"><a href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#a9e7dce7698fbd6c4d96fa236819e33e5">weak::middleEnd::ScalarExprEmitter::EmitIntegralBinOp</a></div><div class="ttdeci">llvm::Value * EmitIntegralBinOp(const frontEnd::ASTNode *InformAST, frontEnd::TokenType T, llvm::Value *L, llvm::Value *R)</div><div class="ttdef"><b>Definition:</b> ScalarExprEmitter.cpp:50</div></div>
 <div class="ttc" id="aclassweak_1_1middleEnd_1_1ScalarExprEmitter_html_ab659e344a3800c9ffe2ea410f47138be"><div class="ttname"><a href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#ab659e344a3800c9ffe2ea410f47138be">weak::middleEnd::ScalarExprEmitter::EmitBinOp</a></div><div class="ttdeci">llvm::Value * EmitBinOp(const frontEnd::ASTNode *InformAST, frontEnd::TokenType T, llvm::Value *L, llvm::Value *R)</div><div class="ttdef"><b>Definition:</b> ScalarExprEmitter.cpp:25</div></div>
 <div class="ttc" id="aclassweak_1_1middleEnd_1_1ScalarExprEmitter_html_adb1dde6fb51fce85d85d232605d08608"><div class="ttname"><a href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#adb1dde6fb51fce85d85d232605d08608">weak::middleEnd::ScalarExprEmitter::IRCtx</a></div><div class="ttdeci">llvm::LLVMContext &amp; IRCtx</div><div class="ttdoc">Reference to global LLVM stuff.</div><div class="ttdef"><b>Definition:</b> ScalarExprEmitter.hpp:74</div></div>
 <div class="ttc" id="aclassweak_1_1middleEnd_1_1ScalarExprEmitter_html_afc298157b3a75afd1e900f153d7e2351"><div class="ttname"><a href="classweak_1_1middleEnd_1_1ScalarExprEmitter.html#afc298157b3a75afd1e900f153d7e2351">weak::middleEnd::ScalarExprEmitter::EmitFloatBinOp</a></div><div class="ttdeci">llvm::Value * EmitFloatBinOp(const frontEnd::ASTNode *InformAST, frontEnd::TokenType T, llvm::Value *L, llvm::Value *R)</div><div class="ttdef"><b>Definition:</b> ScalarExprEmitter.cpp:98</div></div>
-<div class="ttc" id="anamespacellvm_html"><div class="ttname"><a href="namespacellvm.html">llvm</a></div><div class="ttdef"><b>Definition:</b> ScalarExprEmitter.hpp:14</div></div>
-<div class="ttc" id="anamespaceweak_1_1frontEnd_html_a7999f2df7361fe8f6c75e1e68f25b649"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649">weak::frontEnd::TokenType</a></div><div class="ttdeci">TokenType</div><div class="ttdef"><b>Definition:</b> Token.hpp:15</div></div>
-<div class="ttc" id="anamespaceweak_html"><div class="ttname"><a href="namespaceweak.html">weak</a></div><div class="ttdef"><b>Definition:</b> ASTArrayAccess.hpp:14</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

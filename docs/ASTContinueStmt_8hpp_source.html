@@ -69,7 +69,7 @@ $(function() {
   <div class="headertitle"><div class="title">ASTContinueStmt.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="ASTContinueStmt_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/* ASTContinueStmt.hpp - AST node to represent a continue statement.</span></div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/* ASTContinueStmt.hpp - AST node to represent a continue statement.</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright (C) 2022 epoll-reactor &lt;glibcxx.chrono@gmail.com&gt;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * This file is distributed under the MIT license.</span></div>
@@ -78,32 +78,26 @@ $(function() {
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#ifndef WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_STMT_HPP</span></div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#define WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_STMT_HPP</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="ASTNode_8hpp.html">FrontEnd/AST/ASTNode.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;FrontEnd/AST/ASTNode.hpp&quot;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceweak.html">weak</a> {</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">namespace </span>weak {</div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">namespace </span>frontEnd {</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">   15</a></span><span class="keyword">class </span><a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">ASTContinueStmt</a> : <span class="keyword">public</span> <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> {</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  <a class="code hl_function" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html#a8b4384b0362aab5b91b7a89169e022de">ASTContinueStmt</a>(<span class="keywordtype">unsigned</span> TheLineNo = 0U, <span class="keywordtype">unsigned</span> TheColumnNo = 0U);</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">ASTContinueStmt</a>(<span class="keywordtype">unsigned</span> TheLineNo = 0U, <span class="keywordtype">unsigned</span> TheColumnNo = 0U);</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  <a class="code hl_enumeration" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abb">ASTType</a> <a class="code hl_function" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html#aba512f8111bc0c1f7aa7dc21194787b1">GetASTType</a>() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classweak_1_1frontEnd_1_1ASTContinueStmt.html#a62ece43285017e264c99af55c969449c">Accept</a>(<a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTVisitor.html">ASTVisitor</a> *) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  ASTType GetASTType() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keywordtype">void</span> Accept(<a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTVisitor.html">ASTVisitor</a> *) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>};</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>} <span class="comment">// namespace frontEnd</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>} <span class="comment">// namespace weak</span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_STMT_HPP</span></div>
-<div class="ttc" id="aASTNode_8hpp_html"><div class="ttname"><a href="ASTNode_8hpp.html">ASTNode.hpp</a></div></div>
 <div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTContinueStmt_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTContinueStmt.html">weak::frontEnd::ASTContinueStmt</a></div><div class="ttdef"><b>Definition:</b> ASTContinueStmt.hpp:15</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTContinueStmt_html_a62ece43285017e264c99af55c969449c"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTContinueStmt.html#a62ece43285017e264c99af55c969449c">weak::frontEnd::ASTContinueStmt::Accept</a></div><div class="ttdeci">void Accept(ASTVisitor *) override</div><div class="ttdef"><b>Definition:</b> ASTContinueStmt.cpp:18</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTContinueStmt_html_a8b4384b0362aab5b91b7a89169e022de"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTContinueStmt.html#a8b4384b0362aab5b91b7a89169e022de">weak::frontEnd::ASTContinueStmt::ASTContinueStmt</a></div><div class="ttdeci">ASTContinueStmt(unsigned TheLineNo=0U, unsigned TheColumnNo=0U)</div><div class="ttdef"><b>Definition:</b> ASTContinueStmt.cpp:13</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTContinueStmt_html_aba512f8111bc0c1f7aa7dc21194787b1"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTContinueStmt.html#aba512f8111bc0c1f7aa7dc21194787b1">weak::frontEnd::ASTContinueStmt::GetASTType</a></div><div class="ttdeci">ASTType GetASTType() const override</div><div class="ttdef"><b>Definition:</b> ASTContinueStmt.cpp:16</div></div>
 <div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a></div><div class="ttdef"><b>Definition:</b> ASTNode.hpp:18</div></div>
 <div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTVisitor_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTVisitor.html">weak::frontEnd::ASTVisitor</a></div><div class="ttdef"><b>Definition:</b> ASTVisitor.hpp:15</div></div>
-<div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abb"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abb">weak::frontEnd::ASTType</a></div><div class="ttdeci">ASTType</div><div class="ttdef"><b>Definition:</b> ASTTypesEnum.hpp:13</div></div>
-<div class="ttc" id="anamespaceweak_html"><div class="ttname"><a href="namespaceweak.html">weak</a></div><div class="ttdef"><b>Definition:</b> ASTArrayAccess.hpp:14</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

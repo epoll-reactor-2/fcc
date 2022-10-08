@@ -69,7 +69,7 @@ $(function() {
   <div class="headertitle"><div class="title">Diagnostic.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="Diagnostic_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/* Diagnostic.hpp - Helper functions, used to emitting errors and warns.</span></div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/* Diagnostic.hpp - Helper functions, used to emitting errors and warns.</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright (C) 2022 epoll-reactor &lt;glibcxx.chrono@gmail.com&gt;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * This file is distributed under the MIT license.</span></div>
@@ -82,44 +82,38 @@ $(function() {
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">class </span><a class="code hl_class" href="classDiagnostic.html">Diagnostic</a>;</div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceweak.html">weak</a> {</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">namespace </span>weak {</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">namespace </span>frontEnd {</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">class </span>ASTNode;</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>} <span class="comment">// namespace frontEnd</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>} <span class="comment">// namespace weak</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceweak.html">weak</a> {</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">namespace </span>weak {</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="structweak_1_1OstreamRAII.html">   26</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> {</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="structweak_1_1OstreamRAII.html#a1d4c5e90d2ce6bfe1ca5fe46ceef38bd">   27</a></span>  <a class="code hl_class" href="classDiagnostic.html">::Diagnostic</a> *<a class="code hl_variable" href="structweak_1_1OstreamRAII.html#a1d4c5e90d2ce6bfe1ca5fe46ceef38bd">DiagImpl</a>;</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  <a class="code hl_function" href="structweak_1_1OstreamRAII.html#abc8e0a5276d3780625622a0a5c4d75eb">~OstreamRAII</a>() noexcept(false);</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <a class="code hl_namespace" href="namespacestd.html">std</a>::ostream &amp;operator&lt;&lt;(const <span class="keywordtype">char</span> *);</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>  <a class="code hl_class" href="classDiagnostic.html">::Diagnostic</a> *DiagImpl;</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  <a class="code hl_struct" href="structweak_1_1OstreamRAII.html">~OstreamRAII</a>() <span class="keyword">noexcept</span>(<span class="keyword">false</span>);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  std::ostream &amp;operator&lt;&lt;(<span class="keyword">const</span> <span class="keywordtype">char</span> *);</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>};</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>[[noreturn]] <span class="keywordtype">void</span> <a class="code hl_function" href="namespaceweak.html#a101d70640437cebcc229779e2eb9f2c9">UnreachablePoint</a>(const <span class="keywordtype">char</span> * = &quot;&quot;);</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>[[noreturn]] <span class="keywordtype">void</span> UnreachablePoint(<span class="keyword">const</span> <span class="keywordtype">char</span> * = <span class="stringliteral">&quot;&quot;</span>);</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> <a class="code hl_function" href="namespaceweak.html#a42da0e444faf964525111a177a902859">CompileWarning</a>();</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> CompileWarning();</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> <a class="code hl_function" href="namespaceweak.html#a42da0e444faf964525111a177a902859">CompileWarning</a>(<span class="keywordtype">unsigned</span> LineNo, <span class="keywordtype">unsigned</span> ColumnNo);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> CompileWarning(<span class="keywordtype">unsigned</span> LineNo, <span class="keywordtype">unsigned</span> ColumnNo);</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> <a class="code hl_function" href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">CompileError</a>();</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> CompileError();</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> <a class="code hl_function" href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">CompileError</a>(<span class="keywordtype">unsigned</span> LineNo, <span class="keywordtype">unsigned</span> ColumnNo);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> CompileError(<span class="keywordtype">unsigned</span> LineNo, <span class="keywordtype">unsigned</span> ColumnNo);</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><a class="code hl_namespace" href="namespaceweak.html">weak</a>::<a class="code hl_struct" href="structweak_1_1OstreamRAII.html">OstreamRAII</a> <a class="code hl_function" href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">CompileError</a>(const <a class="code hl_namespace" href="namespaceweak.html">weak</a>::frontEnd::ASTNode *Node);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><a class="code hl_struct" href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a> CompileError(<span class="keyword">const</span> <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a> *Node);</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>} <span class="comment">// namespace weak</span></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_UTILITY_DIAGNOSTIC_HPP</span></div>
 <div class="ttc" id="aclassDiagnostic_html"><div class="ttname"><a href="classDiagnostic.html">Diagnostic</a></div><div class="ttdef"><b>Definition:</b> Diagnostic.cpp:13</div></div>
-<div class="ttc" id="anamespacestd_html"><div class="ttname"><a href="namespacestd.html">std</a></div><div class="ttdef"><b>Definition:</b> DeclsStorage.cpp:9</div></div>
-<div class="ttc" id="anamespaceweak_html"><div class="ttname"><a href="namespaceweak.html">weak</a></div><div class="ttdef"><b>Definition:</b> ASTArrayAccess.hpp:14</div></div>
-<div class="ttc" id="anamespaceweak_html_a101d70640437cebcc229779e2eb9f2c9"><div class="ttname"><a href="namespaceweak.html#a101d70640437cebcc229779e2eb9f2c9">weak::UnreachablePoint</a></div><div class="ttdeci">void UnreachablePoint(const char *=&quot;&quot;)</div><div class="ttdoc">Throw an exception with given message.</div><div class="ttdef"><b>Definition:</b> Diagnostic.cpp:34</div></div>
-<div class="ttc" id="anamespaceweak_html_a42da0e444faf964525111a177a902859"><div class="ttname"><a href="namespaceweak.html#a42da0e444faf964525111a177a902859">weak::CompileWarning</a></div><div class="ttdeci">OstreamRAII CompileWarning()</div><div class="ttdoc">Print diagnostic message with WARN flag.</div><div class="ttdef"><b>Definition:</b> Diagnostic.cpp:68</div></div>
-<div class="ttc" id="anamespaceweak_html_a8fc005bbaa3fae23d9edbd2ff45d0237"><div class="ttname"><a href="namespaceweak.html#a8fc005bbaa3fae23d9edbd2ff45d0237">weak::CompileError</a></div><div class="ttdeci">OstreamRAII CompileError()</div><div class="ttdoc">Print diagnostic message with ERROR flag and throw exception.</div><div class="ttdef"><b>Definition:</b> Diagnostic.cpp:76</div></div>
+<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a></div><div class="ttdef"><b>Definition:</b> ASTNode.hpp:18</div></div>
 <div class="ttc" id="astructweak_1_1OstreamRAII_html"><div class="ttname"><a href="structweak_1_1OstreamRAII.html">weak::OstreamRAII</a></div><div class="ttdef"><b>Definition:</b> Diagnostic.hpp:26</div></div>
-<div class="ttc" id="astructweak_1_1OstreamRAII_html_a1d4c5e90d2ce6bfe1ca5fe46ceef38bd"><div class="ttname"><a href="structweak_1_1OstreamRAII.html#a1d4c5e90d2ce6bfe1ca5fe46ceef38bd">weak::OstreamRAII::DiagImpl</a></div><div class="ttdeci">::Diagnostic * DiagImpl</div><div class="ttdef"><b>Definition:</b> Diagnostic.hpp:27</div></div>
-<div class="ttc" id="astructweak_1_1OstreamRAII_html_abc8e0a5276d3780625622a0a5c4d75eb"><div class="ttname"><a href="structweak_1_1OstreamRAII.html#abc8e0a5276d3780625622a0a5c4d75eb">weak::OstreamRAII::~OstreamRAII</a></div><div class="ttdeci">~OstreamRAII() noexcept(false)</div><div class="ttdef"><b>Definition:</b> Diagnostic.cpp:39</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

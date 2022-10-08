@@ -1,21 +1,5 @@
 var searchData=
 [
-  ['scalarexpremitter_0',['ScalarExprEmitter',['../classweak_1_1middleEnd_1_1ScalarExprEmitter.html#a28dae07d2f7f96419fdb041b8dcd7152',1,'weak::middleEnd::ScalarExprEmitter::ScalarExprEmitter()'],['../classweak_1_1middleEnd_1_1ScalarExprEmitter.html',1,'weak::middleEnd::ScalarExprEmitter']]],
-  ['scalarexpremitter_2ecpp_1',['ScalarExprEmitter.cpp',['../ScalarExprEmitter_8cpp.html',1,'']]],
-  ['scalarexpremitter_2ehpp_2',['ScalarExprEmitter.hpp',['../ScalarExprEmitter_8hpp.html',1,'']]],
-  ['semicolon_3',['SEMICOLON',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649abaaceccc27b1d4e0968c999583f97de5',1,'weak::frontEnd']]],
-  ['shl_4',['SHL',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649abb0b9165d75b1fd27d0a869b036baa3c',1,'weak::frontEnd']]],
-  ['shl_5fassign_5',['SHL_ASSIGN',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649aa625806d0e4f513b5eefa881b120de5c',1,'weak::frontEnd']]],
-  ['shr_6',['SHR',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a10ab606ab9efe239a011d327d9301edd',1,'weak::frontEnd']]],
-  ['shr_5fassign_7',['SHR_ASSIGN',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649abc540d98b265167b9d3da3949395b4fd',1,'weak::frontEnd']]],
-  ['slash_8',['SLASH',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a646da671ca01bb5d84dbb5fb2238dc8e',1,'weak::frontEnd']]],
-  ['star_9',['STAR',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a8ab2630ada18b94a005a0c5399d9d483',1,'weak::frontEnd']]],
-  ['startscope_10',['StartScope',['../classweak_1_1middleEnd_1_1DeclsStorage.html#a33b505fecae90989eae96c2d13940ec0',1,'weak::middleEnd::DeclsStorage']]],
-  ['std_11',['std',['../namespacestd.html',1,'']]],
-  ['stmts_12',['Stmts',['../classweak_1_1frontEnd_1_1ASTCompoundStmt.html#a71f2a1943c554f20de35b29482c019a3',1,'weak::frontEnd::ASTCompoundStmt']]],
-  ['string_13',['STRING',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a63b588d5559f64f89a416e656880b949',1,'weak::frontEnd']]],
-  ['string_5fliteral_14',['STRING_LITERAL',['../namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba544c390254a29bd232dfb1ff2bcf7c12',1,'weak::frontEnd::STRING_LITERAL()'],['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a544c390254a29bd232dfb1ff2bcf7c12',1,'weak::frontEnd::STRING_LITERAL()']]],
-  ['stringliteralbuilder_15',['StringLiteralBuilder',['../classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1StringLiteralBuilder.html#af44bd82d57b780fe961420e7a6472447',1,'weak::anonymous_namespace{CodeGen.cpp}::StringLiteralBuilder::StringLiteralBuilder()'],['../classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1StringLiteralBuilder.html',1,'weak::anonymous_namespace{CodeGen.cpp}::StringLiteralBuilder']]],
-  ['symbol_16',['SYMBOL',['../namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abba8fc5a0642a90632e8418ca52c3ec761d',1,'weak::frontEnd::SYMBOL()'],['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a8fc5a0642a90632e8418ca52c3ec761d',1,'weak::frontEnd::SYMBOL()']]],
-  ['symbolname_17',['SymbolName',['../classweak_1_1frontEnd_1_1ASTVarDecl.html#a3cf8ae0b64341a29d1316c3af2527f0a',1,'weak::frontEnd::ASTVarDecl::SymbolName()'],['../classweak_1_1frontEnd_1_1ASTArrayDecl.html#a28c408e6ce999452c59f5f0c4f3f1b6d',1,'weak::frontEnd::ASTArrayDecl::SymbolName()'],['../classweak_1_1frontEnd_1_1ASTArrayAccess.html#a1f6cbbd69f5da4d384e0499b724fe047',1,'weak::frontEnd::ASTArrayAccess::SymbolName()']]]
+  ['value_0',['Value',['../structweak_1_1middleEnd_1_1DeclsStorage_1_1DeclRecord.html#aef4356022654a250f24f754d6d0cc68d',1,'weak::middleEnd::DeclsStorage::DeclRecord']]],
+  ['visit_1',['Visit',['../classweak_1_1middleEnd_1_1CodeGen.html#ad6834894e15200f9cf5ec635de47dfd2',1,'weak::middleEnd::CodeGen::Visit(const frontEnd::ASTBinaryOperator *) override'],['../classweak_1_1middleEnd_1_1CodeGen.html#a210c25b1d1651f1149919b114e908d65',1,'weak::middleEnd::CodeGen::Visit(const frontEnd::ASTForStmt *) override'],['../classweak_1_1middleEnd_1_1CodeGen.html#a58ed73c3d02742ab82a47957a4d1b38f',1,'weak::middleEnd::CodeGen::Visit(const frontEnd::ASTIfStmt *) override'],['../classweak_1_1middleEnd_1_1CodeGen.html#a2e3a8d3926463608e714f17116c832fd',1,'weak::middleEnd::CodeGen::Visit(const frontEnd::ASTArrayDecl *) override'],['../classweak_1_1middleEnd_1_1CodeGen.html#a44eb633d1bf42cf355e9eeec0538c0eb',1,'weak::middleEnd::CodeGen::Visit(const frontEnd::ASTArrayAccess *) override']]]
 ];

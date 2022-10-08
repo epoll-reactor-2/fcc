@@ -109,8 +109,7 @@ private:
   void AssertDeclaration(frontEnd::ASTType Type) {
     if (Type != frontEnd::ASTType::VAR_DECL &&
         Type != frontEnd::ASTType::ARRAY_DECL)
-      weak::UnreachablePoint(
-          "Internal error: passed wrong AST nodes as function parameters");
+      weak::UnreachablePoint("wrong AST nodes passed as function parameters");
   }
 
   llvm::LLVMContext &Ctx;
@@ -235,12 +234,12 @@ CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
 void CodeGen::CreateCode() { Root->Accept(this); }
 
 void CodeGen::Visit(const frontEnd::ASTBooleanLiteral *Stmt) {
-  llvm::APInt Int(/*numBits=*/1, Stmt->GetValue(), false);
+  llvm::APInt Int(/*numBits=*/1, Stmt->GetValue(), /*isSigned=*/false);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
 void CodeGen::Visit(const frontEnd::ASTIntegerLiteral *Stmt) {
-  llvm::APInt Int(/*numBits=*/32, Stmt->GetValue(), false);
+  llvm::APInt Int(/*numBits=*/32, Stmt->GetValue(), /*isSigned=*/false);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
@@ -347,20 +346,25 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
     LastArrayPtr = nullptr;
 
     weak::CompileError(Stmt)
-        << "Invalid binary operator: " << frontEnd::TokenToString(T);
+        << "Invalid binary operator `" << frontEnd::TokenToString(T) << "`";
     break;
   }
   } // switch
 }
 
 void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
-  if (Stmt->GetOperand()->GetASTType() != frontEnd::ASTType::SYMBOL)
+  switch (Stmt->GetOperand()->GetASTType()) {
+  case frontEnd::ASTType::SYMBOL:
+  case frontEnd::ASTType::ARRAY_ACCESS:
+    break;
+  default:
     weak::CompileError(Stmt)
         << "Variable as argument of unary operator expected";
+  }
 
   Stmt->GetOperand()->Accept(this);
 
-  llvm::APInt Int(32, 1, false);
+  llvm::APInt Int(/*numBits=*/32, /*val=*/1, /*isSigned=*/false);
   llvm::Value *Step = llvm::ConstantInt::get(IRCtx, Int);
 
   auto *SymbolOperand =
@@ -368,26 +372,18 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
 
   using frontEnd::TokenType;
   switch (Stmt->GetOperation()) {
-  case TokenType::INC: {
+  case TokenType::INC:
     LastInstr = IRBuilder.CreateAdd(LastInstr, Step);
-    // If we're expecting that unary operand is a variable,
-    // the store operation was performed, when variable was
-    // created or assigned, so we can safely do store.
-    IRBuilder.CreateStore(LastInstr,
-                          DeclStorage.Lookup(SymbolOperand->GetName()));
     break;
-  }
-  case TokenType::DEC: {
+  case TokenType::DEC:
     LastInstr = IRBuilder.CreateSub(LastInstr, Step);
-    IRBuilder.CreateStore(LastInstr,
-                          DeclStorage.Lookup(SymbolOperand->GetName()));
     break;
-  }
-  default: {
-    weak::CompileError(Stmt) << "Unknown unary operator";
-    break;
-  }
+  default:
+    weak::UnreachablePoint("Should not reach here");
   } // switch
+
+  IRBuilder.CreateStore(LastInstr,
+                        DeclStorage.Lookup(SymbolOperand->GetName()));
 }
 
 void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) {
@@ -510,10 +506,10 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
   DeclStorage.StartScope();
 
   for (auto &Arg : Func->args()) {
-    llvm::AllocaInst *Alloca =
+    llvm::AllocaInst *ArgValue =
         AllocaBuilder.Build(Arg.getType(), Arg.getName().str());
-    IRBuilder.CreateStore(&Arg, Alloca);
-    DeclStorage.Push(Arg.getName().str(), Alloca);
+    IRBuilder.CreateStore(&Arg, ArgValue);
+    DeclStorage.Push(Arg.getName().str(), ArgValue);
   }
 
   Decl->GetBody()->Accept(this);
@@ -561,20 +557,14 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
-  llvm::Value *V = DeclStorage.Lookup(Stmt->GetSymbolName());
-  if (!V)
+  llvm::AllocaInst *SymbolValue = DeclStorage.Lookup(Stmt->GetSymbolName());
+  if (!SymbolValue)
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetSymbolName() << "` not found";
 
-  llvm::AllocaInst *Alloca = llvm::dyn_cast<llvm::AllocaInst>(V);
-
-  if (Alloca)
-    // Variable.
-    LastInstr = IRBuilder.CreateLoad(Alloca->getAllocatedType(), Alloca,
-                                     Stmt->GetSymbolName());
-  else
-    // Function parameter.
-    LastInstr = V;
+  // Variable.
+  LastInstr = IRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue,
+                                   Stmt->GetSymbolName());
 
   llvm::Value *Array = LastInstr;
   Stmt->GetIndex()->Accept(this);
@@ -583,8 +573,7 @@ void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
   if (Index->getType() != llvm::Type::getInt32Ty(IRCtx))
     weak::CompileError(Stmt) << "Expected 32-bit integer as array index";
 
-  weak::middleEnd::AssertNotOutOfRange(Stmt, Alloca, Index);
-
+  weak::middleEnd::AssertNotOutOfRange(Stmt, SymbolValue, Index);
   /// If you have a question about this, please see
   /// https://llvm.org/docs/GetElementPtr.html.
   llvm::Value *Zero = llvm::ConstantInt::get(IRCtx, llvm::APInt(32, 0, true));
@@ -598,19 +587,13 @@ void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
-  llvm::Value *V = DeclStorage.Lookup(Stmt->GetName());
-  if (!V)
+  llvm::AllocaInst *SymbolValue = DeclStorage.Lookup(Stmt->GetName());
+  if (!SymbolValue)
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetName() << "` not found";
 
-  llvm::AllocaInst *Alloca = llvm::dyn_cast<llvm::AllocaInst>(V);
-  if (Alloca)
-    // Variable.
-    LastInstr = IRBuilder.CreateLoad(Alloca->getAllocatedType(), Alloca,
-                                     Stmt->GetName());
-  else
-    // Function parameter.
-    LastInstr = V;
+  LastInstr = IRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue,
+                                   Stmt->GetName());
 }
 
 void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
@@ -639,28 +622,25 @@ void CodeGen::Visit(const frontEnd::ASTArrayDecl *Stmt) {
   llvm::Type *UnderlyingType = TypeResolver.Resolve(Stmt->GetDataType());
   /// \todo: Temporarily we get only first dimension as parameter and don't
   ///        do something else.
-  llvm::AllocaInst *Alloca = IRBuilder.CreateAlloca(
+  llvm::AllocaInst *ArrayDecl = IRBuilder.CreateAlloca(
       llvm::ArrayType::get(UnderlyingType, Stmt->GetArityList()[0]));
 
-  DeclStorage.Push(Stmt->GetSymbolName(), Alloca);
+  DeclStorage.Push(Stmt->GetSymbolName(), ArrayDecl);
 }
 
 void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
   Decl->GetDeclareBody()->Accept(this);
 
-  /// Alloca needed to be able to store mutable variables.
-  /// We should also do load and store before and after
-  /// every use of Alloca variable.
   if (DeclStorage.Lookup(Decl->GetSymbolName()))
     weak::CompileError(Decl)
         << "Variable `" << Decl->GetSymbolName() << "` already declared";
 
   TypeResolver TypeResolver(IRCtx);
-  llvm::AllocaInst *Alloca = IRBuilder.CreateAlloca(
-      TypeResolver.ResolveExceptVoid(Decl->GetDataType()), nullptr,
-      Decl->GetSymbolName());
-  IRBuilder.CreateStore(LastInstr, Alloca);
-  DeclStorage.Push(Decl->GetSymbolName(), Alloca);
+  llvm::AllocaInst *VarDecl = IRBuilder.CreateAlloca(
+      TypeResolver.ResolveExceptVoid(Decl->GetDataType()),
+      /*ArraySize=*/nullptr, Decl->GetSymbolName());
+  IRBuilder.CreateStore(LastInstr, VarDecl);
+  DeclStorage.Push(Decl->GetSymbolName(), VarDecl);
 }
 
 llvm::Module &CodeGen::GetModule() { return IRModule; }

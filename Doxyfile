@@ -9,9 +9,9 @@ REPEAT_BRIEF           = YES
 FULL_PATH_NAMES        = NO
 EXTRACT_PRIVATE        = YES
 TOC_INCLUDE_HEADINGS   = 5
-EXTRACT_ALL            = YES
-EXTRACT_ANON_NSPACES   = YES
-EXTRACT_STATIC         = YES
+EXTRACT_ALL            = NO
+EXTRACT_ANON_NSPACES   = NO
+EXTRACT_STATIC         = NO
 INPUT                  = lib
 FILE_PATTERNS          = *.c \
                          *.cc \

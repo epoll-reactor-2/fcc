@@ -69,7 +69,7 @@ $(function() {
   <div class="headertitle"><div class="title">ASTNode.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="ASTNode_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/* ASTNode.hpp - Basic AST node.</span></div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">/* ASTNode.hpp - Basic AST node.</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment"> * Copyright (C) 2022 epoll-reactor &lt;glibcxx.chrono@gmail.com&gt;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * This file is distributed under the MIT license.</span></div>
@@ -78,46 +78,36 @@ $(function() {
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#ifndef WEAK_COMPILER_FRONTEND_AST_AST_NODE_HPP</span></div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#define WEAK_COMPILER_FRONTEND_AST_AST_NODE_HPP</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="ASTTypesEnum_8hpp.html">FrontEnd/AST/ASTTypesEnum.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;FrontEnd/AST/ASTTypesEnum.hpp&quot;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;memory&gt;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceweak.html">weak</a> {</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">namespace </span>weak {</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">namespace </span>frontEnd {</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">class </span>ASTVisitor;</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="classweak_1_1frontEnd_1_1ASTNode.html">   18</a></span><span class="keyword">class </span><a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> {</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="classweak_1_1frontEnd_1_1ASTNode.html#aa5449339c59f9b786dd2c27ee1ed3560">   20</a></span>  <span class="keyword">virtual</span> <a class="code hl_function" href="classweak_1_1frontEnd_1_1ASTNode.html#aa5449339c59f9b786dd2c27ee1ed3560">~ASTNode</a>() noexcept = default;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  virtual <a class="code hl_enumeration" href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abb">ASTType</a> <a class="code hl_function" href="classweak_1_1frontEnd_1_1ASTNode.html#abe3f652d22f2db48a0b729c078e41685">GetASTType</a>() const;</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="classweak_1_1frontEnd_1_1ASTNode.html#ad3dcc3b6eeadf6e175b47bae2dbcc335">   22</a></span>  virtual <span class="keywordtype">void</span> <a class="code hl_function" href="classweak_1_1frontEnd_1_1ASTNode.html#ad3dcc3b6eeadf6e175b47bae2dbcc335">Accept</a>(<a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTVisitor.html">ASTVisitor</a> *) = 0;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keyword">virtual</span> <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">~ASTNode</a>() <span class="keyword">noexcept</span> = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  <span class="keyword">virtual</span> ASTType GetASTType() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Accept(<a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTVisitor.html">ASTVisitor</a> *) = 0;</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <span class="keywordtype">unsigned</span> <a class="code hl_function" href="classweak_1_1frontEnd_1_1ASTNode.html#a603789cd9c46209a5a98ee5911d3b030">GetLineNo</a>() const;</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  <span class="keywordtype">unsigned</span> <a class="code hl_function" href="classweak_1_1frontEnd_1_1ASTNode.html#ad921dbc09d808b537033c43b8f8571af">GetColumnNo</a>() const;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <span class="keywordtype">unsigned</span> GetLineNo() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  <span class="keywordtype">unsigned</span> GetColumnNo() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>protected:</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">protected</span>:</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a>(<span class="keywordtype">unsigned</span> TheLineNo, <span class="keywordtype">unsigned</span> TheColumnNo);</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="classweak_1_1frontEnd_1_1ASTNode.html#a1a88461ca0b29f8492a679aa2f0edeaa">   30</a></span>  <span class="keywordtype">unsigned</span> <a class="code hl_variable" href="classweak_1_1frontEnd_1_1ASTNode.html#a1a88461ca0b29f8492a679aa2f0edeaa">LineNo</a>;</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="classweak_1_1frontEnd_1_1ASTNode.html#a7b9dc20274e55a20a93e1e8bfa6089ef">   31</a></span>  <span class="keywordtype">unsigned</span> <a class="code hl_variable" href="classweak_1_1frontEnd_1_1ASTNode.html#a7b9dc20274e55a20a93e1e8bfa6089ef">ColumnNo</a>;</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <span class="keywordtype">unsigned</span> LineNo;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  <span class="keywordtype">unsigned</span> ColumnNo;</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>};</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>} <span class="comment">// namespace frontEnd</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>} <span class="comment">// namespace weak</span></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_FRONTEND_AST_AST_NODE_HPP</span></div>
-<div class="ttc" id="aASTTypesEnum_8hpp_html"><div class="ttname"><a href="ASTTypesEnum_8hpp.html">ASTTypesEnum.hpp</a></div></div>
 <div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a></div><div class="ttdef"><b>Definition:</b> ASTNode.hpp:18</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html_a1a88461ca0b29f8492a679aa2f0edeaa"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html#a1a88461ca0b29f8492a679aa2f0edeaa">weak::frontEnd::ASTNode::LineNo</a></div><div class="ttdeci">unsigned LineNo</div><div class="ttdef"><b>Definition:</b> ASTNode.hpp:30</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html_a603789cd9c46209a5a98ee5911d3b030"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html#a603789cd9c46209a5a98ee5911d3b030">weak::frontEnd::ASTNode::GetLineNo</a></div><div class="ttdeci">unsigned GetLineNo() const</div><div class="ttdef"><b>Definition:</b> ASTNode.cpp:17</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html_a7b9dc20274e55a20a93e1e8bfa6089ef"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html#a7b9dc20274e55a20a93e1e8bfa6089ef">weak::frontEnd::ASTNode::ColumnNo</a></div><div class="ttdeci">unsigned ColumnNo</div><div class="ttdef"><b>Definition:</b> ASTNode.hpp:31</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html_aa5449339c59f9b786dd2c27ee1ed3560"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html#aa5449339c59f9b786dd2c27ee1ed3560">weak::frontEnd::ASTNode::~ASTNode</a></div><div class="ttdeci">virtual ~ASTNode() noexcept=default</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html_abe3f652d22f2db48a0b729c078e41685"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html#abe3f652d22f2db48a0b729c078e41685">weak::frontEnd::ASTNode::GetASTType</a></div><div class="ttdeci">virtual ASTType GetASTType() const</div><div class="ttdef"><b>Definition:</b> ASTNode.cpp:15</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html_ad3dcc3b6eeadf6e175b47bae2dbcc335"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html#ad3dcc3b6eeadf6e175b47bae2dbcc335">weak::frontEnd::ASTNode::Accept</a></div><div class="ttdeci">virtual void Accept(ASTVisitor *)=0</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html_ad921dbc09d808b537033c43b8f8571af"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html#ad921dbc09d808b537033c43b8f8571af">weak::frontEnd::ASTNode::GetColumnNo</a></div><div class="ttdeci">unsigned GetColumnNo() const</div><div class="ttdef"><b>Definition:</b> ASTNode.cpp:19</div></div>
 <div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTVisitor_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTVisitor.html">weak::frontEnd::ASTVisitor</a></div><div class="ttdef"><b>Definition:</b> ASTVisitor.hpp:15</div></div>
-<div class="ttc" id="anamespaceweak_1_1frontEnd_html_a0a382c2a6f386a8773b485076c2f2abb"><div class="ttname"><a href="namespaceweak_1_1frontEnd.html#a0a382c2a6f386a8773b485076c2f2abb">weak::frontEnd::ASTType</a></div><div class="ttdeci">ASTType</div><div class="ttdef"><b>Definition:</b> ASTTypesEnum.hpp:13</div></div>
-<div class="ttc" id="anamespaceweak_html"><div class="ttname"><a href="namespaceweak.html">weak</a></div><div class="ttdef"><b>Definition:</b> ASTArrayAccess.hpp:14</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

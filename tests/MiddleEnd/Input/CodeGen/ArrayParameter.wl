@@ -1,5 +1,6 @@
-// 100
+// 99
 int sum_of_two(int mem[2]) {
+    --mem[0];
     return mem[0] + mem[1];
 }
 

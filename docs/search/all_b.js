@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['name_0',['Name',['../classweak_1_1frontEnd_1_1ASTFunctionCall.html#ab66b92b480ae5c84ce25cf3b02fce2d3',1,'weak::frontEnd::ASTFunctionCall::Name()'],['../classweak_1_1frontEnd_1_1ASTFunctionDecl.html#a0f598c10152223387126cf1f52ecead1',1,'weak::frontEnd::ASTFunctionDecl::Name()'],['../classweak_1_1frontEnd_1_1ASTFunctionPrototype.html#a06a589268f7a0f79b33d41b9f4f5d7ee',1,'weak::frontEnd::ASTFunctionPrototype::Name()']]],
-  ['neq_1',['NEQ',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a375b332cf2e0c6d522baf007ef7cb554',1,'weak::frontEnd']]],
-  ['normalizecolumnposition_2',['NormalizeColumnPosition',['../Lexer_8cpp.html#a29899e16aa496567bc82b0ac41deebd5',1,'Lexer.cpp']]],
-  ['not_3',['NOT',['../namespaceweak_1_1frontEnd.html#a7999f2df7361fe8f6c75e1e68f25b649a10df3d67626099df882920ba6552f16d',1,'weak::frontEnd']]]
+  ['require_0',['Require',['../classweak_1_1frontEnd_1_1Parser.html#ac79effbd0b8f6020ab847081d16ab1f8',1,'weak::frontEnd::Parser::Require(const std::vector&lt; TokenType &gt; &amp;Expected)'],['../classweak_1_1frontEnd_1_1Parser.html#a3ca31d26f3e6951385895627e5a6b200',1,'weak::frontEnd::Parser::Require(TokenType Expected)']]],
+  ['resolve_1',['Resolve',['../classweak_1_1middleEnd_1_1TypeResolver.html#ae725f4b4636c54d18ba81d6c94bc7954',1,'weak::middleEnd::TypeResolver::Resolve(frontEnd::TokenType, unsigned LineNo=0U, unsigned ColumnNo=0U)'],['../classweak_1_1middleEnd_1_1TypeResolver.html#a2e832daf2d5fb92239d21cb90f282aec',1,'weak::middleEnd::TypeResolver::Resolve(const frontEnd::ASTNode *)']]],
+  ['resolveexceptvoid_2',['ResolveExceptVoid',['../classweak_1_1middleEnd_1_1TypeResolver.html#ad7729b0e02fcd25c7294f3b385b9dacb',1,'weak::middleEnd::TypeResolver::ResolveExceptVoid(frontEnd::TokenType, unsigned LineNo=0U, unsigned ColumnNo=0U)'],['../classweak_1_1middleEnd_1_1TypeResolver.html#a3ee8b8fe35990e87b2bdd48d0e922bdc',1,'weak::middleEnd::TypeResolver::ResolveExceptVoid(const frontEnd::ASTNode *)']]],
+  ['root_3',['Root',['../classweak_1_1middleEnd_1_1CodeGen.html#affc1ea552c969c94b3af8e19dc18a463',1,'weak::middleEnd::CodeGen']]]
 ];

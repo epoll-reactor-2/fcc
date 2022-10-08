@@ -40,9 +40,6 @@ void middleEnd::AssertNotOutOfRange(const frontEnd::ASTNode *InformAST,
       static_cast<llvm::ArrayType *>(ArrayAlloca->getAllocatedType());
   int64_t ArraySize = ConstantArray->getNumElements();
 
-  if (!(Index->getType()->isIntegerTy()))
-    return;
-
   if (auto *I = llvm::dyn_cast<llvm::ConstantInt>(Index)) {
     int64_t NumericIndex = I->getSExtValue();
     if (NumericIndex >= ArraySize)

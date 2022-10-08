@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['scalarexpremitter_0',['ScalarExprEmitter',['../classweak_1_1middleEnd_1_1ScalarExprEmitter.html',1,'weak::middleEnd']]],
-  ['stringliteralbuilder_1',['StringLiteralBuilder',['../classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1StringLiteralBuilder.html',1,'weak::anonymous_namespace{CodeGen.cpp}']]]
+  ['targetcodebuilder_0',['TargetCodeBuilder',['../classweak_1_1middleEnd_1_1TargetCodeBuilder.html',1,'weak::middleEnd']]],
+  ['token_1',['Token',['../structweak_1_1frontEnd_1_1Token.html',1,'weak::frontEnd']]],
+  ['typeresolver_2',['TypeResolver',['../classweak_1_1middleEnd_1_1TypeResolver.html',1,'weak::middleEnd']]]
 ];
