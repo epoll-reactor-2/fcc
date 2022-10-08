@@ -42,15 +42,17 @@
 namespace weak {
 namespace {
 
-/// Create part (without body and return type) of function IR from AST.
+/// Create function header (without body) from AST.
 template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
 public:
   FunctionBuilder(llvm::LLVMContext &TheCtx, llvm::Module &TheModule,
                   const ASTFunctionDeclOrPrototype *TheDecl)
       : Ctx(TheCtx), Module(TheModule), Decl(TheDecl) {}
 
-  llvm::Function *Build() {
+  llvm::Function *BuildSignature() {
     llvm::FunctionType *Signature = CreateSignature();
+    /// \todo: Always external linkage? Come here after making multiple files
+    ///        compilation.
     llvm::Function *Func = llvm::Function::Create(
         Signature, llvm::Function::ExternalLinkage, Decl->GetName(), &Module);
 
@@ -499,7 +501,7 @@ void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) {
 void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
   FunctionBuilder FunctionBuilder(IRCtx, IRModule, Decl);
 
-  llvm::Function *Func = FunctionBuilder.Build();
+  llvm::Function *Func = FunctionBuilder.BuildSignature();
   llvm::BasicBlock *CFGBlock = llvm::BasicBlock::Create(IRCtx, "entry", Func);
   IRBuilder.SetInsertPoint(CFGBlock);
 
@@ -555,7 +557,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
 
 void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
   FunctionBuilder FunctionBuilder(IRCtx, IRModule, Stmt);
-  FunctionBuilder.Build();
+  FunctionBuilder.BuildSignature();
 }
 
 void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
