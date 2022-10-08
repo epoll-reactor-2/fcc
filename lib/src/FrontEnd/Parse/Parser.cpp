@@ -10,6 +10,7 @@
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
 #include "FrontEnd/AST/ASTBreakStmt.hpp"
+#include "FrontEnd/AST/ASTCharLiteral.hpp"
 #include "FrontEnd/AST/ASTCompoundStmt.hpp"
 #include "FrontEnd/AST/ASTContinueStmt.hpp"
 #include "FrontEnd/AST/ASTDoWhileStmt.hpp"
@@ -798,6 +799,10 @@ std::unique_ptr<ASTNode> Parser::ParseConstant() {
   case TokenType::STRING_LITERAL:
     return std::make_unique<ASTStringLiteral>(Current.Data, Current.LineNo,
                                               Current.ColumnNo);
+
+  case TokenType::CHAR_LITERAL:
+    return std::make_unique<ASTCharLiteral>(Current.Data[0], Current.LineNo,
+                                            Current.ColumnNo);
 
   case TokenType::FALSE:
   case TokenType::TRUE:

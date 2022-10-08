@@ -11,6 +11,7 @@
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
 #include "FrontEnd/AST/ASTBreakStmt.hpp"
+#include "FrontEnd/AST/ASTCharLiteral.hpp"
 #include "FrontEnd/AST/ASTCompoundStmt.hpp"
 #include "FrontEnd/AST/ASTContinueStmt.hpp"
 #include "FrontEnd/AST/ASTDoWhileStmt.hpp"
@@ -234,12 +235,17 @@ CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
 void CodeGen::CreateCode() { Root->Accept(this); }
 
 void CodeGen::Visit(const frontEnd::ASTBooleanLiteral *Stmt) {
-  llvm::APInt Int(/*numBits=*/1, Stmt->GetValue(), /*isSigned=*/false);
+  llvm::APInt Int(/*numBits=*/1, Stmt->GetValue(), /*isSigned=*/true);
+  LastInstr = llvm::ConstantInt::get(IRCtx, Int);
+}
+
+void CodeGen::Visit(const frontEnd::ASTCharLiteral *Stmt) {
+  llvm::APInt Int(/*numBits=*/8, Stmt->GetValue(), /*isSigned=*/true);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
 void CodeGen::Visit(const frontEnd::ASTIntegerLiteral *Stmt) {
-  llvm::APInt Int(/*numBits=*/32, Stmt->GetValue(), /*isSigned=*/false);
+  llvm::APInt Int(/*numBits=*/32, Stmt->GetValue(), /*isSigned=*/true);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
@@ -557,6 +563,17 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
+  /// \todo: Suddenly I realized, that we cannot modify via [] read-only string
+  ///        constants this way. So, we must to do something similar to:
+  ///        ...
+  ///        %1 = alloca [N x i8], align 1
+  ///        %2 = bitcast [N x i8]* %1 to i8*
+  ///        call void @llvm.memcpy.p0i8.p0i8.i64(
+  ///           i8* align 1 %2,
+  ///           i8* align 1 getelementptr inbounds ([4 x i8], [4 x i8]*
+  ///               @__global_string_literal,
+  ///           i32 0,
+  ///           i32 0), i64 N, i1 false) ;< i1 false = isVolatile
   llvm::AllocaInst *SymbolValue = DeclStorage.Lookup(Stmt->GetSymbolName());
   if (!SymbolValue)
     weak::CompileError(Stmt)

@@ -16,6 +16,7 @@ class ASTArrayDecl;
 class ASTBinaryOperator;
 class ASTBooleanLiteral;
 class ASTBreakStmt;
+class ASTCharLiteral;
 class ASTCompoundStmt;
 class ASTContinueStmt;
 class ASTDoWhileStmt;

@@ -21,6 +21,7 @@ public:
   virtual void Visit(const ASTBinaryOperator *) = 0;
   virtual void Visit(const ASTBooleanLiteral *) = 0;
   virtual void Visit(const ASTBreakStmt *) = 0;
+  virtual void Visit(const ASTCharLiteral *) = 0;
   virtual void Visit(const ASTCompoundStmt *) = 0;
   virtual void Visit(const ASTContinueStmt *) = 0;
   virtual void Visit(const ASTDoWhileStmt *) = 0;

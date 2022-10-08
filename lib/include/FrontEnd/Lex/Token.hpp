@@ -32,6 +32,7 @@ enum struct TokenType {
   WHILE,
 
   // Literals.
+  CHAR_LITERAL,
   INTEGRAL_LITERAL,
   FLOATING_POINT_LITERAL,
   STRING_LITERAL,

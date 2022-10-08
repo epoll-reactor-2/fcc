@@ -74,6 +74,10 @@ int main() {
         MakeToken("333.333", TokenType::FLOATING_POINT_LITERAL)};
     RunLexerTest("1.1 22.22 333.333", Assertion);
   }
+  SECTION(LexingCharLiteralLiteral) {
+    std::vector<Token> Assertion = {MakeToken("a", TokenType::CHAR_LITERAL)};
+    RunLexerTest("'a'", Assertion);
+  }
   SECTION(LexingEmptyStringLiteral) {
     std::vector<Token> Assertion = {MakeToken("", TokenType::STRING_LITERAL)};
     RunLexerTest("\"\"", Assertion);

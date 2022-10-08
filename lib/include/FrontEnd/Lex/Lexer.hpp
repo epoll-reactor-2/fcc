@@ -26,6 +26,7 @@ public:
 
 private:
   Token AnalyzeDigit();
+  Token AnalyzeCharLiteral();
   Token AnalyzeStringLiteral();
   Token AnalyzeSymbol();
   Token AnalyzeOperator();

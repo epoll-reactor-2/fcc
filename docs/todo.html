@@ -70,8 +70,10 @@ $(function() {
 <dd><a class="anchor" id="_todo000004"></a>: Generate code with respect to empty for parameters, e.g for (;;), or for(int i = 0; ; ++i). Also break,continue statements should be implemented.  </dd>
 <dt>Member <a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a58ed73c3d02742ab82a47957a4d1b38f">weak::middleEnd::CodeGen::Visit</a>  (const <a class="el" href="classweak_1_1frontEnd_1_1ASTIfStmt.html">frontEnd::ASTIfStmt</a> *) override</dt>
 <dd><a class="anchor" id="_todo000005"></a>: I am not sure if we should always compare with 0.  </dd>
+<dt>Member <a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a44eb633d1bf42cf355e9eeec0538c0eb">weak::middleEnd::CodeGen::Visit</a>  (const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayAccess.html">frontEnd::ASTArrayAccess</a> *) override</dt>
+<dd><a class="anchor" id="_todo000006"></a>: Suddenly I realized, that we cannot modify via [] read-only string constants this way. So, we must to do something similar to: ... %1 = alloca [N x i8], align 1 %2 = bitcast [N x i8]* %1 to i8* call void @llvm.memcpy.p0i8.p0i8.i64( i8* align 1 %2, i8* align 1 getelementptr inbounds ([4 x i8], [4 x i8]* @__global_string_literal, i32 0, i32 0), i64 N, i1 false) ;&lt; i1 false = isVolatile  </dd>
 <dt>Member <a class="el" href="classweak_1_1middleEnd_1_1CodeGen.html#a2e3a8d3926463608e714f17116c832fd">weak::middleEnd::CodeGen::Visit</a>  (const <a class="el" href="classweak_1_1frontEnd_1_1ASTArrayDecl.html">frontEnd::ASTArrayDecl</a> *) override</dt>
-<dd><a class="anchor" id="_todo000006"></a>: Temporarily we get only first dimension as parameter and don't do something else.  </dd>
+<dd><a class="anchor" id="_todo000007"></a>: Temporarily we get only first dimension as parameter and don't do something else.  </dd>
 <dt>Member <a class="el" href="classweak_1_1middleEnd_1_1TargetCodeBuilder.html#a48dd22758ebc58db5233d25310f5d7a6">weak::middleEnd::TargetCodeBuilder::Build</a>  ()</dt>
 <dd><a class="anchor" id="_todo000001"></a>Judge how properly do emitting of binaries without bash stubs. </dd>
 </dl>

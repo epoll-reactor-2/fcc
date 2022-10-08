@@ -42,6 +42,7 @@ public:
 private:
   // Literals.
   void Visit(const frontEnd::ASTBooleanLiteral *) override;
+  void Visit(const frontEnd::ASTCharLiteral *) override;
   void Visit(const frontEnd::ASTIntegerLiteral *) override;
   void Visit(const frontEnd::ASTFloatingPointLiteral *) override;
   void Visit(const frontEnd::ASTStringLiteral *) override;

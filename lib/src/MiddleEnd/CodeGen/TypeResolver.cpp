@@ -33,6 +33,8 @@ llvm::Type *TypeResolver::Resolve(frontEnd::TokenType T, unsigned LineNo,
   switch (T) {
   case TokenType::VOID:
     return llvm::Type::getVoidTy(LLVMCtx);
+  case TokenType::CHAR:
+    return llvm::Type::getInt8Ty(LLVMCtx);
   case TokenType::INT:
     return llvm::Type::getInt32Ty(LLVMCtx);
   case TokenType::BOOLEAN:
@@ -58,6 +60,8 @@ llvm::Type *TypeResolver::ResolveExceptVoid(frontEnd::TokenType T,
                                             unsigned ColumnNo) {
   using frontEnd::TokenType;
   switch (T) {
+  case TokenType::CHAR:
+    return llvm::Type::getInt8Ty(LLVMCtx);
   case TokenType::INT:
     return llvm::Type::getInt32Ty(LLVMCtx);
   case TokenType::FLOAT:

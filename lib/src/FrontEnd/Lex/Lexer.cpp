@@ -171,6 +171,8 @@ const std::vector<Token> &Lexer::Analyze() {
       ProcessedTokens.push_back(AnalyzeDigit());
     } else if (std::isalpha(Atom)) {
       ProcessedTokens.push_back(AnalyzeSymbol());
+    } else if (Atom == '\'') {
+      ProcessedTokens.push_back(AnalyzeCharLiteral());
     } else if (Atom == '\"') {
       ProcessedTokens.push_back(AnalyzeStringLiteral());
     } else if (Atom == '/') {
@@ -214,6 +216,13 @@ Token Lexer::AnalyzeDigit() {
   return MakeToken(Digit, DotsReached == 0U
                               ? TokenType::INTEGRAL_LITERAL
                               : TokenType::FLOATING_POINT_LITERAL);
+}
+
+Token Lexer::AnalyzeCharLiteral() {
+  PeekNext(); // Eat '
+  char Character = PeekNext();
+  PeekNext(); // Eat '
+  return MakeToken(std::string{Character}, TokenType::CHAR_LITERAL);
 }
 
 Token Lexer::AnalyzeStringLiteral() {
@@ -260,7 +269,7 @@ Token Lexer::AnalyzeSymbol() {
 }
 
 Token Lexer::AnalyzeOperator() {
-  std::string Operator(1, PeekNext());
+  std::string Operator{PeekNext()};
   unsigned SavedColumnNo = 1U;
   bool SearchFailed = false;
   char WrongOperator = '\0';
@@ -298,7 +307,7 @@ Token Lexer::AnalyzeOperator() {
 
   --CurrentColumnNo;
   weak::CompileError(CurrentLineNo, CurrentColumnNo)
-      << "Unknown character sequence: " << WrongOperator;
+      << "Unknown character sequence `" << WrongOperator << "`";
   weak::UnreachablePoint();
 }
 

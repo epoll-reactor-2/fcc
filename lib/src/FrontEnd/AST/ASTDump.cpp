@@ -10,6 +10,7 @@
 #include "FrontEnd/AST/ASTBinaryOperator.hpp"
 #include "FrontEnd/AST/ASTBooleanLiteral.hpp"
 #include "FrontEnd/AST/ASTBreakStmt.hpp"
+#include "FrontEnd/AST/ASTCharLiteral.hpp"
 #include "FrontEnd/AST/ASTCompoundStmt.hpp"
 #include "FrontEnd/AST/ASTContinueStmt.hpp"
 #include "FrontEnd/AST/ASTDoWhileStmt.hpp"
@@ -103,6 +104,11 @@ private:
 
   void Visit(const ASTBreakStmt *BreakStmt) override {
     PrintWithTextPosition("BreakStmt", BreakStmt, /*NewLineNeeded=*/true);
+  }
+
+  void Visit(const ASTCharLiteral *Char) override {
+    PrintWithTextPosition("CharLiteral", Char, /*NewLineNeeded=*/false);
+    OutStream << "'" << Char->GetValue() << "'" << std::endl;
   }
 
   void Visit(const ASTCompoundStmt *CompoundStmt) override {

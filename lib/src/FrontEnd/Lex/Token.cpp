@@ -42,6 +42,8 @@ const char *weak::frontEnd::TokenToString(TokenType Type) {
     return "<VOID>";
   case TokenType::WHILE:
     return "<WHILE>";
+  case TokenType::CHAR_LITERAL:
+    return "<CHAR LITERAL>";
   case TokenType::INTEGRAL_LITERAL:
     return "<INT LITERAL>";
   case TokenType::FLOATING_POINT_LITERAL:

@@ -15,6 +15,7 @@ enum struct ASTType {
   BASE_NODE,
 
   // Literals.
+  CHAR_LITERAL,
   INTEGER_LITERAL,
   FLOATING_POINT_LITERAL,
   STRING_LITERAL,
