@@ -206,8 +206,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (co
 <tr class="memitem:a1f7de93240b0b043e123f63d8e358299"><td class="memItemLeft" align="right" valign="top"><a id="a1f7de93240b0b043e123f63d8e358299" name="a1f7de93240b0b043e123f63d8e358299"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTUnaryOperator.html">ASTUnaryOperator</a> *)=0</td></tr>
 <tr class="separator:a1f7de93240b0b043e123f63d8e358299"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a106f2ca89dbc50baf808ce15859d81fe"><td class="memItemLeft" align="right" valign="top"><a id="a106f2ca89dbc50baf808ce15859d81fe" name="a106f2ca89dbc50baf808ce15859d81fe"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTVarDecl.html">ASTVarDecl</a> *)=0</td></tr>
+<tr class="memitem:a106f2ca89dbc50baf808ce15859d81fe"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html#a106f2ca89dbc50baf808ce15859d81fe">Visit</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTVarDecl.html">ASTVarDecl</a> *)=0</td></tr>
 <tr class="separator:a106f2ca89dbc50baf808ce15859d81fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c8529fa1e93000e45abb0178be158b3"><td class="memItemLeft" align="right" valign="top"><a id="a1c8529fa1e93000e45abb0178be158b3" name="a1c8529fa1e93000e45abb0178be158b3"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTWhileStmt.html">ASTWhileStmt</a> *)=0</td></tr>
@@ -267,10 +266,9 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>IRBuilder<
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000006">Todo:</a></b></dt><dd>: Suddenly I realized, that we cannot modify via [] read-only string constants this way. So, we must to do something similar to: ... %1 = alloca [N x i8], align 1 %2 = bitcast [N x i8]* %1 to i8* call void @llvm.memcpy.p0i8.p0i8.i64( i8* align 1 %2, i8* align 1 getelementptr inbounds ([4 x i8], [4 x i8]* @__global_string_literal, i32 0, i32 0), i64 N, i1 false) ;&lt; i1 false = isVolatile </dd></dl>
 <p >If you have a question about this, please see <a href="https://llvm.org/docs/GetElementPtr.html">https://llvm.org/docs/GetElementPtr.html</a>.</p>
-<p >This is for assignments through a pointer.</p>
-<p >This is for normal array values usage.</p>
+<p >This is for subscriptions of pointer type.</p>
+<p >This is for subscriptions of array type.</p>
 
 <p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html">weak::frontEnd::ASTVisitor</a>.</p>
 
@@ -299,7 +297,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>IRBuilder<
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000007">Todo:</a></b></dt><dd>: Temporarily we get only first dimension as parameter and don't do something else. </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000006">Todo:</a></b></dt><dd>: Temporarily we get only first dimension as parameter and don't do something else. </dd></dl>
 
 <p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html">weak::frontEnd::ASTVisitor</a>.</p>
 
@@ -835,6 +833,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>IRBuilder<
   </tr>
 </table>
 </div><div class="memdoc">
+<p >Special case, since we need to copy array from data section to another array, placed on stack.</p>
 
 <p>Implements <a class="el" href="classweak_1_1frontEnd_1_1ASTVisitor.html">weak::frontEnd::ASTVisitor</a>.</p>
 

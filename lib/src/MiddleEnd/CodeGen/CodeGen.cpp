@@ -96,9 +96,7 @@ private:
     const auto *ArrayDecl = static_cast<const frontEnd::ASTArrayDecl *>(ArgAST);
     llvm::Type *UnderlyingType =
         TypeResolver.ResolveExceptVoid(ArrayDecl->GetDataType());
-    /// \todo: Temporarily we get only first dimension as parameter and
-    ///        don't do something else.
-    return llvm::ArrayType::get(UnderlyingType, ArrayDecl->GetArityList()[0]);
+    return llvm::PointerType::get(UnderlyingType, /*AddressSpace=*/0);
   }
 
   const std::string &ExtractSymbol(const frontEnd::ASTNode *Node) {
@@ -563,23 +561,11 @@ void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
-  /// \todo: Suddenly I realized, that we cannot modify via [] read-only string
-  ///        constants this way. So, we must to do something similar to:
-  ///        ...
-  ///        %1 = alloca [N x i8], align 1
-  ///        %2 = bitcast [N x i8]* %1 to i8*
-  ///        call void @llvm.memcpy.p0i8.p0i8.i64(
-  ///           i8* align 1 %2,
-  ///           i8* align 1 getelementptr inbounds ([4 x i8], [4 x i8]*
-  ///               @__global_string_literal,
-  ///           i32 0,
-  ///           i32 0), i64 N, i1 false) ;< i1 false = isVolatile
   llvm::AllocaInst *SymbolValue = DeclStorage.Lookup(Stmt->GetSymbolName());
   if (!SymbolValue)
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetSymbolName() << "` not found";
 
-  // Variable.
   LastInstr = IRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue,
                                    Stmt->GetSymbolName());
 
@@ -595,12 +581,20 @@ void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
   /// https://llvm.org/docs/GetElementPtr.html.
   llvm::Value *Zero = llvm::ConstantInt::get(IRCtx, llvm::APInt(32, 0, true));
 
-  /// This is for assignments through a pointer.
-  LastArrayPtr = IRBuilder.CreateInBoundsGEP(
-      Array->getType(), llvm::getPointerOperand(Array), {Zero, Index});
-  /// This is for normal array values usage.
-  LastInstr = IRBuilder.CreateLoad(
-      LastArrayPtr->getType()->getPointerElementType(), LastArrayPtr);
+  // \todo: Unary operators with values accesses through [] does not works.
+  if (Array->getType()->isPointerTy()) {
+    /// This is for subscriptions of pointer type.
+    LastArrayPtr = IRBuilder.CreateInBoundsGEP(
+        Array->getType()->getPointerElementType(), Array, Index);
+    LastInstr = IRBuilder.CreateLoad(Array->getType()->getPointerElementType(),
+                                     LastArrayPtr);
+  } else {
+    /// This is for subscriptions of array type.
+    LastArrayPtr = IRBuilder.CreateInBoundsGEP(
+        Array->getType(), llvm::getPointerOperand(Array), {Zero, Index});
+    LastInstr = IRBuilder.CreateLoad(
+        LastArrayPtr->getType()->getPointerElementType(), LastArrayPtr);
+  }
 }
 
 void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
@@ -609,8 +603,14 @@ void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetName() << "` not found";
 
-  LastInstr = IRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue,
-                                   Stmt->GetName());
+  llvm::Value *Zero = llvm::ConstantInt::get(IRCtx, llvm::APInt(32, 0, true));
+
+  if (SymbolValue->getAllocatedType()->isArrayTy())
+    LastInstr = IRBuilder.CreateInBoundsGEP(SymbolValue->getAllocatedType(),
+                                            SymbolValue, {Zero, Zero});
+  else
+    LastInstr = IRBuilder.CreateLoad(SymbolValue->getAllocatedType(),
+                                     SymbolValue, Stmt->GetName());
 }
 
 void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
@@ -646,11 +646,36 @@ void CodeGen::Visit(const frontEnd::ASTArrayDecl *Stmt) {
 }
 
 void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
-  Decl->GetDeclareBody()->Accept(this);
-
   if (DeclStorage.Lookup(Decl->GetSymbolName()))
     weak::CompileError(Decl)
         << "Variable `" << Decl->GetSymbolName() << "` already declared";
+
+  Decl->GetDeclareBody()->Accept(this);
+
+  llvm::Value *LiteralValue = LastInstr;
+
+  /// Special case, since we need to copy array from data section to another
+  /// array, placed on stack.
+  if (Decl->GetDataType() == frontEnd::TokenType::STRING) {
+    const auto *Literal =
+        static_cast<frontEnd::ASTStringLiteral *>(Decl->GetDeclareBody().get());
+    const unsigned NullTerminator = 1;
+    llvm::ArrayType *ArrayType =
+        llvm::ArrayType::get(llvm::Type::getInt8Ty(IRCtx),
+                             Literal->GetValue().size() + NullTerminator);
+    llvm::AllocaInst *Mem = IRBuilder.CreateAlloca(ArrayType);
+    llvm::Value *CastedPtr =
+        IRBuilder.CreateBitCast(Mem, llvm::Type::getInt8PtrTy(IRCtx));
+    IRBuilder.CreateMemCpy(
+        /*Dst=*/CastedPtr,
+        /*DstAlign=*/llvm::MaybeAlign(1),
+        /*Src=*/LiteralValue,
+        /*SrcAlign=*/llvm::MaybeAlign(1),
+        /*Size=*/ArrayType->getNumElements(),
+        /*isVolatile=*/false);
+    DeclStorage.Push(Decl->GetSymbolName(), Mem);
+    return;
+  }
 
   TypeResolver TypeResolver(IRCtx);
   llvm::AllocaInst *VarDecl = IRBuilder.CreateAlloca(

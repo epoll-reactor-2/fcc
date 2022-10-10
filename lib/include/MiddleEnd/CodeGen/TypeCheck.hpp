@@ -30,6 +30,8 @@ void AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
 ///
 /// This is simple check for cases, when user provides array accessing by
 /// constant integer, like **arr[100]**, when **arr** has size 10.
+///
+/// \todo: Proper check of string values also.
 void AssertNotOutOfRange(const frontEnd::ASTNode *InformAST,
                          llvm::AllocaInst *ArrayAlloca, llvm::Value *Index);
 
