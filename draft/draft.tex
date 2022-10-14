@@ -14,259 +14,293 @@
 \date{since December 2021}
 
 \begin{document}
-	\pagestyle{fancy}
-	\rhead{\leftmark}
-	\lhead{Weak language}
-	
-	\maketitle
-	\tableofcontents
+    \pagestyle{fancy}
+    \rhead{\leftmark}
+    \lhead{Weak language}
 
-	\newpage
-	
-	\section{Scope}
-		This document describes requirements for implementation of weak
-		programming language.
-		
-	\section{Lexical elements}
-		\upshape
-		
-		\subsection{Keywords}
-			\begin{tabular}{ R{3cm} R{3cm} R{3cm} }
-				\textbf{boolean}  & \textbf{break}  & \textbf{char}   \\
-				\textbf{continue} & \textbf{do }    & \textbf{false}  \\
-				\textbf{float}    & \textbf{for}    & \textbf{if}     \\
-				\textbf{int}      & \textbf{return} & \textbf{string} \\
-				\textbf{true}     & \textbf{void}   & \textbf{while}  \\
-			\end{tabular}
-		
-		\subsection{Operators and punctuators}
-			\begin{tabular}{ R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} }
-				\tt{=}   & \tt{*=}     & \tt{/=}  & \tt{\%=} & \tt{+=}  & \tt{-=}   \\
-				\tt{<<=} & \tt{>>=}    & \tt{\&=} & \tt{|=}  & \tt{\^=} & \tt{\&\&} \\
-				\tt{|}   & \textbf{\^} & \tt{\&}  & \tt{==}  & \tt{!=}  & \tt{>}    \\
-				\tt{<}   & \tt{>=}     & \tt{<=}  & \tt{<<}  & \tt{>>}  & \tt{+}    \\
-				\tt{-}   & \tt{*}      & \tt{/}   & \tt{\%}  & \tt{++}  & \tt{--}   \\
-				\tt{[}   & \tt{]}      & \tt{(}   & \tt{)}   & \tt{\{}  & \tt{\}}   \\
-			\end{tabular}
-		
-		\subsection{Comments}
-			Comments are not involved into the parsing and should be processed at the
-			lexical analysis stage.
-		
-			\begin{itemize}
-				\item All text starting with // should be ignored until the end of line.
-				
-				\item All text after /*  and before */ character sequences should be
-				ignored.
-			\end{itemize}
+    \maketitle
+    \tableofcontents
 
-	\section{Grammar summary}
-		\itshape
-		\setlength{\grammarindent}{12em}
+    \newpage
 
-		\begin{grammar}
-			<program> ::= <function-decl>*
+    \section{Scope}
+        This document describes requirements for implementation of weak
+        programming language.
 
-			<function-decl> ::= <ret-type> <id> \textbf{(} <parameter-list-opt> \textbf{)} \textbf{\{} <stmt>* \textbf{\}}
+    \section{Lexical elements}
+        \upshape
 
-			<ret-type> ::= <type>
-			\alt <void-type>
-			
-			<type> ::= \textbf{int}
-			\alt \textbf{float}
-			\alt \textbf{char}
-			\alt \textbf{string}
-			\alt \textbf{boolean}
+        \subsection{Keywords}
+            \begin{tabular}{ R{3cm} R{3cm} R{3cm} }
+                \textbf{boolean}  & \textbf{break}  & \textbf{char}   \\
+                \textbf{continue} & \textbf{do }    & \textbf{false}  \\
+                \textbf{float}    & \textbf{for}    & \textbf{if}     \\
+                \textbf{int}      & \textbf{return} & \textbf{string} \\
+                \textbf{true}     & \textbf{void}   & \textbf{while}  \\
+            \end{tabular}
 
-			<void-type> ::= \textbf{void}
+        \subsection{Operators and punctuators}
+            \begin{tabular}{ R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} }
+                \tt{=}   & \tt{*=}     & \tt{/=}  & \tt{\%=} & \tt{+=}  & \tt{-=}   \\
+                \tt{<<=} & \tt{>>=}    & \tt{\&=} & \tt{|=}  & \tt{\^=} & \tt{\&\&} \\
+                \tt{|}   & \textbf{\^} & \tt{\&}  & \tt{==}  & \tt{!=}  & \tt{>}    \\
+                \tt{<}   & \tt{>=}     & \tt{<=}  & \tt{<<}  & \tt{>>}  & \tt{+}    \\
+                \tt{-}   & \tt{*}      & \tt{/}   & \tt{\%}  & \tt{++}  & \tt{--}   \\
+                \tt{[}   & \tt{]}      & \tt{(}   & \tt{)}   & \tt{\{}  & \tt{\}}   \\
+            \end{tabular}
 
-			<constant> ::= <integral-literal>
-			\alt <floating-literal>
-			\alt <string-literal>
-			\alt <boolean-literal>
+        \subsection{Comments}
+            Comments are not involved into the parsing and should be processed at the
+            lexical analysis stage.
 
-			<integral-literal> ::= <digit>*
-			
-			<floating-literal> ::= <digit>* \textbf{.} <digit>*
-			
-			<string-literal> ::= \textbf{\"} ( "\\x00000000-\\x0010FFFF" )*  \textbf{\"}
-			
-			<boolean-literal> ::= \textbf{true}
-			\alt \textbf{false}
-			
-			<alpha> ::= \textbf{a} | \textbf{b} | ... | \textbf{z} | \textbf{_}
+            \begin{itemize}
+                \item All text starting with // should be ignored until the end of line.
 
-			<digit> ::= \textbf{0} | \textbf{1} | ... | \textbf{9}
+                \item All text after /*  and before */ character sequences should be
+                      ignored.
+            \end{itemize}
 
-	
-			<id> ::= <alpha> ( <alpha> | <digit> )*
-			
-			<parameter> ::= <type> <id>
-			
-			<parameter-list> ::= <parameter> \textbf{,} <parameter-list>
-			\alt <parameter>
-			
-			<parameter-list-opt> ::= <parameter-list> | $\epsilon$
-			
-			<stmt> ::= <selection-stmt>
-			\alt <iteration-stmt>
-			\alt <jump-stmt>
-			\alt <var-decl>
-			\alt <expr>
-			\alt <unary-expr>
-			
-			<iteration-stmt> ::= <stmt>
-			\alt \textbf{break};
-			\alt \textbf{continue};
-			
-			<selection-stmt> ::= \textbf{if} \textbf{(} <expr> \textbf{)} \textbf{\{} <stmt>* \textbf{\}}
-			\alt \textbf{if} \textbf{(} <expr> \textbf{)} \textbf{\{} <stmt>* \textbf{\}} \textbf{else} \textbf{\{} <stmt>* \textbf{\}}
-			
-			<iteration-stmt> ::= \textbf{for} \textbf{(} <expr-opt> \textbf{;} <expr-opt> \textbf{;} <expr-opt> \textbf{)} \textbf{\{} <iteration-stmt>* \textbf{\}}
-			\alt \textbf{while} \textbf{(} <expr> \textbf{)} \textbf{\{} <iteration-stmt>* \textbf{\}}
-			\alt \textbf{do} \textbf{\{} <iteration-stmt>* \textbf{\}} \textbf{while} \textbf{(} <expr> \textbf{)} 
-			
-			<jump-stmt> ::= \textbf{return} <expr>? \textbf{;}
-			
-			<var-decl> ::= <type> <id> \tt{=} <logical-or-expr>
-			
-			<assignment-op> ::= \tt{"="}
-			\alt \tt{"*="}
-			\alt \tt{"/="}
-			\alt \tt{"%="}
-			\alt \tt{"+="}
-			\alt \tt{"-="}
-			\alt \tt{"<<="}
-			\alt \tt{">>="}
-			\alt \tt{"&="}
-			\alt \tt{"|="}
-			\alt \tt{"^="}
-			
-			<expr> ::= <assignment-expr>
-			
-			<expr-opt> ::= <expr> | $\epsilon$
-			
-			<assignment-expr> ::= <logical-or-expr>
-			\alt <unary-expr> <assignment-op> <assignment-expr>
-			
-			<logical-or-expr> ::= <logical-and-expr>
-			\alt <logical-or-expr> \textbf{||} <logical-and-expr>
-			
-			<logical-and-expr> ::= <inclusive-or-expr>
-			\alt <logical-and-expr> \textbf{\&\&} <inclusive-or-expr>
-			
-			<inclusive-or-expr> ::= <exclusive-or-expr>
-			\alt <inclusive-or-expr> \textbf{|} <exclusive-or-expr>
-			
-			<exclusive-or-expr> ::= <and-expr>
-			\alt <exclusive-or-expr> \textbf{\^} <and-expr>
-			
-			<and-expr> ::= <equality-expr>
-			\alt <and-expr> \textbf{\&} <equality-expr>
-			
-			<equality-expr> ::= <relational-expr>
-			\alt <equality-expr> \textbf{==} <relational-expr>
-			\alt <equality-expr> \textbf{!=} <relational-expr>
-			
-			<relational-expr> ::= <shift-expr>
-			\alt <relational-expr> \tt{">"} <shift-expr>
-			\alt <relational-expr> \tt{"<"} <shift-expr>
-			\alt <relational-expr> \tt{">="} <shift-expr>
-			\alt <relational-expr> \tt{"<="} <shift-expr>
-			
-			<shift-expr> ::= <additive-expr>
-			\alt <shift-expr> \tt{"<<"} <additive-expr>
-			\alt <shift-expr> \tt{">>"} <additive-expr>
-			
-			<additive-expr> ::= <multiplicative-expr>
-			\alt <additive-expr> \tt{"+"} <multiplicative-expr>
-			\alt <additive-expr> \tt{"-"} <multiplicative-expr>
-			
-			<multiplicative-expr> ::= <unary-expr>
-			\alt <multiplicative-expr> \tt{"*"} <unary-expr>
-			\alt <multiplicative-expr> \tt{"/"} <unary-expr>
-			\alt <multiplicative-expr> \tt{"%"} <unary-expr>
-			
-			<unary-expr> ::= <postfix-expr>
-			\alt \tt{"++"} <unary-expr>
-			\alt \tt{"--"} <unary-expr>
-			
-			<postfix-expr> ::= <primary-expr>
-			\alt <postfix-expr> \tt{"["} <expr> \tt{"]"}
-			\alt <postfix-expr> \tt{"++"}
-			\alt <postfix-expr> \tt{"--"}
-			
-			<primary-expr> ::= <constant>
-			\alt <id>
-			\alt \tt{"("} <expr> \tt{")"}
-			
-		\end{grammar}
+    \section{Grammar summary}
+        \itshape
+        \setlength{\grammarindent}{12em}
 
-	\section{Environment}
-		\upshape
-		
-		\subsection{Backend}
-			The language use the LLVM backend, although another backend can be implemented
-			(including self-written one).
+        \begin{grammar}
+            <program> ::= <function-decl>*
 
-		\subsection{Data types}
-			The language must implement static strong typing. All casts must
-			be explicit.
-			\begin{itemize}
-				\item \textbf{Int} -- Signed 32-bit;
-				\item \textbf{Float} -- Signed 32-bit;
-				\item \textbf{Bool} -- 8-bit;
-				\item \textbf{String} -- Character sequence, that ends with Null character;
-				\item \textbf{Void} -- Empty type, used as return type only.
-			\end{itemize}
-			
-		\subsection{Inside-iteration statements}
-			\begin{itemize}
-				\item \textbf{Break} -- Usable only inside the \textbf{while},
-		  			\textbf{do-while} and \textbf{for} statements and performs exit from a
-			  		loop.
-				
-				\item \textbf{Continue} -- Usable only inside the \textbf{while},
-		  			\textbf{do-while} and \textbf{for} statements and performs jump to
-		  			the next iteration.
-			\end{itemize}
-			
-		\subsection{Iteration statements}
-			\begin{itemize}
-		  		\item \textbf{While} -- Loop statement that performs its body until the
-		  			condition evaluates to true.
-		  		
-		  		\item \textbf{Do-While} -- Loop statement with similar to \textbf{While}
-		  			semantics, but it executes body before contition check at first time.
-		  			
-	  			\item \textbf{For} -- Loop statement with three initial parts and body.
-	  				This includes:
-	  				\begin{itemize}
-	  					\item \textbf{Initial} part with the variable assignment;
-	  					\item \textbf{Conditional} part with the some condition;
-	  					\item \textbf{Incremental} part with the some statement, that
-	  						should change assigned variable.
-	  				\end{itemize}
-	  				
-	  				All parts are optional.
-			\end{itemize}
-			
-		\subsection{Conditional statements}
-			\begin{itemize}
-				\item \textbf{If} -- Conditional statement, that should execute
-				If-part when it's condition evaluates to true. Otherwise, Else-part
-				should be executed. 
-			\end{itemize}
-			
-		\subsection{Jump statements}
-			\begin{itemize}
-				\item \textbf{Return} -- The end point of control flow, may return
-				value, may not (void functions).
-			\end{itemize}
-			
-	\section{FFI}
-		\subsection{Linking with C}
-			The language should have FFI with the GNU C Library and with other C
-			libraries in general.
+            <function-decl> ::= <ret-type> <id> \textbf{(} <parameter-list-opt> \textbf{)} \textbf{\{} <stmt>* \textbf{\}}
+
+            <ret-type> ::= <type>
+            \alt <void-type>
+
+            <type> ::= \textbf{int}
+            \alt \textbf{float}
+            \alt \textbf{char}
+            \alt \textbf{string}
+            \alt \textbf{boolean}
+
+            <void-type> ::= \textbf{void}
+
+            <constant> ::= <integral-literal>
+            \alt <floating-literal>
+            \alt <string-literal>
+            \alt <boolean-literal>
+
+            <integral-literal> ::= <digit>*
+
+            <floating-literal> ::= <digit>* \textbf{.} <digit>*
+
+            <string-literal> ::= \textbf{\"} ( "\\x00000000-\\x0010FFFF" )*  \textbf{\"}
+
+            <boolean-literal> ::= \textbf{true}
+            \alt \textbf{false}
+
+            <alpha> ::= \textbf{a} | \textbf{b} | ... | \textbf{z} | \textbf{_}
+
+            <digit> ::= \textbf{0} | \textbf{1} | ... | \textbf{9}
+
+            <id> ::= <alpha> ( <alpha> | <digit> )*
+
+            <array-decl> ::= <type> <id> \textbf{[} <digit>* \textbf{]}
+
+            <var-decl> ::= <type> <id> \tt{=} <logical-or-expr>
+
+            <var-decl-without-initialiser> ::= <type> <id>
+
+            <parameter> ::= <var-decl-without-initialiser>
+            \alt <array-decl>
+
+            <parameter-list> ::= <parameter> \textbf{,} <parameter-list>
+            \alt <parameter>
+
+            <parameter-list-opt> ::= <parameter-list> | $\epsilon$
+
+            <stmt> ::= <selection-stmt>
+            \alt <array-access-stmt>
+            \alt <iteration-stmt>
+            \alt <jump-stmt>
+            \alt <var-decl>
+            \alt <expr>
+            \alt <unary-expr>
+
+            <array-access-stmt> ::= <id> \textbf{[} <logical-or-expr> \textbf{]}
+
+            <iteration-stmt> ::= <stmt>
+            \alt \textbf{break};
+            \alt \textbf{continue};
+
+            <selection-stmt> ::= \textbf{if} \textbf{(} <expr> \textbf{)} \textbf{\{} <stmt>* \textbf{\}}
+            \alt \textbf{if} \textbf{(} <expr> \textbf{)} \textbf{\{} <stmt>* \textbf{\}} \textbf{else} \textbf{\{} <stmt>* \textbf{\}}
+
+            <iteration-stmt> ::= \textbf{for} \textbf{(} <expr-opt> \textbf{;} <expr-opt> \textbf{;} <expr-opt> \textbf{)} \textbf{\{} <iteration-stmt>* \textbf{\}}
+            \alt \textbf{while} \textbf{(} <expr> \textbf{)} \textbf{\{} <iteration-stmt>* \textbf{\}}
+            \alt \textbf{do} \textbf{\{} <iteration-stmt>* \textbf{\}} \textbf{while} \textbf{(} <expr> \textbf{)} 
+
+            <jump-stmt> ::= \textbf{return} <expr>? \textbf{;}
+
+            <assignment-op> ::= \tt{"="}
+            \alt \tt{"*="}
+            \alt \tt{"/="}
+            \alt \tt{"%="}
+            \alt \tt{"+="}
+            \alt \tt{"-="}
+            \alt \tt{"<<="}
+            \alt \tt{">>="}
+            \alt \tt{"&="}
+            \alt \tt{"|="}
+            \alt \tt{"^="}
+
+            <expr> ::= <assignment-expr>
+
+            <expr-opt> ::= <expr> | $\epsilon$
+
+            <assignment-expr> ::= <logical-or-expr>
+            \alt <unary-expr> <assignment-op> <assignment-expr>
+
+            <logical-or-expr> ::= <logical-and-expr>
+            \alt <logical-or-expr> \textbf{||} <logical-and-expr>
+
+            <logical-and-expr> ::= <inclusive-or-expr>
+            \alt <logical-and-expr> \textbf{\&\&} <inclusive-or-expr>
+
+            <inclusive-or-expr> ::= <exclusive-or-expr>
+            \alt <inclusive-or-expr> \textbf{|} <exclusive-or-expr>
+
+            <exclusive-or-expr> ::= <and-expr>
+            \alt <exclusive-or-expr> \textbf{\^} <and-expr>
+
+            <and-expr> ::= <equality-expr>
+            \alt <and-expr> \textbf{\&} <equality-expr>
+
+            <equality-expr> ::= <relational-expr>
+            \alt <equality-expr> \textbf{==} <relational-expr>
+            \alt <equality-expr> \textbf{!=} <relational-expr>
+
+            <relational-expr> ::= <shift-expr>
+            \alt <relational-expr> \tt{">"} <shift-expr>
+            \alt <relational-expr> \tt{"<"} <shift-expr>
+            \alt <relational-expr> \tt{">="} <shift-expr>
+            \alt <relational-expr> \tt{"<="} <shift-expr>
+
+            <shift-expr> ::= <additive-expr>
+            \alt <shift-expr> \tt{"<<"} <additive-expr>
+            \alt <shift-expr> \tt{">>"} <additive-expr>
+
+            <additive-expr> ::= <multiplicative-expr>
+            \alt <additive-expr> \tt{"+"} <multiplicative-expr>
+            \alt <additive-expr> \tt{"-"} <multiplicative-expr>
+
+            <multiplicative-expr> ::= <unary-expr>
+            \alt <multiplicative-expr> \tt{"*"} <unary-expr>
+            \alt <multiplicative-expr> \tt{"/"} <unary-expr>
+            \alt <multiplicative-expr> \tt{"%"} <unary-expr>
+
+            <unary-expr> ::= <postfix-expr>
+            \alt \tt{"++"} <unary-expr>
+            \alt \tt{"--"} <unary-expr>
+
+            <postfix-expr> ::= <primary-expr>
+            \alt <postfix-expr> \tt{"["} <expr> \tt{"]"}
+            \alt <postfix-expr> \tt{"++"}
+            \alt <postfix-expr> \tt{"--"}
+
+            <primary-expr> ::= <constant>
+            \alt <id>
+            \alt \tt{"("} <expr> \tt{")"}
+
+        \end{grammar}
+
+    \section{Environment}
+        \upshape
+
+        \subsection{Backend}
+            The language use the LLVM backend, although another backend can be implemented
+            (including self-written one).
+
+        \subsection{Data types}
+            The language must implement static strong typing. All casts must
+            be explicit.
+            \begin{itemize}
+                \item \textbf{Int} -- Signed 32-bit;
+                \item \textbf{Float} -- Signed 32-bit;
+                \item \textbf{Bool} -- 8-bit;
+                \item \textbf{String} -- Character sequence, that ends with Null character;
+                \item \textbf{Void} -- Empty type, used as return type only.
+            \end{itemize}
+
+            Each type except \textbf{void} can represent array, for example,
+
+            $$\textbf{bool array[10];}$$
+
+            .
+
+        \subsection{Inside-iteration statements}
+            \begin{itemize}
+                \item \textbf{Break} -- Usable only inside the \textbf{while},
+                        \textbf{do-while} and \textbf{for} statements. Performs exit from a
+                        loop.
+
+                \item \textbf{Continue} -- Usable only inside the \textbf{while},
+                        \textbf{do-while} and \textbf{for} statements. Performs jump to
+                        the next iteration.
+            \end{itemize}
+
+        \subsection{Iteration statements}
+            \begin{itemize}
+                  \item \textbf{While} -- Loop statement that performs its body until the
+                        condition evaluates to true.
+
+                  \item \textbf{Do-While} -- Loop statement with similar to \textbf{While}
+                        semantics, but it executes body before contition check at first time.
+
+                  \item \textbf{For} -- Loop statement with three initial parts and body.
+                        This includes:
+                        \begin{itemize}
+                            \item \textbf{Initial} part with the variable assignment;
+                            \item \textbf{Conditional} part with the some condition;
+                            \item \textbf{Incremental} part with the some statement, that
+                                  should change assigned variable.
+                        \end{itemize}
+
+                      All parts are optional.
+            \end{itemize}
+
+        \subsection{Conditional statements}
+            \begin{itemize}
+                \item \textbf{If} -- Conditional statement, that should execute
+                      If-part when it's condition evaluates to true. Otherwise, Else-part
+                      should be executed.
+            \end{itemize}
+
+        \subsection{Jump statements}
+            \begin{itemize}
+                \item \textbf{Return} -- The end point of control flow, may return
+                      value, may not (void functions).
+            \end{itemize}
+
+    \section{Semantics}
+        \upshape
+
+        \subsection{Types}
+            \begin{itemize}
+                \item Integer (boolean, integer, floating point) types are simple
+                      numeric types, which can be copied in trivial way (with
+                      memcpy and so on).
+
+                  \item String type initially is a pointer to string literal. However, once
+                        contents under this pointer are "modified", copy of literal
+                        created and emplaced onto stack. After that, all operations on
+                        string variable affecting local copy.
+            \end{itemize}
+
+        \subsection{Function parameters}
+            \begin{itemize}
+                \item All types including arrays are copied to function parameters
+                      during call.
+            \end{itemize}
+
+    \section{FFI}
+        \subsection{Linking with C}
+            The language have FFI with the GNU C Library and with other C
+            libraries in general. This mean, that \textbf{cdecl} call convention is used.
 
 \end{document}
