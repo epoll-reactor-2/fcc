@@ -10,7 +10,6 @@
 #include "FrontEnd/AST/ASTFwdDecl.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 class ASTVisitor {
 public:
@@ -40,7 +39,6 @@ public:
   virtual void Visit(const ASTWhileStmt *) = 0;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_VISITOR_HPP

@@ -8,10 +8,9 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTUnaryOperator::ASTUnaryOperator(UnaryType ThePrefixOrPostfix,
-                                   weak::frontEnd::TokenType TheOperation,
+                                   TokenType TheOperation,
                                    std::unique_ptr<ASTNode> &&TheOperand,
                                    unsigned TheLineNo, unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), PrefixOrPostfix(ThePrefixOrPostfix),
@@ -30,5 +29,4 @@ const std::unique_ptr<ASTNode> &ASTUnaryOperator::GetOperand() const {
   return Operand;
 }
 
-} // namespace frontEnd
 } // namespace weak

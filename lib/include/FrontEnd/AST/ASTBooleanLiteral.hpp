@@ -10,7 +10,6 @@
 #include "FrontEnd/AST/ASTNode.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 class ASTBooleanLiteral : public ASTNode {
 public:
@@ -26,7 +25,6 @@ private:
   bool Value;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_BOOLEAN_LITERAL_HPP

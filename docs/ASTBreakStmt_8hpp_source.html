@@ -81,23 +81,21 @@ $(function() {
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;FrontEnd/AST/ASTNode.hpp&quot;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">namespace </span>weak {</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">namespace </span>frontEnd {</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">   15</a></span><span class="keyword">class </span><a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">ASTBreakStmt</a> : <span class="keyword">public</span> <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> {</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  <a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">ASTBreakStmt</a>(<span class="keywordtype">unsigned</span> TheLineNo = 0U, <span class="keywordtype">unsigned</span> TheColumnNo = 0U);</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  ASTType GetASTType() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keywordtype">void</span> Accept(<a class="code hl_class" href="classweak_1_1frontEnd_1_1ASTVisitor.html">ASTVisitor</a> *) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>};</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>} <span class="comment">// namespace frontEnd</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>} <span class="comment">// namespace weak</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_FRONTEND_AST_AST_BREAK_STMT_HPP</span></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTBreakStmt_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTBreakStmt.html">weak::frontEnd::ASTBreakStmt</a></div><div class="ttdef"><b>Definition:</b> ASTBreakStmt.hpp:15</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTNode_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTNode.html">weak::frontEnd::ASTNode</a></div><div class="ttdef"><b>Definition:</b> ASTNode.hpp:18</div></div>
-<div class="ttc" id="aclassweak_1_1frontEnd_1_1ASTVisitor_html"><div class="ttname"><a href="classweak_1_1frontEnd_1_1ASTVisitor.html">weak::frontEnd::ASTVisitor</a></div><div class="ttdef"><b>Definition:</b> ASTVisitor.hpp:15</div></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="classweak_1_1ASTBreakStmt.html">   14</a></span><span class="keyword">class </span><a class="code hl_class" href="classweak_1_1ASTBreakStmt.html">ASTBreakStmt</a> : <span class="keyword">public</span> <a class="code hl_class" href="classweak_1_1ASTNode.html">ASTNode</a> {</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>  <a class="code hl_class" href="classweak_1_1ASTBreakStmt.html">ASTBreakStmt</a>(<span class="keywordtype">unsigned</span> TheLineNo = 0U, <span class="keywordtype">unsigned</span> TheColumnNo = 0U);</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>  ASTType GetASTType() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  <span class="keywordtype">void</span> Accept(<a class="code hl_class" href="classweak_1_1ASTVisitor.html">ASTVisitor</a> *) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>};</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>} <span class="comment">// namespace weak</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_FRONTEND_AST_AST_BREAK_STMT_HPP</span></div>
+<div class="ttc" id="aclassweak_1_1ASTBreakStmt_html"><div class="ttname"><a href="classweak_1_1ASTBreakStmt.html">weak::ASTBreakStmt</a></div><div class="ttdef"><b>Definition:</b> ASTBreakStmt.hpp:14</div></div>
+<div class="ttc" id="aclassweak_1_1ASTNode_html"><div class="ttname"><a href="classweak_1_1ASTNode.html">weak::ASTNode</a></div><div class="ttdef"><b>Definition:</b> ASTNode.hpp:17</div></div>
+<div class="ttc" id="aclassweak_1_1ASTVisitor_html"><div class="ttname"><a href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a></div><div class="ttdef"><b>Definition:</b> ASTVisitor.hpp:14</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

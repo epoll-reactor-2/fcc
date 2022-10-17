@@ -12,7 +12,6 @@
 #include <memory>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTBinaryOperator : public ASTNode {
 public:
@@ -35,7 +34,6 @@ private:
   std::unique_ptr<ASTNode> RHS;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_BINARY_OPERATOR_HPP

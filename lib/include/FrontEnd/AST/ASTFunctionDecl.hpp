@@ -15,7 +15,6 @@
 #include <vector>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTFunctionDecl : public ASTNode {
 public:
@@ -41,7 +40,6 @@ private:
   std::unique_ptr<ASTCompoundStmt> Body;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_FUNCTION_DECL_HPP

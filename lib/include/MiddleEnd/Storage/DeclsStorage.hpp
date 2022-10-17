@@ -15,7 +15,6 @@ class AllocaInst;
 } // namespace llvm
 
 namespace weak {
-namespace middleEnd {
 
 /// \brief Storage for LLVM declarations.
 class DeclsStorage {
@@ -51,7 +50,6 @@ private:
   std::unordered_multimap<Hash, DeclRecord> InnerScopes;
 };
 
-} // namespace middleEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_MIDDLE_END_DECLS_STORAGE_HPP

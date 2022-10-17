@@ -13,7 +13,6 @@
 #include <string>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTVarDecl : public ASTNode {
 public:
@@ -34,7 +33,6 @@ private:
   std::unique_ptr<ASTNode> DeclareBody;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_VAR_DECL_HPP

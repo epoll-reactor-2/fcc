@@ -66,7 +66,7 @@ public:
 
 private:
   llvm::FunctionType *CreateSignature() {
-    middleEnd::TypeResolver TypeResolver(Ctx);
+    TypeResolver TypeResolver(Ctx);
     llvm::SmallVector<llvm::Type *, 16> ArgTypes;
 
     for (const auto &ArgAST : Decl->GetArguments())
@@ -83,31 +83,30 @@ private:
     return Signature;
   }
 
-  llvm::Type *ResolveParamType(const frontEnd::ASTNode *ArgAST) {
+  llvm::Type *ResolveParamType(const ASTNode *ArgAST) {
     const auto ASTType = ArgAST->GetASTType();
     AssertDeclaration(ASTType);
 
-    middleEnd::TypeResolver TypeResolver(Ctx);
-    if (ASTType == frontEnd::ASTType::VAR_DECL)
+    TypeResolver TypeResolver(Ctx);
+    if (ASTType == ASTType::VAR_DECL)
       /// Variable.
       return TypeResolver.ResolveExceptVoid(ArgAST);
 
     /// Array.
-    const auto *ArrayDecl = static_cast<const frontEnd::ASTArrayDecl *>(ArgAST);
+    const auto *ArrayDecl = static_cast<const ASTArrayDecl *>(ArgAST);
     llvm::Type *UnderlyingType =
         TypeResolver.ResolveExceptVoid(ArrayDecl->GetDataType());
     return llvm::PointerType::get(UnderlyingType, /*AddressSpace=*/0);
   }
 
-  const std::string &ExtractSymbol(const frontEnd::ASTNode *Node) {
+  const std::string &ExtractSymbol(const ASTNode *Node) {
     AssertDeclaration(Node->GetASTType());
-    const auto *VarDecl = static_cast<const frontEnd::ASTVarDecl *>(Node);
+    const auto *VarDecl = static_cast<const ASTVarDecl *>(Node);
     return VarDecl->GetSymbolName();
   }
 
-  void AssertDeclaration(frontEnd::ASTType Type) {
-    if (Type != frontEnd::ASTType::VAR_DECL &&
-        Type != frontEnd::ASTType::ARRAY_DECL)
+  void AssertDeclaration(ASTType Type) {
+    if (Type != ASTType::VAR_DECL && Type != ASTType::ARRAY_DECL)
       weak::UnreachablePoint("wrong AST nodes passed as function parameters");
   }
 
@@ -117,7 +116,9 @@ private:
 };
 
 } // namespace
+} // namespace weak
 
+namespace weak {
 namespace {
 
 /// Create string literal (actually an array of 8-bit integers).
@@ -174,14 +175,14 @@ namespace {
 class AssignmentIRBuilder {
 public:
   AssignmentIRBuilder(llvm::IRBuilder<> &TheIRBuilder,
-                      const middleEnd::DeclsStorage &TheDeclStorage)
+                      const DeclsStorage &TheDeclStorage)
       : IRBuilder(TheIRBuilder), DeclStorage(TheDeclStorage) {}
 
-  void Build(const frontEnd::ASTBinaryOperator *Stmt, llvm::Value *RHS,
+  void Build(const ASTBinaryOperator *Stmt, llvm::Value *RHS,
              llvm::Value *ArrayPtr) {
     const auto *LHS = Stmt->GetLHS().get();
 
-    if (LHS->GetASTType() == frontEnd::ASTType::ARRAY_ACCESS)
+    if (LHS->GetASTType() == ASTType::ARRAY_ACCESS)
       BuildArrayAssignment(RHS, ArrayPtr);
     else
       BuildRegularAssignment(LHS, RHS);
@@ -192,14 +193,14 @@ private:
     IRBuilder.CreateStore(RHS, ArrayPtr);
   }
 
-  void BuildRegularAssignment(const frontEnd::ASTNode *LHS, llvm::Value *RHS) {
-    const auto *Symbol = static_cast<const frontEnd::ASTSymbol *>(LHS);
+  void BuildRegularAssignment(const ASTNode *LHS, llvm::Value *RHS) {
+    const auto *Symbol = static_cast<const ASTSymbol *>(LHS);
     llvm::AllocaInst *Variable = DeclStorage.Lookup(Symbol->GetName());
     IRBuilder.CreateStore(RHS, Variable);
   }
 
   llvm::IRBuilder<> &IRBuilder;
-  const middleEnd::DeclsStorage &DeclStorage;
+  const DeclsStorage &DeclStorage;
 };
 
 } // namespace
@@ -224,41 +225,38 @@ private:
 
 } // namespace
 
-namespace middleEnd {
-
-CodeGen::CodeGen(frontEnd::ASTNode *TheRoot)
+CodeGen::CodeGen(ASTNode *TheRoot)
     : Root(TheRoot), DeclStorage(), LastInstr(nullptr), LastArrayPtr(nullptr),
       IRCtx(), IRModule("LLVM Module", IRCtx), IRBuilder(IRCtx) {}
 
 void CodeGen::CreateCode() { Root->Accept(this); }
 
-void CodeGen::Visit(const frontEnd::ASTBooleanLiteral *Stmt) {
+void CodeGen::Visit(const ASTBooleanLiteral *Stmt) {
   llvm::APInt Int(/*numBits=*/1, Stmt->GetValue(), /*isSigned=*/true);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
-void CodeGen::Visit(const frontEnd::ASTCharLiteral *Stmt) {
+void CodeGen::Visit(const ASTCharLiteral *Stmt) {
   llvm::APInt Int(/*numBits=*/8, Stmt->GetValue(), /*isSigned=*/true);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
-void CodeGen::Visit(const frontEnd::ASTIntegerLiteral *Stmt) {
+void CodeGen::Visit(const ASTIntegerLiteral *Stmt) {
   llvm::APInt Int(/*numBits=*/32, Stmt->GetValue(), /*isSigned=*/true);
   LastInstr = llvm::ConstantInt::get(IRCtx, Int);
 }
 
-void CodeGen::Visit(const frontEnd::ASTFloatingPointLiteral *Stmt) {
+void CodeGen::Visit(const ASTFloatingPointLiteral *Stmt) {
   llvm::APFloat Float(Stmt->GetValue());
   LastInstr = llvm::ConstantFP::get(IRCtx, Float);
 }
 
-void CodeGen::Visit(const frontEnd::ASTStringLiteral *Stmt) {
+void CodeGen::Visit(const ASTStringLiteral *Stmt) {
   StringLiteralBuilder Builder(IRCtx, IRModule);
   LastInstr = Builder.Build(Stmt->GetValue());
 }
 
-static frontEnd::TokenType ResolveAssignmentOperation(frontEnd::TokenType T) {
-  using frontEnd::TokenType;
+static TokenType ResolveAssignmentOperation(TokenType T) {
   switch (T) {
   case TokenType::MUL_ASSIGN:
     return TokenType::STAR;
@@ -285,7 +283,7 @@ static frontEnd::TokenType ResolveAssignmentOperation(frontEnd::TokenType T) {
   }
 }
 
-void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
+void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
   Stmt->GetLHS()->Accept(this);
   llvm::Value *L = LastInstr;
   /// This is needed only in case of assignment to array element.
@@ -296,11 +294,10 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   if (!L || !R)
     return;
 
-  weak::middleEnd::AssertSame(Stmt, L, R);
+  weak::AssertSame(Stmt, L, R);
 
   ScalarExprEmitter ScalarEmitter(IRCtx, IRBuilder);
 
-  using frontEnd::TokenType;
   switch (auto T = Stmt->GetOperation()) {
   case TokenType::ASSIGN: {
     AssignmentIRBuilder Builder(IRBuilder, DeclStorage);
@@ -318,8 +315,7 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
   case TokenType::BIT_AND_ASSIGN:
   case TokenType::BIT_OR_ASSIGN:
   case TokenType::XOR_ASSIGN: {
-    auto *Assignment =
-        static_cast<const frontEnd::ASTSymbol *>(Stmt->GetLHS().get());
+    auto *Assignment = static_cast<const ASTSymbol *>(Stmt->GetLHS().get());
     llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
     TokenType Op = ResolveAssignmentOperation(T);
     LastInstr = ScalarEmitter.EmitBinOp(Stmt, Op, L, R);
@@ -350,16 +346,16 @@ void CodeGen::Visit(const frontEnd::ASTBinaryOperator *Stmt) {
     LastArrayPtr = nullptr;
 
     weak::CompileError(Stmt)
-        << "Invalid binary operator `" << frontEnd::TokenToString(T) << "`";
+        << "Invalid binary operator `" << TokenToString(T) << "`";
     break;
   }
   } // switch
 }
 
-void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
+void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
   switch (Stmt->GetOperand()->GetASTType()) {
-  case frontEnd::ASTType::SYMBOL:
-  case frontEnd::ASTType::ARRAY_ACCESS:
+  case ASTType::SYMBOL:
+  case ASTType::ARRAY_ACCESS:
     break;
   default:
     weak::CompileError(Stmt)
@@ -372,9 +368,8 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
   llvm::Value *Step = llvm::ConstantInt::get(IRCtx, Int);
 
   auto *SymbolOperand =
-      static_cast<const frontEnd::ASTSymbol *>(Stmt->GetOperand().get());
+      static_cast<const ASTSymbol *>(Stmt->GetOperand().get());
 
-  using frontEnd::TokenType;
   switch (Stmt->GetOperation()) {
   case TokenType::INC:
     LastInstr = IRBuilder.CreateAdd(LastInstr, Step);
@@ -390,7 +385,7 @@ void CodeGen::Visit(const frontEnd::ASTUnaryOperator *Stmt) {
                         DeclStorage.Lookup(SymbolOperand->GetName()));
 }
 
-void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) {
+void CodeGen::Visit(const ASTForStmt *Stmt) {
   DeclStorage.StartScope();
   /// \todo: Generate code with respect to empty for parameters,
   ///        e.g for (;;), or for(int i = 0; ; ++i). Also
@@ -419,7 +414,7 @@ void CodeGen::Visit(const frontEnd::ASTForStmt *Stmt) {
   DeclStorage.EndScope();
 }
 
-void CodeGen::Visit(const frontEnd::ASTWhileStmt *Stmt) {
+void CodeGen::Visit(const ASTWhileStmt *Stmt) {
   llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
   llvm::BasicBlock *WhileCondBB =
@@ -440,7 +435,7 @@ void CodeGen::Visit(const frontEnd::ASTWhileStmt *Stmt) {
   IRBuilder.SetInsertPoint(WhileEndBB);
 }
 
-void CodeGen::Visit(const frontEnd::ASTDoWhileStmt *Stmt) {
+void CodeGen::Visit(const ASTDoWhileStmt *Stmt) {
   llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
   llvm::BasicBlock *DoWhileBodyBB =
@@ -457,7 +452,7 @@ void CodeGen::Visit(const frontEnd::ASTDoWhileStmt *Stmt) {
   IRBuilder.SetInsertPoint(DoWhileEndBB);
 }
 
-void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) {
+void CodeGen::Visit(const ASTIfStmt *Stmt) {
   Stmt->GetCondition()->Accept(this);
   llvm::Value *Condition = LastInstr;
 
@@ -498,7 +493,7 @@ void CodeGen::Visit(const frontEnd::ASTIfStmt *Stmt) {
   IRBuilder.SetInsertPoint(MergeBB);
 }
 
-void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
+void CodeGen::Visit(const ASTFunctionDecl *Decl) {
   FunctionBuilder FunctionBuilder(IRCtx, IRModule, Decl);
 
   llvm::Function *Func = FunctionBuilder.BuildSignature();
@@ -521,11 +516,11 @@ void CodeGen::Visit(const frontEnd::ASTFunctionDecl *Decl) {
   llvm::verifyFunction(*Func);
   LastInstr = nullptr;
 
-  if (Decl->GetReturnType() == frontEnd::TokenType::VOID)
+  if (Decl->GetReturnType() == TokenType::VOID)
     IRBuilder.CreateRetVoid();
 }
 
-void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
+void CodeGen::Visit(const ASTFunctionCall *Stmt) {
   llvm::Function *Callee = IRModule.getFunction(Stmt->GetName());
   if (!Callee)
     weak::CompileError(Stmt)
@@ -547,7 +542,7 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
     auto *InstrType = LastInstr->getType();
     auto *ExpectedType = Callee->getArg(I)->getType();
 
-    weak::middleEnd::AssertSame(AST, InstrType, ExpectedType);
+    weak::AssertSame(AST, InstrType, ExpectedType);
 
     Args.push_back(LastInstr);
   }
@@ -555,12 +550,12 @@ void CodeGen::Visit(const frontEnd::ASTFunctionCall *Stmt) {
   LastInstr = IRBuilder.CreateCall(Callee, Args);
 }
 
-void CodeGen::Visit(const frontEnd::ASTFunctionPrototype *Stmt) {
+void CodeGen::Visit(const ASTFunctionPrototype *Stmt) {
   FunctionBuilder FunctionBuilder(IRCtx, IRModule, Stmt);
   FunctionBuilder.BuildSignature();
 }
 
-void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
+void CodeGen::Visit(const ASTArrayAccess *Stmt) {
   llvm::AllocaInst *SymbolValue = DeclStorage.Lookup(Stmt->GetSymbolName());
   if (!SymbolValue)
     weak::CompileError(Stmt)
@@ -576,7 +571,7 @@ void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
   if (Index->getType() != llvm::Type::getInt32Ty(IRCtx))
     weak::CompileError(Stmt) << "Expected 32-bit integer as array index";
 
-  weak::middleEnd::AssertNotOutOfRange(Stmt, SymbolValue, Index);
+  weak::AssertNotOutOfRange(Stmt, SymbolValue, Index);
   /// If you have a question about this, please see
   /// https://llvm.org/docs/GetElementPtr.html.
   llvm::Value *Zero = llvm::ConstantInt::get(IRCtx, llvm::APInt(32, 0, true));
@@ -597,7 +592,7 @@ void CodeGen::Visit(const frontEnd::ASTArrayAccess *Stmt) {
   }
 }
 
-void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
+void CodeGen::Visit(const ASTSymbol *Stmt) {
   llvm::AllocaInst *SymbolValue = DeclStorage.Lookup(Stmt->GetName());
   if (!SymbolValue)
     weak::CompileError(Stmt)
@@ -613,14 +608,14 @@ void CodeGen::Visit(const frontEnd::ASTSymbol *Stmt) {
                                      SymbolValue, Stmt->GetName());
 }
 
-void CodeGen::Visit(const frontEnd::ASTCompoundStmt *Stmts) {
+void CodeGen::Visit(const ASTCompoundStmt *Stmts) {
   DeclStorage.StartScope();
   for (const auto &Stmt : Stmts->GetStmts())
     Stmt->Accept(this);
   DeclStorage.EndScope();
 }
 
-void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
+void CodeGen::Visit(const ASTReturnStmt *Stmt) {
   llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
   if (Func->getReturnType()->isVoidTy())
@@ -630,7 +625,7 @@ void CodeGen::Visit(const frontEnd::ASTReturnStmt *Stmt) {
   IRBuilder.CreateRet(LastInstr);
 }
 
-void CodeGen::Visit(const frontEnd::ASTArrayDecl *Stmt) {
+void CodeGen::Visit(const ASTArrayDecl *Stmt) {
   llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
   TypeResolver TypeResolver(IRCtx);
@@ -645,7 +640,7 @@ void CodeGen::Visit(const frontEnd::ASTArrayDecl *Stmt) {
   DeclStorage.Push(Stmt->GetSymbolName(), ArrayDecl);
 }
 
-void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
+void CodeGen::Visit(const ASTVarDecl *Decl) {
   if (DeclStorage.Lookup(Decl->GetSymbolName()))
     weak::CompileError(Decl)
         << "Variable `" << Decl->GetSymbolName() << "` already declared";
@@ -656,9 +651,9 @@ void CodeGen::Visit(const frontEnd::ASTVarDecl *Decl) {
 
   /// Special case, since we need to copy array from data section to another
   /// array, placed on stack.
-  if (Decl->GetDataType() == frontEnd::TokenType::STRING) {
+  if (Decl->GetDataType() == TokenType::STRING) {
     const auto *Literal =
-        static_cast<frontEnd::ASTStringLiteral *>(Decl->GetDeclareBody().get());
+        static_cast<ASTStringLiteral *>(Decl->GetDeclareBody().get());
     const unsigned NullTerminator = 1;
     llvm::ArrayType *ArrayType =
         llvm::ArrayType::get(llvm::Type::getInt8Ty(IRCtx),
@@ -719,5 +714,4 @@ std::string CodeGen::ToString() const {
   return Result;
 }
 
-} // namespace middleEnd
 } // namespace weak

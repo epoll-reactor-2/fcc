@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTIfStmt::ASTIfStmt(std::unique_ptr<ASTNode> &&TheCondition,
                      std::unique_ptr<ASTCompoundStmt> &&TheThenBody,
@@ -45,5 +44,4 @@ const std::unique_ptr<ASTCompoundStmt> &ASTIfStmt::GetElseBody() const {
   return ElseBody;
 }
 
-} // namespace frontEnd
 } // namespace weak

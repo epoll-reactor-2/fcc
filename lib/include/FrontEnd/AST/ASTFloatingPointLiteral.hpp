@@ -10,7 +10,6 @@
 #include "FrontEnd/AST/ASTNode.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 class ASTFloatingPointLiteral : public ASTNode {
 public:
@@ -26,7 +25,6 @@ private:
   float Value;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_FLOATING_POINT_LITERAL_HPP

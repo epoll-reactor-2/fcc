@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTBooleanLiteral::ASTBooleanLiteral(bool TheValue, unsigned TheLineNo,
                                      unsigned TheColumnNo)
@@ -22,5 +21,4 @@ void ASTBooleanLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 bool ASTBooleanLiteral::GetValue() const { return Value; }
 
-} // namespace frontEnd
 } // namespace weak

@@ -17,7 +17,6 @@ class Type;
 } // namespace llvm
 
 namespace weak {
-namespace middleEnd {
 
 /// Helper class to translate frontend types to LLVM.
 class TypeResolver {
@@ -25,28 +24,26 @@ public:
   TypeResolver(llvm::LLVMContext &);
 
   /// Convert given parameter (including void) to corresponding LLVM type.
-  llvm::Type *Resolve(frontEnd::TokenType, unsigned LineNo = 0U,
-                      unsigned ColumnNo = 0U);
-  /// \copydoc TypeResolver::Resolve(frontEnd::TokenType, unsigned, unsigned)
-  llvm::Type *Resolve(const frontEnd::ASTNode *);
+  llvm::Type *Resolve(TokenType, unsigned LineNo = 0U, unsigned ColumnNo = 0U);
+  /// \copydoc TypeResolver::Resolve(TokenType, unsigned, unsigned)
+  llvm::Type *Resolve(const ASTNode *);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
-  llvm::Type *ResolveExceptVoid(frontEnd::TokenType, unsigned LineNo = 0U,
+  llvm::Type *ResolveExceptVoid(TokenType, unsigned LineNo = 0U,
                                 unsigned ColumnNo = 0U);
-  /// \copydoc TypeResolver::ResolveExceptVoid(frontEnd::TokenType, unsigned,
+  /// \copydoc TypeResolver::ResolveExceptVoid(TokenType, unsigned,
   /// unsigned)
-  llvm::Type *ResolveExceptVoid(const frontEnd::ASTNode *);
+  llvm::Type *ResolveExceptVoid(const ASTNode *);
 
 private:
-  /// Convert frontEnd::ASTNode to frontEnd::ASTVarDecl, or
+  /// Convert ASTNode to ASTVarDecl, or
   /// emit compile error on conversion error.
-  const frontEnd::ASTVarDecl *GetVarDecl(const frontEnd::ASTNode *);
+  const ASTVarDecl *GetVarDecl(const ASTNode *);
 
   /// Reference to global LLVM stuff.
   llvm::LLVMContext &LLVMCtx;
 };
 
-} // namespace middleEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_MIDDLE_END_TYPE_RESOLVER_HPP

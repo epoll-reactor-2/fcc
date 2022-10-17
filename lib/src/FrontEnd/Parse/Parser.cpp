@@ -32,7 +32,6 @@
 #include <cassert>
 
 namespace weak {
-namespace frontEnd {
 
 Parser::Parser(const Token *TheBufferStart, const Token *TheBufferEnd)
     : BufferStart(TheBufferStart), BufferEnd(TheBufferEnd),
@@ -882,5 +881,4 @@ void Parser::CheckIfHaveMoreTokens() const {
         << "End of buffer reached";
 }
 
-} // namespace frontEnd
 } // namespace weak

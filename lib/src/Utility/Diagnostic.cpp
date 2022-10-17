@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 
+/// Forward declaration is in Diagnostic.hpp, so there is no unnamed namespace.
 class Diagnostic {
 public:
   enum struct DiagLevel { WARN, ERROR } const Level;
@@ -81,7 +82,7 @@ weak::OstreamRAII weak::CompileError(unsigned LineNo, unsigned ColumnNo) {
   return MakeMessage(Diagnostic::DiagLevel::ERROR, LineNo, ColumnNo);
 }
 
-weak::OstreamRAII weak::CompileError(const weak::frontEnd::ASTNode *Node) {
+weak::OstreamRAII weak::CompileError(const ASTNode *Node) {
   unsigned LineNo = Node->GetLineNo();
   unsigned ColumnNo = Node->GetColumnNo();
   return weak::CompileError(LineNo, ColumnNo);

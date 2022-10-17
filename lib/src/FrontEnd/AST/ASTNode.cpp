@@ -7,7 +7,6 @@
 #include "FrontEnd/AST/ASTNode.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTNode::ASTNode(unsigned TheLineNo, unsigned TheColumnNo)
     : LineNo(TheLineNo), ColumnNo(TheColumnNo) {}
@@ -18,5 +17,4 @@ unsigned ASTNode::GetLineNo() const { return LineNo; }
 
 unsigned ASTNode::GetColumnNo() const { return ColumnNo; }
 
-} // namespace frontEnd
 } // namespace weak

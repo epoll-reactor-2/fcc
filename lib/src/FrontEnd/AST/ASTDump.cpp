@@ -50,8 +50,7 @@ static std::string IntegerRangeToString(RAIt Begin, RAIt End) {
   return Output;
 }
 
-using namespace weak::frontEnd;
-
+namespace weak {
 namespace {
 
 class ASTDumpVisitor : public ASTVisitor {
@@ -421,17 +420,14 @@ private:
 };
 
 } // namespace
+} // namespace weak
 
-namespace weak {
-
-void frontEnd::ASTDump(ASTNode *RootNode, std::ostream &OutStream) {
+void weak::ASTDump(ASTNode *RootNode, std::ostream &OutStream) {
   ASTDumpVisitor DumpVisitor(RootNode, OutStream);
   DumpVisitor.Dump();
 }
 
-void frontEnd::ASTDump(const std::unique_ptr<ASTNode> &RootNode,
-                       std::ostream &OutStream) {
+void weak::ASTDump(const std::unique_ptr<ASTNode> &RootNode,
+                   std::ostream &OutStream) {
   ASTDump(RootNode.get(), OutStream);
 }
-
-} // namespace weak

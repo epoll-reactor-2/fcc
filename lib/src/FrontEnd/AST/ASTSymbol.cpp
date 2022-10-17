@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTSymbol::ASTSymbol(std::string TheValue, unsigned TheLineNo,
                      unsigned TheColumnNo)
@@ -20,5 +19,4 @@ void ASTSymbol::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 const std::string &ASTSymbol::GetName() const { return Value; }
 
-} // namespace frontEnd
 } // namespace weak

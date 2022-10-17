@@ -8,37 +8,35 @@
 #include <iostream>
 #include <iomanip>
 
-namespace fe = weak::frontEnd;
-namespace me = weak::middleEnd;
 
-std::vector<fe::Token> DoLexicalAnalysis(std::string_view InputPath) {
+std::vector<weak::Token> DoLexicalAnalysis(std::string_view InputPath) {
   std::ifstream File(InputPath.data());
   std::string Program(
       (std::istreambuf_iterator<char>(File)),
       (std::istreambuf_iterator<char>()));
-  fe::Lexer Lex(&*Program.begin(), &*Program.end());
+  weak::Lexer Lex(&*Program.begin(), &*Program.end());
   auto Tokens = Lex.Analyze();
   return Tokens;
 }
 
-std::unique_ptr<fe::ASTNode> DoSyntaxAnalysis(std::string_view InputPath) {
+std::unique_ptr<weak::ASTNode> DoSyntaxAnalysis(std::string_view InputPath) {
   auto Tokens = DoLexicalAnalysis(InputPath);
-  fe::Parser Parser(&*Tokens.begin(), &*Tokens.end());
+  weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
   return AST;
 }
 
 std::string DoLLVMCodeGen(std::string_view InputPath, std::string_view OutputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
-  me::CodeGen CodeGenerator(AST.get());
+  weak::CodeGen CodeGenerator(AST.get());
   CodeGenerator.CreateCode();
   return CodeGenerator.ToString();
 }
 
 void DumpLexemes(std::string_view InputPath) {
   auto Tokens = DoLexicalAnalysis(InputPath);
-  for (const fe::Token &T : Tokens) {
-    std::cout << "Token " << std::setw(20) << fe::TokenToString(T.Type);
+  for (const weak::Token &T : Tokens) {
+    std::cout << "Token " << std::setw(20) << weak::TokenToString(T.Type);
     std::cout << "  " << T.Data;
     std::cout << std::endl;
   }
@@ -46,7 +44,7 @@ void DumpLexemes(std::string_view InputPath) {
 
 void DumpAST(std::string_view InputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
-  fe::ASTDump(AST, std::cout);
+  weak::ASTDump(AST, std::cout);
 }
 
 void DumpLLVMIR(std::string_view InputPath, std::string_view OutputPath) {
@@ -56,9 +54,9 @@ void DumpLLVMIR(std::string_view InputPath, std::string_view OutputPath) {
 
 void BuildCode(std::string_view InputPath, std::string_view OutputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
-  me::CodeGen CodeGen(AST.get());
+  weak::CodeGen CodeGen(AST.get());
   CodeGen.CreateCode();
-  weak::middleEnd::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), OutputPath);
+  weak::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), OutputPath);
   TargetCodeBuilder.Build();
 }
 

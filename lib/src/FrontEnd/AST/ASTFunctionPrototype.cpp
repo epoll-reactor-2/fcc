@@ -9,7 +9,6 @@
 #include "FrontEnd/Lex/Token.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTFunctionPrototype::ASTFunctionPrototype(
     TokenType TheReturnType, std::string &&TheName,
@@ -37,5 +36,4 @@ ASTFunctionPrototype::GetArguments() const {
   return Arguments;
 }
 
-} // namespace frontEnd
 } // namespace weak

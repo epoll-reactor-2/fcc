@@ -8,9 +8,6 @@
 #include <filesystem>
 
 
-namespace fe = weak::frontEnd;
-namespace me = weak::middleEnd;
-
 /// \note Codegen tests do not return values greater than 256 due to the
 ///       fact that process returns exit status modulo 256. By the way, this
 ///       works as well in C code.
@@ -25,12 +22,12 @@ void RunFromFile(std::string_view Path) {
   std::string Program(
     (std::istreambuf_iterator<char>(File)),
     (std::istreambuf_iterator<char>()));
-  fe::Lexer Lex(&*Program.begin(), &*Program.end());
+  weak::Lexer Lex(&*Program.begin(), &*Program.end());
   auto Tokens = Lex.Analyze();
-  fe::Parser Parser(&*Tokens.begin(), &*Tokens.end());
+  weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
 
-  me::CodeGen CodeGen(AST.get());
+  weak::CodeGen CodeGen(AST.get());
 
   std::string TargetPath(Path.substr(Path.find_last_of('/') + 1));
   TargetPath = TargetPath.substr(0, TargetPath.find_first_of('.'));
@@ -66,7 +63,7 @@ void RunFromFile(std::string_view Path) {
         "// "sv.length(), Program.find_first_of('\n') - "// "sv.length()));
 
     CodeGen.CreateCode();
-    weak::middleEnd::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), TargetPath);
+    weak::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), TargetPath);
     TargetCodeBuilder.Build();
 
     int ExitCode = RunAndGetExitCode(TargetPath);

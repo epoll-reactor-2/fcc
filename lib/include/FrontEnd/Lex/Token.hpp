@@ -10,7 +10,6 @@
 #include <string>
 
 namespace weak {
-namespace frontEnd {
 
 enum struct TokenType {
   // Keywords.
@@ -104,7 +103,6 @@ struct Token {
   unsigned ColumnNo;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOKEN_HPP

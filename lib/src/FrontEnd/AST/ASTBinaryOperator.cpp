@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTBinaryOperator::ASTBinaryOperator(TokenType TheOperation,
                                      std::unique_ptr<ASTNode> &&TheLHS,
@@ -37,5 +36,4 @@ std::unique_ptr<ASTNode> &&ASTBinaryOperator::GetRHS() {
   return std::move(RHS);
 }
 
-} // namespace frontEnd
 } // namespace weak

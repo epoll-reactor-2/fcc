@@ -8,7 +8,6 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_FWD_DECL_HPP
 
 namespace weak {
-namespace frontEnd {
 
 class ASTNode;
 class ASTArrayAccess;
@@ -34,7 +33,6 @@ class ASTUnaryOperator;
 class ASTVarDecl;
 class ASTWhileStmt;
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_FWD_DECL_HPP

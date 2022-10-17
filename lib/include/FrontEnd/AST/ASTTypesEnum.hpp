@@ -8,7 +8,6 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_TYPES_ENUM_HPP
 
 namespace weak {
-namespace frontEnd {
 
 enum struct ASTType {
   // Abstract node.
@@ -58,7 +57,6 @@ enum struct ASTType {
   FUNCTION_PROTOTYPE
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_TYPES_ENUM_HPP

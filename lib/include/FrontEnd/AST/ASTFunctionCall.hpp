@@ -12,7 +12,6 @@
 #include <vector>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTFunctionCall : public ASTNode {
 public:
@@ -31,7 +30,6 @@ private:
   std::vector<std::unique_ptr<ASTNode>> Arguments;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_FUNCTION_CALL_HPP

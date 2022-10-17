@@ -8,12 +8,10 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
-weak::frontEnd::ASTDoWhileStmt::ASTDoWhileStmt(
-    std::unique_ptr<ASTCompoundStmt> &&TheBody,
-    std::unique_ptr<ASTNode> &&TheCondition, unsigned TheLineNo,
-    unsigned TheColumnNo)
+ASTDoWhileStmt::ASTDoWhileStmt(std::unique_ptr<ASTCompoundStmt> &&TheBody,
+                               std::unique_ptr<ASTNode> &&TheCondition,
+                               unsigned TheLineNo, unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), Body(std::move(TheBody)),
       Condition(std::move(TheCondition)) {}
 
@@ -37,5 +35,4 @@ const std::unique_ptr<ASTNode> &ASTDoWhileStmt::GetCondition() const {
   return Condition;
 }
 
-} // namespace frontEnd
 } // namespace weak

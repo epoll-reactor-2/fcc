@@ -11,8 +11,6 @@
 
 namespace weak {
 
-namespace middleEnd {
-
 /// Builder of executable code from LLVM IR.
 class TargetCodeBuilder {
 public:
@@ -33,7 +31,6 @@ private:
   std::string ObjectFilePath;
 };
 
-} // namespace middleEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_MIDDLE_END_TARGET_CODE_BUILDER_HPP

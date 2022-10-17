@@ -11,7 +11,6 @@
 #include "FrontEnd/AST/ASTNode.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 class ASTIfStmt : public ASTNode {
 public:
@@ -36,7 +35,6 @@ private:
   std::unique_ptr<ASTCompoundStmt> ElseBody;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_IF_STMT_HPP

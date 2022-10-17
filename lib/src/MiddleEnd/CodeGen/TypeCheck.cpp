@@ -17,10 +17,7 @@ static std::string TypeToString(llvm::Type *T) {
   return Stream.str();
 }
 
-namespace weak {
-
-void middleEnd::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
-                           llvm::Type *R) {
+void weak::AssertSame(const ASTNode *InformAST, llvm::Type *L, llvm::Type *R) {
   if (L == R)
     return;
 
@@ -28,14 +25,14 @@ void middleEnd::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Type *L,
       << "Type mismatch: " << TypeToString(L) << " and " << TypeToString(R);
 }
 
-void middleEnd::AssertSame(const frontEnd::ASTNode *InformAST, llvm::Value *L,
-                           llvm::Value *R) {
+void weak::AssertSame(const ASTNode *InformAST, llvm::Value *L,
+                      llvm::Value *R) {
   AssertSame(InformAST, L->getType(), R->getType());
 }
 
-void middleEnd::AssertNotOutOfRange(const frontEnd::ASTNode *InformAST,
-                                    llvm::AllocaInst *ArrayAlloca,
-                                    llvm::Value *Index) {
+void weak::AssertNotOutOfRange(const ASTNode *InformAST,
+                               llvm::AllocaInst *ArrayAlloca,
+                               llvm::Value *Index) {
   auto *ConstantArray =
       static_cast<llvm::ArrayType *>(ArrayAlloca->getAllocatedType());
   int64_t ArraySize = ConstantArray->getNumElements();
@@ -48,5 +45,3 @@ void middleEnd::AssertNotOutOfRange(const frontEnd::ASTNode *InformAST,
           << ") >= array size (which is " << ArraySize << ")";
   }
 }
-
-} // namespace weak

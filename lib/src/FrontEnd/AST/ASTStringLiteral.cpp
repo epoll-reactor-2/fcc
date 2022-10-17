@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTStringLiteral::ASTStringLiteral(std::string TheValue, unsigned TheLineNo,
                                    unsigned TheColumnNo)
@@ -20,5 +19,4 @@ void ASTStringLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 const std::string &ASTStringLiteral::GetValue() const { return Value; }
 
-} // namespace frontEnd
 } // namespace weak

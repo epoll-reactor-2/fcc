@@ -12,7 +12,6 @@
 #include <vector>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTCompoundStmt : public ASTNode {
 public:
@@ -29,7 +28,6 @@ private:
   std::vector<std::unique_ptr<ASTNode>> Stmts;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_COMPOUND_STMT_HPP

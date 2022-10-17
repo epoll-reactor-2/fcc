@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTArrayDecl::ASTArrayDecl(TokenType TheDataType, std::string TheSymbolName,
                            std::vector<unsigned> TheArityList,
@@ -29,5 +28,4 @@ const std::vector<unsigned> &ASTArrayDecl::GetArityList() const {
   return ArityList;
 }
 
-} // namespace frontEnd
 } // namespace weak

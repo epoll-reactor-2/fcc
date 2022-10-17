@@ -12,7 +12,6 @@
 #include <vector>
 
 namespace weak {
-namespace frontEnd {
 
 /// \brief LL(1) Syntax analyzer.
 class Parser {
@@ -158,7 +157,6 @@ private:
   std::size_t LoopsDepth;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_PARSE_PARSER_HPP

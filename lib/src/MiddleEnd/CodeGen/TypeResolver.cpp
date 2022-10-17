@@ -12,24 +12,20 @@
 #include "llvm/IR/Type.h"
 
 namespace weak {
-namespace middleEnd {
 
 TypeResolver::TypeResolver(llvm::LLVMContext &TheLLVMCtx)
     : LLVMCtx(TheLLVMCtx) {}
 
-const frontEnd::ASTVarDecl *
-TypeResolver::GetVarDecl(const frontEnd::ASTNode *Node) {
-  using frontEnd::ASTType;
+const ASTVarDecl *TypeResolver::GetVarDecl(const ASTNode *Node) {
   if (Node->GetASTType() != ASTType::VAR_DECL)
     weak::CompileError(Node) << "Expected parameter";
 
-  const auto *Decl = static_cast<const frontEnd::ASTVarDecl *>(Node);
+  const auto *Decl = static_cast<const ASTVarDecl *>(Node);
   return Decl;
 }
 
-llvm::Type *TypeResolver::Resolve(frontEnd::TokenType T, unsigned LineNo,
+llvm::Type *TypeResolver::Resolve(TokenType T, unsigned LineNo,
                                   unsigned ColumnNo) {
-  using frontEnd::TokenType;
   switch (T) {
   case TokenType::VOID:
     return llvm::Type::getVoidTy(LLVMCtx);
@@ -44,21 +40,18 @@ llvm::Type *TypeResolver::Resolve(frontEnd::TokenType T, unsigned LineNo,
   case TokenType::STRING:
     return llvm::Type::getInt8PtrTy(LLVMCtx);
   default:
-    weak::CompileError(LineNo, ColumnNo)
-        << "Wrong type: " << frontEnd::TokenToString(T);
+    weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
     weak::UnreachablePoint();
   }
 }
 
-llvm::Type *TypeResolver::Resolve(const frontEnd::ASTNode *Node) {
-  const frontEnd::ASTVarDecl *Decl = GetVarDecl(Node);
+llvm::Type *TypeResolver::Resolve(const ASTNode *Node) {
+  const ASTVarDecl *Decl = GetVarDecl(Node);
   return Resolve(Decl->GetDataType(), Decl->GetLineNo(), Decl->GetColumnNo());
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(frontEnd::TokenType T,
-                                            unsigned LineNo,
+llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T, unsigned LineNo,
                                             unsigned ColumnNo) {
-  using frontEnd::TokenType;
   switch (T) {
   case TokenType::CHAR:
     return llvm::Type::getInt8Ty(LLVMCtx);
@@ -71,17 +64,15 @@ llvm::Type *TypeResolver::ResolveExceptVoid(frontEnd::TokenType T,
   case TokenType::STRING:
     return llvm::Type::getInt8PtrTy(LLVMCtx);
   default:
-    weak::CompileError(LineNo, ColumnNo)
-        << "Wrong type: " << frontEnd::TokenToString(T);
+    weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
     weak::UnreachablePoint();
   }
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(const frontEnd::ASTNode *Node) {
-  const frontEnd::ASTVarDecl *Decl = GetVarDecl(Node);
+llvm::Type *TypeResolver::ResolveExceptVoid(const ASTNode *Node) {
+  const ASTVarDecl *Decl = GetVarDecl(Node);
   return ResolveExceptVoid(Decl->GetDataType(), Decl->GetLineNo(),
                            Decl->GetColumnNo());
 }
 
-} // namespace middleEnd
 } // namespace weak

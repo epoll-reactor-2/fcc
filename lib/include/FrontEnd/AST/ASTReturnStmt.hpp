@@ -11,7 +11,6 @@
 #include <memory>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTReturnStmt : public ASTNode {
 public:
@@ -27,7 +26,6 @@ private:
   std::unique_ptr<ASTNode> Operand;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_RETURN_STMT_HPP

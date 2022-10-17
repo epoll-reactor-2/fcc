@@ -12,7 +12,6 @@
 #include <memory>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTUnaryOperator : public ASTNode {
 public:
@@ -33,7 +32,6 @@ private:
   std::unique_ptr<ASTNode> Operand;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_UNARY_OPERATOR_HPP

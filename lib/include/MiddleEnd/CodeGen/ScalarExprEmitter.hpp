@@ -16,13 +16,10 @@ class Value;
 } // namespace llvm
 
 namespace weak {
-namespace frontEnd {
 class ASTNode;
-} // namespace frontEnd
 } // namespace weak
 
 namespace weak {
-namespace middleEnd {
 
 /// Generator of operations on numeric data types.
 class ScalarExprEmitter {
@@ -40,8 +37,8 @@ public:
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitBinOp(const frontEnd::ASTNode *InformAST,
-                         frontEnd::TokenType T, llvm::Value *L, llvm::Value *R);
+  llvm::Value *EmitBinOp(const ASTNode *InformAST, TokenType T, llvm::Value *L,
+                         llvm::Value *R);
 
   /// Emit operation supported only by integral type.
   ///
@@ -52,9 +49,8 @@ public:
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitIntegralBinOp(const frontEnd::ASTNode *InformAST,
-                                 frontEnd::TokenType T, llvm::Value *L,
-                                 llvm::Value *R);
+  llvm::Value *EmitIntegralBinOp(const ASTNode *InformAST, TokenType T,
+                                 llvm::Value *L, llvm::Value *R);
 
   /// Emit operation supported only by floating points.
   ///
@@ -65,9 +61,8 @@ public:
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitFloatBinOp(const frontEnd::ASTNode *InformAST,
-                              frontEnd::TokenType T, llvm::Value *L,
-                              llvm::Value *R);
+  llvm::Value *EmitFloatBinOp(const ASTNode *InformAST, TokenType T,
+                              llvm::Value *L, llvm::Value *R);
 
 private:
   /// Reference to global LLVM stuff.
@@ -76,7 +71,6 @@ private:
   llvm::IRBuilder<> &IRBuilder;
 };
 
-} // namespace middleEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_MIDDLE_END_SCALAR_EXPR_EMITTER_HPP

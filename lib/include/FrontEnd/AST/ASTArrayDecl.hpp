@@ -13,7 +13,6 @@
 #include <vector>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTArrayDecl : public ASTNode {
 public:
@@ -41,7 +40,6 @@ private:
   std::vector<unsigned> ArityList;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_ARRAY_DECL_HPP

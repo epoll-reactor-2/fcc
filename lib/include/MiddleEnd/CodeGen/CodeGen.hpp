@@ -16,14 +16,13 @@
 #include <map>
 
 namespace weak {
-namespace middleEnd {
 
 /// \brief LLVM IR generator.
 ///
 /// Implemented as AST visitor because it still does not operates on CFG.
-class CodeGen : private frontEnd::ASTVisitor {
+class CodeGen : private ASTVisitor {
 public:
-  CodeGen(frontEnd::ASTNode *TheRoot);
+  CodeGen(ASTNode *TheRoot);
 
   /// Convert AST to LLVM IR starting from root node (usually CompoundStmt).
   void CreateCode();
@@ -41,45 +40,45 @@ public:
 
 private:
   // Literals.
-  void Visit(const frontEnd::ASTBooleanLiteral *) override;
-  void Visit(const frontEnd::ASTCharLiteral *) override;
-  void Visit(const frontEnd::ASTIntegerLiteral *) override;
-  void Visit(const frontEnd::ASTFloatingPointLiteral *) override;
-  void Visit(const frontEnd::ASTStringLiteral *) override;
+  void Visit(const ASTBooleanLiteral *) override;
+  void Visit(const ASTCharLiteral *) override;
+  void Visit(const ASTIntegerLiteral *) override;
+  void Visit(const ASTFloatingPointLiteral *) override;
+  void Visit(const ASTStringLiteral *) override;
 
   // Operators.
-  void Visit(const frontEnd::ASTBinaryOperator *) override;
-  void Visit(const frontEnd::ASTUnaryOperator *) override;
+  void Visit(const ASTBinaryOperator *) override;
+  void Visit(const ASTUnaryOperator *) override;
 
   // Inside-loop statements.
-  void Visit(const frontEnd::ASTBreakStmt *) override {}
-  void Visit(const frontEnd::ASTContinueStmt *) override {}
+  void Visit(const ASTBreakStmt *) override {}
+  void Visit(const ASTContinueStmt *) override {}
 
   // Loop statements.
-  void Visit(const frontEnd::ASTForStmt *) override;
-  void Visit(const frontEnd::ASTWhileStmt *) override;
-  void Visit(const frontEnd::ASTDoWhileStmt *) override;
+  void Visit(const ASTForStmt *) override;
+  void Visit(const ASTWhileStmt *) override;
+  void Visit(const ASTDoWhileStmt *) override;
 
   // Condition statements.
-  void Visit(const frontEnd::ASTIfStmt *) override;
+  void Visit(const ASTIfStmt *) override;
 
   // Function statements.
-  void Visit(const frontEnd::ASTFunctionDecl *) override;
-  void Visit(const frontEnd::ASTFunctionCall *) override;
-  void Visit(const frontEnd::ASTFunctionPrototype *) override;
+  void Visit(const ASTFunctionDecl *) override;
+  void Visit(const ASTFunctionCall *) override;
+  void Visit(const ASTFunctionPrototype *) override;
 
   // Declarations.
-  void Visit(const frontEnd::ASTArrayDecl *) override;
-  void Visit(const frontEnd::ASTVarDecl *) override;
+  void Visit(const ASTArrayDecl *) override;
+  void Visit(const ASTVarDecl *) override;
 
   // The rest.
-  void Visit(const frontEnd::ASTArrayAccess *) override;
-  void Visit(const frontEnd::ASTSymbol *) override;
-  void Visit(const frontEnd::ASTCompoundStmt *) override;
-  void Visit(const frontEnd::ASTReturnStmt *) override;
+  void Visit(const ASTArrayAccess *) override;
+  void Visit(const ASTSymbol *) override;
+  void Visit(const ASTCompoundStmt *) override;
+  void Visit(const ASTReturnStmt *) override;
 
   /// Analyzed root AST node.
-  frontEnd::ASTNode *Root;
+  ASTNode *Root;
   /// Variables pool.
   DeclsStorage DeclStorage;
   /// Consequence of using visitor pattern, since we cannot return anything from
@@ -100,7 +99,6 @@ private:
   llvm::IRBuilder<> IRBuilder;
 };
 
-} // namespace middleEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_MIDDLE_END_CODEGEN_HPP

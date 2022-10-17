@@ -11,7 +11,7 @@
 #include <cassert>
 #include <unordered_map>
 
-namespace weak::frontEnd {
+namespace weak {
 namespace {
 static const std::unordered_map<std::string_view, TokenType> LexKeywords = {
     {"bool", TokenType::BOOLEAN},  {"break", TokenType::BREAK},
@@ -101,14 +101,13 @@ private:
 };
 
 } // namespace
-} // namespace weak::frontEnd
+} // namespace weak
 
 static bool IsAlphanumeric(char C) { return isalpha(C) || C == '_'; }
 
-static void NormalizeColumnPosition(std::string_view Data,
-                                    weak::frontEnd::TokenType Type,
+static void NormalizeColumnPosition(std::string_view Data, weak::TokenType Type,
                                     unsigned &ColumnNo) {
-  using weak::frontEnd::TokenType;
+  using weak::TokenType;
   using namespace std::string_view_literals;
   static constexpr std::array TokenLengths{
       std::make_pair(TokenType::BOOLEAN, "bool"sv.length()),
@@ -150,7 +149,6 @@ static void NormalizeColumnPosition(std::string_view Data,
 }
 
 namespace weak {
-namespace frontEnd {
 
 Lexer::Lexer(const char *TheBufferStart, const char *TheBufferEnd)
     : BufferStart(TheBufferStart), BufferEnd(TheBufferEnd),
@@ -375,5 +373,4 @@ Token Lexer::MakeToken(std::string Data, TokenType Type) const {
   return Token(std::move(Data), Type, LineNo, ColumnNo);
 }
 
-} // namespace frontEnd
 } // namespace weak

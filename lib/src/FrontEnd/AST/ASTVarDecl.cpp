@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTVarDecl::ASTVarDecl(TokenType TheDataType, std::string &&TheSymbolName,
                        std::unique_ptr<ASTNode> &&TheDeclareBody,
@@ -29,5 +28,4 @@ const std::unique_ptr<ASTNode> &ASTVarDecl::GetDeclareBody() const {
   return DeclareBody;
 }
 
-} // namespace frontEnd
 } // namespace weak

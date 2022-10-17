@@ -9,7 +9,6 @@
 #include "FrontEnd/Lex/Token.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTFunctionDecl::ASTFunctionDecl(
     TokenType TheReturnType, std::string &&TheName,
@@ -45,5 +44,4 @@ const std::unique_ptr<ASTCompoundStmt> &ASTFunctionDecl::GetBody() const {
   return Body;
 }
 
-} // namespace frontEnd
 } // namespace weak

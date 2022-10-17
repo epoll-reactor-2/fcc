@@ -46,7 +46,6 @@ static void Link(std::string_view Filename, std::string_view OutObjectPath) {
 }
 
 namespace weak {
-namespace middleEnd {
 
 TargetCodeBuilder::TargetCodeBuilder(llvm::Module &TheModule,
                                      std::string_view TheObjectFilePath)
@@ -89,5 +88,4 @@ void TargetCodeBuilder::Build() {
   Link(Filename, ObjectFilePath);
 }
 
-} // namespace middleEnd
 } // namespace weak

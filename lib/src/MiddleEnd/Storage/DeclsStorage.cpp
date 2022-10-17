@@ -11,7 +11,6 @@ hash()->hash<std::string_view>;
 } // namespace std
 
 namespace weak {
-namespace middleEnd {
 
 void DeclsStorage::Push(std::string_view Name, llvm::AllocaInst *Value) {
   InnerScopes.emplace(std::hash{}(Name), DeclRecord{CurrentDepth, Value});
@@ -41,5 +40,4 @@ void DeclsStorage::EndScope() {
   --CurrentDepth;
 }
 
-} // namespace middleEnd
 } // namespace weak

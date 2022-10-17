@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTFunctionCall::ASTFunctionCall(
     std::string &&TheName, std::vector<std::unique_ptr<ASTNode>> &&TheArguments,
@@ -27,5 +26,4 @@ ASTFunctionCall::GetArguments() const {
   return Arguments;
 }
 
-} // namespace frontEnd
 } // namespace weak

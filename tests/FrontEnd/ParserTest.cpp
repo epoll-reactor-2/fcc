@@ -5,8 +5,6 @@
 #include <fstream>
 #include <filesystem>
 
-namespace fe = weak::frontEnd;
-
 /// This gets all contents of first comment placed
 /// at the very beginning of input program.
 /// F.e.
@@ -36,13 +34,13 @@ void TestAST(std::string_view Path) {
   std::string Program(
       (std::istreambuf_iterator<char>(File)),
       (std::istreambuf_iterator<char>()));
-  fe::Lexer Lex(&*Program.begin(), &*Program.end());
+  weak::Lexer Lex(&*Program.begin(), &*Program.end());
   auto Tokens = Lex.Analyze();
-  fe::Parser Parser(&*Tokens.begin(), &*Tokens.end());
+  weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
 
   std::ostringstream ASTStream;
-  fe::ASTDump(AST.get(), ASTStream);
+  weak::ASTDump(AST.get(), ASTStream);
 
   std::string GeneratedAST = ASTStream.str();
   std::string ExpectedAST = getExpectedAST(Program);

@@ -12,9 +12,7 @@
 class Diagnostic;
 
 namespace weak {
-namespace frontEnd {
 class ASTNode;
-} // namespace frontEnd
 } // namespace weak
 
 namespace weak {
@@ -48,7 +46,7 @@ OstreamRAII CompileError(unsigned LineNo, unsigned ColumnNo);
 /// throw exception.
 ///
 /// \param Node used to extract line and column number.
-weak::OstreamRAII CompileError(const weak::frontEnd::ASTNode *Node);
+weak::OstreamRAII CompileError(const ASTNode *Node);
 
 } // namespace weak
 

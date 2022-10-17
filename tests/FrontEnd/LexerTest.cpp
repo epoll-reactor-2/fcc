@@ -1,15 +1,14 @@
 #include "FrontEnd/Lex/Lexer.hpp"
 #include "TestHelpers.hpp"
 
-using namespace weak::frontEnd;
 
-static Token MakeToken(std::string Data, TokenType Type) {
-  return Token(std::move(Data), Type, 0U, 0U);
+static weak::Token MakeToken(std::string Data, weak::TokenType Type) {
+  return {std::move(Data), Type, 0U, 0U};
 }
 
 static void RunLexerTest(std::string_view Input,
-                         const std::vector<Token> &ExpectedTokens) {
-  auto Tokens = Lexer(Input.begin(), Input.end()).Analyze();
+                         const std::vector<weak::Token> &ExpectedTokens) {
+  auto Tokens = weak::Lexer(Input.begin(), Input.end()).Analyze();
   if (Tokens.size() != ExpectedTokens.size()) {
     std::cerr << "Output size mismatch: got " << Tokens.size()
               << " but expected " << ExpectedTokens.size();
@@ -34,6 +33,7 @@ int main() {
   //   std::vector<Token> Assertion = {};
   //   RunLexerTest("//", Assertion);
   // }
+  using namespace weak;
   SECTION(LexingEmptyOneLineCommentExplicitlyTerminated) {
     std::vector<Token> Assertion = {};
     RunLexerTest("//\n", Assertion);

@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTArrayAccess::ASTArrayAccess(std::string TheSymbolName,
                                std::unique_ptr<ASTNode> &&TheIndex,
@@ -26,5 +25,4 @@ const std::unique_ptr<ASTNode> &ASTArrayAccess::GetIndex() const {
   return Index;
 }
 
-} // namespace frontEnd
 } // namespace weak

@@ -12,7 +12,6 @@
 #include <memory>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTArrayAccess : public ASTNode {
 public:
@@ -30,7 +29,6 @@ private:
   std::unique_ptr<ASTNode> Index;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_ARRAY_ACCESS_HPP

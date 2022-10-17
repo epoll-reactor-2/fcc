@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTFloatingPointLiteral::ASTFloatingPointLiteral(float TheValue,
                                                  unsigned TheLineNo,
@@ -25,5 +24,4 @@ void ASTFloatingPointLiteral::Accept(ASTVisitor *Visitor) {
 
 float ASTFloatingPointLiteral::GetValue() const { return Value; }
 
-} // namespace frontEnd
 } // namespace weak

@@ -11,7 +11,6 @@
 #include <string>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTSymbol : public ASTNode {
 public:
@@ -27,7 +26,6 @@ private:
   std::string Value;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_SYMBOL_HPP

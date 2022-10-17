@@ -16,15 +16,13 @@ static std::string TypeToString(llvm::Type *T) {
 }
 
 namespace weak {
-namespace middleEnd {
 
 ScalarExprEmitter::ScalarExprEmitter(llvm::LLVMContext &TheIRCtx,
                                      llvm::IRBuilder<> &TheIRBuilder)
     : IRCtx(TheIRCtx), IRBuilder(TheIRBuilder) {}
 
-llvm::Value *ScalarExprEmitter::EmitBinOp(const frontEnd::ASTNode *InformAST,
-                                          frontEnd::TokenType T, llvm::Value *L,
-                                          llvm::Value *R) {
+llvm::Value *ScalarExprEmitter::EmitBinOp(const ASTNode *InformAST, TokenType T,
+                                          llvm::Value *L, llvm::Value *R) {
   bool IsFloatOperands = L->getType() == llvm::Type::getFloatTy(IRCtx);
   bool IsIntegralOperands = false;
   IsIntegralOperands |= (L->getType() == llvm::Type::getInt1Ty(IRCtx));
@@ -46,11 +44,9 @@ llvm::Value *ScalarExprEmitter::EmitBinOp(const frontEnd::ASTNode *InformAST,
   weak::UnreachablePoint();
 }
 
-llvm::Value *
-ScalarExprEmitter::EmitIntegralBinOp(const frontEnd::ASTNode *InformAST,
-                                     frontEnd::TokenType T, llvm::Value *L,
-                                     llvm::Value *R) {
-  using frontEnd::TokenType;
+llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(const ASTNode *InformAST,
+                                                  TokenType T, llvm::Value *L,
+                                                  llvm::Value *R) {
   switch (T) {
   case TokenType::PLUS:
     return IRBuilder.CreateAdd(L, R);
@@ -88,17 +84,14 @@ ScalarExprEmitter::EmitIntegralBinOp(const frontEnd::ASTNode *InformAST,
     return IRBuilder.CreateAShr(L, R);
   default:
     weak::CompileError(InformAST)
-        << "Cannot apply `" << weak::frontEnd::TokenToString(T)
-        << "` to integers";
+        << "Cannot apply `" << weak::TokenToString(T) << "` to integers";
     weak::UnreachablePoint();
   } // switch
 }
 
-llvm::Value *
-ScalarExprEmitter::EmitFloatBinOp(const frontEnd::ASTNode *InformAST,
-                                  frontEnd::TokenType T, llvm::Value *L,
-                                  llvm::Value *R) {
-  using frontEnd::TokenType;
+llvm::Value *ScalarExprEmitter::EmitFloatBinOp(const ASTNode *InformAST,
+                                               TokenType T, llvm::Value *L,
+                                               llvm::Value *R) {
   switch (T) {
   case TokenType::PLUS:
     return IRBuilder.CreateFAdd(L, R);
@@ -122,11 +115,9 @@ ScalarExprEmitter::EmitFloatBinOp(const frontEnd::ASTNode *InformAST,
     return IRBuilder.CreateFCmpONE(L, R);
   default:
     weak::CompileError(InformAST)
-        << "Cannot apply `" << weak::frontEnd::TokenToString(T)
-        << "` to floats";
+        << "Cannot apply `" << TokenToString(T) << "` to floats";
     weak::UnreachablePoint();
   } // switch
 }
 
-} // namespace middleEnd
 } // namespace weak

@@ -10,7 +10,6 @@
 #include "FrontEnd/AST/ASTNode.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 class ASTContinueStmt : public ASTNode {
 public:
@@ -20,7 +19,6 @@ public:
   void Accept(ASTVisitor *) override;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_STMT_HPP

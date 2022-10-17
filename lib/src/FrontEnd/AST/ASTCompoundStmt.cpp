@@ -8,7 +8,6 @@
 #include "FrontEnd/AST/ASTVisitor.hpp"
 
 namespace weak {
-namespace frontEnd {
 
 ASTCompoundStmt::ASTCompoundStmt(std::vector<std::unique_ptr<ASTNode>> &&stmts,
                                  unsigned TheLineNo, unsigned TheColumnNo)
@@ -26,5 +25,4 @@ const std::vector<std::unique_ptr<ASTNode>> &ASTCompoundStmt::GetStmts() const {
   return Stmts;
 }
 
-} // namespace frontEnd
 } // namespace weak

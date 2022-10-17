@@ -11,7 +11,6 @@
 #include <vector>
 
 namespace weak {
-namespace frontEnd {
 
 /// \brief Lexical analyzer.
 ///
@@ -64,7 +63,6 @@ private:
   unsigned CurrentColumnNo;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_LEXER_HPP

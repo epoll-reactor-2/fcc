@@ -11,7 +11,6 @@
 #include <memory>
 
 namespace weak {
-namespace frontEnd {
 
 class ASTVisitor;
 
@@ -31,7 +30,6 @@ protected:
   unsigned ColumnNo;
 };
 
-} // namespace frontEnd
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_NODE_HPP

@@ -6,9 +6,7 @@
 
 #include "FrontEnd/Lex/Token.hpp"
 
-using namespace weak::frontEnd;
-
-const char *weak::frontEnd::TokenToString(TokenType Type) {
+const char *weak::TokenToString(TokenType Type) {
   switch (Type) {
   case TokenType::BOOLEAN:
     return "<BOOLEAN>";
@@ -137,6 +135,8 @@ const char *weak::frontEnd::TokenToString(TokenType Type) {
   }
 }
 
+namespace weak {
+
 Token::Token(std::string TheData, TokenType TheType, unsigned TheLineNo,
              unsigned TheColumnNo)
     : Data(std::move(TheData)), Type(TheType), LineNo(TheLineNo),
@@ -147,3 +147,5 @@ bool Token::operator==(const Token &RHS) const {
 }
 
 bool Token::operator!=(const Token &RHS) const { return !(*this == RHS); }
+
+} // namespace weak
