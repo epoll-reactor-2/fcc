@@ -13,16 +13,7 @@ EXTRACT_ALL            = NO
 EXTRACT_ANON_NSPACES   = NO
 EXTRACT_STATIC         = NO
 INPUT                  = lib
-FILE_PATTERNS          = *.c \
-                         *.cc \
-                         *.cxx \
-                         *.cpp \
-                         *.c++ \
-                         *.ixx \
-                         *.ipp \
-                         *.i++ \
-                         *.inl \
-                         *.h \
+FILE_PATTERNS          = *.h \
                          *.hpp \
 
 SHOW_USED_FILES        = NO
