@@ -17,25 +17,17 @@ static std::string TypeToString(llvm::Type *T) {
 
 namespace weak {
 
-ScalarExprEmitter::ScalarExprEmitter(llvm::LLVMContext &TheIRCtx,
-                                     llvm::IRBuilder<> &TheIRBuilder)
-    : IRCtx(TheIRCtx), IRBuilder(TheIRBuilder) {}
+ScalarExprEmitter::ScalarExprEmitter(llvm::LLVMContext &C, llvm::IRBuilder<> &I)
+    : IRCtx(C), IRBuilder(I) {}
 
 llvm::Value *ScalarExprEmitter::EmitBinOp(const ASTNode *InformAST, TokenType T,
                                           llvm::Value *L, llvm::Value *R) {
-  bool IsFloatOperands = L->getType() == llvm::Type::getFloatTy(IRCtx);
-  bool IsIntegralOperands = false;
-  IsIntegralOperands |= (L->getType() == llvm::Type::getInt1Ty(IRCtx));
-  IsIntegralOperands |= (L->getType() == llvm::Type::getInt8Ty(IRCtx));
-  IsIntegralOperands |= (L->getType() == llvm::Type::getInt16Ty(IRCtx));
-  IsIntegralOperands |= (L->getType() == llvm::Type::getInt32Ty(IRCtx));
-  IsIntegralOperands |= (L->getType() == llvm::Type::getInt64Ty(IRCtx));
-  IsIntegralOperands |= (L->getType() == llvm::Type::getInt128Ty(IRCtx));
+  assert(L->getType() == R->getType());
 
-  if (IsIntegralOperands)
+  if (L->getType()->isIntegerTy())
     return EmitIntegralBinOp(InformAST, T, L, R);
 
-  if (IsFloatOperands)
+  if (L->getType()->isFloatTy())
     return EmitFloatBinOp(InformAST, T, L, R);
 
   weak::CompileError(InformAST)

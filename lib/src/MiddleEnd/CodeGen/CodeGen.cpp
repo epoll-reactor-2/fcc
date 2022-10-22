@@ -46,9 +46,9 @@ namespace {
 /// Create function header (without body) from AST.
 template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
 public:
-  FunctionBuilder(llvm::LLVMContext &TheCtx, llvm::Module &TheModule,
+  FunctionBuilder(llvm::LLVMContext &C, llvm::Module &M,
                   const ASTFunctionDeclOrPrototype *TheDecl)
-      : Ctx(TheCtx), Module(TheModule), Decl(TheDecl) {}
+      : Ctx(C), Module(M), Decl(TheDecl) {}
 
   llvm::Function *BuildSignature() {
     llvm::FunctionType *Signature = CreateSignature();
@@ -122,12 +122,12 @@ namespace weak {
 namespace {
 
 /// Create string literal (actually an array of 8-bit integers).
-class StringLiteralBuilder {
+class StringBuilder {
 public:
-  StringLiteralBuilder(llvm::LLVMContext &TheCtx, llvm::Module &TheModule)
-      : Ctx(TheCtx), Module(TheModule) {}
+  StringBuilder(llvm::Module &M, llvm::IRBuilder<> &I)
+      : Module(M), IRBuilder(I) {}
 
-  llvm::Constant *Build(std::string_view Data) {
+  llvm::Constant *BuildLiteral(std::string_view Data) {
     llvm::Constant *DataArray = CreateDataArray(Data);
 
     llvm::GlobalVariable *GlobalVar = new llvm::GlobalVariable(
@@ -135,7 +135,7 @@ public:
         llvm::GlobalVariable::ExternalLinkage, DataArray);
 
     return llvm::ConstantExpr::getBitCast(
-        GlobalVar, llvm::Type::getInt8Ty(Ctx)->getPointerTo());
+        GlobalVar, IRBuilder.getInt8Ty()->getPointerTo());
   }
 
 private:
@@ -143,29 +143,25 @@ private:
     llvm::SmallVector<llvm::Constant *> Chars;
     Chars.reserve(Data.size());
 
-    for (char C : Data) {
-      auto *CharConstantPtr =
-          llvm::ConstantInt::get(llvm::Type::getInt8Ty(Ctx), C);
-      Chars.push_back(CharConstantPtr);
-    }
+    for (char C : Data)
+      Chars.push_back(IRBuilder.getInt8(C));
+
     /// Since we are working with libc, we are expecting, that all strings
     /// will be ended with '\0'.
     Chars.push_back(CreateNullTerminator());
 
     size_t ArraySize = Chars.size();
     llvm::Constant *Array = llvm::ConstantArray::get(
-        llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), ArraySize),
+        llvm::ArrayType::get(IRBuilder.getInt8Ty(), ArraySize),
         std::move(Chars));
 
     return Array;
   }
 
-  llvm::Constant *CreateNullTerminator() {
-    return llvm::ConstantInt::getNullValue(llvm::Type::getInt8Ty(Ctx));
-  }
+  llvm::Constant *CreateNullTerminator() { return IRBuilder.getInt8('\0'); }
 
-  llvm::LLVMContext &Ctx;
   llvm::Module &Module;
+  llvm::IRBuilder<> &IRBuilder;
 };
 
 } // namespace
@@ -205,26 +201,6 @@ private:
 
 } // namespace
 
-namespace {
-
-// Create temporary alloca instruction. Used to generate function parameters.
-class TemporaryAllocaBuilder {
-public:
-  TemporaryAllocaBuilder(llvm::Function *TheFunc)
-      : Func(TheFunc),
-        CodeBuilder(&Func->getEntryBlock(), Func->getEntryBlock().begin()) {}
-
-  llvm::AllocaInst *Build(llvm::Type *Type, std::string_view Name) {
-    return CodeBuilder.CreateAlloca(Type, /*ArraySize=*/nullptr, Name);
-  }
-
-private:
-  llvm::Function *Func;
-  llvm::IRBuilder<> CodeBuilder;
-};
-
-} // namespace
-
 CodeGen::CodeGen(ASTNode *TheRoot)
     : Root(TheRoot), DeclStorage(), LastInstr(nullptr), LastArrayPtr(nullptr),
       IRCtx(), IRModule("LLVM Module", IRCtx), IRBuilder(IRCtx) {}
@@ -232,18 +208,15 @@ CodeGen::CodeGen(ASTNode *TheRoot)
 void CodeGen::CreateCode() { Root->Accept(this); }
 
 void CodeGen::Visit(const ASTBooleanLiteral *Stmt) {
-  llvm::APInt Int(/*numBits=*/1, Stmt->GetValue(), /*isSigned=*/true);
-  LastInstr = llvm::ConstantInt::get(IRCtx, Int);
+  LastInstr = IRBuilder.getInt1(Stmt->GetValue());
 }
 
 void CodeGen::Visit(const ASTCharLiteral *Stmt) {
-  llvm::APInt Int(/*numBits=*/8, Stmt->GetValue(), /*isSigned=*/true);
-  LastInstr = llvm::ConstantInt::get(IRCtx, Int);
+  LastInstr = IRBuilder.getInt8(Stmt->GetValue());
 }
 
 void CodeGen::Visit(const ASTIntegerLiteral *Stmt) {
-  llvm::APInt Int(/*numBits=*/32, Stmt->GetValue(), /*isSigned=*/true);
-  LastInstr = llvm::ConstantInt::get(IRCtx, Int);
+  LastInstr = IRBuilder.getInt32(Stmt->GetValue());
 }
 
 void CodeGen::Visit(const ASTFloatingPointLiteral *Stmt) {
@@ -252,8 +225,8 @@ void CodeGen::Visit(const ASTFloatingPointLiteral *Stmt) {
 }
 
 void CodeGen::Visit(const ASTStringLiteral *Stmt) {
-  StringLiteralBuilder Builder(IRCtx, IRModule);
-  LastInstr = Builder.Build(Stmt->GetValue());
+  StringBuilder Builder(IRModule, IRBuilder);
+  LastInstr = Builder.BuildLiteral(Stmt->GetValue());
 }
 
 static TokenType ResolveAssignmentOperation(TokenType T) {
@@ -343,10 +316,9 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
     break;
   default: {
     LastInstr = nullptr;
-    LastArrayPtr = nullptr;
 
-    weak::CompileError(Stmt)
-        << "Invalid binary operator `" << TokenToString(T) << "`";
+    weak::UnreachablePoint(
+        "Should not reach here. Operators are checked by parser.");
     break;
   }
   } // switch
@@ -364,10 +336,9 @@ void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
 
   Stmt->GetOperand()->Accept(this);
 
-  llvm::APInt Int(/*numBits=*/32, /*val=*/1, /*isSigned=*/false);
-  llvm::Value *Step = llvm::ConstantInt::get(IRCtx, Int);
+  llvm::Value *Step = IRBuilder.getInt32(1);
 
-  auto *SymbolOperand =
+  const auto *SymbolOperand =
       static_cast<const ASTSymbol *>(Stmt->GetOperand().get());
 
   switch (Stmt->GetOperation()) {
@@ -457,10 +428,8 @@ void CodeGen::Visit(const ASTIfStmt *Stmt) {
   llvm::Value *Condition = LastInstr;
 
   /// \todo: I am not sure if we should always compare with 0.
-  unsigned numBits = Condition->getType()->getPrimitiveSizeInBits();
-  Condition = IRBuilder.CreateICmpNE(
-      Condition, llvm::ConstantInt::get(IRCtx, llvm::APInt(numBits, 0, false)),
-      "condition");
+  unsigned NumBits = Condition->getType()->getPrimitiveSizeInBits();
+  Condition = IRBuilder.CreateICmpNE(Condition, IRBuilder.getIntN(NumBits, 0));
 
   llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
 
@@ -500,15 +469,12 @@ void CodeGen::Visit(const ASTFunctionDecl *Decl) {
   llvm::BasicBlock *CFGBlock = llvm::BasicBlock::Create(IRCtx, "entry", Func);
   IRBuilder.SetInsertPoint(CFGBlock);
 
-  TemporaryAllocaBuilder AllocaBuilder(Func);
-
   DeclStorage.StartScope();
 
   for (auto &Arg : Func->args()) {
-    llvm::AllocaInst *ArgValue =
-        AllocaBuilder.Build(Arg.getType(), Arg.getName().str());
-    IRBuilder.CreateStore(&Arg, ArgValue);
-    DeclStorage.Push(Arg.getName().str(), ArgValue);
+    auto *ArgAlloca = IRBuilder.CreateAlloca(Arg.getType());
+    IRBuilder.CreateStore(&Arg, ArgAlloca);
+    DeclStorage.Push(Arg.getName().str(), ArgAlloca);
   }
 
   Decl->GetBody()->Accept(this);
@@ -561,8 +527,8 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetSymbolName() << "` not found";
 
-  LastInstr = IRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue,
-                                   Stmt->GetSymbolName());
+  LastInstr =
+      IRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue);
 
   llvm::Value *Array = LastInstr;
   Stmt->GetIndex()->Accept(this);
@@ -574,7 +540,7 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
   weak::AssertNotOutOfRange(Stmt, SymbolValue, Index);
   /// If you have a question about this, please see
   /// https://llvm.org/docs/GetElementPtr.html.
-  llvm::Value *Zero = llvm::ConstantInt::get(IRCtx, llvm::APInt(32, 0, true));
+  llvm::Value *Zero = IRBuilder.getInt32(0);
 
   // \todo: Unary operators with values accesses through [] does not works.
   if (Array->getType()->isPointerTy()) {
@@ -598,14 +564,13 @@ void CodeGen::Visit(const ASTSymbol *Stmt) {
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->GetName() << "` not found";
 
-  llvm::Value *Zero = llvm::ConstantInt::get(IRCtx, llvm::APInt(32, 0, true));
-
-  if (SymbolValue->getAllocatedType()->isArrayTy())
+  if (SymbolValue->getAllocatedType()->isArrayTy()) {
+    llvm::Value *Zero = IRBuilder.getInt32(0);
     LastInstr = IRBuilder.CreateInBoundsGEP(SymbolValue->getAllocatedType(),
                                             SymbolValue, {Zero, Zero});
-  else
-    LastInstr = IRBuilder.CreateLoad(SymbolValue->getAllocatedType(),
-                                     SymbolValue, Stmt->GetName());
+  } else
+    LastInstr =
+        IRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue);
 }
 
 void CodeGen::Visit(const ASTCompoundStmt *Stmts) {
@@ -626,10 +591,7 @@ void CodeGen::Visit(const ASTReturnStmt *Stmt) {
 }
 
 void CodeGen::Visit(const ASTArrayDecl *Stmt) {
-  llvm::Function *Func = IRBuilder.GetInsertBlock()->getParent();
-
   TypeResolver TypeResolver(IRCtx);
-  TemporaryAllocaBuilder AllocaBuilder(Func);
 
   llvm::Type *UnderlyingType = TypeResolver.Resolve(Stmt->GetDataType());
   /// \todo: Temporarily we get only first dimension as parameter and don't
@@ -655,12 +617,11 @@ void CodeGen::Visit(const ASTVarDecl *Decl) {
     const auto *Literal =
         static_cast<ASTStringLiteral *>(Decl->GetDeclareBody().get());
     const unsigned NullTerminator = 1;
-    llvm::ArrayType *ArrayType =
-        llvm::ArrayType::get(llvm::Type::getInt8Ty(IRCtx),
-                             Literal->GetValue().size() + NullTerminator);
+    llvm::ArrayType *ArrayType = llvm::ArrayType::get(
+        IRBuilder.getInt8Ty(), Literal->GetValue().size() + NullTerminator);
     llvm::AllocaInst *Mem = IRBuilder.CreateAlloca(ArrayType);
     llvm::Value *CastedPtr =
-        IRBuilder.CreateBitCast(Mem, llvm::Type::getInt8PtrTy(IRCtx));
+        IRBuilder.CreateBitCast(Mem, IRBuilder.getInt8PtrTy());
     IRBuilder.CreateMemCpy(
         /*Dst=*/CastedPtr,
         /*DstAlign=*/llvm::MaybeAlign(1),
@@ -674,8 +635,7 @@ void CodeGen::Visit(const ASTVarDecl *Decl) {
 
   TypeResolver TypeResolver(IRCtx);
   llvm::AllocaInst *VarDecl = IRBuilder.CreateAlloca(
-      TypeResolver.ResolveExceptVoid(Decl->GetDataType()),
-      /*ArraySize=*/nullptr, Decl->GetSymbolName());
+      TypeResolver.ResolveExceptVoid(Decl->GetDataType()));
   IRBuilder.CreateStore(LastInstr, VarDecl);
   DeclStorage.Push(Decl->GetSymbolName(), VarDecl);
 }
