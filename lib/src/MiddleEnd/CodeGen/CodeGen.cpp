@@ -543,19 +543,17 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
   llvm::Value *Zero = IRBuilder.getInt32(0);
 
   // \todo: Unary operators with values accesses through [] does not works.
-  if (Array->getType()->isPointerTy()) {
-    /// This is for subscriptions of pointer type.
+  if (Array->getType()->isPointerTy())
+    /// Pointer.
     LastArrayPtr = IRBuilder.CreateInBoundsGEP(
         Array->getType()->getPointerElementType(), Array, Index);
-    LastInstr = IRBuilder.CreateLoad(Array->getType()->getPointerElementType(),
-                                     LastArrayPtr);
-  } else {
-    /// This is for subscriptions of array type.
+  else
+    /// Array.
     LastArrayPtr = IRBuilder.CreateInBoundsGEP(
         Array->getType(), llvm::getPointerOperand(Array), {Zero, Index});
-    LastInstr = IRBuilder.CreateLoad(
-        LastArrayPtr->getType()->getPointerElementType(), LastArrayPtr);
-  }
+
+  LastInstr = IRBuilder.CreateLoad(
+      LastArrayPtr->getType()->getPointerElementType(), LastArrayPtr);
 }
 
 void CodeGen::Visit(const ASTSymbol *Stmt) {
