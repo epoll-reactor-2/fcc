@@ -105,6 +105,10 @@ llvm::Value *ScalarExprEmitter::EmitFloatBinOp(const ASTNode *InformAST,
     return IRBuilder.CreateFCmpOEQ(L, R);
   case TokenType::NEQ:
     return IRBuilder.CreateFCmpONE(L, R);
+  case TokenType::OR:
+    return IRBuilder.CreateLogicalOr(L, R);
+  case TokenType::AND:
+    return IRBuilder.CreateLogicalAnd(L, R);
   default:
     weak::CompileError(InformAST)
         << "Cannot apply `" << TokenToString(T) << "` to floats";
