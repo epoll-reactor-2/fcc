@@ -10,11 +10,12 @@
 namespace weak {
 
 ASTUnaryOperator::ASTUnaryOperator(UnaryType ThePrefixOrPostfix,
-                                   TokenType TheOperation,
-                                   std::unique_ptr<ASTNode> &&TheOperand,
+                                   TokenType TheOperation, ASTNode *TheOperand,
                                    unsigned TheLineNo, unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), PrefixOrPostfix(ThePrefixOrPostfix),
-      Operation(TheOperation), Operand(std::move(TheOperand)) {}
+      Operation(TheOperation), Operand(TheOperand) {}
+
+ASTUnaryOperator::~ASTUnaryOperator() { delete Operand; }
 
 ASTType ASTUnaryOperator::GetASTType() const {
   return PrefixOrPostfix == UnaryType::POSTFIX ? ASTType::POSTFIX_UNARY
@@ -25,8 +26,6 @@ void ASTUnaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 TokenType ASTUnaryOperator::GetOperation() const { return Operation; }
 
-const std::unique_ptr<ASTNode> &ASTUnaryOperator::GetOperand() const {
-  return Operand;
-}
+ASTNode *ASTUnaryOperator::GetOperand() const { return Operand; }
 
 } // namespace weak

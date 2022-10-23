@@ -76,9 +76,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8c8e40836bcda016b457c28a045b1c63"><td class="memItemLeft" align="right" valign="top"><a id="a8c8e40836bcda016b457c28a045b1c63" name="a8c8e40836bcda016b457c28a045b1c63"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTBinaryOperator</b> (TokenType TheOperation, std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &amp;&amp;TheLHS, std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &amp;&amp;TheRHS, unsigned TheLineNo=0U, unsigned TheColumnNo=0U)</td></tr>
-<tr class="separator:a8c8e40836bcda016b457c28a045b1c63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade984501f4c8fb50b50b39371d3f2196"><td class="memItemLeft" align="right" valign="top"><a id="ade984501f4c8fb50b50b39371d3f2196" name="ade984501f4c8fb50b50b39371d3f2196"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTBinaryOperator</b> (TokenType TheOperation, <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *TheLHS, <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *TheRHS, unsigned TheLineNo=0U, unsigned TheColumnNo=0U)</td></tr>
+<tr class="separator:ade984501f4c8fb50b50b39371d3f2196"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4cde6a07cac9b711091f02bca13945d7"><td class="memItemLeft" align="right" valign="top">ASTType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTBinaryOperator.html#a4cde6a07cac9b711091f02bca13945d7">GetASTType</a> () const override</td></tr>
 <tr class="separator:a4cde6a07cac9b711091f02bca13945d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a927a902be7de802a37acd15b4385c62a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTBinaryOperator.html#a927a902be7de802a37acd15b4385c62a">Accept</a> (<a class="el" href="classweak_1_1ASTVisitor.html">ASTVisitor</a> *) override</td></tr>
@@ -86,18 +86,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aab375d9b598cf0531829c02ee0c73616"><td class="memItemLeft" align="right" valign="top"><a id="aab375d9b598cf0531829c02ee0c73616" name="aab375d9b598cf0531829c02ee0c73616"></a>
 TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>GetOperation</b> () const</td></tr>
 <tr class="separator:aab375d9b598cf0531829c02ee0c73616"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13443002549fcb9664f2451f3914d1c0"><td class="memItemLeft" align="right" valign="top"><a id="a13443002549fcb9664f2451f3914d1c0" name="a13443002549fcb9664f2451f3914d1c0"></a>
-const std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetLHS</b> () const</td></tr>
-<tr class="separator:a13443002549fcb9664f2451f3914d1c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea656c41a9f594b998196d47257572d0"><td class="memItemLeft" align="right" valign="top"><a id="aea656c41a9f594b998196d47257572d0" name="aea656c41a9f594b998196d47257572d0"></a>
-const std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetRHS</b> () const</td></tr>
-<tr class="separator:aea656c41a9f594b998196d47257572d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab019883cad36ea2d5bdd29788eddd51b"><td class="memItemLeft" align="right" valign="top"><a id="ab019883cad36ea2d5bdd29788eddd51b" name="ab019883cad36ea2d5bdd29788eddd51b"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &amp;&amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetLHS</b> ()</td></tr>
-<tr class="separator:ab019883cad36ea2d5bdd29788eddd51b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af271d95eeaef4158e59174b27592205c"><td class="memItemLeft" align="right" valign="top"><a id="af271d95eeaef4158e59174b27592205c" name="af271d95eeaef4158e59174b27592205c"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &amp;&amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetRHS</b> ()</td></tr>
-<tr class="separator:af271d95eeaef4158e59174b27592205c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6fdcd7078e05cc788f7084478616ba0"><td class="memItemLeft" align="right" valign="top"><a id="af6fdcd7078e05cc788f7084478616ba0" name="af6fdcd7078e05cc788f7084478616ba0"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetLHS</b> () const</td></tr>
+<tr class="separator:af6fdcd7078e05cc788f7084478616ba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6fae4152bdf84c0f62e89ecdbdaa0d2"><td class="memItemLeft" align="right" valign="top"><a id="ac6fae4152bdf84c0f62e89ecdbdaa0d2" name="ac6fae4152bdf84c0f62e89ecdbdaa0d2"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetRHS</b> () const</td></tr>
+<tr class="separator:ac6fae4152bdf84c0f62e89ecdbdaa0d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classweak_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classweak_1_1ASTNode')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classweak_1_1ASTNode.html">weak::ASTNode</a></td></tr>
 <tr class="memitem:aefc4ff141d40c2d0ae890613470bd5fa inherit pub_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="aefc4ff141d40c2d0ae890613470bd5fa" name="aefc4ff141d40c2d0ae890613470bd5fa"></a>
 virtual ASTType&#160;</td><td class="memItemRight" valign="bottom"><b>GetASTType</b> () const</td></tr>
@@ -117,12 +111,12 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a1f721dba702c75cc528eede7dbc60311"><td class="memItemLeft" align="right" valign="top"><a id="a1f721dba702c75cc528eede7dbc60311" name="a1f721dba702c75cc528eede7dbc60311"></a>
 TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>Operation</b></td></tr>
 <tr class="separator:a1f721dba702c75cc528eede7dbc60311"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab987ad225106aa0f7ade072b98e2dc1f"><td class="memItemLeft" align="right" valign="top"><a id="ab987ad225106aa0f7ade072b98e2dc1f" name="ab987ad225106aa0f7ade072b98e2dc1f"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>LHS</b></td></tr>
-<tr class="separator:ab987ad225106aa0f7ade072b98e2dc1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac8952f453bec125868c59a1df33e20b3"><td class="memItemLeft" align="right" valign="top"><a id="ac8952f453bec125868c59a1df33e20b3" name="ac8952f453bec125868c59a1df33e20b3"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>RHS</b></td></tr>
-<tr class="separator:ac8952f453bec125868c59a1df33e20b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6ff34fc79b7836bd8f9b7b697da1ed0"><td class="memItemLeft" align="right" valign="top"><a id="ad6ff34fc79b7836bd8f9b7b697da1ed0" name="ad6ff34fc79b7836bd8f9b7b697da1ed0"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>LHS</b></td></tr>
+<tr class="separator:ad6ff34fc79b7836bd8f9b7b697da1ed0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25ae0a1923172ad5da523b9f87c6e5e7"><td class="memItemLeft" align="right" valign="top"><a id="a25ae0a1923172ad5da523b9f87c6e5e7" name="a25ae0a1923172ad5da523b9f87c6e5e7"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>RHS</b></td></tr>
+<tr class="separator:a25ae0a1923172ad5da523b9f87c6e5e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>

@@ -8,24 +8,24 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_COMPOUND_STMT_HPP
 
 #include "FrontEnd/AST/ASTNode.hpp"
-#include <memory>
 #include <vector>
 
 namespace weak {
 
 class ASTCompoundStmt : public ASTNode {
 public:
-  ASTCompoundStmt(std::vector<std::unique_ptr<ASTNode>> &&stmts,
-                  unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+  ASTCompoundStmt(std::vector<ASTNode *> &&TheStmts, unsigned TheLineNo = 0U,
+                  unsigned TheColumnNo = 0U);
+
+  ~ASTCompoundStmt();
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
-  std::vector<std::unique_ptr<ASTNode>> &&GetStmts();
-  const std::vector<std::unique_ptr<ASTNode>> &GetStmts() const;
+  const std::vector<ASTNode *> &GetStmts() const;
 
 private:
-  std::vector<std::unique_ptr<ASTNode>> Stmts;
+  std::vector<ASTNode *> Stmts;
 };
 
 } // namespace weak

@@ -9,30 +9,21 @@
 
 namespace weak {
 
-ASTWhileStmt::ASTWhileStmt(std::unique_ptr<ASTNode> &&TheCondition,
-                           std::unique_ptr<ASTCompoundStmt> &&TheBody,
+ASTWhileStmt::ASTWhileStmt(ASTNode *TheCondition, ASTCompoundStmt *TheBody,
                            unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Condition(std::move(TheCondition)),
-      Body(std::move(TheBody)) {}
+    : ASTNode(TheLineNo, TheColumnNo), Condition(TheCondition), Body(TheBody) {}
+
+ASTWhileStmt::~ASTWhileStmt() {
+  delete Condition;
+  delete Body;
+}
 
 ASTType ASTWhileStmt::GetASTType() const { return ASTType::WHILE_STMT; }
 
 void ASTWhileStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-std::unique_ptr<ASTNode> &&ASTWhileStmt::GetCondition() {
-  return std::move(Condition);
-}
+ASTNode *ASTWhileStmt::GetCondition() const { return Condition; }
 
-const std::unique_ptr<ASTNode> &ASTWhileStmt::GetCondition() const {
-  return Condition;
-}
-
-std::unique_ptr<ASTCompoundStmt> &&ASTWhileStmt::GetBody() {
-  return std::move(Body);
-}
-
-const std::unique_ptr<ASTCompoundStmt> &ASTWhileStmt::GetBody() const {
-  return Body;
-}
+ASTCompoundStmt *ASTWhileStmt::GetBody() const { return Body; }
 
 } // namespace weak

@@ -14,21 +14,20 @@ namespace weak {
 
 class ASTDoWhileStmt : public ASTNode {
 public:
-  ASTDoWhileStmt(std::unique_ptr<ASTCompoundStmt> &&TheBody,
-                 std::unique_ptr<ASTNode> &&TheCondition,
+  ASTDoWhileStmt(ASTCompoundStmt *TheBody, ASTNode *TheCondition,
                  unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+
+  ~ASTDoWhileStmt();
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
-  std::unique_ptr<ASTCompoundStmt> &&GetBody();
-  const std::unique_ptr<ASTCompoundStmt> &GetBody() const;
-  std::unique_ptr<ASTNode> &&GetCondition();
-  const std::unique_ptr<ASTNode> &GetCondition() const;
+  ASTCompoundStmt *GetBody() const;
+  ASTNode *GetCondition() const;
 
 private:
-  std::unique_ptr<ASTCompoundStmt> Body;
-  std::unique_ptr<ASTNode> Condition;
+  ASTCompoundStmt *Body;
+  ASTNode *Condition;
 };
 
 } // namespace weak

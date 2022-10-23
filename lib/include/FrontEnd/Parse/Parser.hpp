@@ -9,6 +9,7 @@
 
 #include "FrontEnd/AST/ASTCompoundStmt.hpp"
 #include "FrontEnd/Lex/Token.hpp"
+#include <memory>
 #include <vector>
 
 namespace weak {
@@ -20,26 +21,31 @@ public:
   Parser(const Token *TheBufferStart, const Token *TheBufferEnd);
 
   /// Transform token stream to AST.
+  ///
+  /// \note Smart pointer is returned there to auto-cleanup
+  ///       AST by calling all destructors of compound statement
+  ///       down recursively. Of course, each AST node responsible
+  ///       to kill it's children.
   std::unique_ptr<ASTCompoundStmt> Parse();
 
 private:
   /// Function with or without body (prototype).
-  std::unique_ptr<ASTNode> ParseFunctionDecl();
+  ASTNode *ParseFunctionDecl();
 
   /// Function call with optional argument list.
-  std::unique_ptr<ASTNode> ParseFunctionCall();
+  ASTNode *ParseFunctionCall();
 
   /// Expressions like `int variable`. Used in function parameters.
-  std::unique_ptr<ASTNode> ParseVarDeclWithoutInitializer();
+  ASTNode *ParseVarDeclWithoutInitializer();
 
   /// Array declaration of any arity, beginning from 1.
-  std::unique_ptr<ASTNode> ParseArrayDecl();
+  ASTNode *ParseArrayDecl();
 
   /// < id > [ < expression > ].
-  std::unique_ptr<ASTNode> ParseArrayAccessOperator();
+  ASTNode *ParseArrayAccessOperator();
 
   /// Variable declaration with initializer.
-  std::unique_ptr<ASTNode> ParseVarDecl();
+  ASTNode *ParseVarDecl();
 
   /// Int, float, char, string, bool.
   const Token &ParseType();
@@ -48,77 +54,77 @@ private:
   const Token &ParseReturnType();
 
   /// < type > < id > | < type > < id > [ < integral-literal > ].
-  std::unique_ptr<ASTNode> ParseParameter();
+  ASTNode *ParseParameter();
 
   /// ( (< type > < id > ,?)* ).
-  std::vector<std::unique_ptr<ASTNode>> ParseParameterList();
+  std::vector<ASTNode *> ParseParameterList();
 
   /// { < iteration-stmt >* }.
-  std::unique_ptr<ASTCompoundStmt> ParseBlock();
+  ASTCompoundStmt *ParseBlock();
 
   /// Block of code with break and continue statements.
-  std::unique_ptr<ASTCompoundStmt> ParseIterationStmtBlock();
+  ASTCompoundStmt *ParseIterationStmtBlock();
 
   /// Selection, iterative, jump, assignment statement
   /// or unary/binary operator.
-  std::unique_ptr<ASTNode> ParseStatement();
+  ASTNode *ParseStatement();
 
   /// If statement.
-  std::unique_ptr<ASTNode> ParseSelectionStatement();
+  ASTNode *ParseSelectionStatement();
 
   /// For, while or do-while statement.
-  std::unique_ptr<ASTNode> ParseIterationStatement();
+  ASTNode *ParseIterationStatement();
 
-  std::unique_ptr<ASTNode> ParseForStatement();
+  ASTNode *ParseForStatement();
 
-  std::unique_ptr<ASTNode> ParseWhileStatement();
+  ASTNode *ParseWhileStatement();
 
-  std::unique_ptr<ASTNode> ParseDoWhileStatement();
+  ASTNode *ParseDoWhileStatement();
 
   /// ParseStatement, break and continue statements.
-  std::unique_ptr<ASTNode> ParseLoopStatement();
+  ASTNode *ParseLoopStatement();
 
   /// Return statement.
-  std::unique_ptr<ASTNode> ParseJumpStatement();
+  ASTNode *ParseJumpStatement();
 
   /// Unary/binary statement, literal, symbol, assignment, variable declaration
   /// or function call.
-  std::unique_ptr<ASTNode> ParseExpression();
+  ASTNode *ParseExpression();
 
-  std::unique_ptr<ASTNode> ParseAssignment();
+  ASTNode *ParseAssignment();
 
-  std::unique_ptr<ASTNode> ParseLogicalOr();
+  ASTNode *ParseLogicalOr();
 
-  std::unique_ptr<ASTNode> ParseLogicalAnd();
+  ASTNode *ParseLogicalAnd();
 
-  std::unique_ptr<ASTNode> ParseInclusiveOr();
+  ASTNode *ParseInclusiveOr();
 
-  std::unique_ptr<ASTNode> ParseExclusiveOr();
+  ASTNode *ParseExclusiveOr();
 
-  std::unique_ptr<ASTNode> ParseAnd();
+  ASTNode *ParseAnd();
 
-  std::unique_ptr<ASTNode> ParseEquality();
+  ASTNode *ParseEquality();
 
-  std::unique_ptr<ASTNode> ParseRelational();
+  ASTNode *ParseRelational();
 
-  std::unique_ptr<ASTNode> ParseShift();
+  ASTNode *ParseShift();
 
-  std::unique_ptr<ASTNode> ParseAdditive();
+  ASTNode *ParseAdditive();
 
-  std::unique_ptr<ASTNode> ParseMultiplicative();
+  ASTNode *ParseMultiplicative();
 
-  std::unique_ptr<ASTNode> ParsePrefixUnary();
+  ASTNode *ParsePrefixUnary();
 
-  std::unique_ptr<ASTNode> ParsePostfixUnary();
+  ASTNode *ParsePostfixUnary();
 
   /// Symbol, function call or array access.
-  std::unique_ptr<ASTNode> ParseSymbolProduction();
+  ASTNode *ParseSymbolProduction();
 
   /// Symbol, parentheses expression or constant.
-  std::unique_ptr<ASTNode> ParsePrimary();
+  ASTNode *ParsePrimary();
 
   /// Integral, floating-point, string or boolean literal.
-  std::unique_ptr<ASTNode> ParseConstant();
+  ASTNode *ParseConstant();
 
   /// Get current token from input range and move forward.
   const Token &PeekNext();

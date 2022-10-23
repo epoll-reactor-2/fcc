@@ -15,19 +15,20 @@ namespace weak {
 
 class ASTFunctionCall : public ASTNode {
 public:
-  ASTFunctionCall(std::string &&TheName,
-                  std::vector<std::unique_ptr<ASTNode>> &&TheArguments,
+  ASTFunctionCall(std::string &&TheName, std::vector<ASTNode *> &&TheArguments,
                   unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+
+  ~ASTFunctionCall();
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   const std::string &GetName() const;
-  const std::vector<std::unique_ptr<ASTNode>> &GetArguments() const;
+  const std::vector<ASTNode *> &GetArguments() const;
 
 private:
   std::string Name;
-  std::vector<std::unique_ptr<ASTNode>> Arguments;
+  std::vector<ASTNode *> Arguments;
 };
 
 } // namespace weak

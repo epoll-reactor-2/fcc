@@ -84,37 +84,35 @@ $(function() {
 Public Member Functions</h2></td></tr>
 <tr class="memitem:abcac5a45e6a30697826b02960425336b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#abcac5a45e6a30697826b02960425336b">Parser</a> (const <a class="el" href="structweak_1_1Token.html">Token</a> *TheBufferStart, const <a class="el" href="structweak_1_1Token.html">Token</a> *TheBufferEnd)</td></tr>
 <tr class="separator:abcac5a45e6a30697826b02960425336b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf6c948822555072f3287e6b6d2fb21d"><td class="memItemLeft" align="right" valign="top"><a id="abf6c948822555072f3287e6b6d2fb21d" name="abf6c948822555072f3287e6b6d2fb21d"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Parse</b> ()</td></tr>
-<tr class="memdesc:abf6c948822555072f3287e6b6d2fb21d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transform token stream to AST. <br /></td></tr>
+<tr class="memitem:abf6c948822555072f3287e6b6d2fb21d"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#abf6c948822555072f3287e6b6d2fb21d">Parse</a> ()</td></tr>
 <tr class="separator:abf6c948822555072f3287e6b6d2fb21d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:af3d2aa523fac52dfa3ec75d04a7ce9b2"><td class="memItemLeft" align="right" valign="top"><a id="af3d2aa523fac52dfa3ec75d04a7ce9b2" name="af3d2aa523fac52dfa3ec75d04a7ce9b2"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseFunctionDecl</b> ()</td></tr>
-<tr class="memdesc:af3d2aa523fac52dfa3ec75d04a7ce9b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function with or without body (prototype). <br /></td></tr>
-<tr class="separator:af3d2aa523fac52dfa3ec75d04a7ce9b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add41f51b3141173f0914a1ea2ed19cef"><td class="memItemLeft" align="right" valign="top"><a id="add41f51b3141173f0914a1ea2ed19cef" name="add41f51b3141173f0914a1ea2ed19cef"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseFunctionCall</b> ()</td></tr>
-<tr class="memdesc:add41f51b3141173f0914a1ea2ed19cef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function call with optional argument list. <br /></td></tr>
-<tr class="separator:add41f51b3141173f0914a1ea2ed19cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a01e3818f9dabe521fda5fd40d0f003c5"><td class="memItemLeft" align="right" valign="top"><a id="a01e3818f9dabe521fda5fd40d0f003c5" name="a01e3818f9dabe521fda5fd40d0f003c5"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseVarDeclWithoutInitializer</b> ()</td></tr>
-<tr class="memdesc:a01e3818f9dabe521fda5fd40d0f003c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expressions like <code>int variable</code>. Used in function parameters. <br /></td></tr>
-<tr class="separator:a01e3818f9dabe521fda5fd40d0f003c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaafd8903127ff9f38baf61765faf1c95"><td class="memItemLeft" align="right" valign="top"><a id="aaafd8903127ff9f38baf61765faf1c95" name="aaafd8903127ff9f38baf61765faf1c95"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseArrayDecl</b> ()</td></tr>
-<tr class="memdesc:aaafd8903127ff9f38baf61765faf1c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array declaration of any arity, beginning from 1. <br /></td></tr>
-<tr class="separator:aaafd8903127ff9f38baf61765faf1c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e7692caccd2e583b72f238cf4d49285"><td class="memItemLeft" align="right" valign="top"><a id="a3e7692caccd2e583b72f238cf4d49285" name="a3e7692caccd2e583b72f238cf4d49285"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseArrayAccessOperator</b> ()</td></tr>
-<tr class="memdesc:a3e7692caccd2e583b72f238cf4d49285"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; id &gt; [ &lt; expression &gt; ]. <br /></td></tr>
-<tr class="separator:a3e7692caccd2e583b72f238cf4d49285"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08ff95842887d5cac9c7227353e9d6e7"><td class="memItemLeft" align="right" valign="top"><a id="a08ff95842887d5cac9c7227353e9d6e7" name="a08ff95842887d5cac9c7227353e9d6e7"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseVarDecl</b> ()</td></tr>
-<tr class="memdesc:a08ff95842887d5cac9c7227353e9d6e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variable declaration with initializer. <br /></td></tr>
-<tr class="separator:a08ff95842887d5cac9c7227353e9d6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6d0918444c77ac4b6136add8d177de2"><td class="memItemLeft" align="right" valign="top"><a id="ad6d0918444c77ac4b6136add8d177de2" name="ad6d0918444c77ac4b6136add8d177de2"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseFunctionDecl</b> ()</td></tr>
+<tr class="memdesc:ad6d0918444c77ac4b6136add8d177de2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function with or without body (prototype). <br /></td></tr>
+<tr class="separator:ad6d0918444c77ac4b6136add8d177de2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b0331b6ff0d67cfec8f9790cc33df33"><td class="memItemLeft" align="right" valign="top"><a id="a6b0331b6ff0d67cfec8f9790cc33df33" name="a6b0331b6ff0d67cfec8f9790cc33df33"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseFunctionCall</b> ()</td></tr>
+<tr class="memdesc:a6b0331b6ff0d67cfec8f9790cc33df33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function call with optional argument list. <br /></td></tr>
+<tr class="separator:a6b0331b6ff0d67cfec8f9790cc33df33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9cc55801ce5dcff4e769e342301eada"><td class="memItemLeft" align="right" valign="top"><a id="ad9cc55801ce5dcff4e769e342301eada" name="ad9cc55801ce5dcff4e769e342301eada"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseVarDeclWithoutInitializer</b> ()</td></tr>
+<tr class="memdesc:ad9cc55801ce5dcff4e769e342301eada"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expressions like <code>int variable</code>. Used in function parameters. <br /></td></tr>
+<tr class="separator:ad9cc55801ce5dcff4e769e342301eada"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f8d3770a87f390c043fd97664bd9c20"><td class="memItemLeft" align="right" valign="top"><a id="a9f8d3770a87f390c043fd97664bd9c20" name="a9f8d3770a87f390c043fd97664bd9c20"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseArrayDecl</b> ()</td></tr>
+<tr class="memdesc:a9f8d3770a87f390c043fd97664bd9c20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array declaration of any arity, beginning from 1. <br /></td></tr>
+<tr class="separator:a9f8d3770a87f390c043fd97664bd9c20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4886b798c6cbeb5186c7ba53e7de053c"><td class="memItemLeft" align="right" valign="top"><a id="a4886b798c6cbeb5186c7ba53e7de053c" name="a4886b798c6cbeb5186c7ba53e7de053c"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseArrayAccessOperator</b> ()</td></tr>
+<tr class="memdesc:a4886b798c6cbeb5186c7ba53e7de053c"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; id &gt; [ &lt; expression &gt; ]. <br /></td></tr>
+<tr class="separator:a4886b798c6cbeb5186c7ba53e7de053c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abffcd928548c885327d506df344688dc"><td class="memItemLeft" align="right" valign="top"><a id="abffcd928548c885327d506df344688dc" name="abffcd928548c885327d506df344688dc"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseVarDecl</b> ()</td></tr>
+<tr class="memdesc:abffcd928548c885327d506df344688dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variable declaration with initializer. <br /></td></tr>
+<tr class="separator:abffcd928548c885327d506df344688dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b2199184bf6516daa7fe45bf5b30a5b"><td class="memItemLeft" align="right" valign="top"><a id="a6b2199184bf6516daa7fe45bf5b30a5b" name="a6b2199184bf6516daa7fe45bf5b30a5b"></a>
 const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseType</b> ()</td></tr>
 <tr class="memdesc:a6b2199184bf6516daa7fe45bf5b30a5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Int, float, char, string, bool. <br /></td></tr>
@@ -123,102 +121,102 @@ const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><t
 const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseReturnType</b> ()</td></tr>
 <tr class="memdesc:a2351182938ba01eb7f349b158630e0cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">All from <a class="el" href="classweak_1_1Parser.html#a6b2199184bf6516daa7fe45bf5b30a5b" title="Int, float, char, string, bool.">ParseType()</a> or void. <br /></td></tr>
 <tr class="separator:a2351182938ba01eb7f349b158630e0cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81451d2249cec5bcb7ab3ae7474d5e09"><td class="memItemLeft" align="right" valign="top"><a id="a81451d2249cec5bcb7ab3ae7474d5e09" name="a81451d2249cec5bcb7ab3ae7474d5e09"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseParameter</b> ()</td></tr>
-<tr class="memdesc:a81451d2249cec5bcb7ab3ae7474d5e09"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; type &gt; &lt; id &gt; | &lt; type &gt; &lt; id &gt; [ &lt; integral-literal &gt; ]. <br /></td></tr>
-<tr class="separator:a81451d2249cec5bcb7ab3ae7474d5e09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae39c256715b281b82b9fcbe0de28c436"><td class="memItemLeft" align="right" valign="top"><a id="ae39c256715b281b82b9fcbe0de28c436" name="ae39c256715b281b82b9fcbe0de28c436"></a>
-std::vector&lt; std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseParameterList</b> ()</td></tr>
-<tr class="memdesc:ae39c256715b281b82b9fcbe0de28c436"><td class="mdescLeft">&#160;</td><td class="mdescRight">( (&lt; type &gt; &lt; id &gt; ,?)* ). <br /></td></tr>
-<tr class="separator:ae39c256715b281b82b9fcbe0de28c436"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a676cba4114e2dea3b98a567cd831fc22"><td class="memItemLeft" align="right" valign="top"><a id="a676cba4114e2dea3b98a567cd831fc22" name="a676cba4114e2dea3b98a567cd831fc22"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseBlock</b> ()</td></tr>
-<tr class="memdesc:a676cba4114e2dea3b98a567cd831fc22"><td class="mdescLeft">&#160;</td><td class="mdescRight">{ &lt; iteration-stmt &gt;* }. <br /></td></tr>
-<tr class="separator:a676cba4114e2dea3b98a567cd831fc22"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae01381082a8dfb05bf1bf725495fb11b"><td class="memItemLeft" align="right" valign="top"><a id="ae01381082a8dfb05bf1bf725495fb11b" name="ae01381082a8dfb05bf1bf725495fb11b"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseIterationStmtBlock</b> ()</td></tr>
-<tr class="memdesc:ae01381082a8dfb05bf1bf725495fb11b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Block of code with break and continue statements. <br /></td></tr>
-<tr class="separator:ae01381082a8dfb05bf1bf725495fb11b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a727f551538b0e67ab1ad3a53855580a6"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#a727f551538b0e67ab1ad3a53855580a6">ParseStatement</a> ()</td></tr>
-<tr class="separator:a727f551538b0e67ab1ad3a53855580a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a591c215dd541f730ae571f2d39abfbd4"><td class="memItemLeft" align="right" valign="top"><a id="a591c215dd541f730ae571f2d39abfbd4" name="a591c215dd541f730ae571f2d39abfbd4"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseSelectionStatement</b> ()</td></tr>
-<tr class="memdesc:a591c215dd541f730ae571f2d39abfbd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">If statement. <br /></td></tr>
-<tr class="separator:a591c215dd541f730ae571f2d39abfbd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0845669db6f838d4f49c8081cdeacfd"><td class="memItemLeft" align="right" valign="top"><a id="af0845669db6f838d4f49c8081cdeacfd" name="af0845669db6f838d4f49c8081cdeacfd"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseIterationStatement</b> ()</td></tr>
-<tr class="memdesc:af0845669db6f838d4f49c8081cdeacfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">For, while or do-while statement. <br /></td></tr>
-<tr class="separator:af0845669db6f838d4f49c8081cdeacfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91d481ad342e857766aa7650a0090bfc"><td class="memItemLeft" align="right" valign="top"><a id="a91d481ad342e857766aa7650a0090bfc" name="a91d481ad342e857766aa7650a0090bfc"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseForStatement</b> ()</td></tr>
-<tr class="separator:a91d481ad342e857766aa7650a0090bfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:accb90153ff98f070c4d3cff9e963d6cb"><td class="memItemLeft" align="right" valign="top"><a id="accb90153ff98f070c4d3cff9e963d6cb" name="accb90153ff98f070c4d3cff9e963d6cb"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseWhileStatement</b> ()</td></tr>
-<tr class="separator:accb90153ff98f070c4d3cff9e963d6cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afae02596272760447e4f60db4001ca32"><td class="memItemLeft" align="right" valign="top"><a id="afae02596272760447e4f60db4001ca32" name="afae02596272760447e4f60db4001ca32"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseDoWhileStatement</b> ()</td></tr>
-<tr class="separator:afae02596272760447e4f60db4001ca32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37a9fc94d70f5bba296d73abc764f324"><td class="memItemLeft" align="right" valign="top"><a id="a37a9fc94d70f5bba296d73abc764f324" name="a37a9fc94d70f5bba296d73abc764f324"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseLoopStatement</b> ()</td></tr>
-<tr class="memdesc:a37a9fc94d70f5bba296d73abc764f324"><td class="mdescLeft">&#160;</td><td class="mdescRight">ParseStatement, break and continue statements. <br /></td></tr>
-<tr class="separator:a37a9fc94d70f5bba296d73abc764f324"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a394e9d7615d211f7cb25e243445e6546"><td class="memItemLeft" align="right" valign="top"><a id="a394e9d7615d211f7cb25e243445e6546" name="a394e9d7615d211f7cb25e243445e6546"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseJumpStatement</b> ()</td></tr>
-<tr class="memdesc:a394e9d7615d211f7cb25e243445e6546"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return statement. <br /></td></tr>
-<tr class="separator:a394e9d7615d211f7cb25e243445e6546"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfcdc3ef664c83def3d289d188785660"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#adfcdc3ef664c83def3d289d188785660">ParseExpression</a> ()</td></tr>
-<tr class="separator:adfcdc3ef664c83def3d289d188785660"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e6e11f7ef2f5686747b3ce6f7e93afc"><td class="memItemLeft" align="right" valign="top"><a id="a2e6e11f7ef2f5686747b3ce6f7e93afc" name="a2e6e11f7ef2f5686747b3ce6f7e93afc"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseAssignment</b> ()</td></tr>
-<tr class="separator:a2e6e11f7ef2f5686747b3ce6f7e93afc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa865cdd98f67dcb0996db3b71240225d"><td class="memItemLeft" align="right" valign="top"><a id="aa865cdd98f67dcb0996db3b71240225d" name="aa865cdd98f67dcb0996db3b71240225d"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseLogicalOr</b> ()</td></tr>
-<tr class="separator:aa865cdd98f67dcb0996db3b71240225d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4072b0298f90af0cc50a63a5dd9ce18"><td class="memItemLeft" align="right" valign="top"><a id="aa4072b0298f90af0cc50a63a5dd9ce18" name="aa4072b0298f90af0cc50a63a5dd9ce18"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseLogicalAnd</b> ()</td></tr>
-<tr class="separator:aa4072b0298f90af0cc50a63a5dd9ce18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a924abb325a9808b537b716b14637f9f2"><td class="memItemLeft" align="right" valign="top"><a id="a924abb325a9808b537b716b14637f9f2" name="a924abb325a9808b537b716b14637f9f2"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseInclusiveOr</b> ()</td></tr>
-<tr class="separator:a924abb325a9808b537b716b14637f9f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4acfc466705c2b341f129dc7c9fe14ae"><td class="memItemLeft" align="right" valign="top"><a id="a4acfc466705c2b341f129dc7c9fe14ae" name="a4acfc466705c2b341f129dc7c9fe14ae"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseExclusiveOr</b> ()</td></tr>
-<tr class="separator:a4acfc466705c2b341f129dc7c9fe14ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:addc8ed12bc744c2bf68e20cfb9b1c9f5"><td class="memItemLeft" align="right" valign="top"><a id="addc8ed12bc744c2bf68e20cfb9b1c9f5" name="addc8ed12bc744c2bf68e20cfb9b1c9f5"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseAnd</b> ()</td></tr>
-<tr class="separator:addc8ed12bc744c2bf68e20cfb9b1c9f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af46ad8c97458240d58008a35d0cbeea6"><td class="memItemLeft" align="right" valign="top"><a id="af46ad8c97458240d58008a35d0cbeea6" name="af46ad8c97458240d58008a35d0cbeea6"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseEquality</b> ()</td></tr>
-<tr class="separator:af46ad8c97458240d58008a35d0cbeea6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1a2c85539dc0a05932ab13951908b01"><td class="memItemLeft" align="right" valign="top"><a id="ac1a2c85539dc0a05932ab13951908b01" name="ac1a2c85539dc0a05932ab13951908b01"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseRelational</b> ()</td></tr>
-<tr class="separator:ac1a2c85539dc0a05932ab13951908b01"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29b03700de7082f78301492c48da2ea5"><td class="memItemLeft" align="right" valign="top"><a id="a29b03700de7082f78301492c48da2ea5" name="a29b03700de7082f78301492c48da2ea5"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseShift</b> ()</td></tr>
-<tr class="separator:a29b03700de7082f78301492c48da2ea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93e87e21efd70702e41b0c76a7eb49a6"><td class="memItemLeft" align="right" valign="top"><a id="a93e87e21efd70702e41b0c76a7eb49a6" name="a93e87e21efd70702e41b0c76a7eb49a6"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseAdditive</b> ()</td></tr>
-<tr class="separator:a93e87e21efd70702e41b0c76a7eb49a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaeb3d018960f03be938ad85f04ad76f8"><td class="memItemLeft" align="right" valign="top"><a id="aaeb3d018960f03be938ad85f04ad76f8" name="aaeb3d018960f03be938ad85f04ad76f8"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseMultiplicative</b> ()</td></tr>
-<tr class="separator:aaeb3d018960f03be938ad85f04ad76f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf1bd7097268dbe58e71095a2511b997"><td class="memItemLeft" align="right" valign="top"><a id="adf1bd7097268dbe58e71095a2511b997" name="adf1bd7097268dbe58e71095a2511b997"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParsePrefixUnary</b> ()</td></tr>
-<tr class="separator:adf1bd7097268dbe58e71095a2511b997"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81118b8fda28663331b471b1623dbc8e"><td class="memItemLeft" align="right" valign="top"><a id="a81118b8fda28663331b471b1623dbc8e" name="a81118b8fda28663331b471b1623dbc8e"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParsePostfixUnary</b> ()</td></tr>
-<tr class="separator:a81118b8fda28663331b471b1623dbc8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a418a04de89ad7183235c9ec541d21ce4"><td class="memItemLeft" align="right" valign="top"><a id="a418a04de89ad7183235c9ec541d21ce4" name="a418a04de89ad7183235c9ec541d21ce4"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseSymbolProduction</b> ()</td></tr>
-<tr class="memdesc:a418a04de89ad7183235c9ec541d21ce4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Symbol, function call or array access. <br /></td></tr>
-<tr class="separator:a418a04de89ad7183235c9ec541d21ce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd79634539501577b10c2d284e9c9aa2"><td class="memItemLeft" align="right" valign="top"><a id="acd79634539501577b10c2d284e9c9aa2" name="acd79634539501577b10c2d284e9c9aa2"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParsePrimary</b> ()</td></tr>
-<tr class="memdesc:acd79634539501577b10c2d284e9c9aa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Symbol, parentheses expression or constant. <br /></td></tr>
-<tr class="separator:acd79634539501577b10c2d284e9c9aa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0637a4eca4d742208a373b515f2a18d2"><td class="memItemLeft" align="right" valign="top"><a id="a0637a4eca4d742208a373b515f2a18d2" name="a0637a4eca4d742208a373b515f2a18d2"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseConstant</b> ()</td></tr>
-<tr class="memdesc:a0637a4eca4d742208a373b515f2a18d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integral, floating-point, string or boolean literal. <br /></td></tr>
-<tr class="separator:a0637a4eca4d742208a373b515f2a18d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a158b5ce95aa131319bbff0c7240a8c5d"><td class="memItemLeft" align="right" valign="top"><a id="a158b5ce95aa131319bbff0c7240a8c5d" name="a158b5ce95aa131319bbff0c7240a8c5d"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseParameter</b> ()</td></tr>
+<tr class="memdesc:a158b5ce95aa131319bbff0c7240a8c5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; type &gt; &lt; id &gt; | &lt; type &gt; &lt; id &gt; [ &lt; integral-literal &gt; ]. <br /></td></tr>
+<tr class="separator:a158b5ce95aa131319bbff0c7240a8c5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2a8f3c1fb22a03aa4202e4e0696992f"><td class="memItemLeft" align="right" valign="top"><a id="ae2a8f3c1fb22a03aa4202e4e0696992f" name="ae2a8f3c1fb22a03aa4202e4e0696992f"></a>
+std::vector&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseParameterList</b> ()</td></tr>
+<tr class="memdesc:ae2a8f3c1fb22a03aa4202e4e0696992f"><td class="mdescLeft">&#160;</td><td class="mdescRight">( (&lt; type &gt; &lt; id &gt; ,?)* ). <br /></td></tr>
+<tr class="separator:ae2a8f3c1fb22a03aa4202e4e0696992f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8315769fafcae6d48d55077b65e55e12"><td class="memItemLeft" align="right" valign="top"><a id="a8315769fafcae6d48d55077b65e55e12" name="a8315769fafcae6d48d55077b65e55e12"></a>
+<a class="el" href="classweak_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseBlock</b> ()</td></tr>
+<tr class="memdesc:a8315769fafcae6d48d55077b65e55e12"><td class="mdescLeft">&#160;</td><td class="mdescRight">{ &lt; iteration-stmt &gt;* }. <br /></td></tr>
+<tr class="separator:a8315769fafcae6d48d55077b65e55e12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1257ee3e4f8f4567ae6f22068564b5ea"><td class="memItemLeft" align="right" valign="top"><a id="a1257ee3e4f8f4567ae6f22068564b5ea" name="a1257ee3e4f8f4567ae6f22068564b5ea"></a>
+<a class="el" href="classweak_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseIterationStmtBlock</b> ()</td></tr>
+<tr class="memdesc:a1257ee3e4f8f4567ae6f22068564b5ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Block of code with break and continue statements. <br /></td></tr>
+<tr class="separator:a1257ee3e4f8f4567ae6f22068564b5ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8afbfdabae14bca3cdb86c02ef7f9b3a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#a8afbfdabae14bca3cdb86c02ef7f9b3a">ParseStatement</a> ()</td></tr>
+<tr class="separator:a8afbfdabae14bca3cdb86c02ef7f9b3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabb8ce00c203a3202fd23fb48e2513f5"><td class="memItemLeft" align="right" valign="top"><a id="aabb8ce00c203a3202fd23fb48e2513f5" name="aabb8ce00c203a3202fd23fb48e2513f5"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseSelectionStatement</b> ()</td></tr>
+<tr class="memdesc:aabb8ce00c203a3202fd23fb48e2513f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">If statement. <br /></td></tr>
+<tr class="separator:aabb8ce00c203a3202fd23fb48e2513f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae47e6ea5972e60b866ff96a765108ec1"><td class="memItemLeft" align="right" valign="top"><a id="ae47e6ea5972e60b866ff96a765108ec1" name="ae47e6ea5972e60b866ff96a765108ec1"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseIterationStatement</b> ()</td></tr>
+<tr class="memdesc:ae47e6ea5972e60b866ff96a765108ec1"><td class="mdescLeft">&#160;</td><td class="mdescRight">For, while or do-while statement. <br /></td></tr>
+<tr class="separator:ae47e6ea5972e60b866ff96a765108ec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab84ea68d6e2d590b599c2aa7dc4615eb"><td class="memItemLeft" align="right" valign="top"><a id="ab84ea68d6e2d590b599c2aa7dc4615eb" name="ab84ea68d6e2d590b599c2aa7dc4615eb"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseForStatement</b> ()</td></tr>
+<tr class="separator:ab84ea68d6e2d590b599c2aa7dc4615eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaee1990e5a1063db5245b9e4394ebbc1"><td class="memItemLeft" align="right" valign="top"><a id="aaee1990e5a1063db5245b9e4394ebbc1" name="aaee1990e5a1063db5245b9e4394ebbc1"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseWhileStatement</b> ()</td></tr>
+<tr class="separator:aaee1990e5a1063db5245b9e4394ebbc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adde8a2ec78020b0d14f89ca2719b4065"><td class="memItemLeft" align="right" valign="top"><a id="adde8a2ec78020b0d14f89ca2719b4065" name="adde8a2ec78020b0d14f89ca2719b4065"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseDoWhileStatement</b> ()</td></tr>
+<tr class="separator:adde8a2ec78020b0d14f89ca2719b4065"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4347503bed5c2275a1fe3e7531c1becf"><td class="memItemLeft" align="right" valign="top"><a id="a4347503bed5c2275a1fe3e7531c1becf" name="a4347503bed5c2275a1fe3e7531c1becf"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseLoopStatement</b> ()</td></tr>
+<tr class="memdesc:a4347503bed5c2275a1fe3e7531c1becf"><td class="mdescLeft">&#160;</td><td class="mdescRight">ParseStatement, break and continue statements. <br /></td></tr>
+<tr class="separator:a4347503bed5c2275a1fe3e7531c1becf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad7916189ff7ae93c7d2bf0d504cf200"><td class="memItemLeft" align="right" valign="top"><a id="aad7916189ff7ae93c7d2bf0d504cf200" name="aad7916189ff7ae93c7d2bf0d504cf200"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseJumpStatement</b> ()</td></tr>
+<tr class="memdesc:aad7916189ff7ae93c7d2bf0d504cf200"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return statement. <br /></td></tr>
+<tr class="separator:aad7916189ff7ae93c7d2bf0d504cf200"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a476772cff6009c97ca5889e785d179d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#a476772cff6009c97ca5889e785d179d6">ParseExpression</a> ()</td></tr>
+<tr class="separator:a476772cff6009c97ca5889e785d179d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac061740b3a192afa982339c6d5496c4a"><td class="memItemLeft" align="right" valign="top"><a id="ac061740b3a192afa982339c6d5496c4a" name="ac061740b3a192afa982339c6d5496c4a"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseAssignment</b> ()</td></tr>
+<tr class="separator:ac061740b3a192afa982339c6d5496c4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e1b0aab423aeb0f52411efb71f44a66"><td class="memItemLeft" align="right" valign="top"><a id="a2e1b0aab423aeb0f52411efb71f44a66" name="a2e1b0aab423aeb0f52411efb71f44a66"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseLogicalOr</b> ()</td></tr>
+<tr class="separator:a2e1b0aab423aeb0f52411efb71f44a66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5e0febb3c6d9e948be6a3d2a1b9dfc6"><td class="memItemLeft" align="right" valign="top"><a id="ad5e0febb3c6d9e948be6a3d2a1b9dfc6" name="ad5e0febb3c6d9e948be6a3d2a1b9dfc6"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseLogicalAnd</b> ()</td></tr>
+<tr class="separator:ad5e0febb3c6d9e948be6a3d2a1b9dfc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb971e7f3d24a1e68c4f21c8f80a77c4"><td class="memItemLeft" align="right" valign="top"><a id="acb971e7f3d24a1e68c4f21c8f80a77c4" name="acb971e7f3d24a1e68c4f21c8f80a77c4"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseInclusiveOr</b> ()</td></tr>
+<tr class="separator:acb971e7f3d24a1e68c4f21c8f80a77c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5915790c7d51c9e58553ba5e9ac4e809"><td class="memItemLeft" align="right" valign="top"><a id="a5915790c7d51c9e58553ba5e9ac4e809" name="a5915790c7d51c9e58553ba5e9ac4e809"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseExclusiveOr</b> ()</td></tr>
+<tr class="separator:a5915790c7d51c9e58553ba5e9ac4e809"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a4e68b64a931be569937e4dc22ba6c4"><td class="memItemLeft" align="right" valign="top"><a id="a6a4e68b64a931be569937e4dc22ba6c4" name="a6a4e68b64a931be569937e4dc22ba6c4"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseAnd</b> ()</td></tr>
+<tr class="separator:a6a4e68b64a931be569937e4dc22ba6c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8289f3d7a2b3c3962e8a25db853d4b51"><td class="memItemLeft" align="right" valign="top"><a id="a8289f3d7a2b3c3962e8a25db853d4b51" name="a8289f3d7a2b3c3962e8a25db853d4b51"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseEquality</b> ()</td></tr>
+<tr class="separator:a8289f3d7a2b3c3962e8a25db853d4b51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdbd8ce01f1f8489530fe01a4321e71f"><td class="memItemLeft" align="right" valign="top"><a id="acdbd8ce01f1f8489530fe01a4321e71f" name="acdbd8ce01f1f8489530fe01a4321e71f"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseRelational</b> ()</td></tr>
+<tr class="separator:acdbd8ce01f1f8489530fe01a4321e71f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a454507a84902b704641d4648757154d9"><td class="memItemLeft" align="right" valign="top"><a id="a454507a84902b704641d4648757154d9" name="a454507a84902b704641d4648757154d9"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseShift</b> ()</td></tr>
+<tr class="separator:a454507a84902b704641d4648757154d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33a207ca1fbe633c8e20c18981bdd8fc"><td class="memItemLeft" align="right" valign="top"><a id="a33a207ca1fbe633c8e20c18981bdd8fc" name="a33a207ca1fbe633c8e20c18981bdd8fc"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseAdditive</b> ()</td></tr>
+<tr class="separator:a33a207ca1fbe633c8e20c18981bdd8fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c8f965976e404357f092f07700d10a9"><td class="memItemLeft" align="right" valign="top"><a id="a2c8f965976e404357f092f07700d10a9" name="a2c8f965976e404357f092f07700d10a9"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseMultiplicative</b> ()</td></tr>
+<tr class="separator:a2c8f965976e404357f092f07700d10a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a214da50aeee26b5ec06793b6d0624275"><td class="memItemLeft" align="right" valign="top"><a id="a214da50aeee26b5ec06793b6d0624275" name="a214da50aeee26b5ec06793b6d0624275"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParsePrefixUnary</b> ()</td></tr>
+<tr class="separator:a214da50aeee26b5ec06793b6d0624275"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9e5d2b9de5b5958968f2151c4d09251"><td class="memItemLeft" align="right" valign="top"><a id="ac9e5d2b9de5b5958968f2151c4d09251" name="ac9e5d2b9de5b5958968f2151c4d09251"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParsePostfixUnary</b> ()</td></tr>
+<tr class="separator:ac9e5d2b9de5b5958968f2151c4d09251"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b2eb131186cd2474abb8cb636a896e5"><td class="memItemLeft" align="right" valign="top"><a id="a0b2eb131186cd2474abb8cb636a896e5" name="a0b2eb131186cd2474abb8cb636a896e5"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseSymbolProduction</b> ()</td></tr>
+<tr class="memdesc:a0b2eb131186cd2474abb8cb636a896e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Symbol, function call or array access. <br /></td></tr>
+<tr class="separator:a0b2eb131186cd2474abb8cb636a896e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a130974c6e28c33fd1a35379d8418afbe"><td class="memItemLeft" align="right" valign="top"><a id="a130974c6e28c33fd1a35379d8418afbe" name="a130974c6e28c33fd1a35379d8418afbe"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParsePrimary</b> ()</td></tr>
+<tr class="memdesc:a130974c6e28c33fd1a35379d8418afbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Symbol, parentheses expression or constant. <br /></td></tr>
+<tr class="separator:a130974c6e28c33fd1a35379d8418afbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9cdbe9b8ec09f56ce4b85d8cbbc59ca"><td class="memItemLeft" align="right" valign="top"><a id="ae9cdbe9b8ec09f56ce4b85d8cbbc59ca" name="ae9cdbe9b8ec09f56ce4b85d8cbbc59ca"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseConstant</b> ()</td></tr>
+<tr class="memdesc:ae9cdbe9b8ec09f56ce4b85d8cbbc59ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integral, floating-point, string or boolean literal. <br /></td></tr>
+<tr class="separator:ae9cdbe9b8ec09f56ce4b85d8cbbc59ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9c0f230562f187021946fe2c582a969"><td class="memItemLeft" align="right" valign="top"><a id="aa9c0f230562f187021946fe2c582a969" name="aa9c0f230562f187021946fe2c582a969"></a>
 const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>PeekNext</b> ()</td></tr>
 <tr class="memdesc:aa9c0f230562f187021946fe2c582a969"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current token from input range and move forward. <br /></td></tr>
@@ -374,8 +372,27 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
 
 </div>
 </div>
-<a id="adfcdc3ef664c83def3d289d188785660" name="adfcdc3ef664c83def3d289d188785660"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adfcdc3ef664c83def3d289d188785660">&#9670;&nbsp;</a></span>ParseExpression()</h2>
+<a id="abf6c948822555072f3287e6b6d2fb21d" name="abf6c948822555072f3287e6b6d2fb21d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf6c948822555072f3287e6b6d2fb21d">&#9670;&nbsp;</a></span>Parse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> &gt; weak::Parser::Parse </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Transform token stream to AST.</p>
+<dl class="section note"><dt>Note</dt><dd>Smart pointer is returned there to auto-cleanup AST by calling all destructors of compound statement down recursively. Of course, each AST node responsible to kill it's children. </dd></dl>
+
+</div>
+</div>
+<a id="a476772cff6009c97ca5889e785d179d6" name="a476772cff6009c97ca5889e785d179d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a476772cff6009c97ca5889e785d179d6">&#9670;&nbsp;</a></span>ParseExpression()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -384,7 +401,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; weak::Parser::ParseExpression </td>
+          <td class="memname"><a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> * weak::Parser::ParseExpression </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -400,8 +417,8 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
 
 </div>
 </div>
-<a id="a727f551538b0e67ab1ad3a53855580a6" name="a727f551538b0e67ab1ad3a53855580a6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a727f551538b0e67ab1ad3a53855580a6">&#9670;&nbsp;</a></span>ParseStatement()</h2>
+<a id="a8afbfdabae14bca3cdb86c02ef7f9b3a" name="a8afbfdabae14bca3cdb86c02ef7f9b3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8afbfdabae14bca3cdb86c02ef7f9b3a">&#9670;&nbsp;</a></span>ParseStatement()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -410,7 +427,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; weak::Parser::ParseStatement </td>
+          <td class="memname"><a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> * weak::Parser::ParseStatement </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>

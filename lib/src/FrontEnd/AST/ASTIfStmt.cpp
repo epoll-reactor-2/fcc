@@ -9,39 +9,26 @@
 
 namespace weak {
 
-ASTIfStmt::ASTIfStmt(std::unique_ptr<ASTNode> &&TheCondition,
-                     std::unique_ptr<ASTCompoundStmt> &&TheThenBody,
-                     std::unique_ptr<ASTCompoundStmt> &&TheElseBody,
-                     unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Condition(std::move(TheCondition)),
-      ThenBody(std::move(TheThenBody)), ElseBody(std::move(TheElseBody)) {}
+ASTIfStmt::ASTIfStmt(ASTNode *TheCondition, ASTCompoundStmt *TheThenBody,
+                     ASTCompoundStmt *TheElseBody, unsigned TheLineNo,
+                     unsigned TheColumnNo)
+    : ASTNode(TheLineNo, TheColumnNo), Condition(TheCondition),
+      ThenBody(TheThenBody), ElseBody(TheElseBody) {}
+
+ASTIfStmt::~ASTIfStmt() {
+  delete Condition;
+  delete ThenBody;
+  delete ElseBody;
+}
 
 ASTType ASTIfStmt::GetASTType() const { return ASTType::IF_STMT; }
 
 void ASTIfStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-std::unique_ptr<ASTNode> &&ASTIfStmt::GetCondition() {
-  return std::move(Condition);
-}
+ASTNode *ASTIfStmt::GetCondition() const { return Condition; }
 
-const std::unique_ptr<ASTNode> &ASTIfStmt::GetCondition() const {
-  return Condition;
-}
+ASTCompoundStmt *ASTIfStmt::GetThenBody() const { return ThenBody; }
 
-std::unique_ptr<ASTCompoundStmt> &&ASTIfStmt::GetThenBody() {
-  return std::move(ThenBody);
-}
-
-const std::unique_ptr<ASTCompoundStmt> &ASTIfStmt::GetThenBody() const {
-  return ThenBody;
-}
-
-std::unique_ptr<ASTCompoundStmt> &&ASTIfStmt::GetElseBody() {
-  return std::move(ElseBody);
-}
-
-const std::unique_ptr<ASTCompoundStmt> &ASTIfStmt::GetElseBody() const {
-  return ElseBody;
-}
+ASTCompoundStmt *ASTIfStmt::GetElseBody() const { return ElseBody; }
 
 } // namespace weak

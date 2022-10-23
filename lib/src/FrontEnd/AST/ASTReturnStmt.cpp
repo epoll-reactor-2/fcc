@@ -9,16 +9,16 @@
 
 namespace weak {
 
-ASTReturnStmt::ASTReturnStmt(std::unique_ptr<ASTNode> &&TheOperand,
-                             unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Operand(std::move(TheOperand)) {}
+ASTReturnStmt::ASTReturnStmt(ASTNode *TheOperand, unsigned TheLineNo,
+                             unsigned TheColumnNo)
+    : ASTNode(TheLineNo, TheColumnNo), Operand(TheOperand) {}
+
+ASTReturnStmt::~ASTReturnStmt() { delete Operand; }
 
 ASTType ASTReturnStmt::GetASTType() const { return ASTType::RETURN_STMT; }
 
 void ASTReturnStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-const std::unique_ptr<ASTNode> &ASTReturnStmt::GetOperand() const {
-  return Operand;
-}
+ASTNode *ASTReturnStmt::GetOperand() const { return Operand; }
 
 } // namespace weak

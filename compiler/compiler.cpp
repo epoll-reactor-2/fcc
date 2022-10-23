@@ -19,7 +19,7 @@ std::vector<weak::Token> DoLexicalAnalysis(std::string_view InputPath) {
   return Tokens;
 }
 
-std::unique_ptr<weak::ASTNode> DoSyntaxAnalysis(std::string_view InputPath) {
+std::unique_ptr<weak::ASTCompoundStmt> DoSyntaxAnalysis(std::string_view InputPath) {
   auto Tokens = DoLexicalAnalysis(InputPath);
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
@@ -44,7 +44,7 @@ void DumpLexemes(std::string_view InputPath) {
 
 void DumpAST(std::string_view InputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
-  weak::ASTDump(AST, std::cout);
+  weak::ASTDump(AST.get(), std::cout);
 }
 
 void DumpLLVMIR(std::string_view InputPath, std::string_view OutputPath) {

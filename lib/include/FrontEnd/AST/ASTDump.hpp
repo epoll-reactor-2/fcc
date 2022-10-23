@@ -8,15 +8,12 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_DUMP_HPP
 
 #include "FrontEnd/AST/ASTNode.hpp"
-#include <memory>
+#include <ostream>
 
 namespace weak {
 
 /// Show visual representation of Syntax Tree beginning with
 /// RootNode.
-void ASTDump(const std::unique_ptr<ASTNode> &RootNode, std::ostream &OutStream);
-
-/// \copydoc ASTDump(const std::unique_ptr<ASTNode> &, std::ostream &)
 void ASTDump(ASTNode *RootNode, std::ostream &OutStream);
 
 } // namespace weak

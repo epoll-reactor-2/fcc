@@ -9,7 +9,6 @@
 
 #include "FrontEnd/AST/ASTNode.hpp"
 #include "FrontEnd/Lex/Token.hpp"
-#include <memory>
 #include <vector>
 
 namespace weak {

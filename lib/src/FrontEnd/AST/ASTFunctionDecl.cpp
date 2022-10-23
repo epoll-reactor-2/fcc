@@ -10,14 +10,19 @@
 
 namespace weak {
 
-ASTFunctionDecl::ASTFunctionDecl(
-    TokenType TheReturnType, std::string &&TheName,
-    std::vector<std::unique_ptr<ASTNode>> &&TheArguments,
-    std::unique_ptr<ASTCompoundStmt> &&TheBody, unsigned TheLineNo,
-    unsigned TheColumnNo)
+ASTFunctionDecl::ASTFunctionDecl(TokenType TheReturnType, std::string &&TheName,
+                                 std::vector<ASTNode *> &&TheArguments,
+                                 ASTCompoundStmt *TheBody, unsigned TheLineNo,
+                                 unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), ReturnType(TheReturnType),
       Name(std::move(TheName)), Arguments(std::move(TheArguments)),
-      Body(std::move(TheBody)) {}
+      Body(TheBody) {}
+
+ASTFunctionDecl::~ASTFunctionDecl() {
+  for (ASTNode *Arg : Arguments)
+    delete Arg;
+  delete Body;
+}
 
 ASTType ASTFunctionDecl::GetASTType() const { return ASTType::FUNCTION_DECL; }
 
@@ -27,21 +32,14 @@ TokenType ASTFunctionDecl::GetReturnType() const { return ReturnType; }
 
 const std::string &ASTFunctionDecl::GetName() const { return Name; }
 
-std::vector<std::unique_ptr<ASTNode>> &&ASTFunctionDecl::GetArguments() {
+std::vector<ASTNode *> &&ASTFunctionDecl::GetArguments() {
   return std::move(Arguments);
 }
 
-const std::vector<std::unique_ptr<ASTNode>> &
-ASTFunctionDecl::GetArguments() const {
+const std::vector<ASTNode *> &ASTFunctionDecl::GetArguments() const {
   return Arguments;
 }
 
-std::unique_ptr<ASTCompoundStmt> &&ASTFunctionDecl::GetBody() {
-  return std::move(Body);
-}
-
-const std::unique_ptr<ASTCompoundStmt> &ASTFunctionDecl::GetBody() const {
-  return Body;
-}
+ASTCompoundStmt *ASTFunctionDecl::GetBody() const { return Body; }
 
 } // namespace weak

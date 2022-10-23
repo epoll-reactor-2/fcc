@@ -12,10 +12,15 @@ namespace weak {
 
 ASTFunctionPrototype::ASTFunctionPrototype(
     TokenType TheReturnType, std::string &&TheName,
-    std::vector<std::unique_ptr<ASTNode>> &&TheArguments, unsigned TheLineNo,
+    std::vector<ASTNode *> &&TheArguments, unsigned TheLineNo,
     unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), ReturnType(TheReturnType),
       Name(std::move(TheName)), Arguments(std::move(TheArguments)) {}
+
+ASTFunctionPrototype::~ASTFunctionPrototype() {
+  for (ASTNode *Arg : Arguments)
+    delete Arg;
+}
 
 ASTType ASTFunctionPrototype::GetASTType() const {
   return ASTType::FUNCTION_PROTOTYPE;
@@ -27,12 +32,11 @@ TokenType ASTFunctionPrototype::GetReturnType() const { return ReturnType; }
 
 const std::string &ASTFunctionPrototype::GetName() const { return Name; }
 
-std::vector<std::unique_ptr<ASTNode>> &&ASTFunctionPrototype::GetArguments() {
+std::vector<ASTNode *> &&ASTFunctionPrototype::GetArguments() {
   return std::move(Arguments);
 }
 
-const std::vector<std::unique_ptr<ASTNode>> &
-ASTFunctionPrototype::GetArguments() const {
+const std::vector<ASTNode *> &ASTFunctionPrototype::GetArguments() const {
   return Arguments;
 }
 

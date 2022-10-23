@@ -9,24 +9,25 @@
 
 #include "FrontEnd/AST/ASTNode.hpp"
 #include "FrontEnd/Lex/Token.hpp"
-#include <memory>
 
 namespace weak {
 
 class ASTArrayAccess : public ASTNode {
 public:
-  ASTArrayAccess(std::string TheSymbolName, std::unique_ptr<ASTNode> &&TheIndex,
+  ASTArrayAccess(std::string TheSymbolName, ASTNode *TheIndex,
                  unsigned TheLineNo, unsigned TheColumnNo);
+
+  ~ASTArrayAccess();
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   const std::string &GetSymbolName() const;
-  const std::unique_ptr<ASTNode> &GetIndex() const;
+  ASTNode *GetIndex() const;
 
 private:
   std::string SymbolName;
-  std::unique_ptr<ASTNode> Index;
+  ASTNode *Index;
 };
 
 } // namespace weak

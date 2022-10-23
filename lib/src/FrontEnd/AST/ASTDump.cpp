@@ -137,7 +137,7 @@ private:
 
     Indent += 2;
 
-    if (auto *Init = ForStmt->GetInit().get()) {
+    if (auto *Init = ForStmt->GetInit()) {
       PrintIndent();
       PrintWithTextPosition("ForStmtInit", Init,
                             /*NewLineNeeded=*/true);
@@ -147,7 +147,7 @@ private:
       Indent -= 2;
     }
 
-    if (auto *Condition = ForStmt->GetCondition().get()) {
+    if (auto *Condition = ForStmt->GetCondition()) {
       PrintIndent();
       PrintWithTextPosition("ForStmtCondition", Condition,
                             /*NewLineNeeded=*/true);
@@ -157,7 +157,7 @@ private:
       Indent -= 2;
     }
 
-    if (auto *Increment = ForStmt->GetIncrement().get()) {
+    if (auto *Increment = ForStmt->GetIncrement()) {
       PrintIndent();
       PrintWithTextPosition("ForStmtIncrement", Increment,
                             /*NewLineNeeded=*/true);
@@ -167,7 +167,7 @@ private:
       Indent -= 2;
     }
 
-    if (const auto *Body = ForStmt->GetBody().get()) {
+    if (const auto *Body = ForStmt->GetBody()) {
       PrintIndent();
       PrintWithTextPosition("ForStmtBody", Body,
                             /*NewLineNeeded=*/true);
@@ -186,7 +186,7 @@ private:
 
     if (const auto &Condition = IfStmt->GetCondition()) {
       PrintIndent();
-      PrintWithTextPosition("IfStmtCondition", Condition.get(),
+      PrintWithTextPosition("IfStmtCondition", Condition,
                             /*NewLineNeeded=*/true);
       Indent += 2;
       PrintIndent();
@@ -196,21 +196,21 @@ private:
 
     if (const auto &ThenBody = IfStmt->GetThenBody()) {
       PrintIndent();
-      PrintWithTextPosition("IfStmtThenBody", ThenBody.get(),
+      PrintWithTextPosition("IfStmtThenBody", ThenBody,
                             /*NewLineNeeded=*/true);
       Indent += 2;
       PrintIndent();
-      Visit(ThenBody.get());
+      Visit(ThenBody);
       Indent -= 2;
     }
 
     if (const auto &ElseBody = IfStmt->GetElseBody()) {
       PrintIndent();
-      PrintWithTextPosition("IfStmtElseBody", ElseBody.get(),
+      PrintWithTextPosition("IfStmtElseBody", ElseBody,
                             /*NewLineNeeded=*/true);
       Indent += 2;
       PrintIndent();
-      Visit(ElseBody.get());
+      Visit(ElseBody);
       Indent -= 2;
     }
     Indent -= 2;
@@ -266,7 +266,7 @@ private:
     OutStream << TokenToString(VarDecl->GetDataType()) << " "
               << VarDecl->GetSymbolName() << std::endl;
 
-    if (const auto &Body = VarDecl->GetDeclareBody()) {
+    if (const auto &Body = VarDecl->GetDeclBody()) {
       Indent += 2;
       PrintIndent();
       Body->Accept(this);
@@ -305,7 +305,7 @@ private:
 
     Indent += 2;
     PrintIndent();
-    Visit(FunctionDecl->GetBody().get());
+    Visit(FunctionDecl->GetBody());
     Indent -= 2;
   }
 
@@ -364,7 +364,7 @@ private:
                           /*NewLineNeeded=*/true);
 
     auto PrintWhileCondition = [&] {
-      if (const auto &Condition = WhileStmt->GetCondition().get()) {
+      if (const auto &Condition = WhileStmt->GetCondition()) {
         PrintIndent();
         PrintWithTextPosition((IsDoWhile ? "Do"s : ""s) + "WhileStmtCond",
                               Condition,
@@ -377,7 +377,7 @@ private:
     };
 
     auto PrintWhileBody = [&] {
-      if (const auto &Body = WhileStmt->GetBody().get()) {
+      if (const auto &Body = WhileStmt->GetBody()) {
         PrintIndent();
         PrintWithTextPosition((IsDoWhile ? "Do"s : ""s) + "WhileStmtBody", Body,
                               /*NewLineNeeded=*/true);
@@ -425,9 +425,4 @@ private:
 void weak::ASTDump(ASTNode *RootNode, std::ostream &OutStream) {
   ASTDumpVisitor DumpVisitor(RootNode, OutStream);
   DumpVisitor.Dump();
-}
-
-void weak::ASTDump(const std::unique_ptr<ASTNode> &RootNode,
-                   std::ostream &OutStream) {
-  ASTDump(RootNode.get(), OutStream);
 }

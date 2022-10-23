@@ -8,22 +8,23 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_RETURN_STMT_HPP
 
 #include "FrontEnd/AST/ASTNode.hpp"
-#include <memory>
 
 namespace weak {
 
 class ASTReturnStmt : public ASTNode {
 public:
-  ASTReturnStmt(std::unique_ptr<ASTNode> &&TheOperand, unsigned TheLineNo = 0U,
+  ASTReturnStmt(ASTNode *TheOperand, unsigned TheLineNo = 0U,
                 unsigned TheColumnNo = 0U);
+
+  ~ASTReturnStmt();
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
-  const std::unique_ptr<ASTNode> &GetOperand() const;
+  ASTNode *GetOperand() const;
 
 private:
-  std::unique_ptr<ASTNode> Operand;
+  ASTNode *Operand;
 };
 
 } // namespace weak

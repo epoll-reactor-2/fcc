@@ -14,25 +14,23 @@ namespace weak {
 
 class ASTIfStmt : public ASTNode {
 public:
-  ASTIfStmt(std::unique_ptr<ASTNode> &&TheCondition,
-            std::unique_ptr<ASTCompoundStmt> &&TheThenBody,
-            std::unique_ptr<ASTCompoundStmt> &&TheElseBody,
-            unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+  ASTIfStmt(ASTNode *TheCondition, ASTCompoundStmt *TheThenBody,
+            ASTCompoundStmt *TheElseBody, unsigned TheLineNo = 0U,
+            unsigned TheColumnNo = 0U);
+
+  ~ASTIfStmt();
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
-  std::unique_ptr<ASTNode> &&GetCondition();
-  const std::unique_ptr<ASTNode> &GetCondition() const;
-  std::unique_ptr<ASTCompoundStmt> &&GetThenBody();
-  const std::unique_ptr<ASTCompoundStmt> &GetThenBody() const;
-  std::unique_ptr<ASTCompoundStmt> &&GetElseBody();
-  const std::unique_ptr<ASTCompoundStmt> &GetElseBody() const;
+  ASTNode *GetCondition() const;
+  ASTCompoundStmt *GetThenBody() const;
+  ASTCompoundStmt *GetElseBody() const;
 
 private:
-  std::unique_ptr<ASTNode> Condition;
-  std::unique_ptr<ASTCompoundStmt> ThenBody;
-  std::unique_ptr<ASTCompoundStmt> ElseBody;
+  ASTNode *Condition;
+  ASTCompoundStmt *ThenBody;
+  ASTCompoundStmt *ElseBody;
 };
 
 } // namespace weak

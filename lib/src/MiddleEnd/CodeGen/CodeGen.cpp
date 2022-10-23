@@ -59,7 +59,7 @@ public:
 
     unsigned Idx{0U};
     for (llvm::Argument &Arg : Func->args())
-      Arg.setName(ExtractSymbol(Decl->GetArguments()[Idx++].get()));
+      Arg.setName(ExtractSymbol(Decl->GetArguments()[Idx++]));
 
     return Func;
   }
@@ -70,7 +70,7 @@ private:
     llvm::SmallVector<llvm::Type *, 16> ArgTypes;
 
     for (const auto &ArgAST : Decl->GetArguments())
-      ArgTypes.push_back(ResolveParamType(ArgAST.get()));
+      ArgTypes.push_back(ResolveParamType(ArgAST));
 
     llvm::FunctionType *Signature = llvm::FunctionType::get(
         /// Return type.
@@ -176,7 +176,7 @@ public:
 
   void Build(const ASTBinaryOperator *Stmt, llvm::Value *RHS,
              llvm::Value *ArrayPtr) {
-    const auto *LHS = Stmt->GetLHS().get();
+    auto *LHS = Stmt->GetLHS();
 
     if (LHS->GetASTType() == ASTType::ARRAY_ACCESS)
       BuildArrayAssignment(RHS, ArrayPtr);
@@ -288,7 +288,7 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
   case TokenType::BIT_AND_ASSIGN:
   case TokenType::BIT_OR_ASSIGN:
   case TokenType::XOR_ASSIGN: {
-    auto *Assignment = static_cast<const ASTSymbol *>(Stmt->GetLHS().get());
+    auto *Assignment = static_cast<const ASTSymbol *>(Stmt->GetLHS());
     llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
     TokenType Op = ResolveAssignmentOperation(T);
     LastInstr = ScalarEmitter.EmitBinOp(Stmt, Op, L, R);
@@ -339,7 +339,7 @@ void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
   llvm::Value *Step = IRBuilder.getInt32(1);
 
   const auto *SymbolOperand =
-      static_cast<const ASTSymbol *>(Stmt->GetOperand().get());
+      static_cast<const ASTSymbol *>(Stmt->GetOperand());
 
   switch (Stmt->GetOperation()) {
   case TokenType::INC:
@@ -501,7 +501,7 @@ void CodeGen::Visit(const ASTFunctionCall *Stmt) {
 
   llvm::SmallVector<llvm::Value *, 16> Args;
   for (size_t I = 0; I < FunArgs.size(); ++I) {
-    auto *AST = FunArgs[I].get();
+    auto *AST = FunArgs[I];
 
     AST->Accept(this);
 
@@ -605,15 +605,14 @@ void CodeGen::Visit(const ASTVarDecl *Decl) {
     weak::CompileError(Decl)
         << "Variable `" << Decl->GetSymbolName() << "` already declared";
 
-  Decl->GetDeclareBody()->Accept(this);
+  Decl->GetDeclBody()->Accept(this);
 
   llvm::Value *LiteralValue = LastInstr;
 
   /// Special case, since we need to copy array from data section to another
   /// array, placed on stack.
   if (Decl->GetDataType() == TokenType::STRING) {
-    const auto *Literal =
-        static_cast<ASTStringLiteral *>(Decl->GetDeclareBody().get());
+    const auto *Literal = static_cast<ASTStringLiteral *>(Decl->GetDeclBody());
     const unsigned NullTerminator = 1;
     llvm::ArrayType *ArrayType = llvm::ArrayType::get(
         IRBuilder.getInt8Ty(), Literal->GetValue().size() + NullTerminator);

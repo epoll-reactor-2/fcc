@@ -10,7 +10,6 @@
 #include "FrontEnd/AST/ASTCompoundStmt.hpp"
 #include "FrontEnd/AST/ASTNode.hpp"
 #include "FrontEnd/Lex/Token.hpp"
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -19,25 +18,26 @@ namespace weak {
 class ASTFunctionDecl : public ASTNode {
 public:
   ASTFunctionDecl(TokenType TheReturnType, std::string &&TheName,
-                  std::vector<std::unique_ptr<ASTNode>> &&TheArguments,
-                  std::unique_ptr<ASTCompoundStmt> &&TheBody,
-                  unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+                  std::vector<ASTNode *> &&TheArguments,
+                  ASTCompoundStmt *TheBody, unsigned TheLineNo = 0U,
+                  unsigned TheColumnNo = 0U);
+
+  ~ASTFunctionDecl();
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   TokenType GetReturnType() const;
   const std::string &GetName() const;
-  std::vector<std::unique_ptr<ASTNode>> &&GetArguments();
-  const std::vector<std::unique_ptr<ASTNode>> &GetArguments() const;
-  std::unique_ptr<ASTCompoundStmt> &&GetBody();
-  const std::unique_ptr<ASTCompoundStmt> &GetBody() const;
+  std::vector<ASTNode *> &&GetArguments();
+  const std::vector<ASTNode *> &GetArguments() const;
+  ASTCompoundStmt *GetBody() const;
 
 private:
   TokenType ReturnType;
   std::string Name;
-  std::vector<std::unique_ptr<ASTNode>> Arguments;
-  std::unique_ptr<ASTCompoundStmt> Body;
+  std::vector<ASTNode *> Arguments;
+  ASTCompoundStmt *Body;
 };
 
 } // namespace weak

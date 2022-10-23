@@ -8,7 +8,6 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_NODE_HPP
 
 #include "FrontEnd/AST/ASTTypesEnum.hpp"
-#include <memory>
 
 namespace weak {
 
@@ -16,7 +15,7 @@ class ASTVisitor;
 
 class ASTNode {
 public:
-  virtual ~ASTNode() noexcept = default;
+  virtual ~ASTNode() = default;
   virtual ASTType GetASTType() const;
   virtual void Accept(ASTVisitor *) = 0;
 

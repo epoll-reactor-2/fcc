@@ -9,45 +9,29 @@
 
 namespace weak {
 
-ASTForStmt::ASTForStmt(std::unique_ptr<ASTNode> &&TheInit,
-                       std::unique_ptr<ASTNode> &&TheCondition,
-                       std::unique_ptr<ASTNode> &&TheIncrement,
-                       std::unique_ptr<ASTCompoundStmt> &&TheBody,
+ASTForStmt::ASTForStmt(ASTNode *TheInit, ASTNode *TheCondition,
+                       ASTNode *TheIncrement, ASTCompoundStmt *TheBody,
                        unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Init(std::move(TheInit)),
-      Condition(std::move(TheCondition)), Increment(std::move(TheIncrement)),
-      Body(std::move(TheBody)) {}
+    : ASTNode(TheLineNo, TheColumnNo), Init(TheInit), Condition(TheCondition),
+      Increment(TheIncrement), Body(TheBody) {}
+
+ASTForStmt::~ASTForStmt() {
+  delete Init;
+  delete Condition;
+  delete Increment;
+  delete Body;
+}
 
 ASTType ASTForStmt::GetASTType() const { return ASTType::FOR_STMT; }
 
 void ASTForStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-std::unique_ptr<ASTNode> &&ASTForStmt::GetInit() { return std::move(Init); }
+ASTNode *ASTForStmt::GetInit() const { return Init; }
 
-const std::unique_ptr<ASTNode> &ASTForStmt::GetInit() const { return Init; }
+ASTNode *ASTForStmt::GetCondition() const { return Condition; }
 
-std::unique_ptr<ASTNode> &&ASTForStmt::GetCondition() {
-  return std::move(Condition);
-}
+ASTNode *ASTForStmt::GetIncrement() const { return Increment; }
 
-const std::unique_ptr<ASTNode> &ASTForStmt::GetCondition() const {
-  return Condition;
-}
-
-std::unique_ptr<ASTNode> &&ASTForStmt::GetIncrement() {
-  return std::move(Increment);
-}
-
-const std::unique_ptr<ASTNode> &ASTForStmt::GetIncrement() const {
-  return Increment;
-}
-
-std::unique_ptr<ASTCompoundStmt> &&ASTForStmt::GetBody() {
-  return std::move(Body);
-}
-
-const std::unique_ptr<ASTCompoundStmt> &ASTForStmt::GetBody() const {
-  return Body;
-}
+ASTCompoundStmt *ASTForStmt::GetBody() const { return Body; }
 
 } // namespace weak

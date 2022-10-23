@@ -9,12 +9,16 @@
 
 namespace weak {
 
-ASTBinaryOperator::ASTBinaryOperator(TokenType TheOperation,
-                                     std::unique_ptr<ASTNode> &&TheLHS,
-                                     std::unique_ptr<ASTNode> &&TheRHS,
-                                     unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Operation(TheOperation),
-      LHS(std::move(TheLHS)), RHS(std::move(TheRHS)) {}
+ASTBinaryOperator::ASTBinaryOperator(TokenType TheOperation, ASTNode *TheLHS,
+                                     ASTNode *TheRHS, unsigned TheLineNo,
+                                     unsigned TheColumnNo)
+    : ASTNode(TheLineNo, TheColumnNo), Operation(TheOperation), LHS(TheLHS),
+      RHS(TheRHS) {}
+
+ASTBinaryOperator::~ASTBinaryOperator() {
+  delete LHS;
+  delete RHS;
+}
 
 ASTType ASTBinaryOperator::GetASTType() const { return ASTType::BINARY; }
 
@@ -22,18 +26,7 @@ void ASTBinaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 TokenType ASTBinaryOperator::GetOperation() const { return Operation; }
 
-const std::unique_ptr<ASTNode> &ASTBinaryOperator::GetLHS() const {
-  return LHS;
-}
-const std::unique_ptr<ASTNode> &ASTBinaryOperator::GetRHS() const {
-  return RHS;
-}
-
-std::unique_ptr<ASTNode> &&ASTBinaryOperator::GetLHS() {
-  return std::move(LHS);
-}
-std::unique_ptr<ASTNode> &&ASTBinaryOperator::GetRHS() {
-  return std::move(RHS);
-}
+ASTNode *ASTBinaryOperator::GetLHS() const { return LHS; }
+ASTNode *ASTBinaryOperator::GetRHS() const { return RHS; }
 
 } // namespace weak

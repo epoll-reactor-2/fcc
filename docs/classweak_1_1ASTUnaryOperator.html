@@ -85,9 +85,9 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8a06ab84175300c4009f88b58c3b8db3"><td class="memItemLeft" align="right" valign="top"><a id="a8a06ab84175300c4009f88b58c3b8db3" name="a8a06ab84175300c4009f88b58c3b8db3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTUnaryOperator</b> (UnaryType ThePrefixOrPostfix, TokenType TheOperation, std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &amp;&amp;TheOperand, unsigned TheLineNo=0U, unsigned TheColumnNo=0U)</td></tr>
-<tr class="separator:a8a06ab84175300c4009f88b58c3b8db3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada9e379d0cfd884234e89b31d694f800"><td class="memItemLeft" align="right" valign="top"><a id="ada9e379d0cfd884234e89b31d694f800" name="ada9e379d0cfd884234e89b31d694f800"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTUnaryOperator</b> (UnaryType ThePrefixOrPostfix, TokenType TheOperation, <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *TheOperand, unsigned TheLineNo=0U, unsigned TheColumnNo=0U)</td></tr>
+<tr class="separator:ada9e379d0cfd884234e89b31d694f800"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6950e00c437d79b38512d210a5bd6cac"><td class="memItemLeft" align="right" valign="top">ASTType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTUnaryOperator.html#a6950e00c437d79b38512d210a5bd6cac">GetASTType</a> () const override</td></tr>
 <tr class="separator:a6950e00c437d79b38512d210a5bd6cac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5efcb7e81ece3e8cad767dd730a1195"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTUnaryOperator.html#aa5efcb7e81ece3e8cad767dd730a1195">Accept</a> (<a class="el" href="classweak_1_1ASTVisitor.html">ASTVisitor</a> *) override</td></tr>
@@ -95,9 +95,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aad43a554f83960c0b0dbdd68d27e78df"><td class="memItemLeft" align="right" valign="top"><a id="aad43a554f83960c0b0dbdd68d27e78df" name="aad43a554f83960c0b0dbdd68d27e78df"></a>
 TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>GetOperation</b> () const</td></tr>
 <tr class="separator:aad43a554f83960c0b0dbdd68d27e78df"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93f475dc44a435b637768e93409d3ef0"><td class="memItemLeft" align="right" valign="top"><a id="a93f475dc44a435b637768e93409d3ef0" name="a93f475dc44a435b637768e93409d3ef0"></a>
-const std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetOperand</b> () const</td></tr>
-<tr class="separator:a93f475dc44a435b637768e93409d3ef0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2894438ca091e4c18ac2ab14e494a7b7"><td class="memItemLeft" align="right" valign="top"><a id="a2894438ca091e4c18ac2ab14e494a7b7" name="a2894438ca091e4c18ac2ab14e494a7b7"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetOperand</b> () const</td></tr>
+<tr class="separator:a2894438ca091e4c18ac2ab14e494a7b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classweak_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classweak_1_1ASTNode')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classweak_1_1ASTNode.html">weak::ASTNode</a></td></tr>
 <tr class="memitem:aefc4ff141d40c2d0ae890613470bd5fa inherit pub_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="aefc4ff141d40c2d0ae890613470bd5fa" name="aefc4ff141d40c2d0ae890613470bd5fa"></a>
 virtual ASTType&#160;</td><td class="memItemRight" valign="bottom"><b>GetASTType</b> () const</td></tr>
@@ -123,9 +123,9 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a833e66b713bfd28a0631d1603dc761b1"><td class="memItemLeft" align="right" valign="top"><a id="a833e66b713bfd28a0631d1603dc761b1" name="a833e66b713bfd28a0631d1603dc761b1"></a>
 TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>Operation</b></td></tr>
 <tr class="separator:a833e66b713bfd28a0631d1603dc761b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2c4411a96817c70be2b45d91140348d"><td class="memItemLeft" align="right" valign="top"><a id="ad2c4411a96817c70be2b45d91140348d" name="ad2c4411a96817c70be2b45d91140348d"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Operand</b></td></tr>
-<tr class="separator:ad2c4411a96817c70be2b45d91140348d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2472933a3b299ad30ab30049fb800a2"><td class="memItemLeft" align="right" valign="top"><a id="ab2472933a3b299ad30ab30049fb800a2" name="ab2472933a3b299ad30ab30049fb800a2"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Operand</b></td></tr>
+<tr class="separator:ab2472933a3b299ad30ab30049fb800a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>

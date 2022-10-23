@@ -14,29 +14,25 @@ namespace weak {
 
 class ASTForStmt : public ASTNode {
 public:
-  ASTForStmt(std::unique_ptr<ASTNode> &&TheInit,
-             std::unique_ptr<ASTNode> &&TheCondition,
-             std::unique_ptr<ASTNode> &&TheIncrement,
-             std::unique_ptr<ASTCompoundStmt> &&TheBody,
-             unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+  ASTForStmt(ASTNode *TheInit, ASTNode *TheCondition, ASTNode *TheIncrement,
+             ASTCompoundStmt *TheBody, unsigned TheLineNo = 0U,
+             unsigned TheColumnNo = 0U);
+
+  ~ASTForStmt();
 
   ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
-  std::unique_ptr<ASTNode> &&GetInit();
-  const std::unique_ptr<ASTNode> &GetInit() const;
-  std::unique_ptr<ASTNode> &&GetCondition();
-  const std::unique_ptr<ASTNode> &GetCondition() const;
-  std::unique_ptr<ASTNode> &&GetIncrement();
-  const std::unique_ptr<ASTNode> &GetIncrement() const;
-  std::unique_ptr<ASTCompoundStmt> &&GetBody();
-  const std::unique_ptr<ASTCompoundStmt> &GetBody() const;
+  ASTNode *GetInit() const;
+  ASTNode *GetCondition() const;
+  ASTNode *GetIncrement() const;
+  ASTCompoundStmt *GetBody() const;
 
 private:
-  std::unique_ptr<ASTNode> Init;
-  std::unique_ptr<ASTNode> Condition;
-  std::unique_ptr<ASTNode> Increment;
-  std::unique_ptr<ASTCompoundStmt> Body;
+  ASTNode *Init;
+  ASTNode *Condition;
+  ASTNode *Increment;
+  ASTCompoundStmt *Body;
 };
 
 } // namespace weak

@@ -13,7 +13,7 @@ namespace weak {
 
 class ASTVisitor {
 public:
-  virtual ~ASTVisitor() noexcept = default;
+  virtual ~ASTVisitor() = default;
 
   virtual void Visit(const ASTArrayDecl *) = 0;
   virtual void Visit(const ASTArrayAccess *) = 0;
