@@ -46,7 +46,8 @@ endfunction()
 
 DeleteOldInputFiles()
 CopyInputFiles("FrontEnd/Input/Parser" "Parser")
-CopyInputFiles("MiddleEnd/Input/CodeGen" "CodeGen")
+CopyInputFiles("MiddleEnd/Input/CodeGen/Valid" "CodeGen/Valid")
+CopyInputFiles("MiddleEnd/Input/CodeGen/Invalid" "CodeGen/Invalid")
 
 file(GLOB_RECURSE test_files "*.cpp")
 foreach(file ${test_files})

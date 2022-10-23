@@ -28,9 +28,9 @@ std::unique_ptr<weak::ASTNode> DoSyntaxAnalysis(std::string_view InputPath) {
 
 std::string DoLLVMCodeGen(std::string_view InputPath, std::string_view OutputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
-  weak::CodeGen CodeGenerator(AST.get());
-  CodeGenerator.CreateCode();
-  return CodeGenerator.ToString();
+  weak::CodeGen CG(AST.get());
+  CG.CreateCode();
+  return CG.ToString();
 }
 
 void DumpLexemes(std::string_view InputPath) {

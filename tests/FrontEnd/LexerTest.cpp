@@ -1,7 +1,6 @@
 #include "FrontEnd/Lex/Lexer.hpp"
 #include "TestHelpers.hpp"
 
-
 static weak::Token MakeToken(std::string Data, weak::TokenType Type) {
   return {std::move(Data), Type, 0U, 0U};
 }
@@ -167,10 +166,11 @@ int main() {
                  Assertion);
   }
   SECTION(LexerSpeedTest) {
-    std::string Body = "1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1"
-                       "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-                       "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
-                       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ";
+    std::string Body =
+        "1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1"
+        "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ";
     for (size_t It = 0; It < 16; ++It)
       Body += std::string(Body);
     printf("Body size: %zu\n", Body.size());

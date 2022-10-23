@@ -1,12 +1,13 @@
+#include "MiddleEnd/CodeGen/CodeGen.hpp"
 #include "FrontEnd/Lex/Lexer.hpp"
 #include "FrontEnd/Parse/Parser.hpp"
-#include "MiddleEnd/CodeGen/CodeGen.hpp"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
 #include "TestHelpers.hpp"
 
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 
+using namespace std::string_view_literals;
 
 /// \note Codegen tests do not return values greater than 256 due to the
 ///       fact that process returns exit status modulo 256. By the way, this
@@ -16,73 +17,88 @@ int RunAndGetExitCode(const std::string &TargetPath) {
   return WEXITSTATUS(code);
 }
 
-void RunFromFile(std::string_view Path) {
+void RunTestOnValidCode(weak::CodeGen &CG, const std::string &Program,
+                        const std::string &PathToBin);
+void RunTestOnInvalidCode(weak::CodeGen &CG, const std::string &Program);
+
+void RunTest(std::string_view Path, bool IsValid) {
   llvm::outs() << "Testing file " << Path << "... ";
   std::ifstream File(Path.data());
-  std::string Program(
-    (std::istreambuf_iterator<char>(File)),
-    (std::istreambuf_iterator<char>()));
+  std::string Program((std::istreambuf_iterator<char>(File)),
+                      (std::istreambuf_iterator<char>()));
   weak::Lexer Lex(&*Program.begin(), &*Program.end());
   auto Tokens = Lex.Analyze();
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
 
-  weak::CodeGen CodeGen(AST.get());
+  weak::CodeGen CG(AST.get());
 
-  std::string TargetPath(Path.substr(Path.find_last_of('/') + 1));
-  TargetPath = TargetPath.substr(0, TargetPath.find_first_of('.'));
+  std::string PathToBin(Path.substr(Path.find_last_of('/') + 1));
+  PathToBin = PathToBin.substr(0, PathToBin.find_first_of('.'));
 
-  using namespace std::string_view_literals;
-  if (TargetPath.substr(0, "ExpectError"sv.size()) == "ExpectError") {
-    if (Program.substr(0, 3) != "// ") {
-      llvm::errs() << "Expected comment with error message.";
-      exit(-1);
-    }
+  if (IsValid)
+    RunTestOnValidCode(CG, Program, PathToBin);
+  else
+    RunTestOnInvalidCode(CG, Program);
+}
 
-    std::string ExpectedErrorMsg = Program.substr(
-        "// "sv.length(), Program.find_first_of('\n') - "// "sv.length());
+void RunTestOnValidCode(weak::CodeGen &CG, const std::string &Program,
+                        const std::string &PathToBin) {
+  if (Program.substr(0, 3) != "// ") {
+    llvm::errs() << "Expected planned exit code.";
+    exit(-1);
+  }
+  int ExpectedExitCode = std::stoi(Program.substr(
+      "// "sv.length(), Program.find_first_of('\n') - "// "sv.length()));
 
-    try {
-      CodeGen.CreateCode();
-      llvm::errs() << "Expected error";
-      exit(-1);
-    } catch (std::exception &Error) {
-      if (std::string(Error.what()) != ExpectedErrorMsg) {
-        llvm::errs() << "Errors mismatch:\n\t" << Error.what()
-          << "\ngot, but\n\t" << ExpectedErrorMsg << "\nexpected.";
-        exit(-1);
-      }
-      llvm::outs() << "Caught expected error: " << Error.what() << '\n';
-    }
+  CG.CreateCode();
+  weak::TargetCodeBuilder TargetCodeBuilder(CG.GetModule(), PathToBin);
+  TargetCodeBuilder.Build();
+
+  int ExitCode = RunAndGetExitCode(PathToBin);
+  if (ExitCode != ExpectedExitCode) {
+    llvm::errs() << "Process exited with wrong exit code: " << ExitCode
+                 << " got, but " << ExpectedExitCode << " expected.";
+    exit(-1);
   } else {
-    if (Program.substr(0, 3) != "// ") {
-      llvm::errs() << "Expected planned exit code.";
+    llvm::outs() << "Success!\n";
+  }
+}
+
+void RunTestOnInvalidCode(weak::CodeGen &CG, const std::string &Program) {
+  if (Program.substr(0, 3) != "// ") {
+    llvm::errs() << "Expected comment with error message.";
+    exit(-1);
+  }
+
+  std::string ExpectedErrorMsg = Program.substr(
+      "// "sv.length(), Program.find_first_of('\n') - "// "sv.length());
+
+  try {
+    CG.CreateCode();
+    llvm::errs() << "Expected error";
+    exit(-1);
+  } catch (std::exception &Error) {
+    if (std::string(Error.what()) != ExpectedErrorMsg) {
+      llvm::errs() << "Errors mismatch:\n\t" << Error.what() << "\ngot, but\n\t"
+                   << ExpectedErrorMsg << "\nexpected.";
       exit(-1);
     }
-    int ExpectedExitCode = std::stoi(Program.substr(
-        "// "sv.length(), Program.find_first_of('\n') - "// "sv.length()));
-
-    CodeGen.CreateCode();
-    weak::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), TargetPath);
-    TargetCodeBuilder.Build();
-
-    int ExitCode = RunAndGetExitCode(TargetPath);
-    if (ExitCode != ExpectedExitCode) {
-      llvm::errs() << "Process exited with wrong exit code: "
-        << ExitCode << " got, but " << ExpectedExitCode << " expected.";
-      exit(-1);
-    } else {
-      llvm::outs() << "Success!\n";
-    }
+    llvm::outs() << "Caught expected error: " << Error.what() << '\n';
   }
 }
 
 int main() {
-  auto Directory = std::filesystem::directory_iterator(
-    std::filesystem::current_path().concat("/CodeGen"));
-  for (const auto &File : Directory)
-    if (File.path().extension() == ".wl")
-      RunFromFile(File.path().native());
+  for (auto [InputDir, ValidFlag] : {std::pair{"/CodeGen/Valid", true},
+                                     std::pair{"/CodeGen/Invalid", false}}) {
+    auto Dir = std::filesystem::directory_iterator(
+        std::filesystem::current_path().concat(InputDir));
+    for (const auto &File : Dir) {
+      const auto &Path = File.path();
+      if (Path.extension() == ".wl")
+        RunTest(Path.native(), ValidFlag);
+    }
+  }
 
   llvm::outs() << "All tests passed!";
 }
