@@ -70,6 +70,7 @@ private:
   // Declarations.
   void Visit(const ASTArrayDecl *) override;
   void Visit(const ASTVarDecl *) override;
+  void Visit(const ASTStructDecl *) override {}
 
   // The rest.
   void Visit(const ASTArrayAccess *) override;

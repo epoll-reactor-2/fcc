@@ -28,7 +28,7 @@ struct OstreamRAII {
 };
 
 /// Throw an exception with given message.
-[[noreturn]] void UnreachablePoint(const char * = "");
+[[noreturn]] void UnreachablePoint(std::string = "");
 
 /// Print diagnostic message with WARN flag.
 OstreamRAII CompileWarning();

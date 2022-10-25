@@ -28,6 +28,7 @@ class ASTIfStmt;
 class ASTIntegerLiteral;
 class ASTReturnStmt;
 class ASTStringLiteral;
+class ASTStructDecl;
 class ASTSymbol;
 class ASTUnaryOperator;
 class ASTVarDecl;

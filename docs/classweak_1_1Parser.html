@@ -82,8 +82,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:abcac5a45e6a30697826b02960425336b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#abcac5a45e6a30697826b02960425336b">Parser</a> (const <a class="el" href="structweak_1_1Token.html">Token</a> *TheBufferStart, const <a class="el" href="structweak_1_1Token.html">Token</a> *TheBufferEnd)</td></tr>
-<tr class="separator:abcac5a45e6a30697826b02960425336b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab24f0c07d76ccc52cb1e33fa2663835d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#ab24f0c07d76ccc52cb1e33fa2663835d">Parser</a> (const <a class="el" href="structweak_1_1Token.html">Token</a> *TheBufStart, const <a class="el" href="structweak_1_1Token.html">Token</a> *TheBufEnd)</td></tr>
+<tr class="separator:ab24f0c07d76ccc52cb1e33fa2663835d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf6c948822555072f3287e6b6d2fb21d"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classweak_1_1ASTCompoundStmt.html">ASTCompoundStmt</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#abf6c948822555072f3287e6b6d2fb21d">Parse</a> ()</td></tr>
 <tr class="separator:abf6c948822555072f3287e6b6d2fb21d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -113,6 +113,13 @@ Private Member Functions</h2></td></tr>
 <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseVarDecl</b> ()</td></tr>
 <tr class="memdesc:abffcd928548c885327d506df344688dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variable declaration with initializer. <br /></td></tr>
 <tr class="separator:abffcd928548c885327d506df344688dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15223b8f71836acf0f450ef843ba61ea"><td class="memItemLeft" align="right" valign="top"><a id="a15223b8f71836acf0f450ef843ba61ea" name="a15223b8f71836acf0f450ef843ba61ea"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseDecl</b> ()</td></tr>
+<tr class="separator:a15223b8f71836acf0f450ef843ba61ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9ef70d4f55ff9733fbd144ee38809f1"><td class="memItemLeft" align="right" valign="top"><a id="ac9ef70d4f55ff9733fbd144ee38809f1" name="ac9ef70d4f55ff9733fbd144ee38809f1"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseStructDecl</b> ()</td></tr>
+<tr class="memdesc:ac9ef70d4f55ff9733fbd144ee38809f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">User type declaration. <br /></td></tr>
+<tr class="separator:ac9ef70d4f55ff9733fbd144ee38809f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b2199184bf6516daa7fe45bf5b30a5b"><td class="memItemLeft" align="right" valign="top"><a id="a6b2199184bf6516daa7fe45bf5b30a5b" name="a6b2199184bf6516daa7fe45bf5b30a5b"></a>
 const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseType</b> ()</td></tr>
 <tr class="memdesc:a6b2199184bf6516daa7fe45bf5b30a5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Int, float, char, string, bool. <br /></td></tr>
@@ -121,10 +128,10 @@ const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><t
 const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseReturnType</b> ()</td></tr>
 <tr class="memdesc:a2351182938ba01eb7f349b158630e0cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">All from <a class="el" href="classweak_1_1Parser.html#a6b2199184bf6516daa7fe45bf5b30a5b" title="Int, float, char, string, bool.">ParseType()</a> or void. <br /></td></tr>
 <tr class="separator:a2351182938ba01eb7f349b158630e0cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a158b5ce95aa131319bbff0c7240a8c5d"><td class="memItemLeft" align="right" valign="top"><a id="a158b5ce95aa131319bbff0c7240a8c5d" name="a158b5ce95aa131319bbff0c7240a8c5d"></a>
-<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseParameter</b> ()</td></tr>
-<tr class="memdesc:a158b5ce95aa131319bbff0c7240a8c5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; type &gt; &lt; id &gt; | &lt; type &gt; &lt; id &gt; [ &lt; integral-literal &gt; ]. <br /></td></tr>
-<tr class="separator:a158b5ce95aa131319bbff0c7240a8c5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b6da36d3f35aa8e8f56b937c34012d4"><td class="memItemLeft" align="right" valign="top"><a id="a0b6da36d3f35aa8e8f56b937c34012d4" name="a0b6da36d3f35aa8e8f56b937c34012d4"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseDeclWithoutInitializer</b> ()</td></tr>
+<tr class="memdesc:a0b6da36d3f35aa8e8f56b937c34012d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; type &gt; &lt; id &gt; | &lt; type &gt; &lt; id &gt; [ &lt; integral-literal &gt; ]. <br /></td></tr>
+<tr class="separator:a0b6da36d3f35aa8e8f56b937c34012d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2a8f3c1fb22a03aa4202e4e0696992f"><td class="memItemLeft" align="right" valign="top"><a id="ae2a8f3c1fb22a03aa4202e4e0696992f" name="ae2a8f3c1fb22a03aa4202e4e0696992f"></a>
 std::vector&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseParameterList</b> ()</td></tr>
 <tr class="memdesc:ae2a8f3c1fb22a03aa4202e4e0696992f"><td class="mdescLeft">&#160;</td><td class="mdescRight">( (&lt; type &gt; &lt; id &gt; ,?)* ). <br /></td></tr>
@@ -229,31 +236,40 @@ const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><t
 <tr class="separator:af1bb3e55f664c3781c744a390c48d5e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97d87ddad23af6c0b67423b3a029dd7f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#a97d87ddad23af6c0b67423b3a029dd7f">Match</a> (TokenType Expected)</td></tr>
 <tr class="separator:a97d87ddad23af6c0b67423b3a029dd7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab81e339035c3fdf671f4e61914f4d2e5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#ab81e339035c3fdf671f4e61914f4d2e5">Match</a> (const std::vector&lt; char &gt; &amp;Expected)</td></tr>
+<tr class="separator:ab81e339035c3fdf671f4e61914f4d2e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4e8430a5ca1cf3d1003ff8773867fe9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#ac4e8430a5ca1cf3d1003ff8773867fe9">Match</a> (char Expected)</td></tr>
+<tr class="separator:ac4e8430a5ca1cf3d1003ff8773867fe9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfca68e62c1269f38bf691f0166d2381"><td class="memItemLeft" align="right" valign="top"><a id="acfca68e62c1269f38bf691f0166d2381" name="acfca68e62c1269f38bf691f0166d2381"></a>
 const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Require</b> (const std::vector&lt; TokenType &gt; &amp;Expected)</td></tr>
 <tr class="memdesc:acfca68e62c1269f38bf691f0166d2381"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but emits compile error on mismatch. <br /></td></tr>
 <tr class="separator:acfca68e62c1269f38bf691f0166d2381"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae143a4c1108d8feeb1d5736aef3e5176"><td class="memItemLeft" align="right" valign="top"><a id="ae143a4c1108d8feeb1d5736aef3e5176" name="ae143a4c1108d8feeb1d5736aef3e5176"></a>
-const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Require</b> (TokenType Expected)</td></tr>
-<tr class="memdesc:ae143a4c1108d8feeb1d5736aef3e5176"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but emits compile error on mismatch. <br /></td></tr>
+<tr class="memitem:ae143a4c1108d8feeb1d5736aef3e5176"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#ae143a4c1108d8feeb1d5736aef3e5176">Require</a> (TokenType Expected)</td></tr>
+<tr class="memdesc:ae143a4c1108d8feeb1d5736aef3e5176"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but emits compile error on mismatch.  <a href="classweak_1_1Parser.html#ae143a4c1108d8feeb1d5736aef3e5176">More...</a><br /></td></tr>
 <tr class="separator:ae143a4c1108d8feeb1d5736aef3e5176"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af72b8745eb68652c7f0eeb6c389837be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#af72b8745eb68652c7f0eeb6c389837be">CheckIfHaveMoreTokens</a> () const</td></tr>
-<tr class="separator:af72b8745eb68652c7f0eeb6c389837be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a983c21c39ae25d06044e167a5c39c104"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#a983c21c39ae25d06044e167a5c39c104">Require</a> (const std::vector&lt; char &gt; &amp;Expected)</td></tr>
+<tr class="memdesc:a983c21c39ae25d06044e167a5c39c104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but emits compile error on mismatch.  <a href="classweak_1_1Parser.html#a983c21c39ae25d06044e167a5c39c104">More...</a><br /></td></tr>
+<tr class="separator:a983c21c39ae25d06044e167a5c39c104"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31e7e4cc8cb8569e186aa1227f7a0cad"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#a31e7e4cc8cb8569e186aa1227f7a0cad">Require</a> (char Expected)</td></tr>
+<tr class="memdesc:a31e7e4cc8cb8569e186aa1227f7a0cad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but emits compile error on mismatch.  <a href="classweak_1_1Parser.html#a31e7e4cc8cb8569e186aa1227f7a0cad">More...</a><br /></td></tr>
+<tr class="separator:a31e7e4cc8cb8569e186aa1227f7a0cad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14af261004062c85268f0273f3abc6a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#a14af261004062c85268f0273f3abc6a2">AssertNotBufEnd</a> () const</td></tr>
+<tr class="separator:a14af261004062c85268f0273f3abc6a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:adc01493ec9f80e12385f0c493e118a26"><td class="memItemLeft" align="right" valign="top"><a id="adc01493ec9f80e12385f0c493e118a26" name="adc01493ec9f80e12385f0c493e118a26"></a>
-const <a class="el" href="structweak_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufferStart</b></td></tr>
-<tr class="memdesc:adc01493ec9f80e12385f0c493e118a26"><td class="mdescLeft">&#160;</td><td class="mdescRight">First token in input stream. <br /></td></tr>
-<tr class="separator:adc01493ec9f80e12385f0c493e118a26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06f6a1f6e9fd3f4c8b18b3598353ca33"><td class="memItemLeft" align="right" valign="top"><a id="a06f6a1f6e9fd3f4c8b18b3598353ca33" name="a06f6a1f6e9fd3f4c8b18b3598353ca33"></a>
-const <a class="el" href="structweak_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufferEnd</b></td></tr>
-<tr class="memdesc:a06f6a1f6e9fd3f4c8b18b3598353ca33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to after-last token in input stream, like std::end(). <br /></td></tr>
-<tr class="separator:a06f6a1f6e9fd3f4c8b18b3598353ca33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af67033c6f4f22b4de80d5da9510ad8ec"><td class="memItemLeft" align="right" valign="top"><a id="af67033c6f4f22b4de80d5da9510ad8ec" name="af67033c6f4f22b4de80d5da9510ad8ec"></a>
-const <a class="el" href="structweak_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>CurrentBufferPtr</b></td></tr>
-<tr class="memdesc:af67033c6f4f22b4de80d5da9510ad8ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current token to be processed. <br /></td></tr>
-<tr class="separator:af67033c6f4f22b4de80d5da9510ad8ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8f3ff7829bc27665e48c350e11dd139"><td class="memItemLeft" align="right" valign="top"><a id="ac8f3ff7829bc27665e48c350e11dd139" name="ac8f3ff7829bc27665e48c350e11dd139"></a>
+const <a class="el" href="structweak_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufStart</b></td></tr>
+<tr class="memdesc:ac8f3ff7829bc27665e48c350e11dd139"><td class="mdescLeft">&#160;</td><td class="mdescRight">First token in input stream. <br /></td></tr>
+<tr class="separator:ac8f3ff7829bc27665e48c350e11dd139"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9c8a6302ad23fdcbe1f4b5dbece5fe2"><td class="memItemLeft" align="right" valign="top"><a id="ab9c8a6302ad23fdcbe1f4b5dbece5fe2" name="ab9c8a6302ad23fdcbe1f4b5dbece5fe2"></a>
+const <a class="el" href="structweak_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufEnd</b></td></tr>
+<tr class="memdesc:ab9c8a6302ad23fdcbe1f4b5dbece5fe2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to after-last token in input stream, like std::end(). <br /></td></tr>
+<tr class="separator:ab9c8a6302ad23fdcbe1f4b5dbece5fe2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cda3e85fad05c463eeab5c2e9e8d1f6"><td class="memItemLeft" align="right" valign="top"><a id="a6cda3e85fad05c463eeab5c2e9e8d1f6" name="a6cda3e85fad05c463eeab5c2e9e8d1f6"></a>
+const <a class="el" href="structweak_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>TokenPtr</b></td></tr>
+<tr class="memdesc:a6cda3e85fad05c463eeab5c2e9e8d1f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current token to be processed. <br /></td></tr>
+<tr class="separator:a6cda3e85fad05c463eeab5c2e9e8d1f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8af51613427057ddc05eedc6d7da8701"><td class="memItemLeft" align="right" valign="top"><a id="a8af51613427057ddc05eedc6d7da8701" name="a8af51613427057ddc05eedc6d7da8701"></a>
 std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b></td></tr>
 <tr class="memdesc:a8af51613427057ddc05eedc6d7da8701"><td class="mdescLeft">&#160;</td><td class="mdescRight">Depth of currently analyzed loop. Needed for 'break', 'continue' parsing. <br /></td></tr>
@@ -262,8 +278,8 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >LL(1) Syntax analyzer. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="abcac5a45e6a30697826b02960425336b" name="abcac5a45e6a30697826b02960425336b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abcac5a45e6a30697826b02960425336b">&#9670;&nbsp;</a></span>Parser()</h2>
+<a id="ab24f0c07d76ccc52cb1e33fa2663835d" name="ab24f0c07d76ccc52cb1e33fa2663835d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab24f0c07d76ccc52cb1e33fa2663835d">&#9670;&nbsp;</a></span>Parser()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -272,13 +288,13 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
           <td class="memname">weak::Parser::Parser </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structweak_1_1Token.html">Token</a> *&#160;</td>
-          <td class="paramname"><em>TheBufferStart</em>, </td>
+          <td class="paramname"><em>TheBufStart</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="structweak_1_1Token.html">Token</a> *&#160;</td>
-          <td class="paramname"><em>TheBufferEnd</em>&#160;</td>
+          <td class="paramname"><em>TheBufEnd</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -292,8 +308,8 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="af72b8745eb68652c7f0eeb6c389837be" name="af72b8745eb68652c7f0eeb6c389837be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af72b8745eb68652c7f0eeb6c389837be">&#9670;&nbsp;</a></span>CheckIfHaveMoreTokens()</h2>
+<a id="a14af261004062c85268f0273f3abc6a2" name="a14af261004062c85268f0273f3abc6a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14af261004062c85268f0273f3abc6a2">&#9670;&nbsp;</a></span>AssertNotBufEnd()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -302,7 +318,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void weak::Parser::CheckIfHaveMoreTokens </td>
+          <td class="memname">void weak::Parser::AssertNotBufEnd </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -318,8 +334,66 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
 
 </div>
 </div>
+<a id="ac4e8430a5ca1cf3d1003ff8773867fe9" name="ac4e8430a5ca1cf3d1003ff8773867fe9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4e8430a5ca1cf3d1003ff8773867fe9">&#9670;&nbsp;</a></span>Match() <span class="overload">[1/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool weak::Parser::Match </td>
+          <td>(</td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>Expected</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p></p>
+<p >Return true and move current buffer pointer forward if current token matches any of expected, otherwise return false. </p>
+
+</div>
+</div>
+<a id="ab81e339035c3fdf671f4e61914f4d2e5" name="ab81e339035c3fdf671f4e61914f4d2e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab81e339035c3fdf671f4e61914f4d2e5">&#9670;&nbsp;</a></span>Match() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool weak::Parser::Match </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; char &gt; &amp;&#160;</td>
+          <td class="paramname"><em>Expected</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p></p>
+<p >Return true and move current buffer pointer forward if current token matches any of expected, otherwise return false. </p>
+
+</div>
+</div>
 <a id="af1bb3e55f664c3781c744a390c48d5e5" name="af1bb3e55f664c3781c744a390c48d5e5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af1bb3e55f664c3781c744a390c48d5e5">&#9670;&nbsp;</a></span>Match() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af1bb3e55f664c3781c744a390c48d5e5">&#9670;&nbsp;</a></span>Match() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -346,7 +420,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
 </div>
 </div>
 <a id="a97d87ddad23af6c0b67423b3a029dd7f" name="a97d87ddad23af6c0b67423b3a029dd7f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a97d87ddad23af6c0b67423b3a029dd7f">&#9670;&nbsp;</a></span>Match() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a97d87ddad23af6c0b67423b3a029dd7f">&#9670;&nbsp;</a></span>Match() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -368,7 +442,9 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Return true and move current buffer pointer forward if current token matches given token type, otherwise return false. </p>
+
+<p></p>
+<p >Return true and move current buffer pointer forward if current token matches any of expected, otherwise return false. </p>
 
 </div>
 </div>
@@ -440,6 +516,90 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
 </table>
 </div><div class="memdoc">
 <p >Selection, iterative, jump, assignment statement or unary/binary operator. </p>
+
+</div>
+</div>
+<a id="a31e7e4cc8cb8569e186aa1227f7a0cad" name="a31e7e4cc8cb8569e186aa1227f7a0cad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31e7e4cc8cb8569e186aa1227f7a0cad">&#9670;&nbsp;</a></span>Require() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structweak_1_1Token.html">Token</a> &amp; weak::Parser::Require </td>
+          <td>(</td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>Expected</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Does the Match job, but emits compile error on mismatch. </p>
+
+</div>
+</div>
+<a id="a983c21c39ae25d06044e167a5c39c104" name="a983c21c39ae25d06044e167a5c39c104"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a983c21c39ae25d06044e167a5c39c104">&#9670;&nbsp;</a></span>Require() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structweak_1_1Token.html">Token</a> &amp; weak::Parser::Require </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; char &gt; &amp;&#160;</td>
+          <td class="paramname"><em>Expected</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Does the Match job, but emits compile error on mismatch. </p>
+
+</div>
+</div>
+<a id="ae143a4c1108d8feeb1d5736aef3e5176" name="ae143a4c1108d8feeb1d5736aef3e5176"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae143a4c1108d8feeb1d5736aef3e5176">&#9670;&nbsp;</a></span>Require() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structweak_1_1Token.html">Token</a> &amp; weak::Parser::Require </td>
+          <td>(</td>
+          <td class="paramtype">TokenType&#160;</td>
+          <td class="paramname"><em>Expected</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Does the Match job, but emits compile error on mismatch. </p>
 
 </div>
 </div>

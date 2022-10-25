@@ -19,9 +19,10 @@ var searchData=
   ['astnode_16',['ASTNode',['../classweak_1_1ASTNode.html',1,'weak']]],
   ['astreturnstmt_17',['ASTReturnStmt',['../classweak_1_1ASTReturnStmt.html',1,'weak']]],
   ['aststringliteral_18',['ASTStringLiteral',['../classweak_1_1ASTStringLiteral.html',1,'weak']]],
-  ['astsymbol_19',['ASTSymbol',['../classweak_1_1ASTSymbol.html',1,'weak']]],
-  ['astunaryoperator_20',['ASTUnaryOperator',['../classweak_1_1ASTUnaryOperator.html',1,'weak']]],
-  ['astvardecl_21',['ASTVarDecl',['../classweak_1_1ASTVarDecl.html',1,'weak']]],
-  ['astvisitor_22',['ASTVisitor',['../classweak_1_1ASTVisitor.html',1,'weak']]],
-  ['astwhilestmt_23',['ASTWhileStmt',['../classweak_1_1ASTWhileStmt.html',1,'weak']]]
+  ['aststructdecl_19',['ASTStructDecl',['../classweak_1_1ASTStructDecl.html',1,'weak']]],
+  ['astsymbol_20',['ASTSymbol',['../classweak_1_1ASTSymbol.html',1,'weak']]],
+  ['astunaryoperator_21',['ASTUnaryOperator',['../classweak_1_1ASTUnaryOperator.html',1,'weak']]],
+  ['astvardecl_22',['ASTVarDecl',['../classweak_1_1ASTVarDecl.html',1,'weak']]],
+  ['astvisitor_23',['ASTVisitor',['../classweak_1_1ASTVisitor.html',1,'weak']]],
+  ['astwhilestmt_24',['ASTWhileStmt',['../classweak_1_1ASTWhileStmt.html',1,'weak']]]
 ];

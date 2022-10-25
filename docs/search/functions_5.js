@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['lookup_0',['Lookup',['../classweak_1_1DeclsStorage.html#af840bec7cac046ebaf8219318f996bc9',1,'weak::DeclsStorage']]]
+  ['is_0',['Is',['../structweak_1_1Token.html#a0707686c7f6d7fe0f4f1d337f6591fba',1,'weak::Token']]]
 ];

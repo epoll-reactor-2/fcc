@@ -33,6 +33,7 @@ public:
   virtual void Visit(const ASTIntegerLiteral *) = 0;
   virtual void Visit(const ASTReturnStmt *) = 0;
   virtual void Visit(const ASTStringLiteral *) = 0;
+  virtual void Visit(const ASTStructDecl *) = 0;
   virtual void Visit(const ASTSymbol *) = 0;
   virtual void Visit(const ASTUnaryOperator *) = 0;
   virtual void Visit(const ASTVarDecl *) = 0;

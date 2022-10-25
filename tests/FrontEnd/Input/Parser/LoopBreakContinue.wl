@@ -7,7 +7,7 @@
 //      CompoundStmt <line:41, col:10>
 //        ForStmt <line:42, col:3>
 //          ForStmtInit <line:42, col:8>
-//            VarDeclStmt <line:42, col:8> <INT> i
+//            VarDecl <line:42, col:8> <INT> i
 //              IntegerLiteral <line:42, col:16> 0
 //          ForStmtCondition <line:42, col:21>
 //            BinaryOperator <line:42, col:21> <

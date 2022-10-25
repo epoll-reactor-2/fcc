@@ -24,6 +24,7 @@
 #include "FrontEnd/AST/ASTNode.hpp"
 #include "FrontEnd/AST/ASTReturnStmt.hpp"
 #include "FrontEnd/AST/ASTStringLiteral.hpp"
+#include "FrontEnd/AST/ASTStructDecl.hpp"
 #include "FrontEnd/AST/ASTSymbol.hpp"
 #include "FrontEnd/AST/ASTUnaryOperator.hpp"
 #include "FrontEnd/AST/ASTVarDecl.hpp"
@@ -261,8 +262,20 @@ private:
     Indent -= 2;
   }
 
+  void Visit(const ASTStructDecl *Decl) override {
+    PrintWithTextPosition("StructDecl", Decl, /*NewLineNeeded=*/false);
+    OutStream << Decl->GetName() << std::endl;
+
+    Indent += 2;
+    for (const auto &Field : Decl->GetDecls()) {
+      PrintIndent();
+      Field->Accept(this);
+    }
+    Indent -= 2;
+  }
+
   void Visit(const ASTVarDecl *VarDecl) override {
-    PrintWithTextPosition("VarDeclStmt", VarDecl, /*NewLineNeeded=*/false);
+    PrintWithTextPosition("VarDecl", VarDecl, /*NewLineNeeded=*/false);
     OutStream << TokenToString(VarDecl->GetDataType()) << " "
               << VarDecl->GetSymbolName() << std::endl;
 

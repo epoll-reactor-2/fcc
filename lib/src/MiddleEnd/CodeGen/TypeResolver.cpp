@@ -27,17 +27,17 @@ const ASTVarDecl *TypeResolver::GetVarDecl(const ASTNode *Node) {
 llvm::Type *TypeResolver::Resolve(TokenType T, unsigned LineNo,
                                   unsigned ColumnNo) {
   switch (T) {
-  case TokenType::VOID:
+  case TOK_VOID:
     return llvm::Type::getVoidTy(LLVMCtx);
-  case TokenType::CHAR:
+  case TOK_CHAR:
     return llvm::Type::getInt8Ty(LLVMCtx);
-  case TokenType::INT:
+  case TOK_INT:
     return llvm::Type::getInt32Ty(LLVMCtx);
-  case TokenType::BOOLEAN:
+  case TOK_BOOLEAN:
     return llvm::Type::getInt1Ty(LLVMCtx);
-  case TokenType::FLOAT:
+  case TOK_FLOAT:
     return llvm::Type::getFloatTy(LLVMCtx);
-  case TokenType::STRING:
+  case TOK_STRING:
     return llvm::Type::getInt8PtrTy(LLVMCtx);
   default:
     weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
@@ -53,15 +53,15 @@ llvm::Type *TypeResolver::Resolve(const ASTNode *Node) {
 llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T, unsigned LineNo,
                                             unsigned ColumnNo) {
   switch (T) {
-  case TokenType::CHAR:
+  case TOK_CHAR:
     return llvm::Type::getInt8Ty(LLVMCtx);
-  case TokenType::INT:
+  case TOK_INT:
     return llvm::Type::getInt32Ty(LLVMCtx);
-  case TokenType::FLOAT:
+  case TOK_FLOAT:
     return llvm::Type::getFloatTy(LLVMCtx);
-  case TokenType::BOOLEAN:
+  case TOK_BOOLEAN:
     return llvm::Type::getInt1Ty(LLVMCtx);
-  case TokenType::STRING:
+  case TOK_STRING:
     return llvm::Type::getInt8PtrTy(LLVMCtx);
   default:
     weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);

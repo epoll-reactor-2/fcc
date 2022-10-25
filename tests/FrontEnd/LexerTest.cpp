@@ -39,10 +39,10 @@ int main() {
   }
   SECTION(LexingOneLineComment) {
     std::vector<Token> Assertion = {
-        MakeToken("1", TokenType::INTEGRAL_LITERAL),
-        MakeToken("22", TokenType::INTEGRAL_LITERAL),
-        MakeToken("333", TokenType::INTEGRAL_LITERAL),
-        MakeToken("", TokenType::SLASH)};
+        MakeToken("1", TOK_INTEGRAL_LITERAL),
+        MakeToken("22", TOK_INTEGRAL_LITERAL),
+        MakeToken("333", TOK_INTEGRAL_LITERAL),
+        MakeToken("", TOK_SLASH)};
     RunLexerTest("// Free text.\n1 22 333 /", Assertion);
   }
   SECTION(LexingEmptyMultiLineComment) {
@@ -51,111 +51,111 @@ int main() {
   }
   SECTION(LexingMultiLineComment) {
     std::vector<Token> Assertion = {
-        MakeToken("1", TokenType::INTEGRAL_LITERAL),
-        MakeToken("22", TokenType::INTEGRAL_LITERAL),
-        MakeToken("333", TokenType::INTEGRAL_LITERAL),
-        MakeToken("", TokenType::SLASH),
-        MakeToken("", TokenType::SLASH),
-        MakeToken("", TokenType::SLASH)};
+        MakeToken("1", TOK_INTEGRAL_LITERAL),
+        MakeToken("22", TOK_INTEGRAL_LITERAL),
+        MakeToken("333", TOK_INTEGRAL_LITERAL),
+        MakeToken("", TOK_SLASH),
+        MakeToken("", TOK_SLASH),
+        MakeToken("", TOK_SLASH)};
     RunLexerTest("/* Free // text. */1 22 333 / / /", Assertion);
   }
   SECTION(LexingIntegralConstant) {
     std::vector<Token> Assertion = {
-        MakeToken("1", TokenType::INTEGRAL_LITERAL),
-        MakeToken("22", TokenType::INTEGRAL_LITERAL),
-        MakeToken("333", TokenType::INTEGRAL_LITERAL)};
+        MakeToken("1", TOK_INTEGRAL_LITERAL),
+        MakeToken("22", TOK_INTEGRAL_LITERAL),
+        MakeToken("333", TOK_INTEGRAL_LITERAL)};
     RunLexerTest("1 22 333", Assertion);
   }
   SECTION(LexingFloatingPointConstant) {
     std::vector<Token> Assertion = {
-        MakeToken("1.1", TokenType::FLOATING_POINT_LITERAL),
-        MakeToken("22.22", TokenType::FLOATING_POINT_LITERAL),
-        MakeToken("333.333", TokenType::FLOATING_POINT_LITERAL)};
+        MakeToken("1.1", TOK_FLOATING_POINT_LITERAL),
+        MakeToken("22.22", TOK_FLOATING_POINT_LITERAL),
+        MakeToken("333.333", TOK_FLOATING_POINT_LITERAL)};
     RunLexerTest("1.1 22.22 333.333", Assertion);
   }
   SECTION(LexingCharLiteralLiteral) {
-    std::vector<Token> Assertion = {MakeToken("a", TokenType::CHAR_LITERAL)};
+    std::vector<Token> Assertion = {MakeToken("a", TOK_CHAR_LITERAL)};
     RunLexerTest("'a'", Assertion);
   }
   SECTION(LexingEmptyStringLiteral) {
-    std::vector<Token> Assertion = {MakeToken("", TokenType::STRING_LITERAL)};
+    std::vector<Token> Assertion = {MakeToken("", TOK_STRING_LITERAL)};
     RunLexerTest("\"\"", Assertion);
   }
   SECTION(LexingStringLiteral) {
-    std::vector<Token> Assertion = {MakeToken("a", TokenType::STRING_LITERAL),
-                                    MakeToken("b", TokenType::STRING_LITERAL),
-                                    MakeToken("c", TokenType::STRING_LITERAL)};
+    std::vector<Token> Assertion = {MakeToken("a", TOK_STRING_LITERAL),
+                                    MakeToken("b", TOK_STRING_LITERAL),
+                                    MakeToken("c", TOK_STRING_LITERAL)};
     RunLexerTest(R"("a" "b" "c")", Assertion);
   }
   SECTION(LexingStringLiteral) {
     std::vector<Token> Assertion = {MakeToken("text \" with escaped character ",
-                                              TokenType::STRING_LITERAL)};
+                                              TOK_STRING_LITERAL)};
     RunLexerTest(R"("text \" with escaped character ")", Assertion);
   }
   SECTION(LexingEscapeSequenceInStringLiteral) {
     std::vector<Token> Assertion = {
-        MakeToken("\\escaped\\", TokenType::STRING_LITERAL)};
+        MakeToken("\\escaped\\", TOK_STRING_LITERAL)};
     RunLexerTest(R"("\\escaped\\")", Assertion);
   }
   SECTION(LexingSymbols) {
-    std::vector<Token> Assertion = {MakeToken("a", TokenType::SYMBOL),
-                                    MakeToken("b", TokenType::SYMBOL),
-                                    MakeToken("c", TokenType::SYMBOL)};
+    std::vector<Token> Assertion = {MakeToken("a", TOK_SYMBOL),
+                                    MakeToken("b", TOK_SYMBOL),
+                                    MakeToken("c", TOK_SYMBOL)};
     RunLexerTest("a b c", Assertion);
   }
   SECTION(LexingKeywords) {
-    std::vector<Token> Assertion = {MakeToken("", TokenType::BOOLEAN),
-                                    MakeToken("", TokenType::CHAR),
-                                    MakeToken("", TokenType::WHILE)};
+    std::vector<Token> Assertion = {MakeToken("", TOK_BOOLEAN),
+                                    MakeToken("", TOK_CHAR),
+                                    MakeToken("", TOK_WHILE)};
     RunLexerTest("bool\nchar\nwhile", Assertion);
   }
   SECTION(LexingOperators) {
-    std::vector<Token> Assertion_1 = {MakeToken("", TokenType::PLUS),
-                                      MakeToken("", TokenType::MINUS),
-                                      MakeToken("", TokenType::SLASH)};
+    std::vector<Token> Assertion_1 = {MakeToken("", TOK_PLUS),
+                                      MakeToken("", TOK_MINUS),
+                                      MakeToken("", TOK_SLASH)};
     RunLexerTest("+-/", Assertion_1);
     std::vector<Token> Assertion_2 = {
-        MakeToken("", TokenType::INC), MakeToken("", TokenType::INC),
-        MakeToken("", TokenType::INC), MakeToken("", TokenType::PLUS)};
+        MakeToken("", TOK_INC), MakeToken("", TOK_INC),
+        MakeToken("", TOK_INC), MakeToken("", TOK_PLUS)};
     RunLexerTest("+++++++", Assertion_2);
   }
   SECTION(LexingCompoundInput) {
     std::vector<Token> Assertion = {
-        MakeToken("", TokenType::VOID),
-        MakeToken("main", TokenType::SYMBOL),
-        MakeToken("", TokenType::OPEN_PAREN),
-        MakeToken("", TokenType::INT),
-        MakeToken("argc", TokenType::SYMBOL),
-        MakeToken("", TokenType::COMMA),
-        MakeToken("", TokenType::CHAR),
-        MakeToken("argv", TokenType::SYMBOL),
-        MakeToken("", TokenType::CLOSE_PAREN),
+        MakeToken("", TOK_VOID),
+        MakeToken("main", TOK_SYMBOL),
+        MakeToken("", TOK_OPEN_PAREN),
+        MakeToken("", TOK_INT),
+        MakeToken("argc", TOK_SYMBOL),
+        MakeToken("", TOK_COMMA),
+        MakeToken("", TOK_CHAR),
+        MakeToken("argv", TOK_SYMBOL),
+        MakeToken("", TOK_CLOSE_PAREN),
 
-        MakeToken("", TokenType::OPEN_CURLY_BRACKET),
-        MakeToken("", TokenType::STRING),
-        MakeToken("output", TokenType::SYMBOL),
-        MakeToken("", TokenType::ASSIGN),
-        MakeToken("", TokenType::STRING_LITERAL),
-        MakeToken("", TokenType::SEMICOLON),
+        MakeToken("", TOK_OPEN_CURLY_BRACKET),
+        MakeToken("", TOK_STRING),
+        MakeToken("output", TOK_SYMBOL),
+        MakeToken("", TOK_ASSIGN),
+        MakeToken("", TOK_STRING_LITERAL),
+        MakeToken("", TOK_SEMICOLON),
 
-        MakeToken("", TokenType::WHILE),
-        MakeToken("", TokenType::OPEN_PAREN),
-        MakeToken("1", TokenType::INTEGRAL_LITERAL),
-        MakeToken("", TokenType::NEQ),
-        MakeToken("0", TokenType::INTEGRAL_LITERAL),
-        MakeToken("", TokenType::CLOSE_PAREN),
+        MakeToken("", TOK_WHILE),
+        MakeToken("", TOK_OPEN_PAREN),
+        MakeToken("1", TOK_INTEGRAL_LITERAL),
+        MakeToken("", TOK_NEQ),
+        MakeToken("0", TOK_INTEGRAL_LITERAL),
+        MakeToken("", TOK_CLOSE_PAREN),
 
-        MakeToken("", TokenType::OPEN_CURLY_BRACKET),
+        MakeToken("", TOK_OPEN_CURLY_BRACKET),
 
-        MakeToken("output", TokenType::SYMBOL),
-        MakeToken("", TokenType::PLUS_ASSIGN),
+        MakeToken("output", TOK_SYMBOL),
+        MakeToken("", TOK_PLUS_ASSIGN),
         MakeToken("Oder ist dieser Lastwagen vielleicht besser auf den blitzen "
                   "Zweiundzwanzigzöllner?",
-                  TokenType::STRING_LITERAL),
-        MakeToken("", TokenType::SEMICOLON),
+                  TOK_STRING_LITERAL),
+        MakeToken("", TOK_SEMICOLON),
 
-        MakeToken("", TokenType::CLOSE_CURLY_BRACKET),
-        MakeToken("", TokenType::CLOSE_CURLY_BRACKET)};
+        MakeToken("", TOK_CLOSE_CURLY_BRACKET),
+        MakeToken("", TOK_CLOSE_CURLY_BRACKET)};
     RunLexerTest(R"__(void main(int argc, char argv) {
         string output = "";
         while (1 != 0) {

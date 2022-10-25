@@ -32,8 +32,8 @@ public:
   static inline std::ostringstream ErrBuf;
 };
 
-void weak::UnreachablePoint(const char *Msg) {
-  std::string ErrMsg = "Unreachable point reached: " + std::string(Msg) + '\n';
+void weak::UnreachablePoint(std::string Msg) {
+  std::string ErrMsg = "Unreachable point reached: " + Msg + '\n';
   throw std::runtime_error(ErrMsg);
 }
 

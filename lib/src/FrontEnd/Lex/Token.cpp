@@ -5,133 +5,181 @@
  */
 
 #include "FrontEnd/Lex/Token.hpp"
+#include "Utility/Diagnostic.hpp"
 
 const char *weak::TokenToString(TokenType Type) {
   switch (Type) {
-  case TokenType::BOOLEAN:
+  case TOK_BOOLEAN:
     return "<BOOLEAN>";
-  case TokenType::BREAK:
+  case TOK_BREAK:
     return "<BREAK>";
-  case TokenType::CHAR:
+  case TOK_CHAR:
     return "<CHAR>";
-  case TokenType::CONTINUE:
+  case TOK_CONTINUE:
     return "<CONTINUE>";
-  case TokenType::DO:
+  case TOK_DO:
     return "<DO>";
-  case TokenType::ELSE:
+  case TOK_ELSE:
     return "<ELSE>";
-  case TokenType::FALSE:
+  case TOK_FALSE:
     return "<FALSE>";
-  case TokenType::FLOAT:
+  case TOK_FLOAT:
     return "<FLOAT>";
-  case TokenType::FOR:
+  case TOK_FOR:
     return "<FOR>";
-  case TokenType::IF:
+  case TOK_IF:
     return "<IF>";
-  case TokenType::INT:
+  case TOK_INT:
     return "<INT>";
-  case TokenType::RETURN:
+  case TOK_RETURN:
     return "<RETURN>";
-  case TokenType::STRING:
+  case TOK_STRING:
     return "<STRING>";
-  case TokenType::TRUE:
+  case TOK_TRUE:
     return "<TRUE>";
-  case TokenType::VOID:
+  case TOK_VOID:
     return "<VOID>";
-  case TokenType::WHILE:
+  case TOK_WHILE:
     return "<WHILE>";
-  case TokenType::CHAR_LITERAL:
+  case TOK_CHAR_LITERAL:
     return "<CHAR LITERAL>";
-  case TokenType::INTEGRAL_LITERAL:
+  case TOK_INTEGRAL_LITERAL:
     return "<INT LITERAL>";
-  case TokenType::FLOATING_POINT_LITERAL:
+  case TOK_FLOATING_POINT_LITERAL:
     return "<FLOAT LITERAL>";
-  case TokenType::STRING_LITERAL:
+  case TOK_STRING_LITERAL:
     return "<STRING LITERAL>";
-  case TokenType::SYMBOL:
+  case TOK_SYMBOL:
     return "<SYMBOL>";
-  case TokenType::ASSIGN:
+  case TOK_ASSIGN:
     return "=";
-  case TokenType::MUL_ASSIGN:
+  case TOK_MUL_ASSIGN:
     return "*=";
-  case TokenType::DIV_ASSIGN:
+  case TOK_DIV_ASSIGN:
     return "/=";
-  case TokenType::MOD_ASSIGN:
+  case TOK_MOD_ASSIGN:
     return "%=";
-  case TokenType::PLUS_ASSIGN:
+  case TOK_PLUS_ASSIGN:
     return "+=";
-  case TokenType::MINUS_ASSIGN:
+  case TOK_MINUS_ASSIGN:
     return "-=";
-  case TokenType::SHL_ASSIGN:
+  case TOK_SHL_ASSIGN:
     return "<<=";
-  case TokenType::SHR_ASSIGN:
+  case TOK_SHR_ASSIGN:
     return ">>=";
-  case TokenType::BIT_AND_ASSIGN:
+  case TOK_BIT_AND_ASSIGN:
     return "&=";
-  case TokenType::BIT_OR_ASSIGN:
+  case TOK_BIT_OR_ASSIGN:
     return "|=";
-  case TokenType::XOR_ASSIGN:
+  case TOK_XOR_ASSIGN:
     return "^=";
-  case TokenType::AND:
+  case TOK_AND:
     return "&&";
-  case TokenType::OR:
+  case TOK_OR:
     return "||";
-  case TokenType::XOR:
+  case TOK_XOR:
     return "^";
-  case TokenType::BIT_AND:
+  case TOK_BIT_AND:
     return "&";
-  case TokenType::BIT_OR:
+  case TOK_BIT_OR:
     return "|";
-  case TokenType::EQ:
+  case TOK_EQ:
     return "==";
-  case TokenType::NEQ:
+  case TOK_NEQ:
     return "!=";
-  case TokenType::GT:
+  case TOK_GT:
     return ">";
-  case TokenType::LT:
+  case TOK_LT:
     return "<";
-  case TokenType::GE:
+  case TOK_GE:
     return ">=";
-  case TokenType::LE:
+  case TOK_LE:
     return "<=";
-  case TokenType::SHL:
+  case TOK_SHL:
     return "<<";
-  case TokenType::SHR:
+  case TOK_SHR:
     return ">>";
-  case TokenType::PLUS:
+  case TOK_PLUS:
     return "+";
-  case TokenType::MINUS:
+  case TOK_MINUS:
     return "-";
-  case TokenType::STAR:
+  case TOK_STAR:
     return "*";
-  case TokenType::SLASH:
+  case TOK_SLASH:
     return "/";
-  case TokenType::MOD:
+  case TOK_MOD:
     return "%";
-  case TokenType::INC:
+  case TOK_INC:
     return "++";
-  case TokenType::DEC:
+  case TOK_DEC:
     return "--";
-  case TokenType::COMMA:
+  case TOK_COMMA:
     return ",";
-  case TokenType::SEMICOLON:
+  case TOK_SEMICOLON:
     return ";";
-  case TokenType::NOT:
+  case TOK_NOT:
     return "!";
-  case TokenType::OPEN_BOX_BRACKET:
+  case TOK_OPEN_BOX_BRACKET:
     return "[";
-  case TokenType::CLOSE_BOX_BRACKET:
+  case TOK_CLOSE_BOX_BRACKET:
     return "]";
-  case TokenType::OPEN_CURLY_BRACKET:
+  case TOK_OPEN_CURLY_BRACKET:
     return "{";
-  case TokenType::CLOSE_CURLY_BRACKET:
+  case TOK_CLOSE_CURLY_BRACKET:
     return "}";
-  case TokenType::OPEN_PAREN:
+  case TOK_OPEN_PAREN:
     return "(";
-  case TokenType::CLOSE_PAREN:
+  case TOK_CLOSE_PAREN:
     return ")";
   default:
     return "<UNKNOWN>";
+  }
+}
+
+weak::TokenType weak::CharToToken(char T) {
+  switch (T) {
+  case '=':
+    return TOK_ASSIGN;
+  case '^':
+    return TOK_XOR;
+  case '&':
+    return TOK_BIT_AND;
+  case '|':
+    return TOK_BIT_OR;
+  case '>':
+    return TOK_GT;
+  case '<':
+    return TOK_LT;
+  case '+':
+    return TOK_PLUS;
+  case '-':
+    return TOK_MINUS;
+  case '*':
+    return TOK_STAR;
+  case '/':
+    return TOK_SLASH;
+  case '%':
+    return TOK_MOD;
+  case ',':
+    return TOK_COMMA;
+  case ';':
+    return TOK_SEMICOLON;
+  case '!':
+    return TOK_NOT;
+  case '[':
+    return TOK_OPEN_BOX_BRACKET;
+  case ']':
+    return TOK_CLOSE_BOX_BRACKET;
+  case '{':
+    return TOK_OPEN_CURLY_BRACKET;
+  case '}':
+    return TOK_CLOSE_CURLY_BRACKET;
+  case '(':
+    return TOK_OPEN_PAREN;
+  case ')':
+    return TOK_CLOSE_PAREN;
+  default:
+    weak::UnreachablePoint("Cannot convert `" + std::string{T} + "` to token");
   }
 }
 
@@ -141,6 +189,8 @@ Token::Token(std::string TheData, TokenType TheType, unsigned TheLineNo,
              unsigned TheColumnNo)
     : Data(std::move(TheData)), Type(TheType), LineNo(TheLineNo),
       ColumnNo(TheColumnNo) {}
+
+bool Token::Is(char Token) const { return Type == CharToToken(Token); }
 
 bool Token::operator==(const Token &RHS) const {
   return (Data == RHS.Data) && (Type == RHS.Type);

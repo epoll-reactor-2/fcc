@@ -18,7 +18,7 @@ namespace weak {
 class Parser {
 public:
   /// \note Requires random access memory layout of buffer.
-  Parser(const Token *TheBufferStart, const Token *TheBufferEnd);
+  Parser(const Token *TheBufStart, const Token *TheBufEnd);
 
   /// Transform token stream to AST.
   ///
@@ -47,6 +47,11 @@ private:
   /// Variable declaration with initializer.
   ASTNode *ParseVarDecl();
 
+  ASTNode *ParseDecl();
+
+  /// User type declaration.
+  ASTNode *ParseStructDecl();
+
   /// Int, float, char, string, bool.
   const Token &ParseType();
 
@@ -54,7 +59,7 @@ private:
   const Token &ParseReturnType();
 
   /// < type > < id > | < type > < id > [ < integral-literal > ].
-  ASTNode *ParseParameter();
+  ASTNode *ParseDeclWithoutInitializer();
 
   /// ( (< type > < id > ,?)* ).
   std::vector<ASTNode *> ParseParameterList();
@@ -136,28 +141,39 @@ private:
   /// matches any of expected, otherwise return false.
   bool Match(const std::vector<TokenType> &Expected);
 
-  /// Return true and move current buffer pointer forward if current token
-  /// matches given token type, otherwise return false.
+  /// \copydoc Match(const std::vector<TokenType> &)
   bool Match(TokenType Expected);
+
+  /// \copydoc Match(const std::vector<TokenType> &)
+  bool Match(const std::vector<char> &Expected);
+
+  /// \copydoc Match(const std::vector<TokenType> &)
+  bool Match(char Expected);
 
   /// Does the Match job, but emits compile error on mismatch.
   const Token &Require(const std::vector<TokenType> &Expected);
 
-  /// Does the Match job, but emits compile error on mismatch.
+  /// \copydoc Require(const std::vector<TokenType> &)
   const Token &Require(TokenType Expected);
+
+  /// \copydoc Require(const std::vector<TokenType> &)
+  const Token &Require(const std::vector<char> &Expected);
+
+  /// \copydoc Require(const std::vector<TokenType> &)
+  const Token &Require(char Expected);
 
   /// Ensure we can move CurrentBufferPtr forward or emit compile error, if
   /// we're reached BufferEnd.
-  void CheckIfHaveMoreTokens() const;
+  void AssertNotBufEnd() const;
 
   /// First token in input stream.
-  const Token *BufferStart;
+  const Token *BufStart;
 
   /// Pointer to after-last token in input stream, like std::end().
-  const Token *BufferEnd;
+  const Token *BufEnd;
 
   /// Current token to be processed.
-  const Token *CurrentBufferPtr;
+  const Token *TokenPtr;
 
   /// Depth of currently analyzed loop. Needed for 'break', 'continue' parsing.
   std::size_t LoopsDepth;

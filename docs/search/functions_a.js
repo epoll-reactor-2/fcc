@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tostring_0',['ToString',['../classweak_1_1CodeGen.html#ac0b273ece45c6b61da8b9dfb3cb60e24',1,'weak::CodeGen']]]
+  ['startscope_0',['StartScope',['../classweak_1_1DeclsStorage.html#a80805a958f290a31ea8009db15b464dc',1,'weak::DeclsStorage']]]
 ];

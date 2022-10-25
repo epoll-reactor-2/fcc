@@ -231,26 +231,26 @@ void CodeGen::Visit(const ASTStringLiteral *Stmt) {
 
 static TokenType ResolveAssignmentOperation(TokenType T) {
   switch (T) {
-  case TokenType::MUL_ASSIGN:
-    return TokenType::STAR;
-  case TokenType::DIV_ASSIGN:
-    return TokenType::SLASH;
-  case TokenType::MOD_ASSIGN:
-    return TokenType::MOD;
-  case TokenType::PLUS_ASSIGN:
-    return TokenType::PLUS;
-  case TokenType::MINUS_ASSIGN:
-    return TokenType::MINUS;
-  case TokenType::SHL_ASSIGN:
-    return TokenType::SHL;
-  case TokenType::SHR_ASSIGN:
-    return TokenType::SHR;
-  case TokenType::BIT_AND_ASSIGN:
-    return TokenType::BIT_AND;
-  case TokenType::BIT_OR_ASSIGN:
-    return TokenType::BIT_OR;
-  case TokenType::XOR_ASSIGN:
-    return TokenType::XOR;
+  case TOK_MUL_ASSIGN:
+    return TOK_STAR;
+  case TOK_DIV_ASSIGN:
+    return TOK_SLASH;
+  case TOK_MOD_ASSIGN:
+    return TOK_MOD;
+  case TOK_PLUS_ASSIGN:
+    return TOK_PLUS;
+  case TOK_MINUS_ASSIGN:
+    return TOK_MINUS;
+  case TOK_SHL_ASSIGN:
+    return TOK_SHL;
+  case TOK_SHR_ASSIGN:
+    return TOK_SHR;
+  case TOK_BIT_AND_ASSIGN:
+    return TOK_BIT_AND;
+  case TOK_BIT_OR_ASSIGN:
+    return TOK_BIT_OR;
+  case TOK_XOR_ASSIGN:
+    return TOK_XOR;
   default:
     weak::UnreachablePoint("Should not reach here");
   }
@@ -272,22 +272,22 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
   ScalarExprEmitter ScalarEmitter(IRCtx, IRBuilder);
 
   switch (auto T = Stmt->GetOperation()) {
-  case TokenType::ASSIGN: {
+  case TOK_ASSIGN: {
     AssignmentIRBuilder Builder(IRBuilder, DeclStorage);
     Builder.Build(Stmt, R, AssignmentArrayPtr);
     LastArrayPtr = nullptr;
     break;
   }
-  case TokenType::MUL_ASSIGN:
-  case TokenType::DIV_ASSIGN:
-  case TokenType::PLUS_ASSIGN:
-  case TokenType::MINUS_ASSIGN:
-  case TokenType::MOD_ASSIGN:
-  case TokenType::SHL_ASSIGN:
-  case TokenType::SHR_ASSIGN:
-  case TokenType::BIT_AND_ASSIGN:
-  case TokenType::BIT_OR_ASSIGN:
-  case TokenType::XOR_ASSIGN: {
+  case TOK_MUL_ASSIGN:
+  case TOK_DIV_ASSIGN:
+  case TOK_PLUS_ASSIGN:
+  case TOK_MINUS_ASSIGN:
+  case TOK_MOD_ASSIGN:
+  case TOK_SHL_ASSIGN:
+  case TOK_SHR_ASSIGN:
+  case TOK_BIT_AND_ASSIGN:
+  case TOK_BIT_OR_ASSIGN:
+  case TOK_XOR_ASSIGN: {
     auto *Assignment = static_cast<const ASTSymbol *>(Stmt->GetLHS());
     llvm::AllocaInst *Variable = DeclStorage.Lookup(Assignment->GetName());
     TokenType Op = ResolveAssignmentOperation(T);
@@ -295,23 +295,23 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
     IRBuilder.CreateStore(LastInstr, Variable);
     break;
   }
-  case TokenType::PLUS:
-  case TokenType::MINUS:
-  case TokenType::STAR:
-  case TokenType::SLASH:
-  case TokenType::LE:
-  case TokenType::LT:
-  case TokenType::GE:
-  case TokenType::GT:
-  case TokenType::EQ:
-  case TokenType::NEQ:
-  case TokenType::OR:
-  case TokenType::AND:
-  case TokenType::BIT_OR:
-  case TokenType::BIT_AND:
-  case TokenType::XOR:
-  case TokenType::SHL:
-  case TokenType::SHR:
+  case TOK_PLUS:
+  case TOK_MINUS:
+  case TOK_STAR:
+  case TOK_SLASH:
+  case TOK_LE:
+  case TOK_LT:
+  case TOK_GE:
+  case TOK_GT:
+  case TOK_EQ:
+  case TOK_NEQ:
+  case TOK_OR:
+  case TOK_AND:
+  case TOK_BIT_OR:
+  case TOK_BIT_AND:
+  case TOK_XOR:
+  case TOK_SHL:
+  case TOK_SHR:
     LastInstr = ScalarEmitter.EmitBinOp(Stmt, T, L, R);
     break;
   default: {
@@ -342,10 +342,10 @@ void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
       static_cast<const ASTSymbol *>(Stmt->GetOperand());
 
   switch (Stmt->GetOperation()) {
-  case TokenType::INC:
+  case TOK_INC:
     LastInstr = IRBuilder.CreateAdd(LastInstr, Step);
     break;
-  case TokenType::DEC:
+  case TOK_DEC:
     LastInstr = IRBuilder.CreateSub(LastInstr, Step);
     break;
   default:
@@ -482,7 +482,7 @@ void CodeGen::Visit(const ASTFunctionDecl *Decl) {
   llvm::verifyFunction(*Func);
   LastInstr = nullptr;
 
-  if (Decl->GetReturnType() == TokenType::VOID)
+  if (Decl->GetReturnType() == TOK_VOID)
     IRBuilder.CreateRetVoid();
 }
 
@@ -611,7 +611,7 @@ void CodeGen::Visit(const ASTVarDecl *Decl) {
 
   /// Special case, since we need to copy array from data section to another
   /// array, placed on stack.
-  if (Decl->GetDataType() == TokenType::STRING) {
+  if (Decl->GetDataType() == TOK_STRING) {
     const auto *Literal = static_cast<ASTStringLiteral *>(Decl->GetDeclBody());
     const unsigned NullTerminator = 1;
     llvm::ArrayType *ArrayType = llvm::ArrayType::get(

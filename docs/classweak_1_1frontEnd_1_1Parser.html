@@ -123,7 +123,7 @@ const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> &amp;&
 <tr class="memdesc:a168b3af6051b7dea2f7ad7e5996730cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">All from <a class="el" href="classweak_1_1frontEnd_1_1Parser.html#afe141a6ad2dc613f48ab3ce194acd339" title="Int, float, char, string, bool.">ParseType()</a> or void. <br /></td></tr>
 <tr class="separator:a168b3af6051b7dea2f7ad7e5996730cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc63f7b5e01f1c24ec6397d373f52d74"><td class="memItemLeft" align="right" valign="top"><a id="adc63f7b5e01f1c24ec6397d373f52d74" name="adc63f7b5e01f1c24ec6397d373f52d74"></a>
-std::unique_ptr&lt; <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseParameter</b> ()</td></tr>
+std::unique_ptr&lt; <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseDeclWithoutInitializer</b> ()</td></tr>
 <tr class="memdesc:adc63f7b5e01f1c24ec6397d373f52d74"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; type &gt; &lt; id &gt; | &lt; type &gt; &lt; id &gt; [ &lt; integral-literal &gt; ]. <br /></td></tr>
 <tr class="separator:adc63f7b5e01f1c24ec6397d373f52d74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a029a8a8d92061ad9ea2de4e4139704da"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::unique_ptr&lt; <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">ASTNode</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#a029a8a8d92061ad9ea2de4e4139704da">ParseParameterList</a> ()</td></tr>
@@ -235,21 +235,21 @@ const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> &amp;&
 const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Require</b> (TokenType Expected)</td></tr>
 <tr class="memdesc:a3ca31d26f3e6951385895627e5a6b200"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the Match job, but emits compile error on mismatch. <br /></td></tr>
 <tr class="separator:a3ca31d26f3e6951385895627e5a6b200"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4c4f2990ce5a7924410bf10bc53d4c3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#ab4c4f2990ce5a7924410bf10bc53d4c3">CheckIfHaveMoreTokens</a> () const</td></tr>
+<tr class="memitem:ab4c4f2990ce5a7924410bf10bc53d4c3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1frontEnd_1_1Parser.html#ab4c4f2990ce5a7924410bf10bc53d4c3">AssertNotBufEnd</a> () const</td></tr>
 <tr class="separator:ab4c4f2990ce5a7924410bf10bc53d4c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a010dd76e0cbb621a333acf969928e360"><td class="memItemLeft" align="right" valign="top"><a id="a010dd76e0cbb621a333acf969928e360" name="a010dd76e0cbb621a333acf969928e360"></a>
-const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufferStart</b></td></tr>
+const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufStart</b></td></tr>
 <tr class="memdesc:a010dd76e0cbb621a333acf969928e360"><td class="mdescLeft">&#160;</td><td class="mdescRight">First token in input stream. <br /></td></tr>
 <tr class="separator:a010dd76e0cbb621a333acf969928e360"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4541fc2ec869ef51a16d9e55138c9037"><td class="memItemLeft" align="right" valign="top"><a id="a4541fc2ec869ef51a16d9e55138c9037" name="a4541fc2ec869ef51a16d9e55138c9037"></a>
-const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufferEnd</b></td></tr>
+const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufEnd</b></td></tr>
 <tr class="memdesc:a4541fc2ec869ef51a16d9e55138c9037"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to after-last token in input stream, like std::end(). <br /></td></tr>
 <tr class="separator:a4541fc2ec869ef51a16d9e55138c9037"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5dc355c9b6b1adee68c6ef947345918d"><td class="memItemLeft" align="right" valign="top"><a id="a5dc355c9b6b1adee68c6ef947345918d" name="a5dc355c9b6b1adee68c6ef947345918d"></a>
-const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>CurrentBufferPtr</b></td></tr>
+const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>TokenPtr</b></td></tr>
 <tr class="memdesc:a5dc355c9b6b1adee68c6ef947345918d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current token to be processed. <br /></td></tr>
 <tr class="separator:a5dc355c9b6b1adee68c6ef947345918d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a231ae34bd77436d66b20af0200f868c0"><td class="memItemLeft" align="right" valign="top"><a id="a231ae34bd77436d66b20af0200f868c0" name="a231ae34bd77436d66b20af0200f868c0"></a>
@@ -291,7 +291,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="ab4c4f2990ce5a7924410bf10bc53d4c3" name="ab4c4f2990ce5a7924410bf10bc53d4c3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab4c4f2990ce5a7924410bf10bc53d4c3">&#9670;&nbsp;</a></span>CheckIfHaveMoreTokens()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab4c4f2990ce5a7924410bf10bc53d4c3">&#9670;&nbsp;</a></span>AssertNotBufEnd()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -300,7 +300,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void weak::frontEnd::Parser::CheckIfHaveMoreTokens </td>
+          <td class="memname">void weak::frontEnd::Parser::AssertNotBufEnd </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -312,7 +312,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Ensure we can move CurrentBufferPtr forward or emit compile error, if we're reached BufferEnd. </p>
+<p >Ensure we can move TokenPtr forward or emit compile error, if we're reached BufEnd. </p>
 
 </div>
 </div>

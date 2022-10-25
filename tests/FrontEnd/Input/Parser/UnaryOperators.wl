@@ -5,7 +5,7 @@
 //    FunctionDeclArgs <line:18, col:1>
 //    FunctionDeclBody <line:18, col:1>
 //      CompoundStmt <line:18, col:10>
-//        VarDeclStmt <line:19, col:3> <INT> var1
+//        VarDecl <line:19, col:3> <INT> var1
 //          IntegerLiteral <line:19, col:14> 0
 //        Postfix UnaryOperator <line:20, col:7> ++
 //          Symbol <line:20, col:3> var1

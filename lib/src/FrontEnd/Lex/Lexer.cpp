@@ -14,56 +14,57 @@
 namespace weak {
 namespace {
 static const std::unordered_map<std::string_view, TokenType> LexKeywords = {
-    {"bool", TokenType::BOOLEAN},  {"break", TokenType::BREAK},
-    {"char", TokenType::CHAR},     {"continue", TokenType::CONTINUE},
-    {"do", TokenType::DO},         {"else", TokenType::ELSE},
-    {"false", TokenType::FALSE},   {"float", TokenType::FLOAT},
-    {"for", TokenType::FOR},       {"if", TokenType::IF},
-    {"int", TokenType::INT},       {"return", TokenType::RETURN},
-    {"string", TokenType::STRING}, {"true", TokenType::TRUE},
-    {"void", TokenType::VOID},     {"while", TokenType::WHILE}};
+    {"bool", TOK_BOOLEAN},  {"break", TOK_BREAK},
+    {"char", TOK_CHAR},     {"continue", TOK_CONTINUE},
+    {"do", TOK_DO},         {"else", TOK_ELSE},
+    {"false", TOK_FALSE},   {"float", TOK_FLOAT},
+    {"for", TOK_FOR},       {"if", TOK_IF},
+    {"int", TOK_INT},       {"return", TOK_RETURN},
+    {"string", TOK_STRING}, {"struct", TOK_STRUCT},
+    {"true", TOK_TRUE},     {"void", TOK_VOID},
+    {"while", TOK_WHILE}};
 
 static const std::unordered_map<std::string_view, TokenType> LexOperators = {
-    {"=", TokenType::ASSIGN},
-    {"*=", TokenType::MUL_ASSIGN},
-    {"/=", TokenType::DIV_ASSIGN},
-    {"%=", TokenType::MOD_ASSIGN},
-    {"+=", TokenType::PLUS_ASSIGN},
-    {"-=", TokenType::MINUS_ASSIGN},
-    {"<<=", TokenType::SHL_ASSIGN},
-    {">>=", TokenType::SHR_ASSIGN},
-    {"&=", TokenType::BIT_AND_ASSIGN},
-    {"|=", TokenType::BIT_OR_ASSIGN},
-    {"^=", TokenType::XOR_ASSIGN},
-    {"&&", TokenType::AND},
-    {"||", TokenType::OR},
-    {"^", TokenType::XOR},
-    {"&", TokenType::BIT_AND},
-    {"|", TokenType::BIT_OR},
-    {"==", TokenType::EQ},
-    {"!=", TokenType::NEQ},
-    {">", TokenType::GT},
-    {"<", TokenType::LT},
-    {">=", TokenType::GE},
-    {"<=", TokenType::LE},
-    {">>", TokenType::SHR},
-    {"<<", TokenType::SHL},
-    {"+", TokenType::PLUS},
-    {"-", TokenType::MINUS},
-    {"*", TokenType::STAR},
-    {"/", TokenType::SLASH},
-    {"%", TokenType::MOD},
-    {"++", TokenType::INC},
-    {"--", TokenType::DEC},
-    {",", TokenType::COMMA},
-    {";", TokenType::SEMICOLON},
-    {"!", TokenType::NOT},
-    {"[", TokenType::OPEN_BOX_BRACKET},
-    {"]", TokenType::CLOSE_BOX_BRACKET},
-    {"{", TokenType::OPEN_CURLY_BRACKET},
-    {"}", TokenType::CLOSE_CURLY_BRACKET},
-    {"(", TokenType::OPEN_PAREN},
-    {")", TokenType::CLOSE_PAREN}};
+    {"=", TOK_ASSIGN},
+    {"*=", TOK_MUL_ASSIGN},
+    {"/=", TOK_DIV_ASSIGN},
+    {"%=", TOK_MOD_ASSIGN},
+    {"+=", TOK_PLUS_ASSIGN},
+    {"-=", TOK_MINUS_ASSIGN},
+    {"<<=", TOK_SHL_ASSIGN},
+    {">>=", TOK_SHR_ASSIGN},
+    {"&=", TOK_BIT_AND_ASSIGN},
+    {"|=", TOK_BIT_OR_ASSIGN},
+    {"^=", TOK_XOR_ASSIGN},
+    {"&&", TOK_AND},
+    {"||", TOK_OR},
+    {"^", TOK_XOR},
+    {"&", TOK_BIT_AND},
+    {"|", TOK_BIT_OR},
+    {"==", TOK_EQ},
+    {"!=", TOK_NEQ},
+    {">", TOK_GT},
+    {"<", TOK_LT},
+    {">=", TOK_GE},
+    {"<=", TOK_LE},
+    {">>", TOK_SHR},
+    {"<<", TOK_SHL},
+    {"+", TOK_PLUS},
+    {"-", TOK_MINUS},
+    {"*", TOK_STAR},
+    {"/", TOK_SLASH},
+    {"%", TOK_MOD},
+    {"++", TOK_INC},
+    {"--", TOK_DEC},
+    {",", TOK_COMMA},
+    {";", TOK_SEMICOLON},
+    {"!", TOK_NOT},
+    {"[", TOK_OPEN_BOX_BRACKET},
+    {"]", TOK_CLOSE_BOX_BRACKET},
+    {"{", TOK_OPEN_CURLY_BRACKET},
+    {"}", TOK_CLOSE_CURLY_BRACKET},
+    {"(", TOK_OPEN_PAREN},
+    {")", TOK_CLOSE_PAREN}};
 
 class LexStringLiteralCheck {
 public:
@@ -101,31 +102,29 @@ private:
 };
 
 } // namespace
-} // namespace weak
 
 static bool IsAlphanumeric(char C) { return isalpha(C) || C == '_'; }
 
 static void NormalizeColumnPosition(std::string_view Data, weak::TokenType Type,
                                     unsigned &ColumnNo) {
-  using weak::TokenType;
   using namespace std::string_view_literals;
   static constexpr std::array TokenLengths{
-      std::make_pair(TokenType::BOOLEAN, "bool"sv.length()),
-      std::make_pair(TokenType::BREAK, "break"sv.length()),
-      std::make_pair(TokenType::CHAR, "char"sv.length()),
-      std::make_pair(TokenType::CONTINUE, "continue"sv.length()),
-      std::make_pair(TokenType::DO, "do"sv.length()),
-      std::make_pair(TokenType::ELSE, "else"sv.length()),
-      std::make_pair(TokenType::FALSE, "false"sv.length()),
-      std::make_pair(TokenType::FLOAT, "float"sv.length()),
-      std::make_pair(TokenType::FOR, "for"sv.length()),
-      std::make_pair(TokenType::IF, "if"sv.length()),
-      std::make_pair(TokenType::INT, "int"sv.length()),
-      std::make_pair(TokenType::RETURN, "return"sv.length()),
-      std::make_pair(TokenType::STRING, "string"sv.length()),
-      std::make_pair(TokenType::TRUE, "true"sv.length()),
-      std::make_pair(TokenType::VOID, "void"sv.length()),
-      std::make_pair(TokenType::WHILE, "while"sv.length())};
+      std::make_pair(TOK_BOOLEAN, "bool"sv.length()),
+      std::make_pair(TOK_BREAK, "break"sv.length()),
+      std::make_pair(TOK_CHAR, "char"sv.length()),
+      std::make_pair(TOK_CONTINUE, "continue"sv.length()),
+      std::make_pair(TOK_DO, "do"sv.length()),
+      std::make_pair(TOK_ELSE, "else"sv.length()),
+      std::make_pair(TOK_FALSE, "false"sv.length()),
+      std::make_pair(TOK_FLOAT, "float"sv.length()),
+      std::make_pair(TOK_FOR, "for"sv.length()),
+      std::make_pair(TOK_IF, "if"sv.length()),
+      std::make_pair(TOK_INT, "int"sv.length()),
+      std::make_pair(TOK_RETURN, "return"sv.length()),
+      std::make_pair(TOK_STRING, "string"sv.length()),
+      std::make_pair(TOK_TRUE, "true"sv.length()),
+      std::make_pair(TOK_VOID, "void"sv.length()),
+      std::make_pair(TOK_WHILE, "while"sv.length())};
 
   if (const auto *It =
           std::find_if(TokenLengths.begin(), TokenLengths.end(),
@@ -134,12 +133,12 @@ static void NormalizeColumnPosition(std::string_view Data, weak::TokenType Type,
     ColumnNo -= It->second;
   } else {
     switch (Type) {
-    case TokenType::INTEGRAL_LITERAL:
-    case TokenType::FLOATING_POINT_LITERAL:
-    case TokenType::SYMBOL:
+    case TOK_INTEGRAL_LITERAL:
+    case TOK_FLOATING_POINT_LITERAL:
+    case TOK_SYMBOL:
       ColumnNo -= Data.length();
       break;
-    case TokenType::STRING_LITERAL:
+    case TOK_STRING_LITERAL:
       ColumnNo -= (Data.length() + 2 /* Quotes. */);
       break;
     default:
@@ -147,8 +146,6 @@ static void NormalizeColumnPosition(std::string_view Data, weak::TokenType Type,
     }
   }
 }
-
-namespace weak {
 
 Lexer::Lexer(const char *TheBufferStart, const char *TheBufferEnd)
     : BufferStart(TheBufferStart), BufferEnd(TheBufferEnd),
@@ -211,23 +208,22 @@ Token Lexer::AnalyzeDigit() {
   Checker.LastDigitRequire(CurrentLineNo, LexColumnName);
   Checker.ExactOneDotRequire(CurrentLineNo, LexColumnName);
 
-  return MakeToken(Digit, DotsReached == 0U
-                              ? TokenType::INTEGRAL_LITERAL
-                              : TokenType::FLOATING_POINT_LITERAL);
+  return MakeToken(Digit, DotsReached == 0U ? TOK_INTEGRAL_LITERAL
+                                            : TOK_FLOATING_POINT_LITERAL);
 }
 
 Token Lexer::AnalyzeCharLiteral() {
   PeekNext(); // Eat '
   char Character = PeekNext();
   PeekNext(); // Eat '
-  return MakeToken(std::string{Character}, TokenType::CHAR_LITERAL);
+  return MakeToken(std::string{Character}, TOK_CHAR_LITERAL);
 }
 
 Token Lexer::AnalyzeStringLiteral() {
   PeekNext(); // Eat "
 
   if (PeekNext() == '\"')
-    return MakeToken("", TokenType::STRING_LITERAL);
+    return MakeToken("", TOK_STRING_LITERAL);
 
   --CurrentBufferPtr;
 
@@ -246,7 +242,7 @@ Token Lexer::AnalyzeStringLiteral() {
   PeekNext(); // Eat "
   --CurrentColumnNo;
 
-  return MakeToken(Literal, TokenType::STRING_LITERAL);
+  return MakeToken(Literal, TOK_STRING_LITERAL);
 }
 
 Token Lexer::AnalyzeSymbol() {
@@ -261,9 +257,9 @@ Token Lexer::AnalyzeSymbol() {
   unsigned LineNo = CurrentLineNo;
   unsigned ColumnNo = CurrentColumnNo;
 
-  NormalizeColumnPosition(Symbol, TokenType::SYMBOL, ColumnNo);
+  NormalizeColumnPosition(Symbol, TOK_SYMBOL, ColumnNo);
 
-  return Token(std::move(Symbol), TokenType::SYMBOL, LineNo, ColumnNo);
+  return Token(std::move(Symbol), TOK_SYMBOL, LineNo, ColumnNo);
 }
 
 Token Lexer::AnalyzeOperator() {

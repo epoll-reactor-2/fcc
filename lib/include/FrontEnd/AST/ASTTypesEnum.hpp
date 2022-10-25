@@ -26,6 +26,7 @@ enum struct ASTType {
   // Declarations.
   VAR_DECL,
   ARRAY_DECL,
+  STRUCT_DECL,
 
   // Iteration statements.
   BREAK_STMT,
