@@ -115,7 +115,7 @@ ASTNode *Parser::ParseFunctionCall() {
     Arguments.push_back(ParseLogicalOr());
     const auto &T = Require({')', ','});
     if (T.Is(')'))
-      // Move back to token before '(' and break on next iteration.
+      /// Move back to token before '(' and break on next iteration.
       --TokenPtr;
   }
 
@@ -166,9 +166,9 @@ ASTNode *Parser::ParseArrayDecl() {
 
     const auto &End = PeekCurrent();
 
-    if (End.Is(',') || // Function parameter.
-        End.Is(')') || // Last function parameter.
-        End.Is(';'))   // End of declaration.
+    if (End.Is(',') || /// Function parameter.
+        End.Is(')') || /// Last function parameter.
+        End.Is(';'))   /// End of declaration.
       break;
   }
 
@@ -186,18 +186,18 @@ ASTNode *Parser::ParseVarDecl() {
     return new ASTVarDecl(DataType.Type, std::move(VariableName),
                           ParseLogicalOr(), DataType.LineNo, DataType.ColumnNo);
 
-  // This is placed here because language supports nested functions.
+  /// This is placed here because language supports nested functions.
   if (Current.Is('(')) {
-    --TokenPtr; // Open paren.
-    --TokenPtr; // Function name.
-    --TokenPtr; // Data type.
+    --TokenPtr; /// Open paren.
+    --TokenPtr; /// Function name.
+    --TokenPtr; /// Data type.
     return ParseFunctionDecl();
   }
 
   if (Current.Is('[')) {
-    --TokenPtr; // Open paren.
-    --TokenPtr; // Declaration name.
-    --TokenPtr; // Data type.
+    --TokenPtr; /// Open paren.
+    --TokenPtr; /// Declaration name.
+    --TokenPtr; /// Data type.
     return ParseArrayDecl();
   }
 
@@ -269,8 +269,8 @@ const Token &Parser::ParseReturnType() {
 
 ASTNode *Parser::ParseDeclWithoutInitializer() {
   unsigned Offset = 0U;
-  ++Offset; // Data type.
-  ++Offset; // Parameter name.
+  ++Offset; /// Data type.
+  ++Offset; /// Parameter name.
   if ((TokenPtr + Offset)->Is('['))
     return ParseArrayDecl();
 
@@ -360,7 +360,6 @@ ASTCompoundStmt *Parser::ParseIterationStmtBlock() {
 
 ASTNode *Parser::ParseStatement() {
   switch (const Token &Current = PeekCurrent(); Current.Type) {
-    // case
   case TOK_IF:
     return ParseSelectionStatement();
   case TOK_FOR:
@@ -509,14 +508,14 @@ ASTNode *Parser::ParseLoopStatement() {
 ASTNode *Parser::ParseJumpStatement() {
   const Token &ReturnStmt = Require(TOK_RETURN);
   if (Match(';')) {
-    // This is `return;` case.
-    // Rollback to allow match ';' in block parse function.
+    /// This is `return;` case.
+    /// Rollback to allow match ';' in block parse function.
     --TokenPtr;
     return new ASTReturnStmt(nullptr, ReturnStmt.LineNo, ReturnStmt.ColumnNo);
   }
-  // We want to forbid expressions like int var = var = var, so we
-  // expect the first expression to have the precedence is lower than
-  // the assignment operator.
+  /// We want to forbid expressions like int var = var = var, so we
+  /// expect the first expression to have the precedence is lower than
+  /// the assignment operator.
   return new ASTReturnStmt(ParseExpression(), ReturnStmt.LineNo,
                            ReturnStmt.ColumnNo);
 }
@@ -757,7 +756,7 @@ ASTNode *Parser::ParsePrefixUnary() {
                                 Current.Type, ParsePostfixUnary(),
                                 Current.LineNo, Current.ColumnNo);
   default:
-    // Rollback current token pointer because there's no unary operator.
+    /// Rollback current token pointer because there's no unary operator.
     --TokenPtr;
     return ParsePostfixUnary();
   }
