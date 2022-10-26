@@ -11,9 +11,7 @@ namespace weak {
 
 ASTSymbol::ASTSymbol(std::string TheValue, unsigned TheLineNo,
                      unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Value(std::move(TheValue)) {}
-
-ASTType ASTSymbol::GetASTType() const { return AST_SYMBOL; }
+    : ASTNode(AST_SYMBOL, TheLineNo, TheColumnNo), Value(std::move(TheValue)) {}
 
 void ASTSymbol::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

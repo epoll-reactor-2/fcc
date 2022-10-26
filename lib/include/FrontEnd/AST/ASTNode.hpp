@@ -16,15 +16,18 @@ class ASTVisitor;
 class ASTNode {
 public:
   virtual ~ASTNode() = default;
-  virtual ASTType GetASTType() const;
   virtual void Accept(ASTVisitor *) = 0;
+
+  ASTType GetASTType() const;
+  bool Is(ASTType) const;
 
   unsigned GetLineNo() const;
   unsigned GetColumnNo() const;
 
 protected:
-  ASTNode(unsigned TheLineNo, unsigned TheColumnNo);
+  ASTNode(ASTType TheType, unsigned TheLineNo, unsigned TheColumnNo);
 
+  ASTType Type;
   unsigned LineNo;
   unsigned ColumnNo;
 };

@@ -11,11 +11,9 @@ namespace weak {
 
 ASTReturnStmt::ASTReturnStmt(ASTNode *TheOperand, unsigned TheLineNo,
                              unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Operand(TheOperand) {}
+    : ASTNode(AST_RETURN_STMT, TheLineNo, TheColumnNo), Operand(TheOperand) {}
 
 ASTReturnStmt::~ASTReturnStmt() { delete Operand; }
-
-ASTType ASTReturnStmt::GetASTType() const { return AST_RETURN_STMT; }
 
 void ASTReturnStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

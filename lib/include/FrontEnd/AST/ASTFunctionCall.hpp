@@ -20,7 +20,6 @@ public:
 
   ~ASTFunctionCall();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   const std::string &GetName() const;

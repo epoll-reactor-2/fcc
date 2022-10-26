@@ -12,12 +12,10 @@ namespace weak {
 ASTVarDecl::ASTVarDecl(TokenType TheDataType, std::string &&TheSymbolName,
                        ASTNode *TheDeclBody, unsigned TheLineNo,
                        unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), DataType(TheDataType),
+    : ASTNode(AST_VAR_DECL, TheLineNo, TheColumnNo), DataType(TheDataType),
       SymbolName(std::move(TheSymbolName)), DeclBody(TheDeclBody) {}
 
 ASTVarDecl::~ASTVarDecl() { delete DeclBody; }
-
-ASTType ASTVarDecl::GetASTType() const { return AST_VAR_DECL; }
 
 void ASTVarDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

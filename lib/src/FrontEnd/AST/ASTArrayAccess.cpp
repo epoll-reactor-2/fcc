@@ -11,12 +11,10 @@ namespace weak {
 
 ASTArrayAccess::ASTArrayAccess(std::string TheSymbolName, ASTNode *TheIndex,
                                unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), SymbolName(TheSymbolName),
-      Index(TheIndex) {}
+    : ASTNode(AST_ARRAY_ACCESS, TheLineNo, TheColumnNo),
+      SymbolName(TheSymbolName), Index(TheIndex) {}
 
 ASTArrayAccess::~ASTArrayAccess() { delete Index; }
-
-ASTType ASTArrayAccess::GetASTType() const { return AST_ARRAY_ACCESS; }
 
 void ASTArrayAccess::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

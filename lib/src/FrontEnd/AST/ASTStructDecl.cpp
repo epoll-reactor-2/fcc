@@ -12,15 +12,13 @@ namespace weak {
 ASTStructDecl::ASTStructDecl(std::string TheName,
                              std::vector<ASTNode *> TheDecls,
                              unsigned int TheLineNo, unsigned int TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Name(std::move(TheName)),
-      Decls(std::move(TheDecls)) {}
+    : ASTNode(AST_STRUCT_DECL, TheLineNo, TheColumnNo),
+      Name(std::move(TheName)), Decls(std::move(TheDecls)) {}
 
 ASTStructDecl::~ASTStructDecl() {
   for (ASTNode *D : Decls)
     delete D;
 }
-
-ASTType ASTStructDecl::GetASTType() const { return AST_SYMBOL; }
 
 void ASTStructDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

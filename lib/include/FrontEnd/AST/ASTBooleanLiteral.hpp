@@ -16,7 +16,6 @@ public:
   ASTBooleanLiteral(bool TheValue, unsigned TheLineNo = 0U,
                     unsigned TheColumnNo = 0U);
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   bool GetValue() const;

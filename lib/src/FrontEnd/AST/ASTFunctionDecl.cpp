@@ -14,17 +14,15 @@ ASTFunctionDecl::ASTFunctionDecl(TokenType TheReturnType, std::string &&TheName,
                                  std::vector<ASTNode *> &&TheArguments,
                                  ASTCompoundStmt *TheBody, unsigned TheLineNo,
                                  unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), ReturnType(TheReturnType),
-      Name(std::move(TheName)), Arguments(std::move(TheArguments)),
-      Body(TheBody) {}
+    : ASTNode(AST_FUNCTION_DECL, TheLineNo, TheColumnNo),
+      ReturnType(TheReturnType), Name(std::move(TheName)),
+      Arguments(std::move(TheArguments)), Body(TheBody) {}
 
 ASTFunctionDecl::~ASTFunctionDecl() {
   for (ASTNode *Arg : Arguments)
     delete Arg;
   delete Body;
 }
-
-ASTType ASTFunctionDecl::GetASTType() const { return AST_FUNCTION_DECL; }
 
 void ASTFunctionDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

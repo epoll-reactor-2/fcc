@@ -12,8 +12,8 @@ namespace weak {
 ASTForStmt::ASTForStmt(ASTNode *TheInit, ASTNode *TheCondition,
                        ASTNode *TheIncrement, ASTCompoundStmt *TheBody,
                        unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Init(TheInit), Condition(TheCondition),
-      Increment(TheIncrement), Body(TheBody) {}
+    : ASTNode(AST_FOR_STMT, TheLineNo, TheColumnNo), Init(TheInit),
+      Condition(TheCondition), Increment(TheIncrement), Body(TheBody) {}
 
 ASTForStmt::~ASTForStmt() {
   delete Init;
@@ -21,8 +21,6 @@ ASTForStmt::~ASTForStmt() {
   delete Increment;
   delete Body;
 }
-
-ASTType ASTForStmt::GetASTType() const { return AST_FOR_STMT; }
 
 void ASTForStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

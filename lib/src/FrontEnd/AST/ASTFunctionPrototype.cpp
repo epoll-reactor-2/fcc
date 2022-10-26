@@ -14,16 +14,13 @@ ASTFunctionPrototype::ASTFunctionPrototype(
     TokenType TheReturnType, std::string &&TheName,
     std::vector<ASTNode *> &&TheArguments, unsigned TheLineNo,
     unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), ReturnType(TheReturnType),
-      Name(std::move(TheName)), Arguments(std::move(TheArguments)) {}
+    : ASTNode(AST_FUNCTION_PROTOTYPE, TheLineNo, TheColumnNo),
+      ReturnType(TheReturnType), Name(std::move(TheName)),
+      Arguments(std::move(TheArguments)) {}
 
 ASTFunctionPrototype::~ASTFunctionPrototype() {
   for (ASTNode *Arg : Arguments)
     delete Arg;
-}
-
-ASTType ASTFunctionPrototype::GetASTType() const {
-  return AST_FUNCTION_PROTOTYPE;
 }
 
 void ASTFunctionPrototype::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }

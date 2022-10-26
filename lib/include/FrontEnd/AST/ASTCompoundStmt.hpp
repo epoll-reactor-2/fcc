@@ -19,7 +19,6 @@ public:
 
   ~ASTCompoundStmt();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   const std::vector<ASTNode *> &GetStmts() const;

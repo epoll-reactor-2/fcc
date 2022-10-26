@@ -19,7 +19,6 @@ public:
 
   ~ASTWhileStmt();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   ASTNode *GetCondition() const;

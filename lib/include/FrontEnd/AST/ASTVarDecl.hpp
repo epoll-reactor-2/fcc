@@ -21,7 +21,6 @@ public:
 
   ~ASTVarDecl();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   TokenType GetDataType() const;

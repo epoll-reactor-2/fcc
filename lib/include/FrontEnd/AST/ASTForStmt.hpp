@@ -20,7 +20,6 @@ public:
 
   ~ASTForStmt();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   ASTNode *GetInit() const;

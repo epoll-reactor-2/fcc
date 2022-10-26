@@ -23,7 +23,6 @@ public:
 
   ~ASTFunctionPrototype();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   TokenType GetReturnType() const;

@@ -11,9 +11,8 @@ namespace weak {
 
 ASTStringLiteral::ASTStringLiteral(std::string TheValue, unsigned TheLineNo,
                                    unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Value(std::move(TheValue)) {}
-
-ASTType ASTStringLiteral::GetASTType() const { return AST_STRING_LITERAL; }
+    : ASTNode(AST_STRING_LITERAL, TheLineNo, TheColumnNo),
+      Value(std::move(TheValue)) {}
 
 void ASTStringLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

@@ -10,9 +10,6 @@
 namespace weak {
 
 enum ASTType {
-  // Abstract node.
-  AST_BASE_NODE,
-
   // Literals.
   AST_CHAR_LITERAL,
   AST_INTEGER_LITERAL,

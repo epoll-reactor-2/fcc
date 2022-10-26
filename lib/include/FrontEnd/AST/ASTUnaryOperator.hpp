@@ -22,7 +22,6 @@ public:
 
   ~ASTUnaryOperator();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   TokenType GetOperation() const;

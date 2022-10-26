@@ -12,7 +12,7 @@ namespace weak {
 ASTIfStmt::ASTIfStmt(ASTNode *TheCondition, ASTCompoundStmt *TheThenBody,
                      ASTCompoundStmt *TheElseBody, unsigned TheLineNo,
                      unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Condition(TheCondition),
+    : ASTNode(AST_IF_STMT, TheLineNo, TheColumnNo), Condition(TheCondition),
       ThenBody(TheThenBody), ElseBody(TheElseBody) {}
 
 ASTIfStmt::~ASTIfStmt() {
@@ -20,8 +20,6 @@ ASTIfStmt::~ASTIfStmt() {
   delete ThenBody;
   delete ElseBody;
 }
-
-ASTType ASTIfStmt::GetASTType() const { return AST_IF_STMT; }
 
 void ASTIfStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

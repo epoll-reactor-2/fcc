@@ -12,15 +12,13 @@ namespace weak {
 ASTUnaryOperator::ASTUnaryOperator(UnaryType ThePrefixOrPostfix,
                                    TokenType TheOperation, ASTNode *TheOperand,
                                    unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), PrefixOrPostfix(ThePrefixOrPostfix),
-      Operation(TheOperation), Operand(TheOperand) {}
+    : ASTNode((ThePrefixOrPostfix == UnaryType::POSTFIX ? AST_POSTFIX_UNARY
+                                                        : AST_PREFIX_UNARY),
+              TheLineNo, TheColumnNo),
+      PrefixOrPostfix(ThePrefixOrPostfix), Operation(TheOperation),
+      Operand(TheOperand) {}
 
 ASTUnaryOperator::~ASTUnaryOperator() { delete Operand; }
-
-ASTType ASTUnaryOperator::GetASTType() const {
-  return PrefixOrPostfix == UnaryType::POSTFIX ? AST_POSTFIX_UNARY
-                                               : AST_PREFIX_UNARY;
-}
 
 void ASTUnaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

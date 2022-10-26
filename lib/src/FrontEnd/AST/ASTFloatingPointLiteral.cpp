@@ -12,11 +12,8 @@ namespace weak {
 ASTFloatingPointLiteral::ASTFloatingPointLiteral(float TheValue,
                                                  unsigned TheLineNo,
                                                  unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Value(TheValue) {}
-
-ASTType ASTFloatingPointLiteral::GetASTType() const {
-  return AST_FLOATING_POINT_LITERAL;
-}
+    : ASTNode(AST_FLOATING_POINT_LITERAL, TheLineNo, TheColumnNo),
+      Value(TheValue) {}
 
 void ASTFloatingPointLiteral::Accept(ASTVisitor *Visitor) {
   Visitor->Visit(this);

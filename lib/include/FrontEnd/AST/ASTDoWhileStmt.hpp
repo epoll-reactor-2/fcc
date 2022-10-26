@@ -19,7 +19,6 @@ public:
 
   ~ASTDoWhileStmt();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   ASTCompoundStmt *GetBody() const;

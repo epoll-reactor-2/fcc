@@ -18,7 +18,6 @@ public:
 
   ~ASTReturnStmt();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   ASTNode *GetOperand() const;

@@ -11,9 +11,7 @@ namespace weak {
 
 ASTBooleanLiteral::ASTBooleanLiteral(bool TheValue, unsigned TheLineNo,
                                      unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Value(TheValue) {}
-
-ASTType ASTBooleanLiteral::GetASTType() const { return AST_BOOLEAN_LITERAL; }
+    : ASTNode(AST_BOOLEAN_LITERAL, TheLineNo, TheColumnNo), Value(TheValue) {}
 
 void ASTBooleanLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

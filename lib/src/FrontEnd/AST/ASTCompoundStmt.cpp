@@ -11,14 +11,13 @@ namespace weak {
 
 ASTCompoundStmt::ASTCompoundStmt(std::vector<ASTNode *> &&TheStmts,
                                  unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Stmts(std::move(TheStmts)) {}
+    : ASTNode(AST_COMPOUND_STMT, TheLineNo, TheColumnNo),
+      Stmts(std::move(TheStmts)) {}
 
 ASTCompoundStmt::~ASTCompoundStmt() {
   for (ASTNode *S : Stmts)
     delete S;
 }
-
-ASTType ASTCompoundStmt::GetASTType() const { return AST_COMPOUND_STMT; }
 
 void ASTCompoundStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

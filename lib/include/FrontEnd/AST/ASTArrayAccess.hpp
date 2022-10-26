@@ -19,7 +19,6 @@ public:
 
   ~ASTArrayAccess();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   const std::string &GetSymbolName() const;

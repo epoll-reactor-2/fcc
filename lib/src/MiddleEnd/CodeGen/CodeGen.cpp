@@ -84,11 +84,10 @@ private:
   }
 
   llvm::Type *ResolveParamType(const ASTNode *ArgAST) {
-    const auto ASTType = ArgAST->GetASTType();
-    AssertDeclaration(ASTType);
+    AssertDeclaration(ArgAST);
 
     TypeResolver TypeResolver(Ctx);
-    if (ASTType == AST_VAR_DECL)
+    if (ArgAST->Is(AST_VAR_DECL))
       /// Variable.
       return TypeResolver.ResolveExceptVoid(ArgAST);
 
@@ -100,13 +99,13 @@ private:
   }
 
   const std::string &ExtractSymbol(const ASTNode *Node) {
-    AssertDeclaration(Node->GetASTType());
+    AssertDeclaration(Node);
     const auto *VarDecl = static_cast<const ASTVarDecl *>(Node);
     return VarDecl->GetSymbolName();
   }
 
-  void AssertDeclaration(ASTType Type) {
-    if (Type != AST_VAR_DECL && Type != AST_ARRAY_DECL)
+  void AssertDeclaration(const ASTNode *Node) {
+    if (!Node->Is(AST_VAR_DECL) && !Node->Is(AST_ARRAY_DECL))
       weak::UnreachablePoint("wrong AST nodes passed as function parameters");
   }
 
@@ -178,7 +177,7 @@ public:
              llvm::Value *ArrayPtr) {
     auto *LHS = Stmt->GetLHS();
 
-    if (LHS->GetASTType() == AST_ARRAY_ACCESS)
+    if (LHS->Is(AST_ARRAY_ACCESS))
       BuildArrayAssignment(RHS, ArrayPtr);
     else
       BuildRegularAssignment(LHS, RHS);

@@ -12,15 +12,13 @@ namespace weak {
 ASTBinaryOperator::ASTBinaryOperator(TokenType TheOperation, ASTNode *TheLHS,
                                      ASTNode *TheRHS, unsigned TheLineNo,
                                      unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Operation(TheOperation), LHS(TheLHS),
-      RHS(TheRHS) {}
+    : ASTNode(AST_BINARY, TheLineNo, TheColumnNo), Operation(TheOperation),
+      LHS(TheLHS), RHS(TheRHS) {}
 
 ASTBinaryOperator::~ASTBinaryOperator() {
   delete LHS;
   delete RHS;
 }
-
-ASTType ASTBinaryOperator::GetASTType() const { return AST_BINARY; }
 
 void ASTBinaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

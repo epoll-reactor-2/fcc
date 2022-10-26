@@ -11,14 +11,13 @@ namespace weak {
 
 ASTWhileStmt::ASTWhileStmt(ASTNode *TheCondition, ASTCompoundStmt *TheBody,
                            unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Condition(TheCondition), Body(TheBody) {}
+    : ASTNode(AST_WHILE_STMT, TheLineNo, TheColumnNo), Condition(TheCondition),
+      Body(TheBody) {}
 
 ASTWhileStmt::~ASTWhileStmt() {
   delete Condition;
   delete Body;
 }
-
-ASTType ASTWhileStmt::GetASTType() const { return AST_WHILE_STMT; }
 
 void ASTWhileStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

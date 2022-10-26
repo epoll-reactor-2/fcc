@@ -20,7 +20,6 @@ public:
 
   ~ASTStructDecl();
 
-  ASTType GetASTType() const override;
   void Accept(ASTVisitor *) override;
 
   const std::vector<ASTNode *> &GetDecls() const;

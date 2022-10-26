@@ -79,20 +79,21 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a42698cc1a3869ed3843a28fd84cf5a61"><td class="memItemLeft" align="right" valign="top"><a id="a42698cc1a3869ed3843a28fd84cf5a61" name="a42698cc1a3869ed3843a28fd84cf5a61"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ASTCompoundStmt</b> (std::vector&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> * &gt; &amp;&amp;TheStmts, unsigned TheLineNo=0U, unsigned TheColumnNo=0U)</td></tr>
 <tr class="separator:a42698cc1a3869ed3843a28fd84cf5a61"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b262feb318ca080458f4bda1e59eb69"><td class="memItemLeft" align="right" valign="top">ASTType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTCompoundStmt.html#a8b262feb318ca080458f4bda1e59eb69">GetASTType</a> () const override</td></tr>
-<tr class="separator:a8b262feb318ca080458f4bda1e59eb69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a80ffac80936c46319762e9b25c8cdab0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTCompoundStmt.html#a80ffac80936c46319762e9b25c8cdab0">Accept</a> (<a class="el" href="classweak_1_1ASTVisitor.html">ASTVisitor</a> *) override</td></tr>
 <tr class="separator:a80ffac80936c46319762e9b25c8cdab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3473e5dac904883bff64bb1547a594b"><td class="memItemLeft" align="right" valign="top"><a id="ac3473e5dac904883bff64bb1547a594b" name="ac3473e5dac904883bff64bb1547a594b"></a>
 const std::vector&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> * &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetStmts</b> () const</td></tr>
 <tr class="separator:ac3473e5dac904883bff64bb1547a594b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classweak_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classweak_1_1ASTNode')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classweak_1_1ASTNode.html">weak::ASTNode</a></td></tr>
-<tr class="memitem:aefc4ff141d40c2d0ae890613470bd5fa inherit pub_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="aefc4ff141d40c2d0ae890613470bd5fa" name="aefc4ff141d40c2d0ae890613470bd5fa"></a>
-virtual ASTType&#160;</td><td class="memItemRight" valign="bottom"><b>GetASTType</b> () const</td></tr>
-<tr class="separator:aefc4ff141d40c2d0ae890613470bd5fa inherit pub_methods_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87864c653ed951b2293f1b4ff041bf20 inherit pub_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a87864c653ed951b2293f1b4ff041bf20" name="a87864c653ed951b2293f1b4ff041bf20"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Accept</b> (<a class="el" href="classweak_1_1ASTVisitor.html">ASTVisitor</a> *)=0</td></tr>
 <tr class="separator:a87864c653ed951b2293f1b4ff041bf20 inherit pub_methods_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abaa5590cf51e77dc008b8c4d28767954 inherit pub_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="abaa5590cf51e77dc008b8c4d28767954" name="abaa5590cf51e77dc008b8c4d28767954"></a>
+ASTType&#160;</td><td class="memItemRight" valign="bottom"><b>GetASTType</b> () const</td></tr>
+<tr class="separator:abaa5590cf51e77dc008b8c4d28767954 inherit pub_methods_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa45b357bbd22800c37e3d1b1671d97f inherit pub_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="afa45b357bbd22800c37e3d1b1671d97f" name="afa45b357bbd22800c37e3d1b1671d97f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Is</b> (ASTType) const</td></tr>
+<tr class="separator:afa45b357bbd22800c37e3d1b1671d97f inherit pub_methods_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae2f50329d5229459bedeedee8fe9612 inherit pub_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="aae2f50329d5229459bedeedee8fe9612" name="aae2f50329d5229459bedeedee8fe9612"></a>
 unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>GetLineNo</b> () const</td></tr>
 <tr class="separator:aae2f50329d5229459bedeedee8fe9612 inherit pub_methods_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -109,10 +110,13 @@ std::vector&lt; <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> * &gt
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_methods_classweak_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classweak_1_1ASTNode')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classweak_1_1ASTNode.html">weak::ASTNode</a></td></tr>
-<tr class="memitem:a7c8dbe7b97e80d9c1be2275607bc1201 inherit pro_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a7c8dbe7b97e80d9c1be2275607bc1201" name="a7c8dbe7b97e80d9c1be2275607bc1201"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTNode</b> (unsigned TheLineNo, unsigned TheColumnNo)</td></tr>
-<tr class="separator:a7c8dbe7b97e80d9c1be2275607bc1201 inherit pro_methods_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae345de4d9650cc1cb147d0f87121c2d4 inherit pro_methods_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="ae345de4d9650cc1cb147d0f87121c2d4" name="ae345de4d9650cc1cb147d0f87121c2d4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTNode</b> (ASTType TheType, unsigned TheLineNo, unsigned TheColumnNo)</td></tr>
+<tr class="separator:ae345de4d9650cc1cb147d0f87121c2d4 inherit pro_methods_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classweak_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classweak_1_1ASTNode')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classweak_1_1ASTNode.html">weak::ASTNode</a></td></tr>
+<tr class="memitem:ad95db33698e5401fb7fb97d6ea72e740 inherit pro_attribs_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="ad95db33698e5401fb7fb97d6ea72e740" name="ad95db33698e5401fb7fb97d6ea72e740"></a>
+ASTType&#160;</td><td class="memItemRight" valign="bottom"><b>Type</b></td></tr>
+<tr class="separator:ad95db33698e5401fb7fb97d6ea72e740 inherit pro_attribs_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb96fbb72349e14ddf80026db652785a inherit pro_attribs_classweak_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="acb96fbb72349e14ddf80026db652785a" name="acb96fbb72349e14ddf80026db652785a"></a>
 unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>LineNo</b></td></tr>
 <tr class="separator:acb96fbb72349e14ddf80026db652785a inherit pro_attribs_classweak_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,33 +150,6 @@ unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>ColumnNo</b></td>
 </div><div class="memdoc">
 
 <p>Implements <a class="el" href="classweak_1_1ASTNode.html">weak::ASTNode</a>.</p>
-
-</div>
-</div>
-<a id="a8b262feb318ca080458f4bda1e59eb69" name="a8b262feb318ca080458f4bda1e59eb69"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8b262feb318ca080458f4bda1e59eb69">&#9670;&nbsp;</a></span>GetASTType()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">ASTType weak::ASTCompoundStmt::GetASTType </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classweak_1_1ASTNode.html">weak::ASTNode</a>.</p>
 
 </div>
 </div>

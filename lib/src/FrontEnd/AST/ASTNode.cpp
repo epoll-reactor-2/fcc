@@ -8,10 +8,12 @@
 
 namespace weak {
 
-ASTNode::ASTNode(unsigned TheLineNo, unsigned TheColumnNo)
-    : LineNo(TheLineNo), ColumnNo(TheColumnNo) {}
+ASTNode::ASTNode(ASTType TheType, unsigned TheLineNo, unsigned TheColumnNo)
+    : Type(TheType), LineNo(TheLineNo), ColumnNo(TheColumnNo) {}
 
-ASTType ASTNode::GetASTType() const { return AST_BASE_NODE; }
+ASTType ASTNode::GetASTType() const { return Type; }
+
+bool ASTNode::Is(ASTType T) const { return Type == T; }
 
 unsigned ASTNode::GetLineNo() const { return LineNo; }
 

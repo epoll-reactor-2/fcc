@@ -12,15 +12,13 @@ namespace weak {
 ASTFunctionCall::ASTFunctionCall(std::string &&TheName,
                                  std::vector<ASTNode *> &&TheArguments,
                                  unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Name(std::move(TheName)),
-      Arguments(std::move(TheArguments)) {}
+    : ASTNode(AST_FUNCTION_CALL, TheLineNo, TheColumnNo),
+      Name(std::move(TheName)), Arguments(std::move(TheArguments)) {}
 
 ASTFunctionCall::~ASTFunctionCall() {
   for (ASTNode *Arg : Arguments)
     delete Arg;
 }
-
-ASTType ASTFunctionCall::GetASTType() const { return AST_FUNCTION_CALL; }
 
 void ASTFunctionCall::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

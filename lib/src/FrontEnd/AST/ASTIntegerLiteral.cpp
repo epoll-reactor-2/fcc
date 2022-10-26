@@ -11,9 +11,7 @@ namespace weak {
 
 ASTIntegerLiteral::ASTIntegerLiteral(signed TheValue, unsigned TheLineNo,
                                      unsigned TheColumnNo)
-    : ASTNode(TheLineNo, TheColumnNo), Value(TheValue) {}
-
-ASTType ASTIntegerLiteral::GetASTType() const { return AST_INTEGER_LITERAL; }
+    : ASTNode(AST_INTEGER_LITERAL, TheLineNo, TheColumnNo), Value(TheValue) {}
 
 void ASTIntegerLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
