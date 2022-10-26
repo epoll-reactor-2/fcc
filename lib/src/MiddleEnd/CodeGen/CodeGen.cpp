@@ -88,7 +88,7 @@ private:
     AssertDeclaration(ASTType);
 
     TypeResolver TypeResolver(Ctx);
-    if (ASTType == ASTType::VAR_DECL)
+    if (ASTType == AST_VAR_DECL)
       /// Variable.
       return TypeResolver.ResolveExceptVoid(ArgAST);
 
@@ -106,7 +106,7 @@ private:
   }
 
   void AssertDeclaration(ASTType Type) {
-    if (Type != ASTType::VAR_DECL && Type != ASTType::ARRAY_DECL)
+    if (Type != AST_VAR_DECL && Type != AST_ARRAY_DECL)
       weak::UnreachablePoint("wrong AST nodes passed as function parameters");
   }
 
@@ -178,7 +178,7 @@ public:
              llvm::Value *ArrayPtr) {
     auto *LHS = Stmt->GetLHS();
 
-    if (LHS->GetASTType() == ASTType::ARRAY_ACCESS)
+    if (LHS->GetASTType() == AST_ARRAY_ACCESS)
       BuildArrayAssignment(RHS, ArrayPtr);
     else
       BuildRegularAssignment(LHS, RHS);
@@ -326,8 +326,8 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
 
 void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
   switch (Stmt->GetOperand()->GetASTType()) {
-  case ASTType::SYMBOL:
-  case ASTType::ARRAY_ACCESS:
+  case AST_SYMBOL:
+  case AST_ARRAY_ACCESS:
     break;
   default:
     weak::CompileError(Stmt)

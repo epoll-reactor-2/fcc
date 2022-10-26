@@ -24,7 +24,7 @@ ASTFunctionDecl::~ASTFunctionDecl() {
   delete Body;
 }
 
-ASTType ASTFunctionDecl::GetASTType() const { return ASTType::FUNCTION_DECL; }
+ASTType ASTFunctionDecl::GetASTType() const { return AST_FUNCTION_DECL; }
 
 void ASTFunctionDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

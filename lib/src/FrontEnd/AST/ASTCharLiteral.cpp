@@ -13,7 +13,7 @@ ASTCharLiteral::ASTCharLiteral(char TheValue, unsigned TheLineNo,
                                unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), Value(TheValue) {}
 
-ASTType ASTCharLiteral::GetASTType() const { return ASTType::CHAR_LITERAL; }
+ASTType ASTCharLiteral::GetASTType() const { return AST_CHAR_LITERAL; }
 
 void ASTCharLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

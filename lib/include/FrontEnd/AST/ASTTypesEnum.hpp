@@ -9,53 +9,53 @@
 
 namespace weak {
 
-enum struct ASTType {
+enum ASTType {
   // Abstract node.
-  BASE_NODE,
+  AST_BASE_NODE,
 
   // Literals.
-  CHAR_LITERAL,
-  INTEGER_LITERAL,
-  FLOATING_POINT_LITERAL,
-  STRING_LITERAL,
-  BOOLEAN_LITERAL,
+  AST_CHAR_LITERAL,
+  AST_INTEGER_LITERAL,
+  AST_FLOATING_POINT_LITERAL,
+  AST_STRING_LITERAL,
+  AST_BOOLEAN_LITERAL,
 
   // Variable reference.
-  SYMBOL,
+  AST_SYMBOL,
 
   // Declarations.
-  VAR_DECL,
-  ARRAY_DECL,
-  STRUCT_DECL,
+  AST_VAR_DECL,
+  AST_ARRAY_DECL,
+  AST_STRUCT_DECL,
 
   // Iteration statements.
-  BREAK_STMT,
-  CONTINUE_STMT,
+  AST_BREAK_STMT,
+  AST_CONTINUE_STMT,
 
   // Operators.
-  BINARY,
-  PREFIX_UNARY,
-  POSTFIX_UNARY,
-  ARRAY_ACCESS,
+  AST_BINARY,
+  AST_PREFIX_UNARY,
+  AST_POSTFIX_UNARY,
+  AST_ARRAY_ACCESS,
 
   // Branches.
-  IF_STMT,
+  AST_IF_STMT,
 
   // Loops.
-  FOR_STMT,
-  WHILE_STMT,
-  DO_WHILE_STMT,
+  AST_FOR_STMT,
+  AST_WHILE_STMT,
+  AST_DO_WHILE_STMT,
 
   // Jump statements.
-  RETURN_STMT,
+  AST_RETURN_STMT,
 
   // Body for block statements.
-  COMPOUND_STMT,
+  AST_COMPOUND_STMT,
 
   // Functions.
-  FUNCTION_DECL,
-  FUNCTION_CALL,
-  FUNCTION_PROTOTYPE
+  AST_FUNCTION_DECL,
+  AST_FUNCTION_CALL,
+  AST_FUNCTION_PROTOTYPE
 };
 
 } // namespace weak

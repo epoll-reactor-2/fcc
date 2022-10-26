@@ -20,7 +20,7 @@ ASTBinaryOperator::~ASTBinaryOperator() {
   delete RHS;
 }
 
-ASTType ASTBinaryOperator::GetASTType() const { return ASTType::BINARY; }
+ASTType ASTBinaryOperator::GetASTType() const { return AST_BINARY; }
 
 void ASTBinaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

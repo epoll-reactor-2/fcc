@@ -16,7 +16,7 @@ ASTArrayDecl::ASTArrayDecl(TokenType TheDataType, std::string TheSymbolName,
       SymbolName(std::move(TheSymbolName)), ArityList(std::move(TheArityList)) {
 }
 
-ASTType ASTArrayDecl::GetASTType() const { return ASTType::ARRAY_DECL; }
+ASTType ASTArrayDecl::GetASTType() const { return AST_ARRAY_DECL; }
 
 void ASTArrayDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

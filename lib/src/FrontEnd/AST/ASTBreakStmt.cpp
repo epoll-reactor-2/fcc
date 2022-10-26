@@ -12,7 +12,7 @@ namespace weak {
 ASTBreakStmt::ASTBreakStmt(unsigned TheLineNo, unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo) {}
 
-ASTType ASTBreakStmt::GetASTType() const { return ASTType::BREAK_STMT; }
+ASTType ASTBreakStmt::GetASTType() const { return AST_BREAK_STMT; }
 
 void ASTBreakStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

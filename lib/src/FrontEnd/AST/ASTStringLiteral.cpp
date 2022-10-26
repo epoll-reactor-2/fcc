@@ -13,7 +13,7 @@ ASTStringLiteral::ASTStringLiteral(std::string TheValue, unsigned TheLineNo,
                                    unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), Value(std::move(TheValue)) {}
 
-ASTType ASTStringLiteral::GetASTType() const { return ASTType::STRING_LITERAL; }
+ASTType ASTStringLiteral::GetASTType() const { return AST_STRING_LITERAL; }
 
 void ASTStringLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

@@ -18,8 +18,8 @@ ASTUnaryOperator::ASTUnaryOperator(UnaryType ThePrefixOrPostfix,
 ASTUnaryOperator::~ASTUnaryOperator() { delete Operand; }
 
 ASTType ASTUnaryOperator::GetASTType() const {
-  return PrefixOrPostfix == UnaryType::POSTFIX ? ASTType::POSTFIX_UNARY
-                                               : ASTType::PREFIX_UNARY;
+  return PrefixOrPostfix == UnaryType::POSTFIX ? AST_POSTFIX_UNARY
+                                               : AST_PREFIX_UNARY;
 }
 
 void ASTUnaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }

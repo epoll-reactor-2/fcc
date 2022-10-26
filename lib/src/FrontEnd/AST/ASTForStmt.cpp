@@ -22,7 +22,7 @@ ASTForStmt::~ASTForStmt() {
   delete Body;
 }
 
-ASTType ASTForStmt::GetASTType() const { return ASTType::FOR_STMT; }
+ASTType ASTForStmt::GetASTType() const { return AST_FOR_STMT; }
 
 void ASTForStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

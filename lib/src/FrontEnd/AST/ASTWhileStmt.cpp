@@ -18,7 +18,7 @@ ASTWhileStmt::~ASTWhileStmt() {
   delete Body;
 }
 
-ASTType ASTWhileStmt::GetASTType() const { return ASTType::WHILE_STMT; }
+ASTType ASTWhileStmt::GetASTType() const { return AST_WHILE_STMT; }
 
 void ASTWhileStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

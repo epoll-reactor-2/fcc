@@ -15,7 +15,7 @@ ASTReturnStmt::ASTReturnStmt(ASTNode *TheOperand, unsigned TheLineNo,
 
 ASTReturnStmt::~ASTReturnStmt() { delete Operand; }
 
-ASTType ASTReturnStmt::GetASTType() const { return ASTType::RETURN_STMT; }
+ASTType ASTReturnStmt::GetASTType() const { return AST_RETURN_STMT; }
 
 void ASTReturnStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

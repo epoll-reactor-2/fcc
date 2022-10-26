@@ -20,7 +20,7 @@ ASTFunctionCall::~ASTFunctionCall() {
     delete Arg;
 }
 
-ASTType ASTFunctionCall::GetASTType() const { return ASTType::FUNCTION_CALL; }
+ASTType ASTFunctionCall::GetASTType() const { return AST_FUNCTION_CALL; }
 
 void ASTFunctionCall::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

@@ -12,7 +12,7 @@ namespace weak {
 ASTContinueStmt::ASTContinueStmt(unsigned TheLineNo, unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo) {}
 
-ASTType ASTContinueStmt::GetASTType() const { return ASTType::CONTINUE_STMT; }
+ASTType ASTContinueStmt::GetASTType() const { return AST_CONTINUE_STMT; }
 
 void ASTContinueStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

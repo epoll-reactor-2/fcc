@@ -17,7 +17,7 @@ TypeResolver::TypeResolver(llvm::LLVMContext &TheLLVMCtx)
     : LLVMCtx(TheLLVMCtx) {}
 
 const ASTVarDecl *TypeResolver::GetVarDecl(const ASTNode *Node) {
-  if (Node->GetASTType() != ASTType::VAR_DECL)
+  if (Node->GetASTType() != AST_VAR_DECL)
     weak::CompileError(Node) << "Expected parameter";
 
   const auto *Decl = static_cast<const ASTVarDecl *>(Node);

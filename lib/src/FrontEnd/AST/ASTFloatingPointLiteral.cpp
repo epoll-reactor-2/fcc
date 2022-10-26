@@ -15,7 +15,7 @@ ASTFloatingPointLiteral::ASTFloatingPointLiteral(float TheValue,
     : ASTNode(TheLineNo, TheColumnNo), Value(TheValue) {}
 
 ASTType ASTFloatingPointLiteral::GetASTType() const {
-  return ASTType::FLOATING_POINT_LITERAL;
+  return AST_FLOATING_POINT_LITERAL;
 }
 
 void ASTFloatingPointLiteral::Accept(ASTVisitor *Visitor) {

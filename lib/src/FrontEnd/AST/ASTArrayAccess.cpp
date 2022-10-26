@@ -16,7 +16,7 @@ ASTArrayAccess::ASTArrayAccess(std::string TheSymbolName, ASTNode *TheIndex,
 
 ASTArrayAccess::~ASTArrayAccess() { delete Index; }
 
-ASTType ASTArrayAccess::GetASTType() const { return ASTType::ARRAY_ACCESS; }
+ASTType ASTArrayAccess::GetASTType() const { return AST_ARRAY_ACCESS; }
 
 void ASTArrayAccess::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

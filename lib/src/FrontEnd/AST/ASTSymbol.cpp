@@ -13,7 +13,7 @@ ASTSymbol::ASTSymbol(std::string TheValue, unsigned TheLineNo,
                      unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), Value(std::move(TheValue)) {}
 
-ASTType ASTSymbol::GetASTType() const { return ASTType::SYMBOL; }
+ASTType ASTSymbol::GetASTType() const { return AST_SYMBOL; }
 
 void ASTSymbol::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

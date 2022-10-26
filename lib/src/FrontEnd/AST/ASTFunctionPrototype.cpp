@@ -23,7 +23,7 @@ ASTFunctionPrototype::~ASTFunctionPrototype() {
 }
 
 ASTType ASTFunctionPrototype::GetASTType() const {
-  return ASTType::FUNCTION_PROTOTYPE;
+  return AST_FUNCTION_PROTOTYPE;
 }
 
 void ASTFunctionPrototype::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }

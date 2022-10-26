@@ -18,7 +18,7 @@ ASTCompoundStmt::~ASTCompoundStmt() {
     delete S;
 }
 
-ASTType ASTCompoundStmt::GetASTType() const { return ASTType::COMPOUND_STMT; }
+ASTType ASTCompoundStmt::GetASTType() const { return AST_COMPOUND_STMT; }
 
 void ASTCompoundStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

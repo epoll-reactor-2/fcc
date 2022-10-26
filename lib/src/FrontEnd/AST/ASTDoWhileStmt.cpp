@@ -18,7 +18,7 @@ ASTDoWhileStmt::~ASTDoWhileStmt() {
   delete Condition;
 }
 
-ASTType ASTDoWhileStmt::GetASTType() const { return ASTType::DO_WHILE_STMT; }
+ASTType ASTDoWhileStmt::GetASTType() const { return AST_DO_WHILE_STMT; }
 
 void ASTDoWhileStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

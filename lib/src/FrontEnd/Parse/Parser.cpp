@@ -150,7 +150,7 @@ ASTNode *Parser::ParseArrayDecl() {
 
     auto *Constant = ParseConstant();
 
-    if (Constant->GetASTType() != ASTType::INTEGER_LITERAL)
+    if (Constant->GetASTType() != AST_INTEGER_LITERAL)
       weak::CompileError(Current.LineNo, Current.ColumnNo)
           << "Integer size declarator expected";
 
@@ -307,16 +307,16 @@ ASTCompoundStmt *Parser::ParseBlock() {
   while (!PeekCurrent().Is('}')) {
     Statements.push_back(ParseStatement());
     switch (const ASTType Type = Statements.back()->GetASTType(); Type) {
-    case ASTType::BINARY:
-    case ASTType::POSTFIX_UNARY:
-    case ASTType::PREFIX_UNARY:
-    case ASTType::SYMBOL:
-    case ASTType::RETURN_STMT:
-    case ASTType::DO_WHILE_STMT:
-    case ASTType::VAR_DECL:
-    case ASTType::ARRAY_DECL:
-    case ASTType::ARRAY_ACCESS:
-    case ASTType::FUNCTION_CALL: // Fall through.
+    case AST_BINARY:
+    case AST_POSTFIX_UNARY:
+    case AST_PREFIX_UNARY:
+    case AST_SYMBOL:
+    case AST_RETURN_STMT:
+    case AST_DO_WHILE_STMT:
+    case AST_VAR_DECL:
+    case AST_ARRAY_DECL:
+    case AST_ARRAY_ACCESS:
+    case AST_FUNCTION_CALL: // Fall through.
       Require(';');
       break;
     default:
@@ -336,16 +336,16 @@ ASTCompoundStmt *Parser::ParseIterationStmtBlock() {
   while (!PeekCurrent().Is('}')) {
     Statements.push_back(ParseLoopStatement());
     switch (const ASTType Type = Statements.back()->GetASTType(); Type) {
-    case ASTType::BINARY:
-    case ASTType::POSTFIX_UNARY:
-    case ASTType::PREFIX_UNARY:
-    case ASTType::SYMBOL:
-    case ASTType::RETURN_STMT:
-    case ASTType::BREAK_STMT:
-    case ASTType::CONTINUE_STMT:
-    case ASTType::DO_WHILE_STMT:
-    case ASTType::VAR_DECL:
-    case ASTType::FUNCTION_CALL: // Fall through.
+    case AST_BINARY:
+    case AST_POSTFIX_UNARY:
+    case AST_PREFIX_UNARY:
+    case AST_SYMBOL:
+    case AST_RETURN_STMT:
+    case AST_BREAK_STMT:
+    case AST_CONTINUE_STMT:
+    case AST_DO_WHILE_STMT:
+    case AST_VAR_DECL:
+    case AST_FUNCTION_CALL: // Fall through.
       Require(';');
       break;
     default:

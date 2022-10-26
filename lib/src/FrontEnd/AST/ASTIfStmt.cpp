@@ -21,7 +21,7 @@ ASTIfStmt::~ASTIfStmt() {
   delete ElseBody;
 }
 
-ASTType ASTIfStmt::GetASTType() const { return ASTType::IF_STMT; }
+ASTType ASTIfStmt::GetASTType() const { return AST_IF_STMT; }
 
 void ASTIfStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

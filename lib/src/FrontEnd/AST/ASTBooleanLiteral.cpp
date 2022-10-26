@@ -13,9 +13,7 @@ ASTBooleanLiteral::ASTBooleanLiteral(bool TheValue, unsigned TheLineNo,
                                      unsigned TheColumnNo)
     : ASTNode(TheLineNo, TheColumnNo), Value(TheValue) {}
 
-ASTType ASTBooleanLiteral::GetASTType() const {
-  return ASTType::BOOLEAN_LITERAL;
-}
+ASTType ASTBooleanLiteral::GetASTType() const { return AST_BOOLEAN_LITERAL; }
 
 void ASTBooleanLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

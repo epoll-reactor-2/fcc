@@ -17,7 +17,7 @@ ASTVarDecl::ASTVarDecl(TokenType TheDataType, std::string &&TheSymbolName,
 
 ASTVarDecl::~ASTVarDecl() { delete DeclBody; }
 
-ASTType ASTVarDecl::GetASTType() const { return ASTType::VAR_DECL; }
+ASTType ASTVarDecl::GetASTType() const { return AST_VAR_DECL; }
 
 void ASTVarDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
