@@ -1,4 +1,4 @@
-/* ASTDump.hpp - helper function to dump AST to stdout.
+/* ASTDump.hpp - AST dumper.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -12,8 +12,7 @@
 
 namespace weak {
 
-/// Show visual representation of Syntax Tree beginning with
-/// RootNode.
+/// Stringify AST.
 void ASTDump(ASTNode *RootNode, std::ostream &OutStream);
 
 } // namespace weak
