@@ -42,7 +42,7 @@ private:
   ASTNode *ParseArrayDecl();
 
   /// < id > [ < expression > ].
-  ASTNode *ParseArrayAccessOperator();
+  ASTNode *ParseArrayAccess();
 
   /// Variable declaration with initializer.
   ASTNode *ParseVarDecl();
@@ -68,33 +68,33 @@ private:
   ASTCompoundStmt *ParseBlock();
 
   /// Block of code with break and continue statements.
-  ASTCompoundStmt *ParseIterationStmtBlock();
+  ASTCompoundStmt *ParseIterationBlock();
 
   /// Selection, iterative, jump, assignment statement
   /// or unary/binary operator.
-  ASTNode *ParseStatement();
+  ASTNode *ParseStmt();
 
   /// If statement.
-  ASTNode *ParseSelectionStatement();
+  ASTNode *ParseSelectionStmt();
 
   /// For, while or do-while statement.
-  ASTNode *ParseIterationStatement();
+  ASTNode *ParseIterationStmt();
 
-  ASTNode *ParseForStatement();
+  ASTNode *ParseForStmt();
 
-  ASTNode *ParseWhileStatement();
+  ASTNode *ParseWhileStmt();
 
-  ASTNode *ParseDoWhileStatement();
+  ASTNode *ParseDoWhileStmt();
 
-  /// ParseStatement, break and continue statements.
-  ASTNode *ParseLoopStatement();
+  /// ParseStmt() and break, continue.
+  ASTNode *ParseLoopStmt();
 
   /// Return statement.
-  ASTNode *ParseJumpStatement();
+  ASTNode *ParseJumpStmt();
 
   /// Unary/binary statement, literal, symbol, assignment, variable declaration
   /// or function call.
-  ASTNode *ParseExpression();
+  ASTNode *ParseExpr();
 
   ASTNode *ParseAssignment();
 
@@ -123,7 +123,7 @@ private:
   ASTNode *ParsePostfixUnary();
 
   /// Symbol, function call or array access.
-  ASTNode *ParseSymbolProduction();
+  ASTNode *ParseSymbol();
 
   /// Symbol, parentheses expression or constant.
   ASTNode *ParsePrimary();
