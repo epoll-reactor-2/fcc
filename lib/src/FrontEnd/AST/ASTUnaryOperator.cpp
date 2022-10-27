@@ -12,8 +12,8 @@ namespace weak {
 ASTUnaryOperator::ASTUnaryOperator(UnaryType ThePrefixOrPostfix,
                                    TokenType TheOperation, ASTNode *TheOperand,
                                    unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode((ThePrefixOrPostfix == UnaryType::POSTFIX ? AST_POSTFIX_UNARY
-                                                        : AST_PREFIX_UNARY),
+    : ASTNode((ThePrefixOrPostfix == POSTFIX ? AST_POSTFIX_UNARY
+                                             : AST_PREFIX_UNARY),
               TheLineNo, TheColumnNo),
       PrefixOrPostfix(ThePrefixOrPostfix), Operation(TheOperation),
       Operand(TheOperand) {}

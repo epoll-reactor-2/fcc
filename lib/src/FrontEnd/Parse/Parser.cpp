@@ -750,7 +750,7 @@ ASTNode *Parser::ParsePrefixUnary() {
   switch (const Token &T = PeekNext(); T.Type) {
   case TOK_INC:
   case TOK_DEC: // Fall through.
-    return new ASTUnaryOperator(ASTUnaryOperator::UnaryType::PREFIX, T.Type,
+    return new ASTUnaryOperator(ASTUnaryOperator::PREFIX, T.Type,
                                 ParsePostfixUnary(), T.LineNo, T.ColumnNo);
   default:
     /// Rollback current token pointer because there's no unary operator.
@@ -765,8 +765,8 @@ ASTNode *Parser::ParsePostfixUnary() {
     switch (const Token &T = PeekNext(); T.Type) {
     case TOK_INC:
     case TOK_DEC: // Fall through.
-      Expr = new ASTUnaryOperator(ASTUnaryOperator::UnaryType::POSTFIX, T.Type,
-                                  Expr, T.LineNo, T.ColumnNo);
+      Expr = new ASTUnaryOperator(ASTUnaryOperator::POSTFIX, T.Type, Expr,
+                                  T.LineNo, T.ColumnNo);
       continue;
     default:
       --TokenPtr;

@@ -247,7 +247,7 @@ private:
   }
 
   void Visit(const ASTUnaryOperator *Unary) override {
-    OutStream << (Unary->PrefixOrPostfix == ASTUnaryOperator::UnaryType::PREFIX
+    OutStream << (Unary->PrefixOrPostfix == ASTUnaryOperator::PREFIX
                       ? "Prefix "
                       : "Postfix ");
     PrintWithTextPos("UnaryOperator", Unary,

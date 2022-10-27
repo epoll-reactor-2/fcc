@@ -14,7 +14,7 @@ namespace weak {
 
 class ASTUnaryOperator : public ASTNode {
 public:
-  enum struct UnaryType { PREFIX, POSTFIX } const PrefixOrPostfix;
+  enum UnaryType { PREFIX, POSTFIX } const PrefixOrPostfix;
 
   ASTUnaryOperator(UnaryType ThePrefixOrPostfix, TokenType TheOperation,
                    ASTNode *TheOperand, unsigned TheLineNo = 0U,

@@ -13,19 +13,19 @@
 /// Forward declaration is in Diagnostic.hpp, so there is no unnamed namespace.
 class Diagnostic {
 public:
-  enum struct DiagLevel { WARN, ERROR } const Level;
+  enum DiagLevel { WARN, ERROR } const Level;
 
   Diagnostic(enum DiagLevel TheLevel) : Level(TheLevel) {}
 
   static void ClearErrBuf() { std::ostringstream().swap(ErrBuf); }
 
   void EmitLabel(unsigned LineNo, unsigned ColumnNo) {
-    ErrBuf << ((Level == DiagLevel::ERROR) ? "Error" : "Warning");
+    ErrBuf << ((Level == ERROR) ? "Error" : "Warning");
     ErrBuf << " at line " << LineNo << ", column " << ColumnNo << ": ";
   }
 
   void EmitEmptyLabel() {
-    ErrBuf << ((Level == DiagLevel::ERROR) ? "Error" : "Warning");
+    ErrBuf << ((Level == ERROR) ? "Error" : "Warning");
     ErrBuf << ": ";
   }
 
@@ -40,7 +40,7 @@ void weak::UnreachablePoint(std::string Msg) {
 weak::OstreamRAII::~OstreamRAII() noexcept(false) {
   std::string Buf = DiagImpl->ErrBuf.str();
 
-  if (DiagImpl->Level == Diagnostic::DiagLevel::ERROR) {
+  if (DiagImpl->Level == Diagnostic::ERROR) {
     throw std::runtime_error(Buf);
   }
 
@@ -67,19 +67,19 @@ static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level,
 }
 
 weak::OstreamRAII weak::CompileWarning() {
-  return MakeMessage(Diagnostic::DiagLevel::WARN);
+  return MakeMessage(Diagnostic::WARN);
 }
 
 weak::OstreamRAII weak::CompileWarning(unsigned LineNo, unsigned ColumnNo) {
-  return MakeMessage(Diagnostic::DiagLevel::WARN, LineNo, ColumnNo);
+  return MakeMessage(Diagnostic::WARN, LineNo, ColumnNo);
 }
 
 weak::OstreamRAII weak::CompileError() {
-  return MakeMessage(Diagnostic::DiagLevel::ERROR);
+  return MakeMessage(Diagnostic::ERROR);
 }
 
 weak::OstreamRAII weak::CompileError(unsigned LineNo, unsigned ColumnNo) {
-  return MakeMessage(Diagnostic::DiagLevel::ERROR, LineNo, ColumnNo);
+  return MakeMessage(Diagnostic::ERROR, LineNo, ColumnNo);
 }
 
 weak::OstreamRAII weak::CompileError(const ASTNode *Node) {
