@@ -113,7 +113,7 @@ ASTNode *Parser::ParseFunctionCall() {
   --TokenPtr;
   while (!PeekCurrent().Is(')')) {
     Arguments.push_back(ParseLogicalOr());
-    const auto &T = Require({')', ','});
+    const Token &T = Require({')', ','});
     if (T.Is(')'))
       /// Move back to token before '(' and break on next iteration.
       --TokenPtr;
@@ -164,7 +164,7 @@ ASTNode *Parser::ParseArrayDecl() {
 
     Require(']');
 
-    const auto &End = PeekCurrent();
+    const Token &End = PeekCurrent();
 
     if (End.Is(',') || /// Function parameter.
         End.Is(')') || /// Last function parameter.
@@ -226,8 +226,8 @@ ASTNode *Parser::ParseDecl() {
 ASTNode *Parser::ParseStructDecl() {
   std::vector<ASTNode *> Decls;
 
-  const auto &BeginOfDecl = Require(TOK_STRUCT);
-  const auto &Name = Require(TOK_SYMBOL);
+  const Token &Start = Require(TOK_STRUCT);
+  const Token &Name = Require(TOK_SYMBOL);
 
   Require('{');
 
@@ -238,12 +238,12 @@ ASTNode *Parser::ParseStructDecl() {
 
   Require('}');
 
-  return new ASTStructDecl(Name.Data, std::move(Decls), BeginOfDecl.LineNo,
-                           BeginOfDecl.ColumnNo);
+  return new ASTStructDecl(Name.Data, std::move(Decls), Start.LineNo,
+                           Start.ColumnNo);
 }
 
 const Token &Parser::ParseType() {
-  switch (const auto &T = PeekCurrent(); T.Type) {
+  switch (const Token &T = PeekCurrent(); T.Type) {
   case TOK_INT:
   case TOK_FLOAT:
   case TOK_CHAR:
@@ -301,8 +301,8 @@ ASTCompoundStmt *Parser::ParseBlock() {
     return ParseIterationBlock();
 
   std::vector<ASTNode *> Stmts;
+  const Token &Start = Require('{');
 
-  const Token &BeginOfBlock = Require('{');
   while (!PeekCurrent().Is('}')) {
     Stmts.push_back(ParseStmt());
     switch (const ASTType Type = Stmts.back()->GetASTType(); Type) {
@@ -324,14 +324,13 @@ ASTCompoundStmt *Parser::ParseBlock() {
   }
   Require('}');
 
-  return new ASTCompoundStmt(std::move(Stmts), BeginOfBlock.LineNo,
-                             BeginOfBlock.ColumnNo);
+  return new ASTCompoundStmt(std::move(Stmts), Start.LineNo, Start.ColumnNo);
 }
 
 ASTCompoundStmt *Parser::ParseIterationBlock() {
   std::vector<ASTNode *> Stmts;
+  const Token &Start = Require('{');
 
-  const Token &BeginOfBlock = Require('{');
   while (!PeekCurrent().Is('}')) {
     Stmts.push_back(ParseLoopStmt());
     switch (const ASTType Type = Stmts.back()->GetASTType(); Type) {
@@ -353,8 +352,7 @@ ASTCompoundStmt *Parser::ParseIterationBlock() {
   }
   Require('}');
 
-  return new ASTCompoundStmt(std::move(Stmts), BeginOfBlock.LineNo,
-                             BeginOfBlock.ColumnNo);
+  return new ASTCompoundStmt(std::move(Stmts), Start.LineNo, Start.ColumnNo);
 }
 
 ASTNode *Parser::ParseStmt() {
@@ -388,8 +386,8 @@ ASTNode *Parser::ParseSelectionStmt() {
   ASTNode *Condition{nullptr};
   ASTCompoundStmt *ThenBody{nullptr};
   ASTCompoundStmt *ElseBody{nullptr};
+  const Token &Start = Require(TOK_IF);
 
-  const Token &BeginOfSelectionStmt = Require(TOK_IF);
   Require('(');
   Condition = ParseLogicalOr();
   Require(')');
@@ -402,9 +400,8 @@ ASTNode *Parser::ParseSelectionStmt() {
 
   assert(ThenBody);
 
-  return new ASTIfStmt(Condition, ThenBody, ElseBody,
-                       BeginOfSelectionStmt.LineNo,
-                       BeginOfSelectionStmt.ColumnNo);
+  return new ASTIfStmt(Condition, ThenBody, ElseBody, Start.LineNo,
+                       Start.ColumnNo);
 }
 
 ASTNode *Parser::ParseIterationStmt() {
@@ -421,7 +418,7 @@ ASTNode *Parser::ParseIterationStmt() {
 }
 
 ASTNode *Parser::ParseForStmt() {
-  const Token &ForStmtBegin = Require(TOK_FOR);
+  const Token &Start = Require(TOK_FOR);
   Require('(');
 
   ASTNode *Init{nullptr};
@@ -453,12 +450,12 @@ ASTNode *Parser::ParseForStmt() {
 
   --LoopsDepth;
 
-  return new ASTForStmt(Init, Condition, Increment, Body, ForStmtBegin.LineNo,
-                        ForStmtBegin.ColumnNo);
+  return new ASTForStmt(Init, Condition, Increment, Body, Start.LineNo,
+                        Start.ColumnNo);
 }
 
 ASTNode *Parser::ParseDoWhileStmt() {
-  const Token &DoWhileBegin = Require(TOK_DO);
+  const Token &Start = Require(TOK_DO);
 
   ++LoopsDepth;
 
@@ -472,12 +469,11 @@ ASTNode *Parser::ParseDoWhileStmt() {
   auto *Condition = ParseLogicalOr();
   Require(')');
 
-  return new ASTDoWhileStmt(Body, Condition, DoWhileBegin.LineNo,
-                            DoWhileBegin.ColumnNo);
+  return new ASTDoWhileStmt(Body, Condition, Start.LineNo, Start.ColumnNo);
 }
 
 ASTNode *Parser::ParseWhileStmt() {
-  const Token &WhileBegin = Require(TOK_WHILE);
+  const Token &Start = Require(TOK_WHILE);
   Require('(');
   auto *Condition = ParseLogicalOr();
   Require(')');
@@ -488,8 +484,7 @@ ASTNode *Parser::ParseWhileStmt() {
 
   --LoopsDepth;
 
-  return new ASTWhileStmt(Condition, Body, WhileBegin.LineNo,
-                          WhileBegin.ColumnNo);
+  return new ASTWhileStmt(Condition, Body, Start.LineNo, Start.ColumnNo);
 }
 
 ASTNode *Parser::ParseLoopStmt() {
@@ -778,7 +773,7 @@ ASTNode *Parser::ParsePostfixUnary() {
 }
 
 ASTNode *Parser::ParseSymbol() {
-  const Token &StartOfExpression = *(TokenPtr - 1);
+  const Token &Start = *(TokenPtr - 1);
   switch (const Token &T = PeekCurrent(); T.Type) {
   case TOK_OPEN_PAREN: {
     --TokenPtr;
@@ -789,8 +784,7 @@ ASTNode *Parser::ParseSymbol() {
     return ParseArrayAccess();
   }
   default:
-    return new ASTSymbol(StartOfExpression.Data, StartOfExpression.LineNo,
-                         StartOfExpression.ColumnNo);
+    return new ASTSymbol(Start.Data, Start.LineNo, Start.ColumnNo);
   }
 }
 
