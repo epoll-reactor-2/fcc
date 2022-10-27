@@ -43,11 +43,11 @@ Parser::Parser(const Token *TheBufStart, const Token *TheBufEnd)
 }
 
 std::unique_ptr<ASTCompoundStmt> Parser::Parse() {
-  std::vector<ASTNode *> GlobalEntities;
+  std::vector<ASTNode *> Stmts;
   while (TokenPtr != BufEnd) {
     switch (const Token &T = PeekCurrent(); T.Type) {
     case TOK_STRUCT:
-      GlobalEntities.push_back(ParseStructDecl());
+      Stmts.push_back(ParseStructDecl());
       break;
     case TOK_VOID:
     case TOK_INT:
@@ -55,7 +55,7 @@ std::unique_ptr<ASTCompoundStmt> Parser::Parse() {
     case TOK_STRING:
     case TOK_FLOAT:
     case TOK_BOOLEAN: // Fall through.
-      GlobalEntities.push_back(ParseFunctionDecl());
+      Stmts.push_back(ParseFunctionDecl());
       break;
     default:
       weak::CompileError(T.LineNo, T.ColumnNo)
@@ -64,7 +64,7 @@ std::unique_ptr<ASTCompoundStmt> Parser::Parse() {
     }
   }
   return std::unique_ptr<ASTCompoundStmt>(
-      new ASTCompoundStmt(std::move(GlobalEntities)));
+      new ASTCompoundStmt(std::move(Stmts)));
 }
 
 ASTNode *Parser::ParseFunctionDecl() {
@@ -113,8 +113,7 @@ ASTNode *Parser::ParseFunctionCall() {
   --TokenPtr;
   while (!PeekCurrent().Is(')')) {
     Arguments.push_back(ParseLogicalOr());
-    const Token &T = Require({')', ','});
-    if (T.Is(')'))
+    if (Require({')', ','}).Is(')'))
       /// Move back to token before '(' and break on next iteration.
       --TokenPtr;
   }
@@ -145,12 +144,13 @@ ASTNode *Parser::ParseArrayDecl() {
   std::vector<unsigned> ArityList;
 
   --TokenPtr;
-  while (true) {
+
+  do {
     Require('[');
 
     auto *Constant = ParseConstant();
 
-    if (Constant->GetASTType() != AST_INTEGER_LITERAL)
+    if (!Constant->Is(AST_INTEGER_LITERAL))
       weak::CompileError(T.LineNo, T.ColumnNo)
           << "Integer size declarator expected";
 
@@ -163,14 +163,9 @@ ASTNode *Parser::ParseArrayDecl() {
     delete ArraySize;
 
     Require(']');
-
-    const Token &End = PeekCurrent();
-
-    if (End.Is(',') || /// Function parameter.
-        End.Is(')') || /// Last function parameter.
-        End.Is(';'))   /// End of declaration.
-      break;
-  }
+  } while (!PeekCurrent().Is(',') && /// Function parameter.
+           !PeekCurrent().Is(')') && /// Last function parameter.
+           !PeekCurrent().Is(';'));  /// End of declaration.
 
   return new ASTArrayDecl(DataType.Type, std::move(VariableName),
                           std::move(ArityList), DataType.LineNo,
@@ -231,7 +226,7 @@ ASTNode *Parser::ParseStructDecl() {
 
   Require('{');
 
-  while (!TokenPtr->Is('}')) {
+  while (!PeekCurrent().Is('}')) {
     Decls.push_back(ParseDecl());
     Require(';');
   }
@@ -286,8 +281,7 @@ std::vector<ASTNode *> Parser::ParseParameterList() {
   --TokenPtr;
   while (!PeekCurrent().Is(')')) {
     List.push_back(ParseDeclWithoutInitializer());
-    Require({')', ','});
-    if ((TokenPtr - 1)->Is(')')) {
+    if (Require({')', ','}).Is(')')) {
       /// Move back to token before '('.
       --TokenPtr;
       break;
@@ -305,7 +299,7 @@ ASTCompoundStmt *Parser::ParseBlock() {
 
   while (!PeekCurrent().Is('}')) {
     Stmts.push_back(ParseStmt());
-    switch (const ASTType Type = Stmts.back()->GetASTType(); Type) {
+    switch (ASTType Type = Stmts.back()->GetASTType(); Type) {
     case AST_BINARY:
     case AST_POSTFIX_UNARY:
     case AST_PREFIX_UNARY:
@@ -333,7 +327,7 @@ ASTCompoundStmt *Parser::ParseIterationBlock() {
 
   while (!PeekCurrent().Is('}')) {
     Stmts.push_back(ParseLoopStmt());
-    switch (const ASTType Type = Stmts.back()->GetASTType(); Type) {
+    switch (ASTType Type = Stmts.back()->GetASTType(); Type) {
     case AST_BINARY:
     case AST_POSTFIX_UNARY:
     case AST_PREFIX_UNARY:
@@ -393,12 +387,8 @@ ASTNode *Parser::ParseSelectionStmt() {
   Require(')');
   ThenBody = ParseBlock();
 
-  if (Match(TOK_ELSE)) {
+  if (Match(TOK_ELSE))
     ElseBody = ParseBlock();
-    assert(ElseBody);
-  }
-
-  assert(ThenBody);
 
   return new ASTIfStmt(Condition, ThenBody, ElseBody, Start.LineNo,
                        Start.ColumnNo);
@@ -500,17 +490,19 @@ ASTNode *Parser::ParseLoopStmt() {
 }
 
 ASTNode *Parser::ParseJumpStmt() {
-  const Token &ReturnStmt = Require(TOK_RETURN);
-  if (Match(';')) {
+  const Token &Start = Require(TOK_RETURN);
+  ASTNode *Body{nullptr};
+  if (!Match(';')) {
     /// This is `return;` case.
     /// Rollback to allow match ';' in block parse function.
+    Body = ParseExpr();
+  } else
+    /// Go back to body of return statement.
     --TokenPtr;
-    return new ASTReturnStmt(nullptr, ReturnStmt.LineNo, ReturnStmt.ColumnNo);
-  }
   /// We want to forbid expressions like int var = var = var, so we
   /// expect the first expression to have the precedence is lower than
   /// the assignment operator.
-  return new ASTReturnStmt(ParseExpr(), ReturnStmt.LineNo, ReturnStmt.ColumnNo);
+  return new ASTReturnStmt(Body, Start.LineNo, Start.ColumnNo);
 }
 
 ASTNode *Parser::ParseArrayAccess() {
