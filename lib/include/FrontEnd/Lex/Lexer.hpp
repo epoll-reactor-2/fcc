@@ -18,10 +18,10 @@ namespace weak {
 /// into a stream of tokens.
 class Lexer {
 public:
-  Lexer(const char *TheBufferStart, const char *TheBufferEnd);
+  Lexer(const char *TheBufStart, const char *TheBufEnd);
 
   /// Walk through input text and generate stream of tokens.
-  const std::vector<Token> &Analyze();
+  std::vector<Token> Analyze();
 
 private:
   Token AnalyzeDigit();
@@ -36,6 +36,8 @@ private:
   void ProcessOneLineComment();
   void ProcessMultiLineComment();
 
+  void Require(char Expected);
+
   /// Get current character from input range and move forward.
   char PeekNext();
 
@@ -44,23 +46,20 @@ private:
 
   Token MakeToken(std::string Data, TokenType Type) const;
 
-  /// Internal buffer.
-  std::vector<Token> ProcessedTokens;
-
   /// First symbol in buffer.
-  const char *BufferStart;
+  const char *BufStart;
 
   /// Last symbol in buffer (null-terminator).
-  const char *BufferEnd;
+  const char *BufEnd;
 
   /// Current symbol to be lexed.
-  const char *CurrentBufferPtr;
+  const char *BufPtr;
 
-  /// Line number (used for error generating).
-  unsigned CurrentLineNo;
+  /// Line number (used for error reports).
+  unsigned LineNo;
 
-  /// Column number (used for error generating).
-  unsigned CurrentColumnNo;
+  /// Column number (used for error reports).
+  unsigned ColumnNo;
 };
 
 } // namespace weak

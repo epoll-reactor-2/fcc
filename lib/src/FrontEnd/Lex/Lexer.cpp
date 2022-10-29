@@ -6,10 +6,13 @@
 
 #include "FrontEnd/Lex/Lexer.hpp"
 #include "Utility/Diagnostic.hpp"
-#include <algorithm>
-#include <array>
 #include <cassert>
 #include <unordered_map>
+
+auto &operator+=(std::vector<weak::Token> &V, weak::Token T) {
+  V.push_back(std::move(T));
+  return V;
+}
 
 namespace weak {
 namespace {
@@ -66,200 +69,164 @@ static const std::unordered_map<std::string_view, TokenType> LexOperators = {
     {"(", TOK_OPEN_PAREN},
     {")", TOK_CLOSE_PAREN}};
 
-class LexStringLiteralCheck {
-public:
-  explicit LexStringLiteralCheck(char ThePeek) : Peek(ThePeek) {}
-
-  void ClosingQuoteCheck(unsigned LineNo, unsigned ColumnNo) const {
-    if (Peek == '\n' || Peek == '\0')
-      weak::CompileError(LineNo, ColumnNo) << "Closing \" expected";
-  }
-
-private:
-  char Peek;
-};
-
-class LexDigitCheck {
-public:
-  LexDigitCheck(const std::string &TheDigit, char ThePeek, unsigned Dots)
-      : Digit(TheDigit), Peek(ThePeek), DotsReached(Dots) {}
-
-  void LastDigitRequire(unsigned LineNo, unsigned ColumnNo) const {
-    if (std::isalpha(Peek) || !std::isdigit(Digit.back()))
-      weak::CompileError(LineNo, ColumnNo)
-          << "Digit as last character expected";
-  }
-
-  void ExactOneDotRequire(unsigned LineNo, unsigned ColumnNo) const {
-    if (DotsReached > 1)
-      weak::CompileError(LineNo, ColumnNo) << "Extra \".\" in digit";
-  }
-
-private:
-  const std::string &Digit;
-  char Peek;
-  unsigned DotsReached;
-};
-
 } // namespace
 
-static bool IsAlphanumeric(char C) { return isalpha(C) || C == '_'; }
-
-static void NormalizeColumnPosition(std::string_view Data, weak::TokenType Type,
-                                    unsigned &ColumnNo) {
+static void NormalizeColumnPos(std::string_view Data, weak::TokenType Type,
+                               unsigned &ColumnNo) {
   using namespace std::string_view_literals;
-  static constexpr std::array TokenLengths{
+
+  static const std::unordered_map TokenLengths{
       std::make_pair(TOK_BOOLEAN, "bool"sv.length()),
-      std::make_pair(TOK_BREAK, "break"sv.length()),
-      std::make_pair(TOK_CHAR, "char"sv.length()),
-      std::make_pair(TOK_CONTINUE, "continue"sv.length()),
-      std::make_pair(TOK_DO, "do"sv.length()),
-      std::make_pair(TOK_ELSE, "else"sv.length()),
-      std::make_pair(TOK_FALSE, "false"sv.length()),
-      std::make_pair(TOK_FLOAT, "float"sv.length()),
-      std::make_pair(TOK_FOR, "for"sv.length()),
-      std::make_pair(TOK_IF, "if"sv.length()),
-      std::make_pair(TOK_INT, "int"sv.length()),
-      std::make_pair(TOK_RETURN, "return"sv.length()),
-      std::make_pair(TOK_STRING, "string"sv.length()),
-      std::make_pair(TOK_TRUE, "true"sv.length()),
-      std::make_pair(TOK_VOID, "void"sv.length()),
-      std::make_pair(TOK_WHILE, "while"sv.length())};
+      {TOK_BREAK, "break"sv.length()},
+      {TOK_CHAR, "char"sv.length()},
+      {TOK_CONTINUE, "continue"sv.length()},
+      {TOK_DO, "do"sv.length()},
+      {TOK_ELSE, "else"sv.length()},
+      {TOK_FALSE, "false"sv.length()},
+      {TOK_FLOAT, "float"sv.length()},
+      {TOK_FOR, "for"sv.length()},
+      {TOK_IF, "if"sv.length()},
+      {TOK_INT, "int"sv.length()},
+      {TOK_RETURN, "return"sv.length()},
+      {TOK_STRING, "string"sv.length()},
+      {TOK_TRUE, "true"sv.length()},
+      {TOK_VOID, "void"sv.length()},
+      {TOK_WHILE, "while"sv.length()}};
 
-  if (const auto *It =
-          std::find_if(TokenLengths.begin(), TokenLengths.end(),
-                       [&](const auto &Pair) { return Type == Pair.first; });
-      It != TokenLengths.end()) {
+  if (auto It = TokenLengths.find(Type); It != TokenLengths.end()) {
     ColumnNo -= It->second;
-  } else {
-    switch (Type) {
-    case TOK_INTEGRAL_LITERAL:
-    case TOK_FLOATING_POINT_LITERAL:
-    case TOK_SYMBOL:
-      ColumnNo -= Data.length();
-      break;
-    case TOK_STRING_LITERAL:
-      ColumnNo -= (Data.length() + 2 /* Quotes. */);
-      break;
-    default:
-      break;
-    }
+    return;
+  }
+
+  switch (Type) {
+  case TOK_INTEGRAL_LITERAL:
+  case TOK_FLOATING_POINT_LITERAL:
+  case TOK_SYMBOL:
+    ColumnNo -= Data.length();
+    break;
+  case TOK_STRING_LITERAL:
+    ColumnNo -= (Data.length() + 2 /* Quotes. */);
+    break;
+  default:
+    break;
   }
 }
 
-Lexer::Lexer(const char *TheBufferStart, const char *TheBufferEnd)
-    : BufferStart(TheBufferStart), BufferEnd(TheBufferEnd),
-      CurrentBufferPtr(TheBufferStart), CurrentLineNo(1U), CurrentColumnNo(1U) {
-  assert(BufferStart);
-  assert(BufferEnd);
-  assert(BufferStart <= BufferEnd);
+Lexer::Lexer(const char *TheBufStart, const char *TheBufEnd)
+    : BufStart(TheBufStart), BufEnd(TheBufEnd), BufPtr(TheBufStart), LineNo(1U),
+      ColumnNo(1U) {
+  assert(BufStart);
+  assert(BufEnd);
+  assert(BufStart <= BufEnd);
 }
 
-const std::vector<Token> &Lexer::Analyze() {
-  ProcessedTokens.clear();
+std::vector<Token> Lexer::Analyze() {
+  std::vector<Token> Tokens;
 
-  long InputSize = std::distance(BufferStart, BufferEnd);
-  ProcessedTokens.reserve(InputSize / 2);
+  Tokens.reserve(std::distance(BufStart, BufEnd) / 2);
 
-  while (CurrentBufferPtr != BufferEnd) {
-    if (char Atom = PeekCurrent(); std::isdigit(Atom)) {
-      ProcessedTokens.push_back(AnalyzeDigit());
-    } else if (std::isalpha(Atom)) {
-      ProcessedTokens.push_back(AnalyzeSymbol());
-    } else if (Atom == '\'') {
-      ProcessedTokens.push_back(AnalyzeCharLiteral());
-    } else if (Atom == '\"') {
-      ProcessedTokens.push_back(AnalyzeStringLiteral());
-    } else if (Atom == '/') {
-      ProcessComment();
-    } else if (std::isspace(Atom)) {
+  while (BufPtr != BufEnd)
+    if (char C = PeekCurrent(); std::isdigit(C))
+      Tokens += AnalyzeDigit();
+    else if (std::isalpha(C))
+      Tokens += AnalyzeSymbol();
+    else if (C == '\'')
+      Tokens += AnalyzeCharLiteral();
+    else if (C == '\"')
+      Tokens += AnalyzeStringLiteral();
+    else if (C == '/')
+      if (char Next = *(BufPtr + 1); Next == '/' || Next == '*')
+        ProcessComment();
+      else
+        /// Special case for '/='.
+        Tokens += AnalyzeOperator();
+    else if (std::isspace(C))
       PeekNext();
-      continue;
-    } else {
-      ProcessedTokens.push_back(AnalyzeOperator());
-    }
-  }
+    else
+      Tokens += AnalyzeOperator();
 
-  return ProcessedTokens;
+  return Tokens;
 }
 
 Token Lexer::AnalyzeDigit() {
   std::string Digit;
-  bool DotErrorOccurred = false;
-  unsigned DotErrorColumn = 1U;
+  bool DotError = false;
+  unsigned DotErrorColumnNo = 1U;
   unsigned DotsReached = 0U;
 
-  while (std::isdigit(PeekCurrent()) || PeekCurrent() == '.') {
-    if (PeekCurrent() == '.')
+  for (char C = PeekCurrent(); std::isdigit(C) || C == '.';) {
+    if (C == '.')
       ++DotsReached;
 
     if (DotsReached > 1) {
-      DotErrorOccurred = true;
-      DotErrorColumn = CurrentColumnNo;
+      DotError = true;
+      DotErrorColumnNo = ColumnNo;
       break;
     }
 
     Digit += PeekNext();
+    C = PeekCurrent();
   }
 
-  unsigned LexColumnName = DotErrorOccurred ? DotErrorColumn : CurrentColumnNo;
+  unsigned ColNo = DotError ? DotErrorColumnNo : ColumnNo;
 
-  LexDigitCheck Checker(Digit, PeekCurrent(), DotsReached);
-  Checker.LastDigitRequire(CurrentLineNo, LexColumnName);
-  Checker.ExactOneDotRequire(CurrentLineNo, LexColumnName);
+  if (DotsReached > 1)
+    weak::CompileError(LineNo, ColNo) << "Extra \".\" in digit";
 
-  return MakeToken(Digit, DotsReached == 0U ? TOK_INTEGRAL_LITERAL
-                                            : TOK_FLOATING_POINT_LITERAL);
+  if (std::isalpha(PeekCurrent()) || !std::isdigit(Digit.back()))
+    weak::CompileError(LineNo, ColNo) << "Digit as last character expected";
+
+  return MakeToken(std::move(Digit), DotsReached == 0U
+                                         ? TOK_INTEGRAL_LITERAL
+                                         : TOK_FLOATING_POINT_LITERAL);
 }
 
 Token Lexer::AnalyzeCharLiteral() {
-  PeekNext(); // Eat '
-  char Character = PeekNext();
-  PeekNext(); // Eat '
-  return MakeToken(std::string{Character}, TOK_CHAR_LITERAL);
+  Require('\'');
+  char C = PeekNext();
+  Require('\'');
+  return MakeToken(std::string{C}, TOK_CHAR_LITERAL);
 }
 
 Token Lexer::AnalyzeStringLiteral() {
-  PeekNext(); // Eat "
+  Require('"');
 
   if (PeekNext() == '\"')
     return MakeToken("", TOK_STRING_LITERAL);
 
-  --CurrentBufferPtr;
+  --BufPtr;
 
   std::string Literal;
   while (PeekCurrent() != '\"') {
     Literal += PeekNext();
 
-    LexStringLiteralCheck Check(PeekCurrent());
-    Check.ClosingQuoteCheck(CurrentLineNo, CurrentColumnNo);
+    if (char C = PeekCurrent(); C == '\n' || C == '\0')
+      weak::CompileError(LineNo, ColumnNo)
+          << "Closing \" expected, got `" << C << "`";
 
     if (Literal.back() == '\\')
       Literal.back() = PeekNext();
   }
-  assert(PeekCurrent() == '\"');
 
-  PeekNext(); // Eat "
-  --CurrentColumnNo;
+  Require('"');
+  --ColumnNo;
 
-  return MakeToken(Literal, TOK_STRING_LITERAL);
+  return MakeToken(std::move(Literal), TOK_STRING_LITERAL);
 }
 
 Token Lexer::AnalyzeSymbol() {
   std::string Symbol;
 
-  while ((IsAlphanumeric(PeekCurrent()) || std::isdigit(PeekCurrent())))
+  char C = PeekCurrent();
+  while (isalpha(C) || C == '_' || isdigit(C)) {
     Symbol += PeekNext();
+    C = PeekCurrent();
+  }
 
   if (LexKeywords.find(Symbol) != LexKeywords.end())
     return MakeToken("", LexKeywords.at(Symbol));
 
-  unsigned LineNo = CurrentLineNo;
-  unsigned ColumnNo = CurrentColumnNo;
-
-  NormalizeColumnPosition(Symbol, TOK_SYMBOL, ColumnNo);
-
-  return Token(std::move(Symbol), TOK_SYMBOL, LineNo, ColumnNo);
+  return MakeToken(std::move(Symbol), TOK_SYMBOL);
 }
 
 Token Lexer::AnalyzeOperator() {
@@ -268,61 +235,61 @@ Token Lexer::AnalyzeOperator() {
   bool SearchFailed = false;
   char WrongOperator = '\0';
 
+  /// This is actually implementation of maximal munch algorithm.
+  /// We start to find from shortest to longest operator, for example,
+  /// first `+`, next we ask hashmap if it contains `++` operator.
+  /// If so, update result.
+  ///
+  /// This approach requires direct "road" from the shortest to the
+  /// longest operator. It means, we cannot parse '>>=' operator, if we
+  /// have no '>' and '>>' operators.
   while (true) {
     if (LexOperators.find(Operator) == LexOperators.end()) {
       WrongOperator = Operator.front();
       Operator.pop_back();
-      --CurrentBufferPtr;
+      --BufPtr;
 
-      if (CurrentColumnNo > 1U)
-        --CurrentColumnNo;
+      if (ColumnNo > 1U)
+        --ColumnNo;
 
       if (PeekCurrent() == '\n')
-        --CurrentLineNo;
+        --LineNo;
 
       SearchFailed = true;
       break;
     }
 
-    char Next = *CurrentBufferPtr++;
-    SavedColumnNo = CurrentColumnNo;
+    char Next = *BufPtr++;
+    SavedColumnNo = ColumnNo;
     if (Next == '\n') {
-      CurrentColumnNo = 1U;
-      CurrentLineNo++;
+      ColumnNo = 1U;
+      ++LineNo;
     }
-    ++CurrentColumnNo;
+    ++ColumnNo;
     Operator += Next;
   }
 
-  if (SearchFailed && !Operator.empty()) {
-    return Token("", LexOperators.at(Operator), CurrentLineNo,
+  if (SearchFailed && !Operator.empty())
+    return Token("", LexOperators.at(Operator), LineNo,
                  SavedColumnNo - Operator.length());
-  }
 
-  --CurrentColumnNo;
-  weak::CompileError(CurrentLineNo, CurrentColumnNo)
-      << "Unknown character sequence `" << WrongOperator << "`";
+  weak::CompileError(LineNo, ColumnNo)
+      << "Unknown character `" << WrongOperator << "`";
   weak::UnreachablePoint();
 }
 
 void Lexer::ProcessComment() {
-  assert(PeekCurrent() == '/');
   PeekNext();
-  char Atom = PeekCurrent();
+  char C = PeekCurrent();
 
-  if (Atom == '/') {
-    ProcessOneLineComment();
-  } else if (Atom == '*') {
-    ProcessMultiLineComment();
-  } else {
-    --CurrentBufferPtr;
-    ProcessedTokens.push_back(AnalyzeOperator());
-  }
+  if (C == '/')
+    return ProcessOneLineComment();
+
+  if (C == '*')
+    return ProcessMultiLineComment();
 }
 
 void Lexer::ProcessOneLineComment() {
-  PeekNext();
-
   while (PeekNext() != '\n')
     if (PeekCurrent() == '\n')
       break;
@@ -348,25 +315,31 @@ void Lexer::ProcessMultiLineComment() {
   }
 }
 
+void Lexer::Require(char Expected) {
+  if (char C = PeekNext(); C != Expected)
+    weak::CompileError(LineNo, ColumnNo)
+        << "Expected `" << Expected << "`, got `" << C << "`";
+}
+
 char Lexer::PeekNext() {
-  char Atom = *CurrentBufferPtr++;
-  if (Atom == '\n') {
-    CurrentLineNo++;
-    CurrentColumnNo = 1U;
-  } else {
-    CurrentColumnNo++;
-  }
+  char Atom = *BufPtr++;
+
+  if (Atom == '\n')
+    LineNo++, ColumnNo = 1U;
+  else
+    ColumnNo++;
+
   return Atom;
 }
 
-char Lexer::PeekCurrent() const { return *CurrentBufferPtr; }
+char Lexer::PeekCurrent() const { return *BufPtr; }
 
 Token Lexer::MakeToken(std::string Data, TokenType Type) const {
-  unsigned LineNo = CurrentLineNo;
-  unsigned ColumnNo = CurrentColumnNo;
+  unsigned CurrLineNo = LineNo;
+  unsigned CurrColumnNo = ColumnNo;
 
-  NormalizeColumnPosition(Data, Type, ColumnNo);
-  return Token(std::move(Data), Type, LineNo, ColumnNo);
+  NormalizeColumnPos(Data, Type, CurrColumnNo);
+  return Token(std::move(Data), Type, CurrLineNo, CurrColumnNo);
 }
 
 } // namespace weak
