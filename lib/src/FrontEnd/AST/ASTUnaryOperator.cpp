@@ -9,21 +9,21 @@
 
 namespace weak {
 
-ASTUnaryOperator::ASTUnaryOperator(UnaryType ThePrefixOrPostfix,
-                                   TokenType TheOperation, ASTNode *TheOperand,
-                                   unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode((ThePrefixOrPostfix == POSTFIX ? AST_POSTFIX_UNARY
-                                             : AST_PREFIX_UNARY),
-              TheLineNo, TheColumnNo),
-      PrefixOrPostfix(ThePrefixOrPostfix), Operation(TheOperation),
-      Operand(TheOperand) {}
+ASTUnaryOperator::ASTUnaryOperator(UnaryType PrefixOrPostfix,
+                                   TokenType Operation, ASTNode *Operand,
+                                   unsigned LineNo, unsigned ColumnNo)
+    : ASTNode(
+          (PrefixOrPostfix == POSTFIX ? AST_POSTFIX_UNARY : AST_PREFIX_UNARY),
+          LineNo, ColumnNo),
+      PrefixOrPostfix(PrefixOrPostfix), mOperation(Operation),
+      mOperand(Operand) {}
 
-ASTUnaryOperator::~ASTUnaryOperator() { delete Operand; }
+ASTUnaryOperator::~ASTUnaryOperator() { delete mOperand; }
 
 void ASTUnaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-TokenType ASTUnaryOperator::GetOperation() const { return Operation; }
+TokenType ASTUnaryOperator::Operation() const { return mOperation; }
 
-ASTNode *ASTUnaryOperator::GetOperand() const { return Operand; }
+ASTNode *ASTUnaryOperator::Operand() const { return mOperand; }
 
 } // namespace weak

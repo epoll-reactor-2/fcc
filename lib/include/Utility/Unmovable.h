@@ -10,8 +10,7 @@
 namespace weak {
 /// Should be used by inheritance to disable object moving semantics and prevent
 /// boilerplate code.
-class Unmovable {
-public:
+struct Unmovable {
   Unmovable() = default;
   Unmovable(Unmovable &&) = delete;
   Unmovable &operator=(Unmovable &&) = delete;

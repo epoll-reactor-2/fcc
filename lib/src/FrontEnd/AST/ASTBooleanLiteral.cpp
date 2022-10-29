@@ -9,12 +9,12 @@
 
 namespace weak {
 
-ASTBooleanLiteral::ASTBooleanLiteral(bool TheValue, unsigned TheLineNo,
-                                     unsigned TheColumnNo)
-    : ASTNode(AST_BOOLEAN_LITERAL, TheLineNo, TheColumnNo), Value(TheValue) {}
+ASTBooleanLiteral::ASTBooleanLiteral(bool Value, unsigned LineNo,
+                                     unsigned ColumnNo)
+    : ASTNode(AST_BOOLEAN_LITERAL, LineNo, ColumnNo), mValue(Value) {}
 
 void ASTBooleanLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-bool ASTBooleanLiteral::GetValue() const { return Value; }
+bool ASTBooleanLiteral::Value() const { return mValue; }
 
 } // namespace weak

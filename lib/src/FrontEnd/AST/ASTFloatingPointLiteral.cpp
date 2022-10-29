@@ -9,16 +9,14 @@
 
 namespace weak {
 
-ASTFloatingPointLiteral::ASTFloatingPointLiteral(float TheValue,
-                                                 unsigned TheLineNo,
-                                                 unsigned TheColumnNo)
-    : ASTNode(AST_FLOATING_POINT_LITERAL, TheLineNo, TheColumnNo),
-      Value(TheValue) {}
+ASTFloatingPointLiteral::ASTFloatingPointLiteral(float Value, unsigned LineNo,
+                                                 unsigned ColumnNo)
+    : ASTNode(AST_FLOATING_POINT_LITERAL, LineNo, ColumnNo), mValue(Value) {}
 
 void ASTFloatingPointLiteral::Accept(ASTVisitor *Visitor) {
   Visitor->Visit(this);
 }
 
-float ASTFloatingPointLiteral::GetValue() const { return Value; }
+float ASTFloatingPointLiteral::Value() const { return mValue; }
 
 } // namespace weak

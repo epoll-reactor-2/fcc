@@ -113,19 +113,19 @@ static void NormalizeColumnPos(std::string_view Data, weak::TokenType Type,
 }
 
 Lexer::Lexer(const char *TheBufStart, const char *TheBufEnd)
-    : BufStart(TheBufStart), BufEnd(TheBufEnd), BufPtr(TheBufStart), LineNo(1U),
-      ColumnNo(1U) {
-  assert(BufStart);
-  assert(BufEnd);
-  assert(BufStart <= BufEnd);
+    : mBufStart(TheBufStart), mBufEnd(TheBufEnd), mBufPtr(TheBufStart),
+      mLineNo(1U), mColumnNo(1U) {
+  assert(mBufStart);
+  assert(mBufEnd);
+  assert(mBufStart <= mBufEnd);
 }
 
 std::vector<Token> Lexer::Analyze() {
   std::vector<Token> Tokens;
 
-  Tokens.reserve(std::distance(BufStart, BufEnd) / 2);
+  Tokens.reserve(std::distance(mBufStart, mBufEnd) / 2);
 
-  while (BufPtr != BufEnd)
+  while (mBufPtr != mBufEnd)
     if (char C = PeekCurrent(); std::isdigit(C))
       Tokens += AnalyzeDigit();
     else if (std::isalpha(C))
@@ -135,7 +135,7 @@ std::vector<Token> Lexer::Analyze() {
     else if (C == '\"')
       Tokens += AnalyzeStringLiteral();
     else if (C == '/')
-      if (char Next = *(BufPtr + 1); Next == '/' || Next == '*')
+      if (char Next = *(mBufPtr + 1); Next == '/' || Next == '*')
         ProcessComment();
       else
         /// Special case for '/='.
@@ -160,7 +160,7 @@ Token Lexer::AnalyzeDigit() {
 
     if (DotsReached > 1) {
       DotError = true;
-      DotErrorColumnNo = ColumnNo;
+      DotErrorColumnNo = mColumnNo;
       break;
     }
 
@@ -168,13 +168,13 @@ Token Lexer::AnalyzeDigit() {
     C = PeekCurrent();
   }
 
-  unsigned ColNo = DotError ? DotErrorColumnNo : ColumnNo;
+  unsigned ColNo = DotError ? DotErrorColumnNo : mColumnNo;
 
   if (DotsReached > 1)
-    weak::CompileError(LineNo, ColNo) << "Extra \".\" in digit";
+    weak::CompileError(mLineNo, ColNo) << "Extra \".\" in digit";
 
   if (std::isalpha(PeekCurrent()) || !std::isdigit(Digit.back()))
-    weak::CompileError(LineNo, ColNo) << "Digit as last character expected";
+    weak::CompileError(mLineNo, ColNo) << "Digit as last character expected";
 
   return MakeToken(std::move(Digit), DotsReached == 0U
                                          ? TOK_INTEGRAL_LITERAL
@@ -194,14 +194,14 @@ Token Lexer::AnalyzeStringLiteral() {
   if (PeekNext() == '\"')
     return MakeToken("", TOK_STRING_LITERAL);
 
-  --BufPtr;
+  --mBufPtr;
 
   std::string Literal;
   while (PeekCurrent() != '\"') {
     Literal += PeekNext();
 
     if (char C = PeekCurrent(); C == '\n' || C == '\0')
-      weak::CompileError(LineNo, ColumnNo)
+      weak::CompileError(mLineNo, mColumnNo)
           << "Closing \" expected, got `" << C << "`";
 
     if (Literal.back() == '\\')
@@ -209,7 +209,7 @@ Token Lexer::AnalyzeStringLiteral() {
   }
 
   Require('"');
-  --ColumnNo;
+  --mColumnNo;
 
   return MakeToken(std::move(Literal), TOK_STRING_LITERAL);
 }
@@ -247,33 +247,33 @@ Token Lexer::AnalyzeOperator() {
     if (LexOperators.find(Operator) == LexOperators.end()) {
       WrongOperator = Operator.front();
       Operator.pop_back();
-      --BufPtr;
+      --mBufPtr;
 
-      if (ColumnNo > 1U)
-        --ColumnNo;
+      if (mColumnNo > 1U)
+        --mColumnNo;
 
       if (PeekCurrent() == '\n')
-        --LineNo;
+        --mLineNo;
 
       SearchFailed = true;
       break;
     }
 
-    char Next = *BufPtr++;
-    SavedColumnNo = ColumnNo;
+    char Next = *mBufPtr++;
+    SavedColumnNo = mColumnNo;
     if (Next == '\n') {
-      ColumnNo = 1U;
-      ++LineNo;
+      mColumnNo = 1U;
+      ++mLineNo;
     }
-    ++ColumnNo;
+    ++mColumnNo;
     Operator += Next;
   }
 
   if (SearchFailed && !Operator.empty())
-    return Token("", LexOperators.at(Operator), LineNo,
+    return Token("", LexOperators.at(Operator), mLineNo,
                  SavedColumnNo - Operator.length());
 
-  weak::CompileError(LineNo, ColumnNo)
+  weak::CompileError(mLineNo, mColumnNo)
       << "Unknown character `" << WrongOperator << "`";
   weak::UnreachablePoint();
 }
@@ -317,26 +317,26 @@ void Lexer::ProcessMultiLineComment() {
 
 void Lexer::Require(char Expected) {
   if (char C = PeekNext(); C != Expected)
-    weak::CompileError(LineNo, ColumnNo)
+    weak::CompileError(mLineNo, mColumnNo)
         << "Expected `" << Expected << "`, got `" << C << "`";
 }
 
 char Lexer::PeekNext() {
-  char Atom = *BufPtr++;
+  char Atom = *mBufPtr++;
 
   if (Atom == '\n')
-    LineNo++, ColumnNo = 1U;
+    mLineNo++, mColumnNo = 1U;
   else
-    ColumnNo++;
+    mColumnNo++;
 
   return Atom;
 }
 
-char Lexer::PeekCurrent() const { return *BufPtr; }
+char Lexer::PeekCurrent() const { return *mBufPtr; }
 
 Token Lexer::MakeToken(std::string Data, TokenType Type) const {
-  unsigned CurrLineNo = LineNo;
-  unsigned CurrColumnNo = ColumnNo;
+  unsigned CurrLineNo = mLineNo;
+  unsigned CurrColumnNo = mColumnNo;
 
   NormalizeColumnPos(Data, Type, CurrColumnNo);
   return Token(std::move(Data), Type, CurrLineNo, CurrColumnNo);

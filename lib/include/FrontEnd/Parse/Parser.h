@@ -167,16 +167,16 @@ private:
   void AssertNotBufEnd() const;
 
   /// First token in input stream.
-  const Token *BufStart;
+  const Token *mBufStart;
 
   /// Pointer to after-last token in input stream, like std::end().
-  const Token *BufEnd;
+  const Token *mBufEnd;
 
   /// Current token to be processed.
-  const Token *TokenPtr;
+  const Token *mTokenPtr;
 
   /// Depth of currently analyzed loop. Needed for 'break', 'continue' parsing.
-  std::size_t LoopsDepth;
+  unsigned mLoopsDepth;
 };
 
 } // namespace weak

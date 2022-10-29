@@ -9,12 +9,11 @@
 
 namespace weak {
 
-ASTCharLiteral::ASTCharLiteral(char TheValue, unsigned TheLineNo,
-                               unsigned TheColumnNo)
-    : ASTNode(AST_CHAR_LITERAL, TheLineNo, TheColumnNo), Value(TheValue) {}
+ASTCharLiteral::ASTCharLiteral(char Value, unsigned LineNo, unsigned ColumnNo)
+    : ASTNode(AST_CHAR_LITERAL, LineNo, ColumnNo), mValue(Value) {}
 
 void ASTCharLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-char ASTCharLiteral::GetValue() const { return Value; }
+char ASTCharLiteral::Value() const { return mValue; }
 
 } // namespace weak

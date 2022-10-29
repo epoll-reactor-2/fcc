@@ -241,19 +241,19 @@ const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> &amp;&
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a010dd76e0cbb621a333acf969928e360"><td class="memItemLeft" align="right" valign="top"><a id="a010dd76e0cbb621a333acf969928e360" name="a010dd76e0cbb621a333acf969928e360"></a>
-const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufStart</b></td></tr>
+const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>mBufStart</b></td></tr>
 <tr class="memdesc:a010dd76e0cbb621a333acf969928e360"><td class="mdescLeft">&#160;</td><td class="mdescRight">First token in input stream. <br /></td></tr>
 <tr class="separator:a010dd76e0cbb621a333acf969928e360"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4541fc2ec869ef51a16d9e55138c9037"><td class="memItemLeft" align="right" valign="top"><a id="a4541fc2ec869ef51a16d9e55138c9037" name="a4541fc2ec869ef51a16d9e55138c9037"></a>
-const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>BufEnd</b></td></tr>
+const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>mBufEnd</b></td></tr>
 <tr class="memdesc:a4541fc2ec869ef51a16d9e55138c9037"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to after-last token in input stream, like std::end(). <br /></td></tr>
 <tr class="separator:a4541fc2ec869ef51a16d9e55138c9037"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5dc355c9b6b1adee68c6ef947345918d"><td class="memItemLeft" align="right" valign="top"><a id="a5dc355c9b6b1adee68c6ef947345918d" name="a5dc355c9b6b1adee68c6ef947345918d"></a>
-const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>TokenPtr</b></td></tr>
+const <a class="el" href="structweak_1_1frontEnd_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>mTokenPtr</b></td></tr>
 <tr class="memdesc:a5dc355c9b6b1adee68c6ef947345918d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current token to be processed. <br /></td></tr>
 <tr class="separator:a5dc355c9b6b1adee68c6ef947345918d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a231ae34bd77436d66b20af0200f868c0"><td class="memItemLeft" align="right" valign="top"><a id="a231ae34bd77436d66b20af0200f868c0" name="a231ae34bd77436d66b20af0200f868c0"></a>
-std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b></td></tr>
+std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>mLoopsDepth</b></td></tr>
 <tr class="memdesc:a231ae34bd77436d66b20af0200f868c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Depth of currently analyzed loop. Needed for 'break', 'continue' parsing. <br /></td></tr>
 <tr class="separator:a231ae34bd77436d66b20af0200f868c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -312,7 +312,7 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>LoopsDepth</b>
   </tr>
 </table>
 </div><div class="memdoc">
-<p >Ensure we can move TokenPtr forward or emit compile error, if we're reached BufEnd. </p>
+<p >Ensure we can move mTokenPtr forward or emit compile error, if we're reached mBufEnd. </p>
 
 </div>
 </div>

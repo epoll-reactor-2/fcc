@@ -56,7 +56,7 @@ void BuildCode(std::string_view InputPath, std::string_view OutputPath) {
   auto AST = DoSyntaxAnalysis(InputPath);
   weak::CodeGen CodeGen(AST.get());
   CodeGen.CreateCode();
-  weak::TargetCodeBuilder TargetCodeBuilder(CodeGen.GetModule(), OutputPath);
+  weak::TargetCodeBuilder TargetCodeBuilder(CodeGen.Module(), OutputPath);
   TargetCodeBuilder.Build();
 }
 

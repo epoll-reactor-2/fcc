@@ -9,24 +9,24 @@
 
 namespace weak {
 
-ASTIfStmt::ASTIfStmt(ASTNode *TheCondition, ASTCompoundStmt *TheThenBody,
-                     ASTCompoundStmt *TheElseBody, unsigned TheLineNo,
-                     unsigned TheColumnNo)
-    : ASTNode(AST_IF_STMT, TheLineNo, TheColumnNo), Condition(TheCondition),
-      ThenBody(TheThenBody), ElseBody(TheElseBody) {}
+ASTIfStmt::ASTIfStmt(ASTNode *Condition, ASTCompoundStmt *ThenBody,
+                     ASTCompoundStmt *ElseBody, unsigned LineNo,
+                     unsigned ColumnNo)
+    : ASTNode(AST_IF_STMT, LineNo, ColumnNo), mCondition(Condition),
+      mThenBody(ThenBody), mElseBody(ElseBody) {}
 
 ASTIfStmt::~ASTIfStmt() {
-  delete Condition;
-  delete ThenBody;
-  delete ElseBody;
+  delete mCondition;
+  delete mThenBody;
+  delete mElseBody;
 }
 
 void ASTIfStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-ASTNode *ASTIfStmt::GetCondition() const { return Condition; }
+ASTNode *ASTIfStmt::Condition() const { return mCondition; }
 
-ASTCompoundStmt *ASTIfStmt::GetThenBody() const { return ThenBody; }
+ASTCompoundStmt *ASTIfStmt::ThenBody() const { return mThenBody; }
 
-ASTCompoundStmt *ASTIfStmt::GetElseBody() const { return ElseBody; }
+ASTCompoundStmt *ASTIfStmt::ElseBody() const { return mElseBody; }
 
 } // namespace weak

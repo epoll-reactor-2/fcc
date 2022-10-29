@@ -18,7 +18,7 @@ static std::string TypeToString(llvm::Type *T) {
 namespace weak {
 
 ScalarExprEmitter::ScalarExprEmitter(llvm::LLVMContext &C, llvm::IRBuilder<> &I)
-    : IRCtx(C), IRBuilder(I) {}
+    : mIRCtx(C), mIRBuilder(I) {}
 
 llvm::Value *ScalarExprEmitter::EmitBinOp(const ASTNode *InformAST, TokenType T,
                                           llvm::Value *L, llvm::Value *R) {
@@ -41,39 +41,39 @@ llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(const ASTNode *InformAST,
                                                   llvm::Value *R) {
   switch (T) {
   case TOK_PLUS:
-    return IRBuilder.CreateAdd(L, R);
+    return mIRBuilder.CreateAdd(L, R);
   case TOK_MINUS:
-    return IRBuilder.CreateSub(L, R);
+    return mIRBuilder.CreateSub(L, R);
   case TOK_STAR:
-    return IRBuilder.CreateMul(L, R);
+    return mIRBuilder.CreateMul(L, R);
   case TOK_SLASH:
-    return IRBuilder.CreateSDiv(L, R);
+    return mIRBuilder.CreateSDiv(L, R);
   case TOK_LE:
-    return IRBuilder.CreateICmpSLE(L, R);
+    return mIRBuilder.CreateICmpSLE(L, R);
   case TOK_LT:
-    return IRBuilder.CreateICmpSLT(L, R);
+    return mIRBuilder.CreateICmpSLT(L, R);
   case TOK_GE:
-    return IRBuilder.CreateICmpSGE(L, R);
+    return mIRBuilder.CreateICmpSGE(L, R);
   case TOK_GT:
-    return IRBuilder.CreateICmpSGT(L, R);
+    return mIRBuilder.CreateICmpSGT(L, R);
   case TOK_EQ:
-    return IRBuilder.CreateICmpEQ(L, R);
+    return mIRBuilder.CreateICmpEQ(L, R);
   case TOK_NEQ:
-    return IRBuilder.CreateICmpNE(L, R);
+    return mIRBuilder.CreateICmpNE(L, R);
   case TOK_OR:
-    return IRBuilder.CreateLogicalOr(L, R);
+    return mIRBuilder.CreateLogicalOr(L, R);
   case TOK_AND:
-    return IRBuilder.CreateLogicalAnd(L, R);
+    return mIRBuilder.CreateLogicalAnd(L, R);
   case TOK_BIT_OR:
-    return IRBuilder.CreateOr(L, R);
+    return mIRBuilder.CreateOr(L, R);
   case TOK_BIT_AND:
-    return IRBuilder.CreateAnd(L, R);
+    return mIRBuilder.CreateAnd(L, R);
   case TOK_XOR:
-    return IRBuilder.CreateXor(L, R);
+    return mIRBuilder.CreateXor(L, R);
   case TOK_SHL:
-    return IRBuilder.CreateShl(L, R);
+    return mIRBuilder.CreateShl(L, R);
   case TOK_SHR:
-    return IRBuilder.CreateAShr(L, R);
+    return mIRBuilder.CreateAShr(L, R);
   default:
     weak::CompileError(InformAST)
         << "Cannot apply `" << weak::TokenToString(T) << "` to integers";
@@ -86,29 +86,29 @@ llvm::Value *ScalarExprEmitter::EmitFloatBinOp(const ASTNode *InformAST,
                                                llvm::Value *R) {
   switch (T) {
   case TOK_PLUS:
-    return IRBuilder.CreateFAdd(L, R);
+    return mIRBuilder.CreateFAdd(L, R);
   case TOK_MINUS:
-    return IRBuilder.CreateFSub(L, R);
+    return mIRBuilder.CreateFSub(L, R);
   case TOK_STAR:
-    return IRBuilder.CreateFMul(L, R);
+    return mIRBuilder.CreateFMul(L, R);
   case TOK_SLASH:
-    return IRBuilder.CreateFDiv(L, R);
+    return mIRBuilder.CreateFDiv(L, R);
   case TOK_LE:
-    return IRBuilder.CreateFCmpOLE(L, R);
+    return mIRBuilder.CreateFCmpOLE(L, R);
   case TOK_LT:
-    return IRBuilder.CreateFCmpOLT(L, R);
+    return mIRBuilder.CreateFCmpOLT(L, R);
   case TOK_GE:
-    return IRBuilder.CreateFCmpOGE(L, R);
+    return mIRBuilder.CreateFCmpOGE(L, R);
   case TOK_GT:
-    return IRBuilder.CreateFCmpOGT(L, R);
+    return mIRBuilder.CreateFCmpOGT(L, R);
   case TOK_EQ:
-    return IRBuilder.CreateFCmpOEQ(L, R);
+    return mIRBuilder.CreateFCmpOEQ(L, R);
   case TOK_NEQ:
-    return IRBuilder.CreateFCmpONE(L, R);
+    return mIRBuilder.CreateFCmpONE(L, R);
   case TOK_OR:
-    return IRBuilder.CreateLogicalOr(L, R);
+    return mIRBuilder.CreateLogicalOr(L, R);
   case TOK_AND:
-    return IRBuilder.CreateLogicalAnd(L, R);
+    return mIRBuilder.CreateLogicalAnd(L, R);
   default:
     weak::CompileError(InformAST)
         << "Cannot apply `" << TokenToString(T) << "` to floats";

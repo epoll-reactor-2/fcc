@@ -16,20 +16,20 @@ class ASTUnaryOperator : public ASTNode {
 public:
   enum UnaryType { PREFIX, POSTFIX } const PrefixOrPostfix;
 
-  ASTUnaryOperator(UnaryType ThePrefixOrPostfix, TokenType TheOperation,
-                   ASTNode *TheOperand, unsigned TheLineNo = 0U,
-                   unsigned TheColumnNo = 0U);
+  ASTUnaryOperator(UnaryType PrefixOrPostfix, TokenType Operation,
+                   ASTNode *Operand, unsigned LineNo = 0U,
+                   unsigned ColumnNo = 0U);
 
   ~ASTUnaryOperator();
 
   void Accept(ASTVisitor *) override;
 
-  TokenType GetOperation() const;
-  ASTNode *GetOperand() const;
+  TokenType Operation() const;
+  ASTNode *Operand() const;
 
 private:
-  TokenType Operation;
-  ASTNode *Operand;
+  TokenType mOperation;
+  ASTNode *mOperand;
 };
 
 } // namespace weak

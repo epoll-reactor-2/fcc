@@ -86,14 +86,14 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>TypeResolver</b> (llvm::LLVMContext &amp;)</td></tr>
 <tr class="separator:aa6695394358caadf72a586f1b3a094c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae725f4b4636c54d18ba81d6c94bc7954"><td class="memItemLeft" align="right" valign="top"><a id="ae725f4b4636c54d18ba81d6c94bc7954" name="ae725f4b4636c54d18ba81d6c94bc7954"></a>
-llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><b>Resolve</b> (frontEnd::TokenType, unsigned LineNo=0U, unsigned ColumnNo=0U)</td></tr>
+llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><b>Resolve</b> (frontEnd::TokenType, unsigned mLineNo=0U, unsigned mColumnNo=0U)</td></tr>
 <tr class="memdesc:ae725f4b4636c54d18ba81d6c94bc7954"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert given parameter (including void) to corresponding LLVM type. <br /></td></tr>
 <tr class="separator:ae725f4b4636c54d18ba81d6c94bc7954"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e832daf2d5fb92239d21cb90f282aec"><td class="memItemLeft" align="right" valign="top">llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1TypeResolver.html#a2e832daf2d5fb92239d21cb90f282aec">Resolve</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *)</td></tr>
 <tr class="memdesc:a2e832daf2d5fb92239d21cb90f282aec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert given parameter (including void) to corresponding LLVM type.  <a href="classweak_1_1middleEnd_1_1TypeResolver.html#a2e832daf2d5fb92239d21cb90f282aec">More...</a><br /></td></tr>
 <tr class="separator:a2e832daf2d5fb92239d21cb90f282aec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7729b0e02fcd25c7294f3b385b9dacb"><td class="memItemLeft" align="right" valign="top"><a id="ad7729b0e02fcd25c7294f3b385b9dacb" name="ad7729b0e02fcd25c7294f3b385b9dacb"></a>
-llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><b>ResolveExceptVoid</b> (frontEnd::TokenType, unsigned LineNo=0U, unsigned ColumnNo=0U)</td></tr>
+llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><b>ResolveExceptVoid</b> (frontEnd::TokenType, unsigned mLineNo=0U, unsigned mColumnNo=0U)</td></tr>
 <tr class="memdesc:ad7729b0e02fcd25c7294f3b385b9dacb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert given parameter (excluding void) to corresponding LLVM type. <br /></td></tr>
 <tr class="separator:ad7729b0e02fcd25c7294f3b385b9dacb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ee8b8fe35990e87b2bdd48d0e922bdc"><td class="memItemLeft" align="right" valign="top">llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1TypeResolver.html#a3ee8b8fe35990e87b2bdd48d0e922bdc">ResolveExceptVoid</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *)</td></tr>
@@ -108,7 +108,7 @@ Private Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a7aba358950a0760eb8ed701b29b91cf3"><td class="memItemLeft" align="right" valign="top"><a id="a7aba358950a0760eb8ed701b29b91cf3" name="a7aba358950a0760eb8ed701b29b91cf3"></a>
-llvm::LLVMContext &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>LLVMCtx</b></td></tr>
+llvm::LLVMContext &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>mIRCtx</b></td></tr>
 <tr class="memdesc:a7aba358950a0760eb8ed701b29b91cf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference to global LLVM stuff. <br /></td></tr>
 <tr class="separator:a7aba358950a0760eb8ed701b29b91cf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>

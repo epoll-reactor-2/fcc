@@ -11,11 +11,8 @@
 #include <sstream>
 
 /// Forward declaration is in Diagnostic.h, so there is no unnamed namespace.
-class Diagnostic {
-public:
+struct Diagnostic {
   enum DiagLevel { WARN, ERROR } const Level;
-
-  Diagnostic(enum DiagLevel TheLevel) : Level(TheLevel) {}
 
   static void ClearErrBuf() { std::ostringstream().swap(ErrBuf); }
 
@@ -53,7 +50,7 @@ std::ostream &weak::OstreamRAII::operator<<(const char *String) {
 
 static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level) {
   Diagnostic::ClearErrBuf();
-  static Diagnostic Diag(Level);
+  static Diagnostic Diag{Level};
   Diag.EmitEmptyLabel();
   return weak::OstreamRAII{&Diag};
 }
@@ -61,7 +58,7 @@ static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level) {
 static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level,
                                      unsigned LineNo, unsigned ColumnNo) {
   Diagnostic::ClearErrBuf();
-  static Diagnostic Diag(Level);
+  static Diagnostic Diag{Level};
   Diag.EmitLabel(LineNo, ColumnNo);
   return weak::OstreamRAII{&Diag};
 }
@@ -83,7 +80,7 @@ weak::OstreamRAII weak::CompileError(unsigned LineNo, unsigned ColumnNo) {
 }
 
 weak::OstreamRAII weak::CompileError(const ASTNode *Node) {
-  unsigned LineNo = Node->GetLineNo();
-  unsigned ColumnNo = Node->GetColumnNo();
+  unsigned LineNo = Node->LineNo();
+  unsigned ColumnNo = Node->ColumnNo();
   return weak::CompileError(LineNo, ColumnNo);
 }

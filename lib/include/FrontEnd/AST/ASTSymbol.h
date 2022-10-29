@@ -14,15 +14,15 @@ namespace weak {
 
 class ASTSymbol : public ASTNode {
 public:
-  ASTSymbol(std::string TheValue, unsigned TheLineNo = 0U,
-            unsigned TheColumnNo = 0U);
+  ASTSymbol(std::string Value, unsigned LineNo = 0U,
+            unsigned ColumnNo = 0U);
 
   void Accept(ASTVisitor *) override;
 
-  const std::string &GetName() const;
+  const std::string &Name() const;
 
 private:
-  std::string Value;
+  std::string mValue;
 };
 
 } // namespace weak

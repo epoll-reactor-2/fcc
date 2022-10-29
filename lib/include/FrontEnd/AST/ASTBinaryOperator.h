@@ -14,21 +14,21 @@ namespace weak {
 
 class ASTBinaryOperator : public ASTNode {
 public:
-  ASTBinaryOperator(TokenType TheOperation, ASTNode *TheLHS, ASTNode *TheRHS,
-                    unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+  ASTBinaryOperator(TokenType Operation, ASTNode *LHS, ASTNode *RHS,
+                    unsigned LineNo = 0U, unsigned ColumnNo = 0U);
 
   ~ASTBinaryOperator();
 
   void Accept(ASTVisitor *) override;
 
-  TokenType GetOperation() const;
-  ASTNode *GetLHS() const;
-  ASTNode *GetRHS() const;
+  TokenType Operation() const;
+  ASTNode *LHS() const;
+  ASTNode *RHS() const;
 
 private:
-  TokenType Operation;
-  ASTNode *LHS;
-  ASTNode *RHS;
+  TokenType mOperation;
+  ASTNode *mLHS;
+  ASTNode *mRHS;
 };
 
 } // namespace weak

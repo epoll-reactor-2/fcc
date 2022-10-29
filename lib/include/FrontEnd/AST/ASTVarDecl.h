@@ -15,22 +15,22 @@ namespace weak {
 
 class ASTVarDecl : public ASTNode {
 public:
-  ASTVarDecl(TokenType TheDataType, std::string &&TheSymbolName,
-             ASTNode *TheDeclBody, unsigned TheLineNo = 0U,
-             unsigned TheColumnNo = 0U);
+  ASTVarDecl(TokenType DataType, std::string &&Name,
+             ASTNode *Body, unsigned LineNo = 0U,
+             unsigned ColumnNo = 0U);
 
   ~ASTVarDecl();
 
   void Accept(ASTVisitor *) override;
 
-  TokenType GetDataType() const;
-  const std::string &GetSymbolName() const;
-  ASTNode *GetDeclBody() const;
+  TokenType DataType() const;
+  const std::string &Name() const;
+  ASTNode *Body() const;
 
 private:
-  TokenType DataType;
-  std::string SymbolName;
-  ASTNode *DeclBody;
+  TokenType mDataType;
+  std::string mName;
+  ASTNode *mBody;
 };
 
 } // namespace weak

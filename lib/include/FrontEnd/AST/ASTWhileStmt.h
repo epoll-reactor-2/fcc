@@ -14,19 +14,19 @@ namespace weak {
 
 class ASTWhileStmt : public ASTNode {
 public:
-  ASTWhileStmt(ASTNode *TheCondition, ASTCompoundStmt *TheBody,
-               unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+  ASTWhileStmt(ASTNode *Condition, ASTCompoundStmt *Body,
+               unsigned LineNo = 0U, unsigned ColumnNo = 0U);
 
   ~ASTWhileStmt();
 
   void Accept(ASTVisitor *) override;
 
-  ASTNode *GetCondition() const;
-  ASTCompoundStmt *GetBody() const;
+  ASTNode *Condition() const;
+  ASTCompoundStmt *Body() const;
 
 private:
-  ASTNode *Condition;
-  ASTCompoundStmt *Body;
+  ASTNode *mCondition;
+  ASTCompoundStmt *mBody;
 };
 
 } // namespace weak

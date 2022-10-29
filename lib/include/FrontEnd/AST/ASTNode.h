@@ -18,18 +18,18 @@ public:
   virtual ~ASTNode() = default;
   virtual void Accept(ASTVisitor *) = 0;
 
-  ASTType GetASTType() const;
+  ASTType Type() const;
   bool Is(ASTType) const;
 
-  unsigned GetLineNo() const;
-  unsigned GetColumnNo() const;
+  unsigned LineNo() const;
+  unsigned ColumnNo() const;
 
 protected:
-  ASTNode(ASTType TheType, unsigned TheLineNo, unsigned TheColumnNo);
+  ASTNode(ASTType Type, unsigned LineNo, unsigned ColumnNo);
 
-  ASTType Type;
-  unsigned LineNo;
-  unsigned ColumnNo;
+  ASTType mType;
+  unsigned mLineNo;
+  unsigned mColumnNo;
 };
 
 } // namespace weak

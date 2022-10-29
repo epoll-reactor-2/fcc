@@ -9,8 +9,8 @@
 
 namespace weak {
 
-ASTBreakStmt::ASTBreakStmt(unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(AST_BREAK_STMT, TheLineNo, TheColumnNo) {}
+ASTBreakStmt::ASTBreakStmt(unsigned LineNo, unsigned ColumnNo)
+    : ASTNode(AST_BREAK_STMT, LineNo, ColumnNo) {}
 
 void ASTBreakStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

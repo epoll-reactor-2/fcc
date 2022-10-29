@@ -9,12 +9,11 @@
 
 namespace weak {
 
-ASTSymbol::ASTSymbol(std::string TheValue, unsigned TheLineNo,
-                     unsigned TheColumnNo)
-    : ASTNode(AST_SYMBOL, TheLineNo, TheColumnNo), Value(std::move(TheValue)) {}
+ASTSymbol::ASTSymbol(std::string Value, unsigned LineNo, unsigned ColumnNo)
+    : ASTNode(AST_SYMBOL, LineNo, ColumnNo), mValue(std::move(Value)) {}
 
 void ASTSymbol::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-const std::string &ASTSymbol::GetName() const { return Value; }
+const std::string &ASTSymbol::Name() const { return mValue; }
 
 } // namespace weak

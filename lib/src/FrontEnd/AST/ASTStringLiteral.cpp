@@ -9,13 +9,12 @@
 
 namespace weak {
 
-ASTStringLiteral::ASTStringLiteral(std::string TheValue, unsigned TheLineNo,
-                                   unsigned TheColumnNo)
-    : ASTNode(AST_STRING_LITERAL, TheLineNo, TheColumnNo),
-      Value(std::move(TheValue)) {}
+ASTStringLiteral::ASTStringLiteral(std::string Value, unsigned LineNo,
+                                   unsigned ColumnNo)
+    : ASTNode(AST_STRING_LITERAL, LineNo, ColumnNo), mValue(std::move(Value)) {}
 
 void ASTStringLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-const std::string &ASTStringLiteral::GetValue() const { return Value; }
+const std::string &ASTStringLiteral::Value() const { return mValue; }
 
 } // namespace weak

@@ -14,22 +14,22 @@ namespace weak {
 
 class ASTIfStmt : public ASTNode {
 public:
-  ASTIfStmt(ASTNode *TheCondition, ASTCompoundStmt *TheThenBody,
-            ASTCompoundStmt *TheElseBody, unsigned TheLineNo = 0U,
-            unsigned TheColumnNo = 0U);
+  ASTIfStmt(ASTNode *Condition, ASTCompoundStmt *ThenBody,
+            ASTCompoundStmt *ElseBody, unsigned LineNo = 0U,
+            unsigned ColumnNo = 0U);
 
   ~ASTIfStmt();
 
   void Accept(ASTVisitor *) override;
 
-  ASTNode *GetCondition() const;
-  ASTCompoundStmt *GetThenBody() const;
-  ASTCompoundStmt *GetElseBody() const;
+  ASTNode *Condition() const;
+  ASTCompoundStmt *ThenBody() const;
+  ASTCompoundStmt *ElseBody() const;
 
 private:
-  ASTNode *Condition;
-  ASTCompoundStmt *ThenBody;
-  ASTCompoundStmt *ElseBody;
+  ASTNode *mCondition;
+  ASTCompoundStmt *mThenBody;
+  ASTCompoundStmt *mElseBody;
 };
 
 } // namespace weak

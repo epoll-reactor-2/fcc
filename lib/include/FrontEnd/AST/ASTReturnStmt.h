@@ -13,17 +13,17 @@ namespace weak {
 
 class ASTReturnStmt : public ASTNode {
 public:
-  ASTReturnStmt(ASTNode *TheOperand, unsigned TheLineNo = 0U,
-                unsigned TheColumnNo = 0U);
+  ASTReturnStmt(ASTNode *Operand, unsigned LineNo = 0U,
+                unsigned ColumnNo = 0U);
 
   ~ASTReturnStmt();
 
   void Accept(ASTVisitor *) override;
 
-  ASTNode *GetOperand() const;
+  ASTNode *Operand() const;
 
 private:
-  ASTNode *Operand;
+  ASTNode *mOperand;
 };
 
 } // namespace weak

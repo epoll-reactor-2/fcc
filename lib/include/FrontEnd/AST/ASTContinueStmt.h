@@ -13,7 +13,7 @@ namespace weak {
 
 class ASTContinueStmt : public ASTNode {
 public:
-  ASTContinueStmt(unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+  ASTContinueStmt(unsigned LineNo = 0U, unsigned ColumnNo = 0U);
 
   void Accept(ASTVisitor *) override;
 };

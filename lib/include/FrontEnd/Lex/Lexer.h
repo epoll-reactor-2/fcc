@@ -47,19 +47,19 @@ private:
   Token MakeToken(std::string Data, TokenType Type) const;
 
   /// First symbol in buffer.
-  const char *BufStart;
+  const char *mBufStart;
 
   /// Last symbol in buffer (null-terminator).
-  const char *BufEnd;
+  const char *mBufEnd;
 
   /// Current symbol to be lexed.
-  const char *BufPtr;
+  const char *mBufPtr;
 
   /// Line number (used for error reports).
-  unsigned LineNo;
+  unsigned mLineNo;
 
   /// Column number (used for error reports).
-  unsigned ColumnNo;
+  unsigned mColumnNo;
 };
 
 } // namespace weak

@@ -10,8 +10,7 @@
 namespace weak {
 /// Should be used by inheritance to disable object copying semantics and
 /// prevent boilerplate code.
-class Uncopyable {
-public:
+struct Uncopyable {
   Uncopyable() = default;
   Uncopyable(Uncopyable &&) = default;
   Uncopyable &operator=(Uncopyable &&) = default;

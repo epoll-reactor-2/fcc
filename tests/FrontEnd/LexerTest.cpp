@@ -1,11 +1,11 @@
 #include "FrontEnd/Lex/Lexer.h"
 #include "TestHelpers.h"
 
-static weak::Token MakeToken(std::string Data, weak::TokenType Type) {
+weak::Token MakeToken(std::string Data, weak::TokenType Type) {
   return {std::move(Data), Type, 0U, 0U};
 }
 
-static void RunLexerTest(std::string_view Input,
+void RunLexerTest(std::string_view Input,
                          const std::vector<weak::Token> &ExpectedTokens) {
   auto Tokens = weak::Lexer(Input.begin(), Input.end()).Analyze();
   if (Tokens.size() != ExpectedTokens.size()) {

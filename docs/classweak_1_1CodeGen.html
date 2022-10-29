@@ -89,17 +89,17 @@ Public Member Functions</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CreateCode</b> ()</td></tr>
 <tr class="memdesc:a0571a76e661ec437f38d52296b76b997"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert AST to LLVM IR starting from root node (usually CompoundStmt). <br /></td></tr>
 <tr class="separator:a0571a76e661ec437f38d52296b76b997"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6dd3511a2b46dd4e0b7a4320f3c6feac"><td class="memItemLeft" align="right" valign="top"><a id="a6dd3511a2b46dd4e0b7a4320f3c6feac" name="a6dd3511a2b46dd4e0b7a4320f3c6feac"></a>
-llvm::Module &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetModule</b> ()</td></tr>
-<tr class="separator:a6dd3511a2b46dd4e0b7a4320f3c6feac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33d75538b9ef7cc204e31cd095cc833e"><td class="memItemLeft" align="right" valign="top"><a id="a33d75538b9ef7cc204e31cd095cc833e" name="a33d75538b9ef7cc204e31cd095cc833e"></a>
-const llvm::SymbolTableList&lt; llvm::GlobalVariable &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetGlobalVariables</b> () const</td></tr>
-<tr class="memdesc:a33d75538b9ef7cc204e31cd095cc833e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get list of already created global variables. <br /></td></tr>
-<tr class="separator:a33d75538b9ef7cc204e31cd095cc833e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0e4e4fd020db00c7cdfb810d54afe3a"><td class="memItemLeft" align="right" valign="top"><a id="ad0e4e4fd020db00c7cdfb810d54afe3a" name="ad0e4e4fd020db00c7cdfb810d54afe3a"></a>
-const llvm::SymbolTableList&lt; llvm::Function &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetGlobalFunctions</b> () const</td></tr>
-<tr class="memdesc:ad0e4e4fd020db00c7cdfb810d54afe3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get list of already created functions. <br /></td></tr>
-<tr class="separator:ad0e4e4fd020db00c7cdfb810d54afe3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c8a8461b940b49d6feb079e3e82845b"><td class="memItemLeft" align="right" valign="top"><a id="a3c8a8461b940b49d6feb079e3e82845b" name="a3c8a8461b940b49d6feb079e3e82845b"></a>
+llvm::Module &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Module</b> ()</td></tr>
+<tr class="separator:a3c8a8461b940b49d6feb079e3e82845b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac38c6b812f07be4df9645ad4722df48a"><td class="memItemLeft" align="right" valign="top"><a id="ac38c6b812f07be4df9645ad4722df48a" name="ac38c6b812f07be4df9645ad4722df48a"></a>
+const llvm::SymbolTableList&lt; llvm::GlobalVariable &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GlobalVariables</b> () const</td></tr>
+<tr class="memdesc:ac38c6b812f07be4df9645ad4722df48a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get list of already created global variables. <br /></td></tr>
+<tr class="separator:ac38c6b812f07be4df9645ad4722df48a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d07b98c0639ea5dbc9fa17fb3097af3"><td class="memItemLeft" align="right" valign="top"><a id="a6d07b98c0639ea5dbc9fa17fb3097af3" name="a6d07b98c0639ea5dbc9fa17fb3097af3"></a>
+const llvm::SymbolTableList&lt; llvm::Function &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GlobalFunctions</b> () const</td></tr>
+<tr class="memdesc:a6d07b98c0639ea5dbc9fa17fb3097af3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get list of already created functions. <br /></td></tr>
+<tr class="separator:a6d07b98c0639ea5dbc9fa17fb3097af3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0b273ece45c6b61da8b9dfb3cb60e24"><td class="memItemLeft" align="right" valign="top"><a id="ac0b273ece45c6b61da8b9dfb3cb60e24" name="ac0b273ece45c6b61da8b9dfb3cb60e24"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>ToString</b> () const</td></tr>
 <tr class="memdesc:ac0b273ece45c6b61da8b9dfb3cb60e24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create and get visual representation. <br /></td></tr>
@@ -225,30 +225,30 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (co
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a974e085930d3cdff465f53d9b5bf7664"><td class="memItemLeft" align="right" valign="top"><a id="a974e085930d3cdff465f53d9b5bf7664" name="a974e085930d3cdff465f53d9b5bf7664"></a>
-<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Root</b></td></tr>
-<tr class="memdesc:a974e085930d3cdff465f53d9b5bf7664"><td class="mdescLeft">&#160;</td><td class="mdescRight">Analyzed root AST node. <br /></td></tr>
-<tr class="separator:a974e085930d3cdff465f53d9b5bf7664"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a298d3e56ef5442f9172eb605f1d87982"><td class="memItemLeft" align="right" valign="top"><a id="a298d3e56ef5442f9172eb605f1d87982" name="a298d3e56ef5442f9172eb605f1d87982"></a>
-<a class="el" href="classweak_1_1DeclsStorage.html">DeclsStorage</a>&#160;</td><td class="memItemRight" valign="bottom"><b>DeclStorage</b></td></tr>
-<tr class="memdesc:a298d3e56ef5442f9172eb605f1d87982"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variables pool. <br /></td></tr>
-<tr class="separator:a298d3e56ef5442f9172eb605f1d87982"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:addf7811a4282681112878e8c6565c307"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#addf7811a4282681112878e8c6565c307">LastInstr</a></td></tr>
-<tr class="separator:addf7811a4282681112878e8c6565c307"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afed8c9130df5db84df0cc068db3967b6"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#afed8c9130df5db84df0cc068db3967b6">LastArrayPtr</a></td></tr>
-<tr class="separator:afed8c9130df5db84df0cc068db3967b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab328df53ebfa7587c8013cbaa8fdc114"><td class="memItemLeft" align="right" valign="top"><a id="ab328df53ebfa7587c8013cbaa8fdc114" name="ab328df53ebfa7587c8013cbaa8fdc114"></a>
-llvm::LLVMContext&#160;</td><td class="memItemRight" valign="bottom"><b>IRCtx</b></td></tr>
-<tr class="memdesc:ab328df53ebfa7587c8013cbaa8fdc114"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff. <br /></td></tr>
-<tr class="separator:ab328df53ebfa7587c8013cbaa8fdc114"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6809eeabb6fa7646710df057620c3ced"><td class="memItemLeft" align="right" valign="top"><a id="a6809eeabb6fa7646710df057620c3ced" name="a6809eeabb6fa7646710df057620c3ced"></a>
-llvm::Module&#160;</td><td class="memItemRight" valign="bottom"><b>IRModule</b></td></tr>
-<tr class="memdesc:a6809eeabb6fa7646710df057620c3ced"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff. <br /></td></tr>
-<tr class="separator:a6809eeabb6fa7646710df057620c3ced"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a773194aafab2fa1b7a53b67d99faf716"><td class="memItemLeft" align="right" valign="top"><a id="a773194aafab2fa1b7a53b67d99faf716" name="a773194aafab2fa1b7a53b67d99faf716"></a>
-llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>IRBuilder</b></td></tr>
-<tr class="memdesc:a773194aafab2fa1b7a53b67d99faf716"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff. <br /></td></tr>
-<tr class="separator:a773194aafab2fa1b7a53b67d99faf716"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b9c309d6720233644f9bd9143255e38"><td class="memItemLeft" align="right" valign="top"><a id="a7b9c309d6720233644f9bd9143255e38" name="a7b9c309d6720233644f9bd9143255e38"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>mRoot</b></td></tr>
+<tr class="memdesc:a7b9c309d6720233644f9bd9143255e38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Analyzed root AST node. <br /></td></tr>
+<tr class="separator:a7b9c309d6720233644f9bd9143255e38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0e4b1fe99104f4768f1c9b1a0a9828f"><td class="memItemLeft" align="right" valign="top"><a id="ab0e4b1fe99104f4768f1c9b1a0a9828f" name="ab0e4b1fe99104f4768f1c9b1a0a9828f"></a>
+<a class="el" href="classweak_1_1DeclsStorage.html">DeclsStorage</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mStorage</b></td></tr>
+<tr class="memdesc:ab0e4b1fe99104f4768f1c9b1a0a9828f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variables pool. <br /></td></tr>
+<tr class="separator:ab0e4b1fe99104f4768f1c9b1a0a9828f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad05f9a5edceafa120a3cb8bd14548384"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#ad05f9a5edceafa120a3cb8bd14548384">mLastInstr</a></td></tr>
+<tr class="separator:ad05f9a5edceafa120a3cb8bd14548384"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38f737d1ddce6f83befffe33335bd16d"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#a38f737d1ddce6f83befffe33335bd16d">mLastArrayPtr</a></td></tr>
+<tr class="separator:a38f737d1ddce6f83befffe33335bd16d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad039ec71be5d4a8d88e5777ffad32cb9"><td class="memItemLeft" align="right" valign="top"><a id="ad039ec71be5d4a8d88e5777ffad32cb9" name="ad039ec71be5d4a8d88e5777ffad32cb9"></a>
+llvm::LLVMContext&#160;</td><td class="memItemRight" valign="bottom"><b>mIRCtx</b></td></tr>
+<tr class="memdesc:ad039ec71be5d4a8d88e5777ffad32cb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff. <br /></td></tr>
+<tr class="separator:ad039ec71be5d4a8d88e5777ffad32cb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a8bd181a9f5b97ae618cfa5525482b5"><td class="memItemLeft" align="right" valign="top"><a id="a8a8bd181a9f5b97ae618cfa5525482b5" name="a8a8bd181a9f5b97ae618cfa5525482b5"></a>
+llvm::Module&#160;</td><td class="memItemRight" valign="bottom"><b>mIRModule</b></td></tr>
+<tr class="memdesc:a8a8bd181a9f5b97ae618cfa5525482b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff. <br /></td></tr>
+<tr class="separator:a8a8bd181a9f5b97ae618cfa5525482b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34457e601e2b38071e1cc3e5dbefed2a"><td class="memItemLeft" align="right" valign="top"><a id="a34457e601e2b38071e1cc3e5dbefed2a" name="a34457e601e2b38071e1cc3e5dbefed2a"></a>
+llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder</b></td></tr>
+<tr class="memdesc:a34457e601e2b38071e1cc3e5dbefed2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff. <br /></td></tr>
+<tr class="separator:a34457e601e2b38071e1cc3e5dbefed2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >LLVM IR generator. </p>
@@ -899,8 +899,8 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>IRBuilder<
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="afed8c9130df5db84df0cc068db3967b6" name="afed8c9130df5db84df0cc068db3967b6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afed8c9130df5db84df0cc068db3967b6">&#9670;&nbsp;</a></span>LastArrayPtr</h2>
+<a id="a38f737d1ddce6f83befffe33335bd16d" name="a38f737d1ddce6f83befffe33335bd16d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38f737d1ddce6f83befffe33335bd16d">&#9670;&nbsp;</a></span>mLastArrayPtr</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -909,7 +909,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>IRBuilder<
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">llvm::Value* weak::CodeGen::LastArrayPtr</td>
+          <td class="memname">llvm::Value* weak::CodeGen::mLastArrayPtr</td>
         </tr>
       </table>
   </td>
@@ -923,8 +923,8 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>IRBuilder<
 
 </div>
 </div>
-<a id="addf7811a4282681112878e8c6565c307" name="addf7811a4282681112878e8c6565c307"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#addf7811a4282681112878e8c6565c307">&#9670;&nbsp;</a></span>LastInstr</h2>
+<a id="ad05f9a5edceafa120a3cb8bd14548384" name="ad05f9a5edceafa120a3cb8bd14548384"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad05f9a5edceafa120a3cb8bd14548384">&#9670;&nbsp;</a></span>mLastInstr</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -933,7 +933,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>IRBuilder<
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">llvm::Value* weak::CodeGen::LastInstr</td>
+          <td class="memname">llvm::Value* weak::CodeGen::mLastInstr</td>
         </tr>
       </table>
   </td>

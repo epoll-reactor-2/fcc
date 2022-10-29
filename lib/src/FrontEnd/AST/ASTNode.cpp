@@ -8,15 +8,15 @@
 
 namespace weak {
 
-ASTNode::ASTNode(ASTType TheType, unsigned TheLineNo, unsigned TheColumnNo)
-    : Type(TheType), LineNo(TheLineNo), ColumnNo(TheColumnNo) {}
+ASTNode::ASTNode(ASTType Type, unsigned LineNo, unsigned ColumnNo)
+    : mType(Type), mLineNo(LineNo), mColumnNo(ColumnNo) {}
 
-ASTType ASTNode::GetASTType() const { return Type; }
+ASTType ASTNode::Type() const { return mType; }
 
-bool ASTNode::Is(ASTType T) const { return Type == T; }
+bool ASTNode::Is(ASTType T) const { return mType == T; }
 
-unsigned ASTNode::GetLineNo() const { return LineNo; }
+unsigned ASTNode::LineNo() const { return mLineNo; }
 
-unsigned ASTNode::GetColumnNo() const { return ColumnNo; }
+unsigned ASTNode::ColumnNo() const { return mColumnNo; }
 
 } // namespace weak

@@ -9,17 +9,17 @@
 
 namespace weak {
 
-ASTArrayAccess::ASTArrayAccess(std::string TheSymbolName, ASTNode *TheIndex,
+ASTArrayAccess::ASTArrayAccess(std::string SymbolName, ASTNode *Index,
                                unsigned TheLineNo, unsigned TheColumnNo)
     : ASTNode(AST_ARRAY_ACCESS, TheLineNo, TheColumnNo),
-      SymbolName(TheSymbolName), Index(TheIndex) {}
+      mSymbolName(SymbolName), mIndex(Index) {}
 
-ASTArrayAccess::~ASTArrayAccess() { delete Index; }
+ASTArrayAccess::~ASTArrayAccess() { delete mIndex; }
 
 void ASTArrayAccess::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-const std::string &ASTArrayAccess::GetSymbolName() const { return SymbolName; }
+const std::string &ASTArrayAccess::SymbolName() const { return mSymbolName; }
 
-ASTNode *ASTArrayAccess::GetIndex() const { return Index; }
+ASTNode *ASTArrayAccess::Index() const { return mIndex; }
 
 } // namespace weak

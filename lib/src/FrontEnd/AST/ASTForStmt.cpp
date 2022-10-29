@@ -9,27 +9,27 @@
 
 namespace weak {
 
-ASTForStmt::ASTForStmt(ASTNode *TheInit, ASTNode *TheCondition,
-                       ASTNode *TheIncrement, ASTCompoundStmt *TheBody,
-                       unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(AST_FOR_STMT, TheLineNo, TheColumnNo), Init(TheInit),
-      Condition(TheCondition), Increment(TheIncrement), Body(TheBody) {}
+ASTForStmt::ASTForStmt(ASTNode *Init, ASTNode *Condition, ASTNode *Increment,
+                       ASTCompoundStmt *Body, unsigned LineNo,
+                       unsigned ColumnNo)
+    : ASTNode(AST_FOR_STMT, LineNo, ColumnNo), mInit(Init),
+      mCondition(Condition), mIncrement(Increment), mBody(Body) {}
 
 ASTForStmt::~ASTForStmt() {
-  delete Init;
-  delete Condition;
-  delete Increment;
-  delete Body;
+  delete mInit;
+  delete mCondition;
+  delete mIncrement;
+  delete mBody;
 }
 
 void ASTForStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-ASTNode *ASTForStmt::GetInit() const { return Init; }
+ASTNode *ASTForStmt::Init() const { return mInit; }
 
-ASTNode *ASTForStmt::GetCondition() const { return Condition; }
+ASTNode *ASTForStmt::Condition() const { return mCondition; }
 
-ASTNode *ASTForStmt::GetIncrement() const { return Increment; }
+ASTNode *ASTForStmt::Increment() const { return mIncrement; }
 
-ASTCompoundStmt *ASTForStmt::GetBody() const { return Body; }
+ASTCompoundStmt *ASTForStmt::Body() const { return mBody; }
 
 } // namespace weak

@@ -17,26 +17,25 @@ namespace weak {
 
 class ASTFunctionDecl : public ASTNode {
 public:
-  ASTFunctionDecl(TokenType TheReturnType, std::string &&TheName,
-                  std::vector<ASTNode *> &&TheArguments,
-                  ASTCompoundStmt *TheBody, unsigned TheLineNo = 0U,
-                  unsigned TheColumnNo = 0U);
+  ASTFunctionDecl(TokenType ReturnType, std::string &&Name,
+                  std::vector<ASTNode *> &&Arguments,
+                  ASTCompoundStmt *Body, unsigned LineNo = 0U,
+                  unsigned ColumnNo = 0U);
 
   ~ASTFunctionDecl();
 
   void Accept(ASTVisitor *) override;
 
-  TokenType GetReturnType() const;
-  const std::string &GetName() const;
-  std::vector<ASTNode *> &&GetArguments();
-  const std::vector<ASTNode *> &GetArguments() const;
-  ASTCompoundStmt *GetBody() const;
+  TokenType ReturnType() const;
+  const std::string &Name() const;
+  const std::vector<ASTNode *> &Arguments() const;
+  ASTCompoundStmt *Body() const;
 
 private:
-  TokenType ReturnType;
-  std::string Name;
-  std::vector<ASTNode *> Arguments;
-  ASTCompoundStmt *Body;
+  TokenType mReturnType;
+  std::string mName;
+  std::vector<ASTNode *> mArguments;
+  ASTCompoundStmt *mBody;
 };
 
 } // namespace weak

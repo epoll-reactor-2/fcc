@@ -12,16 +12,16 @@
 namespace weak {
 
 Parser::Parser(const Token *TheBufStart, const Token *TheBufEnd)
-    : BufStart(TheBufStart), BufEnd(TheBufEnd), TokenPtr(BufStart),
-      LoopsDepth(0U) {
-  assert(BufStart);
-  assert(BufEnd);
-  assert(BufStart <= BufEnd);
+    : mBufStart(TheBufStart), mBufEnd(TheBufEnd), mTokenPtr(mBufStart),
+      mLoopsDepth(0U) {
+  assert(mBufStart);
+  assert(mBufEnd);
+  assert(mBufStart <= mBufEnd);
 }
 
 std::unique_ptr<ASTCompoundStmt> Parser::Parse() {
   std::vector<ASTNode *> Stmts;
-  while (TokenPtr != BufEnd) {
+  while (mTokenPtr != mBufEnd) {
     switch (const Token &T = PeekCurrent(); T.Type) {
     case TOK_STRUCT:
       Stmts.push_back(ParseStructDecl());
@@ -87,12 +87,12 @@ ASTNode *Parser::ParseFunctionCall() {
   if (PeekNext().Is(')'))
     return Finish();
 
-  --TokenPtr;
+  --mTokenPtr;
   while (!PeekCurrent().Is(')')) {
     Arguments.push_back(ParseLogicalOr());
     if (Require({')', ','}).Is(')'))
       /// Move back to token before '(' and break on next iteration.
-      --TokenPtr;
+      --mTokenPtr;
   }
 
   Require(')');
@@ -120,7 +120,7 @@ ASTNode *Parser::ParseArrayDecl() {
 
   std::vector<unsigned> ArityList;
 
-  --TokenPtr;
+  --mTokenPtr;
 
   do {
     Require('[');
@@ -133,7 +133,7 @@ ASTNode *Parser::ParseArrayDecl() {
 
     const auto *ArraySize = static_cast<const ASTIntegerLiteral *>(Constant);
 
-    ArityList.push_back(ArraySize->GetValue());
+    ArityList.push_back(ArraySize->Value());
 
     /// We need only number, not whole AST node, so we can
     /// get rid of it.
@@ -160,16 +160,16 @@ ASTNode *Parser::ParseVarDecl() {
 
   /// This is placed here because language supports nested functions.
   if (T.Is('(')) {
-    --TokenPtr; /// Open paren.
-    --TokenPtr; /// Function name.
-    --TokenPtr; /// Data type.
+    --mTokenPtr; /// Open paren.
+    --mTokenPtr; /// Function name.
+    --mTokenPtr; /// Data type.
     return ParseFunctionDecl();
   }
 
   if (T.Is('[')) {
-    --TokenPtr; /// Open paren.
-    --TokenPtr; /// Declaration name.
-    --TokenPtr; /// Data type.
+    --mTokenPtr; /// Open paren.
+    --mTokenPtr; /// Declaration name.
+    --mTokenPtr; /// Data type.
     return ParseArrayDecl();
   }
 
@@ -242,7 +242,7 @@ ASTNode *Parser::ParseDeclWithoutInitializer() {
   unsigned Offset = 0U;
   ++Offset; /// Data type.
   ++Offset; /// Parameter name.
-  if ((TokenPtr + Offset)->Is('['))
+  if ((mTokenPtr + Offset)->Is('['))
     return ParseArrayDecl();
 
   return ParseVarDeclWithoutInitializer();
@@ -251,16 +251,16 @@ ASTNode *Parser::ParseDeclWithoutInitializer() {
 std::vector<ASTNode *> Parser::ParseParameterList() {
   std::vector<ASTNode *> List;
   if (PeekNext().Is(')')) {
-    --TokenPtr;
+    --mTokenPtr;
     return List;
   }
 
-  --TokenPtr;
+  --mTokenPtr;
   while (!PeekCurrent().Is(')')) {
     List.push_back(ParseDeclWithoutInitializer());
     if (Require({')', ','}).Is(')')) {
       /// Move back to token before '('.
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
   }
@@ -268,7 +268,7 @@ std::vector<ASTNode *> Parser::ParseParameterList() {
 }
 
 ASTCompoundStmt *Parser::ParseBlock() {
-  if (LoopsDepth > 0)
+  if (mLoopsDepth > 0)
     return ParseIterationBlock();
 
   std::vector<ASTNode *> Stmts;
@@ -276,7 +276,7 @@ ASTCompoundStmt *Parser::ParseBlock() {
 
   while (!PeekCurrent().Is('}')) {
     Stmts.push_back(ParseStmt());
-    switch (ASTType Type = Stmts.back()->GetASTType(); Type) {
+    switch (ASTType Type = Stmts.back()->Type(); Type) {
     case AST_BINARY:
     case AST_POSTFIX_UNARY:
     case AST_PREFIX_UNARY:
@@ -304,7 +304,7 @@ ASTCompoundStmt *Parser::ParseIterationBlock() {
 
   while (!PeekCurrent().Is('}')) {
     Stmts.push_back(ParseLoopStmt());
-    switch (ASTType Type = Stmts.back()->GetASTType(); Type) {
+    switch (ASTType Type = Stmts.back()->Type(); Type) {
     case AST_BINARY:
     case AST_POSTFIX_UNARY:
     case AST_PREFIX_UNARY:
@@ -390,32 +390,32 @@ ASTNode *Parser::ParseForStmt() {
 
   ASTNode *Init{nullptr};
   if (!PeekNext().Is(';')) {
-    --TokenPtr;
+    --mTokenPtr;
     Init = ParseExpr();
     PeekNext();
   }
 
   ASTNode *Condition{nullptr};
   if (!PeekNext().Is(';')) {
-    --TokenPtr;
+    --mTokenPtr;
     Condition = ParseExpr();
     PeekNext();
   }
 
   ASTNode *Increment{nullptr};
   if (!PeekNext().Is(';')) {
-    --TokenPtr;
+    --mTokenPtr;
     Increment = ParseExpr();
     PeekNext();
   }
-  --TokenPtr;
+  --mTokenPtr;
 
-  ++LoopsDepth;
+  ++mLoopsDepth;
 
   Require(')');
   auto *Body = ParseIterationBlock();
 
-  --LoopsDepth;
+  --mLoopsDepth;
 
   return new ASTForStmt(Init, Condition, Increment, Body, Start.LineNo,
                         Start.ColumnNo);
@@ -424,11 +424,11 @@ ASTNode *Parser::ParseForStmt() {
 ASTNode *Parser::ParseDoWhileStmt() {
   const Token &Start = Require(TOK_DO);
 
-  ++LoopsDepth;
+  ++mLoopsDepth;
 
   auto *Body = ParseIterationBlock();
 
-  --LoopsDepth;
+  --mLoopsDepth;
 
   Require(TOK_WHILE);
 
@@ -445,11 +445,11 @@ ASTNode *Parser::ParseWhileStmt() {
   auto *Condition = ParseLogicalOr();
   Require(')');
 
-  ++LoopsDepth;
+  ++mLoopsDepth;
 
   auto *Body = ParseIterationBlock();
 
-  --LoopsDepth;
+  --mLoopsDepth;
 
   return new ASTWhileStmt(Condition, Body, Start.LineNo, Start.ColumnNo);
 }
@@ -461,7 +461,7 @@ ASTNode *Parser::ParseLoopStmt() {
   case TOK_CONTINUE:
     return new ASTContinueStmt(T.LineNo, T.ColumnNo);
   default:
-    --TokenPtr;
+    --mTokenPtr;
     return ParseStmt();
   }
 }
@@ -475,7 +475,7 @@ ASTNode *Parser::ParseJumpStmt() {
     Body = ParseExpr();
   } else
     /// Go back to body of return statement.
-    --TokenPtr;
+    --mTokenPtr;
   /// We want to forbid expressions like int var = var = var, so we
   /// expect the first expression to have the precedence is lower than
   /// the assignment operator.
@@ -524,7 +524,7 @@ ASTNode *Parser::ParseAssignment() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -541,7 +541,7 @@ ASTNode *Parser::ParseLogicalOr() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -558,7 +558,7 @@ ASTNode *Parser::ParseLogicalAnd() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -575,7 +575,7 @@ ASTNode *Parser::ParseInclusiveOr() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -592,7 +592,7 @@ ASTNode *Parser::ParseExclusiveOr() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -609,7 +609,7 @@ ASTNode *Parser::ParseAnd() {
           new ASTBinaryOperator(T.Type, Expr, ParseAnd(), T.LineNo, T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -627,7 +627,7 @@ ASTNode *Parser::ParseEquality() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -647,7 +647,7 @@ ASTNode *Parser::ParseRelational() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -665,7 +665,7 @@ ASTNode *Parser::ParseShift() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -683,7 +683,7 @@ ASTNode *Parser::ParseAdditive() {
                                    T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -702,7 +702,7 @@ ASTNode *Parser::ParseMultiplicative() {
                                    T.LineNo, T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -718,7 +718,7 @@ ASTNode *Parser::ParsePrefixUnary() {
                                 ParsePostfixUnary(), T.LineNo, T.ColumnNo);
   default:
     /// Rollback current token pointer because there's no unary operator.
-    --TokenPtr;
+    --mTokenPtr;
     return ParsePostfixUnary();
   }
 }
@@ -733,7 +733,7 @@ ASTNode *Parser::ParsePostfixUnary() {
                                   T.LineNo, T.ColumnNo);
       continue;
     default:
-      --TokenPtr;
+      --mTokenPtr;
       break;
     }
     break;
@@ -742,14 +742,14 @@ ASTNode *Parser::ParsePostfixUnary() {
 }
 
 ASTNode *Parser::ParseSymbol() {
-  const Token &Start = *(TokenPtr - 1);
+  const Token &Start = *(mTokenPtr - 1);
   switch (const Token &T = PeekCurrent(); T.Type) {
   case TOK_OPEN_PAREN: {
-    --TokenPtr;
+    --mTokenPtr;
     return ParseFunctionCall();
   }
   case TOK_OPEN_BOX_BRACKET: {
-    --TokenPtr;
+    --mTokenPtr;
     return ParseArrayAccess();
   }
   default:
@@ -768,7 +768,7 @@ ASTNode *Parser::ParsePrimary() {
     return Expr;
   }
   default:
-    --TokenPtr;
+    --mTokenPtr;
     return ParseConstant();
   }
 }
@@ -800,18 +800,18 @@ ASTNode *Parser::ParseConstant() {
 
 const Token &Parser::PeekNext() {
   AssertNotBufEnd();
-  return *TokenPtr++;
+  return *mTokenPtr++;
 }
 
 const Token &Parser::PeekCurrent() const {
   AssertNotBufEnd();
-  return *TokenPtr;
+  return *mTokenPtr;
 }
 
 bool Parser::Match(const std::vector<TokenType> &Expected) {
   AssertNotBufEnd();
   for (TokenType Token : Expected) {
-    if (TokenPtr == BufEnd)
+    if (mTokenPtr == mBufEnd)
       return false;
     if (PeekCurrent().Type == Token) {
       PeekNext();
@@ -855,11 +855,11 @@ const Token &Parser::Require(const std::vector<TokenType> &Expected) {
   if (Match(Expected))
     /// Something from vector successfully matched and located in previous
     /// token.
-    return *(TokenPtr - 1);
+    return *(mTokenPtr - 1);
 
-  weak::CompileError(TokenPtr->LineNo, TokenPtr->ColumnNo)
+  weak::CompileError(mTokenPtr->LineNo, mTokenPtr->ColumnNo)
       << "Expected " << TokensToString(Expected) << ", got "
-      << TokenToString(TokenPtr->Type);
+      << TokenToString(mTokenPtr->Type);
   weak::UnreachablePoint();
 }
 
@@ -879,8 +879,8 @@ const Token &Parser::Require(char Expected) {
 }
 
 void Parser::AssertNotBufEnd() const {
-  if (TokenPtr == BufEnd)
-    weak::CompileError(TokenPtr->LineNo, TokenPtr->LineNo)
+  if (mTokenPtr == mBufEnd)
+    weak::CompileError(mTokenPtr->LineNo, mTokenPtr->LineNo)
         << "End of buffer reached";
 }
 

@@ -14,17 +14,17 @@ namespace weak {
 
 class ASTCompoundStmt : public ASTNode {
 public:
-  ASTCompoundStmt(std::vector<ASTNode *> &&TheStmts, unsigned TheLineNo = 0U,
-                  unsigned TheColumnNo = 0U);
+  ASTCompoundStmt(std::vector<ASTNode *> &&Stmts, unsigned LineNo = 0U,
+                  unsigned ColumnNo = 0U);
 
   ~ASTCompoundStmt();
 
   void Accept(ASTVisitor *) override;
 
-  const std::vector<ASTNode *> &GetStmts() const;
+  const std::vector<ASTNode *> &Stmts() const;
 
 private:
-  std::vector<ASTNode *> Stmts;
+  std::vector<ASTNode *> mStmts;
 };
 
 } // namespace weak

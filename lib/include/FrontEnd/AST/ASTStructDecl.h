@@ -15,19 +15,19 @@ namespace weak {
 
 class ASTStructDecl : public ASTNode {
 public:
-  ASTStructDecl(std::string TheName, std::vector<ASTNode *> TheDecls,
-                unsigned TheLineNo = 0U, unsigned TheColumnNo = 0U);
+  ASTStructDecl(std::string Name, std::vector<ASTNode *> Decls,
+                unsigned LineNo = 0U, unsigned ColumnNo = 0U);
 
   ~ASTStructDecl();
 
   void Accept(ASTVisitor *) override;
 
-  const std::vector<ASTNode *> &GetDecls() const;
-  const std::string &GetName() const;
+  const std::vector<ASTNode *> &Decls() const;
+  const std::string &Name() const;
 
 private:
-  std::string Name;
-  std::vector<ASTNode *> Decls;
+  std::string mName;
+  std::vector<ASTNode *> mDecls;
 };
 
 } // namespace weak

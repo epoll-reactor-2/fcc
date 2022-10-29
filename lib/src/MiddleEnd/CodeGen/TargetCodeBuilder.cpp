@@ -47,9 +47,9 @@ static void Link(std::string_view Filename, std::string_view OutObjectPath) {
 
 namespace weak {
 
-TargetCodeBuilder::TargetCodeBuilder(llvm::Module &TheModule,
-                                     std::string_view TheObjectFilePath)
-    : Module(TheModule), ObjectFilePath(TheObjectFilePath) {}
+TargetCodeBuilder::TargetCodeBuilder(llvm::Module &Module,
+                                     std::string_view ObjFilePath)
+    : mIRModule(Module), mObjFilePath(ObjFilePath) {}
 
 void TargetCodeBuilder::Build() {
   InitializeLLVMTargets();
@@ -63,9 +63,9 @@ void TargetCodeBuilder::Build() {
   auto TheTargetMachine = Target->createTargetMachine(
       Triple, /*CPU*/ "generic", /*Features*/ "", Opts, RM);
 
-  Module.setDataLayout(TheTargetMachine->createDataLayout());
+  mIRModule.setDataLayout(TheTargetMachine->createDataLayout());
 
-  auto Filename = std::string(ObjectFilePath) + ".o";
+  auto Filename = std::string(mObjFilePath) + ".o";
   std::error_code Errc;
   llvm::raw_fd_ostream Dest(Filename, Errc, llvm::sys::fs::OF_None);
 
@@ -82,10 +82,10 @@ void TargetCodeBuilder::Build() {
     exit(-1);
   }
 
-  Pass.run(Module);
+  Pass.run(mIRModule);
   Dest.flush();
 
-  Link(Filename, ObjectFilePath);
+  Link(Filename, mObjFilePath);
 }
 
 } // namespace weak

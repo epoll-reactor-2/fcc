@@ -52,7 +52,7 @@ void RunTestOnValidCode(weak::CodeGen &CG, const std::string &Program,
       "// "sv.length(), Program.find_first_of('\n') - "// "sv.length()));
 
   CG.CreateCode();
-  weak::TargetCodeBuilder TargetCodeBuilder(CG.GetModule(), PathToBin);
+  weak::TargetCodeBuilder TargetCodeBuilder(CG.Module(), PathToBin);
   TargetCodeBuilder.Build();
 
   int ExitCode = RunAndGetExitCode(PathToBin);

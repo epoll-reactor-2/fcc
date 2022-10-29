@@ -97,10 +97,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EndScope</b> ()</td><
 <tr class="memdesc:a16b8077287e806e172e0b474b42ccdab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Terminate scope, destroy all stored variables; decrement scope depth. <br /></td></tr>
 <tr class="separator:a16b8077287e806e172e0b474b42ccdab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2a808dbd258a46857eebb523d5bb587"><td class="memItemLeft" align="right" valign="top"><a id="ae2a808dbd258a46857eebb523d5bb587" name="ae2a808dbd258a46857eebb523d5bb587"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Push</b> (std::string_view Name, llvm::AllocaInst *Value)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Push</b> (std::string_view mName, llvm::AllocaInst *Value)</td></tr>
 <tr class="memdesc:ae2a808dbd258a46857eebb523d5bb587"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add variable at current depth. <br /></td></tr>
 <tr class="separator:ae2a808dbd258a46857eebb523d5bb587"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a345909c8af1268ea2daf5d9ab90bbfef"><td class="memItemLeft" align="right" valign="top">llvm::AllocaInst *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1DeclsStorage.html#a345909c8af1268ea2daf5d9ab90bbfef">Lookup</a> (std::string_view Name) const</td></tr>
+<tr class="memitem:a345909c8af1268ea2daf5d9ab90bbfef"><td class="memItemLeft" align="right" valign="top">llvm::AllocaInst *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1middleEnd_1_1DeclsStorage.html#a345909c8af1268ea2daf5d9ab90bbfef">Lookup</a> (std::string_view mName) const</td></tr>
 <tr class="separator:a345909c8af1268ea2daf5d9ab90bbfef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-types" name="pri-types"></a>
@@ -112,10 +112,10 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>Hash</b> = size_t</t
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a3d400c88ec3ba1af10b9f6941963e085"><td class="memItemLeft" align="right" valign="top"><a id="a3d400c88ec3ba1af10b9f6941963e085" name="a3d400c88ec3ba1af10b9f6941963e085"></a>
-unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>CurrentDepth</b> {0U}</td></tr>
+unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>mDepth</b> {0U}</td></tr>
 <tr class="separator:a3d400c88ec3ba1af10b9f6941963e085"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa204088518dee14535ff71cc95931bfe"><td class="memItemLeft" align="right" valign="top"><a id="aa204088518dee14535ff71cc95931bfe" name="aa204088518dee14535ff71cc95931bfe"></a>
-std::unordered_multimap&lt; Hash, <a class="el" href="structweak_1_1middleEnd_1_1DeclsStorage_1_1DeclRecord.html">DeclRecord</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InnerScopes</b></td></tr>
+std::unordered_multimap&lt; Hash, <a class="el" href="structweak_1_1middleEnd_1_1DeclsStorage_1_1DeclRecord.html">DeclRecord</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>mScopes</b></td></tr>
 <tr class="separator:aa204088518dee14535ff71cc95931bfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -131,7 +131,7 @@ std::unordered_multimap&lt; Hash, <a class="el" href="structweak_1_1middleEnd_1_
           <td class="memname">llvm::AllocaInst * weak::middleEnd::DeclsStorage::Lookup </td>
           <td>(</td>
           <td class="paramtype">std::string_view&#160;</td>
-          <td class="paramname"><em>Name</em></td><td>)</td>
+          <td class="paramname"><em>mName</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>

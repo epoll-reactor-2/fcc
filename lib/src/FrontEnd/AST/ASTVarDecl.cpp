@@ -9,20 +9,19 @@
 
 namespace weak {
 
-ASTVarDecl::ASTVarDecl(TokenType TheDataType, std::string &&TheSymbolName,
-                       ASTNode *TheDeclBody, unsigned TheLineNo,
-                       unsigned TheColumnNo)
-    : ASTNode(AST_VAR_DECL, TheLineNo, TheColumnNo), DataType(TheDataType),
-      SymbolName(std::move(TheSymbolName)), DeclBody(TheDeclBody) {}
+ASTVarDecl::ASTVarDecl(TokenType DataType, std::string &&Name, ASTNode *Body,
+                       unsigned LineNo, unsigned ColumnNo)
+    : ASTNode(AST_VAR_DECL, LineNo, ColumnNo), mDataType(DataType),
+      mName(std::move(Name)), mBody(Body) {}
 
-ASTVarDecl::~ASTVarDecl() { delete DeclBody; }
+ASTVarDecl::~ASTVarDecl() { delete mBody; }
 
 void ASTVarDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-TokenType ASTVarDecl::GetDataType() const { return DataType; }
+TokenType ASTVarDecl::DataType() const { return mDataType; }
 
-const std::string &ASTVarDecl::GetSymbolName() const { return SymbolName; }
+const std::string &ASTVarDecl::Name() const { return mName; }
 
-ASTNode *ASTVarDecl::GetDeclBody() const { return DeclBody; }
+ASTNode *ASTVarDecl::Body() const { return mBody; }
 
 } // namespace weak

@@ -27,13 +27,13 @@ public:
   /// Convert AST to LLVM IR starting from root node (usually CompoundStmt).
   void CreateCode();
 
-  llvm::Module &GetModule();
+  llvm::Module &Module();
 
   /// Get list of already created global variables.
-  const llvm::SymbolTableList<llvm::GlobalVariable> &GetGlobalVariables() const;
+  const llvm::SymbolTableList<llvm::GlobalVariable> &GlobalVariables() const;
 
   /// Get list of already created functions.
-  const llvm::SymbolTableList<llvm::Function> &GetGlobalFunctions() const;
+  const llvm::SymbolTableList<llvm::Function> &GlobalFunctions() const;
 
   /// Create and get visual representation.
   std::string ToString() const;
@@ -79,25 +79,25 @@ private:
   void Visit(const ASTReturnStmt *) override;
 
   /// Analyzed root AST node.
-  ASTNode *Root;
+  ASTNode *mRoot;
   /// Variables pool.
-  DeclsStorage DeclStorage;
+  DeclsStorage mStorage;
   /// Consequence of using visitor pattern, since we cannot return anything from
   /// visit functions.
-  llvm::Value *LastInstr;
+  llvm::Value *mLastInstr;
   /// This is needed because there are two contexts of usage of array values:
   /// 1) array element is reassigned;
   /// 2) array element is accessed.
   ///
   /// So we store pointer to array element there, and the value itself normally
   /// in LastInstr.
-  llvm::Value *LastArrayPtr;
+  llvm::Value *mLastArrayPtr;
   /// LLVM stuff.
-  llvm::LLVMContext IRCtx;
+  llvm::LLVMContext mIRCtx;
   /// LLVM stuff.
-  llvm::Module IRModule;
+  llvm::Module mIRModule;
   /// LLVM stuff.
-  llvm::IRBuilder<> IRBuilder;
+  llvm::IRBuilder<> mIRBuilder;
 };
 
 } // namespace weak

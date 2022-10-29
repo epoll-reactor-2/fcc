@@ -14,15 +14,15 @@ namespace weak {
 
 class ASTStringLiteral : public ASTNode {
 public:
-  ASTStringLiteral(std::string TheValue, unsigned TheLineNo = 0U,
-                   unsigned TheColumnNo = 0U);
+  ASTStringLiteral(std::string Value, unsigned LineNo = 0U,
+                   unsigned ColumnNo = 0U);
 
   void Accept(ASTVisitor *) override;
 
-  const std::string &GetValue() const;
+  const std::string &Value() const;
 
 private:
-  std::string Value;
+  std::string mValue;
 };
 
 } // namespace weak

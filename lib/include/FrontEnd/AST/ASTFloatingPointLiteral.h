@@ -13,15 +13,15 @@ namespace weak {
 
 class ASTFloatingPointLiteral : public ASTNode {
 public:
-  ASTFloatingPointLiteral(float TheValue, unsigned TheLineNo = 0U,
-                          unsigned TheColumnNo = 0U);
+  ASTFloatingPointLiteral(float Value, unsigned LineNo = 0U,
+                          unsigned ColumnNo = 0U);
 
   void Accept(ASTVisitor *) override;
 
-  float GetValue() const;
+  float Value() const;
 
 private:
-  float Value;
+  float mValue;
 };
 
 } // namespace weak

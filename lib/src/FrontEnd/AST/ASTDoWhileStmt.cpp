@@ -9,20 +9,20 @@
 
 namespace weak {
 
-ASTDoWhileStmt::ASTDoWhileStmt(ASTCompoundStmt *TheBody, ASTNode *TheCondition,
-                               unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(AST_DO_WHILE_STMT, TheLineNo, TheColumnNo), Body(TheBody),
-      Condition(TheCondition) {}
+ASTDoWhileStmt::ASTDoWhileStmt(ASTCompoundStmt *Body, ASTNode *Condition,
+                               unsigned LineNo, unsigned ColumnNo)
+    : ASTNode(AST_DO_WHILE_STMT, LineNo, ColumnNo), mBody(Body),
+      mCondition(Condition) {}
 
 ASTDoWhileStmt::~ASTDoWhileStmt() {
-  delete Body;
-  delete Condition;
+  delete mBody;
+  delete mCondition;
 }
 
 void ASTDoWhileStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-ASTCompoundStmt *ASTDoWhileStmt::GetBody() const { return std::move(Body); }
+ASTCompoundStmt *ASTDoWhileStmt::Body() const { return std::move(mBody); }
 
-ASTNode *ASTDoWhileStmt::GetCondition() const { return Condition; }
+ASTNode *ASTDoWhileStmt::Condition() const { return mCondition; }
 
 } // namespace weak

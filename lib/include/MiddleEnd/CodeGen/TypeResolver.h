@@ -41,7 +41,7 @@ private:
   const ASTVarDecl *GetVarDecl(const ASTNode *);
 
   /// Reference to global LLVM stuff.
-  llvm::LLVMContext &LLVMCtx;
+  llvm::LLVMContext &mIRCtx;
 };
 
 } // namespace weak

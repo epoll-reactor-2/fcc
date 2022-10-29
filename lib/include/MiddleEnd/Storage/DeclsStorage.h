@@ -44,10 +44,10 @@ public:
   llvm::AllocaInst *Lookup(std::string_view Name) const;
 
 private:
-  unsigned CurrentDepth{0U};
+  unsigned mDepth{0U};
 
   using Hash = size_t;
-  std::unordered_multimap<Hash, DeclRecord> InnerScopes;
+  std::unordered_multimap<Hash, DeclRecord> mScopes;
 };
 
 } // namespace weak

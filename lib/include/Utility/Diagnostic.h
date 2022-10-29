@@ -9,7 +9,7 @@
 
 #include <ostream>
 
-class Diagnostic;
+struct Diagnostic;
 
 namespace weak {
 class ASTNode;

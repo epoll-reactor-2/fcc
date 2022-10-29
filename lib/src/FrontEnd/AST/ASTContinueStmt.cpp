@@ -9,8 +9,8 @@
 
 namespace weak {
 
-ASTContinueStmt::ASTContinueStmt(unsigned TheLineNo, unsigned TheColumnNo)
-    : ASTNode(AST_CONTINUE_STMT, TheLineNo, TheColumnNo) {}
+ASTContinueStmt::ASTContinueStmt(unsigned LineNo, unsigned ColumnNo)
+    : ASTNode(AST_CONTINUE_STMT, LineNo, ColumnNo) {}
 
 void ASTContinueStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 

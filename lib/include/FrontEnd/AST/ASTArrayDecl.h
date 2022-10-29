@@ -15,27 +15,27 @@ namespace weak {
 
 class ASTArrayDecl : public ASTNode {
 public:
-  ASTArrayDecl(TokenType TheDataType, std::string TheSymbolName,
-               std::vector<unsigned> ArityList, unsigned TheLineNo = 0U,
-               unsigned TheColumnNo = 0U);
+  ASTArrayDecl(TokenType DataType, std::string SymbolName,
+               std::vector<unsigned> ArityList, unsigned LineNo = 0U,
+               unsigned ColumnNo = 0U);
 
   void Accept(ASTVisitor *) override;
 
-  TokenType GetDataType() const;
-  const std::string &GetSymbolName() const;
-  const std::vector<unsigned> &GetArityList() const;
+  TokenType DataType() const;
+  const std::string &SymbolName() const;
+  const std::vector<unsigned> &ArityList() const;
 
 private:
   /// Data type of array.
-  TokenType DataType;
+  TokenType mDataType;
 
   /// Variable name.
-  std::string SymbolName;
+  std::string mSymbolName;
 
   /// This stores information about array arity (dimension)
   /// and size for each dimension, e.g.,
   /// for array[1][2][3], ArityList equal to { 1, 2, 3 }.
-  std::vector<unsigned> ArityList;
+  std::vector<unsigned> mArityList;
 };
 
 } // namespace weak

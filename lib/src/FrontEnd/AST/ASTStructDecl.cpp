@@ -9,21 +9,20 @@
 
 namespace weak {
 
-ASTStructDecl::ASTStructDecl(std::string TheName,
-                             std::vector<ASTNode *> TheDecls,
-                             unsigned int TheLineNo, unsigned int TheColumnNo)
-    : ASTNode(AST_STRUCT_DECL, TheLineNo, TheColumnNo),
-      Name(std::move(TheName)), Decls(std::move(TheDecls)) {}
+ASTStructDecl::ASTStructDecl(std::string Name, std::vector<ASTNode *> Decls,
+                             unsigned int LineNo, unsigned int ColumnNo)
+    : ASTNode(AST_STRUCT_DECL, LineNo, ColumnNo), mName(std::move(Name)),
+      mDecls(std::move(Decls)) {}
 
 ASTStructDecl::~ASTStructDecl() {
-  for (ASTNode *D : Decls)
+  for (ASTNode *D : mDecls)
     delete D;
 }
 
 void ASTStructDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-const std::vector<ASTNode *> &ASTStructDecl::GetDecls() const { return Decls; }
+const std::vector<ASTNode *> &ASTStructDecl::Decls() const { return mDecls; }
 
-const std::string &ASTStructDecl::GetName() const { return Name; }
+const std::string &ASTStructDecl::Name() const { return mName; }
 
 } // namespace weak

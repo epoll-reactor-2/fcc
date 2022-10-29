@@ -66,9 +66,9 @@ public:
 
 private:
   /// Reference to global LLVM stuff.
-  llvm::LLVMContext &IRCtx;
+  llvm::LLVMContext &mIRCtx;
   /// Reference to global LLVM stuff.
-  llvm::IRBuilder<> &IRBuilder;
+  llvm::IRBuilder<> &mIRBuilder;
 };
 
 } // namespace weak

@@ -13,15 +13,15 @@ namespace weak {
 
 class ASTBooleanLiteral : public ASTNode {
 public:
-  ASTBooleanLiteral(bool TheValue, unsigned TheLineNo = 0U,
-                    unsigned TheColumnNo = 0U);
+  ASTBooleanLiteral(bool Value, unsigned LineNo = 0U,
+                    unsigned ColumnNo = 0U);
 
   void Accept(ASTVisitor *) override;
 
-  bool GetValue() const;
+  bool Value() const;
 
 private:
-  bool Value;
+  bool mValue;
 };
 
 } // namespace weak

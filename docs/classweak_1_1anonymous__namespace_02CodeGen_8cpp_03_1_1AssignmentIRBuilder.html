@@ -79,14 +79,14 @@ $(function() {
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a808a4c78176fdec874ebfd1f0d7165cf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1AssignmentIRBuilder.html#a808a4c78176fdec874ebfd1f0d7165cf">AssignmentIRBuilder</a> (llvm::IRBuilder&lt;&gt; &amp;TheIRBuilder, const <a class="el" href="classweak_1_1middleEnd_1_1DeclsStorage.html">middleEnd::DeclsStorage</a> &amp;TheDeclStorage)</td></tr>
 <tr class="separator:a808a4c78176fdec874ebfd1f0d7165cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8117456b91e8c5f3962655dac0d1e7f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1AssignmentIRBuilder.html#a8117456b91e8c5f3962655dac0d1e7f1">Build</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">frontEnd::ASTBinaryOperator</a> *Stmt, llvm::Value *RHS, llvm::Value *ArrayPtr)</td></tr>
+<tr class="memitem:a8117456b91e8c5f3962655dac0d1e7f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1AssignmentIRBuilder.html#a8117456b91e8c5f3962655dac0d1e7f1">Build</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTBinaryOperator.html">frontEnd::ASTBinaryOperator</a> *Stmt, llvm::Value *mRHS, llvm::Value *ArrayPtr)</td></tr>
 <tr class="separator:a8117456b91e8c5f3962655dac0d1e7f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:aac5db1a2abdeef050c4397ad2968dcc5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1AssignmentIRBuilder.html#aac5db1a2abdeef050c4397ad2968dcc5">BuildArrayAssignment</a> (llvm::Value *RHS, llvm::Value *ArrayPtr)</td></tr>
+<tr class="memitem:aac5db1a2abdeef050c4397ad2968dcc5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1AssignmentIRBuilder.html#aac5db1a2abdeef050c4397ad2968dcc5">BuildArrayAssignment</a> (llvm::Value *mRHS, llvm::Value *ArrayPtr)</td></tr>
 <tr class="separator:aac5db1a2abdeef050c4397ad2968dcc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6aceda80584733e23d56d075c8c9bf45"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1AssignmentIRBuilder.html#a6aceda80584733e23d56d075c8c9bf45">BuildRegularAssignment</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *LHS, llvm::Value *RHS)</td></tr>
+<tr class="memitem:a6aceda80584733e23d56d075c8c9bf45"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1anonymous__namespace_02CodeGen_8cpp_03_1_1AssignmentIRBuilder.html#a6aceda80584733e23d56d075c8c9bf45">BuildRegularAssignment</a> (const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *mLHS, llvm::Value *mRHS)</td></tr>
 <tr class="separator:a6aceda80584733e23d56d075c8c9bf45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
@@ -153,7 +153,7 @@ Private Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">llvm::Value *&#160;</td>
-          <td class="paramname"><em>RHS</em>, </td>
+          <td class="paramname"><em>mRHS</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -189,7 +189,7 @@ Private Attributes</h2></td></tr>
           <td class="memname">void weak::anonymous_namespace{CodeGen.cpp}::AssignmentIRBuilder::BuildArrayAssignment </td>
           <td>(</td>
           <td class="paramtype">llvm::Value *&#160;</td>
-          <td class="paramname"><em>RHS</em>, </td>
+          <td class="paramname"><em>mRHS</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -225,13 +225,13 @@ Private Attributes</h2></td></tr>
           <td class="memname">void weak::anonymous_namespace{CodeGen.cpp}::AssignmentIRBuilder::BuildRegularAssignment </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classweak_1_1frontEnd_1_1ASTNode.html">frontEnd::ASTNode</a> *&#160;</td>
-          <td class="paramname"><em>LHS</em>, </td>
+          <td class="paramname"><em>mLHS</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">llvm::Value *&#160;</td>
-          <td class="paramname"><em>RHS</em>&#160;</td>
+          <td class="paramname"><em>mRHS</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

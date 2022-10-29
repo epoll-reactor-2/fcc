@@ -13,15 +13,15 @@ namespace weak {
 
 class ASTIntegerLiteral : public ASTNode {
 public:
-  ASTIntegerLiteral(signed TheValue, unsigned TheLineNo = 0U,
-                    unsigned TheColumnNo = 0U);
+  ASTIntegerLiteral(signed Value, unsigned LineNo = 0U,
+                    unsigned ColumnNo = 0U);
 
   void Accept(ASTVisitor *) override;
 
-  signed GetValue() const;
+  signed Value() const;
 
 private:
-  signed Value;
+  signed mValue;
 };
 
 } // namespace weak
