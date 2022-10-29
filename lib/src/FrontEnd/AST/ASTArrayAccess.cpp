@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTArrayAccess.hpp"
-#include "FrontEnd/AST/ASTVisitor.hpp"
+#include "FrontEnd/AST/ASTArrayAccess.h"
+#include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 

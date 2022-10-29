@@ -4,13 +4,13 @@
  * This file is distributed under the MIT license.
  */
 
-#include "Utility/Diagnostic.hpp"
-#include "FrontEnd/AST/ASTNode.hpp"
+#include "Utility/Diagnostic.h"
+#include "FrontEnd/AST/ASTNode.h"
 
 #include <iostream>
 #include <sstream>
 
-/// Forward declaration is in Diagnostic.hpp, so there is no unnamed namespace.
+/// Forward declaration is in Diagnostic.h, so there is no unnamed namespace.
 class Diagnostic {
 public:
   enum DiagLevel { WARN, ERROR } const Level;

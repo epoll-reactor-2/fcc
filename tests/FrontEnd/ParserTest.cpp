@@ -1,6 +1,6 @@
-#include "FrontEnd/Parse/Parser.hpp"
-#include "FrontEnd/AST/ASTDump.hpp"
-#include "FrontEnd/Lex/Lexer.hpp"
+#include "FrontEnd/Parse/Parser.h"
+#include "FrontEnd/AST/ASTDump.h"
+#include "FrontEnd/Lex/Lexer.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>

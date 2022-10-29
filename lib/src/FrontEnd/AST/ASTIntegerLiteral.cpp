@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTIntegerLiteral.hpp"
-#include "FrontEnd/AST/ASTVisitor.hpp"
+#include "FrontEnd/AST/ASTIntegerLiteral.h"
+#include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 

@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "MiddleEnd/CodeGen/ScalarExprEmitter.hpp"
-#include "Utility/Diagnostic.hpp"
+#include "MiddleEnd/CodeGen/ScalarExprEmitter.h"
+#include "Utility/Diagnostic.h"
 #include "llvm/IR/Value.h"
 
 static std::string TypeToString(llvm::Type *T) {

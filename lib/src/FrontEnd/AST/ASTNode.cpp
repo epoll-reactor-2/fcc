@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTNode.hpp"
+#include "FrontEnd/AST/ASTNode.h"
 
 namespace weak {
 

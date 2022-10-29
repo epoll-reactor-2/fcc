@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
+#include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/MC/TargetRegistry.h"

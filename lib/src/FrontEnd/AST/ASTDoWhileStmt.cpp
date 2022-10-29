@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTDoWhileStmt.hpp"
-#include "FrontEnd/AST/ASTVisitor.hpp"
+#include "FrontEnd/AST/ASTDoWhileStmt.h"
+#include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 

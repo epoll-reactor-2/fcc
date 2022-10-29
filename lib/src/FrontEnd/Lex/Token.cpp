@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/Lex/Token.hpp"
-#include "Utility/Diagnostic.hpp"
+#include "FrontEnd/Lex/Token.h"
+#include "Utility/Diagnostic.h"
 
 const char *weak::TokenToString(TokenType Type) {
   switch (Type) {

@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTForStmt.hpp"
-#include "FrontEnd/AST/ASTVisitor.hpp"
+#include "FrontEnd/AST/ASTForStmt.h"
+#include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 

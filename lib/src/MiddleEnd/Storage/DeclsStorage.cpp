@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "MiddleEnd/Storage/DeclsStorage.hpp"
+#include "MiddleEnd/Storage/DeclsStorage.h"
 
 namespace std {
 hash()->hash<std::string_view>;

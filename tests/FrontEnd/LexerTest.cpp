@@ -1,5 +1,5 @@
-#include "FrontEnd/Lex/Lexer.hpp"
-#include "TestHelpers.hpp"
+#include "FrontEnd/Lex/Lexer.h"
+#include "TestHelpers.h"
 
 static weak::Token MakeToken(std::string Data, weak::TokenType Type) {
   return {std::move(Data), Type, 0U, 0U};

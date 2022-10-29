@@ -1,8 +1,8 @@
-#include "MiddleEnd/CodeGen/CodeGen.hpp"
-#include "FrontEnd/Lex/Lexer.hpp"
-#include "FrontEnd/Parse/Parser.hpp"
-#include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
-#include "TestHelpers.hpp"
+#include "MiddleEnd/CodeGen/CodeGen.h"
+#include "FrontEnd/Lex/Lexer.h"
+#include "FrontEnd/Parse/Parser.h"
+#include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
+#include "TestHelpers.h"
 
 #include <filesystem>
 #include <fstream>

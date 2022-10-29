@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/Lex/Lexer.hpp"
-#include "Utility/Diagnostic.hpp"
+#include "FrontEnd/Lex/Lexer.h"
+#include "Utility/Diagnostic.h"
 #include <cassert>
 #include <unordered_map>
 

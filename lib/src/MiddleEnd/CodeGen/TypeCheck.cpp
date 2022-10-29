@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "MiddleEnd/CodeGen/TypeCheck.hpp"
-#include "Utility/Diagnostic.hpp"
+#include "MiddleEnd/CodeGen/TypeCheck.h"
+#include "Utility/Diagnostic.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"

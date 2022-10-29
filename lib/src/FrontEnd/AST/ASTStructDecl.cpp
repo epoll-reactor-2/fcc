@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTStructDecl.hpp"
-#include "FrontEnd/AST/ASTVisitor.hpp"
+#include "FrontEnd/AST/ASTStructDecl.h"
+#include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 

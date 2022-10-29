@@ -1,8 +1,8 @@
-#include "FrontEnd/AST/ASTDump.hpp"
-#include "FrontEnd/Lex/Lexer.hpp"
-#include "FrontEnd/Parse/Parser.hpp"
-#include "MiddleEnd/CodeGen/CodeGen.hpp"
-#include "MiddleEnd/CodeGen/TargetCodeBuilder.hpp"
+#include "FrontEnd/AST/ASTDump.h"
+#include "FrontEnd/Lex/Lexer.h"
+#include "FrontEnd/Parse/Parser.h"
+#include "MiddleEnd/CodeGen/CodeGen.h"
+#include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "llvm/Support/CommandLine.h"
 #include <fstream>
 #include <iostream>

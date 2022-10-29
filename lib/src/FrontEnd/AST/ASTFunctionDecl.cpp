@@ -4,9 +4,9 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTFunctionDecl.hpp"
-#include "FrontEnd/AST/ASTVisitor.hpp"
-#include "FrontEnd/Lex/Token.hpp"
+#include "FrontEnd/AST/ASTFunctionDecl.h"
+#include "FrontEnd/AST/ASTVisitor.h"
+#include "FrontEnd/Lex/Token.h"
 
 namespace weak {
 

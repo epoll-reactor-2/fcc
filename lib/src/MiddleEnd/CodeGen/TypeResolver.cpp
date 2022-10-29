@@ -4,9 +4,9 @@
  * This file is distributed under the MIT license.
  */
 
-#include "MiddleEnd/CodeGen/TypeResolver.hpp"
-#include "FrontEnd/AST/ASTVarDecl.hpp"
-#include "Utility/Diagnostic.hpp"
+#include "MiddleEnd/CodeGen/TypeResolver.h"
+#include "FrontEnd/AST/ASTVarDecl.h"
+#include "Utility/Diagnostic.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Type.h"
