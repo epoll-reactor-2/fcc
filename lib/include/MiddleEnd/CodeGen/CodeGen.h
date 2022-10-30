@@ -85,13 +85,6 @@ private:
   /// Consequence of using visitor pattern, since we cannot return anything from
   /// visit functions.
   llvm::Value *mLastInstr;
-  /// This is needed because there are two contexts of usage of array values:
-  /// 1) array element is reassigned;
-  /// 2) array element is accessed.
-  ///
-  /// So we store pointer to array element there, and the value itself normally
-  /// in LastInstr.
-  llvm::Value *mLastArrayPtr;
   /// LLVM stuff.
   llvm::LLVMContext mIRCtx;
   /// LLVM stuff.

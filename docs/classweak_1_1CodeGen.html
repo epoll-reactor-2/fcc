@@ -235,8 +235,6 @@ Private Attributes</h2></td></tr>
 <tr class="separator:ab0e4b1fe99104f4768f1c9b1a0a9828f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad05f9a5edceafa120a3cb8bd14548384"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#ad05f9a5edceafa120a3cb8bd14548384">mLastInstr</a></td></tr>
 <tr class="separator:ad05f9a5edceafa120a3cb8bd14548384"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38f737d1ddce6f83befffe33335bd16d"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#a38f737d1ddce6f83befffe33335bd16d">mLastArrayPtr</a></td></tr>
-<tr class="separator:a38f737d1ddce6f83befffe33335bd16d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad039ec71be5d4a8d88e5777ffad32cb9"><td class="memItemLeft" align="right" valign="top"><a id="ad039ec71be5d4a8d88e5777ffad32cb9" name="ad039ec71be5d4a8d88e5777ffad32cb9"></a>
 llvm::LLVMContext&#160;</td><td class="memItemRight" valign="bottom"><b>mIRCtx</b></td></tr>
 <tr class="memdesc:ad039ec71be5d4a8d88e5777ffad32cb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLVM stuff. <br /></td></tr>
@@ -899,30 +897,6 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="a38f737d1ddce6f83befffe33335bd16d" name="a38f737d1ddce6f83befffe33335bd16d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38f737d1ddce6f83befffe33335bd16d">&#9670;&nbsp;</a></span>mLastArrayPtr</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">llvm::Value* weak::CodeGen::mLastArrayPtr</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p >This is needed because there are two contexts of usage of array values: 1) array element is reassigned; 2) array element is accessed.</p>
-<p >So we store pointer to array element there, and the value itself normally in LastInstr. </p>
-
-</div>
-</div>
 <a id="ad05f9a5edceafa120a3cb8bd14548384" name="ad05f9a5edceafa120a3cb8bd14548384"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad05f9a5edceafa120a3cb8bd14548384">&#9670;&nbsp;</a></span>mLastInstr</h2>
 

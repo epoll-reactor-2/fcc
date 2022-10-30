@@ -181,8 +181,8 @@ private:
 } // namespace
 
 CodeGen::CodeGen(ASTNode *TheRoot)
-    : mRoot(TheRoot), mStorage(), mLastInstr(nullptr), mLastArrayPtr(nullptr),
-      mIRCtx(), mIRModule("LLVM Module", mIRCtx), mIRBuilder(mIRCtx) {}
+    : mRoot(TheRoot), mStorage(), mLastInstr(nullptr), mIRCtx(),
+      mIRModule("LLVM Module", mIRCtx), mIRBuilder(mIRCtx) {}
 
 void CodeGen::CreateCode() { mRoot->Accept(this); }
 
@@ -238,10 +238,19 @@ static TokenType ResolveAssignmentOperation(TokenType T) {
 void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
   Stmt->LHS()->Accept(this);
   llvm::Value *L = mLastInstr;
-  /// This is needed only in case of assignment to array element.
-  llvm::Value *AssignmentArrayPtr = mLastArrayPtr;
   Stmt->RHS()->Accept(this);
   llvm::Value *R = mLastInstr;
+
+  /// Load value and save pointer to it.
+  llvm::Value *ArrayPtr{nullptr};
+  if (Stmt->LHS()->Is(AST_ARRAY_ACCESS)) {
+    ArrayPtr = L;
+    L = mIRBuilder.CreateLoad(L->getType()->getPointerElementType(), L);
+  }
+
+  /// Load only value, since right hand side is never writeable.
+  if (Stmt->RHS()->Is(AST_ARRAY_ACCESS))
+    R = mIRBuilder.CreateLoad(R->getType()->getPointerElementType(), R);
 
   if (!L || !R)
     return;
@@ -253,8 +262,7 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
   switch (auto T = Stmt->Operation()) {
   case TOK_ASSIGN: {
     AssignmentIRBuilder Builder(mIRBuilder, mStorage);
-    Builder.Build(Stmt, R, AssignmentArrayPtr);
-    mLastArrayPtr = nullptr;
+    Builder.Build(Stmt, R, ArrayPtr);
     break;
   }
   case TOK_MUL_ASSIGN:
@@ -497,9 +505,8 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->SymbolName() << "` not found";
 
-  mLastInstr = mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
-
-  llvm::Value *Array = mLastInstr;
+  llvm::Value *Array =
+      mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
   Stmt->Index()->Accept(this);
   llvm::Value *Index = mLastInstr;
 
@@ -514,15 +521,12 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
   // \todo: Unary operators with values accesses through [] does not works.
   if (Array->getType()->isPointerTy())
     /// Pointer.
-    mLastArrayPtr = mIRBuilder.CreateInBoundsGEP(
+    mLastInstr = mIRBuilder.CreateInBoundsGEP(
         Array->getType()->getPointerElementType(), Array, Index);
   else
     /// Array.
-    mLastArrayPtr = mIRBuilder.CreateInBoundsGEP(
+    mLastInstr = mIRBuilder.CreateInBoundsGEP(
         Array->getType(), llvm::getPointerOperand(Array), {Zero, Index});
-
-  mLastInstr = mIRBuilder.CreateLoad(
-      mLastArrayPtr->getType()->getPointerElementType(), mLastArrayPtr);
 }
 
 void CodeGen::Visit(const ASTSymbol *Stmt) {
