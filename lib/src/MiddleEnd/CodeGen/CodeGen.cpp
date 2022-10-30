@@ -64,7 +64,7 @@ private:
   }
 
   llvm::Type *ResolveParamType(const ASTNode *ArgAST) {
-    AssertDeclaration(ArgAST);
+    AssertIsDecl(ArgAST);
 
     TypeResolver TypeResolver(mIRBuilder);
     if (ArgAST->Is(AST_VAR_DECL))
@@ -80,12 +80,12 @@ private:
   }
 
   const std::string &ExtractSymbol(const ASTNode *Node) {
-    AssertDeclaration(Node);
+    AssertIsDecl(Node);
     const auto *VarDecl = static_cast<const ASTVarDecl *>(Node);
     return VarDecl->Name();
   }
 
-  void AssertDeclaration(const ASTNode *Node) {
+  void AssertIsDecl(const ASTNode *Node) {
     if (!Node->Is(AST_VAR_DECL) && !Node->Is(AST_ARRAY_DECL))
       weak::UnreachablePoint("wrong AST nodes passed as function parameters");
   }
@@ -130,52 +130,15 @@ private:
     /// will be ended with '\0'.
     Chars.push_back(CreateNullTerminator());
 
-    size_t ArraySize = Chars.size();
-    llvm::Constant *Array = llvm::ConstantArray::get(
-        llvm::ArrayType::get(mIRBuilder.getInt8Ty(), ArraySize),
+    return llvm::ConstantArray::get(
+        llvm::ArrayType::get(mIRBuilder.getInt8Ty(), Chars.size()),
         std::move(Chars));
-
-    return Array;
   }
 
   llvm::Constant *CreateNullTerminator() { return mIRBuilder.getInt8('\0'); }
 
   llvm::Module &mIRModule;
   llvm::IRBuilder<> &mIRBuilder;
-};
-
-} // namespace
-
-namespace {
-
-class AssignmentIRBuilder {
-public:
-  AssignmentIRBuilder(llvm::IRBuilder<> &I, const DeclsStorage &S)
-      : mIRBuilder(I), mStorage(S) {}
-
-  void Build(const ASTBinaryOperator *Stmt, llvm::Value *RHS,
-             llvm::Value *ArrayPtr) {
-    auto *LHS = Stmt->LHS();
-
-    if (LHS->Is(AST_ARRAY_ACCESS))
-      BuildArrayAssignment(RHS, ArrayPtr);
-    else
-      BuildRegularAssignment(LHS, RHS);
-  }
-
-private:
-  void BuildArrayAssignment(llvm::Value *RHS, llvm::Value *ArrayPtr) {
-    mIRBuilder.CreateStore(RHS, ArrayPtr);
-  }
-
-  void BuildRegularAssignment(const ASTNode *LHS, llvm::Value *RHS) {
-    const auto *Symbol = static_cast<const ASTSymbol *>(LHS);
-    llvm::AllocaInst *Variable = mStorage.Lookup(Symbol->Name());
-    mIRBuilder.CreateStore(RHS, Variable);
-  }
-
-  llvm::IRBuilder<> &mIRBuilder;
-  const DeclsStorage &mStorage;
 };
 
 } // namespace
@@ -272,8 +235,13 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
 
   switch (auto T = Stmt->Operation()) {
   case TOK_ASSIGN: {
-    AssignmentIRBuilder Builder(mIRBuilder, mStorage);
-    Builder.Build(Stmt, R, ArrayPtr);
+    if (Stmt->LHS()->Is(AST_ARRAY_ACCESS))
+      mIRBuilder.CreateStore(R, ArrayPtr);
+    else {
+      auto *Symbol = static_cast<ASTSymbol *>(Stmt->LHS());
+      llvm::AllocaInst *Variable = mStorage.Lookup(Symbol->Name());
+      mIRBuilder.CreateStore(R, Variable);
+    }
     break;
   }
   case TOK_MUL_ASSIGN:
@@ -312,13 +280,10 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
   case TOK_SHR:
     mLastInstr = ScalarEmitter.EmitBinOp(Stmt, T, L, R);
     break;
-  default: {
-    mLastInstr = nullptr;
-
+  default:
     weak::UnreachablePoint(
         "Should not reach here. Operators are checked by parser.");
     break;
-  }
   } // switch
 }
 
@@ -331,6 +296,7 @@ void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
   Stmt->Operand()->Accept(this);
   llvm::Value *Op = mLastInstr;
   llvm::Value *ArrayPtr{nullptr};
+
   if (Stmt->Operand()->Is(AST_ARRAY_ACCESS)) {
     ArrayPtr = Op;
     Op = mIRBuilder.CreateLoad(Op->getType()->getPointerElementType(), Op);
@@ -346,7 +312,7 @@ void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
     break;
   default:
     weak::UnreachablePoint("Should not reach here");
-  } // switch
+  }
 
   auto *Symbol = static_cast<ASTSymbol *>(Stmt->Operand());
 
@@ -363,20 +329,20 @@ void CodeGen::Visit(const ASTForStmt *Stmt) {
 
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
-  auto *ForCondBB = llvm::BasicBlock::Create(mIRCtx, "for.cond", Func);
-  auto *ForBodyBB = llvm::BasicBlock::Create(mIRCtx, "for.body", Func);
-  auto *ForEndBB = llvm::BasicBlock::Create(mIRCtx, "for.end", Func);
+  auto *CondBB = llvm::BasicBlock::Create(mIRCtx, "for.cond", Func);
+  auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "for.body", Func);
+  auto *EndBB = llvm::BasicBlock::Create(mIRCtx, "for.end", Func);
 
-  mIRBuilder.CreateBr(ForCondBB);
-  mIRBuilder.SetInsertPoint(ForCondBB);
+  mIRBuilder.CreateBr(CondBB);
+  mIRBuilder.SetInsertPoint(CondBB);
 
   Stmt->Condition()->Accept(this);
-  mIRBuilder.CreateCondBr(mLastInstr, ForBodyBB, ForEndBB);
-  mIRBuilder.SetInsertPoint(ForBodyBB);
+  mIRBuilder.CreateCondBr(mLastInstr, BodyBB, EndBB);
+  mIRBuilder.SetInsertPoint(BodyBB);
   Stmt->Body()->Accept(this);
   Stmt->Increment()->Accept(this);
-  mIRBuilder.CreateBr(ForCondBB);
-  mIRBuilder.SetInsertPoint(ForEndBB);
+  mIRBuilder.CreateBr(CondBB);
+  mIRBuilder.SetInsertPoint(EndBB);
 
   mStorage.EndScope();
 }
@@ -384,34 +350,34 @@ void CodeGen::Visit(const ASTForStmt *Stmt) {
 void CodeGen::Visit(const ASTWhileStmt *Stmt) {
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
-  auto *WhileCondBB = llvm::BasicBlock::Create(mIRCtx, "while.cond", Func);
-  auto *WhileBodyBB = llvm::BasicBlock::Create(mIRCtx, "while.body", Func);
-  auto *WhileEndBB = llvm::BasicBlock::Create(mIRCtx, "while.end", Func);
+  auto *CondBB = llvm::BasicBlock::Create(mIRCtx, "while.cond", Func);
+  auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "while.body", Func);
+  auto *EndBB = llvm::BasicBlock::Create(mIRCtx, "while.end", Func);
 
-  mIRBuilder.CreateBr(WhileCondBB);
-  mIRBuilder.SetInsertPoint(WhileCondBB);
+  mIRBuilder.CreateBr(CondBB);
+  mIRBuilder.SetInsertPoint(CondBB);
 
   Stmt->Condition()->Accept(this);
-  mIRBuilder.CreateCondBr(mLastInstr, WhileBodyBB, WhileEndBB);
-  mIRBuilder.SetInsertPoint(WhileBodyBB);
+  mIRBuilder.CreateCondBr(mLastInstr, BodyBB, EndBB);
+  mIRBuilder.SetInsertPoint(BodyBB);
   Stmt->Body()->Accept(this);
-  mIRBuilder.CreateBr(WhileCondBB);
-  mIRBuilder.SetInsertPoint(WhileEndBB);
+  mIRBuilder.CreateBr(CondBB);
+  mIRBuilder.SetInsertPoint(EndBB);
 }
 
 void CodeGen::Visit(const ASTDoWhileStmt *Stmt) {
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
-  auto *DoWhileBodyBB = llvm::BasicBlock::Create(mIRCtx, "do.while.body", Func);
-  auto *DoWhileEndBB = llvm::BasicBlock::Create(mIRCtx, "do.while.end", Func);
+  auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "do.while.body", Func);
+  auto *EndBB = llvm::BasicBlock::Create(mIRCtx, "do.while.end", Func);
 
-  mIRBuilder.CreateBr(DoWhileBodyBB);
-  mIRBuilder.SetInsertPoint(DoWhileBodyBB);
+  mIRBuilder.CreateBr(BodyBB);
+  mIRBuilder.SetInsertPoint(BodyBB);
 
   Stmt->Body()->Accept(this);
   Stmt->Condition()->Accept(this);
-  mIRBuilder.CreateCondBr(mLastInstr, DoWhileBodyBB, DoWhileEndBB);
-  mIRBuilder.SetInsertPoint(DoWhileEndBB);
+  mIRBuilder.CreateCondBr(mLastInstr, BodyBB, EndBB);
+  mIRBuilder.SetInsertPoint(EndBB);
 }
 
 void CodeGen::Visit(const ASTIfStmt *Stmt) {
@@ -508,8 +474,8 @@ void CodeGen::Visit(const ASTFunctionCall *Stmt) {
 }
 
 void CodeGen::Visit(const ASTFunctionPrototype *Stmt) {
-  FunctionBuilder FunctionBuilder(mIRBuilder, mIRModule, Stmt);
-  FunctionBuilder.BuildSignature();
+  FunctionBuilder B(mIRBuilder, mIRModule, Stmt);
+  B.BuildSignature();
 }
 
 void CodeGen::Visit(const ASTArrayAccess *Stmt) {
@@ -543,17 +509,16 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
 }
 
 void CodeGen::Visit(const ASTSymbol *Stmt) {
-  llvm::AllocaInst *SymbolValue = mStorage.Lookup(Stmt->Name());
-  if (!SymbolValue)
+  llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
+  if (!Symbol)
     weak::CompileError(Stmt) << "Variable `" << Stmt->Name() << "` not found";
 
-  if (SymbolValue->getAllocatedType()->isArrayTy()) {
+  if (Symbol->getAllocatedType()->isArrayTy()) {
     llvm::Value *Zero = mIRBuilder.getInt32(0);
-    mLastInstr = mIRBuilder.CreateInBoundsGEP(SymbolValue->getAllocatedType(),
-                                              SymbolValue, {Zero, Zero});
+    mLastInstr = mIRBuilder.CreateInBoundsGEP(Symbol->getAllocatedType(),
+                                              Symbol, {Zero, Zero});
   } else
-    mLastInstr =
-        mIRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue);
+    mLastInstr = mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
 }
 
 void CodeGen::Visit(const ASTCompoundStmt *Stmts) {
@@ -576,12 +541,12 @@ void CodeGen::Visit(const ASTReturnStmt *Stmt) {
 void CodeGen::Visit(const ASTArrayDecl *Stmt) {
   TypeResolver TypeResolver(mIRBuilder);
 
-  llvm::Type *UnderlyingType =
+  llvm::Type *Type =
       TypeResolver.Resolve(Stmt->DataType(), /*LocationAST=*/Stmt);
   /// \todo: Temporarily we get only first dimension as parameter and don't
   ///        do something else.
-  llvm::AllocaInst *ArrayDecl = mIRBuilder.CreateAlloca(
-      llvm::ArrayType::get(UnderlyingType, Stmt->ArityList()[0]));
+  llvm::AllocaInst *ArrayDecl =
+      mIRBuilder.CreateAlloca(llvm::ArrayType::get(Type, Stmt->ArityList()[0]));
 
   mStorage.Push(Stmt->SymbolName(), ArrayDecl);
 }
