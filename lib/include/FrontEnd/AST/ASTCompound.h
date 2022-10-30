@@ -4,20 +4,20 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_COMPOUND_STMT_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_COMPOUND_STMT_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_COMPOUND_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_COMPOUND_H
 
 #include "FrontEnd/AST/ASTNode.h"
 #include <vector>
 
 namespace weak {
 
-class ASTCompoundStmt : public ASTNode {
+class ASTCompound : public ASTNode {
 public:
-  ASTCompoundStmt(std::vector<ASTNode *> &&Stmts, unsigned LineNo,
-                  unsigned ColumnNo);
+  ASTCompound(std::vector<ASTNode *> &&Stmts, unsigned LineNo,
+              unsigned ColumnNo);
 
-  ~ASTCompoundStmt();
+  ~ASTCompound();
 
   void Accept(ASTVisitor *) override;
 
@@ -29,4 +29,4 @@ private:
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_COMPOUND_STMT_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_COMPOUND_H

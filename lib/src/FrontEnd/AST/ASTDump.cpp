@@ -59,7 +59,7 @@ private:
     mStream << Decl->SymbolName() << std::endl;
   }
 
-  void Visit(const ASTBinaryOperator *Binary) override {
+  void Visit(const ASTBinary *Binary) override {
     PrintWithTextPos("BinaryOperator", Binary, /*NewLineNeeded=*/false);
     mStream << TokenToString(Binary->Operation()) << std::endl;
     mIndent += 2;
@@ -73,21 +73,21 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(const ASTBooleanLiteral *Boolean) override {
+  void Visit(const ASTBool *Boolean) override {
     PrintWithTextPos("BooleanLiteral", Boolean, /*NewLineNeeded=*/false);
     mStream << std::boolalpha << Boolean->Value() << std::endl;
   }
 
-  void Visit(const ASTBreakStmt *BreakStmt) override {
+  void Visit(const ASTBreak *BreakStmt) override {
     PrintWithTextPos("BreakStmt", BreakStmt, /*NewLineNeeded=*/true);
   }
 
-  void Visit(const ASTCharLiteral *Char) override {
+  void Visit(const ASTChar *Char) override {
     PrintWithTextPos("CharLiteral", Char, /*NewLineNeeded=*/false);
     mStream << "'" << Char->Value() << "'" << std::endl;
   }
 
-  void Visit(const ASTCompoundStmt *CompoundStmt) override {
+  void Visit(const ASTCompound *CompoundStmt) override {
     PrintWithTextPos("CompoundStmt", CompoundStmt, /*NewLineNeeded=*/true);
 
     mIndent += 2;
@@ -98,17 +98,17 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(const ASTContinueStmt *ContinueStmt) override {
+  void Visit(const ASTContinue *ContinueStmt) override {
     PrintWithTextPos("ContinueStmt", ContinueStmt, /*NewLineNeeded=*/true);
   }
 
-  void Visit(const ASTFloatingPointLiteral *Float) override {
+  void Visit(const ASTFloat *Float) override {
     PrintWithTextPos("FloatingPointLiteral", Float,
                      /*NewLineNeeded=*/false);
     mStream << Float->Value() << std::endl;
   }
 
-  void Visit(const ASTForStmt *ForStmt) override {
+  void Visit(const ASTFor *ForStmt) override {
     PrintWithTextPos("ForStmt", ForStmt,
                      /*NewLineNeeded=*/true);
 
@@ -157,7 +157,7 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(const ASTIfStmt *IfStmt) override {
+  void Visit(const ASTIf *IfStmt) override {
     PrintWithTextPos("IfStmt", IfStmt, /*NewLineNeeded=*/true);
     mIndent += 2;
 
@@ -193,13 +193,13 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(const ASTIntegerLiteral *Integer) override {
+  void Visit(const ASTNumber *Integer) override {
     PrintWithTextPos("IntegerLiteral", Integer,
                      /*NewLineNeeded=*/false);
     mStream << Integer->Value() << std::endl;
   }
 
-  void Visit(const ASTReturnStmt *ReturnStmt) override {
+  void Visit(const ASTReturn *ReturnStmt) override {
     PrintWithTextPos("ReturnStmt", ReturnStmt, /*NewLineNeeded=*/true);
     mIndent += 2;
 
@@ -211,7 +211,7 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(const ASTStringLiteral *String) override {
+  void Visit(const ASTString *String) override {
     PrintWithTextPos("StringLiteral", String,
                      /*NewLineNeeded=*/false);
     mStream << String->Value() << std::endl;
@@ -223,10 +223,9 @@ private:
     mStream << Symbol->Name() << std::endl;
   }
 
-  void Visit(const ASTUnaryOperator *Unary) override {
-    mStream << (Unary->PrefixOrPostfix == ASTUnaryOperator::PREFIX
-                    ? "Prefix "
-                    : "Postfix ");
+  void Visit(const ASTUnary *Unary) override {
+    mStream << (Unary->PrefixOrPostfix == ASTUnary::PREFIX ? "Prefix "
+                                                           : "Postfix ");
     PrintWithTextPos("UnaryOperator", Unary,
                      /*NewLineNeeded=*/false);
     mStream << TokenToString(Unary->Operation()) << std::endl;
@@ -338,11 +337,11 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(const ASTDoWhileStmt *DoWhileStmt) override {
+  void Visit(const ASTDoWhile *DoWhileStmt) override {
     CommonWhileStmtVisit(DoWhileStmt, /*IsDoWhile=*/true);
   }
 
-  void Visit(const ASTWhileStmt *WhileStmt) override {
+  void Visit(const ASTWhile *WhileStmt) override {
     CommonWhileStmtVisit(WhileStmt, /*IsDoWhile=*/false);
   }
 

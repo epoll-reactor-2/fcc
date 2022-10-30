@@ -4,36 +4,35 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_FOR_STMT_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_FOR_STMT_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_FOR_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_FOR_H
 
-#include "FrontEnd/AST/ASTCompoundStmt.h"
+#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTNode.h"
 
 namespace weak {
 
-class ASTForStmt : public ASTNode {
+class ASTFor : public ASTNode {
 public:
-  ASTForStmt(ASTNode *Init, ASTNode *Condition, ASTNode *Increment,
-             ASTCompoundStmt *Body, unsigned LineNo,
-             unsigned ColumnNo);
+  ASTFor(ASTNode *Init, ASTNode *Condition, ASTNode *Increment,
+         ASTCompound *Body, unsigned LineNo, unsigned ColumnNo);
 
-  ~ASTForStmt();
+  ~ASTFor();
 
   void Accept(ASTVisitor *) override;
 
   ASTNode *Init() const;
   ASTNode *Condition() const;
   ASTNode *Increment() const;
-  ASTCompoundStmt *Body() const;
+  ASTCompound *Body() const;
 
 private:
   ASTNode *mInit;
   ASTNode *mCondition;
   ASTNode *mIncrement;
-  ASTCompoundStmt *mBody;
+  ASTCompound *mBody;
 };
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_FOR_STMT_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_FOR_H

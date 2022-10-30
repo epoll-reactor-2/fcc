@@ -149,24 +149,24 @@ CodeGen::CodeGen(ASTNode *TheRoot)
 
 void CodeGen::CreateCode() { mRoot->Accept(this); }
 
-void CodeGen::Visit(const ASTBooleanLiteral *Stmt) {
+void CodeGen::Visit(const ASTBool *Stmt) {
   mLastInstr = mIRBuilder.getInt1(Stmt->Value());
 }
 
-void CodeGen::Visit(const ASTCharLiteral *Stmt) {
+void CodeGen::Visit(const ASTChar *Stmt) {
   mLastInstr = mIRBuilder.getInt8(Stmt->Value());
 }
 
-void CodeGen::Visit(const ASTIntegerLiteral *Stmt) {
+void CodeGen::Visit(const ASTNumber *Stmt) {
   mLastInstr = mIRBuilder.getInt32(Stmt->Value());
 }
 
-void CodeGen::Visit(const ASTFloatingPointLiteral *Stmt) {
+void CodeGen::Visit(const ASTFloat *Stmt) {
   llvm::APFloat Float(Stmt->Value());
   mLastInstr = llvm::ConstantFP::get(mIRCtx, Float);
 }
 
-void CodeGen::Visit(const ASTStringLiteral *Stmt) {
+void CodeGen::Visit(const ASTString *Stmt) {
   StringBuilder Builder(mIRModule, mIRBuilder);
   mLastInstr = Builder.BuildLiteral(Stmt->Value());
 }
@@ -209,7 +209,7 @@ static TokenType ResolveUnaryOp(TokenType T) {
   }
 }
 
-void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
+void CodeGen::Visit(const ASTBinary *Stmt) {
   Stmt->LHS()->Accept(this);
   llvm::Value *L = mLastInstr;
   Stmt->RHS()->Accept(this);
@@ -287,7 +287,7 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
   } // switch
 }
 
-void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
+void CodeGen::Visit(const ASTUnary *Stmt) {
   if (auto *Op = Stmt->Operand();
       !Op->Is(AST_SYMBOL) && !Op->Is(AST_ARRAY_ACCESS))
     weak::CompileError(Stmt)
@@ -320,7 +320,7 @@ void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
                          ArrayPtr ? ArrayPtr : mStorage.Lookup(Symbol->Name()));
 }
 
-void CodeGen::Visit(const ASTForStmt *Stmt) {
+void CodeGen::Visit(const ASTFor *Stmt) {
   mStorage.StartScope();
   /// \todo: Generate code with respect to empty for parameters,
   ///        e.g for (;;), or for(int i = 0; ; ++i). Also
@@ -347,7 +347,7 @@ void CodeGen::Visit(const ASTForStmt *Stmt) {
   mStorage.EndScope();
 }
 
-void CodeGen::Visit(const ASTWhileStmt *Stmt) {
+void CodeGen::Visit(const ASTWhile *Stmt) {
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
   auto *CondBB = llvm::BasicBlock::Create(mIRCtx, "while.cond", Func);
@@ -365,7 +365,7 @@ void CodeGen::Visit(const ASTWhileStmt *Stmt) {
   mIRBuilder.SetInsertPoint(EndBB);
 }
 
-void CodeGen::Visit(const ASTDoWhileStmt *Stmt) {
+void CodeGen::Visit(const ASTDoWhile *Stmt) {
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
   auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "do.while.body", Func);
@@ -380,7 +380,7 @@ void CodeGen::Visit(const ASTDoWhileStmt *Stmt) {
   mIRBuilder.SetInsertPoint(EndBB);
 }
 
-void CodeGen::Visit(const ASTIfStmt *Stmt) {
+void CodeGen::Visit(const ASTIf *Stmt) {
   Stmt->Condition()->Accept(this);
   llvm::Value *Condition = mLastInstr;
 
@@ -521,14 +521,14 @@ void CodeGen::Visit(const ASTSymbol *Stmt) {
     mLastInstr = mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
 }
 
-void CodeGen::Visit(const ASTCompoundStmt *Stmts) {
+void CodeGen::Visit(const ASTCompound *Stmts) {
   mStorage.StartScope();
   for (const auto &Stmt : Stmts->Stmts())
     Stmt->Accept(this);
   mStorage.EndScope();
 }
 
-void CodeGen::Visit(const ASTReturnStmt *Stmt) {
+void CodeGen::Visit(const ASTReturn *Stmt) {
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
   if (Func->getReturnType()->isVoidTy())
@@ -563,7 +563,7 @@ void CodeGen::Visit(const ASTVarDecl *Decl) {
   /// Special case, since we need to copy array from data section to another
   /// array, placed on stack.
   if (Decl->DataType() == TOK_STRING) {
-    const auto *Literal = static_cast<ASTStringLiteral *>(Decl->Body());
+    const auto *Literal = static_cast<ASTString *>(Decl->Body());
     const unsigned NullTerminator = 1;
     llvm::ArrayType *ArrayType = llvm::ArrayType::get(
         mIRBuilder.getInt8Ty(), Literal->Value().size() + NullTerminator);

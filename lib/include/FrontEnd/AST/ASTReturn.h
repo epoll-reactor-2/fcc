@@ -4,19 +4,18 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_RETURN_STMT_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_RETURN_STMT_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_RETURN_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_RETURN_H
 
 #include "FrontEnd/AST/ASTNode.h"
 
 namespace weak {
 
-class ASTReturnStmt : public ASTNode {
+class ASTReturn : public ASTNode {
 public:
-  ASTReturnStmt(ASTNode *Operand, unsigned LineNo,
-                unsigned ColumnNo);
+  ASTReturn(ASTNode *Operand, unsigned LineNo, unsigned ColumnNo);
 
-  ~ASTReturnStmt();
+  ~ASTReturn();
 
   void Accept(ASTVisitor *) override;
 
@@ -28,4 +27,4 @@ private:
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_RETURN_STMT_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_RETURN_H

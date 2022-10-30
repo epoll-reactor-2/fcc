@@ -19,7 +19,7 @@ std::vector<weak::Token> DoLexicalAnalysis(std::string_view InputPath) {
   return Tokens;
 }
 
-std::unique_ptr<weak::ASTCompoundStmt> DoSyntaxAnalysis(std::string_view InputPath) {
+std::unique_ptr<weak::ASTCompound> DoSyntaxAnalysis(std::string_view InputPath) {
   auto Tokens = DoLexicalAnalysis(InputPath);
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();

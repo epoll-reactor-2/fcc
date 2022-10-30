@@ -4,29 +4,28 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTIfStmt.h"
+#include "FrontEnd/AST/ASTIf.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
-ASTIfStmt::ASTIfStmt(ASTNode *Condition, ASTCompoundStmt *ThenBody,
-                     ASTCompoundStmt *ElseBody, unsigned LineNo,
-                     unsigned ColumnNo)
+ASTIf::ASTIf(ASTNode *Condition, ASTCompound *ThenBody, ASTCompound *ElseBody,
+             unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_IF_STMT, LineNo, ColumnNo), mCondition(Condition),
       mThenBody(ThenBody), mElseBody(ElseBody) {}
 
-ASTIfStmt::~ASTIfStmt() {
+ASTIf::~ASTIf() {
   delete mCondition;
   delete mThenBody;
   delete mElseBody;
 }
 
-void ASTIfStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTIf::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-ASTNode *ASTIfStmt::Condition() const { return mCondition; }
+ASTNode *ASTIf::Condition() const { return mCondition; }
 
-ASTCompoundStmt *ASTIfStmt::ThenBody() const { return mThenBody; }
+ASTCompound *ASTIf::ThenBody() const { return mThenBody; }
 
-ASTCompoundStmt *ASTIfStmt::ElseBody() const { return mElseBody; }
+ASTCompound *ASTIf::ElseBody() const { return mElseBody; }
 
 } // namespace weak

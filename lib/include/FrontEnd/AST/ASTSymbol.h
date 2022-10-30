@@ -14,8 +14,7 @@ namespace weak {
 
 class ASTSymbol : public ASTNode {
 public:
-  ASTSymbol(std::string Value, unsigned LineNo,
-            unsigned ColumnNo);
+  ASTSymbol(std::string Value, unsigned LineNo, unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 

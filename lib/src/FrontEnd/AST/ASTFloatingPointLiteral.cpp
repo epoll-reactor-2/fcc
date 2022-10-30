@@ -4,19 +4,16 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTFloatingPointLiteral.h"
+#include "FrontEnd/AST/ASTFloat.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
-ASTFloatingPointLiteral::ASTFloatingPointLiteral(float Value, unsigned LineNo,
-                                                 unsigned ColumnNo)
+ASTFloat::ASTFloat(float Value, unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_FLOATING_POINT_LITERAL, LineNo, ColumnNo), mValue(Value) {}
 
-void ASTFloatingPointLiteral::Accept(ASTVisitor *Visitor) {
-  Visitor->Visit(this);
-}
+void ASTFloat::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-float ASTFloatingPointLiteral::Value() const { return mValue; }
+float ASTFloat::Value() const { return mValue; }
 
 } // namespace weak

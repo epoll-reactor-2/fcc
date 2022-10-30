@@ -12,27 +12,27 @@ namespace weak {
 class ASTNode;
 class ASTArrayAccess;
 class ASTArrayDecl;
-class ASTBinaryOperator;
-class ASTBooleanLiteral;
-class ASTBreakStmt;
-class ASTCharLiteral;
-class ASTCompoundStmt;
-class ASTContinueStmt;
-class ASTDoWhileStmt;
-class ASTFloatingPointLiteral;
-class ASTForStmt;
+class ASTBinary;
+class ASTBool;
+class ASTBreak;
+class ASTChar;
+class ASTCompound;
+class ASTContinue;
+class ASTDoWhile;
+class ASTFloat;
+class ASTFor;
 class ASTFunctionCall;
 class ASTFunctionDecl;
 class ASTFunctionPrototype;
-class ASTIfStmt;
-class ASTIntegerLiteral;
-class ASTReturnStmt;
-class ASTStringLiteral;
+class ASTIf;
+class ASTNumber;
+class ASTReturn;
+class ASTString;
 class ASTStructDecl;
 class ASTSymbol;
-class ASTUnaryOperator;
+class ASTUnary;
 class ASTVarDecl;
-class ASTWhileStmt;
+class ASTWhile;
 
 } // namespace weak
 

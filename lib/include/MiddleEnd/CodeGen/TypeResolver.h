@@ -31,8 +31,7 @@ public:
   llvm::Type *Resolve(const ASTNode *);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
-  llvm::Type *ResolveExceptVoid(TokenType, unsigned LineNo,
-                                unsigned ColumnNo);
+  llvm::Type *ResolveExceptVoid(TokenType, unsigned LineNo, unsigned ColumnNo);
   /// \copydoc TypeResolver::ResolveExceptVoid(TokenType, unsigned,
   /// unsigned)
   llvm::Type *ResolveExceptVoid(TokenType, const ASTNode *LocationAST);

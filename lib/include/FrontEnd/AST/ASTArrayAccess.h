@@ -14,8 +14,8 @@ namespace weak {
 
 class ASTArrayAccess : public ASTNode {
 public:
-  ASTArrayAccess(std::string SymbolName, ASTNode *Index,
-                 unsigned TheLineNo, unsigned TheColumnNo);
+  ASTArrayAccess(std::string SymbolName, ASTNode *Index, unsigned TheLineNo,
+                 unsigned TheColumnNo);
 
   ~ASTArrayAccess();
 

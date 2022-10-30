@@ -4,22 +4,22 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTCompoundStmt.h"
+#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
-ASTCompoundStmt::ASTCompoundStmt(std::vector<ASTNode *> &&Stmts,
-                                 unsigned LineNo, unsigned ColumnNo)
+ASTCompound::ASTCompound(std::vector<ASTNode *> &&Stmts, unsigned LineNo,
+                         unsigned ColumnNo)
     : ASTNode(AST_COMPOUND_STMT, LineNo, ColumnNo), mStmts(std::move(Stmts)) {}
 
-ASTCompoundStmt::~ASTCompoundStmt() {
+ASTCompound::~ASTCompound() {
   for (ASTNode *S : mStmts)
     delete S;
 }
 
-void ASTCompoundStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTCompound::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-const std::vector<ASTNode *> &ASTCompoundStmt::Stmts() const { return mStmts; }
+const std::vector<ASTNode *> &ASTCompound::Stmts() const { return mStmts; }
 
 } // namespace weak

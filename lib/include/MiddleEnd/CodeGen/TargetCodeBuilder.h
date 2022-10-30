@@ -14,8 +14,7 @@ namespace weak {
 /// Builder of executable code from LLVM IR.
 class TargetCodeBuilder {
 public:
-  TargetCodeBuilder(llvm::Module &Module,
-                    std::string_view ObjFilePath);
+  TargetCodeBuilder(llvm::Module &Module, std::string_view ObjFilePath);
 
   /// Compile LLVM IR to object code and write it to output file.
   ///

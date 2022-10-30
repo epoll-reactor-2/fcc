@@ -17,27 +17,27 @@ public:
 
   virtual void Visit(const ASTArrayDecl *) = 0;
   virtual void Visit(const ASTArrayAccess *) = 0;
-  virtual void Visit(const ASTBinaryOperator *) = 0;
-  virtual void Visit(const ASTBooleanLiteral *) = 0;
-  virtual void Visit(const ASTBreakStmt *) = 0;
-  virtual void Visit(const ASTCharLiteral *) = 0;
-  virtual void Visit(const ASTCompoundStmt *) = 0;
-  virtual void Visit(const ASTContinueStmt *) = 0;
-  virtual void Visit(const ASTDoWhileStmt *) = 0;
-  virtual void Visit(const ASTFloatingPointLiteral *) = 0;
-  virtual void Visit(const ASTForStmt *) = 0;
+  virtual void Visit(const ASTBinary *) = 0;
+  virtual void Visit(const ASTBool *) = 0;
+  virtual void Visit(const ASTBreak *) = 0;
+  virtual void Visit(const ASTChar *) = 0;
+  virtual void Visit(const ASTCompound *) = 0;
+  virtual void Visit(const ASTContinue *) = 0;
+  virtual void Visit(const ASTDoWhile *) = 0;
+  virtual void Visit(const ASTFloat *) = 0;
+  virtual void Visit(const ASTFor *) = 0;
   virtual void Visit(const ASTFunctionDecl *) = 0;
   virtual void Visit(const ASTFunctionCall *) = 0;
   virtual void Visit(const ASTFunctionPrototype *) = 0;
-  virtual void Visit(const ASTIfStmt *) = 0;
-  virtual void Visit(const ASTIntegerLiteral *) = 0;
-  virtual void Visit(const ASTReturnStmt *) = 0;
-  virtual void Visit(const ASTStringLiteral *) = 0;
+  virtual void Visit(const ASTIf *) = 0;
+  virtual void Visit(const ASTNumber *) = 0;
+  virtual void Visit(const ASTReturn *) = 0;
+  virtual void Visit(const ASTString *) = 0;
   virtual void Visit(const ASTStructDecl *) = 0;
   virtual void Visit(const ASTSymbol *) = 0;
-  virtual void Visit(const ASTUnaryOperator *) = 0;
+  virtual void Visit(const ASTUnary *) = 0;
   virtual void Visit(const ASTVarDecl *) = 0;
-  virtual void Visit(const ASTWhileStmt *) = 0;
+  virtual void Visit(const ASTWhile *) = 0;
 };
 
 } // namespace weak

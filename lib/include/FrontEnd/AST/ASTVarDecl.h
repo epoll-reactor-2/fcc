@@ -15,9 +15,8 @@ namespace weak {
 
 class ASTVarDecl : public ASTNode {
 public:
-  ASTVarDecl(TokenType DataType, std::string &&Name,
-             ASTNode *Body, unsigned LineNo,
-             unsigned ColumnNo);
+  ASTVarDecl(TokenType DataType, std::string &&Name, ASTNode *Body,
+             unsigned LineNo, unsigned ColumnNo);
 
   ~ASTVarDecl();
 

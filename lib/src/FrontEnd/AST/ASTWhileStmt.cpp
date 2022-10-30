@@ -4,25 +4,25 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTWhileStmt.h"
 #include "FrontEnd/AST/ASTVisitor.h"
+#include "FrontEnd/AST/ASTWhile.h"
 
 namespace weak {
 
-ASTWhileStmt::ASTWhileStmt(ASTNode *Condition, ASTCompoundStmt *Body,
-                           unsigned LineNo, unsigned ColumnNo)
+ASTWhile::ASTWhile(ASTNode *Condition, ASTCompound *Body, unsigned LineNo,
+                   unsigned ColumnNo)
     : ASTNode(AST_WHILE_STMT, LineNo, ColumnNo), mCondition(Condition),
       mBody(Body) {}
 
-ASTWhileStmt::~ASTWhileStmt() {
+ASTWhile::~ASTWhile() {
   delete mCondition;
   delete mBody;
 }
 
-void ASTWhileStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTWhile::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-ASTNode *ASTWhileStmt::Condition() const { return mCondition; }
+ASTNode *ASTWhile::Condition() const { return mCondition; }
 
-ASTCompoundStmt *ASTWhileStmt::Body() const { return mBody; }
+ASTCompound *ASTWhile::Body() const { return mBody; }
 
 } // namespace weak

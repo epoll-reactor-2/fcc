@@ -4,17 +4,16 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_CHAR_LITERAL_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_CHAR_LITERAL_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_CHAR_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_CHAR_H
 
 #include "FrontEnd/AST/ASTNode.h"
 
 namespace weak {
 
-class ASTCharLiteral : public ASTNode {
+class ASTChar : public ASTNode {
 public:
-  ASTCharLiteral(char Value, unsigned LineNo,
-                 unsigned ColumnNo);
+  ASTChar(char Value, unsigned LineNo, unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 
@@ -26,4 +25,4 @@ private:
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_CHAR_LITERAL_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_CHAR_H

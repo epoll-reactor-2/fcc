@@ -4,14 +4,14 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTBreakStmt.h"
+#include "FrontEnd/AST/ASTBreak.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
-ASTBreakStmt::ASTBreakStmt(unsigned LineNo, unsigned ColumnNo)
+ASTBreak::ASTBreak(unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_BREAK_STMT, LineNo, ColumnNo) {}
 
-void ASTBreakStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTBreak::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 } // namespace weak

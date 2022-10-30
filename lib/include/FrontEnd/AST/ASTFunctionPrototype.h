@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_FUNCTION_PROTOTYPE_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_FUNCTION_PROTOTYPE_H
 
-#include "FrontEnd/AST/ASTCompoundStmt.h"
+#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTNode.h"
 #include "FrontEnd/Lex/Token.h"
 #include <string>
@@ -18,8 +18,8 @@ namespace weak {
 class ASTFunctionPrototype : public ASTNode {
 public:
   ASTFunctionPrototype(TokenType ReturnType, std::string &&Name,
-                       std::vector<ASTNode *> &&Arguments,
-                       unsigned LineNo, unsigned ColumnNo);
+                       std::vector<ASTNode *> &&Arguments, unsigned LineNo,
+                       unsigned ColumnNo);
 
   ~ASTFunctionPrototype();
 

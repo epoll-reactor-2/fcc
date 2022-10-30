@@ -4,26 +4,25 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTUnaryOperator.h"
+#include "FrontEnd/AST/ASTUnary.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
-ASTUnaryOperator::ASTUnaryOperator(UnaryType PrefixOrPostfix,
-                                   TokenType Operation, ASTNode *Operand,
-                                   unsigned LineNo, unsigned ColumnNo)
+ASTUnary::ASTUnary(UnaryType PrefixOrPostfix, TokenType Operation,
+                   ASTNode *Operand, unsigned LineNo, unsigned ColumnNo)
     : ASTNode(
           (PrefixOrPostfix == POSTFIX ? AST_POSTFIX_UNARY : AST_PREFIX_UNARY),
           LineNo, ColumnNo),
       PrefixOrPostfix(PrefixOrPostfix), mOperation(Operation),
       mOperand(Operand) {}
 
-ASTUnaryOperator::~ASTUnaryOperator() { delete mOperand; }
+ASTUnary::~ASTUnary() { delete mOperand; }
 
-void ASTUnaryOperator::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTUnary::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-TokenType ASTUnaryOperator::Operation() const { return mOperation; }
+TokenType ASTUnary::Operation() const { return mOperation; }
 
-ASTNode *ASTUnaryOperator::Operand() const { return mOperand; }
+ASTNode *ASTUnary::Operand() const { return mOperand; }
 
 } // namespace weak

@@ -4,20 +4,20 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_STMT_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_STMT_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_H
 
 #include "FrontEnd/AST/ASTNode.h"
 
 namespace weak {
 
-class ASTContinueStmt : public ASTNode {
+class ASTContinue : public ASTNode {
 public:
-  ASTContinueStmt(unsigned LineNo, unsigned ColumnNo);
+  ASTContinue(unsigned LineNo, unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 };
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_STMT_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_CONTINUE_H

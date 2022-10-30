@@ -4,17 +4,16 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTStringLiteral.h"
+#include "FrontEnd/AST/ASTString.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
-ASTStringLiteral::ASTStringLiteral(std::string Value, unsigned LineNo,
-                                   unsigned ColumnNo)
+ASTString::ASTString(std::string Value, unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_STRING_LITERAL, LineNo, ColumnNo), mValue(std::move(Value)) {}
 
-void ASTStringLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTString::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-const std::string &ASTStringLiteral::Value() const { return mValue; }
+const std::string &ASTString::Value() const { return mValue; }
 
 } // namespace weak

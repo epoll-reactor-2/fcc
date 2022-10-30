@@ -4,17 +4,16 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_BOOLEAN_LITERAL_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_BOOLEAN_LITERAL_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_BOOL_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_BOOL_H
 
 #include "FrontEnd/AST/ASTNode.h"
 
 namespace weak {
 
-class ASTBooleanLiteral : public ASTNode {
+class ASTBool : public ASTNode {
 public:
-  ASTBooleanLiteral(bool Value, unsigned LineNo,
-                    unsigned ColumnNo);
+  ASTBool(bool Value, unsigned LineNo, unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 
@@ -26,4 +25,4 @@ private:
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_BOOLEAN_LITERAL_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_BOOL_H

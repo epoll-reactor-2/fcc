@@ -4,23 +4,22 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_UNARY_OPERATOR_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_UNARY_OPERATOR_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_UNARY_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_UNARY_H
 
 #include "FrontEnd/AST/ASTNode.h"
 #include "FrontEnd/Lex/Token.h"
 
 namespace weak {
 
-class ASTUnaryOperator : public ASTNode {
+class ASTUnary : public ASTNode {
 public:
   enum UnaryType { PREFIX, POSTFIX } const PrefixOrPostfix;
 
-  ASTUnaryOperator(UnaryType PrefixOrPostfix, TokenType Operation,
-                   ASTNode *Operand, unsigned LineNo,
-                   unsigned ColumnNo);
+  ASTUnary(UnaryType PrefixOrPostfix, TokenType Operation, ASTNode *Operand,
+           unsigned LineNo, unsigned ColumnNo);
 
-  ~ASTUnaryOperator();
+  ~ASTUnary();
 
   void Accept(ASTVisitor *) override;
 
@@ -34,4 +33,4 @@ private:
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_UNARY_OPERATOR_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_UNARY_H

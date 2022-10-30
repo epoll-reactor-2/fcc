@@ -4,17 +4,16 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTBooleanLiteral.h"
+#include "FrontEnd/AST/ASTBool.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
-ASTBooleanLiteral::ASTBooleanLiteral(bool Value, unsigned LineNo,
-                                     unsigned ColumnNo)
+ASTBool::ASTBool(bool Value, unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_BOOLEAN_LITERAL, LineNo, ColumnNo), mValue(Value) {}
 
-void ASTBooleanLiteral::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTBool::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-bool ASTBooleanLiteral::Value() const { return mValue; }
+bool ASTBool::Value() const { return mValue; }
 
 } // namespace weak

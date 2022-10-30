@@ -4,17 +4,16 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_FLOATING_POINT_LITERAL_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_FLOATING_POINT_LITERAL_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_FLOAT_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_FLOAT_H
 
 #include "FrontEnd/AST/ASTNode.h"
 
 namespace weak {
 
-class ASTFloatingPointLiteral : public ASTNode {
+class ASTFloat : public ASTNode {
 public:
-  ASTFloatingPointLiteral(float Value, unsigned LineNo,
-                          unsigned ColumnNo);
+  ASTFloat(float Value, unsigned LineNo, unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 
@@ -26,4 +25,4 @@ private:
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_FLOATING_POINT_LITERAL_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_FLOAT_H

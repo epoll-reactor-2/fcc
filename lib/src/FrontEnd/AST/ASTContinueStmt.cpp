@@ -4,14 +4,14 @@
  * This file is distributed under the MIT license.
  */
 
-#include "FrontEnd/AST/ASTContinueStmt.h"
+#include "FrontEnd/AST/ASTContinue.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
-ASTContinueStmt::ASTContinueStmt(unsigned LineNo, unsigned ColumnNo)
+ASTContinue::ASTContinue(unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_CONTINUE_STMT, LineNo, ColumnNo) {}
 
-void ASTContinueStmt::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTContinue::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 } // namespace weak

@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_FRONTEND_PARSE_PARSER_H
 #define WEAK_COMPILER_FRONTEND_PARSE_PARSER_H
 
-#include "FrontEnd/AST/ASTCompoundStmt.h"
+#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/Lex/Token.h"
 #include <memory>
 #include <vector>
@@ -26,7 +26,7 @@ public:
   ///       AST by calling all destructors of compound statement
   ///       down recursively. Of course, each AST node responsible
   ///       to kill it's children.
-  std::unique_ptr<ASTCompoundStmt> Parse();
+  std::unique_ptr<ASTCompound> Parse();
 
 private:
   /// Function with or without body (prototype).
@@ -65,10 +65,10 @@ private:
   std::vector<ASTNode *> ParseParameterList();
 
   /// { < iteration-stmt >* }.
-  ASTCompoundStmt *ParseBlock();
+  ASTCompound *ParseBlock();
 
   /// Block of code with break and continue statements.
-  ASTCompoundStmt *ParseIterationBlock();
+  ASTCompound *ParseIterationBlock();
 
   /// Selection, iterative, jump, assignment statement
   /// or unary/binary operator.
@@ -80,11 +80,11 @@ private:
   /// For, while or do-while statement.
   ASTNode *ParseIterationStmt();
 
-  ASTNode *ParseForStmt();
+  ASTNode *ParseFor();
 
-  ASTNode *ParseWhileStmt();
+  ASTNode *ParseWhile();
 
-  ASTNode *ParseDoWhileStmt();
+  ASTNode *ParseDoWhile();
 
   /// ParseStmt() and break, continue.
   ASTNode *ParseLoopStmt();

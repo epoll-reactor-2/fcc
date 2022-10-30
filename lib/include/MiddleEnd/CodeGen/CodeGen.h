@@ -40,27 +40,27 @@ public:
 
 private:
   // Literals.
-  void Visit(const ASTBooleanLiteral *) override;
-  void Visit(const ASTCharLiteral *) override;
-  void Visit(const ASTIntegerLiteral *) override;
-  void Visit(const ASTFloatingPointLiteral *) override;
-  void Visit(const ASTStringLiteral *) override;
+  void Visit(const ASTBool *) override;
+  void Visit(const ASTChar *) override;
+  void Visit(const ASTNumber *) override;
+  void Visit(const ASTFloat *) override;
+  void Visit(const ASTString *) override;
 
   // Operators.
-  void Visit(const ASTBinaryOperator *) override;
-  void Visit(const ASTUnaryOperator *) override;
+  void Visit(const ASTBinary *) override;
+  void Visit(const ASTUnary *) override;
 
   // Inside-loop statements.
-  void Visit(const ASTBreakStmt *) override {}
-  void Visit(const ASTContinueStmt *) override {}
+  void Visit(const ASTBreak *) override {}
+  void Visit(const ASTContinue *) override {}
 
   // Loop statements.
-  void Visit(const ASTForStmt *) override;
-  void Visit(const ASTWhileStmt *) override;
-  void Visit(const ASTDoWhileStmt *) override;
+  void Visit(const ASTFor *) override;
+  void Visit(const ASTWhile *) override;
+  void Visit(const ASTDoWhile *) override;
 
   // Condition statements.
-  void Visit(const ASTIfStmt *) override;
+  void Visit(const ASTIf *) override;
 
   // Function statements.
   void Visit(const ASTFunctionDecl *) override;
@@ -75,8 +75,8 @@ private:
   // The rest.
   void Visit(const ASTArrayAccess *) override;
   void Visit(const ASTSymbol *) override;
-  void Visit(const ASTCompoundStmt *) override;
-  void Visit(const ASTReturnStmt *) override;
+  void Visit(const ASTCompound *) override;
+  void Visit(const ASTReturn *) override;
 
   /// Analyzed root AST node.
   ASTNode *mRoot;
