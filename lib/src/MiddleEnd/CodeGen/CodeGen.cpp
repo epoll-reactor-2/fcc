@@ -25,9 +25,9 @@ namespace {
 /// Create function header (without body) from AST.
 template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
 public:
-  FunctionBuilder(llvm::LLVMContext &C, llvm::Module &M,
+  FunctionBuilder(llvm::IRBuilder<> &I, llvm::Module &M,
                   const ASTFunctionDeclOrPrototype *Decl)
-      : mIRCtx(C), mIRModule(M), mDecl(Decl) {}
+      : mIRBuilder(I), mIRModule(M), mDecl(Decl) {}
 
   llvm::Function *BuildSignature() {
     llvm::FunctionType *Signature = CreateSignature();
@@ -45,7 +45,7 @@ public:
 
 private:
   llvm::FunctionType *CreateSignature() {
-    TypeResolver TypeResolver(mIRCtx);
+    TypeResolver TypeResolver(mIRBuilder);
     llvm::SmallVector<llvm::Type *, 16> ArgTypes;
 
     for (const auto &ArgAST : mDecl->Arguments())
@@ -53,7 +53,8 @@ private:
 
     llvm::FunctionType *Signature = llvm::FunctionType::get(
         /// Return type.
-        TypeResolver.Resolve(mDecl->ReturnType()),
+        TypeResolver.Resolve(mDecl->ReturnType(), mDecl->LineNo(),
+                             mDecl->ColumnNo()),
         /// Arguments.
         ArgTypes,
         /// Variadic parameters?
@@ -65,15 +66,16 @@ private:
   llvm::Type *ResolveParamType(const ASTNode *ArgAST) {
     AssertDeclaration(ArgAST);
 
-    TypeResolver TypeResolver(mIRCtx);
+    TypeResolver TypeResolver(mIRBuilder);
     if (ArgAST->Is(AST_VAR_DECL))
       /// Variable.
       return TypeResolver.ResolveExceptVoid(ArgAST);
 
     /// Array.
     const auto *ArrayDecl = static_cast<const ASTArrayDecl *>(ArgAST);
-    llvm::Type *UnderlyingType =
-        TypeResolver.ResolveExceptVoid(ArrayDecl->DataType());
+    llvm::Type *UnderlyingType = TypeResolver.ResolveExceptVoid(
+        ArrayDecl->DataType(), /*LocationAST=*/ArgAST);
+
     return llvm::PointerType::get(UnderlyingType, /*AddressSpace=*/0);
   }
 
@@ -88,7 +90,7 @@ private:
       weak::UnreachablePoint("wrong AST nodes passed as function parameters");
   }
 
-  llvm::LLVMContext &mIRCtx;
+  llvm::IRBuilder<> &mIRBuilder;
   llvm::Module &mIRModule;
   const ASTFunctionDeclOrPrototype *mDecl;
 };
@@ -432,7 +434,7 @@ void CodeGen::Visit(const ASTIfStmt *Stmt) {
 }
 
 void CodeGen::Visit(const ASTFunctionDecl *Decl) {
-  FunctionBuilder FunctionBuilder(mIRCtx, mIRModule, Decl);
+  FunctionBuilder FunctionBuilder(mIRBuilder, mIRModule, Decl);
 
   llvm::Function *Func = FunctionBuilder.BuildSignature();
   auto *CFGBlock = llvm::BasicBlock::Create(mIRCtx, "entry", Func);
@@ -485,27 +487,26 @@ void CodeGen::Visit(const ASTFunctionCall *Stmt) {
 }
 
 void CodeGen::Visit(const ASTFunctionPrototype *Stmt) {
-  FunctionBuilder FunctionBuilder(mIRCtx, mIRModule, Stmt);
+  FunctionBuilder FunctionBuilder(mIRBuilder, mIRModule, Stmt);
   FunctionBuilder.BuildSignature();
 }
 
 void CodeGen::Visit(const ASTArrayAccess *Stmt) {
-  llvm::AllocaInst *SymbolValue = mStorage.Lookup(Stmt->SymbolName());
-  if (!SymbolValue)
+  llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->SymbolName());
+  if (!Symbol)
     weak::CompileError(Stmt)
         << "Variable `" << Stmt->SymbolName() << "` not found";
 
-  mLastInstr =
-      mIRBuilder.CreateLoad(SymbolValue->getAllocatedType(), SymbolValue);
+  mLastInstr = mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
 
   llvm::Value *Array = mLastInstr;
   Stmt->Index()->Accept(this);
   llvm::Value *Index = mLastInstr;
 
-  if (Index->getType() != llvm::Type::getInt32Ty(mIRCtx))
+  if (Index->getType() != mIRBuilder.getInt32Ty())
     weak::CompileError(Stmt) << "Expected 32-bit integer as array index";
 
-  weak::AssertNotOutOfRange(Stmt, SymbolValue, Index);
+  weak::AssertNotOutOfRange(Stmt, Symbol, Index);
   /// If you have a question about this, please see
   /// https://llvm.org/docs/ElementPtr.html.
   llvm::Value *Zero = mIRBuilder.getInt32(0);
@@ -556,9 +557,10 @@ void CodeGen::Visit(const ASTReturnStmt *Stmt) {
 }
 
 void CodeGen::Visit(const ASTArrayDecl *Stmt) {
-  TypeResolver TypeResolver(mIRCtx);
+  TypeResolver TypeResolver(mIRBuilder);
 
-  llvm::Type *UnderlyingType = TypeResolver.Resolve(Stmt->DataType());
+  llvm::Type *UnderlyingType =
+      TypeResolver.Resolve(Stmt->DataType(), /*LocationAST=*/Stmt);
   /// \todo: Temporarily we get only first dimension as parameter and don't
   ///        do something else.
   llvm::AllocaInst *ArrayDecl = mIRBuilder.CreateAlloca(
@@ -597,9 +599,10 @@ void CodeGen::Visit(const ASTVarDecl *Decl) {
     return;
   }
 
-  TypeResolver TypeResolver(mIRCtx);
-  llvm::AllocaInst *VarDecl =
-      mIRBuilder.CreateAlloca(TypeResolver.ResolveExceptVoid(Decl->DataType()));
+  TypeResolver TypeResolver(mIRBuilder);
+  llvm::AllocaInst *VarDecl = mIRBuilder.CreateAlloca(
+      TypeResolver.ResolveExceptVoid(Decl->DataType(), /*LocationAST=*/Decl));
+
   mIRBuilder.CreateStore(mLastInstr, VarDecl);
   mStorage.Push(Decl->Name(), VarDecl);
 }

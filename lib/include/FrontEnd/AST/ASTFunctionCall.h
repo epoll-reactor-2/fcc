@@ -16,7 +16,7 @@ namespace weak {
 class ASTFunctionCall : public ASTNode {
 public:
   ASTFunctionCall(std::string &&Name, std::vector<ASTNode *> &&Arguments,
-                  unsigned LineNo = 0U, unsigned ColumnNo = 0U);
+                  unsigned LineNo, unsigned ColumnNo);
 
   ~ASTFunctionCall();
 

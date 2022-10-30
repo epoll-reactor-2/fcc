@@ -15,7 +15,7 @@ namespace weak {
 class ASTDoWhileStmt : public ASTNode {
 public:
   ASTDoWhileStmt(ASTCompoundStmt *Body, ASTNode *Condition,
-                 unsigned LineNo = 0U, unsigned ColumnNo = 0U);
+                 unsigned LineNo, unsigned ColumnNo);
 
   ~ASTDoWhileStmt();
 

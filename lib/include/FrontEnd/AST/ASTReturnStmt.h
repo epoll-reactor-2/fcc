@@ -13,8 +13,8 @@ namespace weak {
 
 class ASTReturnStmt : public ASTNode {
 public:
-  ASTReturnStmt(ASTNode *Operand, unsigned LineNo = 0U,
-                unsigned ColumnNo = 0U);
+  ASTReturnStmt(ASTNode *Operand, unsigned LineNo,
+                unsigned ColumnNo);
 
   ~ASTReturnStmt();
 

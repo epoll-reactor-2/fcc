@@ -19,8 +19,8 @@ class ASTFunctionDecl : public ASTNode {
 public:
   ASTFunctionDecl(TokenType ReturnType, std::string &&Name,
                   std::vector<ASTNode *> &&Arguments,
-                  ASTCompoundStmt *Body, unsigned LineNo = 0U,
-                  unsigned ColumnNo = 0U);
+                  ASTCompoundStmt *Body, unsigned LineNo,
+                  unsigned ColumnNo);
 
   ~ASTFunctionDecl();
 

@@ -13,8 +13,8 @@ namespace weak {
 
 class ASTFloatingPointLiteral : public ASTNode {
 public:
-  ASTFloatingPointLiteral(float Value, unsigned LineNo = 0U,
-                          unsigned ColumnNo = 0U);
+  ASTFloatingPointLiteral(float Value, unsigned LineNo,
+                          unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 

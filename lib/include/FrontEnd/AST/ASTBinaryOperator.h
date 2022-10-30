@@ -15,7 +15,7 @@ namespace weak {
 class ASTBinaryOperator : public ASTNode {
 public:
   ASTBinaryOperator(TokenType Operation, ASTNode *LHS, ASTNode *RHS,
-                    unsigned LineNo = 0U, unsigned ColumnNo = 0U);
+                    unsigned LineNo, unsigned ColumnNo);
 
   ~ASTBinaryOperator();
 

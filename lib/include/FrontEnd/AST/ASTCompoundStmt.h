@@ -14,8 +14,8 @@ namespace weak {
 
 class ASTCompoundStmt : public ASTNode {
 public:
-  ASTCompoundStmt(std::vector<ASTNode *> &&Stmts, unsigned LineNo = 0U,
-                  unsigned ColumnNo = 0U);
+  ASTCompoundStmt(std::vector<ASTNode *> &&Stmts, unsigned LineNo,
+                  unsigned ColumnNo);
 
   ~ASTCompoundStmt();
 

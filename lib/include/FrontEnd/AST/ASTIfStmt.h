@@ -15,8 +15,8 @@ namespace weak {
 class ASTIfStmt : public ASTNode {
 public:
   ASTIfStmt(ASTNode *Condition, ASTCompoundStmt *ThenBody,
-            ASTCompoundStmt *ElseBody, unsigned LineNo = 0U,
-            unsigned ColumnNo = 0U);
+            ASTCompoundStmt *ElseBody, unsigned LineNo,
+            unsigned ColumnNo);
 
   ~ASTIfStmt();
 

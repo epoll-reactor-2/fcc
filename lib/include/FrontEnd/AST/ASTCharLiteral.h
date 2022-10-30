@@ -13,8 +13,8 @@ namespace weak {
 
 class ASTCharLiteral : public ASTNode {
 public:
-  ASTCharLiteral(char Value, unsigned LineNo = 0U,
-                 unsigned ColumnNo = 0U);
+  ASTCharLiteral(char Value, unsigned LineNo,
+                 unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 

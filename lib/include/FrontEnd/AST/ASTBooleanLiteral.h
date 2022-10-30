@@ -13,8 +13,8 @@ namespace weak {
 
 class ASTBooleanLiteral : public ASTNode {
 public:
-  ASTBooleanLiteral(bool Value, unsigned LineNo = 0U,
-                    unsigned ColumnNo = 0U);
+  ASTBooleanLiteral(bool Value, unsigned LineNo,
+                    unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 

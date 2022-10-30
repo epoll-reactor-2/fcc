@@ -7,17 +7,15 @@
 #include "MiddleEnd/CodeGen/TypeResolver.h"
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "Utility/Diagnostic.h"
-#include "llvm/IR/DerivedTypes.h"
-#include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Type.h"
 
 namespace weak {
 
-TypeResolver::TypeResolver(llvm::LLVMContext &IRCtx) : mIRCtx(IRCtx) {}
+TypeResolver::TypeResolver(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
 
 const ASTVarDecl *TypeResolver::GetVarDecl(const ASTNode *Node) {
   if (!Node->Is(AST_VAR_DECL))
-    weak::CompileError(Node) << "Expected parameter";
+    weak::CompileError(Node) << "Expected declaration";
 
   const auto *Decl = static_cast<const ASTVarDecl *>(Node);
   return Decl;
@@ -27,21 +25,25 @@ llvm::Type *TypeResolver::Resolve(TokenType T, unsigned LineNo,
                                   unsigned ColumnNo) {
   switch (T) {
   case TOK_VOID:
-    return llvm::Type::getVoidTy(mIRCtx);
+    return mIRBuilder.getVoidTy();
   case TOK_CHAR:
-    return llvm::Type::getInt8Ty(mIRCtx);
+    return mIRBuilder.getInt8Ty();
   case TOK_INT:
-    return llvm::Type::getInt32Ty(mIRCtx);
+    return mIRBuilder.getInt32Ty();
   case TOK_BOOLEAN:
-    return llvm::Type::getInt1Ty(mIRCtx);
+    return mIRBuilder.getInt1Ty();
   case TOK_FLOAT:
-    return llvm::Type::getFloatTy(mIRCtx);
+    return mIRBuilder.getFloatTy();
   case TOK_STRING:
-    return llvm::Type::getInt8PtrTy(mIRCtx);
+    return mIRBuilder.getInt8PtrTy();
   default:
     weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
     weak::UnreachablePoint();
   }
+}
+
+llvm::Type *TypeResolver::Resolve(TokenType T, const ASTNode *LocationAST) {
+  return Resolve(T, LocationAST->LineNo(), LocationAST->ColumnNo());
 }
 
 llvm::Type *TypeResolver::Resolve(const ASTNode *Node) {
@@ -53,19 +55,24 @@ llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T, unsigned LineNo,
                                             unsigned ColumnNo) {
   switch (T) {
   case TOK_CHAR:
-    return llvm::Type::getInt8Ty(mIRCtx);
+    return mIRBuilder.getInt8Ty();
   case TOK_INT:
-    return llvm::Type::getInt32Ty(mIRCtx);
-  case TOK_FLOAT:
-    return llvm::Type::getFloatTy(mIRCtx);
+    return mIRBuilder.getInt32Ty();
   case TOK_BOOLEAN:
-    return llvm::Type::getInt1Ty(mIRCtx);
+    return mIRBuilder.getInt1Ty();
+  case TOK_FLOAT:
+    return mIRBuilder.getFloatTy();
   case TOK_STRING:
-    return llvm::Type::getInt8PtrTy(mIRCtx);
+    return mIRBuilder.getInt8PtrTy();
   default:
     weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
     weak::UnreachablePoint();
   }
+}
+
+llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T,
+                                            const ASTNode *LocationAST) {
+  return ResolveExceptVoid(T, LocationAST->LineNo(), LocationAST->ColumnNo());
 }
 
 llvm::Type *TypeResolver::ResolveExceptVoid(const ASTNode *Node) {

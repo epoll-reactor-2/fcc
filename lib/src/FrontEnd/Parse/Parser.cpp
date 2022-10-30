@@ -41,7 +41,7 @@ std::unique_ptr<ASTCompoundStmt> Parser::Parse() {
     }
   }
   return std::unique_ptr<ASTCompoundStmt>(
-      new ASTCompoundStmt(std::move(Stmts)));
+      new ASTCompoundStmt(std::move(Stmts), /*LineNo=*/0, /*ColumnNo=*/0));
 }
 
 ASTNode *Parser::ParseFunctionDecl() {

@@ -16,7 +16,7 @@ namespace weak {
 class ASTStructDecl : public ASTNode {
 public:
   ASTStructDecl(std::string Name, std::vector<ASTNode *> Decls,
-                unsigned LineNo = 0U, unsigned ColumnNo = 0U);
+                unsigned LineNo, unsigned ColumnNo);
 
   ~ASTStructDecl();
 

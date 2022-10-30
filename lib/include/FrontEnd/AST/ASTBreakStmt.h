@@ -13,7 +13,7 @@ namespace weak {
 
 class ASTBreakStmt : public ASTNode {
 public:
-  ASTBreakStmt(unsigned LineNo = 0U, unsigned ColumnNo = 0U);
+  ASTBreakStmt(unsigned LineNo, unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 };

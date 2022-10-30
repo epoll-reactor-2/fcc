@@ -17,8 +17,8 @@ public:
   enum UnaryType { PREFIX, POSTFIX } const PrefixOrPostfix;
 
   ASTUnaryOperator(UnaryType PrefixOrPostfix, TokenType Operation,
-                   ASTNode *Operand, unsigned LineNo = 0U,
-                   unsigned ColumnNo = 0U);
+                   ASTNode *Operand, unsigned LineNo,
+                   unsigned ColumnNo);
 
   ~ASTUnaryOperator();
 

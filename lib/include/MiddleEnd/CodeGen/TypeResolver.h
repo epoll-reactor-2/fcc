@@ -10,9 +10,9 @@
 #include "FrontEnd/AST/ASTNode.h"
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "FrontEnd/Lex/Token.h"
+#include "llvm/IR/IRBuilder.h"
 
 namespace llvm {
-class LLVMContext;
 class Type;
 } // namespace llvm
 
@@ -21,16 +21,21 @@ namespace weak {
 /// Helper class to translate frontend types to LLVM.
 class TypeResolver {
 public:
-  TypeResolver(llvm::LLVMContext &);
+  TypeResolver(llvm::IRBuilder<> &);
 
   /// Convert given parameter (including void) to corresponding LLVM type.
-  llvm::Type *Resolve(TokenType, unsigned LineNo = 0U, unsigned ColumnNo = 0U);
+  llvm::Type *Resolve(TokenType, unsigned LineNo, unsigned ColumnNo);
+  /// \copydoc TypeResolver::Resolve(TokenType, unsigned, unsigned)
+  llvm::Type *Resolve(TokenType, const ASTNode *LocationAST);
   /// \copydoc TypeResolver::Resolve(TokenType, unsigned, unsigned)
   llvm::Type *Resolve(const ASTNode *);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
-  llvm::Type *ResolveExceptVoid(TokenType, unsigned LineNo = 0U,
-                                unsigned ColumnNo = 0U);
+  llvm::Type *ResolveExceptVoid(TokenType, unsigned LineNo,
+                                unsigned ColumnNo);
+  /// \copydoc TypeResolver::ResolveExceptVoid(TokenType, unsigned,
+  /// unsigned)
+  llvm::Type *ResolveExceptVoid(TokenType, const ASTNode *LocationAST);
   /// \copydoc TypeResolver::ResolveExceptVoid(TokenType, unsigned,
   /// unsigned)
   llvm::Type *ResolveExceptVoid(const ASTNode *);
@@ -41,7 +46,7 @@ private:
   const ASTVarDecl *GetVarDecl(const ASTNode *);
 
   /// Reference to global LLVM stuff.
-  llvm::LLVMContext &mIRCtx;
+  llvm::IRBuilder<> &mIRBuilder;
 };
 
 } // namespace weak
