@@ -9,7 +9,6 @@
 
 #include "FrontEnd/Lex/Token.h"
 #include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
 
 namespace llvm {
 class Value;
@@ -24,7 +23,7 @@ namespace weak {
 /// Generator of operations on numeric data types.
 class ScalarExprEmitter {
 public:
-  ScalarExprEmitter(llvm::LLVMContext &, llvm::IRBuilder<> &);
+  ScalarExprEmitter(llvm::IRBuilder<> &);
 
   /// Emit operation supported by integral or floating points.
   ///
@@ -65,8 +64,6 @@ public:
                               llvm::Value *L, llvm::Value *R);
 
 private:
-  /// Reference to global LLVM stuff.
-  llvm::LLVMContext &mIRCtx;
   /// Reference to global LLVM stuff.
   llvm::IRBuilder<> &mIRBuilder;
 };

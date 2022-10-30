@@ -208,7 +208,7 @@ void CodeGen::Visit(const ASTStringLiteral *Stmt) {
   mLastInstr = Builder.BuildLiteral(Stmt->Value());
 }
 
-static TokenType ResolveAssignmentOperation(TokenType T) {
+static TokenType ResolveAssignmentOp(TokenType T) {
   switch (T) {
   case TOK_MUL_ASSIGN:
     return TOK_STAR;
@@ -230,6 +230,17 @@ static TokenType ResolveAssignmentOperation(TokenType T) {
     return TOK_BIT_OR;
   case TOK_XOR_ASSIGN:
     return TOK_XOR;
+  default:
+    weak::UnreachablePoint("Should not reach here");
+  }
+}
+
+static TokenType ResolveUnaryOp(TokenType T) {
+  switch (T) {
+  case TOK_INC:
+    return TOK_PLUS;
+  case TOK_DEC:
+    return TOK_MINUS;
   default:
     weak::UnreachablePoint("Should not reach here");
   }
@@ -257,7 +268,7 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
 
   weak::AssertSame(Stmt, L, R);
 
-  ScalarExprEmitter ScalarEmitter(mIRCtx, mIRBuilder);
+  ScalarExprEmitter ScalarEmitter(mIRBuilder);
 
   switch (auto T = Stmt->Operation()) {
   case TOK_ASSIGN: {
@@ -277,7 +288,7 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
   case TOK_XOR_ASSIGN: {
     auto *Assignment = static_cast<const ASTSymbol *>(Stmt->LHS());
     llvm::AllocaInst *Variable = mStorage.Lookup(Assignment->Name());
-    TokenType Op = ResolveAssignmentOperation(T);
+    TokenType Op = ResolveAssignmentOp(T);
     mLastInstr = ScalarEmitter.EmitBinOp(Stmt, Op, L, R);
     mIRBuilder.CreateStore(mLastInstr, Variable);
     break;
@@ -312,33 +323,35 @@ void CodeGen::Visit(const ASTBinaryOperator *Stmt) {
 }
 
 void CodeGen::Visit(const ASTUnaryOperator *Stmt) {
-  switch (Stmt->Operand()->Type()) {
-  case AST_SYMBOL:
-  case AST_ARRAY_ACCESS:
-    break;
-  default:
+  if (auto *Op = Stmt->Operand();
+      !Op->Is(AST_SYMBOL) && !Op->Is(AST_ARRAY_ACCESS))
     weak::CompileError(Stmt)
         << "Variable as argument of unary operator expected";
-  }
 
   Stmt->Operand()->Accept(this);
+  llvm::Value *Op = mLastInstr;
+  llvm::Value *ArrayPtr{nullptr};
+  if (Stmt->Operand()->Is(AST_ARRAY_ACCESS)) {
+    ArrayPtr = Op;
+    Op = mIRBuilder.CreateLoad(Op->getType()->getPointerElementType(), Op);
+  }
 
-  llvm::Value *Step = mIRBuilder.getInt32(1);
+  ScalarExprEmitter ScalarEmitter(mIRBuilder);
 
-  const auto *SymbolOperand = static_cast<const ASTSymbol *>(Stmt->Operand());
-
-  switch (Stmt->Operation()) {
+  switch (auto T = Stmt->Operation()) {
   case TOK_INC:
-    mLastInstr = mIRBuilder.CreateAdd(mLastInstr, Step);
-    break;
   case TOK_DEC:
-    mLastInstr = mIRBuilder.CreateSub(mLastInstr, Step);
+    mLastInstr = ScalarEmitter.EmitBinOp(Stmt, ResolveUnaryOp(T), Op,
+                                         mIRBuilder.getInt32(1));
     break;
   default:
     weak::UnreachablePoint("Should not reach here");
   } // switch
 
-  mIRBuilder.CreateStore(mLastInstr, mStorage.Lookup(SymbolOperand->Name()));
+  auto *Symbol = static_cast<ASTSymbol *>(Stmt->Operand());
+
+  mIRBuilder.CreateStore(mLastInstr,
+                         ArrayPtr ? ArrayPtr : mStorage.Lookup(Symbol->Name()));
 }
 
 void CodeGen::Visit(const ASTForStmt *Stmt) {

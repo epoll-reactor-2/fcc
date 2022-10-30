@@ -17,8 +17,7 @@ static std::string TypeToString(llvm::Type *T) {
 
 namespace weak {
 
-ScalarExprEmitter::ScalarExprEmitter(llvm::LLVMContext &C, llvm::IRBuilder<> &I)
-    : mIRCtx(C), mIRBuilder(I) {}
+ScalarExprEmitter::ScalarExprEmitter(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
 
 llvm::Value *ScalarExprEmitter::EmitBinOp(const ASTNode *InformAST, TokenType T,
                                           llvm::Value *L, llvm::Value *R) {
