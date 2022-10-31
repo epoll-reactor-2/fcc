@@ -48,14 +48,13 @@ ASTNode *Parser::ParseFunctionDecl() {
   /// Guaranteed data type, no checks needed.
   const Token &ReturnType = ParseReturnType();
   const Token &FunctionName = PeekNext();
-  std::vector<ASTNode *> ParameterList;
 
   if (FunctionName.Type != TOK_SYMBOL)
     weak::CompileError(FunctionName.LineNo, FunctionName.ColumnNo)
         << "Function name expected";
 
   Require('(');
-  ParameterList = ParseParameterList();
+  std::vector<ASTNode *> ParameterList = ParseParameterList();
   Require(')');
 
   if (PeekCurrent().Is('{')) {

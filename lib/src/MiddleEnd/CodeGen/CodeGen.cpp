@@ -64,8 +64,6 @@ private:
   }
 
   llvm::Type *ResolveParamType(const ASTNode *ArgAST) {
-    AssertIsDecl(ArgAST);
-
     TypeResolver TypeResolver(mIRBuilder);
     if (ArgAST->Is(AST_VAR_DECL))
       /// Variable.
@@ -80,14 +78,8 @@ private:
   }
 
   const std::string &ExtractSymbol(const ASTNode *Node) {
-    AssertIsDecl(Node);
     const auto *VarDecl = static_cast<const ASTVarDecl *>(Node);
     return VarDecl->Name();
-  }
-
-  void AssertIsDecl(const ASTNode *Node) {
-    if (!Node->Is(AST_VAR_DECL) && !Node->Is(AST_ARRAY_DECL))
-      Unreachable();
   }
 
   llvm::IRBuilder<> &mIRBuilder;
