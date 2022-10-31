@@ -142,7 +142,7 @@ void Sema::Visit(const ASTFunctionDecl *Decl) {
   mStorage->StartScope();
   /// This is to have function in recursive calls.
   mStorage->Push(Decl->Name(), Decl);
-  for (ASTNode *A : Decl->Arguments())
+  for (ASTNode *A : Decl->Args())
     A->Accept(this);
 
   Decl->Body()->Accept(this);
@@ -170,22 +170,22 @@ void Sema::Visit(const ASTFunctionCall *Stmt) {
   const auto *Decl = static_cast<const ASTFunctionDecl *>(Func);
 
   {
-    auto CallArgsSize = Stmt->Arguments().size();
-    auto DeclArgsSize = Decl->Arguments().size();
+    auto CallArgsSize = Stmt->Args().size();
+    auto DeclArgsSize = Decl->Args().size();
 
     if (DeclArgsSize != CallArgsSize)
       weak::CompileError(Stmt) << "Arguments size mismatch: " << CallArgsSize
                                << " got, but " << DeclArgsSize << " expected";
   }
 
-  for (ASTNode *A : Stmt->Arguments())
+  for (ASTNode *A : Stmt->Args())
     A->Accept(this);
 }
 
 void Sema::Visit(const ASTFunctionPrototype *Stmt) {
   AssertIsNotDeclared(Stmt->Name(), Stmt);
 
-  for (ASTNode *A : Stmt->Arguments())
+  for (ASTNode *A : Stmt->Args())
     A->Accept(this);
 
   mStorage->Push(Stmt->Name(), Stmt);

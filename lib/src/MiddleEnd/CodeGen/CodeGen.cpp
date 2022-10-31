@@ -36,9 +36,14 @@ public:
     llvm::Function *Func = llvm::Function::Create(
         Signature, llvm::Function::ExternalLinkage, mDecl->Name(), &mIRModule);
 
+    auto GetSymbol = [](const ASTNode *Node) {
+      const auto *VarDecl = static_cast<const ASTVarDecl *>(Node);
+      return VarDecl->Name();
+    };
+
     unsigned Idx{0U};
     for (llvm::Argument &Arg : Func->args())
-      Arg.setName(ExtractSymbol(mDecl->Arguments()[Idx++]));
+      Arg.setName(GetSymbol(mDecl->Args()[Idx++]));
 
     return Func;
   }
@@ -48,7 +53,7 @@ private:
     TypeResolver TypeResolver(mIRBuilder);
     llvm::SmallVector<llvm::Type *, 16> ArgTypes;
 
-    for (const auto &ArgAST : mDecl->Arguments())
+    for (const auto &ArgAST : mDecl->Args())
       ArgTypes.push_back(ResolveParamType(ArgAST));
 
     llvm::FunctionType *Signature = llvm::FunctionType::get(
@@ -77,11 +82,6 @@ private:
     return llvm::PointerType::get(UnderlyingType, /*AddressSpace=*/0);
   }
 
-  const std::string &ExtractSymbol(const ASTNode *Node) {
-    const auto *VarDecl = static_cast<const ASTVarDecl *>(Node);
-    return VarDecl->Name();
-  }
-
   llvm::IRBuilder<> &mIRBuilder;
   llvm::Module &mIRModule;
   const ASTFunctionDeclOrPrototype *mDecl;
@@ -99,7 +99,7 @@ public:
   StringBuilder(llvm::Module &M, llvm::IRBuilder<> &I)
       : mIRModule(M), mIRBuilder(I) {}
 
-  llvm::Constant *BuildLiteral(std::string_view Data) {
+  llvm::Value *BuildLiteral(std::string_view Data) {
     llvm::Constant *DataArray = CreateDataArray(Data);
 
     llvm::GlobalVariable *GlobalVar = new llvm::GlobalVariable(
@@ -120,14 +120,12 @@ private:
 
     /// Since we are working with libc, we are expecting, that all strings
     /// will be ended with '\0'.
-    Chars.push_back(CreateNullTerminator());
+    Chars.push_back(mIRBuilder.getInt8('\0'));
 
     return llvm::ConstantArray::get(
         llvm::ArrayType::get(mIRBuilder.getInt8Ty(), Chars.size()),
         std::move(Chars));
   }
-
-  llvm::Constant *CreateNullTerminator() { return mIRBuilder.getInt8('\0'); }
 
   llvm::Module &mIRModule;
   llvm::IRBuilder<> &mIRBuilder;
@@ -432,7 +430,7 @@ void CodeGen::Visit(const ASTFunctionDecl *Decl) {
 
 void CodeGen::Visit(const ASTFunctionCall *Stmt) {
   llvm::Function *Callee = mIRModule.getFunction(Stmt->Name());
-  const auto &FunArgs = Stmt->Arguments();
+  const auto &FunArgs = Stmt->Args();
 
   llvm::SmallVector<llvm::Value *, 16> Args;
   for (size_t I = 0; I < FunArgs.size(); ++I) {

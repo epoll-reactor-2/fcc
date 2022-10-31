@@ -11,14 +11,14 @@
 namespace weak {
 
 ASTFunctionDecl::ASTFunctionDecl(TokenType ReturnType, std::string &&Name,
-                                 std::vector<ASTNode *> &&Arguments,
+                                 std::vector<ASTNode *> &&Args,
                                  ASTCompound *Body, unsigned LineNo,
                                  unsigned ColumnNo)
     : ASTNode(AST_FUNCTION_DECL, LineNo, ColumnNo), mReturnType(ReturnType),
-      mName(std::move(Name)), mArguments(std::move(Arguments)), mBody(Body) {}
+      mName(std::move(Name)), mArgs(std::move(Args)), mBody(Body) {}
 
 ASTFunctionDecl::~ASTFunctionDecl() {
-  for (ASTNode *Arg : mArguments)
+  for (ASTNode *Arg : mArgs)
     delete Arg;
   delete mBody;
 }
@@ -29,9 +29,7 @@ TokenType ASTFunctionDecl::ReturnType() const { return mReturnType; }
 
 const std::string &ASTFunctionDecl::Name() const { return mName; }
 
-const std::vector<ASTNode *> &ASTFunctionDecl::Arguments() const {
-  return mArguments;
-}
+const std::vector<ASTNode *> &ASTFunctionDecl::Args() const { return mArgs; }
 
 ASTCompound *ASTFunctionDecl::Body() const { return mBody; }
 

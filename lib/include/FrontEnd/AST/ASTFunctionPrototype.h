@@ -18,7 +18,7 @@ namespace weak {
 class ASTFunctionPrototype : public ASTNode {
 public:
   ASTFunctionPrototype(TokenType ReturnType, std::string &&Name,
-                       std::vector<ASTNode *> &&Arguments, unsigned LineNo,
+                       std::vector<ASTNode *> &&Args, unsigned LineNo,
                        unsigned ColumnNo);
 
   ~ASTFunctionPrototype();
@@ -27,12 +27,12 @@ public:
 
   TokenType ReturnType() const;
   const std::string &Name() const;
-  const std::vector<ASTNode *> &Arguments() const;
+  const std::vector<ASTNode *> &Args() const;
 
 private:
   TokenType mReturnType;
   std::string mName;
-  std::vector<ASTNode *> mArguments;
+  std::vector<ASTNode *> mArgs;
 };
 
 } // namespace weak

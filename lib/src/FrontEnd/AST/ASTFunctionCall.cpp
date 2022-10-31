@@ -13,10 +13,10 @@ ASTFunctionCall::ASTFunctionCall(std::string &&Name,
                                  std::vector<ASTNode *> &&Arguments,
                                  unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_FUNCTION_CALL, LineNo, ColumnNo), mName(std::move(Name)),
-      mArguments(std::move(Arguments)) {}
+      mArgs(std::move(Arguments)) {}
 
 ASTFunctionCall::~ASTFunctionCall() {
-  for (ASTNode *Arg : mArguments)
+  for (ASTNode *Arg : mArgs)
     delete Arg;
 }
 
@@ -24,8 +24,6 @@ void ASTFunctionCall::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 const std::string &ASTFunctionCall::Name() const { return mName; }
 
-const std::vector<ASTNode *> &ASTFunctionCall::Arguments() const {
-  return mArguments;
-}
+const std::vector<ASTNode *> &ASTFunctionCall::Args() const { return mArgs; }
 
 } // namespace weak

@@ -18,7 +18,7 @@ namespace weak {
 class ASTFunctionDecl : public ASTNode {
 public:
   ASTFunctionDecl(TokenType ReturnType, std::string &&Name,
-                  std::vector<ASTNode *> &&Arguments, ASTCompound *Body,
+                  std::vector<ASTNode *> &&Args, ASTCompound *Body,
                   unsigned LineNo, unsigned ColumnNo);
 
   ~ASTFunctionDecl();
@@ -27,13 +27,13 @@ public:
 
   TokenType ReturnType() const;
   const std::string &Name() const;
-  const std::vector<ASTNode *> &Arguments() const;
+  const std::vector<ASTNode *> &Args() const;
   ASTCompound *Body() const;
 
 private:
   TokenType mReturnType;
   std::string mName;
-  std::vector<ASTNode *> mArguments;
+  std::vector<ASTNode *> mArgs;
   ASTCompound *mBody;
 };
 

@@ -281,7 +281,7 @@ private:
                      /*NewLineNeeded=*/true);
 
     mIndent += 2;
-    for (const auto &Argument : FunctionDecl->Arguments()) {
+    for (const auto &Argument : FunctionDecl->Args()) {
       PrintIndent();
       Argument->Accept(this);
     }
@@ -308,7 +308,7 @@ private:
                      /*NewLineNeeded=*/true);
 
     mIndent += 2;
-    for (const auto &Argument : FunctionCall->Arguments()) {
+    for (const auto &Argument : FunctionCall->Args()) {
       PrintIndent();
       Argument->Accept(this);
     }
@@ -328,7 +328,7 @@ private:
                      /*NewLineNeeded=*/true);
 
     mIndent += 2;
-    for (const auto &Argument : FunctionPrototype->Arguments()) {
+    for (const auto &Argument : FunctionPrototype->Args()) {
       PrintIndent();
       Argument->Accept(this);
     }
