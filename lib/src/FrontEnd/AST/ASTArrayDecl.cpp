@@ -9,17 +9,17 @@
 
 namespace weak {
 
-ASTArrayDecl::ASTArrayDecl(TokenType DataType, std::string SymbolName,
+ASTArrayDecl::ASTArrayDecl(TokenType DataType, std::string Name,
                            std::vector<unsigned> ArityList, unsigned LineNo,
                            unsigned ColumnNo)
     : ASTNode(AST_ARRAY_DECL, LineNo, ColumnNo), mDataType(DataType),
-      mSymbolName(std::move(SymbolName)), mArityList(std::move(ArityList)) {}
+      mName(std::move(Name)), mArityList(std::move(ArityList)) {}
 
 void ASTArrayDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
 TokenType ASTArrayDecl::DataType() const { return mDataType; }
 
-const std::string &ASTArrayDecl::SymbolName() const { return mSymbolName; }
+const std::string &ASTArrayDecl::Name() const { return mName; }
 
 const std::vector<unsigned> &ASTArrayDecl::ArityList() const {
   return mArityList;

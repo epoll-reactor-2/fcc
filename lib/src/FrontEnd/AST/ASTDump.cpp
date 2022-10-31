@@ -41,7 +41,7 @@ private:
   void Visit(const ASTArrayAccess *Decl) override {
     PrintWithTextPos("ArrayAccess", Decl, /*NewLineNeeded=*/false);
 
-    mStream << Decl->SymbolName() << std::endl;
+    mStream << Decl->Name() << std::endl;
 
     mIndent += 2;
     PrintIndent();
@@ -56,7 +56,7 @@ private:
     mStream << TokenToString(Decl->DataType()) << " "
             << IntegerRangeToString(ArityList.cbegin(), ArityList.cend())
             << " ";
-    mStream << Decl->SymbolName() << std::endl;
+    mStream << Decl->Name() << std::endl;
   }
 
   void Visit(const ASTBinary *Binary) override {

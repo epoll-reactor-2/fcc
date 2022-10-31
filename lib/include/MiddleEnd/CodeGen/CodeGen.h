@@ -19,10 +19,12 @@ namespace weak {
 
 /// \brief LLVM IR generator.
 ///
+/// \note Requires analyzed by weak::Sema AST.
+///
 /// Implemented as AST visitor because it still does not operates on CFG.
 class CodeGen : private ASTVisitor {
 public:
-  CodeGen(ASTNode *TheRoot);
+  CodeGen(ASTNode *Root);
 
   /// Convert AST to LLVM IR starting from root node (usually CompoundStmt).
   void CreateCode();

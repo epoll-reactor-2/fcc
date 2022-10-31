@@ -32,7 +32,7 @@ llvm::Value *ScalarExprEmitter::EmitBinOp(const ASTNode *InformAST, TokenType T,
   weak::CompileError(InformAST)
       << "Cannot emit binary instruction, invalid operands: "
       << TypeToString(L->getType()) << " and " << TypeToString(R->getType());
-  weak::UnreachablePoint();
+  Unreachable();
 }
 
 llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(const ASTNode *InformAST,
@@ -76,7 +76,7 @@ llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(const ASTNode *InformAST,
   default:
     weak::CompileError(InformAST)
         << "Cannot apply `" << weak::TokenToString(T) << "` to integers";
-    weak::UnreachablePoint();
+    Unreachable();
   } // switch
 }
 
@@ -111,7 +111,7 @@ llvm::Value *ScalarExprEmitter::EmitFloatBinOp(const ASTNode *InformAST,
   default:
     weak::CompileError(InformAST)
         << "Cannot apply `" << TokenToString(T) << "` to floats";
-    weak::UnreachablePoint();
+    Unreachable();
   } // switch
 }
 

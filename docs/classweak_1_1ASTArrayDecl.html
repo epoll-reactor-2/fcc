@@ -76,17 +76,17 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6685dbe0ce5ac63640179c03f3b38ecd"><td class="memItemLeft" align="right" valign="top"><a id="a6685dbe0ce5ac63640179c03f3b38ecd" name="a6685dbe0ce5ac63640179c03f3b38ecd"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTArrayDecl</b> (TokenType DataType, std::string SymbolName, std::vector&lt; unsigned &gt; ArityList, unsigned LineNo, unsigned ColumnNo)</td></tr>
-<tr class="separator:a6685dbe0ce5ac63640179c03f3b38ecd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c771184b274d3c8dc8c6024e071069f"><td class="memItemLeft" align="right" valign="top"><a id="a4c771184b274d3c8dc8c6024e071069f" name="a4c771184b274d3c8dc8c6024e071069f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTArrayDecl</b> (TokenType DataType, std::string Name, std::vector&lt; unsigned &gt; ArityList, unsigned LineNo, unsigned ColumnNo)</td></tr>
+<tr class="separator:a4c771184b274d3c8dc8c6024e071069f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae8c0d25f9fc90d2a37eae3e9f306fe99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTArrayDecl.html#ae8c0d25f9fc90d2a37eae3e9f306fe99">Accept</a> (<a class="el" href="classweak_1_1ASTVisitor.html">ASTVisitor</a> *) override</td></tr>
 <tr class="separator:ae8c0d25f9fc90d2a37eae3e9f306fe99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abaad353d6d40aae99870c3091e7cf665"><td class="memItemLeft" align="right" valign="top"><a id="abaad353d6d40aae99870c3091e7cf665" name="abaad353d6d40aae99870c3091e7cf665"></a>
 TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>DataType</b> () const</td></tr>
 <tr class="separator:abaad353d6d40aae99870c3091e7cf665"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f4925b6c2f6b6e444e44ac289f83afd"><td class="memItemLeft" align="right" valign="top"><a id="a1f4925b6c2f6b6e444e44ac289f83afd" name="a1f4925b6c2f6b6e444e44ac289f83afd"></a>
-const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>SymbolName</b> () const</td></tr>
-<tr class="separator:a1f4925b6c2f6b6e444e44ac289f83afd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74c4fcefa04f4e3efa156df73943db61"><td class="memItemLeft" align="right" valign="top"><a id="a74c4fcefa04f4e3efa156df73943db61" name="a74c4fcefa04f4e3efa156df73943db61"></a>
+const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Name</b> () const</td></tr>
+<tr class="separator:a74c4fcefa04f4e3efa156df73943db61"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a009cc446f691565635e69b7c51e914c2"><td class="memItemLeft" align="right" valign="top"><a id="a009cc446f691565635e69b7c51e914c2" name="a009cc446f691565635e69b7c51e914c2"></a>
 const std::vector&lt; unsigned &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ArityList</b> () const</td></tr>
 <tr class="separator:a009cc446f691565635e69b7c51e914c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -113,10 +113,10 @@ Private Attributes</h2></td></tr>
 TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>mDataType</b></td></tr>
 <tr class="memdesc:a9e9c280112f217b6bb080cec7fcfb293"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data type of array. <br /></td></tr>
 <tr class="separator:a9e9c280112f217b6bb080cec7fcfb293"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a424c8391cbe8e9ec5935940e42a22e33"><td class="memItemLeft" align="right" valign="top"><a id="a424c8391cbe8e9ec5935940e42a22e33" name="a424c8391cbe8e9ec5935940e42a22e33"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>mSymbolName</b></td></tr>
-<tr class="memdesc:a424c8391cbe8e9ec5935940e42a22e33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variable name. <br /></td></tr>
-<tr class="separator:a424c8391cbe8e9ec5935940e42a22e33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a259260b91c063d81ef542fd9c41de220"><td class="memItemLeft" align="right" valign="top"><a id="a259260b91c063d81ef542fd9c41de220" name="a259260b91c063d81ef542fd9c41de220"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>mName</b></td></tr>
+<tr class="memdesc:a259260b91c063d81ef542fd9c41de220"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variable name. <br /></td></tr>
+<tr class="separator:a259260b91c063d81ef542fd9c41de220"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17e3bfcae59eb6a95da0e36b83bd0487"><td class="memItemLeft" align="right" valign="top">std::vector&lt; unsigned &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTArrayDecl.html#a17e3bfcae59eb6a95da0e36b83bd0487">mArityList</a></td></tr>
 <tr class="separator:a17e3bfcae59eb6a95da0e36b83bd0487"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">

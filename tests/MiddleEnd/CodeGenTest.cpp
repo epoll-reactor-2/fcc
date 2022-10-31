@@ -1,6 +1,7 @@
 #include "MiddleEnd/CodeGen/CodeGen.h"
 #include "FrontEnd/Lex/Lexer.h"
 #include "FrontEnd/Parse/Parser.h"
+#include "FrontEnd/Sema/Sema.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "TestHelpers.h"
 
@@ -17,9 +18,11 @@ int RunAndGetExitCode(const std::string &TargetPath) {
   return WEXITSTATUS(code);
 }
 
-void RunTestOnValidCode(weak::CodeGen &CG, const std::string &Program,
+/// There semantic analysis expect to be correct.
+void RunTestOnValidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &Program,
                         const std::string &PathToBin);
-void RunTestOnInvalidCode(weak::CodeGen &CG, const std::string &Program);
+/// There semantic or other analysis should emit error.
+void RunTestOnInvalidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &Program);
 
 void RunTest(std::string_view Path, bool IsValid) {
   llvm::outs() << "Testing file " << Path << "... ";
@@ -30,6 +33,7 @@ void RunTest(std::string_view Path, bool IsValid) {
   auto Tokens = Lex.Analyze();
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
+  weak::Sema Sema(AST.get());
 
   weak::CodeGen CG(AST.get());
 
@@ -37,13 +41,15 @@ void RunTest(std::string_view Path, bool IsValid) {
   PathToBin = PathToBin.substr(0, PathToBin.find_first_of('.'));
 
   if (IsValid)
-    RunTestOnValidCode(CG, Program, PathToBin);
+    RunTestOnValidCode(Sema, CG, Program, PathToBin);
   else
-    RunTestOnInvalidCode(CG, Program);
+    RunTestOnInvalidCode(Sema, CG, Program);
 }
 
-void RunTestOnValidCode(weak::CodeGen &CG, const std::string &Program,
+void RunTestOnValidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &Program,
                         const std::string &PathToBin) {
+  Sema.Analyze();
+
   if (Program.substr(0, 3) != "// ") {
     llvm::errs() << "Expected planned exit code.";
     exit(-1);
@@ -65,7 +71,7 @@ void RunTestOnValidCode(weak::CodeGen &CG, const std::string &Program,
   }
 }
 
-void RunTestOnInvalidCode(weak::CodeGen &CG, const std::string &Program) {
+void RunTestOnInvalidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &Program) {
   if (Program.substr(0, 3) != "// ") {
     llvm::errs() << "Expected comment with error message.";
     exit(-1);
@@ -75,6 +81,7 @@ void RunTestOnInvalidCode(weak::CodeGen &CG, const std::string &Program) {
       "// "sv.length(), Program.find_first_of('\n') - "// "sv.length());
 
   try {
+    Sema.Analyze();
     CG.CreateCode();
     llvm::errs() << "Expected error";
     exit(-1);

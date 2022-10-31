@@ -7,6 +7,7 @@
 #ifndef WEAK_COMPILER_UTILITY_DIAGNOSTIC_H
 #define WEAK_COMPILER_UTILITY_DIAGNOSTIC_H
 
+#include <cstdlib>
 #include <ostream>
 
 struct Diagnostic;
@@ -27,8 +28,11 @@ struct OstreamRAII {
   std::ostream &operator<<(const char *);
 };
 
-/// Throw an exception with given message.
-[[noreturn]] void UnreachablePoint(std::string = "");
+#define Unreachable()                                                          \
+  {                                                                            \
+    printf("Unreachable point reached at %s:L%d", __FILE__, __LINE__);         \
+    abort();                                                                   \
+  }
 
 /// Print diagnostic message with WARN flag.
 OstreamRAII CompileWarning();

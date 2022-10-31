@@ -29,11 +29,6 @@ struct Diagnostic {
   static inline std::ostringstream ErrBuf;
 };
 
-void weak::UnreachablePoint(std::string Msg) {
-  std::string ErrMsg = "Unreachable point reached: " + Msg + '\n';
-  throw std::runtime_error(ErrMsg);
-}
-
 weak::OstreamRAII::~OstreamRAII() noexcept(false) {
   std::string Buf = DiagImpl->ErrBuf.str();
 

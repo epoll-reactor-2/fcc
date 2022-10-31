@@ -179,7 +179,7 @@ weak::TokenType weak::CharToToken(char T) {
   case ')':
     return TOK_CLOSE_PAREN;
   default:
-    weak::UnreachablePoint("Cannot convert `" + std::string{T} + "` to token");
+    Unreachable();
   }
 }
 

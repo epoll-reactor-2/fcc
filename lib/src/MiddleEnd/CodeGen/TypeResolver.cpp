@@ -38,7 +38,7 @@ llvm::Type *TypeResolver::Resolve(TokenType T, unsigned LineNo,
     return mIRBuilder.getInt8PtrTy();
   default:
     weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
-    weak::UnreachablePoint();
+    Unreachable();
   }
 }
 
@@ -66,7 +66,7 @@ llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T, unsigned LineNo,
     return mIRBuilder.getInt8PtrTy();
   default:
     weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
-    weak::UnreachablePoint();
+    Unreachable();
   }
 }
 

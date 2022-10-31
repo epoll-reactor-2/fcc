@@ -87,7 +87,7 @@ private:
 
   void AssertIsDecl(const ASTNode *Node) {
     if (!Node->Is(AST_VAR_DECL) && !Node->Is(AST_ARRAY_DECL))
-      weak::UnreachablePoint("wrong AST nodes passed as function parameters");
+      Unreachable();
   }
 
   llvm::IRBuilder<> &mIRBuilder;
@@ -143,8 +143,8 @@ private:
 
 } // namespace
 
-CodeGen::CodeGen(ASTNode *TheRoot)
-    : mRoot(TheRoot), mStorage(), mLastInstr(nullptr), mIRCtx(),
+CodeGen::CodeGen(ASTNode *Root)
+    : mRoot(Root), mStorage(), mLastInstr(nullptr), mIRCtx(),
       mIRModule("LLVM Module", mIRCtx), mIRBuilder(mIRCtx) {}
 
 void CodeGen::CreateCode() { mRoot->Accept(this); }
@@ -194,7 +194,7 @@ static TokenType ResolveAssignmentOp(TokenType T) {
   case TOK_XOR_ASSIGN:
     return TOK_XOR;
   default:
-    weak::UnreachablePoint("Should not reach here");
+    Unreachable();
   }
 }
 
@@ -205,7 +205,7 @@ static TokenType ResolveUnaryOp(TokenType T) {
   case TOK_DEC:
     return TOK_MINUS;
   default:
-    weak::UnreachablePoint("Should not reach here");
+    Unreachable();
   }
 }
 
@@ -281,18 +281,12 @@ void CodeGen::Visit(const ASTBinary *Stmt) {
     mLastInstr = ScalarEmitter.EmitBinOp(Stmt, T, L, R);
     break;
   default:
-    weak::UnreachablePoint(
-        "Should not reach here. Operators are checked by parser.");
+    Unreachable();
     break;
   } // switch
 }
 
 void CodeGen::Visit(const ASTUnary *Stmt) {
-  if (auto *Op = Stmt->Operand();
-      !Op->Is(AST_SYMBOL) && !Op->Is(AST_ARRAY_ACCESS))
-    weak::CompileError(Stmt)
-        << "Variable as argument of unary operator expected";
-
   Stmt->Operand()->Accept(this);
   llvm::Value *Op = mLastInstr;
   llvm::Value *ArrayPtr{nullptr};
@@ -311,7 +305,7 @@ void CodeGen::Visit(const ASTUnary *Stmt) {
                                          mIRBuilder.getInt32(1));
     break;
   default:
-    weak::UnreachablePoint("Should not reach here");
+    Unreachable();
   }
 
   auto *Symbol = static_cast<ASTSymbol *>(Stmt->Operand());
@@ -446,15 +440,7 @@ void CodeGen::Visit(const ASTFunctionDecl *Decl) {
 
 void CodeGen::Visit(const ASTFunctionCall *Stmt) {
   llvm::Function *Callee = mIRModule.getFunction(Stmt->Name());
-  if (!Callee)
-    weak::CompileError(Stmt) << "Function `" << Stmt->Name() << "` not found";
-
   const auto &FunArgs = Stmt->Arguments();
-
-  if (Callee->arg_size() != FunArgs.size())
-    weak::CompileError(Stmt)
-        << "Arguments size mismatch: " << FunArgs.size() << " got, but "
-        << Callee->arg_size() << " expected";
 
   llvm::SmallVector<llvm::Value *, 16> Args;
   for (size_t I = 0; I < FunArgs.size(); ++I) {
@@ -464,9 +450,7 @@ void CodeGen::Visit(const ASTFunctionCall *Stmt) {
 
     auto *InstrType = mLastInstr->getType();
     auto *ExpectedType = Callee->getArg(I)->getType();
-
     weak::AssertSame(AST, InstrType, ExpectedType);
-
     Args.push_back(mLastInstr);
   }
 
@@ -479,11 +463,7 @@ void CodeGen::Visit(const ASTFunctionPrototype *Stmt) {
 }
 
 void CodeGen::Visit(const ASTArrayAccess *Stmt) {
-  llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->SymbolName());
-  if (!Symbol)
-    weak::CompileError(Stmt)
-        << "Variable `" << Stmt->SymbolName() << "` not found";
-
+  llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
   llvm::Value *Array =
       mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
   Stmt->Index()->Accept(this);
@@ -510,8 +490,6 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
 
 void CodeGen::Visit(const ASTSymbol *Stmt) {
   llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
-  if (!Symbol)
-    weak::CompileError(Stmt) << "Variable `" << Stmt->Name() << "` not found";
 
   if (Symbol->getAllocatedType()->isArrayTy()) {
     llvm::Value *Zero = mIRBuilder.getInt32(0);
@@ -529,11 +507,6 @@ void CodeGen::Visit(const ASTCompound *Stmts) {
 }
 
 void CodeGen::Visit(const ASTReturn *Stmt) {
-  llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
-
-  if (Func->getReturnType()->isVoidTy())
-    weak::CompileError(Stmt) << "Cannot return value from void function";
-
   Stmt->Operand()->Accept(this);
   mIRBuilder.CreateRet(mLastInstr);
 }
@@ -548,14 +521,10 @@ void CodeGen::Visit(const ASTArrayDecl *Stmt) {
   llvm::AllocaInst *ArrayDecl =
       mIRBuilder.CreateAlloca(llvm::ArrayType::get(Type, Stmt->ArityList()[0]));
 
-  mStorage.Push(Stmt->SymbolName(), ArrayDecl);
+  mStorage.Push(Stmt->Name(), ArrayDecl);
 }
 
 void CodeGen::Visit(const ASTVarDecl *Decl) {
-  if (mStorage.Lookup(Decl->Name()))
-    weak::CompileError(Decl)
-        << "Variable `" << Decl->Name() << "` already declared";
-
   Decl->Body()->Accept(this);
 
   llvm::Value *LiteralValue = mLastInstr;

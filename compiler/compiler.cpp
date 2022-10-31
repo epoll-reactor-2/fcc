@@ -1,6 +1,7 @@
 #include "FrontEnd/AST/ASTDump.h"
 #include "FrontEnd/Lex/Lexer.h"
 #include "FrontEnd/Parse/Parser.h"
+#include "FrontEnd/Sema/Sema.h"
 #include "MiddleEnd/CodeGen/CodeGen.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "llvm/Support/CommandLine.h"
@@ -23,6 +24,8 @@ std::unique_ptr<weak::ASTCompound> DoSyntaxAnalysis(std::string_view InputPath) 
   auto Tokens = DoLexicalAnalysis(InputPath);
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
+  weak::Sema Sema(AST.get());
+  Sema.Analyze();
   return AST;
 }
 

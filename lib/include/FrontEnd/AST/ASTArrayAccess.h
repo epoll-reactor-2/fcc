@@ -14,18 +14,18 @@ namespace weak {
 
 class ASTArrayAccess : public ASTNode {
 public:
-  ASTArrayAccess(std::string SymbolName, ASTNode *Index, unsigned TheLineNo,
+  ASTArrayAccess(std::string Name, ASTNode *Index, unsigned TheLineNo,
                  unsigned TheColumnNo);
 
   ~ASTArrayAccess();
 
   void Accept(ASTVisitor *) override;
 
-  const std::string &SymbolName() const;
+  const std::string &Name() const;
   ASTNode *Index() const;
 
 private:
-  std::string mSymbolName;
+  std::string mName;
   ASTNode *mIndex;
 };
 

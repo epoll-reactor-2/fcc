@@ -82,9 +82,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa3cc51aa2ee7efb6888756e2652f04dd"><td class="memItemLeft" align="right" valign="top"><a id="aa3cc51aa2ee7efb6888756e2652f04dd" name="aa3cc51aa2ee7efb6888756e2652f04dd"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CodeGen</b> (<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *TheRoot)</td></tr>
-<tr class="separator:aa3cc51aa2ee7efb6888756e2652f04dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef9acc3ce8fd4c9d4d220dc331e8aba0"><td class="memItemLeft" align="right" valign="top"><a id="aef9acc3ce8fd4c9d4d220dc331e8aba0" name="aef9acc3ce8fd4c9d4d220dc331e8aba0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CodeGen</b> (<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *Root)</td></tr>
+<tr class="separator:aef9acc3ce8fd4c9d4d220dc331e8aba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0571a76e661ec437f38d52296b76b997"><td class="memItemLeft" align="right" valign="top"><a id="a0571a76e661ec437f38d52296b76b997" name="a0571a76e661ec437f38d52296b76b997"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CreateCode</b> ()</td></tr>
 <tr class="memdesc:a0571a76e661ec437f38d52296b76b997"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert AST to LLVM IR starting from root node (usually CompoundStmt). <br /></td></tr>
@@ -153,75 +153,75 @@ Private Member Functions</h2></td></tr>
 <tr class="separator:a973ed4f4e00575984f0622e75480413b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab8c653fac3a3e293a7a98e5dc42c46b1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#ab8c653fac3a3e293a7a98e5dc42c46b1">Visit</a> (const <a class="el" href="classweak_1_1ASTReturn.html">ASTReturn</a> *) override</td></tr>
 <tr class="separator:ab8c653fac3a3e293a7a98e5dc42c46b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8eee3e1b15f8cacce8087bb67266e2f"><td class="memItemLeft" align="right" valign="top"><a id="ab8eee3e1b15f8cacce8087bb67266e2f" name="ab8eee3e1b15f8cacce8087bb67266e2f"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTArrayDecl.html">ASTArrayDecl</a> *)=0</td></tr>
-<tr class="separator:ab8eee3e1b15f8cacce8087bb67266e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4506ffaa6533d95b7d86aa3a9a8a30fe"><td class="memItemLeft" align="right" valign="top"><a id="a4506ffaa6533d95b7d86aa3a9a8a30fe" name="a4506ffaa6533d95b7d86aa3a9a8a30fe"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTArrayAccess.html">ASTArrayAccess</a> *)=0</td></tr>
-<tr class="separator:a4506ffaa6533d95b7d86aa3a9a8a30fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4dcdc3d740dee6c5ca24c71fccb9766"><td class="memItemLeft" align="right" valign="top"><a id="aa4dcdc3d740dee6c5ca24c71fccb9766" name="aa4dcdc3d740dee6c5ca24c71fccb9766"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTBinary.html">ASTBinary</a> *)=0</td></tr>
-<tr class="separator:aa4dcdc3d740dee6c5ca24c71fccb9766"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af305268a776dc4055ef6d0dedb1dafa4"><td class="memItemLeft" align="right" valign="top"><a id="af305268a776dc4055ef6d0dedb1dafa4" name="af305268a776dc4055ef6d0dedb1dafa4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTBool.html">ASTBool</a> *)=0</td></tr>
-<tr class="separator:af305268a776dc4055ef6d0dedb1dafa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab4a5efdbdb67354dc6228d2f437be13"><td class="memItemLeft" align="right" valign="top"><a id="aab4a5efdbdb67354dc6228d2f437be13" name="aab4a5efdbdb67354dc6228d2f437be13"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTBreak.html">ASTBreak</a> *)=0</td></tr>
-<tr class="separator:aab4a5efdbdb67354dc6228d2f437be13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3aa737b82897c91b743d6a56dc492df7"><td class="memItemLeft" align="right" valign="top"><a id="a3aa737b82897c91b743d6a56dc492df7" name="a3aa737b82897c91b743d6a56dc492df7"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTChar.html">ASTChar</a> *)=0</td></tr>
-<tr class="separator:a3aa737b82897c91b743d6a56dc492df7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aced05b59bf8e6d5b61f9a52bbadfcb4e"><td class="memItemLeft" align="right" valign="top"><a id="aced05b59bf8e6d5b61f9a52bbadfcb4e" name="aced05b59bf8e6d5b61f9a52bbadfcb4e"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTCompound.html">ASTCompound</a> *)=0</td></tr>
-<tr class="separator:aced05b59bf8e6d5b61f9a52bbadfcb4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08c1f0f85df7b73537f2a04eaaf17d23"><td class="memItemLeft" align="right" valign="top"><a id="a08c1f0f85df7b73537f2a04eaaf17d23" name="a08c1f0f85df7b73537f2a04eaaf17d23"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTContinue.html">ASTContinue</a> *)=0</td></tr>
-<tr class="separator:a08c1f0f85df7b73537f2a04eaaf17d23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac85d1dd6908041f942ebf5970bcda679"><td class="memItemLeft" align="right" valign="top"><a id="ac85d1dd6908041f942ebf5970bcda679" name="ac85d1dd6908041f942ebf5970bcda679"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTDoWhile.html">ASTDoWhile</a> *)=0</td></tr>
-<tr class="separator:ac85d1dd6908041f942ebf5970bcda679"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21901c4f922d2548b59fef711c8e9dee"><td class="memItemLeft" align="right" valign="top"><a id="a21901c4f922d2548b59fef711c8e9dee" name="a21901c4f922d2548b59fef711c8e9dee"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFloat.html">ASTFloat</a> *)=0</td></tr>
-<tr class="separator:a21901c4f922d2548b59fef711c8e9dee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a49c2636423664153e1280dc8f4cd8261"><td class="memItemLeft" align="right" valign="top"><a id="a49c2636423664153e1280dc8f4cd8261" name="a49c2636423664153e1280dc8f4cd8261"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFor.html">ASTFor</a> *)=0</td></tr>
-<tr class="separator:a49c2636423664153e1280dc8f4cd8261"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9116249e356cc119e3ccc0867137c3eb"><td class="memItemLeft" align="right" valign="top"><a id="a9116249e356cc119e3ccc0867137c3eb" name="a9116249e356cc119e3ccc0867137c3eb"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFunctionDecl.html">ASTFunctionDecl</a> *)=0</td></tr>
-<tr class="separator:a9116249e356cc119e3ccc0867137c3eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac66408056b805285be40f4134567aa36"><td class="memItemLeft" align="right" valign="top"><a id="ac66408056b805285be40f4134567aa36" name="ac66408056b805285be40f4134567aa36"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFunctionCall.html">ASTFunctionCall</a> *)=0</td></tr>
-<tr class="separator:ac66408056b805285be40f4134567aa36"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d1e6e9c116efe4a00227a5bdebaa5c4"><td class="memItemLeft" align="right" valign="top"><a id="a6d1e6e9c116efe4a00227a5bdebaa5c4" name="a6d1e6e9c116efe4a00227a5bdebaa5c4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFunctionPrototype.html">ASTFunctionPrototype</a> *)=0</td></tr>
-<tr class="separator:a6d1e6e9c116efe4a00227a5bdebaa5c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2fe56bff44cef9112c02909f94b12a19"><td class="memItemLeft" align="right" valign="top"><a id="a2fe56bff44cef9112c02909f94b12a19" name="a2fe56bff44cef9112c02909f94b12a19"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTIf.html">ASTIf</a> *)=0</td></tr>
-<tr class="separator:a2fe56bff44cef9112c02909f94b12a19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad99d00d1d86208e0a4a42e7d48f23b26"><td class="memItemLeft" align="right" valign="top"><a id="ad99d00d1d86208e0a4a42e7d48f23b26" name="ad99d00d1d86208e0a4a42e7d48f23b26"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTNumber.html">ASTNumber</a> *)=0</td></tr>
-<tr class="separator:ad99d00d1d86208e0a4a42e7d48f23b26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a77805d204047f830f5a8085b1c71f981"><td class="memItemLeft" align="right" valign="top"><a id="a77805d204047f830f5a8085b1c71f981" name="a77805d204047f830f5a8085b1c71f981"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTReturn.html">ASTReturn</a> *)=0</td></tr>
-<tr class="separator:a77805d204047f830f5a8085b1c71f981"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6824e6f158ad6b7f51a47c85bdd52b47"><td class="memItemLeft" align="right" valign="top"><a id="a6824e6f158ad6b7f51a47c85bdd52b47" name="a6824e6f158ad6b7f51a47c85bdd52b47"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTString.html">ASTString</a> *)=0</td></tr>
-<tr class="separator:a6824e6f158ad6b7f51a47c85bdd52b47"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d0b07ce9e4ccb225017d473b45239a8"><td class="memItemLeft" align="right" valign="top"><a id="a1d0b07ce9e4ccb225017d473b45239a8" name="a1d0b07ce9e4ccb225017d473b45239a8"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTStructDecl.html">ASTStructDecl</a> *)=0</td></tr>
-<tr class="separator:a1d0b07ce9e4ccb225017d473b45239a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abaed9434672857e8780878012a310c0b"><td class="memItemLeft" align="right" valign="top"><a id="abaed9434672857e8780878012a310c0b" name="abaed9434672857e8780878012a310c0b"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTSymbol.html">ASTSymbol</a> *)=0</td></tr>
-<tr class="separator:abaed9434672857e8780878012a310c0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a36b4c0e4f4ca3c0498438c5fb9d904"><td class="memItemLeft" align="right" valign="top"><a id="a2a36b4c0e4f4ca3c0498438c5fb9d904" name="a2a36b4c0e4f4ca3c0498438c5fb9d904"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTUnary.html">ASTUnary</a> *)=0</td></tr>
-<tr class="separator:a2a36b4c0e4f4ca3c0498438c5fb9d904"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0df673b7b071f8b4ba7f958c65d22f1"><td class="memItemLeft" align="right" valign="top"><a id="aa0df673b7b071f8b4ba7f958c65d22f1" name="aa0df673b7b071f8b4ba7f958c65d22f1"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTVarDecl.html">ASTVarDecl</a> *)=0</td></tr>
-<tr class="separator:aa0df673b7b071f8b4ba7f958c65d22f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a316a2894272a93ab95e0ef15fa5afa"><td class="memItemLeft" align="right" valign="top"><a id="a5a316a2894272a93ab95e0ef15fa5afa" name="a5a316a2894272a93ab95e0ef15fa5afa"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTWhile.html">ASTWhile</a> *)=0</td></tr>
-<tr class="separator:a5a316a2894272a93ab95e0ef15fa5afa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e639c5916a47b1029acc01506f0be32"><td class="memItemLeft" align="right" valign="top"><a id="a7e639c5916a47b1029acc01506f0be32" name="a7e639c5916a47b1029acc01506f0be32"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTArrayDecl.html">ASTArrayDecl</a> *)</td></tr>
+<tr class="separator:a7e639c5916a47b1029acc01506f0be32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9acdb102cb37d5d2bb715752fc48a4ef"><td class="memItemLeft" align="right" valign="top"><a id="a9acdb102cb37d5d2bb715752fc48a4ef" name="a9acdb102cb37d5d2bb715752fc48a4ef"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTArrayAccess.html">ASTArrayAccess</a> *)</td></tr>
+<tr class="separator:a9acdb102cb37d5d2bb715752fc48a4ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09185b7fccad3ee53d9d64cf957be4e0"><td class="memItemLeft" align="right" valign="top"><a id="a09185b7fccad3ee53d9d64cf957be4e0" name="a09185b7fccad3ee53d9d64cf957be4e0"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTBinary.html">ASTBinary</a> *)</td></tr>
+<tr class="separator:a09185b7fccad3ee53d9d64cf957be4e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f71607bbf1082f621397d09adb546f7"><td class="memItemLeft" align="right" valign="top"><a id="a3f71607bbf1082f621397d09adb546f7" name="a3f71607bbf1082f621397d09adb546f7"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTBool.html">ASTBool</a> *)</td></tr>
+<tr class="separator:a3f71607bbf1082f621397d09adb546f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5b9eb9ecae988022e0cb68651332996"><td class="memItemLeft" align="right" valign="top"><a id="af5b9eb9ecae988022e0cb68651332996" name="af5b9eb9ecae988022e0cb68651332996"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTBreak.html">ASTBreak</a> *)</td></tr>
+<tr class="separator:af5b9eb9ecae988022e0cb68651332996"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16b5ea7a3d6039f296d58c8c6c0c4b6c"><td class="memItemLeft" align="right" valign="top"><a id="a16b5ea7a3d6039f296d58c8c6c0c4b6c" name="a16b5ea7a3d6039f296d58c8c6c0c4b6c"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTChar.html">ASTChar</a> *)</td></tr>
+<tr class="separator:a16b5ea7a3d6039f296d58c8c6c0c4b6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab21ef5ce993005405e1d7489743cc17c"><td class="memItemLeft" align="right" valign="top"><a id="ab21ef5ce993005405e1d7489743cc17c" name="ab21ef5ce993005405e1d7489743cc17c"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTCompound.html">ASTCompound</a> *)</td></tr>
+<tr class="separator:ab21ef5ce993005405e1d7489743cc17c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84319e8512906eb101b6ab0bc478fedb"><td class="memItemLeft" align="right" valign="top"><a id="a84319e8512906eb101b6ab0bc478fedb" name="a84319e8512906eb101b6ab0bc478fedb"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTContinue.html">ASTContinue</a> *)</td></tr>
+<tr class="separator:a84319e8512906eb101b6ab0bc478fedb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdd8b9d6d80a62a6f657899c05568904"><td class="memItemLeft" align="right" valign="top"><a id="abdd8b9d6d80a62a6f657899c05568904" name="abdd8b9d6d80a62a6f657899c05568904"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTDoWhile.html">ASTDoWhile</a> *)</td></tr>
+<tr class="separator:abdd8b9d6d80a62a6f657899c05568904"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0552b62b5fab3791cdd0dfd249f9ffa6"><td class="memItemLeft" align="right" valign="top"><a id="a0552b62b5fab3791cdd0dfd249f9ffa6" name="a0552b62b5fab3791cdd0dfd249f9ffa6"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFloat.html">ASTFloat</a> *)</td></tr>
+<tr class="separator:a0552b62b5fab3791cdd0dfd249f9ffa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bc200e5c26f5158f5feba4fb6e06c71"><td class="memItemLeft" align="right" valign="top"><a id="a5bc200e5c26f5158f5feba4fb6e06c71" name="a5bc200e5c26f5158f5feba4fb6e06c71"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFor.html">ASTFor</a> *)</td></tr>
+<tr class="separator:a5bc200e5c26f5158f5feba4fb6e06c71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ca3afdc3e4fcac1fad8efd2075ad6b6"><td class="memItemLeft" align="right" valign="top"><a id="a8ca3afdc3e4fcac1fad8efd2075ad6b6" name="a8ca3afdc3e4fcac1fad8efd2075ad6b6"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFunctionDecl.html">ASTFunctionDecl</a> *)</td></tr>
+<tr class="separator:a8ca3afdc3e4fcac1fad8efd2075ad6b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2206bb3819ace8018d9d8a3ccbb4d326"><td class="memItemLeft" align="right" valign="top"><a id="a2206bb3819ace8018d9d8a3ccbb4d326" name="a2206bb3819ace8018d9d8a3ccbb4d326"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFunctionCall.html">ASTFunctionCall</a> *)</td></tr>
+<tr class="separator:a2206bb3819ace8018d9d8a3ccbb4d326"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20af49477535f8406b04d2e77da5a240"><td class="memItemLeft" align="right" valign="top"><a id="a20af49477535f8406b04d2e77da5a240" name="a20af49477535f8406b04d2e77da5a240"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTFunctionPrototype.html">ASTFunctionPrototype</a> *)</td></tr>
+<tr class="separator:a20af49477535f8406b04d2e77da5a240"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae765b6ab054a7eb3b8de2c0caf5bb474"><td class="memItemLeft" align="right" valign="top"><a id="ae765b6ab054a7eb3b8de2c0caf5bb474" name="ae765b6ab054a7eb3b8de2c0caf5bb474"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTIf.html">ASTIf</a> *)</td></tr>
+<tr class="separator:ae765b6ab054a7eb3b8de2c0caf5bb474"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1a362e922d396a0433f9ba89b4e7651"><td class="memItemLeft" align="right" valign="top"><a id="ae1a362e922d396a0433f9ba89b4e7651" name="ae1a362e922d396a0433f9ba89b4e7651"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTNumber.html">ASTNumber</a> *)</td></tr>
+<tr class="separator:ae1a362e922d396a0433f9ba89b4e7651"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f36b0400fe3fee75a878907284539c4"><td class="memItemLeft" align="right" valign="top"><a id="a0f36b0400fe3fee75a878907284539c4" name="a0f36b0400fe3fee75a878907284539c4"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTReturn.html">ASTReturn</a> *)</td></tr>
+<tr class="separator:a0f36b0400fe3fee75a878907284539c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3339dfac04188806ba1eda4dda7c1c0"><td class="memItemLeft" align="right" valign="top"><a id="af3339dfac04188806ba1eda4dda7c1c0" name="af3339dfac04188806ba1eda4dda7c1c0"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTString.html">ASTString</a> *)</td></tr>
+<tr class="separator:af3339dfac04188806ba1eda4dda7c1c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ecb0d8373e831a1d353546a3105b6e4"><td class="memItemLeft" align="right" valign="top"><a id="a7ecb0d8373e831a1d353546a3105b6e4" name="a7ecb0d8373e831a1d353546a3105b6e4"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTStructDecl.html">ASTStructDecl</a> *)</td></tr>
+<tr class="separator:a7ecb0d8373e831a1d353546a3105b6e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a792ccd4acc5fa56214ec90aa8b69fc58"><td class="memItemLeft" align="right" valign="top"><a id="a792ccd4acc5fa56214ec90aa8b69fc58" name="a792ccd4acc5fa56214ec90aa8b69fc58"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTSymbol.html">ASTSymbol</a> *)</td></tr>
+<tr class="separator:a792ccd4acc5fa56214ec90aa8b69fc58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2d7f2feafb12edae1419ba5f172c77a"><td class="memItemLeft" align="right" valign="top"><a id="ac2d7f2feafb12edae1419ba5f172c77a" name="ac2d7f2feafb12edae1419ba5f172c77a"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTUnary.html">ASTUnary</a> *)</td></tr>
+<tr class="separator:ac2d7f2feafb12edae1419ba5f172c77a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0ff43d81118c463b495e7eb778e47a2"><td class="memItemLeft" align="right" valign="top"><a id="ac0ff43d81118c463b495e7eb778e47a2" name="ac0ff43d81118c463b495e7eb778e47a2"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTVarDecl.html">ASTVarDecl</a> *)</td></tr>
+<tr class="separator:ac0ff43d81118c463b495e7eb778e47a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c0f3f725919b93813e3f391bca267b5"><td class="memItemLeft" align="right" valign="top"><a id="a8c0f3f725919b93813e3f391bca267b5" name="a8c0f3f725919b93813e3f391bca267b5"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (const <a class="el" href="classweak_1_1ASTWhile.html">ASTWhile</a> *)</td></tr>
+<tr class="separator:a8c0f3f725919b93813e3f391bca267b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -250,7 +250,8 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >LLVM IR generator. </p>
-<p >Implemented as AST visitor because it still does not operates on CFG. </p>
+<dl class="section note"><dt>Note</dt><dd>Requires analyzed by <a class="el" href="classweak_1_1Sema.html" title="Semantic analyzer.">weak::Sema</a> AST.</dd></dl>
+<p>Implemented as AST visitor because it still does not operates on CFG. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="aacb9ce4f0c8e559124274ec3ca00dd30" name="aacb9ce4f0c8e559124274ec3ca00dd30"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aacb9ce4f0c8e559124274ec3ca00dd30">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/23]</span></h2>
@@ -276,7 +277,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -304,7 +305,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -332,7 +333,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -360,7 +361,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -388,7 +389,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -416,7 +417,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -444,7 +445,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -472,7 +473,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -500,7 +501,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -528,7 +529,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -556,7 +557,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -584,7 +585,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -612,7 +613,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -640,7 +641,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -668,7 +669,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -696,7 +697,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -724,7 +725,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -752,7 +753,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -780,7 +781,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -808,7 +809,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -836,7 +837,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -864,7 +865,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>
@@ -892,7 +893,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
 
 </div>
 </div>

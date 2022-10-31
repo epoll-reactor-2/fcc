@@ -175,7 +175,7 @@ ASTNode *Parser::ParseVarDecl() {
 
   weak::CompileError(T.LineNo, T.ColumnNo)
       << "Expected function, variable or array declaration";
-  weak::UnreachablePoint();
+  Unreachable();
 }
 
 ASTNode *Parser::ParseDecl() {
@@ -191,7 +191,7 @@ ASTNode *Parser::ParseDecl() {
     return ParseDeclWithoutInitializer();
   default:
     weak::CompileError(T.LineNo, T.ColumnNo) << "Declaration expected";
-    weak::UnreachablePoint();
+    Unreachable();
   }
 }
 
@@ -226,7 +226,7 @@ const Token &Parser::ParseType() {
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
         << "Data type expected, got " << TokenToString(T.Type);
-    weak::UnreachablePoint();
+    Unreachable();
   }
 }
 
@@ -349,7 +349,7 @@ ASTNode *Parser::ParseStmt() {
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
         << "Unexpected token: " << TokenToString(T.Type);
-    weak::UnreachablePoint();
+    Unreachable();
   }
 }
 
@@ -379,7 +379,7 @@ ASTNode *Parser::ParseIterationStmt() {
   case TOK_WHILE:
     return ParseWhile();
   default:
-    weak::UnreachablePoint("Should not reach here");
+    Unreachable();
   }
 }
 
@@ -789,7 +789,7 @@ ASTNode *Parser::ParseConstant() {
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
         << "Literal expected, got " << TokenToString(T.Type);
-    weak::UnreachablePoint();
+    Unreachable();
   }
 }
 
@@ -855,7 +855,7 @@ const Token &Parser::Require(const std::vector<TokenType> &Expected) {
   weak::CompileError(mTokenPtr->LineNo, mTokenPtr->ColumnNo)
       << "Expected " << TokensToString(Expected) << ", got "
       << TokenToString(mTokenPtr->Type);
-  weak::UnreachablePoint();
+  Unreachable();
 }
 
 const Token &Parser::Require(TokenType Expected) {
