@@ -24,7 +24,7 @@ static void InitializeLLVMTargets() {
 
 static const llvm::Target *GetTarget(const std::string &Triple) {
   std::string Error;
-  auto Target = llvm::TargetRegistry::lookupTarget(Triple, Error);
+  auto *Target = llvm::TargetRegistry::lookupTarget(Triple, Error);
 
   if (!Target) {
     llvm::errs() << Error;
@@ -54,13 +54,12 @@ void TargetCodeBuilder::Build() {
   InitializeLLVMTargets();
 
   auto Triple = llvm::sys::getDefaultTargetTriple();
-
   const llvm::Target *Target = GetTarget(Triple);
 
   llvm::TargetOptions Opts;
   auto RM = llvm::Optional<llvm::Reloc::Model>();
-  auto TheTargetMachine = Target->createTargetMachine(
-      Triple, /*CPU*/ "generic", /*Features*/ "", Opts, RM);
+  auto *TheTargetMachine = Target->createTargetMachine(
+      Triple, /*CPU=*/"generic", /*Features=*/"", Opts, RM);
 
   mIRModule.setDataLayout(TheTargetMachine->createDataLayout());
 
@@ -76,7 +75,8 @@ void TargetCodeBuilder::Build() {
   llvm::legacy::PassManager Pass;
   auto FileType = llvm::CGFT_ObjectFile;
 
-  if (TheTargetMachine->addPassesToEmitFile(Pass, Dest, nullptr, FileType)) {
+  if (TheTargetMachine->addPassesToEmitFile(
+          Pass, Dest, /*raw_pwrite_stream=*/nullptr, FileType)) {
     llvm::errs() << "TheTargetMachine can't emit a file of this type";
     exit(-1);
   }
