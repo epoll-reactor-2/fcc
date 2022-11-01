@@ -368,7 +368,6 @@ void CodeGen::Visit(const ASTIf *Stmt) {
   Stmt->Condition()->Accept(this);
   llvm::Value *Condition = mLastInstr;
 
-  /// \todo: I am not sure if we should always compare with 0.
   unsigned NumBits = Condition->getType()->getPrimitiveSizeInBits();
   Condition =
       mIRBuilder.CreateICmpNE(Condition, mIRBuilder.getIntN(NumBits, 0));
@@ -467,7 +466,6 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
   /// https://llvm.org/docs/ElementPtr.html.
   llvm::Value *Zero = mIRBuilder.getInt32(0);
 
-  // \todo: Unary operators with values accesses through [] does not works.
   if (Array->getType()->isPointerTy())
     /// Pointer.
     mLastInstr = mIRBuilder.CreateInBoundsGEP(
