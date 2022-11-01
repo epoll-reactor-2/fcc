@@ -91,6 +91,8 @@ struct Token {
   /// Judge if token has type denoted by char.
   bool Is(char Token) const;
 
+  bool Is(TokenType T) const;
+
   bool operator==(const Token &RHS) const;
 
   bool operator!=(const Token &RHS) const;

@@ -783,7 +783,7 @@ ASTNode *Parser::ParseConstant() {
 
   case TOK_FALSE:
   case TOK_TRUE:
-    return new ASTBool(T.Type == TOK_TRUE, T.LineNo, T.ColumnNo);
+    return new ASTBool(T.Is(TOK_TRUE), T.LineNo, T.ColumnNo);
 
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
@@ -807,7 +807,7 @@ bool Parser::Match(const std::vector<TokenType> &Expected) {
   for (TokenType Token : Expected) {
     if (mTokenPtr == mBufEnd)
       return false;
-    if (PeekCurrent().Type == Token) {
+    if (PeekCurrent().Is(Token)) {
       PeekNext();
       return true;
     }

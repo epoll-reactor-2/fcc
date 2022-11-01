@@ -192,8 +192,10 @@ Token::Token(std::string TheData, TokenType TheType, unsigned TheLineNo,
 
 bool Token::Is(char Token) const { return Type == CharToToken(Token); }
 
+bool Token::Is(TokenType T) const { return Type == T; }
+
 bool Token::operator==(const Token &RHS) const {
-  return (Data == RHS.Data) && (Type == RHS.Type);
+  return Data == RHS.Data && Type == RHS.Type;
 }
 
 bool Token::operator!=(const Token &RHS) const { return !(*this == RHS); }
