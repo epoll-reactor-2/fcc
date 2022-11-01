@@ -1,4 +1,4 @@
-/* DeclsStorage.h - Storage for LLVM declarations.
+/* Storage.h - Storage for LLVM declarations.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -17,7 +17,7 @@ class AllocaInst;
 namespace weak {
 
 /// \brief Storage for LLVM declarations.
-class DeclsStorage {
+class Storage {
   /// Entity stored inside. Needed to handle
   /// erasure of IR objects with the end of
   /// scopes.

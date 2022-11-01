@@ -17,7 +17,7 @@ var searchData=
   ['mname_14',['mName',['../classweak_1_1ASTArrayDecl.html#a259260b91c063d81ef542fd9c41de220',1,'weak::ASTArrayDecl']]],
   ['mobjfilepath_15',['mObjFilePath',['../classweak_1_1TargetCodeBuilder.html#a63a772a92e0c57cbaa72d2f30f97780b',1,'weak::TargetCodeBuilder']]],
   ['mroot_16',['mRoot',['../classweak_1_1Sema.html#af3fcd365a3f32bfe3ae8fc3d38c9367d',1,'weak::Sema::mRoot()'],['../classweak_1_1CodeGen.html#a7b9c309d6720233644f9bd9143255e38',1,'weak::CodeGen::mRoot()']]],
-  ['mstorage_17',['mStorage',['../classweak_1_1Sema.html#ae3995d54c2d433481ddfc8f642a8da82',1,'weak::Sema::mStorage()'],['../classweak_1_1CodeGen.html#ab0e4b1fe99104f4768f1c9b1a0a9828f',1,'weak::CodeGen::mStorage()']]],
+  ['mstorage_17',['mStorage',['../classweak_1_1Sema.html#ae3995d54c2d433481ddfc8f642a8da82',1,'weak::Sema::mStorage()'],['../classweak_1_1CodeGen.html#a930e09834d045b62d957b958803a74de',1,'weak::CodeGen::mStorage()']]],
   ['mtokenptr_18',['mTokenPtr',['../classweak_1_1Parser.html#ab44b479457ab5d22351301c6d7b128b1',1,'weak::Parser']]],
   ['mwasreturnstmt_19',['mWasReturnStmt',['../classweak_1_1Sema.html#a13a38d9b6f6ffc1a72362b36ed9c87b3',1,'weak::Sema']]]
 ];

@@ -27,5 +27,5 @@ var searchData=
   ['peekcurrent_24',['PeekCurrent',['../classweak_1_1Lexer.html#adf29e1d08cb539533cedf920c4f1833e',1,'weak::Lexer::PeekCurrent()'],['../classweak_1_1Parser.html#a7ac3690b8007808a1d821341a7add28a',1,'weak::Parser::PeekCurrent()']]],
   ['peeknext_25',['PeekNext',['../classweak_1_1Lexer.html#ac6ad6cded1ae2dac2b2ed42c6d16a659',1,'weak::Lexer::PeekNext()'],['../classweak_1_1Parser.html#aa9c0f230562f187021946fe2c582a969',1,'weak::Parser::PeekNext()']]],
   ['processcomment_26',['ProcessComment',['../classweak_1_1Lexer.html#ae52f464e68e460d60a76096da56eed6c',1,'weak::Lexer']]],
-  ['push_27',['Push',['../classweak_1_1DeclsStorage.html#acd9d4dc671c6057445bd27c3ab94c49f',1,'weak::DeclsStorage']]]
+  ['push_27',['Push',['../classweak_1_1Storage.html#ad9f10c0287cbd09054764332c3d70b3c',1,'weak::Storage']]]
 ];

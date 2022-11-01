@@ -8,12 +8,10 @@
 #define WEAK_COMPILER_MIDDLE_END_CODEGEN_H
 
 #include "FrontEnd/AST/ASTVisitor.h"
-#include "MiddleEnd/Storage/DeclsStorage.h"
+#include "MiddleEnd/Storage/Storage.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
-#include "llvm/IR/Value.h"
-#include <map>
 
 namespace weak {
 
@@ -83,7 +81,7 @@ private:
   /// Analyzed root AST node.
   ASTNode *mRoot;
   /// Variables pool.
-  DeclsStorage mStorage;
+  Storage mStorage;
   /// Consequence of using visitor pattern, since we cannot return anything from
   /// visit functions.
   llvm::Value *mLastInstr;

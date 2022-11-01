@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['value_0',['Value',['../structweak_1_1DeclsStorage_1_1DeclRecord.html#aa0c72530ff54ba2327adbae71961c980',1,'weak::DeclsStorage::DeclRecord']]]
+  ['value_0',['Value',['../structweak_1_1Storage_1_1DeclRecord.html#a3cda075ea39780d6f928893d5c93eb0a',1,'weak::Storage::DeclRecord']]]
 ];
