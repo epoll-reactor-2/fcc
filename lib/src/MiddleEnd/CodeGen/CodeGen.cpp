@@ -567,21 +567,14 @@ const llvm::SymbolTableList<llvm::Function> &CodeGen::GlobalFunctions() const {
 std::string CodeGen::ToString() const {
   std::string Result;
 
-  for (const auto &Global : GlobalVariables()) {
-    llvm::raw_string_ostream Stream(Result);
-    Stream << Global;
-    Stream << '\n';
-    Stream.flush();
-  }
+  for (const auto &V : GlobalVariables())
+    llvm::raw_string_ostream{Result} << V << '\n';
 
-  Result += '\n';
+  if (!Result.empty())
+    Result += '\n';
 
-  for (const auto &F : GlobalFunctions()) {
-    llvm::raw_string_ostream Stream(Result);
-    Stream << F;
-    Stream << '\n';
-    Stream.flush();
-  }
+  for (const auto &F : GlobalFunctions())
+    llvm::raw_string_ostream{Result} << F << '\n';
 
   return Result;
 }
