@@ -306,26 +306,33 @@ void CodeGen::Visit(const ASTUnary *Stmt) {
 
 void CodeGen::Visit(const ASTFor *Stmt) {
   mStorage.StartScope();
-  /// \todo: Generate code with respect to empty for parameters,
-  ///        e.g for (;;), or for(int i = 0; ; ++i). Also
-  ///        break,continue statements should be implemented.
-  Stmt->Init()->Accept(this);
 
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
-  auto *CondBB = llvm::BasicBlock::Create(mIRCtx, "for.cond", Func);
+  if (auto *I = Stmt->Init())
+    I->Accept(this);
+
+  llvm::BasicBlock *CondBB{nullptr};
+
   auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "for.body", Func);
   auto *EndBB = llvm::BasicBlock::Create(mIRCtx, "for.end", Func);
 
-  mIRBuilder.CreateBr(CondBB);
-  mIRBuilder.SetInsertPoint(CondBB);
+  if (auto *C = Stmt->Condition()) {
+    CondBB = llvm::BasicBlock::Create(mIRCtx, "for.cond", Func);
+    mIRBuilder.CreateBr(CondBB);
+    mIRBuilder.SetInsertPoint(CondBB);
+    C->Accept(this);
+    mIRBuilder.CreateCondBr(mLastInstr, BodyBB, EndBB);
+  } else
+    mIRBuilder.CreateBr(BodyBB);
 
-  Stmt->Condition()->Accept(this);
-  mIRBuilder.CreateCondBr(mLastInstr, BodyBB, EndBB);
   mIRBuilder.SetInsertPoint(BodyBB);
   Stmt->Body()->Accept(this);
-  Stmt->Increment()->Accept(this);
-  mIRBuilder.CreateBr(CondBB);
+
+  if (auto *I = Stmt->Increment())
+    I->Accept(this);
+
+  mIRBuilder.CreateBr(CondBB ? CondBB : BodyBB);
   mIRBuilder.SetInsertPoint(EndBB);
 
   mStorage.EndScope();

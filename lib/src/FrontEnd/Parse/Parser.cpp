@@ -401,7 +401,7 @@ ASTNode *Parser::ParseFor() {
   }
 
   ASTNode *Increment{nullptr};
-  if (!PeekNext().Is(';')) {
+  if (!PeekNext().Is(')')) {
     --mTokenPtr;
     Increment = ParseExpr();
     PeekNext();

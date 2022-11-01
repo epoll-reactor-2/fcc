@@ -113,9 +113,16 @@ void Sema::Visit(const ASTUnary *Stmt) {
 
 void Sema::Visit(const ASTFor *Stmt) {
   mStorage->StartScope();
-  Stmt->Init()->Accept(this);
-  Stmt->Condition()->Accept(this);
-  Stmt->Increment()->Accept(this);
+
+  if (auto *I = Stmt->Init())
+    I->Accept(this);
+
+  if (auto *C = Stmt->Condition())
+    C->Accept(this);
+
+  if (auto *I = Stmt->Increment())
+    I->Accept(this);
+
   Stmt->Body()->Accept(this);
   mStorage->EndScope();
 }
