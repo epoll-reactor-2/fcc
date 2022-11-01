@@ -385,12 +385,10 @@ void CodeGen::Visit(const ASTIf *Stmt) {
   auto *ElseBB = llvm::BasicBlock::Create(mIRCtx, "if.else");
   auto *MergeBB = llvm::BasicBlock::Create(mIRCtx, "if.end");
 
-  if (Stmt->ElseBody())
-    mIRBuilder.CreateCondBr(Condition, ThenBB, ElseBB);
-  else
-    mIRBuilder.CreateCondBr(Condition, ThenBB, MergeBB);
-
+  mIRBuilder.CreateCondBr(Condition, ThenBB,
+                          Stmt->ElseBody() ? ElseBB : MergeBB);
   mIRBuilder.SetInsertPoint(ThenBB);
+
   Stmt->ThenBody()->Accept(this);
   mIRBuilder.CreateBr(MergeBB);
 
@@ -485,18 +483,17 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
 
 void CodeGen::Visit(const ASTSymbol *Stmt) {
   llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
+  llvm::Type *SymbolTy = Symbol->getAllocatedType();
 
-  if (Symbol->getAllocatedType()->isArrayTy()) {
-    llvm::Value *Zero = mIRBuilder.getInt32(0);
-    mLastInstr = mIRBuilder.CreateInBoundsGEP(Symbol->getAllocatedType(),
-                                              Symbol, {Zero, Zero});
-  } else
-    mLastInstr = mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
+  if (SymbolTy->isArrayTy())
+    mLastInstr = mIRBuilder.CreateConstGEP2_32(SymbolTy, Symbol, 0, 0);
+  else
+    mLastInstr = mIRBuilder.CreateLoad(SymbolTy, Symbol);
 }
 
 void CodeGen::Visit(const ASTCompound *Stmts) {
   mStorage.StartScope();
-  for (const auto &Stmt : Stmts->Stmts())
+  for (ASTNode *Stmt : Stmts->Stmts())
     Stmt->Accept(this);
   mStorage.EndScope();
 }
