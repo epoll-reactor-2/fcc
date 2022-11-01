@@ -7,8 +7,6 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_TYPE_RESOLVER_H
 #define WEAK_COMPILER_MIDDLE_END_TYPE_RESOLVER_H
 
-#include "FrontEnd/AST/ASTNode.h"
-#include "FrontEnd/AST/ASTVarDecl.h"
 #include "FrontEnd/Lex/Token.h"
 #include "llvm/IR/IRBuilder.h"
 
@@ -17,6 +15,8 @@ class Type;
 } // namespace llvm
 
 namespace weak {
+
+class ASTNode;
 
 /// Helper class to translate frontend types to LLVM.
 class TypeResolver {
@@ -40,10 +40,6 @@ public:
   llvm::Type *ResolveExceptVoid(const ASTNode *);
 
 private:
-  /// Convert ASTNode to ASTVarDecl, or
-  /// emit compile error on conversion error.
-  const ASTVarDecl *GetVarDecl(const ASTNode *);
-
   /// Reference to global LLVM stuff.
   llvm::IRBuilder<> &mIRBuilder;
 };

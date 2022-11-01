@@ -4,6 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
+#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 #include "FrontEnd/AST/ASTWhile.h"
 

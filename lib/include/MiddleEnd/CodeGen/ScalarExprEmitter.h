@@ -15,10 +15,8 @@ class Value;
 } // namespace llvm
 
 namespace weak {
-class ASTNode;
-} // namespace weak
 
-namespace weak {
+class ASTNode;
 
 /// Generator of operations on numeric data types.
 class ScalarExprEmitter {

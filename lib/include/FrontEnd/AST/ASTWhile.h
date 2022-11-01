@@ -7,10 +7,11 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_WHILE_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_WHILE_H
 
-#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTNode.h"
 
 namespace weak {
+
+class ASTCompound;
 
 class ASTWhile : public ASTNode {
 public:

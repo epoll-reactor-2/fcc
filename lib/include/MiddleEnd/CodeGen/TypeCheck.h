@@ -7,8 +7,6 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_TYPE_CHECK_H
 #define WEAK_COMPILER_MIDDLE_END_TYPE_CHECK_H
 
-#include "FrontEnd/AST/ASTNode.h"
-
 namespace llvm {
 class Type;
 class Value;
@@ -16,6 +14,8 @@ class AllocaInst;
 } // namespace llvm
 
 namespace weak {
+
+class ASTNode;
 
 /// Ensure that given types are same or emit compile error on mismatch.
 void AssertSame(const ASTNode *InformAST, llvm::Value *L, llvm::Value *R);

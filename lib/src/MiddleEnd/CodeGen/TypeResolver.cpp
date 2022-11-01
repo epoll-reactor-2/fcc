@@ -11,15 +11,15 @@
 
 namespace weak {
 
-TypeResolver::TypeResolver(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
-
-const ASTVarDecl *TypeResolver::GetVarDecl(const ASTNode *Node) {
+static const ASTVarDecl *GetVarDecl(const ASTNode *Node) {
   if (!Node->Is(AST_VAR_DECL))
     weak::CompileError(Node) << "Expected declaration";
 
   const auto *Decl = static_cast<const ASTVarDecl *>(Node);
   return Decl;
 }
+
+TypeResolver::TypeResolver(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
 
 llvm::Type *TypeResolver::Resolve(TokenType T, unsigned LineNo,
                                   unsigned ColumnNo) {

@@ -7,7 +7,6 @@
 #ifndef WEAK_COMPILER_UTILITY_DIAGNOSTIC_H
 #define WEAK_COMPILER_UTILITY_DIAGNOSTIC_H
 
-#include <cstdlib>
 #include <ostream>
 
 struct Diagnostic;
