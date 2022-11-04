@@ -37,7 +37,7 @@ struct ASTStorage {
   void Push(std::string_view Name, const ASTNode *Decl);
 
   /// Try to retrieve variable by name.
-  const ASTNode *Lookup(std::string_view Name) const;
+  Declaration *Lookup(std::string_view Name);
 
   /// \brief Add use for variable.
   ///
@@ -49,6 +49,9 @@ struct ASTStorage {
   ///
   /// Needed to determine unused variables.
   std::vector<Declaration *> CurrScopeUses();
+
+  /// Return current depth.
+  unsigned CurrentDepth();
 
 private:
   Declaration &FindUse(std::string_view Name);

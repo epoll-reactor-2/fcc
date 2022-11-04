@@ -8,7 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_ANALYSIS_VARIABLE_USE_ANALYSIS_H
 
 #include "FrontEnd/Analysis/ASTStorage.h"
-#include "FrontEnd/Analysis/Analyzer.h"
+#include "FrontEnd/Analysis/Analysis.h"
 #include <string>
 
 namespace weak {
@@ -17,7 +17,7 @@ namespace weak {
 ///
 /// Performs checks if variable was properly declared and emits
 /// warnings about unused variables.
-class VariableUseAnalysis : public Analyzer {
+class VariableUseAnalysis : public Analysis {
 public:
   VariableUseAnalysis(ASTNode *Root);
 

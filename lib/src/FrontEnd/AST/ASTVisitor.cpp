@@ -79,7 +79,6 @@ void ASTVisitor::Visit(const ASTIf *Stmt) {
 }
 
 void ASTVisitor::Visit(const ASTReturn *Stmt) {
-  printf("ASTVisitor::Return\n");
   if (auto *O = Stmt->Operand())
     O->Accept(this);
 }

@@ -8,7 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_ANALYSIS_FUNCTION_ANALYSIS_H
 
 #include "FrontEnd/Analysis/ASTStorage.h"
-#include "FrontEnd/Analysis/Analyzer.h"
+#include "FrontEnd/Analysis/Analysis.h"
 #include <utility>
 
 namespace weak {
@@ -19,7 +19,7 @@ namespace weak {
 ///
 /// Performs checks if function call has correct arguments passed,
 /// of correct size, etc.
-class FunctionAnalysis : public Analyzer {
+class FunctionAnalysis : public Analysis {
 public:
   FunctionAnalysis(ASTNode *Root);
 

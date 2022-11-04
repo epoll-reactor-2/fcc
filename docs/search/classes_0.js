@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['analyzer_0',['Analyzer',['../structweak_1_1Analyzer.html',1,'weak']]],
+  ['analysis_0',['Analysis',['../structweak_1_1Analysis.html',1,'weak']]],
   ['astarrayaccess_1',['ASTArrayAccess',['../classweak_1_1ASTArrayAccess.html',1,'weak']]],
   ['astarraydecl_2',['ASTArrayDecl',['../classweak_1_1ASTArrayDecl.html',1,'weak']]],
   ['astbinary_3',['ASTBinary',['../classweak_1_1ASTBinary.html',1,'weak']]],

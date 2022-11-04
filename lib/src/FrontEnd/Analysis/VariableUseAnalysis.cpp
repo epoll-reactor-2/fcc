@@ -98,7 +98,7 @@ void VariableUseAnalysis::Visit(const ASTFunctionDecl *Decl) {
 void VariableUseAnalysis::Visit(const ASTFunctionCall *Stmt) {
   AssertIsDeclared(Stmt->Name(), Stmt);
 
-  const ASTNode *Func = mStorage.Lookup(Stmt->Name());
+  const ASTNode *Func = mStorage.Lookup(Stmt->Name())->Value;
 
   /// Used to handle expressions like that
   /// int value = 0;

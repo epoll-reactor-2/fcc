@@ -32,7 +32,7 @@ void ASTStorage::Push(std::string_view Name, const ASTNode *Decl) {
 }
 
 /// Try to retrieve variable by name.
-const ASTNode *ASTStorage::Lookup(std::string_view Name) const {
+ASTStorage::Declaration *ASTStorage::Lookup(std::string_view Name) {
   auto It = mScopes.find(std::hash{}(Name));
 
   if (It == mScopes.end())
@@ -42,7 +42,7 @@ const ASTNode *ASTStorage::Lookup(std::string_view Name) const {
   if (Decl.Depth > mDepth)
     return nullptr;
 
-  return Decl.Value;
+  return &Decl;
 }
 
 /// \brief Add use for variable.
@@ -82,5 +82,7 @@ ASTStorage::Declaration &ASTStorage::FindUse(std::string_view Name) {
 
   return Decl;
 }
+
+unsigned int ASTStorage::CurrentDepth() { return mDepth; }
 
 } // namespace weak

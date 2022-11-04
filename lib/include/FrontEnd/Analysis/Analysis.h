@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_ANALYSIS_ANALYZER_H
-#define WEAK_COMPILER_FRONTEND_ANALYSIS_ANALYZER_H
+#ifndef WEAK_COMPILER_FRONTEND_ANALYSIS_ANALYSIS_H
+#define WEAK_COMPILER_FRONTEND_ANALYSIS_ANALYSIS_H
 
 #include "FrontEnd/AST/ASTVisitor.h"
 
@@ -18,12 +18,12 @@ namespace weak {
 ///   /* Collect needed ones. */
 ///   for (auto *A : Analyzers)
 ///     A->Analyze();
-struct Analyzer : public ASTVisitor {
-  virtual ~Analyzer() = default;
+struct Analysis : public ASTVisitor {
+  virtual ~Analysis() = default;
 
   virtual void Analyze() = 0;
 };
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_ANALYSIS_ANALYZER_H
+#endif // WEAK_COMPILER_FRONTEND_ANALYSIS_ANALYSIS_H

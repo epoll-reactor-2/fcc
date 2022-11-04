@@ -20,10 +20,10 @@ int RunAndGetExitCode(const std::string &TargetPath) {
 }
 
 /// There semantic analysis expect to be correct.
-void RunTestOnValidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen &CG, const std::string &Program,
+void RunTestOnValidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen &CG, const std::string &Program,
                         const std::string &PathToBin);
 /// There semantic or other analysis should emit error.
-void RunTestOnInvalidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen &CG, const std::string &Program);
+void RunTestOnInvalidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen &CG, const std::string &Program);
 
 void RunTest(std::string_view Path, bool IsValid) {
   llvm::outs() << "Testing file " << Path << "... ";
@@ -35,7 +35,7 @@ void RunTest(std::string_view Path, bool IsValid) {
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
 
-  std::vector<weak::Analyzer *> Analyzers;
+  std::vector<weak::Analysis *> Analyzers;
   Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
   Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
 
@@ -53,7 +53,7 @@ void RunTest(std::string_view Path, bool IsValid) {
     delete A;
 }
 
-void RunTestOnValidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen &CG, const std::string &Program,
+void RunTestOnValidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen &CG, const std::string &Program,
                         const std::string &PathToBin) {
   for (auto *A : Analyzers)
     A->Analyze();
@@ -79,7 +79,7 @@ void RunTestOnValidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen 
   }
 }
 
-void RunTestOnInvalidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen &CG, const std::string &Program) {
+void RunTestOnInvalidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen &CG, const std::string &Program) {
   if (Program.substr(0, 3) != "// ") {
     llvm::errs() << "Expected comment with error message.";
     exit(-1);

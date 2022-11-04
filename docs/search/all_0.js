@@ -2,8 +2,8 @@ var searchData=
 [
   ['adduse_0',['AddUse',['../structweak_1_1ASTStorage.html#a010e2e9ace94870dbdc09ab278f71849',1,'weak::ASTStorage']]],
   ['adduseonvaraccess_1',['AddUseOnVarAccess',['../classweak_1_1VariableUseAnalysis.html#aaffc3c83e66c0f013841e74390f53123',1,'weak::VariableUseAnalysis']]],
-  ['analyze_2',['Analyze',['../classweak_1_1Lexer.html#acf23ce4bf4543173f4d64bbf963521fc',1,'weak::Lexer']]],
-  ['analyzer_3',['Analyzer',['../structweak_1_1Analyzer.html',1,'weak']]],
+  ['analysis_2',['Analysis',['../structweak_1_1Analysis.html',1,'weak']]],
+  ['analyze_3',['Analyze',['../classweak_1_1Lexer.html#acf23ce4bf4543173f4d64bbf963521fc',1,'weak::Lexer']]],
   ['assertnotbufend_4',['AssertNotBufEnd',['../classweak_1_1Parser.html#a14af261004062c85268f0273f3abc6a2',1,'weak::Parser']]],
   ['astarrayaccess_5',['ASTArrayAccess',['../classweak_1_1ASTArrayAccess.html',1,'weak']]],
   ['astarraydecl_6',['ASTArrayDecl',['../classweak_1_1ASTArrayDecl.html',1,'weak']]],
