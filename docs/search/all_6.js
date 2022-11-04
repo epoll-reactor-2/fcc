@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['is_0',['Is',['../structweak_1_1Token.html#a0707686c7f6d7fe0f4f1d337f6591fba',1,'weak::Token']]]
+  ['globalfunctions_0',['GlobalFunctions',['../classweak_1_1CodeGen.html#a6d07b98c0639ea5dbc9fa17fb3097af3',1,'weak::CodeGen']]],
+  ['globalvariables_1',['GlobalVariables',['../classweak_1_1CodeGen.html#ac38c6b812f07be4df9645ad4722df48a',1,'weak::CodeGen']]]
 ];

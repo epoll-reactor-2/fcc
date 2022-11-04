@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ostreamraii_0',['OstreamRAII',['../structweak_1_1OstreamRAII.html',1,'weak']]]
+  ['lexer_0',['Lexer',['../classweak_1_1Lexer.html',1,'weak']]]
 ];

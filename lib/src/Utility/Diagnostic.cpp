@@ -12,9 +12,11 @@
 
 /// Forward declaration is in Diagnostic.h, so there is no unnamed namespace.
 struct Diagnostic {
-  enum DiagLevel { WARN, ERROR } const Level;
+  enum DiagLevel { WARN, ERROR } Level;
 
-  static void ClearErrBuf() { std::ostringstream().swap(ErrBuf); }
+  static void ClearBuf() { std::ostringstream().swap(ErrBuf); }
+
+  void SetLvl(DiagLevel L) { Level = L; }
 
   void EmitLabel(unsigned LineNo, unsigned ColumnNo) {
     ErrBuf << ((Level == ERROR) ? "Error" : "Warning");
@@ -36,7 +38,8 @@ weak::OstreamRAII::~OstreamRAII() noexcept(false) {
     throw std::runtime_error(Buf);
   }
 
-  std::cerr << Buf << std::endl;
+  DiagImpl->Level == Diagnostic::ERROR ? std::cerr
+                                       : std::cout << Buf << std::endl;
 }
 
 std::ostream &weak::OstreamRAII::operator<<(const char *String) {
@@ -44,16 +47,18 @@ std::ostream &weak::OstreamRAII::operator<<(const char *String) {
 }
 
 static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level) {
-  Diagnostic::ClearErrBuf();
-  static Diagnostic Diag{Level};
+  Diagnostic::ClearBuf();
+  static Diagnostic Diag;
+  Diag.SetLvl(Level);
   Diag.EmitEmptyLabel();
   return weak::OstreamRAII{&Diag};
 }
 
 static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level,
                                      unsigned LineNo, unsigned ColumnNo) {
-  Diagnostic::ClearErrBuf();
-  static Diagnostic Diag{Level};
+  Diagnostic::ClearBuf();
+  static Diagnostic Diag;
+  Diag.SetLvl(Level);
   Diag.EmitLabel(LineNo, ColumnNo);
   return weak::OstreamRAII{&Diag};
 }

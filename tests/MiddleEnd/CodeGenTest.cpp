@@ -1,7 +1,8 @@
 #include "MiddleEnd/CodeGen/CodeGen.h"
 #include "FrontEnd/Lex/Lexer.h"
 #include "FrontEnd/Parse/Parser.h"
-#include "FrontEnd/Sema/Sema.h"
+#include "FrontEnd/Analysis/VariableUseAnalysis.h"
+#include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "TestHelpers.h"
 
@@ -19,10 +20,10 @@ int RunAndGetExitCode(const std::string &TargetPath) {
 }
 
 /// There semantic analysis expect to be correct.
-void RunTestOnValidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &Program,
+void RunTestOnValidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen &CG, const std::string &Program,
                         const std::string &PathToBin);
 /// There semantic or other analysis should emit error.
-void RunTestOnInvalidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &Program);
+void RunTestOnInvalidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen &CG, const std::string &Program);
 
 void RunTest(std::string_view Path, bool IsValid) {
   llvm::outs() << "Testing file " << Path << "... ";
@@ -33,7 +34,10 @@ void RunTest(std::string_view Path, bool IsValid) {
   auto Tokens = Lex.Analyze();
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
-  weak::Sema Sema(AST.get());
+
+  std::vector<weak::Analyzer *> Analyzers;
+  Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
+  Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
 
   weak::CodeGen CG(AST.get());
 
@@ -41,14 +45,18 @@ void RunTest(std::string_view Path, bool IsValid) {
   PathToBin = PathToBin.substr(0, PathToBin.find_first_of('.'));
 
   if (IsValid)
-    RunTestOnValidCode(Sema, CG, Program, PathToBin);
+    RunTestOnValidCode(Analyzers, CG, Program, PathToBin);
   else
-    RunTestOnInvalidCode(Sema, CG, Program);
+    RunTestOnInvalidCode(Analyzers, CG, Program);
+
+  for (auto *A : Analyzers)
+    delete A;
 }
 
-void RunTestOnValidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &Program,
+void RunTestOnValidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen &CG, const std::string &Program,
                         const std::string &PathToBin) {
-  Sema.Analyze();
+  for (auto *A : Analyzers)
+    A->Analyze();
 
   if (Program.substr(0, 3) != "// ") {
     llvm::errs() << "Expected planned exit code.";
@@ -71,7 +79,7 @@ void RunTestOnValidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &
   }
 }
 
-void RunTestOnInvalidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string &Program) {
+void RunTestOnInvalidCode(std::vector<weak::Analyzer *> &Analyzers, weak::CodeGen &CG, const std::string &Program) {
   if (Program.substr(0, 3) != "// ") {
     llvm::errs() << "Expected comment with error message.";
     exit(-1);
@@ -81,7 +89,8 @@ void RunTestOnInvalidCode(weak::Sema &Sema, weak::CodeGen &CG, const std::string
       "// "sv.length(), Program.find_first_of('\n') - "// "sv.length());
 
   try {
-    Sema.Analyze();
+    for (auto *A : Analyzers)
+      A->Analyze();
     CG.CreateCode();
     llvm::errs() << "Expected error";
     exit(-1);

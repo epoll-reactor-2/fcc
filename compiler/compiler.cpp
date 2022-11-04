@@ -1,7 +1,8 @@
 #include "FrontEnd/AST/ASTDump.h"
 #include "FrontEnd/Lex/Lexer.h"
 #include "FrontEnd/Parse/Parser.h"
-#include "FrontEnd/Sema/Sema.h"
+#include "FrontEnd/Analysis/VariableUseAnalysis.h"
+#include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "MiddleEnd/CodeGen/CodeGen.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "MiddleEnd/Optimizers/Optimizers.h"
@@ -24,8 +25,17 @@ DoSyntaxAnalysis(std::string_view InputPath) {
   auto Tokens = DoLexicalAnalysis(InputPath);
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
-  weak::Sema Sema(AST.get());
-  Sema.Analyze();
+
+  /// \todo: Compiler options.
+  std::vector<weak::Analyzer *> Analyzers;
+  Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
+  Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
+
+  for (auto *A : Analyzers) {
+    A->Analyze();
+    delete A;
+  }
+
   return AST;
 }
 

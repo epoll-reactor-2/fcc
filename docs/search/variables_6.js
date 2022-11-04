@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['module_0',['Module',['../classweak_1_1TargetCodeBuilder.html#a69bc9bd9edd6f65959b1bb78bceb80b8',1,'weak::TargetCodeBuilder']]]
+  ['uses_0',['Uses',['../structweak_1_1ASTStorage_1_1Declaration.html#a9b88472246f90b47a4db4ccae23fdbfb',1,'weak::ASTStorage::Declaration']]]
 ];

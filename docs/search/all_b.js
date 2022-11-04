@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['require_0',['Require',['../classweak_1_1Parser.html#acfca68e62c1269f38bf691f0166d2381',1,'weak::Parser::Require(const std::vector&lt; TokenType &gt; &amp;Expected)'],['../classweak_1_1Parser.html#ae143a4c1108d8feeb1d5736aef3e5176',1,'weak::Parser::Require(TokenType Expected)'],['../classweak_1_1Parser.html#a983c21c39ae25d06044e167a5c39c104',1,'weak::Parser::Require(const std::vector&lt; char &gt; &amp;Expected)'],['../classweak_1_1Parser.html#a31e7e4cc8cb8569e186aa1227f7a0cad',1,'weak::Parser::Require(char Expected)']]],
-  ['resolve_1',['Resolve',['../classweak_1_1TypeResolver.html#a6bbc50fd4bf284962252757eccade976',1,'weak::TypeResolver::Resolve(TokenType, unsigned LineNo, unsigned ColumnNo)'],['../classweak_1_1TypeResolver.html#a5e7b0f61ab0cd69c23e675c37d933861',1,'weak::TypeResolver::Resolve(TokenType, const ASTNode *LocationAST)'],['../classweak_1_1TypeResolver.html#a91f475532c4529c0e0ccc020e115ebe1',1,'weak::TypeResolver::Resolve(const ASTNode *)']]],
-  ['resolveexceptvoid_2',['ResolveExceptVoid',['../classweak_1_1TypeResolver.html#a5b8dcb2c4b3a733dd9a09d02d3b220f0',1,'weak::TypeResolver::ResolveExceptVoid(TokenType, unsigned LineNo, unsigned ColumnNo)'],['../classweak_1_1TypeResolver.html#a6a610b48ed27d53a82b302a1b3b71043',1,'weak::TypeResolver::ResolveExceptVoid(TokenType, const ASTNode *LocationAST)'],['../classweak_1_1TypeResolver.html#ae5b3835248141516c65e63dcddf7a1ed',1,'weak::TypeResolver::ResolveExceptVoid(const ASTNode *)']]]
+  ['ostreamraii_0',['OstreamRAII',['../structweak_1_1OstreamRAII.html',1,'weak']]]
 ];

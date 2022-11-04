@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_MIDDLE_END_DECLS_STORAGE_H
-#define WEAK_COMPILER_MIDDLE_END_DECLS_STORAGE_H
+#ifndef WEAK_COMPILER_MIDDLE_END_STORAGE_H
+#define WEAK_COMPILER_MIDDLE_END_STORAGE_H
 
 #include <string_view>
 #include <unordered_map>
@@ -52,4 +52,4 @@ private:
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_MIDDLE_END_DECLS_STORAGE_H
+#endif // WEAK_COMPILER_MIDDLE_END_STORAGE_H
