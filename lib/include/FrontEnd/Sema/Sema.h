@@ -16,10 +16,12 @@ namespace weak {
 ///
 /// Performs basic syntax checks such as undeclared variable.
 class Sema : private ASTVisitor {
+  /// Storage for declarations.
   struct Storage;
 
-  /// Storage for declarations.
   Storage *mStorage;
+
+  void AddUsageOnVarAccess(ASTNode *);
 
   void AssertIsDeclared(std::string_view Name, const ASTNode *InformAST);
   void AssertIsNotDeclared(std::string_view Name, const ASTNode *InformAST);
@@ -42,6 +44,9 @@ public:
   void Analyze();
 
 private:
+  void MakeUnusedVarAndFuncAnalysis();
+  void MakeUnusedVarAnalysis();
+
   // Operators.
   void Visit(const ASTBinary *) override;
   void Visit(const ASTUnary *) override;

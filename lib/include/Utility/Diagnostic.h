@@ -39,6 +39,9 @@ OstreamRAII CompileWarning();
 /// Print diagnostic message with WARN flag.
 OstreamRAII CompileWarning(unsigned LineNo, unsigned ColumnNo);
 
+/// Print diagnostic message with WARN flag.
+OstreamRAII CompileWarning(const ASTNode *Node);
+
 /// Print diagnostic message with ERROR flag and throw exception.
 OstreamRAII CompileError();
 
