@@ -35,6 +35,9 @@ private:
 
   void InfiniteLoopCheck(const ASTNode *Stmt, bool &WasChecked);
 
+  void RunLoopAnalysis(ASTNode *Condition, ASTNode *Body,
+                       ASTNode *ForIncrement = nullptr);
+
   /// Analyzed root AST node.
   ASTNode *mRoot;
 

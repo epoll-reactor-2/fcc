@@ -59,35 +59,58 @@ void DeadCodeAnalysis::Visit(const ASTSymbol *Stmt) {
   ShouldAnalyzeLoopConditions = true;
 }
 
-void DeadCodeAnalysis::Visit(const ASTFor *) {}
+void DeadCodeAnalysis::Visit(const ASTFor *Stmt) {
+  mCollectedUses.clear();
+
+  if (auto *I = Stmt->Init())
+    I->Accept(this);
+
+  auto *Cond = Stmt->Condition();
+
+  /// Note: increment is accepted inside function below.
+  if (Cond)
+    RunLoopAnalysis(Cond, Stmt->Body(), Stmt->Increment());
+}
 
 void DeadCodeAnalysis::Visit(const ASTWhile *Stmt) {
+  mCollectedUses.clear();
+  RunLoopAnalysis(Stmt->Condition(), Stmt->Body());
+}
+
+void DeadCodeAnalysis::Visit(const ASTDoWhile *Stmt) {
+  mCollectedUses.clear();
+  RunLoopAnalysis(Stmt->Condition(), Stmt->Body());
+}
+
+void DeadCodeAnalysis::RunLoopAnalysis(ASTNode *Condition, ASTNode *Body,
+                                       ASTNode *ForIncrement) {
   mStorage.StartScope();
 
-  mCollectedUses.clear();
-  Stmt->Condition()->Accept(this);
+  Condition->Accept(this);
   auto CondUses = mCollectedUses;
 
-  Stmt->Body()->Accept(this);
-
   bool InfiniteLoopDetected = false;
-  InfiniteLoopCheck(Stmt->Condition(), InfiniteLoopDetected);
+  InfiniteLoopCheck(Condition, InfiniteLoopDetected);
+
+  Body->Accept(this);
+
+  if (ForIncrement)
+    ForIncrement->Accept(this);
 
   auto BodyUses = mCollectedUses;
 
   unsigned CondUsesSize = CondUses.size();
   unsigned CondAndBodyUsesSize{0U};
 
-  for (const auto &Decl : CondUses) {
-    if (auto It = std::find_if(BodyUses.begin(), BodyUses.end(),
-                               [&Decl](const ASTStorage::Declaration &D) {
-                                 return Decl.Name == D.Name;
-                               });
-        It != BodyUses.end()) {
-      /// Check if variable was not modified in body.
-      /// If was modified, add 0, otherwise add 1.
-      CondAndBodyUsesSize += Decl.Uses == (*It).Uses;
-    }
+  for (const auto &Use : CondUses) {
+    auto UseIt = std::find_if(BodyUses.begin(), BodyUses.end(),
+                              [&Use](const ASTStorage::Declaration &D) {
+                                return Use.Name == D.Name;
+                              });
+    /// Check if variable was not modified in body.
+    /// If was modified, add 0, otherwise add 1.
+    if (UseIt != BodyUses.end())
+      CondAndBodyUsesSize += Use.Uses == UseIt->Uses;
   }
 
   if (!InfiniteLoopDetected && ShouldAnalyzeLoopConditions &&
@@ -95,20 +118,9 @@ void DeadCodeAnalysis::Visit(const ASTWhile *Stmt) {
     /// No one variable from condition was changed in loop body as well as
     /// there is no `break` or `return` statements, so we can assume, that
     /// it is infinite loop.
-    weak::CompileWarning(Stmt->Condition()) << "Condition is never changed";
+    weak::CompileWarning(Condition) << "Condition is never changed";
 
   ShouldAnalyzeLoopConditions = false;
-
-  mStorage.EndScope();
-}
-
-void DeadCodeAnalysis::Visit(const ASTDoWhile *Stmt) {
-  mStorage.StartScope();
-
-  bool InfiniteLoopCheckPerformed = false;
-  InfiniteLoopCheck(Stmt->Condition(), InfiniteLoopCheckPerformed);
-
-  Stmt->Body()->Accept(this);
 
   mStorage.EndScope();
 }
