@@ -129,10 +129,14 @@ void VariableUseAnalysis::Visit(const ASTArrayDecl *Decl) {
 void VariableUseAnalysis::Visit(const ASTVarDecl *Decl) {
   AssertIsNotDeclared(Decl->Name(), Decl);
   mStorage.Push(Decl->Name(), Decl);
+
+  if (auto *B = Decl->Body())
+    B->Accept(this);
 }
 
 void VariableUseAnalysis::Visit(const ASTArrayAccess *Stmt) {
   AssertIsDeclared(Stmt->Name(), Stmt);
+  Stmt->Index()->Accept(this);
   mStorage.AddUse(Stmt->Name());
 }
 

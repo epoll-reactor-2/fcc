@@ -7,8 +7,8 @@
 #ifndef WEAK_COMPILER_FRONTEND_ANALYSIS_DEAD_CODE_ANALYSIS_H
 #define WEAK_COMPILER_FRONTEND_ANALYSIS_DEAD_CODE_ANALYSIS_H
 
-#include "FrontEnd/Analysis/Analysis.h"
 #include "FrontEnd/Analysis/ASTStorage.h"
+#include "FrontEnd/Analysis/Analysis.h"
 #include <map>
 
 namespace weak {

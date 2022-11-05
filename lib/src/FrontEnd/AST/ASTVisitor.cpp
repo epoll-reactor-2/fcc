@@ -90,7 +90,10 @@ void ASTVisitor::Visit(const ASTStructDecl *Decl) {
 
 void ASTVisitor::Visit(const ASTUnary *Stmt) { Stmt->Operand()->Accept(this); }
 
-void ASTVisitor::Visit(const ASTVarDecl *Decl) { Decl->Body()->Accept(this); }
+void ASTVisitor::Visit(const ASTVarDecl *Decl) {
+  if (auto *B = Decl->Body())
+    B->Accept(this);
+}
 
 void ASTVisitor::Visit(const ASTWhile *Stmt) {
   Stmt->Condition()->Accept(this);
