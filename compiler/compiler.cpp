@@ -17,8 +17,7 @@ std::vector<weak::Token> DoLexicalAnalysis(std::string_view InputPath) {
   std::string Program((std::istreambuf_iterator<char>(File)),
                       (std::istreambuf_iterator<char>()));
   weak::Lexer Lex(&*Program.begin(), &*Program.end());
-  auto Tokens = Lex.Analyze();
-  return Tokens;
+  return Lex.Analyze();
 }
 
 std::unique_ptr<weak::ASTCompound>
@@ -80,35 +79,55 @@ void BuildCode(std::string_view InputPath, std::string_view OutputPath,
 }
 
 int main(int Argc, char *Argv[]) {
-  llvm::cl::OptionCategory CompilerCategory(
-      "Compiler Options", "Options for controlling the compilation process.");
+  llvm::cl::OptionCategory
+      CompilerCategory(
+          "Compiler Options",
+          "Options for controlling the compilation process.");
 
-  llvm::cl::opt<std::string> InputFilenameOpt(
-      "i", llvm::cl::desc("Specify input program file"), llvm::cl::Required,
-      llvm::cl::cat(CompilerCategory));
+  llvm::cl::opt<std::string>
+      InputFilenameOpt(
+          "i",
+          llvm::cl::desc("Specify input program file"),
+          llvm::cl::Required,
+          llvm::cl::cat(CompilerCategory));
 
-  llvm::cl::opt<std::string> OutputFilenameOpt(
-      "o", llvm::cl::desc("Specify executable file path"), llvm::cl::Optional,
-      llvm::cl::cat(CompilerCategory));
+  llvm::cl::opt<std::string>
+      OutputFilenameOpt(
+          "o",
+          llvm::cl::desc("Specify executable file path"),
+          llvm::cl::Optional,
+          llvm::cl::cat(CompilerCategory));
 
-  llvm::cl::opt<bool> DumpLexemesOpt(
-      "dump-lexemes", llvm::cl::desc("Do lexical analysis of input file"),
-      llvm::cl::Optional, llvm::cl::cat(CompilerCategory));
+  llvm::cl::opt<bool>
+      DumpLexemesOpt(
+          "dump-lexemes",
+          llvm::cl::desc("Do lexical analysis of input file"),
+          llvm::cl::Optional,
+          llvm::cl::cat(CompilerCategory));
 
-  llvm::cl::opt<bool> DumpASTOpt(
-      "dump-ast", llvm::cl::desc("Show Abstract Syntax Tree of input file"),
-      llvm::cl::Optional, llvm::cl::cat(CompilerCategory));
+  llvm::cl::opt<bool>
+      DumpASTOpt(
+          "dump-ast",
+          llvm::cl::desc("Show Abstract Syntax Tree of input file"),
+          llvm::cl::Optional,
+          llvm::cl::cat(CompilerCategory));
 
-  llvm::cl::opt<bool> DumpLLVMIROpt(
-      "dump-llvm", llvm::cl::desc("Show the LLVM IR of input file"),
-      llvm::cl::Optional, llvm::cl::cat(CompilerCategory));
+  llvm::cl::opt<bool>
+      DumpLLVMIROpt(
+          "dump-llvm",
+          llvm::cl::desc("Show the LLVM IR of input file"),
+          llvm::cl::Optional,
+          llvm::cl::cat(CompilerCategory));
 
-  llvm::cl::opt<WeakOptimizationLevel> OptimizationLvlOpt(
-      llvm::cl::desc("Optimization level, from -O0 to -O3"),
-      llvm::cl::values(clEnumVal(O0, "No optimizations"),
-                       clEnumVal(O1, "Trivial"), clEnumVal(O2, "Default"),
-                       clEnumVal(O3, "Most aggressive")),
-      llvm::cl::init(O0));
+  llvm::cl::opt<WeakOptimizationLevel>
+      OptimizationLvlOpt(
+          llvm::cl::desc("Optimization level, from -O0 to -O3"),
+          llvm::cl::values(
+              clEnumVal(O0, "No optimizations"),
+              clEnumVal(O1, "Trivial"),
+              clEnumVal(O2, "Default"),
+              clEnumVal(O3, "Most aggressive")),
+          llvm::cl::init(O0));
 
   llvm::cl::HideUnrelatedOptions(CompilerCategory);
   llvm::cl::ParseCommandLineOptions(Argc, Argv);
