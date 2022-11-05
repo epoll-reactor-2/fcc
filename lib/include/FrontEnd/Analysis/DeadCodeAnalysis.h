@@ -9,7 +9,7 @@
 
 #include "FrontEnd/Analysis/ASTStorage.h"
 #include "FrontEnd/Analysis/Analysis.h"
-#include <map>
+#include <vector>
 
 namespace weak {
 
@@ -24,16 +24,27 @@ private:
   void Visit(const ASTBreak *) override;
   void Visit(const ASTReturn *) override;
 
+  void Visit(const ASTVarDecl *) override;
+  void Visit(const ASTArrayDecl *) override;
+
+  void Visit(const ASTSymbol *) override;
+
   void Visit(const ASTFor *) override;
   void Visit(const ASTWhile *) override;
   void Visit(const ASTDoWhile *) override;
 
-  void DoInfiniteLoopCheck(const ASTNode *);
+  void InfiniteLoopCheck(const ASTNode *Stmt, bool &WasChecked);
 
   /// Analyzed root AST node.
   ASTNode *mRoot;
 
   ASTStorage mStorage;
+
+  /// Used to compute use counts before and after loop conditions
+  /// to detect infinite loops.
+  std::vector<ASTStorage::Declaration> mCollectedUses;
+
+  bool ShouldAnalyzeLoopConditions{false};
 };
 
 } // namespace weak
