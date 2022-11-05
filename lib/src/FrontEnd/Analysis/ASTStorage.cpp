@@ -27,8 +27,8 @@ void ASTStorage::EndScope() {
 
 /// Add variable at current depth.
 void ASTStorage::Push(std::string_view Name, const ASTNode *Decl) {
-  mScopes.emplace(std::hash{}(Name),
-                  Declaration{Decl, Name.data(), /*Uses=*/0, mDepth});
+  mScopes.emplace(std::hash{}(Name), Declaration{Decl, Name.data(), /*Uses=*/0,
+                                                 /*MutableUses=*/0, mDepth});
 }
 
 /// Try to retrieve variable by name.

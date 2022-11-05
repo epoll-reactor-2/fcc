@@ -2,6 +2,7 @@
 #include "FrontEnd/Lex/Lexer.h"
 #include "FrontEnd/Parse/Parser.h"
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
+#include "FrontEnd/Analysis/DeadCodeAnalysis.h"
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "TestHelpers.h"
@@ -37,6 +38,7 @@ void RunTest(std::string_view Path, bool IsValid) {
 
   std::vector<weak::Analysis *> Analyzers;
   Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
+  Analyzers.push_back(new weak::DeadCodeAnalysis(AST.get()));
   Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
 
   weak::CodeGen CG(AST.get());

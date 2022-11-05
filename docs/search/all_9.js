@@ -5,7 +5,7 @@ var searchData=
   ['mbufend_2',['mBufEnd',['../classweak_1_1Lexer.html#af3ef522189366834f5039c639be95d78',1,'weak::Lexer::mBufEnd()'],['../classweak_1_1Parser.html#a6af67eecbd7a11f79d055c54f96645d5',1,'weak::Parser::mBufEnd()']]],
   ['mbufptr_3',['mBufPtr',['../classweak_1_1Lexer.html#a7e9713b865fd847b272cb3e7e37379dd',1,'weak::Lexer']]],
   ['mbufstart_4',['mBufStart',['../classweak_1_1Lexer.html#a16f24c7138ded4436c157d96f774dcbf',1,'weak::Lexer::mBufStart()'],['../classweak_1_1Parser.html#a033c818c986580b35ece637b75fdbf17',1,'weak::Parser::mBufStart()']]],
-  ['mcollecteduses_5',['mCollectedUses',['../classweak_1_1DeadCodeAnalysis.html#a6843ef4c936b16edba5c92aae5cda60b',1,'weak::DeadCodeAnalysis']]],
+  ['mcollecteduses_5',['mCollectedUses',['../classweak_1_1DeadCodeAnalysis.html#adafd158cdd6694b42c2794f6068add3c',1,'weak::DeadCodeAnalysis']]],
   ['mcolumnno_6',['mColumnNo',['../classweak_1_1Lexer.html#aca6b0b26996bf0358ec1b18d7f2ae1ae',1,'weak::Lexer']]],
   ['mdatatype_7',['mDataType',['../classweak_1_1ASTArrayDecl.html#a9e9c280112f217b6bb080cec7fcfb293',1,'weak::ASTArrayDecl']]],
   ['mirbuilder_8',['mIRBuilder',['../classweak_1_1CodeGen.html#a34457e601e2b38071e1cc3e5dbefed2a',1,'weak::CodeGen::mIRBuilder()'],['../classweak_1_1ScalarExprEmitter.html#afdb1c515e1e001542e4b3409979ae91f',1,'weak::ScalarExprEmitter::mIRBuilder()'],['../classweak_1_1TypeResolver.html#a534d95182a8b5dc1ead88fb22f2613a0',1,'weak::TypeResolver::mIRBuilder()']]],
@@ -20,5 +20,6 @@ var searchData=
   ['mroot_17',['mRoot',['../classweak_1_1DeadCodeAnalysis.html#a94187163454187b3b55f24f1767d6f72',1,'weak::DeadCodeAnalysis::mRoot()'],['../classweak_1_1FunctionAnalysis.html#abf4cbe27509063b19fc8f82a68c7a2f8',1,'weak::FunctionAnalysis::mRoot()'],['../classweak_1_1VariableUseAnalysis.html#acd89194117b1f702ff3ae1b94688925a',1,'weak::VariableUseAnalysis::mRoot()'],['../classweak_1_1CodeGen.html#a7b9c309d6720233644f9bd9143255e38',1,'weak::CodeGen::mRoot()']]],
   ['mstorage_18',['mStorage',['../classweak_1_1VariableUseAnalysis.html#a7eac8b5e7a5cf56f2608d1f44f186e66',1,'weak::VariableUseAnalysis::mStorage()'],['../classweak_1_1CodeGen.html#a930e09834d045b62d957b958803a74de',1,'weak::CodeGen::mStorage()']]],
   ['mtokenptr_19',['mTokenPtr',['../classweak_1_1Parser.html#ab44b479457ab5d22351301c6d7b128b1',1,'weak::Parser']]],
-  ['mwasreturnstmt_20',['mWasReturnStmt',['../classweak_1_1FunctionAnalysis.html#a3de354c5c481588c06c5d6b8dff5121c',1,'weak::FunctionAnalysis']]]
+  ['mutableuses_20',['MutableUses',['../structweak_1_1ASTStorage_1_1Declaration.html#ad75af26b8fdc13889c8226520a3bf35d',1,'weak::ASTStorage::Declaration']]],
+  ['mwasreturnstmt_21',['mWasReturnStmt',['../classweak_1_1FunctionAnalysis.html#a3de354c5c481588c06c5d6b8dff5121c',1,'weak::FunctionAnalysis']]]
 ];

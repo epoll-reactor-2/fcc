@@ -13,6 +13,11 @@
 
 namespace weak {
 
+/// \brief Unreachable code detector.
+///
+/// \note Must be called after VariableUseAnalysis, otherwise
+///       we can get wierd errors such as SIGSEGV on
+///       access to unknown variables.
 class DeadCodeAnalysis : public Analysis {
 public:
   DeadCodeAnalysis(ASTNode *Root);
@@ -20,12 +25,19 @@ public:
   void Analyze() override;
 
 private:
-  // Loop exit points.
   void Visit(const ASTBreak *) override;
   void Visit(const ASTReturn *) override;
 
+  void Visit(const ASTBinary *) override;
+  void Visit(const ASTUnary *) override;
+
+  void Visit(const ASTCompound *) override;
+
   void Visit(const ASTVarDecl *) override;
   void Visit(const ASTArrayDecl *) override;
+  /// \note: Needed to have special scope to isolate
+  ///        return statements.
+  void Visit(const ASTFunctionDecl *) override;
 
   void Visit(const ASTSymbol *) override;
 
@@ -35,19 +47,29 @@ private:
 
   void InfiniteLoopCheck(const ASTNode *Stmt, bool &WasChecked);
 
+  /// Check if loop have explicit exit and cannot stuck forever.
+  ///
+  /// Possible reasons to warning are:
+  ///   1) `true` or numbers > 0 in conditions,
+  ///   2) no changes of any variables from condition,
+  ///   3) function call in condition, since by language design,
+  ///      all functions are "pure" and cannot change state of program.
   void RunLoopAnalysis(ASTNode *Condition, ASTNode *Body,
                        ASTNode *ForIncrement = nullptr);
 
-  /// Analyzed root AST node.
+  void AddUseForVariable(std::string_view Name, bool AddMutableUse);
+
+  /// Analyzed AST.
   ASTNode *mRoot;
 
   ASTStorage mStorage;
 
-  /// Used to compute use counts before and after loop conditions
+  using UseStorage = std::vector<ASTStorage::Declaration>;
+  /// Needed to compute use counts before and after loop conditions
   /// to detect infinite loops.
-  std::vector<ASTStorage::Declaration> mCollectedUses;
+  std::vector<UseStorage> mCollectedUses;
 
-  bool ShouldAnalyzeLoopConditions{false};
+  bool mShouldAnalyzeLoopConditions{false};
 };
 
 } // namespace weak

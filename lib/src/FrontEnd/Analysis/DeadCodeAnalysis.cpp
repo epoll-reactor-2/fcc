@@ -6,17 +6,21 @@
 
 #include "FrontEnd/Analysis/DeadCodeAnalysis.h"
 #include "FrontEnd/AST/ASTArrayDecl.h"
+#include "FrontEnd/AST/ASTBinary.h"
 #include "FrontEnd/AST/ASTBool.h"
 #include "FrontEnd/AST/ASTBreak.h"
 #include "FrontEnd/AST/ASTDoWhile.h"
 #include "FrontEnd/AST/ASTFor.h"
+#include "FrontEnd/AST/ASTFunctionDecl.h"
 #include "FrontEnd/AST/ASTNumber.h"
 #include "FrontEnd/AST/ASTReturn.h"
 #include "FrontEnd/AST/ASTSymbol.h"
+#include "FrontEnd/AST/ASTUnary.h"
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "FrontEnd/AST/ASTWhile.h"
 #include "Utility/Diagnostic.h"
 #include <algorithm>
+#include <cassert>
 
 namespace weak {
 
@@ -26,12 +30,88 @@ void DeadCodeAnalysis::Analyze() { mRoot->Accept(this); }
 
 void DeadCodeAnalysis::Visit(const ASTBreak *Stmt) {
   mStorage.Push("break", Stmt);
-  ShouldAnalyzeLoopConditions = true;
+  mShouldAnalyzeLoopConditions = true;
 }
 
 void DeadCodeAnalysis::Visit(const ASTReturn *Stmt) {
   mStorage.Push("return", Stmt);
-  ShouldAnalyzeLoopConditions = true;
+  mShouldAnalyzeLoopConditions = true;
+}
+
+void DeadCodeAnalysis::AddUseForVariable(std::string_view Name,
+                                         bool AddMutableUse) {
+  assert(!mCollectedUses.empty());
+  for (auto &Uses : mCollectedUses) {
+    auto It = std::find_if(
+        Uses.begin(), Uses.end(),
+        [&](ASTStorage::Declaration &Decl) { return Decl.Name == Name; });
+
+    if (It == Uses.end())
+      Uses.push_back(*mStorage.Lookup(Name));
+    else {
+      ++It->Uses;
+      if (AddMutableUse)
+        ++It->MutableUses;
+    }
+  }
+}
+
+void DeadCodeAnalysis::Visit(const ASTBinary *Stmt) {
+  Stmt->LHS()->Accept(this);
+  Stmt->RHS()->Accept(this);
+
+  switch (Stmt->Operation()) {
+  case TOK_ASSIGN:
+  case TOK_MUL_ASSIGN:
+  case TOK_DIV_ASSIGN:
+  case TOK_PLUS_ASSIGN:
+  case TOK_MINUS_ASSIGN:
+  case TOK_MOD_ASSIGN:
+  case TOK_SHL_ASSIGN:
+  case TOK_SHR_ASSIGN:
+  case TOK_BIT_AND_ASSIGN:
+  case TOK_BIT_OR_ASSIGN:
+  case TOK_XOR_ASSIGN: {
+    /// Assignment statement always requires variable name as
+    /// left operand.
+    auto *Variable = static_cast<const ASTSymbol *>(Stmt->LHS());
+    AddUseForVariable(Variable->Name(), /*AddMutableUse=*/true);
+    mShouldAnalyzeLoopConditions = true;
+  }
+  default:
+    break;
+  }
+}
+
+void DeadCodeAnalysis::Visit(const ASTUnary *Stmt) {
+  Stmt->Operand()->Accept(this);
+
+  if (!Stmt->Operand()->Is(AST_SYMBOL))
+    return;
+
+  auto *Variable = static_cast<const ASTSymbol *>(Stmt->Operand());
+
+  switch (Stmt->Operation()) {
+  case TOK_INC:
+  case TOK_DEC: {
+    AddUseForVariable(Variable->Name(), /*AddMutableUse=*/true);
+    mShouldAnalyzeLoopConditions = true;
+  }
+  default:
+    break;
+  }
+}
+
+void DeadCodeAnalysis::Visit(const ASTCompound *Stmt) {
+  mCollectedUses.push_back(UseStorage{});
+
+  for (auto *S : Stmt->Stmts())
+    S->Accept(this);
+
+  if (Stmt->Stmts().empty())
+    mShouldAnalyzeLoopConditions = true;
+
+  mCollectedUses.pop_back();
 }
 
 void DeadCodeAnalysis::Visit(const ASTArrayDecl *Decl) {
@@ -45,22 +125,21 @@ void DeadCodeAnalysis::Visit(const ASTVarDecl *Decl) {
     B->Accept(this);
 }
 
+void DeadCodeAnalysis::Visit(const ASTFunctionDecl *Decl) {
+  mStorage.StartScope();
+  for (auto *A : Decl->Args())
+    A->Accept(this);
+  Decl->Body()->Accept(this);
+  mStorage.EndScope();
+}
+
 void DeadCodeAnalysis::Visit(const ASTSymbol *Stmt) {
-  auto It = std::find_if(
-      mCollectedUses.begin(), mCollectedUses.end(),
-      [&](ASTStorage::Declaration &Decl) { return Decl.Name == Stmt->Name(); });
-
-  if (It == mCollectedUses.end())
-    It = mCollectedUses.emplace(mCollectedUses.end(),
-                                *mStorage.Lookup(Stmt->Name()));
-
-  ++It->Uses;
-
-  ShouldAnalyzeLoopConditions = true;
+  AddUseForVariable(Stmt->Name(), /*AddMutableUse=*/false);
+  mShouldAnalyzeLoopConditions = false;
 }
 
 void DeadCodeAnalysis::Visit(const ASTFor *Stmt) {
-  mCollectedUses.clear();
+  mCollectedUses.push_back(UseStorage{});
 
   if (auto *I = Stmt->Init())
     I->Accept(this);
@@ -70,16 +149,20 @@ void DeadCodeAnalysis::Visit(const ASTFor *Stmt) {
   /// Note: increment is accepted inside function below.
   if (Cond)
     RunLoopAnalysis(Cond, Stmt->Body(), Stmt->Increment());
+
+  mCollectedUses.pop_back();
 }
 
 void DeadCodeAnalysis::Visit(const ASTWhile *Stmt) {
-  mCollectedUses.clear();
+  mCollectedUses.push_back(UseStorage{});
   RunLoopAnalysis(Stmt->Condition(), Stmt->Body());
+  mCollectedUses.pop_back();
 }
 
 void DeadCodeAnalysis::Visit(const ASTDoWhile *Stmt) {
-  mCollectedUses.clear();
+  mCollectedUses.push_back(UseStorage{});
   RunLoopAnalysis(Stmt->Condition(), Stmt->Body());
+  mCollectedUses.pop_back();
 }
 
 void DeadCodeAnalysis::RunLoopAnalysis(ASTNode *Condition, ASTNode *Body,
@@ -87,7 +170,11 @@ void DeadCodeAnalysis::RunLoopAnalysis(ASTNode *Condition, ASTNode *Body,
   mStorage.StartScope();
 
   Condition->Accept(this);
-  auto CondUses = mCollectedUses;
+
+  assert(!mCollectedUses.empty());
+  /// We are interested only in last set of uses only
+  /// from condition.
+  auto CondUses = mCollectedUses.back();
 
   bool InfiniteLoopDetected = false;
   InfiniteLoopCheck(Condition, InfiniteLoopDetected);
@@ -97,30 +184,31 @@ void DeadCodeAnalysis::RunLoopAnalysis(ASTNode *Condition, ASTNode *Body,
   if (ForIncrement)
     ForIncrement->Accept(this);
 
-  auto BodyUses = mCollectedUses;
+  if (InfiniteLoopDetected)
+    return;
 
-  unsigned CondUsesSize = CondUses.size();
-  unsigned CondAndBodyUsesSize{0U};
+  if (!mShouldAnalyzeLoopConditions)
+    return;
 
-  for (const auto &Use : CondUses) {
-    auto UseIt = std::find_if(BodyUses.begin(), BodyUses.end(),
-                              [&Use](const ASTStorage::Declaration &D) {
-                                return Use.Name == D.Name;
-                              });
-    /// Check if variable was not modified in body.
-    /// If was modified, add 0, otherwise add 1.
-    if (UseIt != BodyUses.end())
-      CondAndBodyUsesSize += Use.Uses == UseIt->Uses;
-  }
+  const auto &BodyUses = mCollectedUses;
 
-  if (!InfiniteLoopDetected && ShouldAnalyzeLoopConditions &&
-      CondUsesSize == CondAndBodyUsesSize)
+  bool CommonUses = false;
+
+  for (auto &CondUse : CondUses)
+    for (auto &BodyUseEntry : BodyUses)
+      for (auto &BodyUse : BodyUseEntry)
+        CommonUses |=
+            ((CondUse.Name == BodyUse.Name) && BodyUse.MutableUses > 0);
+
+  bool ShouldWarn = true;
+  ShouldWarn &= !CommonUses;
+  ShouldWarn &= (!mStorage.Lookup("break") && !mStorage.Lookup("return"));
+
+  if (ShouldWarn)
     /// No one variable from condition was changed in loop body as well as
     /// there is no `break` or `return` statements, so we can assume, that
     /// it is infinite loop.
     weak::CompileWarning(Condition) << "Condition is never changed";
-
-  ShouldAnalyzeLoopConditions = false;
 
   mStorage.EndScope();
 }

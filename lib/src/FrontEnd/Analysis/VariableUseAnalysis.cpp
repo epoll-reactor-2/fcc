@@ -162,7 +162,9 @@ void VariableUseAnalysis::Visit(const ASTReturn *Stmt) {
 
 void VariableUseAnalysis::MakeUnusedVarAndFuncAnalysis() {
   for (auto *U : mStorage.CurrScopeUses()) {
-    bool IsFunction = U->Value->Is(AST_FUNCTION_DECL);
+    bool IsFunction = false;
+    IsFunction |= U->Value->Is(AST_FUNCTION_DECL);
+    IsFunction |= U->Value->Is(AST_FUNCTION_PROTOTYPE);
     bool IsMainFunction = false;
 
     if (IsFunction)
@@ -177,7 +179,9 @@ void VariableUseAnalysis::MakeUnusedVarAndFuncAnalysis() {
 
 void VariableUseAnalysis::MakeUnusedVarAnalysis() {
   for (auto *U : mStorage.CurrScopeUses()) {
-    bool IsFunction = U->Value->Is(AST_FUNCTION_DECL);
+    bool IsFunction = false;
+    IsFunction |= U->Value->Is(AST_FUNCTION_DECL);
+    IsFunction |= U->Value->Is(AST_FUNCTION_PROTOTYPE);
 
     if (U->Uses == 0 && !IsFunction)
       weak::CompileWarning(U->Value) << "Variable"

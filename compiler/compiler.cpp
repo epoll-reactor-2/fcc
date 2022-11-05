@@ -28,8 +28,8 @@ DoSyntaxAnalysis(std::string_view InputPath) {
 
   /// \todo: Compiler options.
   std::vector<weak::Analysis *> Analyzers;
-  Analyzers.push_back(new weak::DeadCodeAnalysis(AST.get()));
   Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
+  Analyzers.push_back(new weak::DeadCodeAnalysis(AST.get()));
   Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
 
   for (auto *A : Analyzers) {

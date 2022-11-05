@@ -23,6 +23,8 @@ struct ASTStorage {
     std::string Name;
     /// How many times variable was used (accessed).
     unsigned Uses{0U};
+    /// How many times variable was changed.
+    unsigned MutableUses{0U};
     /// How much variable is nested.
     unsigned Depth{0U};
   };
