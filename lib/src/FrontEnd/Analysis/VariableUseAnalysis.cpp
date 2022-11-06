@@ -1,4 +1,4 @@
-/* VariableUseAnalysis.cpp - Semantic analyzer.
+/* VariableUseAnalysis.cpp - Semantic analyzer to determine variable issues.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

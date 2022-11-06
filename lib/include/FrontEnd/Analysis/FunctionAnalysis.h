@@ -1,4 +1,4 @@
-/* FunctionAnalysis.h - Semantic analyzer to determine issues with function.
+/* FunctionAnalysis.h - Semantic analyzer to determine issues with functions.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

@@ -1,4 +1,4 @@
-/* ASTCharLiteral.cpp - AST node to represent a single character.
+/* ASTChar.cpp - AST node to represent a single character.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

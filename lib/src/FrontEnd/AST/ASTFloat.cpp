@@ -1,4 +1,4 @@
-/* ASTFloatingPointLiteral.cpp - AST node to represent a floating point number.
+/* ASTFloat.cpp - AST node to represent a floating point number.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

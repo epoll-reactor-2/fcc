@@ -1,4 +1,4 @@
-/* TypeCheck.cpp - Helper class to do type checks.
+/* TypeCheck.cpp - Helper functions to do type checks.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

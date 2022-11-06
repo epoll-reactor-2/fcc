@@ -1,4 +1,4 @@
-/* Token.h - List of all token types and token definition itself.
+/* Token.h - Definition of token.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

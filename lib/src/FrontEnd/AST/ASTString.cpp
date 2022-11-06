@@ -1,4 +1,4 @@
-/* ASTStringLiteral.cpp - AST node to represent a string literal.
+/* ASTString.cpp - AST node to represent a string literal.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
