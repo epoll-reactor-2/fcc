@@ -41,11 +41,15 @@ private:
 
   void Visit(const ASTSymbol *) override;
 
+  void Visit(const ASTIf *) override;
+
   void Visit(const ASTFor *) override;
   void Visit(const ASTWhile *) override;
   void Visit(const ASTDoWhile *) override;
 
-  void InfiniteLoopCheck(const ASTNode *Stmt, bool &WasChecked);
+  /// Check if given statement always evaluates to true or false.
+  /// Used in loops and if statements.
+  void AlwaysTrueOrFalseCheck(const ASTNode *Stmt, bool &WasChecked);
 
   /// Check if loop have explicit exit and cannot stuck forever.
   ///

@@ -12,6 +12,7 @@
 #include "FrontEnd/AST/ASTDoWhile.h"
 #include "FrontEnd/AST/ASTFor.h"
 #include "FrontEnd/AST/ASTFunctionDecl.h"
+#include "FrontEnd/AST/ASTIf.h"
 #include "FrontEnd/AST/ASTNumber.h"
 #include "FrontEnd/AST/ASTReturn.h"
 #include "FrontEnd/AST/ASTSymbol.h"
@@ -138,6 +139,19 @@ void DeadCodeAnalysis::Visit(const ASTSymbol *Stmt) {
   mShouldAnalyzeLoopConditions = false;
 }
 
+void DeadCodeAnalysis::Visit(const ASTIf *Stmt) {
+  bool InvariableCondDetected = false;
+  AlwaysTrueOrFalseCheck(Stmt->Condition(), InvariableCondDetected);
+
+  if (!InvariableCondDetected)
+    Stmt->Condition()->Accept(this);
+
+  Stmt->ThenBody()->Accept(this);
+
+  if (auto *E = Stmt->ElseBody())
+    E->Accept(this);
+}
+
 void DeadCodeAnalysis::Visit(const ASTFor *Stmt) {
   mCollectedUses.push_back(UseStorage{});
 
@@ -176,18 +190,15 @@ void DeadCodeAnalysis::RunLoopAnalysis(ASTNode *Condition, ASTNode *Body,
   /// from condition.
   auto CondUses = mCollectedUses.back();
 
-  bool InfiniteLoopDetected = false;
-  InfiniteLoopCheck(Condition, InfiniteLoopDetected);
+  bool InvariableCondDetected = false;
+  AlwaysTrueOrFalseCheck(Condition, InvariableCondDetected);
 
   Body->Accept(this);
 
   if (ForIncrement)
     ForIncrement->Accept(this);
 
-  if (InfiniteLoopDetected)
-    return;
-
-  if (!mShouldAnalyzeLoopConditions)
+  if (InvariableCondDetected || !mShouldAnalyzeLoopConditions)
     return;
 
   const auto &BodyUses = mCollectedUses;
@@ -213,22 +224,24 @@ void DeadCodeAnalysis::RunLoopAnalysis(ASTNode *Condition, ASTNode *Body,
   mStorage.EndScope();
 }
 
-void DeadCodeAnalysis::InfiniteLoopCheck(const ASTNode *Stmt,
-                                         bool &WasChecked) {
+void DeadCodeAnalysis::AlwaysTrueOrFalseCheck(const ASTNode *Stmt,
+                                              bool &WasChecked) {
   if (mStorage.Lookup("break") || mStorage.Lookup("return"))
     return;
 
   if (Stmt->Is(AST_BOOLEAN_LITERAL)) {
     auto *Bool = static_cast<const ASTBool *>(Stmt);
-    if (Bool->Value())
-      weak::CompileWarning(Bool) << "Infinite loop";
+    weak::CompileWarning(Bool)
+        << "Condition " << (Bool->Value() ? "always" : "never")
+        << " evaluates to true";
     WasChecked = true;
   }
 
   if (Stmt->Is(AST_INTEGER_LITERAL)) {
     auto *Num = static_cast<const ASTNumber *>(Stmt);
-    if (Num->Value() > 0)
-      weak::CompileWarning(Num) << "Infinite loop";
+    weak::CompileWarning(Num)
+        << "Condition " << (Num->Value() != 0 ? "always" : "never")
+        << " evaluates to true";
     WasChecked = true;
   }
 }
