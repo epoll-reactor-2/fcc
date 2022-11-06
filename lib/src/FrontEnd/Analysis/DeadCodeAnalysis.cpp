@@ -20,7 +20,6 @@
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "FrontEnd/AST/ASTWhile.h"
 #include "Utility/Diagnostic.h"
-#include <algorithm>
 #include <cassert>
 
 namespace weak {
@@ -41,20 +40,17 @@ void DeadCodeAnalysis::Visit(const ASTReturn *Stmt) {
 
 void DeadCodeAnalysis::AddUseForVariable(std::string_view Name,
                                          bool AddMutableUse) {
-  assert(!mCollectedUses.empty());
-  for (auto &Uses : mCollectedUses) {
-    auto It = std::find_if(
-        Uses.begin(), Uses.end(),
-        [&](ASTStorage::Declaration &Decl) { return Decl.Name == Name; });
-
-    if (It == Uses.end())
-      Uses.push_back(*mStorage.Lookup(Name));
-    else {
-      ++It->Uses;
-      if (AddMutableUse)
-        ++It->MutableUses;
-    }
-  }
+  /// Increment variable use counter if it present in collected
+  /// ones, otherwise push new record with use = 0.
+  for (auto &Uses : mCollectedUses)
+    for (auto UseIt = Uses.begin(); UseIt != Uses.end();)
+      if (auto &Use = *UseIt; Use.Name == Name) {
+        ++Use.Uses;
+        if (AddMutableUse)
+          ++Use.MutableUses;
+        ++UseIt;
+      } else
+        UseIt = Uses.emplace(Uses.end(), *mStorage.Lookup(Name));
 }
 
 void DeadCodeAnalysis::Visit(const ASTBinary *Stmt) {
