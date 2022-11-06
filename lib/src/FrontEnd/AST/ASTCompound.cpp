@@ -9,7 +9,7 @@
 
 namespace weak {
 
-ASTCompound::ASTCompound(std::vector<ASTNode *> &&Stmts, unsigned LineNo,
+ASTCompound::ASTCompound(std::vector<ASTNode *> Stmts, unsigned LineNo,
                          unsigned ColumnNo)
     : ASTNode(AST_COMPOUND_STMT, LineNo, ColumnNo), mStmts(std::move(Stmts)) {}
 

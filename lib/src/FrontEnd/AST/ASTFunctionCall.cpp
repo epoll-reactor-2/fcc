@@ -9,8 +9,8 @@
 
 namespace weak {
 
-ASTFunctionCall::ASTFunctionCall(std::string &&Name,
-                                 std::vector<ASTNode *> &&Arguments,
+ASTFunctionCall::ASTFunctionCall(std::string Name,
+                                 std::vector<ASTNode *> Arguments,
                                  unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_FUNCTION_CALL, LineNo, ColumnNo), mName(std::move(Name)),
       mArgs(std::move(Arguments)) {}

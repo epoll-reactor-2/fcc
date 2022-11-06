@@ -8,7 +8,8 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_ARRAY_DECL_H
 
 #include "FrontEnd/AST/ASTNode.h"
-#include "FrontEnd/Lex/Token.h"
+#include "FrontEnd/Lex/TokenType.h"
+#include <string>
 #include <vector>
 
 namespace weak {

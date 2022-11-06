@@ -5,6 +5,7 @@
  */
 
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
+#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTFunctionCall.h"
 #include "FrontEnd/AST/ASTFunctionDecl.h"
 #include "FrontEnd/AST/ASTFunctionPrototype.h"

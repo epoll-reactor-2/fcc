@@ -1,7 +1,5 @@
 file (GLOB_RECURSE SOURCES *.cpp)
-add_library(
-    LibCompiler SHARED "${SOURCES}"
-  src/FrontEnd/Analysis/DeadCodeAnalysis.cpp)
+add_library(LibCompiler SHARED "${SOURCES}")
 
 find_package(LLVM REQUIRED CONFIG)
 
@@ -46,7 +44,4 @@ if (WEAK_COMPILER_SANITIZE)
   endif()
 endif()
 
-include_directories(
-    Compiler PUBLIC
-    include
-)
+include_directories(Compiler PUBLIC include)

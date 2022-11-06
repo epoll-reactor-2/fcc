@@ -5,6 +5,7 @@
  */
 
 #include "MiddleEnd/CodeGen/ScalarExprEmitter.h"
+#include "FrontEnd/Lex/Token.h"
 #include "Utility/Diagnostic.h"
 #include "llvm/IR/Value.h"
 

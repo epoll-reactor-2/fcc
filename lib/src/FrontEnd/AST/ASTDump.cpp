@@ -7,6 +7,7 @@
 #include "FrontEnd/AST/ASTDump.h"
 #include "FrontEnd/AST/AST.h"
 #include "FrontEnd/AST/ASTVisitor.h"
+#include "FrontEnd/Lex/Token.h"
 
 template <typename It>
 static std::string IntegerRangeToString(It Begin, It End) {

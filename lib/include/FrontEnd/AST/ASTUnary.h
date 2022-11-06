@@ -8,7 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_UNARY_H
 
 #include "FrontEnd/AST/ASTNode.h"
-#include "FrontEnd/Lex/Token.h"
+#include "FrontEnd/Lex/TokenType.h"
 
 namespace weak {
 

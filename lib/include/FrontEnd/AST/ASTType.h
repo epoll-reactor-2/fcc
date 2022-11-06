@@ -1,11 +1,11 @@
-/* ASTTypesEnum.h - List of all AST types.
+/* ASTType.h - List of all AST types.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_TYPES_ENUM_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_TYPES_ENUM_H
+#ifndef WEAK_COMPILER_FRONTEND_AST_AST_TYPE_H
+#define WEAK_COMPILER_FRONTEND_AST_AST_TYPE_H
 
 namespace weak {
 
@@ -57,4 +57,4 @@ enum ASTType {
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_TYPES_ENUM_H
+#endif // WEAK_COMPILER_FRONTEND_AST_AST_TYPE_H

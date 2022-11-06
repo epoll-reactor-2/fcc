@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_NODE_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_NODE_H
 
-#include "FrontEnd/AST/ASTTypesEnum.h"
+#include "FrontEnd/AST/ASTType.h"
 
 namespace weak {
 

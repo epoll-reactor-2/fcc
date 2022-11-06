@@ -5,15 +5,15 @@
  */
 
 #include "FrontEnd/AST/ASTFunctionDecl.h"
+#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 #include "FrontEnd/Lex/Token.h"
 
 namespace weak {
 
-ASTFunctionDecl::ASTFunctionDecl(TokenType ReturnType, std::string &&Name,
-                                 std::vector<ASTNode *> &&Args,
-                                 ASTCompound *Body, unsigned LineNo,
-                                 unsigned ColumnNo)
+ASTFunctionDecl::ASTFunctionDecl(TokenType ReturnType, std::string Name,
+                                 std::vector<ASTNode *> Args, ASTCompound *Body,
+                                 unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_FUNCTION_DECL, LineNo, ColumnNo), mReturnType(ReturnType),
       mName(std::move(Name)), mArgs(std::move(Args)), mBody(Body) {}
 

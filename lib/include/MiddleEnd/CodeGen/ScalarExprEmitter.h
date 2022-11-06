@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_SCALAR_EXPR_EMITTER_H
 #define WEAK_COMPILER_MIDDLE_END_SCALAR_EXPR_EMITTER_H
 
-#include "FrontEnd/Lex/Token.h"
+#include "FrontEnd/Lex/TokenType.h"
 #include "llvm/IR/IRBuilder.h"
 
 namespace llvm {

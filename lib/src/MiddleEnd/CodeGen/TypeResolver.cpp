@@ -6,6 +6,7 @@
 
 #include "MiddleEnd/CodeGen/TypeResolver.h"
 #include "FrontEnd/AST/ASTVarDecl.h"
+#include "FrontEnd/Lex/Token.h"
 #include "Utility/Diagnostic.h"
 #include "llvm/IR/Type.h"
 

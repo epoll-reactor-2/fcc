@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_TYPE_RESOLVER_H
 #define WEAK_COMPILER_MIDDLE_END_TYPE_RESOLVER_H
 
-#include "FrontEnd/Lex/Token.h"
+#include "FrontEnd/Lex/TokenType.h"
 #include "llvm/IR/IRBuilder.h"
 
 namespace llvm {

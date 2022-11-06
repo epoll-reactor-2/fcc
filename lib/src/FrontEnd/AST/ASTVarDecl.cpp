@@ -9,7 +9,7 @@
 
 namespace weak {
 
-ASTVarDecl::ASTVarDecl(TokenType DataType, std::string &&Name, ASTNode *Body,
+ASTVarDecl::ASTVarDecl(TokenType DataType, std::string Name, ASTNode *Body,
                        unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_VAR_DECL, LineNo, ColumnNo), mDataType(DataType),
       mName(std::move(Name)), mBody(Body) {}

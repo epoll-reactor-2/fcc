@@ -5,6 +5,7 @@
  */
 
 #include "FrontEnd/AST/ASTIf.h"
+#include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
