@@ -64,21 +64,26 @@ declare i32 @puts(i8*)
 
 define i32 @main() {
 entry:
-  %input = alloca i8*, align 8
-  store i8* getelementptr inbounds ([14 x i8], [14 x i8]* @0, i32 0, i32 0), i8** %input, align 8
-  %input1 = load i8*, i8** %input, align 8
-  %0 = call i32 @puts(i8* %input1)
-  ret i32 %0
+  %0 = alloca [14 x i8], align 1
+  %1 = bitcast [14 x i8]* %0 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 1 %1, i8* align 1 getelementptr inbounds ([14 x i8], [14 x i8]* @0, i32 0, i32 0), i64 14, i1 false)
+  %2 = getelementptr [14 x i8], [14 x i8]* %0, i32 0, i32 0
+  %3 = call i32 @puts(i8* %2)
+  ret i32 %3
 }
+
+; Function Attrs: argmemonly nofree nounwind willreturn
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #0
 ```
 ```
-$ ./Compiler -i example.wl -o example
+$ ./Compiler -i example.wl
 $ ./example
 Hello, World!
 ```
 
 ## Comparison with clang
 
-Example of sqrt function (on the left - clang++, on the right - weak compiler).
+Example of simple square root algorithm with maximum optimization level (-O3).
+On the right - clang++, on the left - weak compiler.
 
 ![alt text](https://github.com/epoll-reactor/weak_compiler/blob/master/images/sqrt-clang-comparison.png?raw=true)
