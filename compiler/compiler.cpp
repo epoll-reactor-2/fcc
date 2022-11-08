@@ -1,7 +1,6 @@
 #include "FrontEnd/AST/ASTDump.h"
 #include "FrontEnd/Lex/Lexer.h"
 #include "FrontEnd/Parse/Parser.h"
-#include "FrontEnd/Analysis/DeadCodeAnalysis.h"
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "MiddleEnd/CodeGen/CodeGen.h"
@@ -29,7 +28,6 @@ DoSyntaxAnalysis(std::string_view InputPath) {
   /// \todo: Compiler options.
   std::vector<weak::Analysis *> Analyzers;
   Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
-  Analyzers.push_back(new weak::DeadCodeAnalysis(AST.get()));
   Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
 
   for (auto *A : Analyzers) {
