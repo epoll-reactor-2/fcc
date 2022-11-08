@@ -1,6 +1,7 @@
 #include "FrontEnd/Parse/Parser.h"
 #include "FrontEnd/AST/ASTDump.h"
 #include "FrontEnd/Lex/Lexer.h"
+#include "Utility/Diagnostic.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -37,6 +38,8 @@ void TestAST(std::string_view Path) {
   auto Tokens = Lex.Analyze();
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
   auto AST = Parser.Parse();
+
+  weak::PrintGeneratedWarns(std::cout);
 
   std::ostringstream ASTStream;
   weak::ASTDump(AST.get(), ASTStream);

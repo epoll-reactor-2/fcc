@@ -9,6 +9,12 @@
 
 #include <ostream>
 
+#define Unreachable()                                                          \
+  {                                                                            \
+    printf("Unreachable point reached at %s:L%d", __FILE__, __LINE__);         \
+    abort();                                                                   \
+  }
+
 struct Diagnostic;
 
 namespace weak {
@@ -16,6 +22,12 @@ class ASTNode;
 } // namespace weak
 
 namespace weak {
+
+/// Dump all generated warnings to given stream.
+///
+/// All generated previously warnings are erased
+/// before next call of this function.
+void PrintGeneratedWarns(std::ostream &);
 
 /// This requires the string as first argument in diagnostic messages.
 ///
@@ -26,12 +38,6 @@ struct OstreamRAII {
   ~OstreamRAII() noexcept(false);
   std::ostream &operator<<(const char *);
 };
-
-#define Unreachable()                                                          \
-  {                                                                            \
-    printf("Unreachable point reached at %s:L%d", __FILE__, __LINE__);         \
-    abort();                                                                   \
-  }
 
 /// Print diagnostic message with WARN flag.
 OstreamRAII CompileWarning();

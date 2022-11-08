@@ -6,6 +6,7 @@
 #include "MiddleEnd/CodeGen/CodeGen.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "MiddleEnd/Optimizers/Optimizers.h"
+#include "Utility/Diagnostic.h"
 #include "llvm/Support/CommandLine.h"
 #include <fstream>
 #include <iomanip>
@@ -16,6 +17,7 @@ std::vector<weak::Token> DoLexicalAnalysis(std::string_view InputPath) {
   std::string Program((std::istreambuf_iterator<char>(File)),
                       (std::istreambuf_iterator<char>()));
   weak::Lexer Lex(&*Program.begin(), &*Program.end());
+  weak::PrintGeneratedWarns(std::cout);
   return Lex.Analyze();
 }
 
@@ -35,6 +37,8 @@ DoSyntaxAnalysis(std::string_view InputPath) {
     delete A;
   }
 
+  weak::PrintGeneratedWarns(std::cout);
+
   return AST;
 }
 
@@ -44,6 +48,7 @@ std::string DoLLVMCodeGen(std::string_view InputPath,
   weak::CodeGen CG(AST.get());
   CG.CreateCode();
   weak::RunBuiltinLLVMOptimizationPass(CG.Module(), OptLvl);
+  weak::PrintGeneratedWarns(std::cout);
   return CG.ToString();
 }
 
@@ -73,6 +78,7 @@ void BuildCode(std::string_view InputPath, std::string_view OutputPath,
   CG.CreateCode();
   weak::RunBuiltinLLVMOptimizationPass(CG.Module(), OptLvl);
   weak::TargetCodeBuilder TargetCodeBuilder(CG.Module(), OutputPath);
+  weak::PrintGeneratedWarns(std::cout);
   TargetCodeBuilder.Build();
 }
 

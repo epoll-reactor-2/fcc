@@ -1,5 +1,7 @@
 #include "FrontEnd/Lex/Lexer.h"
+#include "Utility/Diagnostic.h"
 #include "TestHelpers.h"
+#include <iostream>
 
 weak::Token MakeToken(std::string Data, weak::TokenType Type) {
   return {std::move(Data), Type, 0U, 0U};
@@ -8,6 +10,9 @@ weak::Token MakeToken(std::string Data, weak::TokenType Type) {
 void RunLexerTest(std::string_view Input,
                          const std::vector<weak::Token> &ExpectedTokens) {
   auto Tokens = weak::Lexer(Input.begin(), Input.end()).Analyze();
+
+  weak::PrintGeneratedWarns(std::cout);
+
   if (Tokens.size() != ExpectedTokens.size()) {
     std::cerr << "Output size mismatch: got " << Tokens.size()
               << " but expected " << ExpectedTokens.size();

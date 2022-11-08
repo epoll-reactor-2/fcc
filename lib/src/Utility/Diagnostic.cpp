@@ -7,43 +7,49 @@
 #include "Utility/Diagnostic.h"
 #include "FrontEnd/AST/ASTNode.h"
 
-#include <iostream>
 #include <sstream>
 
 /// Forward declaration is in Diagnostic.h, so there is no unnamed namespace.
 struct Diagnostic {
   enum DiagLevel { WARN, ERROR } Level;
 
-  static void ClearBuf() { std::ostringstream().swap(ErrBuf); }
+  static void ClearBuf() { std::ostringstream().swap(ErrorStream); }
 
   void SetLvl(DiagLevel L) { Level = L; }
 
   void EmitLabel(unsigned LineNo, unsigned ColumnNo) {
-    ErrBuf << ((Level == ERROR) ? "Error" : "Warning");
-    ErrBuf << " at line " << LineNo << ", column " << ColumnNo << ": ";
+    ErrorStream << ((Level == ERROR) ? "Error" : "Warning");
+    ErrorStream << " at line " << LineNo << ", column " << ColumnNo << ": ";
   }
 
   void EmitEmptyLabel() {
-    ErrBuf << ((Level == ERROR) ? "Error" : "Warning");
-    ErrBuf << ": ";
+    ErrorStream << ((Level == ERROR) ? "Error" : "Warning");
+    ErrorStream << ": ";
   }
 
-  static inline std::ostringstream ErrBuf;
+  static inline std::ostringstream ErrorStream, WarnStream;
 };
 
+void weak::PrintGeneratedWarns(std::ostream &Stream) {
+  std::string Data = Diagnostic::WarnStream.str();
+  if (!Data.empty()) {
+    Stream << Data;
+    std::ostringstream().swap(Diagnostic::WarnStream);
+  }
+}
+
 weak::OstreamRAII::~OstreamRAII() noexcept(false) {
-  std::string Buf = DiagImpl->ErrBuf.str();
+  std::string Buf = DiagImpl->ErrorStream.str();
 
   if (DiagImpl->Level == Diagnostic::ERROR) {
     throw std::runtime_error(Buf);
   }
 
-  DiagImpl->Level == Diagnostic::ERROR ? std::cerr
-                                       : std::cout << Buf << std::endl;
+  Diagnostic::WarnStream << Buf << '\n';
 }
 
 std::ostream &weak::OstreamRAII::operator<<(const char *String) {
-  return DiagImpl->ErrBuf << String;
+  return DiagImpl->ErrorStream << String;
 }
 
 static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level) {

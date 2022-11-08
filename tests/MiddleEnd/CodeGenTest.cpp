@@ -4,10 +4,11 @@
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
-#include "TestHelpers.h"
+#include "Utility/Diagnostic.h"
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
 using namespace std::string_view_literals;
 
@@ -48,6 +49,8 @@ void RunTest(std::string_view Path, bool IsValid) {
     RunTestOnValidCode(Analyzers, CG, Program, PathToBin);
   else
     RunTestOnInvalidCode(Analyzers, CG, Program);
+
+  weak::PrintGeneratedWarns(std::cout);
 
   for (auto *A : Analyzers)
     delete A;
