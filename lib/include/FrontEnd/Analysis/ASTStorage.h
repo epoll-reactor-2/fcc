@@ -8,8 +8,8 @@
 #define WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
 
 #include "FrontEnd/AST/ASTNode.h"
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace weak {
