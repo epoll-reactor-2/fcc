@@ -9,7 +9,7 @@
 
 #include "FrontEnd/AST/ASTNode.h"
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 namespace weak {
@@ -58,7 +58,7 @@ private:
   unsigned mDepth{0U};
 
   using Hash = size_t;
-  std::unordered_multimap<Hash, Declaration> mScopes;
+  std::multimap<Hash, Declaration> mScopes;
 };
 
 } // namespace weak

@@ -75,6 +75,8 @@ void VariableUseAnalysis::Visit(const ASTFor *Stmt) {
 
   Stmt->Body()->Accept(this);
 
+  MakeUnusedVarAnalysis();
+
   mStorage.EndScope();
 }
 

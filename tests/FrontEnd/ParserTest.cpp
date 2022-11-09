@@ -15,7 +15,6 @@
 /// int main() { return 0; }
 std::string ExtractAST(std::string Program) {
   std::string ExpectedAST;
-  ExpectedAST.reserve(4096);
 
   using namespace std::string_view_literals;
   while (Program.size() > 2 && Program.substr(0, 2) == "//") {

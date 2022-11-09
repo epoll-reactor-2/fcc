@@ -33,7 +33,7 @@ struct Diagnostic {
 void weak::PrintGeneratedWarns(std::ostream &Stream) {
   std::string Data = Diagnostic::WarnStream.str();
   if (!Data.empty()) {
-    Stream << Data;
+    Stream << Data << std::flush;
     std::ostringstream().swap(Diagnostic::WarnStream);
   }
 }

@@ -46,6 +46,7 @@ endfunction()
 
 DeleteOldInputFiles()
 CopyInputFiles("FrontEnd/Input/Parser" "Parser")
+CopyInputFiles("FrontEnd/Input/VariableUseAnalysis" "VariableUseAnalysis")
 CopyInputFiles("MiddleEnd/Input/CodeGen/Valid" "CodeGen/Valid")
 CopyInputFiles("MiddleEnd/Input/CodeGen/Invalid" "CodeGen/Invalid")
 
