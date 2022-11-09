@@ -7,7 +7,6 @@
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "FrontEnd/AST/AST.h"
 #include "Utility/Diagnostic.h"
-#include <algorithm>
 
 namespace weak {
 

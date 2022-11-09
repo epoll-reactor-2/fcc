@@ -8,7 +8,7 @@ var searchData=
   ['mdatatype_5',['mDataType',['../classweak_1_1ASTArrayDecl.html#a9e9c280112f217b6bb080cec7fcfb293',1,'weak::ASTArrayDecl']]],
   ['mirbuilder_6',['mIRBuilder',['../classweak_1_1CodeGen.html#a34457e601e2b38071e1cc3e5dbefed2a',1,'weak::CodeGen::mIRBuilder()'],['../classweak_1_1ScalarExprEmitter.html#afdb1c515e1e001542e4b3409979ae91f',1,'weak::ScalarExprEmitter::mIRBuilder()'],['../classweak_1_1TypeResolver.html#a534d95182a8b5dc1ead88fb22f2613a0',1,'weak::TypeResolver::mIRBuilder()']]],
   ['mirctx_7',['mIRCtx',['../classweak_1_1CodeGen.html#ad039ec71be5d4a8d88e5777ffad32cb9',1,'weak::CodeGen']]],
-  ['mirmodule_8',['mIRModule',['../classweak_1_1CodeGen.html#a8a8bd181a9f5b97ae618cfa5525482b5',1,'weak::CodeGen::mIRModule()'],['../classweak_1_1TargetCodeBuilder.html#a2e28af6afe305cf2669e66a3ae76215a',1,'weak::TargetCodeBuilder::mIRModule()']]],
+  ['mirmodule_8',['mIRModule',['../classweak_1_1TargetCodeBuilder.html#a2e28af6afe305cf2669e66a3ae76215a',1,'weak::TargetCodeBuilder::mIRModule()'],['../classweak_1_1CodeGen.html#a8a8bd181a9f5b97ae618cfa5525482b5',1,'weak::CodeGen::mIRModule()']]],
   ['mlastinstr_9',['mLastInstr',['../classweak_1_1CodeGen.html#ad05f9a5edceafa120a3cb8bd14548384',1,'weak::CodeGen']]],
   ['mlastreturnloc_10',['mLastReturnLoc',['../classweak_1_1FunctionAnalysis.html#ab9d235f6e7e8f4cb9e5aeedf2594b78b',1,'weak::FunctionAnalysis']]],
   ['mlineno_11',['mLineNo',['../classweak_1_1Lexer.html#a041a36a09a45b490b43dafff484162b7',1,'weak::Lexer']]],
@@ -18,6 +18,5 @@ var searchData=
   ['mroot_15',['mRoot',['../classweak_1_1FunctionAnalysis.html#abf4cbe27509063b19fc8f82a68c7a2f8',1,'weak::FunctionAnalysis::mRoot()'],['../classweak_1_1VariableUseAnalysis.html#acd89194117b1f702ff3ae1b94688925a',1,'weak::VariableUseAnalysis::mRoot()'],['../classweak_1_1CodeGen.html#a7b9c309d6720233644f9bd9143255e38',1,'weak::CodeGen::mRoot()']]],
   ['mstorage_16',['mStorage',['../classweak_1_1VariableUseAnalysis.html#a7eac8b5e7a5cf56f2608d1f44f186e66',1,'weak::VariableUseAnalysis::mStorage()'],['../classweak_1_1CodeGen.html#a930e09834d045b62d957b958803a74de',1,'weak::CodeGen::mStorage()']]],
   ['mtokenptr_17',['mTokenPtr',['../classweak_1_1Parser.html#ab44b479457ab5d22351301c6d7b128b1',1,'weak::Parser']]],
-  ['mutableuses_18',['MutableUses',['../structweak_1_1ASTStorage_1_1Declaration.html#ad75af26b8fdc13889c8226520a3bf35d',1,'weak::ASTStorage::Declaration']]],
-  ['mwasreturnstmt_19',['mWasReturnStmt',['../classweak_1_1FunctionAnalysis.html#a3de354c5c481588c06c5d6b8dff5121c',1,'weak::FunctionAnalysis']]]
+  ['mwasreturnstmt_18',['mWasReturnStmt',['../classweak_1_1FunctionAnalysis.html#a3de354c5c481588c06c5d6b8dff5121c',1,'weak::FunctionAnalysis']]]
 ];

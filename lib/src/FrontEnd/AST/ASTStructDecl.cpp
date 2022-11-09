@@ -10,7 +10,7 @@
 namespace weak {
 
 ASTStructDecl::ASTStructDecl(std::string Name, std::vector<ASTNode *> Decls,
-                             unsigned int LineNo, unsigned int ColumnNo)
+                             unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_STRUCT_DECL, LineNo, ColumnNo), mName(std::move(Name)),
       mDecls(std::move(Decls)) {}
 
