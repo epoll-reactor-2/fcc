@@ -232,7 +232,6 @@ Token Lexer::AnalyzeSymbol() {
 Token Lexer::AnalyzeOperator() {
   std::string Operator{PeekNext()};
   unsigned SavedColumnNo = 1U;
-  bool SearchFailed = false;
   char WrongOperator = '\0';
 
   /// This is actually implementation of maximal munch algorithm.
@@ -255,7 +254,6 @@ Token Lexer::AnalyzeOperator() {
       if (PeekCurrent() == '\n')
         --mLineNo;
 
-      SearchFailed = true;
       break;
     }
 
@@ -269,7 +267,7 @@ Token Lexer::AnalyzeOperator() {
     Operator += Next;
   }
 
-  if (SearchFailed && !Operator.empty())
+  if (!Operator.empty())
     return Token("", LexOperators.at(Operator), mLineNo,
                  SavedColumnNo - Operator.length());
 

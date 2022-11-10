@@ -34,12 +34,17 @@ if (WEAK_COMPILER_SANITIZE)
     -fsanitize=undefined -fno-sanitize-recover=all
     -fsanitize-address-use-after-scope
   )
-  if(CMAKE_CXX_COMPILER MATCHES "clang")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options(
       -fsanitize=cfi -fvisibility=default -flto
     )
     link_libraries(
       -fsanitize=cfi -fvisibility=default -flto
+    )
+  endif()
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(
+      -fanalyzer
     )
   endif()
 endif()
