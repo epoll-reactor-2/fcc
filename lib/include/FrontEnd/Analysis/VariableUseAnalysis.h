@@ -50,8 +50,8 @@ private:
   /// increment use counter for this.
   void AddUseOnVarAccess(ASTNode *);
 
-  void AssertIsDeclared(std::string_view Name, const ASTNode *InformAST);
-  void AssertIsNotDeclared(std::string_view Name, const ASTNode *InformAST);
+  void AssertIsDeclared(std::string_view Name, const ASTNode *AST);
+  void AssertIsNotDeclared(std::string_view Name, const ASTNode *AST);
 
   void MakeUnusedVarAndFuncAnalysis();
   void MakeUnusedVarAnalysis();

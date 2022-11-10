@@ -51,11 +51,11 @@ void AnalyzeWarns(std::string_view Program, std::ostringstream &WarnStream, weak
 
   std::cout << "Error while analyzing program:\n";
   std::cout << Program << '\n';
-  std::cout << "Expected warnings are:\n(";
+  std::cout << "Expected warnings are:\n";
   std::cout << ExpectedWarns;
-  std::cout << ")\ngenerated ones:\n(";
+  std::cout << "\ngenerated ones:\n";
   std::cout << GeneratedWarns;
-  std::cout << ")\n";
+  std::cout << "\n";
   exit(-1);
 }
 
@@ -77,11 +77,11 @@ void AnalyzeErrors(std::string_view Program, weak::Analysis *Analysis) {
 
     std::cout << "Error while analyzing program:\n";
     std::cout << Program << '\n';
-    std::cout << "Expected errors are:\n(";
+    std::cout << "Expected errors are:\n";
     std::cout << ExpectedErrors;
-    std::cout << ")\ngenerated ones:\n(";
+    std::cout << "\ngenerated ones:\n";
     std::cout << GeneratedErrors;
-    std::cout << ")\n";
+    std::cout << "\n";
     exit(-1);
   }
 }
