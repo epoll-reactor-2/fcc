@@ -124,5 +124,6 @@ void RunAnalysisTest(const char *TestsDir, bool IsWarnTest) {
 
 int main() {
   RunAnalysisTest<weak::FunctionAnalysis>("/FunctionAnalysis", /*IsWarnTest=*/false);
-  RunAnalysisTest<weak::VariableUseAnalysis>("/VariableUseAnalysis", /*IsWarnTest=*/true);
+  RunAnalysisTest<weak::VariableUseAnalysis>("/VariableUseAnalysis/Warns", /*IsWarnTest=*/true);
+  RunAnalysisTest<weak::VariableUseAnalysis>("/VariableUseAnalysis/Errors", /*IsWarnTest=*/false);
 }

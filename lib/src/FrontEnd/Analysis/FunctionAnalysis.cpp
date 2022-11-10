@@ -39,7 +39,7 @@ static unsigned FunctionASTArgsCount(const ASTNode *Stmt) {
 }
 
 void FunctionAnalysis::Visit(const ASTFunctionCall *Stmt) {
-  const ASTNode *Func = mStorage.Lookup(Stmt->Name())->Value;
+  const ASTNode *Func = mStorage.Lookup(Stmt->Name())->AST;
 
   unsigned CallArgsSize = Stmt->Args().size();
   unsigned DeclArgsSize = FunctionASTArgsCount(Func);

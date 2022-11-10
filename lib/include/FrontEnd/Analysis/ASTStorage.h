@@ -17,7 +17,7 @@ namespace weak {
 struct ASTStorage {
   struct Declaration {
     /// Pointer.
-    const ASTNode *Value{nullptr};
+    const ASTNode *AST{nullptr};
     /// Variable name.
     std::string Name;
     /// How many times variable was used (accessed).

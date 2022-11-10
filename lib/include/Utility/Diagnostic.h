@@ -12,7 +12,7 @@
 #define Unreachable()                                                          \
   {                                                                            \
     printf("Unreachable point reached at %s:L%d", __FILE__, __LINE__);         \
-    abort();                                                                   \
+    exit(-1);                                                                  \
   }
 
 struct Diagnostic;

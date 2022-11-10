@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['uses_0',['Uses',['../structweak_1_1ASTStorage_1_1Declaration.html#a9b88472246f90b47a4db4ccae23fdbfb',1,'weak::ASTStorage::Declaration']]]
+  ['type_0',['Type',['../structweak_1_1Token.html#abd2a9a1c6e6961c751d888ada7ac02fc',1,'weak::Token']]]
 ];
