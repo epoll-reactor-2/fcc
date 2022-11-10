@@ -58,14 +58,22 @@ void FunctionAnalysis::Visit(const ASTFunctionDecl *Decl) {
   /// Don't need to analyze arguments though.
   Decl->Body()->Accept(this);
 
+  auto Reset = [this] {
+    mWasReturnStmt = false;
+    mLastReturnLoc = {0, 0};
+  };
+
   if (mWasReturnStmt && Decl->ReturnType() == TOK_VOID) {
     auto [LineNo, ColNo] = mLastReturnLoc;
+    Reset();
     weak::CompileError(LineNo, ColNo)
         << "Cannot return value from void function";
   }
 
-  mWasReturnStmt = false;
-  mLastReturnLoc = {0, 0};
+  if (!mWasReturnStmt && Decl->ReturnType() != TOK_VOID) {
+    Reset();
+    weak::CompileError(Decl) << "Expected return value";
+  }
 }
 
 void FunctionAnalysis::Visit(const ASTFunctionPrototype *Stmt) {
