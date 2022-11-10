@@ -34,7 +34,7 @@ public:
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitBinOp(const ASTNode *InformAST, TokenType T, llvm::Value *L,
+  llvm::Value *EmitBinOp(ASTNode *InformAST, TokenType T, llvm::Value *L,
                          llvm::Value *R);
 
   /// Emit operation supported only by integral type.
@@ -46,7 +46,7 @@ public:
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitIntegralBinOp(const ASTNode *InformAST, TokenType T,
+  llvm::Value *EmitIntegralBinOp(ASTNode *InformAST, TokenType T,
                                  llvm::Value *L, llvm::Value *R);
 
   /// Emit operation supported only by floating points.
@@ -58,8 +58,8 @@ public:
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitFloatBinOp(const ASTNode *InformAST, TokenType T,
-                              llvm::Value *L, llvm::Value *R);
+  llvm::Value *EmitFloatBinOp(ASTNode *InformAST, TokenType T, llvm::Value *L,
+                              llvm::Value *R);
 
 private:
   /// Reference to global LLVM stuff.

@@ -18,29 +18,29 @@ class ASTVisitor {
 public:
   virtual ~ASTVisitor() = default;
 
-  virtual void Visit(const ASTArrayDecl *) {}
-  virtual void Visit(const ASTArrayAccess *);
-  virtual void Visit(const ASTBinary *);
-  virtual void Visit(const ASTBool *) {}
-  virtual void Visit(const ASTBreak *) {}
-  virtual void Visit(const ASTChar *) {}
-  virtual void Visit(const ASTCompound *);
-  virtual void Visit(const ASTContinue *) {}
-  virtual void Visit(const ASTDoWhile *);
-  virtual void Visit(const ASTFloat *) {}
-  virtual void Visit(const ASTFor *);
-  virtual void Visit(const ASTFunctionDecl *);
-  virtual void Visit(const ASTFunctionCall *);
-  virtual void Visit(const ASTFunctionPrototype *);
-  virtual void Visit(const ASTIf *);
-  virtual void Visit(const ASTNumber *) {}
-  virtual void Visit(const ASTReturn *);
-  virtual void Visit(const ASTString *) {}
-  virtual void Visit(const ASTStructDecl *);
-  virtual void Visit(const ASTSymbol *) {}
-  virtual void Visit(const ASTUnary *);
-  virtual void Visit(const ASTVarDecl *);
-  virtual void Visit(const ASTWhile *);
+  virtual void Visit(ASTArrayDecl *) {}
+  virtual void Visit(ASTArrayAccess *);
+  virtual void Visit(ASTBinary *);
+  virtual void Visit(ASTBool *) {}
+  virtual void Visit(ASTBreak *) {}
+  virtual void Visit(ASTChar *) {}
+  virtual void Visit(ASTCompound *);
+  virtual void Visit(ASTContinue *) {}
+  virtual void Visit(ASTDoWhile *);
+  virtual void Visit(ASTFloat *) {}
+  virtual void Visit(ASTFor *);
+  virtual void Visit(ASTFunctionDecl *);
+  virtual void Visit(ASTFunctionCall *);
+  virtual void Visit(ASTFunctionPrototype *);
+  virtual void Visit(ASTIf *);
+  virtual void Visit(ASTNumber *) {}
+  virtual void Visit(ASTReturn *);
+  virtual void Visit(ASTString *) {}
+  virtual void Visit(ASTStructDecl *);
+  virtual void Visit(ASTSymbol *) {}
+  virtual void Visit(ASTUnary *);
+  virtual void Visit(ASTVarDecl *);
+  virtual void Visit(ASTWhile *);
 };
 
 } // namespace weak

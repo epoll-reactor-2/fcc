@@ -26,7 +26,7 @@ namespace {
 template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
 public:
   FunctionBuilder(llvm::IRBuilder<> &I, llvm::Module &M,
-                  const ASTFunctionDeclOrPrototype *Decl)
+                  ASTFunctionDeclOrPrototype *Decl)
       : mIRBuilder(I), mIRModule(M), mDecl(Decl) {}
 
   llvm::Function *BuildSignature() {
@@ -36,8 +36,8 @@ public:
     llvm::Function *Func = llvm::Function::Create(
         Signature, llvm::Function::ExternalLinkage, mDecl->Name(), &mIRModule);
 
-    auto GetSymbol = [](const ASTNode *Node) {
-      const auto *VarDecl = static_cast<const ASTVarDecl *>(Node);
+    auto GetSymbol = [](ASTNode *Node) {
+      auto *VarDecl = static_cast<ASTVarDecl *>(Node);
       return VarDecl->Name();
     };
 
@@ -68,14 +68,14 @@ private:
     return Signature;
   }
 
-  llvm::Type *ResolveParamType(const ASTNode *ArgAST) {
+  llvm::Type *ResolveParamType(ASTNode *ArgAST) {
     TypeResolver TypeResolver(mIRBuilder);
     if (ArgAST->Is(AST_VAR_DECL))
       /// Variable.
       return TypeResolver.ResolveExceptVoid(ArgAST);
 
     /// Array.
-    const auto *ArrayDecl = static_cast<const ASTArrayDecl *>(ArgAST);
+    auto *ArrayDecl = static_cast<ASTArrayDecl *>(ArgAST);
     llvm::Type *UnderlyingType = TypeResolver.ResolveExceptVoid(
         ArrayDecl->DataType(), /*LocationAST=*/ArgAST);
 
@@ -84,7 +84,7 @@ private:
 
   llvm::IRBuilder<> &mIRBuilder;
   llvm::Module &mIRModule;
-  const ASTFunctionDeclOrPrototype *mDecl;
+  ASTFunctionDeclOrPrototype *mDecl;
 };
 
 } // namespace
@@ -139,24 +139,24 @@ CodeGen::CodeGen(ASTNode *Root)
 
 void CodeGen::CreateCode() { mRoot->Accept(this); }
 
-void CodeGen::Visit(const ASTBool *Stmt) {
+void CodeGen::Visit(ASTBool *Stmt) {
   mLastInstr = mIRBuilder.getInt1(Stmt->Value());
 }
 
-void CodeGen::Visit(const ASTChar *Stmt) {
+void CodeGen::Visit(ASTChar *Stmt) {
   mLastInstr = mIRBuilder.getInt8(Stmt->Value());
 }
 
-void CodeGen::Visit(const ASTNumber *Stmt) {
+void CodeGen::Visit(ASTNumber *Stmt) {
   mLastInstr = mIRBuilder.getInt32(Stmt->Value());
 }
 
-void CodeGen::Visit(const ASTFloat *Stmt) {
+void CodeGen::Visit(ASTFloat *Stmt) {
   llvm::APFloat Float(Stmt->Value());
   mLastInstr = llvm::ConstantFP::get(mIRCtx, Float);
 }
 
-void CodeGen::Visit(const ASTString *Stmt) {
+void CodeGen::Visit(ASTString *Stmt) {
   StringBuilder Builder(mIRModule, mIRBuilder);
   mLastInstr = Builder.BuildLiteral(Stmt->Value());
 }
@@ -199,7 +199,7 @@ static TokenType ResolveUnaryOp(TokenType T) {
   }
 }
 
-void CodeGen::Visit(const ASTBinary *Stmt) {
+void CodeGen::Visit(ASTBinary *Stmt) {
   Stmt->LHS()->Accept(this);
   llvm::Value *L = mLastInstr;
   Stmt->RHS()->Accept(this);
@@ -244,7 +244,7 @@ void CodeGen::Visit(const ASTBinary *Stmt) {
   case TOK_BIT_AND_ASSIGN:
   case TOK_BIT_OR_ASSIGN:
   case TOK_XOR_ASSIGN: {
-    auto *Assignment = static_cast<const ASTSymbol *>(Stmt->LHS());
+    auto *Assignment = static_cast<ASTSymbol *>(Stmt->LHS());
     llvm::AllocaInst *Variable = mStorage.Lookup(Assignment->Name());
     TokenType Op = ResolveAssignmentOp(T);
     mLastInstr = ScalarEmitter.EmitBinOp(Stmt, Op, L, R);
@@ -276,7 +276,7 @@ void CodeGen::Visit(const ASTBinary *Stmt) {
   } // switch
 }
 
-void CodeGen::Visit(const ASTUnary *Stmt) {
+void CodeGen::Visit(ASTUnary *Stmt) {
   Stmt->Operand()->Accept(this);
   llvm::Value *Op = mLastInstr;
   llvm::Value *ArrayPtr{nullptr};
@@ -304,7 +304,7 @@ void CodeGen::Visit(const ASTUnary *Stmt) {
                          ArrayPtr ? ArrayPtr : mStorage.Lookup(Symbol->Name()));
 }
 
-void CodeGen::Visit(const ASTFor *Stmt) {
+void CodeGen::Visit(ASTFor *Stmt) {
   mStorage.StartScope();
 
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
@@ -338,7 +338,7 @@ void CodeGen::Visit(const ASTFor *Stmt) {
   mStorage.EndScope();
 }
 
-void CodeGen::Visit(const ASTWhile *Stmt) {
+void CodeGen::Visit(ASTWhile *Stmt) {
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
   auto *CondBB = llvm::BasicBlock::Create(mIRCtx, "while.cond", Func);
@@ -356,7 +356,7 @@ void CodeGen::Visit(const ASTWhile *Stmt) {
   mIRBuilder.SetInsertPoint(EndBB);
 }
 
-void CodeGen::Visit(const ASTDoWhile *Stmt) {
+void CodeGen::Visit(ASTDoWhile *Stmt) {
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
   auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "do.while.body", Func);
@@ -371,7 +371,7 @@ void CodeGen::Visit(const ASTDoWhile *Stmt) {
   mIRBuilder.SetInsertPoint(EndBB);
 }
 
-void CodeGen::Visit(const ASTIf *Stmt) {
+void CodeGen::Visit(ASTIf *Stmt) {
   Stmt->Condition()->Accept(this);
   llvm::Value *Condition = mLastInstr;
 
@@ -408,7 +408,7 @@ void CodeGen::Visit(const ASTIf *Stmt) {
   mIRBuilder.SetInsertPoint(MergeBB);
 }
 
-void CodeGen::Visit(const ASTFunctionDecl *Decl) {
+void CodeGen::Visit(ASTFunctionDecl *Decl) {
   FunctionBuilder FunctionBuilder(mIRBuilder, mIRModule, Decl);
 
   llvm::Function *Func = FunctionBuilder.BuildSignature();
@@ -432,7 +432,7 @@ void CodeGen::Visit(const ASTFunctionDecl *Decl) {
     mIRBuilder.CreateRetVoid();
 }
 
-void CodeGen::Visit(const ASTFunctionCall *Stmt) {
+void CodeGen::Visit(ASTFunctionCall *Stmt) {
   llvm::Function *Callee = mIRModule.getFunction(Stmt->Name());
   const auto &FunArgs = Stmt->Args();
 
@@ -451,12 +451,12 @@ void CodeGen::Visit(const ASTFunctionCall *Stmt) {
   mLastInstr = mIRBuilder.CreateCall(Callee, Args);
 }
 
-void CodeGen::Visit(const ASTFunctionPrototype *Stmt) {
+void CodeGen::Visit(ASTFunctionPrototype *Stmt) {
   FunctionBuilder B(mIRBuilder, mIRModule, Stmt);
   B.BuildSignature();
 }
 
-void CodeGen::Visit(const ASTArrayAccess *Stmt) {
+void CodeGen::Visit(ASTArrayAccess *Stmt) {
   llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
   llvm::Value *Array =
       mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
@@ -481,7 +481,7 @@ void CodeGen::Visit(const ASTArrayAccess *Stmt) {
         Array->getType(), llvm::getPointerOperand(Array), {Zero, Index});
 }
 
-void CodeGen::Visit(const ASTSymbol *Stmt) {
+void CodeGen::Visit(ASTSymbol *Stmt) {
   llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
   llvm::Type *SymbolTy = Symbol->getAllocatedType();
 
@@ -491,19 +491,19 @@ void CodeGen::Visit(const ASTSymbol *Stmt) {
     mLastInstr = mIRBuilder.CreateLoad(SymbolTy, Symbol);
 }
 
-void CodeGen::Visit(const ASTCompound *Stmts) {
+void CodeGen::Visit(ASTCompound *Stmts) {
   mStorage.StartScope();
   for (ASTNode *Stmt : Stmts->Stmts())
     Stmt->Accept(this);
   mStorage.EndScope();
 }
 
-void CodeGen::Visit(const ASTReturn *Stmt) {
+void CodeGen::Visit(ASTReturn *Stmt) {
   Stmt->Operand()->Accept(this);
   mIRBuilder.CreateRet(mLastInstr);
 }
 
-void CodeGen::Visit(const ASTArrayDecl *Stmt) {
+void CodeGen::Visit(ASTArrayDecl *Stmt) {
   TypeResolver TypeResolver(mIRBuilder);
 
   llvm::Type *Type =
@@ -516,7 +516,7 @@ void CodeGen::Visit(const ASTArrayDecl *Stmt) {
   mStorage.Push(Stmt->Name(), ArrayDecl);
 }
 
-void CodeGen::Visit(const ASTVarDecl *Decl) {
+void CodeGen::Visit(ASTVarDecl *Decl) {
   Decl->Body()->Accept(this);
 
   llvm::Value *LiteralValue = mLastInstr;
@@ -524,8 +524,8 @@ void CodeGen::Visit(const ASTVarDecl *Decl) {
   /// Special case, since we need to copy array from data section to another
   /// array, placed on stack.
   if (Decl->DataType() == TOK_STRING) {
-    const auto *Literal = static_cast<ASTString *>(Decl->Body());
-    const unsigned NullTerminator = 1;
+    auto *Literal = static_cast<ASTString *>(Decl->Body());
+    unsigned NullTerminator = 1;
     llvm::ArrayType *ArrayType = llvm::ArrayType::get(
         mIRBuilder.getInt8Ty(), Literal->Value().size() + NullTerminator);
     llvm::AllocaInst *Mem = mIRBuilder.CreateAlloca(ArrayType);

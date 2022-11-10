@@ -25,33 +25,33 @@ public:
 
 private:
   // Operators.
-  void Visit(const ASTBinary *) override;
-  void Visit(const ASTUnary *) override;
+  void Visit(ASTBinary *) override;
+  void Visit(ASTUnary *) override;
 
   // Loop statements.
-  void Visit(const ASTFor *) override;
+  void Visit(ASTFor *) override;
 
   // Function statements.
-  void Visit(const ASTFunctionDecl *) override;
-  void Visit(const ASTFunctionCall *) override;
-  void Visit(const ASTFunctionPrototype *) override;
+  void Visit(ASTFunctionDecl *) override;
+  void Visit(ASTFunctionCall *) override;
+  void Visit(ASTFunctionPrototype *) override;
 
   // Declarations.
-  void Visit(const ASTArrayDecl *) override;
-  void Visit(const ASTVarDecl *) override;
+  void Visit(ASTArrayDecl *) override;
+  void Visit(ASTVarDecl *) override;
 
   // The rest.
-  void Visit(const ASTArrayAccess *) override;
-  void Visit(const ASTSymbol *) override;
-  void Visit(const ASTCompound *) override;
-  void Visit(const ASTReturn *) override;
+  void Visit(ASTArrayAccess *) override;
+  void Visit(ASTSymbol *) override;
+  void Visit(ASTCompound *) override;
+  void Visit(ASTReturn *) override;
 
   /// Check if given AST node is symbol/array access operator and
   /// increment use counter for this.
   void AddUseOnVarAccess(ASTNode *);
 
-  void AssertIsDeclared(std::string_view Name, const ASTNode *AST);
-  void AssertIsNotDeclared(std::string_view Name, const ASTNode *AST);
+  void AssertIsDeclared(std::string_view Name, ASTNode *AST);
+  void AssertIsNotDeclared(std::string_view Name, ASTNode *AST);
 
   void MakeUnusedVarAndFuncAnalysis();
   void MakeUnusedVarAnalysis();

@@ -80,7 +80,7 @@ weak::OstreamRAII weak::CompileWarning(unsigned LineNo, unsigned ColumnNo) {
   return MakeMessage(Diagnostic::WARN, LineNo, ColumnNo);
 }
 
-weak::OstreamRAII weak::CompileWarning(const ASTNode *Node) {
+weak::OstreamRAII weak::CompileWarning(ASTNode *Node) {
   return CompileWarning(Node->LineNo(), Node->ColumnNo());
 }
 
@@ -92,6 +92,6 @@ weak::OstreamRAII weak::CompileError(unsigned LineNo, unsigned ColumnNo) {
   return MakeMessage(Diagnostic::ERROR, LineNo, ColumnNo);
 }
 
-weak::OstreamRAII weak::CompileError(const ASTNode *Node) {
+weak::OstreamRAII weak::CompileError(ASTNode *Node) {
   return CompileError(Node->LineNo(), Node->ColumnNo());
 }

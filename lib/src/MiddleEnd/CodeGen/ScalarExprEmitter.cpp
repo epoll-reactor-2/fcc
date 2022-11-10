@@ -20,7 +20,7 @@ namespace weak {
 
 ScalarExprEmitter::ScalarExprEmitter(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
 
-llvm::Value *ScalarExprEmitter::EmitBinOp(const ASTNode *InformAST, TokenType T,
+llvm::Value *ScalarExprEmitter::EmitBinOp(ASTNode *InformAST, TokenType T,
                                           llvm::Value *L, llvm::Value *R) {
   assert(L->getType() == R->getType());
 
@@ -36,7 +36,7 @@ llvm::Value *ScalarExprEmitter::EmitBinOp(const ASTNode *InformAST, TokenType T,
   Unreachable();
 }
 
-llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(const ASTNode *InformAST,
+llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(ASTNode *InformAST,
                                                   TokenType T, llvm::Value *L,
                                                   llvm::Value *R) {
   switch (T) {
@@ -81,9 +81,8 @@ llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(const ASTNode *InformAST,
   } // switch
 }
 
-llvm::Value *ScalarExprEmitter::EmitFloatBinOp(const ASTNode *InformAST,
-                                               TokenType T, llvm::Value *L,
-                                               llvm::Value *R) {
+llvm::Value *ScalarExprEmitter::EmitFloatBinOp(ASTNode *InformAST, TokenType T,
+                                               llvm::Value *L, llvm::Value *R) {
   switch (T) {
   case TOK_PLUS:
     return mIRBuilder.CreateFAdd(L, R);

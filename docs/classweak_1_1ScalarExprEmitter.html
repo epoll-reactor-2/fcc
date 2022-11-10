@@ -84,12 +84,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a5d3534af569219e63852128ba552ad5f"><td class="memItemLeft" align="right" valign="top"><a id="a5d3534af569219e63852128ba552ad5f" name="a5d3534af569219e63852128ba552ad5f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ScalarExprEmitter</b> (llvm::IRBuilder&lt;&gt; &amp;)</td></tr>
 <tr class="separator:a5d3534af569219e63852128ba552ad5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84a12abda962ffb547f5f59c9f0a2cbc"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ScalarExprEmitter.html#a84a12abda962ffb547f5f59c9f0a2cbc">EmitBinOp</a> (const <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *InformAST, TokenType T, llvm::Value *L, llvm::Value *R)</td></tr>
-<tr class="separator:a84a12abda962ffb547f5f59c9f0a2cbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae26bc4ad4498965c02a0a46e40244364"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ScalarExprEmitter.html#ae26bc4ad4498965c02a0a46e40244364">EmitIntegralBinOp</a> (const <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *InformAST, TokenType T, llvm::Value *L, llvm::Value *R)</td></tr>
-<tr class="separator:ae26bc4ad4498965c02a0a46e40244364"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5785ebe08d10705dbaab71542aebbb97"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ScalarExprEmitter.html#a5785ebe08d10705dbaab71542aebbb97">EmitFloatBinOp</a> (const <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *InformAST, TokenType T, llvm::Value *L, llvm::Value *R)</td></tr>
-<tr class="separator:a5785ebe08d10705dbaab71542aebbb97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9979dd0b1456fc2739e1002f4bcf991b"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ScalarExprEmitter.html#a9979dd0b1456fc2739e1002f4bcf991b">EmitBinOp</a> (<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *InformAST, TokenType T, llvm::Value *L, llvm::Value *R)</td></tr>
+<tr class="separator:a9979dd0b1456fc2739e1002f4bcf991b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a203d229553d7a64c84f8475b9fdd381b"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ScalarExprEmitter.html#a203d229553d7a64c84f8475b9fdd381b">EmitIntegralBinOp</a> (<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *InformAST, TokenType T, llvm::Value *L, llvm::Value *R)</td></tr>
+<tr class="separator:a203d229553d7a64c84f8475b9fdd381b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a159888271cf54e25482c74cc78ce3b6f"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ScalarExprEmitter.html#a159888271cf54e25482c74cc78ce3b6f">EmitFloatBinOp</a> (<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *InformAST, TokenType T, llvm::Value *L, llvm::Value *R)</td></tr>
+<tr class="separator:a159888271cf54e25482c74cc78ce3b6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -101,8 +101,8 @@ llvm::IRBuilder &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>mIRB
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Generator of operations on numeric data types. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a84a12abda962ffb547f5f59c9f0a2cbc" name="a84a12abda962ffb547f5f59c9f0a2cbc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a84a12abda962ffb547f5f59c9f0a2cbc">&#9670;&nbsp;</a></span>EmitBinOp()</h2>
+<a id="a9979dd0b1456fc2739e1002f4bcf991b" name="a9979dd0b1456fc2739e1002f4bcf991b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9979dd0b1456fc2739e1002f4bcf991b">&#9670;&nbsp;</a></span>EmitBinOp()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -110,7 +110,7 @@ llvm::IRBuilder &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>mIRB
         <tr>
           <td class="memname">llvm::Value * weak::ScalarExprEmitter::EmitBinOp </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td>
           <td class="paramname"><em>InformAST</em>, </td>
         </tr>
         <tr>
@@ -157,8 +157,8 @@ llvm::IRBuilder &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>mIRB
 
 </div>
 </div>
-<a id="a5785ebe08d10705dbaab71542aebbb97" name="a5785ebe08d10705dbaab71542aebbb97"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5785ebe08d10705dbaab71542aebbb97">&#9670;&nbsp;</a></span>EmitFloatBinOp()</h2>
+<a id="a159888271cf54e25482c74cc78ce3b6f" name="a159888271cf54e25482c74cc78ce3b6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a159888271cf54e25482c74cc78ce3b6f">&#9670;&nbsp;</a></span>EmitFloatBinOp()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -166,7 +166,7 @@ llvm::IRBuilder &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>mIRB
         <tr>
           <td class="memname">llvm::Value * weak::ScalarExprEmitter::EmitFloatBinOp </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td>
           <td class="paramname"><em>InformAST</em>, </td>
         </tr>
         <tr>
@@ -209,8 +209,8 @@ llvm::IRBuilder &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>mIRB
 
 </div>
 </div>
-<a id="ae26bc4ad4498965c02a0a46e40244364" name="ae26bc4ad4498965c02a0a46e40244364"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae26bc4ad4498965c02a0a46e40244364">&#9670;&nbsp;</a></span>EmitIntegralBinOp()</h2>
+<a id="a203d229553d7a64c84f8475b9fdd381b" name="a203d229553d7a64c84f8475b9fdd381b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a203d229553d7a64c84f8475b9fdd381b">&#9670;&nbsp;</a></span>EmitIntegralBinOp()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -218,7 +218,7 @@ llvm::IRBuilder &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>mIRB
         <tr>
           <td class="memname">llvm::Value * weak::ScalarExprEmitter::EmitIntegralBinOp </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td>
           <td class="paramname"><em>InformAST</em>, </td>
         </tr>
         <tr>

@@ -10,7 +10,7 @@
 
 namespace weak {
 
-static const char *ASTDeclToString(const ASTNode *Node) {
+static const char *ASTDeclToString(ASTNode *Node) {
   switch (Node->Type()) {
   case AST_FUNCTION_CALL:
   case AST_FUNCTION_DECL:
@@ -30,7 +30,7 @@ VariableUseAnalysis::VariableUseAnalysis(ASTNode *Root) : mRoot(Root) {}
 
 void VariableUseAnalysis::Analyze() { mRoot->Accept(this); }
 
-void VariableUseAnalysis::Visit(const ASTBinary *Stmt) {
+void VariableUseAnalysis::Visit(ASTBinary *Stmt) {
   Stmt->LHS()->Accept(this);
   Stmt->RHS()->Accept(this);
 
@@ -38,7 +38,7 @@ void VariableUseAnalysis::Visit(const ASTBinary *Stmt) {
   AddUseOnVarAccess(Stmt->RHS());
 }
 
-void VariableUseAnalysis::Visit(const ASTUnary *Stmt) {
+void VariableUseAnalysis::Visit(ASTUnary *Stmt) {
   auto *Op = Stmt->Operand();
 
   bool IsVariable = false;
@@ -52,7 +52,7 @@ void VariableUseAnalysis::Visit(const ASTUnary *Stmt) {
   AddUseOnVarAccess(Op);
 }
 
-void VariableUseAnalysis::Visit(const ASTFor *Stmt) {
+void VariableUseAnalysis::Visit(ASTFor *Stmt) {
   mStorage.StartScope();
 
   if (auto *I = Stmt->Init())
@@ -71,7 +71,7 @@ void VariableUseAnalysis::Visit(const ASTFor *Stmt) {
   mStorage.EndScope();
 }
 
-void VariableUseAnalysis::Visit(const ASTFunctionDecl *Decl) {
+void VariableUseAnalysis::Visit(ASTFunctionDecl *Decl) {
   AssertIsNotDeclared(Decl->Name(), Decl);
 
   mStorage.StartScope();
@@ -89,11 +89,11 @@ void VariableUseAnalysis::Visit(const ASTFunctionDecl *Decl) {
   mStorage.Push(Decl->Name(), Decl);
 }
 
-void VariableUseAnalysis::Visit(const ASTFunctionCall *Stmt) {
+void VariableUseAnalysis::Visit(ASTFunctionCall *Stmt) {
   const auto &Symbol = Stmt->Name();
   AssertIsDeclared(Symbol, Stmt);
 
-  const ASTNode *Func = mStorage.Lookup(Symbol)->AST;
+  ASTNode *Func = mStorage.Lookup(Symbol)->AST;
 
   /// Used to handle expressions like that
   /// int value = 0;
@@ -110,7 +110,7 @@ void VariableUseAnalysis::Visit(const ASTFunctionCall *Stmt) {
     A->Accept(this);
 }
 
-void VariableUseAnalysis::Visit(const ASTFunctionPrototype *Stmt) {
+void VariableUseAnalysis::Visit(ASTFunctionPrototype *Stmt) {
   AssertIsNotDeclared(Stmt->Name(), Stmt);
 
   for (ASTNode *A : Stmt->Args())
@@ -119,12 +119,12 @@ void VariableUseAnalysis::Visit(const ASTFunctionPrototype *Stmt) {
   mStorage.Push(Stmt->Name(), Stmt);
 }
 
-void VariableUseAnalysis::Visit(const ASTArrayDecl *Decl) {
+void VariableUseAnalysis::Visit(ASTArrayDecl *Decl) {
   AssertIsNotDeclared(Decl->Name(), Decl);
   mStorage.Push(Decl->Name(), Decl);
 }
 
-void VariableUseAnalysis::Visit(const ASTVarDecl *Decl) {
+void VariableUseAnalysis::Visit(ASTVarDecl *Decl) {
   AssertIsNotDeclared(Decl->Name(), Decl);
   mStorage.Push(Decl->Name(), Decl);
 
@@ -132,18 +132,18 @@ void VariableUseAnalysis::Visit(const ASTVarDecl *Decl) {
     B->Accept(this);
 }
 
-void VariableUseAnalysis::Visit(const ASTArrayAccess *Stmt) {
+void VariableUseAnalysis::Visit(ASTArrayAccess *Stmt) {
   AssertIsDeclared(Stmt->Name(), Stmt);
   Stmt->Index()->Accept(this);
   mStorage.AddUse(Stmt->Name());
 }
 
-void VariableUseAnalysis::Visit(const ASTSymbol *Stmt) {
+void VariableUseAnalysis::Visit(ASTSymbol *Stmt) {
   AssertIsDeclared(Stmt->Name(), Stmt);
   mStorage.AddUse(Stmt->Name());
 }
 
-void VariableUseAnalysis::Visit(const ASTCompound *Stmt) {
+void VariableUseAnalysis::Visit(ASTCompound *Stmt) {
   mStorage.StartScope();
   for (ASTNode *S : Stmt->Stmts())
     S->Accept(this);
@@ -153,20 +153,20 @@ void VariableUseAnalysis::Visit(const ASTCompound *Stmt) {
   mStorage.EndScope();
 }
 
-void VariableUseAnalysis::Visit(const ASTReturn *Stmt) {
+void VariableUseAnalysis::Visit(ASTReturn *Stmt) {
   if (auto *O = Stmt->Operand())
     O->Accept(this);
 }
 
 void VariableUseAnalysis::AssertIsDeclared(std::string_view Name,
-                                           const ASTNode *AST) {
+                                           ASTNode *AST) {
   if (!mStorage.Lookup(Name))
     weak::CompileError(AST)
         << ASTDeclToString(AST) << " `" << Name << "` not found";
 }
 
 void VariableUseAnalysis::AssertIsNotDeclared(std::string_view Name,
-                                              const ASTNode *AST) {
+                                              ASTNode *AST) {
   if (!mStorage.Lookup(Name))
     return;
 
@@ -199,7 +199,7 @@ void VariableUseAnalysis::MakeUnusedVarAndFuncAnalysis() {
     bool IsMainFunction = false;
 
     if (IsFunction) {
-      auto *Main = static_cast<const ASTFunctionDecl *>(U->AST);
+      auto *Main = static_cast<ASTFunctionDecl *>(U->AST);
       IsMainFunction = Main->Name() == "main";
     }
 

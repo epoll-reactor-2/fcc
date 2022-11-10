@@ -24,7 +24,7 @@ void ASTStorage::EndScope() {
   --mDepth;
 }
 
-void ASTStorage::Push(std::string_view Name, const ASTNode *Decl) {
+void ASTStorage::Push(std::string_view Name, ASTNode *Decl) {
   mScopes.emplace(std::hash{}(Name),
                   Declaration{Decl, Name.data(), /*Uses=*/0, mDepth});
 }

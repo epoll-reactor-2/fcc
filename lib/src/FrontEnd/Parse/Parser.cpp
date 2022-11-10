@@ -130,7 +130,7 @@ ASTNode *Parser::ParseArrayDecl() {
       weak::CompileError(T.LineNo, T.ColumnNo)
           << "Integer size declarator expected";
 
-    const auto *ArraySize = static_cast<const ASTNumber *>(Constant);
+    auto *ArraySize = static_cast<ASTNumber *>(Constant);
 
     ArityList.push_back(ArraySize->Value());
 

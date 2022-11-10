@@ -17,7 +17,7 @@ static std::string TypeToString(llvm::Type *T) {
   return Stream.str();
 }
 
-void weak::AssertSame(const ASTNode *InformAST, llvm::Type *L, llvm::Type *R) {
+void weak::AssertSame(ASTNode *InformAST, llvm::Type *L, llvm::Type *R) {
   if (L == R)
     return;
 
@@ -25,12 +25,11 @@ void weak::AssertSame(const ASTNode *InformAST, llvm::Type *L, llvm::Type *R) {
       << "Type mismatch: " << TypeToString(L) << " and " << TypeToString(R);
 }
 
-void weak::AssertSame(const ASTNode *InformAST, llvm::Value *L,
-                      llvm::Value *R) {
+void weak::AssertSame(ASTNode *InformAST, llvm::Value *L, llvm::Value *R) {
   AssertSame(InformAST, L->getType(), R->getType());
 }
 
-void weak::AssertNotOutOfRange(const ASTNode *InformAST,
+void weak::AssertNotOutOfRange(ASTNode *InformAST,
                                llvm::AllocaInst *ArrayAlloca,
                                llvm::Value *Index) {
   auto *ConstantArray =

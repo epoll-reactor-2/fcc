@@ -22,26 +22,24 @@
 
 namespace weak {
 
-void ASTVisitor::Visit(const ASTArrayAccess *Stmt) {
-  Stmt->Index()->Accept(this);
-}
+void ASTVisitor::Visit(ASTArrayAccess *Stmt) { Stmt->Index()->Accept(this); }
 
-void ASTVisitor::Visit(const ASTBinary *Stmt) {
+void ASTVisitor::Visit(ASTBinary *Stmt) {
   Stmt->LHS()->Accept(this);
   Stmt->RHS()->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTCompound *Stmt) {
+void ASTVisitor::Visit(ASTCompound *Stmt) {
   for (auto *S : Stmt->Stmts())
     S->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTDoWhile *Stmt) {
+void ASTVisitor::Visit(ASTDoWhile *Stmt) {
   Stmt->Body()->Accept(this);
   Stmt->Condition()->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTFor *Stmt) {
+void ASTVisitor::Visit(ASTFor *Stmt) {
   if (auto *I = Stmt->Init())
     I->Accept(this);
 
@@ -54,23 +52,23 @@ void ASTVisitor::Visit(const ASTFor *Stmt) {
   Stmt->Body()->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTFunctionDecl *Decl) {
+void ASTVisitor::Visit(ASTFunctionDecl *Decl) {
   for (auto *A : Decl->Args())
     A->Accept(this);
   Decl->Body()->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTFunctionCall *Stmt) {
+void ASTVisitor::Visit(ASTFunctionCall *Stmt) {
   for (auto *A : Stmt->Args())
     A->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTFunctionPrototype *Stmt) {
+void ASTVisitor::Visit(ASTFunctionPrototype *Stmt) {
   for (auto *A : Stmt->Args())
     A->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTIf *Stmt) {
+void ASTVisitor::Visit(ASTIf *Stmt) {
   Stmt->Condition()->Accept(this);
   Stmt->ThenBody()->Accept(this);
 
@@ -78,24 +76,24 @@ void ASTVisitor::Visit(const ASTIf *Stmt) {
     E->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTReturn *Stmt) {
+void ASTVisitor::Visit(ASTReturn *Stmt) {
   if (auto *O = Stmt->Operand())
     O->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTStructDecl *Decl) {
+void ASTVisitor::Visit(ASTStructDecl *Decl) {
   for (auto *D : Decl->Decls())
     D->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTUnary *Stmt) { Stmt->Operand()->Accept(this); }
+void ASTVisitor::Visit(ASTUnary *Stmt) { Stmt->Operand()->Accept(this); }
 
-void ASTVisitor::Visit(const ASTVarDecl *Decl) {
+void ASTVisitor::Visit(ASTVarDecl *Decl) {
   if (auto *B = Decl->Body())
     B->Accept(this);
 }
 
-void ASTVisitor::Visit(const ASTWhile *Stmt) {
+void ASTVisitor::Visit(ASTWhile *Stmt) {
   Stmt->Condition()->Accept(this);
   Stmt->Body()->Accept(this);
 }

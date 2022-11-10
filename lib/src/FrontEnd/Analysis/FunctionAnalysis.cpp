@@ -20,7 +20,7 @@ FunctionAnalysis::FunctionAnalysis(ASTNode *Root)
 
 void FunctionAnalysis::Analyze() { mRoot->Accept(this); }
 
-void FunctionAnalysis::Visit(const ASTReturn *Stmt) {
+void FunctionAnalysis::Visit(ASTReturn *Stmt) {
   if (auto *O = Stmt->Operand()) {
     O->Accept(this);
     mWasReturnStmt = true;
@@ -28,18 +28,18 @@ void FunctionAnalysis::Visit(const ASTReturn *Stmt) {
   }
 }
 
-static unsigned FunctionASTArgsCount(const ASTNode *Stmt) {
+static unsigned FunctionASTArgsCount(ASTNode *Stmt) {
   if (Stmt->Is(AST_FUNCTION_DECL))
-    return static_cast<const ASTFunctionDecl *>(Stmt)->Args().size();
+    return static_cast<ASTFunctionDecl *>(Stmt)->Args().size();
 
   if (Stmt->Is(AST_FUNCTION_PROTOTYPE))
-    return static_cast<const ASTFunctionPrototype *>(Stmt)->Args().size();
+    return static_cast<ASTFunctionPrototype *>(Stmt)->Args().size();
 
   Unreachable();
 }
 
-void FunctionAnalysis::Visit(const ASTFunctionCall *Stmt) {
-  const ASTNode *Func = mStorage.Lookup(Stmt->Name())->AST;
+void FunctionAnalysis::Visit(ASTFunctionCall *Stmt) {
+  ASTNode *Func = mStorage.Lookup(Stmt->Name())->AST;
 
   unsigned CallArgsSize = Stmt->Args().size();
   unsigned DeclArgsSize = FunctionASTArgsCount(Func);
@@ -52,7 +52,7 @@ void FunctionAnalysis::Visit(const ASTFunctionCall *Stmt) {
     A->Accept(this);
 }
 
-void FunctionAnalysis::Visit(const ASTFunctionDecl *Decl) {
+void FunctionAnalysis::Visit(ASTFunctionDecl *Decl) {
   mStorage.Push(Decl->Name(), Decl);
 
   /// Don't need to analyze arguments though.
@@ -76,7 +76,7 @@ void FunctionAnalysis::Visit(const ASTFunctionDecl *Decl) {
   }
 }
 
-void FunctionAnalysis::Visit(const ASTFunctionPrototype *Stmt) {
+void FunctionAnalysis::Visit(ASTFunctionPrototype *Stmt) {
   mStorage.Push(Stmt->Name(), Stmt);
 }
 

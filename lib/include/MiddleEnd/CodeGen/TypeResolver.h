@@ -26,18 +26,18 @@ public:
   /// Convert given parameter (including void) to corresponding LLVM type.
   llvm::Type *Resolve(TokenType, unsigned LineNo, unsigned ColumnNo);
   /// \copydoc TypeResolver::Resolve(TokenType, unsigned, unsigned)
-  llvm::Type *Resolve(TokenType, const ASTNode *LocationAST);
+  llvm::Type *Resolve(TokenType, ASTNode *LocationAST);
   /// \copydoc TypeResolver::Resolve(TokenType, unsigned, unsigned)
-  llvm::Type *Resolve(const ASTNode *);
+  llvm::Type *Resolve(ASTNode *LocationAST);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
   llvm::Type *ResolveExceptVoid(TokenType, unsigned LineNo, unsigned ColumnNo);
   /// \copydoc TypeResolver::ResolveExceptVoid(TokenType, unsigned,
   /// unsigned)
-  llvm::Type *ResolveExceptVoid(TokenType, const ASTNode *LocationAST);
+  llvm::Type *ResolveExceptVoid(TokenType, ASTNode *LocationAST);
   /// \copydoc TypeResolver::ResolveExceptVoid(TokenType, unsigned,
   /// unsigned)
-  llvm::Type *ResolveExceptVoid(const ASTNode *);
+  llvm::Type *ResolveExceptVoid(ASTNode *LocationAST);
 
 private:
   /// Reference to global LLVM stuff.

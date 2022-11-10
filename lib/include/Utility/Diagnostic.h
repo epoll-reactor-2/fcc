@@ -46,7 +46,7 @@ OstreamRAII CompileWarning();
 OstreamRAII CompileWarning(unsigned LineNo, unsigned ColumnNo);
 
 /// Print diagnostic message with WARN flag.
-OstreamRAII CompileWarning(const ASTNode *Node);
+OstreamRAII CompileWarning(ASTNode *Node);
 
 /// Print diagnostic message with ERROR flag and throw exception.
 OstreamRAII CompileError();
@@ -58,7 +58,7 @@ OstreamRAII CompileError(unsigned LineNo, unsigned ColumnNo);
 /// throw exception.
 ///
 /// \param Node used to extract line and column number.
-weak::OstreamRAII CompileError(const ASTNode *Node);
+weak::OstreamRAII CompileError(ASTNode *Node);
 
 } // namespace weak
 

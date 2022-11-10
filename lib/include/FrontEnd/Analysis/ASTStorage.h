@@ -17,7 +17,7 @@ namespace weak {
 struct ASTStorage {
   struct Declaration {
     /// Pointer.
-    const ASTNode *AST{nullptr};
+    ASTNode *AST{nullptr};
     /// Variable name.
     std::string Name;
     /// How many times variable was used (accessed).
@@ -33,7 +33,7 @@ struct ASTStorage {
   void EndScope();
 
   /// Add variable at current depth.
-  void Push(std::string_view Name, const ASTNode *Decl);
+  void Push(std::string_view Name, ASTNode *Decl);
 
   /// Try to retrieve variable by name.
   Declaration *Lookup(std::string_view Name);

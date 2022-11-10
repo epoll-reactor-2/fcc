@@ -40,43 +40,43 @@ public:
 
 private:
   // Literals.
-  void Visit(const ASTBool *) override;
-  void Visit(const ASTChar *) override;
-  void Visit(const ASTNumber *) override;
-  void Visit(const ASTFloat *) override;
-  void Visit(const ASTString *) override;
+  void Visit(ASTBool *) override;
+  void Visit(ASTChar *) override;
+  void Visit(ASTNumber *) override;
+  void Visit(ASTFloat *) override;
+  void Visit(ASTString *) override;
 
   // Operators.
-  void Visit(const ASTBinary *) override;
-  void Visit(const ASTUnary *) override;
+  void Visit(ASTBinary *) override;
+  void Visit(ASTUnary *) override;
 
   // Inside-loop statements.
-  void Visit(const ASTBreak *) override {}
-  void Visit(const ASTContinue *) override {}
+  void Visit(ASTBreak *) override {}
+  void Visit(ASTContinue *) override {}
 
   // Loop statements.
-  void Visit(const ASTFor *) override;
-  void Visit(const ASTWhile *) override;
-  void Visit(const ASTDoWhile *) override;
+  void Visit(ASTFor *) override;
+  void Visit(ASTWhile *) override;
+  void Visit(ASTDoWhile *) override;
 
   // Condition statements.
-  void Visit(const ASTIf *) override;
+  void Visit(ASTIf *) override;
 
   // Function statements.
-  void Visit(const ASTFunctionDecl *) override;
-  void Visit(const ASTFunctionCall *) override;
-  void Visit(const ASTFunctionPrototype *) override;
+  void Visit(ASTFunctionDecl *) override;
+  void Visit(ASTFunctionCall *) override;
+  void Visit(ASTFunctionPrototype *) override;
 
   // Declarations.
-  void Visit(const ASTArrayDecl *) override;
-  void Visit(const ASTVarDecl *) override;
-  void Visit(const ASTStructDecl *) override {}
+  void Visit(ASTArrayDecl *) override;
+  void Visit(ASTVarDecl *) override;
+  void Visit(ASTStructDecl *) override {}
 
   // The rest.
-  void Visit(const ASTArrayAccess *) override;
-  void Visit(const ASTSymbol *) override;
-  void Visit(const ASTCompound *) override;
-  void Visit(const ASTReturn *) override;
+  void Visit(ASTArrayAccess *) override;
+  void Visit(ASTSymbol *) override;
+  void Visit(ASTCompound *) override;
+  void Visit(ASTReturn *) override;
 
   /// Analyzed root AST node.
   ASTNode *mRoot;

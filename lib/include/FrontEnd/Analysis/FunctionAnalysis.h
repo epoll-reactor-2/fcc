@@ -26,11 +26,11 @@ public:
   void Analyze() override;
 
 private:
-  void Visit(const ASTReturn *) override;
+  void Visit(ASTReturn *) override;
 
-  void Visit(const ASTFunctionDecl *) override;
-  void Visit(const ASTFunctionCall *) override;
-  void Visit(const ASTFunctionPrototype *) override;
+  void Visit(ASTFunctionDecl *) override;
+  void Visit(ASTFunctionCall *) override;
+  void Visit(ASTFunctionPrototype *) override;
 
   /// Analyzed root AST node.
   ASTNode *mRoot;

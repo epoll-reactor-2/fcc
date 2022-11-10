@@ -12,12 +12,11 @@
 
 namespace weak {
 
-static const ASTVarDecl *GetVarDecl(const ASTNode *Node) {
+static ASTVarDecl *GetVarDecl(ASTNode *Node) {
   if (!Node->Is(AST_VAR_DECL))
     weak::CompileError(Node) << "Expected declaration";
 
-  const auto *Decl = static_cast<const ASTVarDecl *>(Node);
-  return Decl;
+  return static_cast<ASTVarDecl *>(Node);
 }
 
 TypeResolver::TypeResolver(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
@@ -43,12 +42,12 @@ llvm::Type *TypeResolver::Resolve(TokenType T, unsigned LineNo,
   }
 }
 
-llvm::Type *TypeResolver::Resolve(TokenType T, const ASTNode *LocationAST) {
+llvm::Type *TypeResolver::Resolve(TokenType T, ASTNode *LocationAST) {
   return Resolve(T, LocationAST->LineNo(), LocationAST->ColumnNo());
 }
 
-llvm::Type *TypeResolver::Resolve(const ASTNode *Node) {
-  const ASTVarDecl *Decl = GetVarDecl(Node);
+llvm::Type *TypeResolver::Resolve(ASTNode *LocationAST) {
+  ASTVarDecl *Decl = GetVarDecl(LocationAST);
   return Resolve(Decl->DataType(), Decl->LineNo(), Decl->ColumnNo());
 }
 
@@ -71,13 +70,12 @@ llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T, unsigned LineNo,
   }
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T,
-                                            const ASTNode *LocationAST) {
+llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T, ASTNode *LocationAST) {
   return ResolveExceptVoid(T, LocationAST->LineNo(), LocationAST->ColumnNo());
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(const ASTNode *Node) {
-  const ASTVarDecl *Decl = GetVarDecl(Node);
+llvm::Type *TypeResolver::ResolveExceptVoid(ASTNode *LocationAST) {
+  ASTVarDecl *Decl = GetVarDecl(LocationAST);
   return ResolveExceptVoid(Decl->DataType(), Decl->LineNo(), Decl->ColumnNo());
 }
 
