@@ -5,9 +5,8 @@
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "Utility/Diagnostic.h"
-
+#include "Utility/Files.h"
 #include <filesystem>
-#include <fstream>
 #include <iostream>
 
 using namespace std::string_view_literals;
@@ -28,9 +27,8 @@ void RunTestOnInvalidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGe
 
 void RunTest(std::string_view Path, bool IsValid) {
   llvm::outs() << "Testing file " << Path << "... ";
-  std::ifstream File(Path.data());
-  std::string Program((std::istreambuf_iterator<char>(File)),
-                      (std::istreambuf_iterator<char>()));
+
+  std::string Program = weak::FileAsString(Path);
   weak::Lexer Lex(&*Program.begin(), &*Program.end());
   auto Tokens = Lex.Analyze();
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());

@@ -7,15 +7,13 @@
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "MiddleEnd/Optimizers/Optimizers.h"
 #include "Utility/Diagnostic.h"
+#include "Utility/Files.h"
 #include "llvm/Support/CommandLine.h"
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 
-std::vector<weak::Token> DoLexicalAnalysis(std::string_view InputPath) {
-  std::ifstream File(InputPath.data());
-  std::string Program((std::istreambuf_iterator<char>(File)),
-                      (std::istreambuf_iterator<char>()));
+std::vector<weak::Token> DoLexicalAnalysis(std::string_view Path) {
+  std::string Program = weak::FileAsString(Path);
   weak::Lexer Lex(&*Program.begin(), &*Program.end());
   weak::PrintGeneratedWarns(std::cout);
   return Lex.Analyze();

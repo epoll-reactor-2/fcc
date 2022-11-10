@@ -16,6 +16,8 @@ static const char *FuncOrVarAST(const ASTNode *Node) {
   case AST_FUNCTION_DECL:
   case AST_FUNCTION_PROTOTYPE:
     return "Function";
+  case AST_VAR_DECL:
+  case AST_ARRAY_DECL:
   case AST_ARRAY_ACCESS:
   case AST_SYMBOL:
     return "Variable";

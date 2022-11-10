@@ -2,8 +2,8 @@
 #include "FrontEnd/AST/ASTDump.h"
 #include "FrontEnd/Lex/Lexer.h"
 #include "Utility/Diagnostic.h"
+#include "Utility/Files.h"
 #include <filesystem>
-#include <fstream>
 #include <iostream>
 
 /// This gets all contents of first comment placed
@@ -30,9 +30,8 @@ std::string ExtractAST(std::string Program) {
 
 void TestAST(std::string_view Path) {
   std::cout << "Testing file " << Path << "...\n";
-  std::ifstream File(Path.data());
-  std::string Program((std::istreambuf_iterator<char>(File)),
-                      (std::istreambuf_iterator<char>()));
+  std::string Program = weak::FileAsString(Path);
+
   weak::Lexer Lex(&*Program.begin(), &*Program.end());
   auto Tokens = Lex.Analyze();
   weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());

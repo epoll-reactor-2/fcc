@@ -3,7 +3,7 @@
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "Utility/Diagnostic.h"
-#include <fstream>
+#include "Utility/Files.h"
 #include <iostream>
 #include <filesystem>
 
@@ -90,9 +90,7 @@ template <typename AnalysisForTest>
 void TestAnalysis(std::string_view Path, bool IsWarnTest) {
   std::cout << "Testing file " << Path << "... ";
 
-  std::ifstream File(Path.data());
-  std::string Program((std::istreambuf_iterator<char>(File)),
-                      (std::istreambuf_iterator<char>()));
+  std::string Program = weak::FileAsString(Path);
 
   std::ostringstream WarnStream;
 
