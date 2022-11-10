@@ -327,6 +327,8 @@ ASTCompound *Parser::ParseIterationBlock() {
 
 ASTNode *Parser::ParseStmt() {
   switch (const Token &T = PeekCurrent(); T.Type) {
+  case TOK_OPEN_CURLY_BRACKET:
+    return ParseBlock();
   case TOK_IF:
     return ParseSelectionStmt();
   case TOK_FOR:
@@ -411,7 +413,7 @@ ASTNode *Parser::ParseFor() {
   ++mLoopsDepth;
 
   Require(')');
-  auto *Body = ParseIterationBlock();
+  auto *Body = ParseBlock();
 
   --mLoopsDepth;
 
@@ -424,7 +426,7 @@ ASTNode *Parser::ParseDoWhile() {
 
   ++mLoopsDepth;
 
-  auto *Body = ParseIterationBlock();
+  auto *Body = ParseBlock();
 
   --mLoopsDepth;
 
@@ -445,7 +447,7 @@ ASTNode *Parser::ParseWhile() {
 
   ++mLoopsDepth;
 
-  auto *Body = ParseIterationBlock();
+  auto *Body = ParseBlock();
 
   --mLoopsDepth;
 
