@@ -8,7 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_FUNCTION_DECL_H
 
 #include "FrontEnd/AST/ASTNode.h"
-#include "FrontEnd/Lex/TokenType.h"
+#include "FrontEnd/Lex/DataType.h"
 #include <string>
 #include <vector>
 
@@ -18,7 +18,7 @@ class ASTCompound;
 
 class ASTFunctionDecl : public ASTNode {
 public:
-  ASTFunctionDecl(TokenType ReturnType, std::string Name,
+  ASTFunctionDecl(DataType ReturnType, std::string Name,
                   std::vector<ASTNode *> Args, ASTCompound *Body,
                   unsigned LineNo, unsigned ColumnNo);
 
@@ -26,13 +26,13 @@ public:
 
   void Accept(ASTVisitor *) override;
 
-  TokenType ReturnType() const;
+  DataType ReturnType() const;
   const std::string &Name() const;
   const std::vector<ASTNode *> &Args() const;
   ASTCompound *Body() const;
 
 private:
-  TokenType mReturnType;
+  DataType mReturnType;
   std::string mName;
   std::vector<ASTNode *> mArgs;
   ASTCompound *mBody;

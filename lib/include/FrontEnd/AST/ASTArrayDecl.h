@@ -8,7 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_ARRAY_DECL_H
 
 #include "FrontEnd/AST/ASTNode.h"
-#include "FrontEnd/Lex/TokenType.h"
+#include "FrontEnd/Lex/DataType.h"
 #include <string>
 #include <vector>
 
@@ -16,19 +16,19 @@ namespace weak {
 
 class ASTArrayDecl : public ASTNode {
 public:
-  ASTArrayDecl(TokenType DataType, std::string Name,
+  ASTArrayDecl(weak::DataType DT, std::string Name,
                std::vector<unsigned> ArityList, unsigned LineNo,
                unsigned ColumnNo);
 
   void Accept(ASTVisitor *) override;
 
-  TokenType DataType() const;
+  weak::DataType DataType() const;
   const std::string &Name() const;
   const std::vector<unsigned> &ArityList() const;
 
 private:
   /// Data type of array.
-  TokenType mDataType;
+  weak::DataType mDataType;
 
   /// Variable name.
   std::string mName;

@@ -22,6 +22,7 @@
 #include "FrontEnd/AST/ASTFunctionDecl.h"
 #include "FrontEnd/AST/ASTFunctionPrototype.h"
 #include "FrontEnd/AST/ASTIf.h"
+#include "FrontEnd/AST/ASTMemberAccess.h"
 #include "FrontEnd/AST/ASTNumber.h"
 #include "FrontEnd/AST/ASTReturn.h"
 #include "FrontEnd/AST/ASTString.h"

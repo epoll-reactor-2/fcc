@@ -37,8 +37,13 @@ public:
         Signature, llvm::Function::ExternalLinkage, mDecl->Name(), &mIRModule);
 
     auto GetSymbol = [](ASTNode *Node) {
-      auto *VarDecl = static_cast<ASTVarDecl *>(Node);
-      return VarDecl->Name();
+      if (Node->Is(AST_VAR_DECL))
+        return static_cast<ASTVarDecl *>(Node)->Name();
+
+      if (Node->Is(AST_ARRAY_DECL))
+        return static_cast<ASTArrayDecl *>(Node)->Name();
+
+      Unreachable();
     };
 
     unsigned Idx{0U};
@@ -428,7 +433,7 @@ void CodeGen::Visit(ASTFunctionDecl *Decl) {
   llvm::verifyFunction(*Func);
   mLastInstr = nullptr;
 
-  if (Decl->ReturnType() == TOK_VOID)
+  if (Decl->ReturnType() == DT_VOID)
     mIRBuilder.CreateRetVoid();
 }
 
@@ -523,7 +528,7 @@ void CodeGen::Visit(ASTVarDecl *Decl) {
 
   /// Special case, since we need to copy array from data section to another
   /// array, placed on stack.
-  if (Decl->DataType() == TOK_STRING) {
+  if (Decl->DataType() == DT_STRING) {
     auto *Literal = static_cast<ASTString *>(Decl->Body());
     unsigned NullTerminator = 1;
     llvm::ArrayType *ArrayType = llvm::ArrayType::get(

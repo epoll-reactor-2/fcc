@@ -76,17 +76,23 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acb9e97e9b862479f2670bbb6d5dac937"><td class="memItemLeft" align="right" valign="top"><a id="acb9e97e9b862479f2670bbb6d5dac937" name="acb9e97e9b862479f2670bbb6d5dac937"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTVarDecl</b> (TokenType DataType, std::string Name, <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *Body, unsigned LineNo, unsigned ColumnNo)</td></tr>
-<tr class="separator:acb9e97e9b862479f2670bbb6d5dac937"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3c3788e167027b96906a5281015bd0a"><td class="memItemLeft" align="right" valign="top"><a id="ab3c3788e167027b96906a5281015bd0a" name="ab3c3788e167027b96906a5281015bd0a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTVarDecl</b> (weak::DataType DT, std::string Name, <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *Body, unsigned LineNo, unsigned ColumnNo)</td></tr>
+<tr class="separator:ab3c3788e167027b96906a5281015bd0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39134310ad931f064c77441e6c3f8289"><td class="memItemLeft" align="right" valign="top"><a id="a39134310ad931f064c77441e6c3f8289" name="a39134310ad931f064c77441e6c3f8289"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTVarDecl</b> (weak::DataType DT, std::string TypeName, std::string Name, <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *Body, unsigned LineNo, unsigned ColumnNo)</td></tr>
+<tr class="separator:a39134310ad931f064c77441e6c3f8289"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:affad8f3d2ea70863648586ec6247515d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1ASTVarDecl.html#affad8f3d2ea70863648586ec6247515d">Accept</a> (<a class="el" href="classweak_1_1ASTVisitor.html">ASTVisitor</a> *) override</td></tr>
 <tr class="separator:affad8f3d2ea70863648586ec6247515d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f50ba96d5c57dc173daf9b4d289a7ad"><td class="memItemLeft" align="right" valign="top"><a id="a2f50ba96d5c57dc173daf9b4d289a7ad" name="a2f50ba96d5c57dc173daf9b4d289a7ad"></a>
-TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>DataType</b> () const</td></tr>
-<tr class="separator:a2f50ba96d5c57dc173daf9b4d289a7ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d8e2870f2fcdc763e50f1ef1e798aee"><td class="memItemLeft" align="right" valign="top"><a id="a1d8e2870f2fcdc763e50f1ef1e798aee" name="a1d8e2870f2fcdc763e50f1ef1e798aee"></a>
+weak::DataType&#160;</td><td class="memItemRight" valign="bottom"><b>DataType</b> () const</td></tr>
+<tr class="separator:a1d8e2870f2fcdc763e50f1ef1e798aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa49a85cc9c68f77a12ccd2b13e438c80"><td class="memItemLeft" align="right" valign="top"><a id="aa49a85cc9c68f77a12ccd2b13e438c80" name="aa49a85cc9c68f77a12ccd2b13e438c80"></a>
 const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Name</b> () const</td></tr>
 <tr class="separator:aa49a85cc9c68f77a12ccd2b13e438c80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a866f9630747961dba91c91c4183d7516"><td class="memItemLeft" align="right" valign="top"><a id="a866f9630747961dba91c91c4183d7516" name="a866f9630747961dba91c91c4183d7516"></a>
+const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>TypeName</b> () const</td></tr>
+<tr class="separator:a866f9630747961dba91c91c4183d7516"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a980a04a5ccd1b282cdb318ebc7613543"><td class="memItemLeft" align="right" valign="top"><a id="a980a04a5ccd1b282cdb318ebc7613543" name="a980a04a5ccd1b282cdb318ebc7613543"></a>
 <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Body</b> () const</td></tr>
 <tr class="separator:a980a04a5ccd1b282cdb318ebc7613543"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -109,9 +115,12 @@ unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>ColumnNo</b> () c
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:ab9833004abe982584fbb358f45f0a0ed"><td class="memItemLeft" align="right" valign="top"><a id="ab9833004abe982584fbb358f45f0a0ed" name="ab9833004abe982584fbb358f45f0a0ed"></a>
-TokenType&#160;</td><td class="memItemRight" valign="bottom"><b>mDataType</b></td></tr>
-<tr class="separator:ab9833004abe982584fbb358f45f0a0ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fb89f04265ed7b0b99e97a5150ca783"><td class="memItemLeft" align="right" valign="top"><a id="a2fb89f04265ed7b0b99e97a5150ca783" name="a2fb89f04265ed7b0b99e97a5150ca783"></a>
+weak::DataType&#160;</td><td class="memItemRight" valign="bottom"><b>mDataType</b></td></tr>
+<tr class="separator:a2fb89f04265ed7b0b99e97a5150ca783"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9dc4c9551222cfcb439381bf439eb68d"><td class="memItemLeft" align="right" valign="top"><a id="a9dc4c9551222cfcb439381bf439eb68d" name="a9dc4c9551222cfcb439381bf439eb68d"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>mTypeName</b></td></tr>
+<tr class="separator:a9dc4c9551222cfcb439381bf439eb68d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42f08138d7b9cfcfc5eff6aa35ba32a1"><td class="memItemLeft" align="right" valign="top"><a id="a42f08138d7b9cfcfc5eff6aa35ba32a1" name="a42f08138d7b9cfcfc5eff6aa35ba32a1"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>mName</b></td></tr>
 <tr class="separator:a42f08138d7b9cfcfc5eff6aa35ba32a1"><td class="memSeparator" colspan="2">&#160;</td></tr>

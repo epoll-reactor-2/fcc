@@ -14,6 +14,7 @@
 #include "FrontEnd/AST/ASTFunctionDecl.h"
 #include "FrontEnd/AST/ASTFunctionPrototype.h"
 #include "FrontEnd/AST/ASTIf.h"
+#include "FrontEnd/AST/ASTMemberAccess.h"
 #include "FrontEnd/AST/ASTReturn.h"
 #include "FrontEnd/AST/ASTStructDecl.h"
 #include "FrontEnd/AST/ASTUnary.h"
@@ -84,6 +85,11 @@ void ASTVisitor::Visit(ASTReturn *Stmt) {
 void ASTVisitor::Visit(ASTStructDecl *Decl) {
   for (auto *D : Decl->Decls())
     D->Accept(this);
+}
+
+void ASTVisitor::Visit(ASTMemberAccess *Stmt) {
+  Stmt->Name()->Accept(this);
+  Stmt->MemberDecl()->Accept(this);
 }
 
 void ASTVisitor::Visit(ASTUnary *Stmt) { Stmt->Operand()->Accept(this); }

@@ -67,6 +67,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
@@ -80,6 +81,11 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="Parser_8h_source.html">Parser.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structweak_1_1Parser_1_1LocalizedDataType.html">LocalizedDataType</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ab24f0c07d76ccc52cb1e33fa2663835d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1Parser.html#ab24f0c07d76ccc52cb1e33fa2663835d">Parser</a> (const <a class="el" href="structweak_1_1Token.html">Token</a> *TheBufStart, const <a class="el" href="structweak_1_1Token.html">Token</a> *TheBufEnd)</td></tr>
@@ -120,14 +126,21 @@ Private Member Functions</h2></td></tr>
 <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseStructDecl</b> ()</td></tr>
 <tr class="memdesc:ac9ef70d4f55ff9733fbd144ee38809f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">User type declaration. <br /></td></tr>
 <tr class="separator:ac9ef70d4f55ff9733fbd144ee38809f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6b2199184bf6516daa7fe45bf5b30a5b"><td class="memItemLeft" align="right" valign="top"><a id="a6b2199184bf6516daa7fe45bf5b30a5b" name="a6b2199184bf6516daa7fe45bf5b30a5b"></a>
-const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseType</b> ()</td></tr>
-<tr class="memdesc:a6b2199184bf6516daa7fe45bf5b30a5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Int, float, char, string, bool. <br /></td></tr>
-<tr class="separator:a6b2199184bf6516daa7fe45bf5b30a5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2351182938ba01eb7f349b158630e0cd"><td class="memItemLeft" align="right" valign="top"><a id="a2351182938ba01eb7f349b158630e0cd" name="a2351182938ba01eb7f349b158630e0cd"></a>
-const <a class="el" href="structweak_1_1Token.html">Token</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ParseReturnType</b> ()</td></tr>
-<tr class="memdesc:a2351182938ba01eb7f349b158630e0cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">All from <a class="el" href="classweak_1_1Parser.html#a6b2199184bf6516daa7fe45bf5b30a5b" title="Int, float, char, string, bool.">ParseType()</a> or void. <br /></td></tr>
-<tr class="separator:a2351182938ba01eb7f349b158630e0cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53ec9b2f551cd63237315108313c985a"><td class="memItemLeft" align="right" valign="top"><a id="a53ec9b2f551cd63237315108313c985a" name="a53ec9b2f551cd63237315108313c985a"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseStructVarDecl</b> ()</td></tr>
+<tr class="separator:a53ec9b2f551cd63237315108313c985a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aced45d4aa1f2ad52be952bbeff54ae01"><td class="memItemLeft" align="right" valign="top"><a id="aced45d4aa1f2ad52be952bbeff54ae01" name="aced45d4aa1f2ad52be952bbeff54ae01"></a>
+<a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseStructFieldAccess</b> ()</td></tr>
+<tr class="memdesc:aced45d4aa1f2ad52be952bbeff54ae01"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>Structure.Field</code>. <br /></td></tr>
+<tr class="separator:aced45d4aa1f2ad52be952bbeff54ae01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62dea5d41a07693bf984714d6fbb4045"><td class="memItemLeft" align="right" valign="top"><a id="a62dea5d41a07693bf984714d6fbb4045" name="a62dea5d41a07693bf984714d6fbb4045"></a>
+<a class="el" href="structweak_1_1Parser_1_1LocalizedDataType.html">LocalizedDataType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ParseType</b> ()</td></tr>
+<tr class="memdesc:a62dea5d41a07693bf984714d6fbb4045"><td class="mdescLeft">&#160;</td><td class="mdescRight">Int, float, char, string, bool. <br /></td></tr>
+<tr class="separator:a62dea5d41a07693bf984714d6fbb4045"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac372b6d70ffca9eeb882478bbd78703a"><td class="memItemLeft" align="right" valign="top"><a id="ac372b6d70ffca9eeb882478bbd78703a" name="ac372b6d70ffca9eeb882478bbd78703a"></a>
+<a class="el" href="structweak_1_1Parser_1_1LocalizedDataType.html">LocalizedDataType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ParseReturnType</b> ()</td></tr>
+<tr class="memdesc:ac372b6d70ffca9eeb882478bbd78703a"><td class="mdescLeft">&#160;</td><td class="mdescRight">All from <a class="el" href="classweak_1_1Parser.html#a62dea5d41a07693bf984714d6fbb4045" title="Int, float, char, string, bool.">ParseType()</a> or void. <br /></td></tr>
+<tr class="separator:ac372b6d70ffca9eeb882478bbd78703a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b6da36d3f35aa8e8f56b937c34012d4"><td class="memItemLeft" align="right" valign="top"><a id="a0b6da36d3f35aa8e8f56b937c34012d4" name="a0b6da36d3f35aa8e8f56b937c34012d4"></a>
 <a class="el" href="classweak_1_1ASTNode.html">ASTNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ParseDeclWithoutInitializer</b> ()</td></tr>
 <tr class="memdesc:a0b6da36d3f35aa8e8f56b937c34012d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; type &gt; &lt; id &gt; | &lt; type &gt; &lt; id &gt; [ &lt; integral-literal &gt; ]. <br /></td></tr>

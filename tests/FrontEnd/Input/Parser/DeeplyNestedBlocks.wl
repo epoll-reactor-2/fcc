@@ -1,7 +1,7 @@
 //CompoundStmt <line:0, col:0>
 //  FunctionDecl <line:49, col:1>
 //    FunctionDeclRetType <line:49, col:1> <VOID>
-//    FunctionDeclName <line:49, col:1> f
+//    FunctionDeclName <line:49, col:1> `f`
 //    FunctionDeclArgs <line:49, col:1>
 //    FunctionDeclBody <line:49, col:1>
 //      CompoundStmt <line:49, col:10>

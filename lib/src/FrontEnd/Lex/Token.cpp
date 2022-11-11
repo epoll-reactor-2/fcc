@@ -9,7 +9,7 @@
 
 const char *weak::TokenToString(TokenType Type) {
   switch (Type) {
-  case TOK_BOOLEAN:
+  case TOK_BOOL:
     return "<BOOLEAN>";
   case TOK_BREAK:
     return "<BREAK>";
@@ -113,6 +113,8 @@ const char *weak::TokenToString(TokenType Type) {
     return "++";
   case TOK_DEC:
     return "--";
+  case TOK_DOT:
+    return ".";
   case TOK_COMMA:
     return ",";
   case TOK_SEMICOLON:
@@ -160,6 +162,8 @@ weak::TokenType weak::CharToToken(char T) {
     return TOK_SLASH;
   case '%':
     return TOK_MOD;
+  case '.':
+    return TOK_DOT;
   case ',':
     return TOK_COMMA;
   case ';':

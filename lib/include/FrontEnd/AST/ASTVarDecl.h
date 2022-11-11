@@ -8,26 +8,30 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_VAR_DECL_H
 
 #include "FrontEnd/AST/ASTNode.h"
-#include "FrontEnd/Lex/TokenType.h"
+#include "FrontEnd/Lex/DataType.h"
 #include <string>
 
 namespace weak {
 
 class ASTVarDecl : public ASTNode {
 public:
-  ASTVarDecl(TokenType DataType, std::string Name, ASTNode *Body,
+  ASTVarDecl(weak::DataType DT, std::string Name, ASTNode *Body,
              unsigned LineNo, unsigned ColumnNo);
+  ASTVarDecl(weak::DataType DT, std::string TypeName, std::string Name,
+             ASTNode *Body, unsigned LineNo, unsigned ColumnNo);
 
   ~ASTVarDecl();
 
   void Accept(ASTVisitor *) override;
 
-  TokenType DataType() const;
+  weak::DataType DataType() const;
   const std::string &Name() const;
+  const std::string &TypeName() const;
   ASTNode *Body() const;
 
 private:
-  TokenType mDataType;
+  weak::DataType mDataType;
+  std::string mTypeName;
   std::string mName;
   ASTNode *mBody;
 };

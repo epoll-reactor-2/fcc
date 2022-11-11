@@ -63,14 +63,14 @@ void FunctionAnalysis::Visit(ASTFunctionDecl *Decl) {
     mLastReturnLoc = {0, 0};
   };
 
-  if (mWasReturnStmt && Decl->ReturnType() == TOK_VOID) {
+  if (mWasReturnStmt && Decl->ReturnType() == DT_VOID) {
     auto [LineNo, ColNo] = mLastReturnLoc;
     Reset();
     weak::CompileError(LineNo, ColNo)
         << "Cannot return value from void function";
   }
 
-  if (!mWasReturnStmt && Decl->ReturnType() != TOK_VOID) {
+  if (!mWasReturnStmt && Decl->ReturnType() != DT_VOID) {
     Reset();
     weak::CompileError(Decl) << "Expected return value";
   }

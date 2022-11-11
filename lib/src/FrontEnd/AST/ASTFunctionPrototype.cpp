@@ -9,7 +9,7 @@
 
 namespace weak {
 
-ASTFunctionPrototype::ASTFunctionPrototype(TokenType ReturnType,
+ASTFunctionPrototype::ASTFunctionPrototype(DataType ReturnType,
                                            std::string Name,
                                            std::vector<ASTNode *> Args,
                                            unsigned LineNo, unsigned ColumnNo)
@@ -23,7 +23,7 @@ ASTFunctionPrototype::~ASTFunctionPrototype() {
 
 void ASTFunctionPrototype::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-TokenType ASTFunctionPrototype::ReturnType() const { return mReturnType; }
+DataType ASTFunctionPrototype::ReturnType() const { return mReturnType; }
 
 const std::string &ASTFunctionPrototype::Name() const { return mName; }
 

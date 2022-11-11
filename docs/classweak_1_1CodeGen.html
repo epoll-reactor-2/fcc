@@ -145,6 +145,8 @@ Private Member Functions</h2></td></tr>
 <tr class="separator:a670f08e8b5558807eb66c8e52f08a2f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e2afa0c3aa1892e873433ee9b91efae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#a2e2afa0c3aa1892e873433ee9b91efae">Visit</a> (<a class="el" href="classweak_1_1ASTStructDecl.html">ASTStructDecl</a> *) override</td></tr>
 <tr class="separator:a2e2afa0c3aa1892e873433ee9b91efae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe2ca0daaebd3b5ffbaca3eafafb8f65"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#abe2ca0daaebd3b5ffbaca3eafafb8f65">Visit</a> (<a class="el" href="classweak_1_1ASTMemberAccess.html">ASTMemberAccess</a> *) override</td></tr>
+<tr class="separator:abe2ca0daaebd3b5ffbaca3eafafb8f65"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abfc0c95639feb03d34260e60436b01ac"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#abfc0c95639feb03d34260e60436b01ac">Visit</a> (<a class="el" href="classweak_1_1ASTArrayAccess.html">ASTArrayAccess</a> *) override</td></tr>
 <tr class="separator:abfc0c95639feb03d34260e60436b01ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c25f3a0115b2594e2dc51254b532736"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classweak_1_1CodeGen.html#a1c25f3a0115b2594e2dc51254b532736">Visit</a> (<a class="el" href="classweak_1_1ASTSymbol.html">ASTSymbol</a> *) override</td></tr>
@@ -210,6 +212,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (<a
 <tr class="memitem:ae2603a40b9aec16a41920c9cb4044073"><td class="memItemLeft" align="right" valign="top"><a id="ae2603a40b9aec16a41920c9cb4044073" name="ae2603a40b9aec16a41920c9cb4044073"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (<a class="el" href="classweak_1_1ASTStructDecl.html">ASTStructDecl</a> *)</td></tr>
 <tr class="separator:ae2603a40b9aec16a41920c9cb4044073"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a193ebdfcbcf2ccbc90d9679b6dbef291"><td class="memItemLeft" align="right" valign="top"><a id="a193ebdfcbcf2ccbc90d9679b6dbef291" name="a193ebdfcbcf2ccbc90d9679b6dbef291"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (<a class="el" href="classweak_1_1ASTMemberAccess.html">ASTMemberAccess</a> *)</td></tr>
+<tr class="separator:a193ebdfcbcf2ccbc90d9679b6dbef291"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3feed21317f10aa1333fd3ca74bf9cb0"><td class="memItemLeft" align="right" valign="top"><a id="a3feed21317f10aa1333fd3ca74bf9cb0" name="a3feed21317f10aa1333fd3ca74bf9cb0"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Visit</b> (<a class="el" href="classweak_1_1ASTSymbol.html">ASTSymbol</a> *)</td></tr>
 <tr class="separator:a3feed21317f10aa1333fd3ca74bf9cb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -254,7 +259,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 <p>Implemented as AST visitor because it still does not operates on CFG. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="abfc0c95639feb03d34260e60436b01ac" name="abfc0c95639feb03d34260e60436b01ac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abfc0c95639feb03d34260e60436b01ac">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abfc0c95639feb03d34260e60436b01ac">&#9670;&nbsp;</a></span>Visit() <span class="overload">[1/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -282,7 +287,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a5aa5e7b96cfb65493322035b40e64c2d" name="a5aa5e7b96cfb65493322035b40e64c2d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5aa5e7b96cfb65493322035b40e64c2d">&#9670;&nbsp;</a></span>Visit() <span class="overload">[2/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5aa5e7b96cfb65493322035b40e64c2d">&#9670;&nbsp;</a></span>Visit() <span class="overload">[2/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -310,7 +315,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="aa34ba60d8d0b6d8dd9e926c913ce68e9" name="aa34ba60d8d0b6d8dd9e926c913ce68e9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa34ba60d8d0b6d8dd9e926c913ce68e9">&#9670;&nbsp;</a></span>Visit() <span class="overload">[3/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa34ba60d8d0b6d8dd9e926c913ce68e9">&#9670;&nbsp;</a></span>Visit() <span class="overload">[3/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -338,7 +343,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a5716e048dc004b96da3b121913bb1315" name="a5716e048dc004b96da3b121913bb1315"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5716e048dc004b96da3b121913bb1315">&#9670;&nbsp;</a></span>Visit() <span class="overload">[4/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5716e048dc004b96da3b121913bb1315">&#9670;&nbsp;</a></span>Visit() <span class="overload">[4/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -366,7 +371,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a7443bfac686fd1f5df4c94c027f214e3" name="a7443bfac686fd1f5df4c94c027f214e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7443bfac686fd1f5df4c94c027f214e3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[5/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7443bfac686fd1f5df4c94c027f214e3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[5/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -394,7 +399,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="af732c3532d3a3cdbe8d8057c67fee141" name="af732c3532d3a3cdbe8d8057c67fee141"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af732c3532d3a3cdbe8d8057c67fee141">&#9670;&nbsp;</a></span>Visit() <span class="overload">[6/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af732c3532d3a3cdbe8d8057c67fee141">&#9670;&nbsp;</a></span>Visit() <span class="overload">[6/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -422,7 +427,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a79fe37a674e9136f822b73495732eed5" name="a79fe37a674e9136f822b73495732eed5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79fe37a674e9136f822b73495732eed5">&#9670;&nbsp;</a></span>Visit() <span class="overload">[7/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a79fe37a674e9136f822b73495732eed5">&#9670;&nbsp;</a></span>Visit() <span class="overload">[7/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -450,7 +455,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="afaf46ad58dad912a490ee5d3ea797f49" name="afaf46ad58dad912a490ee5d3ea797f49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afaf46ad58dad912a490ee5d3ea797f49">&#9670;&nbsp;</a></span>Visit() <span class="overload">[8/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afaf46ad58dad912a490ee5d3ea797f49">&#9670;&nbsp;</a></span>Visit() <span class="overload">[8/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -478,7 +483,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a16f77c91b4abc9e64901b60280499352" name="a16f77c91b4abc9e64901b60280499352"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a16f77c91b4abc9e64901b60280499352">&#9670;&nbsp;</a></span>Visit() <span class="overload">[9/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a16f77c91b4abc9e64901b60280499352">&#9670;&nbsp;</a></span>Visit() <span class="overload">[9/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -506,7 +511,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="ad67872cc7efaf687a7aa367a7d70b0f2" name="ad67872cc7efaf687a7aa367a7d70b0f2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad67872cc7efaf687a7aa367a7d70b0f2">&#9670;&nbsp;</a></span>Visit() <span class="overload">[10/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad67872cc7efaf687a7aa367a7d70b0f2">&#9670;&nbsp;</a></span>Visit() <span class="overload">[10/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -534,7 +539,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a6191a485296383623c21426eee669c52" name="a6191a485296383623c21426eee669c52"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6191a485296383623c21426eee669c52">&#9670;&nbsp;</a></span>Visit() <span class="overload">[11/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6191a485296383623c21426eee669c52">&#9670;&nbsp;</a></span>Visit() <span class="overload">[11/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -562,7 +567,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a8a32f273366f5bc3dc3e39a9c45f5880" name="a8a32f273366f5bc3dc3e39a9c45f5880"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8a32f273366f5bc3dc3e39a9c45f5880">&#9670;&nbsp;</a></span>Visit() <span class="overload">[12/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a32f273366f5bc3dc3e39a9c45f5880">&#9670;&nbsp;</a></span>Visit() <span class="overload">[12/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -590,7 +595,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="ac9ccbf5a6553057007df061d185a0983" name="ac9ccbf5a6553057007df061d185a0983"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac9ccbf5a6553057007df061d185a0983">&#9670;&nbsp;</a></span>Visit() <span class="overload">[13/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac9ccbf5a6553057007df061d185a0983">&#9670;&nbsp;</a></span>Visit() <span class="overload">[13/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -618,7 +623,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a3054cd5273a0322976ed690fdb681867" name="a3054cd5273a0322976ed690fdb681867"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3054cd5273a0322976ed690fdb681867">&#9670;&nbsp;</a></span>Visit() <span class="overload">[14/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a3054cd5273a0322976ed690fdb681867">&#9670;&nbsp;</a></span>Visit() <span class="overload">[14/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -646,7 +651,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a67c1da72b8fe78cf99590dc667271320" name="a67c1da72b8fe78cf99590dc667271320"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a67c1da72b8fe78cf99590dc667271320">&#9670;&nbsp;</a></span>Visit() <span class="overload">[15/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a67c1da72b8fe78cf99590dc667271320">&#9670;&nbsp;</a></span>Visit() <span class="overload">[15/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -673,8 +678,36 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 
 </div>
 </div>
+<a id="abe2ca0daaebd3b5ffbaca3eafafb8f65" name="abe2ca0daaebd3b5ffbaca3eafafb8f65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe2ca0daaebd3b5ffbaca3eafafb8f65">&#9670;&nbsp;</a></span>Visit() <span class="overload">[16/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void weak::CodeGen::Visit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classweak_1_1ASTMemberAccess.html">ASTMemberAccess</a> *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">private</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classweak_1_1ASTVisitor.html">weak::ASTVisitor</a>.</p>
+
+</div>
+</div>
 <a id="af4011e08faf0ac632ac0a7a8b1d8c221" name="af4011e08faf0ac632ac0a7a8b1d8c221"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af4011e08faf0ac632ac0a7a8b1d8c221">&#9670;&nbsp;</a></span>Visit() <span class="overload">[16/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af4011e08faf0ac632ac0a7a8b1d8c221">&#9670;&nbsp;</a></span>Visit() <span class="overload">[17/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -702,7 +735,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a960ae38bd0ce1029a0043eb6216c14c6" name="a960ae38bd0ce1029a0043eb6216c14c6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a960ae38bd0ce1029a0043eb6216c14c6">&#9670;&nbsp;</a></span>Visit() <span class="overload">[17/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a960ae38bd0ce1029a0043eb6216c14c6">&#9670;&nbsp;</a></span>Visit() <span class="overload">[18/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -730,7 +763,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a32585854be1dff739e0d485f163561f4" name="a32585854be1dff739e0d485f163561f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a32585854be1dff739e0d485f163561f4">&#9670;&nbsp;</a></span>Visit() <span class="overload">[18/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a32585854be1dff739e0d485f163561f4">&#9670;&nbsp;</a></span>Visit() <span class="overload">[19/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -758,7 +791,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a2e2afa0c3aa1892e873433ee9b91efae" name="a2e2afa0c3aa1892e873433ee9b91efae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e2afa0c3aa1892e873433ee9b91efae">&#9670;&nbsp;</a></span>Visit() <span class="overload">[19/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e2afa0c3aa1892e873433ee9b91efae">&#9670;&nbsp;</a></span>Visit() <span class="overload">[20/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -786,7 +819,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a1c25f3a0115b2594e2dc51254b532736" name="a1c25f3a0115b2594e2dc51254b532736"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c25f3a0115b2594e2dc51254b532736">&#9670;&nbsp;</a></span>Visit() <span class="overload">[20/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c25f3a0115b2594e2dc51254b532736">&#9670;&nbsp;</a></span>Visit() <span class="overload">[21/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -814,7 +847,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="aa8095d098fece6e429ce425e6336d7a0" name="aa8095d098fece6e429ce425e6336d7a0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8095d098fece6e429ce425e6336d7a0">&#9670;&nbsp;</a></span>Visit() <span class="overload">[21/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8095d098fece6e429ce425e6336d7a0">&#9670;&nbsp;</a></span>Visit() <span class="overload">[22/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -842,7 +875,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a670f08e8b5558807eb66c8e52f08a2f3" name="a670f08e8b5558807eb66c8e52f08a2f3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a670f08e8b5558807eb66c8e52f08a2f3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[22/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a670f08e8b5558807eb66c8e52f08a2f3">&#9670;&nbsp;</a></span>Visit() <span class="overload">[23/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -870,7 +903,7 @@ llvm::IRBuilder&#160;</td><td class="memItemRight" valign="bottom"><b>mIRBuilder
 </div>
 </div>
 <a id="a4fdb7fa9b676b7a80fd3429f8d62dd55" name="a4fdb7fa9b676b7a80fd3429f8d62dd55"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4fdb7fa9b676b7a80fd3429f8d62dd55">&#9670;&nbsp;</a></span>Visit() <span class="overload">[23/23]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fdb7fa9b676b7a80fd3429f8d62dd55">&#9670;&nbsp;</a></span>Visit() <span class="overload">[24/24]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

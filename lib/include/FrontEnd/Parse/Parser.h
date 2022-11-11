@@ -8,6 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_PARSE_PARSER_H
 
 #include "FrontEnd/AST/ASTCompound.h"
+#include "FrontEnd/Lex/DataType.h"
 #include "FrontEnd/Lex/Token.h"
 #include <memory>
 #include <vector>
@@ -29,6 +30,12 @@ public:
   std::unique_ptr<ASTCompound> Parse();
 
 private:
+  struct LocalizedDataType {
+    unsigned LineNo;
+    unsigned ColumnNo;
+    DataType DT;
+  };
+
   /// Function with or without body (prototype).
   ASTNode *ParseFunctionDecl();
 
@@ -52,11 +59,16 @@ private:
   /// User type declaration.
   ASTNode *ParseStructDecl();
 
+  ASTNode *ParseStructVarDecl();
+
+  /// `Structure.Field`.
+  ASTNode *ParseStructFieldAccess();
+
   /// Int, float, char, string, bool.
-  const Token &ParseType();
+  LocalizedDataType ParseType();
 
   /// All from ParseType() or void.
-  const Token &ParseReturnType();
+  LocalizedDataType ParseReturnType();
 
   /// < type > < id > | < type > < id > [ < integral-literal > ].
   ASTNode *ParseDeclWithoutInitializer();

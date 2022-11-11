@@ -37,6 +37,7 @@ public:
   virtual void Visit(ASTReturn *);
   virtual void Visit(ASTString *) {}
   virtual void Visit(ASTStructDecl *);
+  virtual void Visit(ASTMemberAccess *);
   virtual void Visit(ASTSymbol *) {}
   virtual void Visit(ASTUnary *);
   virtual void Visit(ASTVarDecl *);

@@ -21,28 +21,29 @@ static ASTVarDecl *GetVarDecl(ASTNode *Node) {
 
 TypeResolver::TypeResolver(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
 
-llvm::Type *TypeResolver::Resolve(TokenType T, unsigned LineNo,
+llvm::Type *TypeResolver::Resolve(DataType T, unsigned LineNo,
                                   unsigned ColumnNo) {
   switch (T) {
-  case TOK_VOID:
+  case DT_VOID:
     return mIRBuilder.getVoidTy();
-  case TOK_CHAR:
+  case DT_CHAR:
     return mIRBuilder.getInt8Ty();
-  case TOK_INT:
+  case DT_INT:
     return mIRBuilder.getInt32Ty();
-  case TOK_BOOLEAN:
+  case DT_BOOL:
     return mIRBuilder.getInt1Ty();
-  case TOK_FLOAT:
+  case DT_FLOAT:
     return mIRBuilder.getFloatTy();
-  case TOK_STRING:
+  case DT_STRING:
     return mIRBuilder.getInt8PtrTy();
   default:
-    weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
+    weak::CompileError(LineNo, ColumnNo)
+        << "Wrong type: " << DataTypeToString(T);
     Unreachable();
   }
 }
 
-llvm::Type *TypeResolver::Resolve(TokenType T, ASTNode *LocationAST) {
+llvm::Type *TypeResolver::Resolve(DataType T, ASTNode *LocationAST) {
   return Resolve(T, LocationAST->LineNo(), LocationAST->ColumnNo());
 }
 
@@ -51,26 +52,27 @@ llvm::Type *TypeResolver::Resolve(ASTNode *LocationAST) {
   return Resolve(Decl->DataType(), Decl->LineNo(), Decl->ColumnNo());
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T, unsigned LineNo,
+llvm::Type *TypeResolver::ResolveExceptVoid(DataType T, unsigned LineNo,
                                             unsigned ColumnNo) {
   switch (T) {
-  case TOK_CHAR:
+  case DT_CHAR:
     return mIRBuilder.getInt8Ty();
-  case TOK_INT:
+  case DT_INT:
     return mIRBuilder.getInt32Ty();
-  case TOK_BOOLEAN:
+  case DT_BOOL:
     return mIRBuilder.getInt1Ty();
-  case TOK_FLOAT:
+  case DT_FLOAT:
     return mIRBuilder.getFloatTy();
-  case TOK_STRING:
+  case DT_STRING:
     return mIRBuilder.getInt8PtrTy();
   default:
-    weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << TokenToString(T);
+    weak::CompileError(LineNo, ColumnNo)
+        << "Wrong type: " << DataTypeToString(T);
     Unreachable();
   }
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(TokenType T, ASTNode *LocationAST) {
+llvm::Type *TypeResolver::ResolveExceptVoid(DataType T, ASTNode *LocationAST) {
   return ResolveExceptVoid(T, LocationAST->LineNo(), LocationAST->ColumnNo());
 }
 

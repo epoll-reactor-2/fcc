@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_TYPE_RESOLVER_H
 #define WEAK_COMPILER_MIDDLE_END_TYPE_RESOLVER_H
 
-#include "FrontEnd/Lex/TokenType.h"
+#include "FrontEnd/Lex/DataType.h"
 #include "llvm/IR/IRBuilder.h"
 
 namespace llvm {
@@ -24,18 +24,18 @@ public:
   TypeResolver(llvm::IRBuilder<> &);
 
   /// Convert given parameter (including void) to corresponding LLVM type.
-  llvm::Type *Resolve(TokenType, unsigned LineNo, unsigned ColumnNo);
-  /// \copydoc TypeResolver::Resolve(TokenType, unsigned, unsigned)
-  llvm::Type *Resolve(TokenType, ASTNode *LocationAST);
-  /// \copydoc TypeResolver::Resolve(TokenType, unsigned, unsigned)
+  llvm::Type *Resolve(DataType, unsigned LineNo, unsigned ColumnNo);
+  /// \copydoc TypeResolver::Resolve(DataType, unsigned, unsigned)
+  llvm::Type *Resolve(DataType, ASTNode *LocationAST);
+  /// \copydoc TypeResolver::Resolve(DataType, unsigned, unsigned)
   llvm::Type *Resolve(ASTNode *LocationAST);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
-  llvm::Type *ResolveExceptVoid(TokenType, unsigned LineNo, unsigned ColumnNo);
-  /// \copydoc TypeResolver::ResolveExceptVoid(TokenType, unsigned,
+  llvm::Type *ResolveExceptVoid(DataType, unsigned LineNo, unsigned ColumnNo);
+  /// \copydoc TypeResolver::ResolveExceptVoid(DataType, unsigned,
   /// unsigned)
-  llvm::Type *ResolveExceptVoid(TokenType, ASTNode *LocationAST);
-  /// \copydoc TypeResolver::ResolveExceptVoid(TokenType, unsigned,
+  llvm::Type *ResolveExceptVoid(DataType, ASTNode *LocationAST);
+  /// \copydoc TypeResolver::ResolveExceptVoid(DataType, unsigned,
   /// unsigned)
   llvm::Type *ResolveExceptVoid(ASTNode *LocationAST);
 

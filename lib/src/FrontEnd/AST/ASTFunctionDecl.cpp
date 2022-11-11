@@ -11,7 +11,7 @@
 
 namespace weak {
 
-ASTFunctionDecl::ASTFunctionDecl(TokenType ReturnType, std::string Name,
+ASTFunctionDecl::ASTFunctionDecl(DataType ReturnType, std::string Name,
                                  std::vector<ASTNode *> Args, ASTCompound *Body,
                                  unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_FUNCTION_DECL, LineNo, ColumnNo), mReturnType(ReturnType),
@@ -25,7 +25,7 @@ ASTFunctionDecl::~ASTFunctionDecl() {
 
 void ASTFunctionDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
 
-TokenType ASTFunctionDecl::ReturnType() const { return mReturnType; }
+DataType ASTFunctionDecl::ReturnType() const { return mReturnType; }
 
 const std::string &ASTFunctionDecl::Name() const { return mName; }
 

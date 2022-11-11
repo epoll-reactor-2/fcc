@@ -17,7 +17,7 @@ auto &operator+=(std::vector<weak::Token> &V, weak::Token T) {
 namespace weak {
 namespace {
 static const std::unordered_map<std::string_view, TokenType> LexKeywords = {
-    {"bool", TOK_BOOLEAN},  {"break", TOK_BREAK},
+    {"bool", TOK_BOOL},     {"break", TOK_BREAK},
     {"char", TOK_CHAR},     {"continue", TOK_CONTINUE},
     {"do", TOK_DO},         {"else", TOK_ELSE},
     {"false", TOK_FALSE},   {"float", TOK_FLOAT},
@@ -59,6 +59,7 @@ static const std::unordered_map<std::string_view, TokenType> LexOperators = {
     {"%", TOK_MOD},
     {"++", TOK_INC},
     {"--", TOK_DEC},
+    {".", TOK_DOT},
     {",", TOK_COMMA},
     {";", TOK_SEMICOLON},
     {"!", TOK_NOT},
@@ -76,7 +77,7 @@ static void NormalizeColumnPos(std::string_view Data, weak::TokenType Type,
   using namespace std::string_view_literals;
 
   static const std::unordered_map TokenLengths{
-      std::make_pair(TOK_BOOLEAN, "bool"sv.length()),
+      std::make_pair(TOK_BOOL, "bool"sv.length()),
       {TOK_BREAK, "break"sv.length()},
       {TOK_CHAR, "char"sv.length()},
       {TOK_CONTINUE, "continue"sv.length()},

@@ -11,7 +11,7 @@ namespace weak {
 
 enum TokenType {
   // Keywords.
-  TOK_BOOLEAN,
+  TOK_BOOL,
   TOK_BREAK,
   TOK_CHAR,
   TOK_CONTINUE,
@@ -68,6 +68,7 @@ enum TokenType {
   TOK_MOD,                 // %
   TOK_INC,                 // ++
   TOK_DEC,                 // --
+  TOK_DOT,                 // .
   TOK_COMMA,               // ,
   TOK_SEMICOLON,           // ;
   TOK_NOT,                 // !

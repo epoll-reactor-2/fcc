@@ -39,116 +39,107 @@ public:
   void Dump() { mRootNode->Accept(this); }
 
 private:
-  void Visit(ASTArrayAccess *Decl) override {
-    PrintWithTextPos("ArrayAccess", Decl, /*NewLineNeeded=*/false);
-
-    mStream << Decl->Name() << std::endl;
+  void Visit(ASTArrayAccess *Stmt) override {
+    ASTTypePrint("ArrayAccess", Stmt);
+    mStream << Stmt->Name() << '\n';
 
     mIndent += 2;
     PrintIndent();
-    Decl->Index()->Accept(this);
+    Stmt->Index()->Accept(this);
     mIndent -= 2;
   }
 
   void Visit(ASTArrayDecl *Decl) override {
-    PrintWithTextPos("ArrayDecl", Decl, /*NewLineNeeded=*/false);
+    ASTTypePrint("ArrayDecl", Decl);
 
     const auto &ArityList = Decl->ArityList();
-    mStream << TokenToString(Decl->DataType()) << " "
+    mStream << DataTypeToString(Decl->DataType()) << " "
             << IntegerRangeToString(ArityList.cbegin(), ArityList.cend())
-            << " ";
-    mStream << Decl->Name() << std::endl;
+            << " `";
+    mStream << Decl->Name() << "`\n";
   }
 
-  void Visit(ASTBinary *Binary) override {
-    PrintWithTextPos("BinaryOperator", Binary, /*NewLineNeeded=*/false);
-    mStream << TokenToString(Binary->Operation()) << std::endl;
+  void Visit(ASTBinary *Stmt) override {
+    ASTTypePrint("BinaryOperator", Stmt);
+    mStream << TokenToString(Stmt->Operation()) << '\n';
     mIndent += 2;
 
     PrintIndent();
-    Binary->LHS()->Accept(this);
+    Stmt->LHS()->Accept(this);
 
     PrintIndent();
-    Binary->RHS()->Accept(this);
+    Stmt->RHS()->Accept(this);
 
     mIndent -= 2;
   }
 
-  void Visit(ASTBool *Boolean) override {
-    PrintWithTextPos("BooleanLiteral", Boolean, /*NewLineNeeded=*/false);
-    mStream << std::boolalpha << Boolean->Value() << std::endl;
+  void Visit(ASTBool *Stmt) override {
+    ASTTypePrint("BooleanLiteral", Stmt);
+    mStream << std::boolalpha << Stmt->Value() << '\n';
   }
 
-  void Visit(ASTBreak *BreakStmt) override {
-    PrintWithTextPos("BreakStmt", BreakStmt, /*NewLineNeeded=*/true);
+  void Visit(ASTBreak *Stmt) override { ASTTypePrintLine("BreakStmt", Stmt); }
+
+  void Visit(ASTChar *Stmt) override {
+    ASTTypePrint("CharLiteral", Stmt);
+    mStream << "'" << Stmt->Value() << "'\n";
   }
 
-  void Visit(ASTChar *Char) override {
-    PrintWithTextPos("CharLiteral", Char, /*NewLineNeeded=*/false);
-    mStream << "'" << Char->Value() << "'" << std::endl;
-  }
-
-  void Visit(ASTCompound *CompoundStmt) override {
-    PrintWithTextPos("CompoundStmt", CompoundStmt, /*NewLineNeeded=*/true);
+  void Visit(ASTCompound *Stmt) override {
+    ASTTypePrintLine("CompoundStmt", Stmt);
 
     mIndent += 2;
-    for (const auto &Stmt : CompoundStmt->Stmts()) {
+    for (auto *S : Stmt->Stmts()) {
       PrintIndent();
-      Stmt->Accept(this);
+      S->Accept(this);
     }
     mIndent -= 2;
   }
 
-  void Visit(ASTContinue *ContinueStmt) override {
-    PrintWithTextPos("ContinueStmt", ContinueStmt, /*NewLineNeeded=*/true);
+  void Visit(ASTContinue *Stmt) override {
+    ASTTypePrintLine("ContinueStmt", Stmt);
   }
 
   void Visit(ASTFloat *Float) override {
-    PrintWithTextPos("FloatingPointLiteral", Float,
-                     /*NewLineNeeded=*/false);
-    mStream << Float->Value() << std::endl;
+    ASTTypePrint("FloatingPointLiteral", Float);
+    mStream << Float->Value() << '\n';
   }
 
-  void Visit(ASTFor *ForStmt) override {
-    PrintWithTextPos("ForStmt", ForStmt,
-                     /*NewLineNeeded=*/true);
+  void Visit(ASTFor *Stmt) override {
+    ASTTypePrintLine("ForStmt", Stmt);
 
     mIndent += 2;
 
-    if (auto *Init = ForStmt->Init()) {
+    if (auto *Init = Stmt->Init()) {
       PrintIndent();
-      PrintWithTextPos("ForStmtInit", Init,
-                       /*NewLineNeeded=*/true);
+      ASTTypePrintLine("ForStmtInit", Init);
       mIndent += 2;
       PrintIndent();
       Init->Accept(this);
       mIndent -= 2;
     }
 
-    if (auto *Condition = ForStmt->Condition()) {
+    if (auto *Condition = Stmt->Condition()) {
       PrintIndent();
-      PrintWithTextPos("ForStmtCondition", Condition,
-                       /*NewLineNeeded=*/true);
+      ASTTypePrintLine("ForStmtCondition", Condition);
       mIndent += 2;
       PrintIndent();
       Condition->Accept(this);
       mIndent -= 2;
     }
 
-    if (auto *Increment = ForStmt->Increment()) {
+    if (auto *Increment = Stmt->Increment()) {
       PrintIndent();
-      PrintWithTextPos("ForStmtIncrement", Increment,
-                       /*NewLineNeeded=*/true);
+      ASTTypePrintLine("ForStmtIncrement", Increment);
       mIndent += 2;
       PrintIndent();
       Increment->Accept(this);
       mIndent -= 2;
     }
 
-    if (auto *Body = ForStmt->Body()) {
+    if (auto *Body = Stmt->Body()) {
       PrintIndent();
-      PrintWithTextPos("ForStmtBody", Body,
-                       /*NewLineNeeded=*/true);
+      ASTTypePrintLine("ForStmtBody", Body);
       mIndent += 2;
       PrintIndent();
       Visit(Body);
@@ -158,89 +149,81 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(ASTIf *IfStmt) override {
-    PrintWithTextPos("IfStmt", IfStmt, /*NewLineNeeded=*/true);
+  void Visit(ASTIf *Stmt) override {
+    ASTTypePrintLine("IfStmt", Stmt);
     mIndent += 2;
 
-    if (auto *Condition = IfStmt->Condition()) {
+    if (auto *Cond = Stmt->Condition()) {
       PrintIndent();
-      PrintWithTextPos("IfStmtCondition", Condition,
-                       /*NewLineNeeded=*/true);
+      ASTTypePrintLine("IfStmtCondition", Cond);
       mIndent += 2;
       PrintIndent();
-      Condition->Accept(this);
+      Cond->Accept(this);
       mIndent -= 2;
     }
 
-    if (auto *ThenBody = IfStmt->ThenBody()) {
+    if (auto *Then = Stmt->ThenBody()) {
       PrintIndent();
-      PrintWithTextPos("IfStmtThenBody", ThenBody,
-                       /*NewLineNeeded=*/true);
+      ASTTypePrintLine("IfStmtThenBody", Then);
       mIndent += 2;
       PrintIndent();
-      Visit(ThenBody);
+      Visit(Then);
       mIndent -= 2;
     }
 
-    if (auto *ElseBody = IfStmt->ElseBody()) {
+    if (auto *Else = Stmt->ElseBody()) {
       PrintIndent();
-      PrintWithTextPos("IfStmtElseBody", ElseBody,
-                       /*NewLineNeeded=*/true);
+      ASTTypePrintLine("IfStmtElseBody", Else);
       mIndent += 2;
       PrintIndent();
-      Visit(ElseBody);
+      Visit(Else);
       mIndent -= 2;
     }
     mIndent -= 2;
   }
 
-  void Visit(ASTNumber *Integer) override {
-    PrintWithTextPos("IntegerLiteral", Integer,
-                     /*NewLineNeeded=*/false);
-    mStream << Integer->Value() << std::endl;
+  void Visit(ASTNumber *Stmt) override {
+    ASTTypePrint("Number", Stmt);
+    mStream << Stmt->Value() << '\n';
   }
 
-  void Visit(ASTReturn *ReturnStmt) override {
-    PrintWithTextPos("ReturnStmt", ReturnStmt, /*NewLineNeeded=*/true);
-    mIndent += 2;
+  void Visit(ASTReturn *Stmt) override {
+    ASTTypePrintLine("ReturnStmt", Stmt);
 
-    if (ReturnStmt->Operand()) {
+    if (auto *O = Stmt->Operand()) {
+      mIndent += 2;
       PrintIndent();
-      ReturnStmt->Operand()->Accept(this);
+      O->Accept(this);
+      mIndent -= 2;
     }
-
-    mIndent -= 2;
   }
 
-  void Visit(ASTString *String) override {
-    PrintWithTextPos("StringLiteral", String,
-                     /*NewLineNeeded=*/false);
-    mStream << String->Value() << std::endl;
+  void Visit(ASTString *Stmt) override {
+    ASTTypePrint("StringLiteral", Stmt);
+    mStream << Stmt->Value() << '\n';
   }
 
-  void Visit(ASTSymbol *Symbol) override {
-    PrintWithTextPos("Symbol", Symbol,
-                     /*NewLineNeeded=*/false);
-    mStream << Symbol->Name() << std::endl;
+  void Visit(ASTSymbol *Stmt) override {
+    ASTTypePrint("Symbol", Stmt);
+    mStream << '`' << Stmt->Name() << "`\n";
   }
 
-  void Visit(ASTUnary *Unary) override {
-    mStream << (Unary->PrefixOrPostfix == ASTUnary::PREFIX ? "Prefix "
-                                                           : "Postfix ");
-    PrintWithTextPos("UnaryOperator", Unary,
-                     /*NewLineNeeded=*/false);
-    mStream << TokenToString(Unary->Operation()) << std::endl;
+  void Visit(ASTUnary *Stmt) override {
+    mStream << (Stmt->PrefixOrPostfix == ASTUnary::PREFIX ? "Prefix "
+                                                          : "Postfix ");
+    ASTTypePrint("UnaryOperator", Stmt);
+    mStream << TokenToString(Stmt->Operation()) << '\n';
     mIndent += 2;
 
     PrintIndent();
-    Unary->Operand()->Accept(this);
+    Stmt->Operand()->Accept(this);
 
     mIndent -= 2;
   }
 
   void Visit(ASTStructDecl *Decl) override {
-    PrintWithTextPos("StructDecl", Decl, /*NewLineNeeded=*/false);
-    mStream << Decl->Name() << std::endl;
+    ASTTypePrint("StructDecl", Decl);
+    mStream << '`' << Decl->Name() << "`\n";
 
     mIndent += 2;
     for (const auto &Field : Decl->Decls()) {
@@ -250,12 +233,26 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(ASTVarDecl *VarDecl) override {
-    PrintWithTextPos("VarDecl", VarDecl, /*NewLineNeeded=*/false);
-    mStream << TokenToString(VarDecl->DataType()) << " " << VarDecl->Name()
-            << std::endl;
+  void Visit(ASTMemberAccess *Stmt) override {
+    ASTTypePrintLine("StructMemberAccess", Stmt);
 
-    if (auto *Body = VarDecl->Body()) {
+    mIndent += 2;
+    PrintIndent();
+    Stmt->Name()->Accept(this);
+
+    PrintIndent();
+    Stmt->MemberDecl()->Accept(this);
+    mIndent -= 2;
+  }
+
+  void Visit(ASTVarDecl *Decl) override {
+    ASTTypePrint("VarDecl", Decl);
+    mStream << DataTypeToString(Decl->DataType()) << ' ';
+    mStream << (Decl->DataType() == DT_STRUCT ? Decl->TypeName() + ' ' : "");
+    mStream << "`" << Decl->Name();
+    mStream << "`\n";
+
+    if (auto *Body = Decl->Body()) {
       mIndent += 2;
       PrintIndent();
       Body->Accept(this);
@@ -263,73 +260,64 @@ private:
     }
   }
 
-  void Visit(ASTFunctionDecl *FunctionDecl) override {
-    PrintWithTextPos("FunctionDecl", FunctionDecl, /*NewLineNeeded=*/true);
+  void Visit(ASTFunctionDecl *Decl) override {
+    ASTTypePrintLine("FunctionDecl", Decl);
 
     mIndent += 2;
     PrintIndent();
-    PrintWithTextPos("FunctionDeclRetType", FunctionDecl,
-                     /*NewLineNeeded=*/false);
-    mStream << TokenToString(FunctionDecl->ReturnType()) << std::endl;
+    ASTTypePrint("FunctionDeclRetType", Decl);
+    mStream << DataTypeToString(Decl->ReturnType()) << '\n';
 
     PrintIndent();
-    PrintWithTextPos("FunctionDeclName", FunctionDecl,
-                     /*NewLineNeeded=*/false);
-    mStream << FunctionDecl->Name() << std::endl;
+    ASTTypePrint("FunctionDeclName", Decl);
+    mStream << '`' << Decl->Name() << "`\n";
 
     PrintIndent();
-    PrintWithTextPos("FunctionDeclArgs", FunctionDecl,
-                     /*NewLineNeeded=*/true);
+    ASTTypePrintLine("FunctionDeclArgs", Decl);
 
     mIndent += 2;
-    for (const auto &Argument : FunctionDecl->Args()) {
+    for (const auto &Argument : Decl->Args()) {
       PrintIndent();
       Argument->Accept(this);
     }
     mIndent -= 2;
 
     PrintIndent();
-    PrintWithTextPos("FunctionDeclBody", FunctionDecl,
-                     /*NewLineNeeded=*/true);
+    ASTTypePrintLine("FunctionDeclBody", Decl);
 
     mIndent += 2;
     PrintIndent();
-    Visit(FunctionDecl->Body());
+    Visit(Decl->Body());
     mIndent -= 2;
   }
 
-  void Visit(ASTFunctionCall *FunctionCall) override {
-    PrintWithTextPos("FunctionCall", FunctionCall,
-                     /*NewLineNeeded=*/false);
-    mStream << FunctionCall->Name() << std::endl;
+  void Visit(ASTFunctionCall *Stmt) override {
+    ASTTypePrint("FunctionCall", Stmt);
+    mStream << '`' << Stmt->Name() << "`\n";
 
     mIndent += 2;
     PrintIndent();
-    PrintWithTextPos("FunctionCallArgs", FunctionCall,
-                     /*NewLineNeeded=*/true);
+    ASTTypePrintLine("FunctionCallArgs", Stmt);
 
     mIndent += 2;
-    for (const auto &Argument : FunctionCall->Args()) {
+    for (const auto &Argument : Stmt->Args()) {
       PrintIndent();
       Argument->Accept(this);
     }
     mIndent -= 2;
-
     mIndent -= 2;
   }
 
-  void Visit(ASTFunctionPrototype *FunctionPrototype) override {
-    PrintWithTextPos("FunctionPrototype", FunctionPrototype,
-                     /*NewLineNeeded=*/false);
-    mStream << FunctionPrototype->Name() << std::endl;
+  void Visit(ASTFunctionPrototype *Stmt) override {
+    ASTTypePrint("FunctionPrototype", Stmt);
+    mStream << '`' << Stmt->Name() << "`\n";
 
     mIndent += 2;
     PrintIndent();
-    PrintWithTextPos("FunctionPrototypeArgs", FunctionPrototype,
-                     /*NewLineNeeded=*/true);
+    ASTTypePrintLine("FunctionPrototypeArgs", Stmt);
 
     mIndent += 2;
-    for (const auto &Argument : FunctionPrototype->Args()) {
+    for (const auto &Argument : Stmt->Args()) {
       PrintIndent();
       Argument->Accept(this);
     }
@@ -338,25 +326,24 @@ private:
     mIndent -= 2;
   }
 
-  void Visit(ASTDoWhile *DoWhileStmt) override {
-    CommonWhileStmtVisit(DoWhileStmt, /*IsDoWhile=*/true);
+  void Visit(ASTDoWhile *Stmt) override {
+    CommonWhileStmtVisit(Stmt, /*IsDoWhile=*/true);
   }
 
-  void Visit(ASTWhile *WhileStmt) override {
-    CommonWhileStmtVisit(WhileStmt, /*IsDoWhile=*/false);
+  void Visit(ASTWhile *Stmt) override {
+    CommonWhileStmtVisit(Stmt, /*IsDoWhile=*/false);
   }
 
   template <typename WhileNode>
-  void CommonWhileStmtVisit(WhileNode *WhileStmt, bool IsDoWhile) {
-    using namespace std::string_literals;
-    PrintWithTextPos((IsDoWhile ? "Do"s : ""s) + "WhileStmt", WhileStmt,
-                     /*NewLineNeeded=*/true);
+  void CommonWhileStmtVisit(WhileNode *Stmt, bool IsDoWhile) {
+    std::string Prefix = IsDoWhile ? "Do" : "";
+
+    ASTTypePrintLine(Prefix + "WhileStmt", Stmt);
 
     auto PrintWhileCondition = [&] {
-      if (auto *Condition = WhileStmt->Condition()) {
+      if (auto *Condition = Stmt->Condition()) {
         PrintIndent();
-        PrintWithTextPos((IsDoWhile ? "Do"s : ""s) + "WhileStmtCond", Condition,
-                         /*NewLineNeeded=*/true);
+        ASTTypePrintLine(Prefix + "WhileStmtCond", Condition);
         mIndent += 2;
         PrintIndent();
         Condition->Accept(this);
@@ -365,10 +352,9 @@ private:
     };
 
     auto PrintWhileBody = [&] {
-      if (auto *Body = WhileStmt->Body()) {
+      if (auto *Body = Stmt->Body()) {
         PrintIndent();
-        PrintWithTextPos((IsDoWhile ? "Do"s : ""s) + "WhileStmtBody", Body,
-                         /*NewLineNeeded=*/true);
+        ASTTypePrintLine(Prefix + "WhileStmtBody", Body);
         mIndent += 2;
         PrintIndent();
         Visit(Body);
@@ -391,13 +377,16 @@ private:
 
   void PrintWithTextPos(std::string_view Label, ASTNode *Node,
                         bool NewLineNeeded) const {
-    mStream << Label << " <line:" << Node->LineNo()
-            << ", col:" << Node->ColumnNo() << ">";
+    mStream << Label << " <line:" << Node->LineNo();
+    mStream << ", col:" << Node->ColumnNo() << ">";
+    mStream << (NewLineNeeded ? '\n' : ' ');
+  }
 
-    if (NewLineNeeded)
-      mStream << std::endl;
-    else
-      mStream << " ";
+  void ASTTypePrint(std::string_view Label, ASTNode *Node) {
+    PrintWithTextPos(Label, Node, false);
+  }
+  void ASTTypePrintLine(std::string_view Label, ASTNode *Node) {
+    PrintWithTextPos(Label, Node, true);
   }
 
   void PrintIndent() const { mStream << std::string(mIndent, ' '); }

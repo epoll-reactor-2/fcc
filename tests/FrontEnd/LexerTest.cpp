@@ -109,7 +109,7 @@ int main() {
     RunLexerTest("a b c", Assertion);
   }
   SECTION(LexingKeywords) {
-    std::vector<Token> Assertion = {MakeToken("", TOK_BOOLEAN),
+    std::vector<Token> Assertion = {MakeToken("", TOK_BOOL),
                                     MakeToken("", TOK_CHAR),
                                     MakeToken("", TOK_WHILE)};
     RunLexerTest("bool\nchar\nwhile", Assertion);

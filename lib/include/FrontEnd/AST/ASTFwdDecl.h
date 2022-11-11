@@ -29,6 +29,7 @@ class ASTNumber;
 class ASTReturn;
 class ASTString;
 class ASTStructDecl;
+class ASTMemberAccess;
 class ASTSymbol;
 class ASTUnary;
 class ASTVarDecl;

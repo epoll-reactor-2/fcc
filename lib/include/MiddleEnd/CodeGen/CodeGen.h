@@ -71,6 +71,7 @@ private:
   void Visit(ASTArrayDecl *) override;
   void Visit(ASTVarDecl *) override;
   void Visit(ASTStructDecl *) override {}
+  void Visit(ASTMemberAccess *) override {}
 
   // The rest.
   void Visit(ASTArrayAccess *) override;
