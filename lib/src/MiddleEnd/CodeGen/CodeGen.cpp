@@ -8,7 +8,6 @@
 
 #include "FrontEnd/AST/AST.h"
 #include "MiddleEnd/CodeGen/ScalarExprEmitter.h"
-#include "MiddleEnd/CodeGen/TypeCheck.h"
 #include "MiddleEnd/CodeGen/TypeResolver.h"
 #include "Utility/Diagnostic.h"
 #include "llvm/ADT/APFloat.h"
@@ -223,8 +222,6 @@ void CodeGen::Visit(ASTBinary *Stmt) {
 
   if (!L || !R)
     return;
-
-  weak::AssertSame(Stmt, L, R);
 
   ScalarExprEmitter ScalarEmitter(mIRBuilder);
 
@@ -446,10 +443,6 @@ void CodeGen::Visit(ASTFunctionCall *Stmt) {
     auto *AST = FunArgs[I];
 
     AST->Accept(this);
-
-    auto *InstrType = mLastInstr->getType();
-    auto *ExpectedType = Callee->getArg(I)->getType();
-    weak::AssertSame(AST, InstrType, ExpectedType);
     Args.push_back(mLastInstr);
   }
 
@@ -468,10 +461,6 @@ void CodeGen::Visit(ASTArrayAccess *Stmt) {
   Stmt->Index()->Accept(this);
   llvm::Value *Index = mLastInstr;
 
-  if (Index->getType() != mIRBuilder.getInt32Ty())
-    weak::CompileError(Stmt) << "Expected 32-bit integer as array index";
-
-  weak::AssertNotOutOfRange(Stmt, Symbol, Index);
   /// If you have a question about this, please see
   /// https://llvm.org/docs/ElementPtr.html.
   llvm::Value *Zero = mIRBuilder.getInt32(0);

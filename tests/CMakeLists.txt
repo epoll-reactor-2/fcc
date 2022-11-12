@@ -49,6 +49,7 @@ CopyInputFiles("FrontEnd/Input/Parser" "Parser")
 CopyInputFiles("FrontEnd/Input/VariableUseAnalysis/Warns" "VariableUseAnalysis/Warns")
 CopyInputFiles("FrontEnd/Input/VariableUseAnalysis/Errors" "VariableUseAnalysis/Errors")
 CopyInputFiles("FrontEnd/Input/FunctionAnalysis" "FunctionAnalysis")
+CopyInputFiles("FrontEnd/Input/TypeAnalysis" "TypeAnalysis")
 CopyInputFiles("MiddleEnd/Input/CodeGen/Valid" "CodeGen/Valid")
 CopyInputFiles("MiddleEnd/Input/CodeGen/Invalid" "CodeGen/Invalid")
 

@@ -7,8 +7,12 @@
 #include "FrontEnd/Lex/DataType.h"
 #include "Utility/Diagnostic.h"
 
-std::string weak::DataTypeToString(DataType T) {
+const char *weak::DataTypeToString(DataType T) {
   switch (T) {
+  case DT_UNKNOWN:
+    return "<UNKNOWN>";
+  case DT_FUNC:
+    return "<FUNCTION>";
   case DT_VOID:
     return "<VOID>";
   case DT_INT:

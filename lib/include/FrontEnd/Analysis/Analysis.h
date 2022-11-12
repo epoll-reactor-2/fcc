@@ -18,7 +18,7 @@ namespace weak {
 ///   /* Collect needed ones. */
 ///   for (auto *A : Analyzers)
 ///     A->Analyze();
-struct Analysis : public ASTVisitor {
+struct Analysis : protected ASTVisitor {
   virtual ~Analysis() = default;
 
   virtual void Analyze() = 0;

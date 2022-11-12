@@ -3,6 +3,7 @@
 #include "FrontEnd/Parse/Parser.h"
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
+#include "FrontEnd/Analysis/TypeAnalysis.h"
 #include "MiddleEnd/CodeGen/CodeGen.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "MiddleEnd/Optimizers/Optimizers.h"
@@ -29,6 +30,7 @@ DoSyntaxAnalysis(std::string_view InputPath) {
   std::vector<weak::Analysis *> Analyzers;
   Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
   Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
+  Analyzers.push_back(new weak::TypeAnalysis(AST.get()));
 
   for (auto *A : Analyzers) {
     A->Analyze();

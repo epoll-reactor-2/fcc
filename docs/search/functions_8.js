@@ -28,5 +28,5 @@ var searchData=
   ['peekcurrent_25',['PeekCurrent',['../classweak_1_1Lexer.html#adf29e1d08cb539533cedf920c4f1833e',1,'weak::Lexer::PeekCurrent()'],['../classweak_1_1Parser.html#a7ac3690b8007808a1d821341a7add28a',1,'weak::Parser::PeekCurrent()']]],
   ['peeknext_26',['PeekNext',['../classweak_1_1Lexer.html#ac6ad6cded1ae2dac2b2ed42c6d16a659',1,'weak::Lexer::PeekNext()'],['../classweak_1_1Parser.html#aa9c0f230562f187021946fe2c582a969',1,'weak::Parser::PeekNext()']]],
   ['processcomment_27',['ProcessComment',['../classweak_1_1Lexer.html#ae52f464e68e460d60a76096da56eed6c',1,'weak::Lexer']]],
-  ['push_28',['Push',['../structweak_1_1ASTStorage.html#a5aec92b71e112cbb13714c6243650829',1,'weak::ASTStorage::Push()'],['../classweak_1_1Storage.html#ad9f10c0287cbd09054764332c3d70b3c',1,'weak::Storage::Push()']]]
+  ['push_28',['Push',['../structweak_1_1ASTStorage.html#a5aec92b71e112cbb13714c6243650829',1,'weak::ASTStorage::Push(std::string_view Name, ASTNode *Decl)'],['../structweak_1_1ASTStorage.html#af117032173f603fb8526f8d1ad3a08b1',1,'weak::ASTStorage::Push(std::string_view Name, DataType T, ASTNode *Decl)'],['../classweak_1_1Storage.html#ad9f10c0287cbd09054764332c3d70b3c',1,'weak::Storage::Push()']]]
 ];

@@ -2,6 +2,7 @@
 #include "FrontEnd/Parse/Parser.h"
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
+#include "FrontEnd/Analysis/TypeAnalysis.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/Files.h"
 #include <iostream>
@@ -122,6 +123,7 @@ void RunAnalysisTest(const char *TestsDir, bool IsWarnTest) {
 
 int main() {
   RunAnalysisTest<weak::FunctionAnalysis>("/FunctionAnalysis", /*IsWarnTest=*/false);
+  RunAnalysisTest<weak::TypeAnalysis>("/TypeAnalysis", /*IsWarnTest=*/false);
   RunAnalysisTest<weak::VariableUseAnalysis>("/VariableUseAnalysis/Warns", /*IsWarnTest=*/true);
   RunAnalysisTest<weak::VariableUseAnalysis>("/VariableUseAnalysis/Errors", /*IsWarnTest=*/false);
 }

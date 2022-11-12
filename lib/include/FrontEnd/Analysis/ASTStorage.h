@@ -8,6 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
 
 #include "FrontEnd/AST/ASTNode.h"
+#include "FrontEnd/Lex/DataType.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -16,9 +17,8 @@ namespace weak {
 
 struct ASTStorage {
   struct Declaration {
-    /// Pointer.
     ASTNode *AST{nullptr};
-    /// Variable name.
+    DataType Type{DT_UNKNOWN};
     std::string Name;
     /// How many times variable was used (accessed).
     unsigned Uses{0U};
@@ -34,6 +34,8 @@ struct ASTStorage {
 
   /// Add variable at current depth.
   void Push(std::string_view Name, ASTNode *Decl);
+  /// \copydoc ASTStorage::Push(std::string_view, ASTNode *)
+  void Push(std::string_view Name, DataType T, ASTNode *Decl);
 
   /// Try to retrieve variable by name.
   Declaration *Lookup(std::string_view Name);

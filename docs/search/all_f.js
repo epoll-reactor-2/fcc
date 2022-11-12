@@ -1,9 +1,6 @@
 var searchData=
 [
-  ['targetcodebuilder_0',['TargetCodeBuilder',['../classweak_1_1TargetCodeBuilder.html',1,'weak']]],
-  ['todo_20list_1',['Todo List',['../todo.html',1,'']]],
-  ['token_2',['Token',['../structweak_1_1Token.html',1,'weak']]],
-  ['tostring_3',['ToString',['../classweak_1_1CodeGen.html#ac0b273ece45c6b61da8b9dfb3cb60e24',1,'weak::CodeGen']]],
-  ['type_4',['Type',['../structweak_1_1Token.html#abd2a9a1c6e6961c751d888ada7ac02fc',1,'weak::Token']]],
-  ['typeresolver_5',['TypeResolver',['../classweak_1_1TypeResolver.html',1,'weak']]]
+  ['uncopyable_0',['Uncopyable',['../structweak_1_1Uncopyable.html',1,'weak']]],
+  ['unmovable_1',['Unmovable',['../structweak_1_1Unmovable.html',1,'weak']]],
+  ['uses_2',['Uses',['../structweak_1_1ASTStorage_1_1Declaration.html#a9b88472246f90b47a4db4ccae23fdbfb',1,'weak::ASTStorage::Declaration']]]
 ];

@@ -7,11 +7,11 @@
 #ifndef WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H
 #define WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H
 
-#include <string>
-
 namespace weak {
 
 enum DataType {
+  DT_UNKNOWN,
+  DT_FUNC,
   DT_STRUCT,
   DT_VOID,
   DT_INT,
@@ -21,7 +21,7 @@ enum DataType {
   DT_BOOL
 };
 
-std::string DataTypeToString(DataType);
+const char *DataTypeToString(DataType);
 
 } // namespace weak
 
