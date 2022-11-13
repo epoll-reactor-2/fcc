@@ -144,6 +144,20 @@ void TypeAnalysis::Visit(ASTVarDecl *Decl) {
   mLastDataType = Decl->DataType();
 }
 
+static void OutOfRangeAnalysis(ASTArrayDecl *Array, ASTNode *Index) {
+  if (auto *I = Index; I->Is(AST_INTEGER_LITERAL)) {
+    signed NumIndex = static_cast<ASTNumber *>(I)->Value();
+    signed ArraySize = Array->ArityList()[0];
+
+    if (NumIndex < 0)
+      weak::CompileError(I) << "Array index less than zero";
+
+    if (NumIndex >= ArraySize)
+      weak::CompileError(I) << "Out of range! Index (which is " << NumIndex
+                            << ") >= array size (which is " << ArraySize << ")";
+  }
+}
+
 void TypeAnalysis::Visit(ASTArrayAccess *Stmt) {
   auto *Record = mStorage.Lookup(Stmt->Name())->AST;
   /// \todo: Get rid of `string` data type and introduce API for
@@ -155,25 +169,13 @@ void TypeAnalysis::Visit(ASTArrayAccess *Stmt) {
     }
   }
 
-  ASTArrayDecl *Array = static_cast<ASTArrayDecl *>(Record);
-
   Stmt->Index()->Accept(this);
   if (mLastDataType != DT_INT)
     weak::CompileError(Stmt->Index())
         << "Expected integer as array index, got " << mLastDataType;
 
-  if (auto *I = Stmt->Index(); I->Is(AST_INTEGER_LITERAL)) {
-    signed Index = static_cast<ASTNumber *>(I)->Value();
-    signed ArraySize = Array->ArityList()[0];
-
-    if (Index < 0)
-      weak::CompileError(I) << "Array index less than zero";
-
-    if (Index >= ArraySize)
-      weak::CompileError(I) << "Out of range! Index (which is " << Index
-                            << ") >= array size (which is " << ArraySize << ")";
-  }
-
+  ASTArrayDecl *Array = static_cast<ASTArrayDecl *>(Record);
+  OutOfRangeAnalysis(Array, Stmt->Index());
   mLastDataType = Array->DataType();
 }
 
@@ -200,10 +202,9 @@ void TypeAnalysis::Visit(ASTFunctionDecl *Decl) {
 
   Decl->Body()->Accept(this);
 
-  if (auto RT = Decl->ReturnType(); RT != DT_VOID)
-    if (mLastReturnDataType != RT)
-      weak::CompileError(Decl)
-          << "Cannot return " << mLastReturnDataType << " instead of " << RT;
+  if (auto RT = Decl->ReturnType(); RT != DT_VOID && RT != mLastReturnDataType)
+    weak::CompileError(Decl)
+        << "Cannot return " << mLastReturnDataType << " instead of " << RT;
 
   mStorage.EndScope();
   /// This is to have function outside.
@@ -225,29 +226,30 @@ static const std::string &GetFunArgName(ASTNode *Stmt) {
 }
 
 template <typename ASTFun>
-void TypeAnalysis::CallArgumentsAnalysis(ASTNode *Decl,
-                                         const std::vector<ASTNode *> &Args) {
+void TypeAnalysis::CallArgumentsAnalysis(
+    ASTNode *Decl, const std::vector<ASTNode *> &CallArgs) {
   const auto &DeclArgs = static_cast<ASTFun *>(Decl)->Args();
-  assert(DeclArgs.size() == Args.size() &&
-         "Argument sizes should be checked in function analyzer");
+  assert(DeclArgs.size() == CallArgs.size());
 
-  for (unsigned I{0U}; I < Args.size(); ++I) {
-    DeclArgs[I]->Accept(this);
-    DataType LType = mLastDataType;
-    Args[I]->Accept(this);
-    DataType RType = mLastDataType;
+  auto CallArg = CallArgs.begin();
+  auto DeclArg = DeclArgs.begin();
 
-    if (LType != RType)
-      weak::CompileError(Args[I])
-          << "For argument `" << GetFunArgName(DeclArgs[I]) << "` got " << LType
-          << ", but expected " << RType;
+  while (CallArg != CallArgs.end()) {
+    (*DeclArg)->Accept(this);
+    auto L = mLastDataType;
+
+    (*CallArg)->Accept(this);
+    auto R = mLastDataType;
+
+    if (L != R)
+      weak::CompileError(*CallArg)
+          << "For argument `" << GetFunArgName(*DeclArg) << "` got " << L
+          << ", but expected " << R;
+
+    ++CallArg;
+    ++DeclArg;
   }
 }
-
-template void TypeAnalysis::CallArgumentsAnalysis<ASTFunctionDecl>(
-    ASTNode *Decl, const std::vector<ASTNode *> &Args);
-template void TypeAnalysis::CallArgumentsAnalysis<ASTFunctionPrototype>(
-    ASTNode *Decl, const std::vector<ASTNode *> &Args);
 
 void TypeAnalysis::Visit(ASTFunctionCall *Stmt) {
   auto *Decl = mStorage.Lookup(Stmt->Name())->AST;
