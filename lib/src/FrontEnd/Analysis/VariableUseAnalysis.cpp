@@ -112,10 +112,6 @@ void VariableUseAnalysis::Visit(ASTFunctionCall *Stmt) {
 
 void VariableUseAnalysis::Visit(ASTFunctionPrototype *Stmt) {
   AssertIsNotDeclared(Stmt->Name(), Stmt);
-
-  for (ASTNode *A : Stmt->Args())
-    A->Accept(this);
-
   mStorage.Push(Stmt->Name(), Stmt);
 }
 
