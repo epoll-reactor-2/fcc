@@ -32,7 +32,7 @@ std::string ExtractExpectedMsg(std::string_view Program) {
 }
 
 std::vector<weak::Token> DoLexicalAnalysis(std::string_view Program, std::ostream &WarnStream) {
-  weak::Lexer Lex(&*Program.begin(), &*Program.end());
+  weak::Lexer Lex(&Program.front(), &Program.back());
   weak::PrintGeneratedWarns(WarnStream);
   return Lex.Analyze();
 }
@@ -96,7 +96,7 @@ void TestAnalysis(std::string_view Path, bool IsWarnTest) {
   std::ostringstream WarnStream;
 
   auto Tokens = DoLexicalAnalysis(Program, WarnStream);
-  weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
+  weak::Parser Parser(&Tokens.front(), &Tokens.back());
   auto AST = Parser.Parse();
 
   /// \todo: Compiler options.

@@ -32,9 +32,9 @@ void TestAST(std::string_view Path) {
   std::cout << "Testing file " << Path << "...\n";
   std::string Program = weak::FileAsString(Path);
 
-  weak::Lexer Lex(&*Program.begin(), &*Program.end());
+  weak::Lexer Lex(&Program.front(), &Program.back());
   auto Tokens = Lex.Analyze();
-  weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
+  weak::Parser Parser(&Tokens.front(), &Tokens.back());
   auto AST = Parser.Parse();
 
   weak::PrintGeneratedWarns(std::cout);

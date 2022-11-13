@@ -126,7 +126,7 @@ std::vector<Token> Lexer::Analyze() {
 
   Tokens.reserve(std::distance(mBufStart, mBufEnd) / 2);
 
-  while (mBufPtr != mBufEnd)
+  while (mBufPtr <= mBufEnd)
     if (char C = PeekCurrent(); std::isdigit(C))
       Tokens += AnalyzeDigit();
     else if (std::isalpha(C))

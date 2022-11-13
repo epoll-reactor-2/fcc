@@ -43,7 +43,7 @@ Parser::Parser(const Token *TheBufStart, const Token *TheBufEnd)
 
 std::unique_ptr<ASTCompound> Parser::Parse() {
   std::vector<ASTNode *> Stmts;
-  while (mTokenPtr != mBufEnd) {
+  while (mTokenPtr <= mBufEnd) {
     switch (const Token &T = PeekCurrent(); T.Type) {
     case TOK_STRUCT:
       Stmts.push_back(ParseStructDecl());
@@ -869,7 +869,7 @@ const Token &Parser::PeekCurrent() const {
 bool Parser::Match(const std::vector<TokenType> &Expected) {
   AssertNotBufEnd();
   for (TokenType Token : Expected) {
-    if (mTokenPtr == mBufEnd)
+    if (mTokenPtr > mBufEnd)
       return false;
     if (PeekCurrent().Is(Token)) {
       PeekNext();
@@ -936,7 +936,7 @@ const Token &Parser::Require(char Expected) {
 }
 
 void Parser::AssertNotBufEnd() const {
-  if (mTokenPtr == mBufEnd)
+  if (mTokenPtr > mBufEnd)
     weak::CompileError(mTokenPtr->LineNo, mTokenPtr->LineNo)
         << "End of buffer reached";
 }

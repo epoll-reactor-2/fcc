@@ -15,7 +15,7 @@
 
 std::vector<weak::Token> DoLexicalAnalysis(std::string_view Path) {
   std::string Program = weak::FileAsString(Path);
-  weak::Lexer Lex(&*Program.begin(), &*Program.end());
+  weak::Lexer Lex(&Program.front(), &Program.back());
   weak::PrintGeneratedWarns(std::cout);
   return Lex.Analyze();
 }
@@ -23,7 +23,7 @@ std::vector<weak::Token> DoLexicalAnalysis(std::string_view Path) {
 std::unique_ptr<weak::ASTCompound>
 DoSyntaxAnalysis(std::string_view InputPath) {
   auto Tokens = DoLexicalAnalysis(InputPath);
-  weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
+  weak::Parser Parser(&Tokens.back(), &Tokens.back());
   auto AST = Parser.Parse();
 
   /// \todo: Compiler options.

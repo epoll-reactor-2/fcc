@@ -30,9 +30,9 @@ void RunTest(std::string_view Path, bool IsValid) {
   llvm::outs() << "Testing file " << Path << "... ";
 
   std::string Program = weak::FileAsString(Path);
-  weak::Lexer Lex(&*Program.begin(), &*Program.end());
+  weak::Lexer Lex(&Program.front(), &Program.back());
   auto Tokens = Lex.Analyze();
-  weak::Parser Parser(&*Tokens.begin(), &*Tokens.end());
+  weak::Parser Parser(&Tokens.front(), &Tokens.back());
   auto AST = Parser.Parse();
 
   std::vector<weak::Analysis *> Analyzers;

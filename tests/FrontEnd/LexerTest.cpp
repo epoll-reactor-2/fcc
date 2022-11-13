@@ -9,7 +9,7 @@ weak::Token MakeToken(std::string Data, weak::TokenType Type) {
 
 void RunLexerTest(std::string_view Input,
                          const std::vector<weak::Token> &ExpectedTokens) {
-  auto Tokens = weak::Lexer(Input.begin(), Input.end()).Analyze();
+  auto Tokens = weak::Lexer(&Input.front(), &Input.back()).Analyze();
 
   weak::PrintGeneratedWarns(std::cout);
 
@@ -179,6 +179,6 @@ int main() {
     for (size_t It = 0; It < 16; ++It)
       Body += std::string(Body);
     printf("Body size: %zu\n", Body.size());
-    Lexer(&*Body.begin(), &*Body.end()).Analyze();
+    Lexer(&Body.front(), &Body.back()).Analyze();
   }
 }
