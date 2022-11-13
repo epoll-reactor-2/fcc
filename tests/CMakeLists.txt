@@ -51,7 +51,6 @@ CopyInputFiles("FrontEnd/Input/VariableUseAnalysis/Errors" "VariableUseAnalysis/
 CopyInputFiles("FrontEnd/Input/FunctionAnalysis" "FunctionAnalysis")
 CopyInputFiles("FrontEnd/Input/TypeAnalysis" "TypeAnalysis")
 CopyInputFiles("MiddleEnd/Input/CodeGen/Valid" "CodeGen/Valid")
-CopyInputFiles("MiddleEnd/Input/CodeGen/Invalid" "CodeGen/Invalid")
 
 file(GLOB_RECURSE test_files "*.cpp")
 foreach(file ${test_files})

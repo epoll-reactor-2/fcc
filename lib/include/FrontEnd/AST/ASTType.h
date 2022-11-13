@@ -56,6 +56,8 @@ enum ASTType {
   AST_FUNCTION_PROTOTYPE
 };
 
+const char *ASTTypeToString(ASTType);
+
 } // namespace weak
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_TYPE_H

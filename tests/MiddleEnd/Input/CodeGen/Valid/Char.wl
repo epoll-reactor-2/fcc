@@ -1,5 +1,5 @@
 // 1
-int main() {
+char main() {
     char c = 'X';
     return c == 'X';
 }

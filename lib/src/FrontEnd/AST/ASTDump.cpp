@@ -8,6 +8,7 @@
 #include "FrontEnd/AST/AST.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 #include "FrontEnd/Lex/Token.h"
+#include "Utility/EnumOstreamOperators.h"
 
 template <typename It>
 static std::string IntegerRangeToString(It Begin, It End) {
@@ -53,7 +54,7 @@ private:
     ASTTypePrint("ArrayDecl", Decl);
 
     const auto &ArityList = Decl->ArityList();
-    mStream << DataTypeToString(Decl->DataType()) << " "
+    mStream << Decl->DataType() << " "
             << IntegerRangeToString(ArityList.cbegin(), ArityList.cend())
             << " `";
     mStream << Decl->Name() << "`\n";
@@ -61,7 +62,7 @@ private:
 
   void Visit(ASTBinary *Stmt) override {
     ASTTypePrint("BinaryOperator", Stmt);
-    mStream << TokenToString(Stmt->Operation()) << '\n';
+    mStream << Stmt->Operation() << '\n';
     mIndent += 2;
 
     PrintIndent();
@@ -212,7 +213,7 @@ private:
     mStream << (Stmt->PrefixOrPostfix == ASTUnary::PREFIX ? "Prefix "
                                                           : "Postfix ");
     ASTTypePrint("UnaryOperator", Stmt);
-    mStream << TokenToString(Stmt->Operation()) << '\n';
+    mStream << Stmt->Operation() << '\n';
     mIndent += 2;
 
     PrintIndent();
@@ -247,7 +248,7 @@ private:
 
   void Visit(ASTVarDecl *Decl) override {
     ASTTypePrint("VarDecl", Decl);
-    mStream << DataTypeToString(Decl->DataType()) << ' ';
+    mStream << Decl->DataType() << ' ';
     mStream << (Decl->DataType() == DT_STRUCT ? Decl->TypeName() + ' ' : "");
     mStream << "`" << Decl->Name();
     mStream << "`\n";
@@ -266,7 +267,7 @@ private:
     mIndent += 2;
     PrintIndent();
     ASTTypePrint("FunctionDeclRetType", Decl);
-    mStream << DataTypeToString(Decl->ReturnType()) << '\n';
+    mStream << Decl->ReturnType() << '\n';
 
     PrintIndent();
     ASTTypePrint("FunctionDeclName", Decl);

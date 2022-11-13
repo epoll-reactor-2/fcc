@@ -9,35 +9,24 @@
 #include "Utility/Diagnostic.h"
 #include "llvm/IR/Value.h"
 
-static std::string TypeToString(llvm::Type *T) {
-  std::string Type;
-  llvm::raw_string_ostream Stream(Type);
-  T->print(Stream);
-  return Stream.str();
-}
-
 namespace weak {
 
 ScalarExprEmitter::ScalarExprEmitter(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
 
-llvm::Value *ScalarExprEmitter::EmitBinOp(ASTNode *InformAST, TokenType T,
-                                          llvm::Value *L, llvm::Value *R) {
+llvm::Value *ScalarExprEmitter::EmitBinOp(TokenType T, llvm::Value *L,
+                                          llvm::Value *R) {
   assert(L->getType() == R->getType());
 
   if (L->getType()->isIntegerTy())
-    return EmitIntegralBinOp(InformAST, T, L, R);
+    return EmitIntegralBinOp(T, L, R);
 
   if (L->getType()->isFloatTy())
-    return EmitFloatBinOp(InformAST, T, L, R);
+    return EmitFloatBinOp(T, L, R);
 
-  weak::CompileError(InformAST)
-      << "Cannot emit binary instruction, invalid operands: "
-      << TypeToString(L->getType()) << " and " << TypeToString(R->getType());
   Unreachable();
 }
 
-llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(ASTNode *InformAST,
-                                                  TokenType T, llvm::Value *L,
+llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(TokenType T, llvm::Value *L,
                                                   llvm::Value *R) {
   switch (T) {
   case TOK_PLUS:
@@ -75,14 +64,12 @@ llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(ASTNode *InformAST,
   case TOK_SHR:
     return mIRBuilder.CreateAShr(L, R);
   default:
-    weak::CompileError(InformAST)
-        << "Cannot apply `" << weak::TokenToString(T) << "` to integers";
     Unreachable();
   } // switch
 }
 
-llvm::Value *ScalarExprEmitter::EmitFloatBinOp(ASTNode *InformAST, TokenType T,
-                                               llvm::Value *L, llvm::Value *R) {
+llvm::Value *ScalarExprEmitter::EmitFloatBinOp(TokenType T, llvm::Value *L,
+                                               llvm::Value *R) {
   switch (T) {
   case TOK_PLUS:
     return mIRBuilder.CreateFAdd(L, R);
@@ -109,8 +96,6 @@ llvm::Value *ScalarExprEmitter::EmitFloatBinOp(ASTNode *InformAST, TokenType T,
   case TOK_AND:
     return mIRBuilder.CreateLogicalAnd(L, R);
   default:
-    weak::CompileError(InformAST)
-        << "Cannot apply `" << TokenToString(T) << "` to floats";
     Unreachable();
   } // switch
 }

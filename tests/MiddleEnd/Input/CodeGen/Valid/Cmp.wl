@@ -1,7 +1,7 @@
 // 1
 int main() {
-    bool value = true;
-    value = value & true; // true
-    value = value | false; // true
+    int value = 1;
+    value = value & 1; // true
+    value = value | 0; // true
     return value;
 }

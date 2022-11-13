@@ -16,8 +16,6 @@ class Value;
 
 namespace weak {
 
-class ASTNode;
-
 /// Generator of operations on numeric data types.
 class ScalarExprEmitter {
 public:
@@ -28,38 +26,29 @@ public:
   /// \note
   ///         - Set of supported operations is depend on given L and R types.
   ///         - Requires same LLVM types.
-  /// \param  InformAST AST node of expression. Used to emit localized error
-  ///                   messages.
   /// \param  T         Operation to be emitted.
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitBinOp(ASTNode *InformAST, TokenType T, llvm::Value *L,
-                         llvm::Value *R);
+  llvm::Value *EmitBinOp(TokenType T, llvm::Value *L, llvm::Value *R);
 
   /// Emit operation supported only by integral type.
   ///
   /// \note   Requires same LLVM types.
-  /// \param  InformAST AST node of expression. Used to emit localized error
-  ///                   messages.
   /// \param  T         Operation to be emitted.
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitIntegralBinOp(ASTNode *InformAST, TokenType T,
-                                 llvm::Value *L, llvm::Value *R);
+  llvm::Value *EmitIntegralBinOp(TokenType T, llvm::Value *L, llvm::Value *R);
 
   /// Emit operation supported only by floating points.
   ///
   /// \note   Requires same LLVM types.
-  /// \param  InformAST AST node of expression. Used to emit localized error
-  ///                   messages.
   /// \param  T         Operation to be emitted.
   /// \param  L         Left operand.
   /// \param  R         Right operand.
   /// \return           Created operation.
-  llvm::Value *EmitFloatBinOp(ASTNode *InformAST, TokenType T, llvm::Value *L,
-                              llvm::Value *R);
+  llvm::Value *EmitFloatBinOp(TokenType T, llvm::Value *L, llvm::Value *R);
 
 private:
   /// Reference to global LLVM stuff.

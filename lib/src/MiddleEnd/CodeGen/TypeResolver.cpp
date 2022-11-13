@@ -8,6 +8,7 @@
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "FrontEnd/Lex/Token.h"
 #include "Utility/Diagnostic.h"
+#include "Utility/EnumOstreamOperators.h"
 #include "llvm/IR/Type.h"
 
 namespace weak {
@@ -37,8 +38,7 @@ llvm::Type *TypeResolver::Resolve(DataType T, unsigned LineNo,
   case DT_STRING:
     return mIRBuilder.getInt8PtrTy();
   default:
-    weak::CompileError(LineNo, ColumnNo)
-        << "Wrong type: " << DataTypeToString(T);
+    weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << T;
     Unreachable();
   }
 }
@@ -66,8 +66,7 @@ llvm::Type *TypeResolver::ResolveExceptVoid(DataType T, unsigned LineNo,
   case DT_STRING:
     return mIRBuilder.getInt8PtrTy();
   default:
-    weak::CompileError(LineNo, ColumnNo)
-        << "Wrong type: " << DataTypeToString(T);
+    weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << T;
     Unreachable();
   }
 }

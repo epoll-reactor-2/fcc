@@ -3,6 +3,7 @@
 #include "FrontEnd/Parse/Parser.h"
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
+#include "FrontEnd/Analysis/TypeAnalysis.h"
 #include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/Files.h"
@@ -37,6 +38,7 @@ void RunTest(std::string_view Path, bool IsValid) {
   std::vector<weak::Analysis *> Analyzers;
   Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
   Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
+  Analyzers.push_back(new weak::TypeAnalysis(AST.get()));
 
   weak::CodeGen CG(AST.get());
 
@@ -106,15 +108,12 @@ void RunTestOnInvalidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGe
 }
 
 int main() {
-  for (auto [InputDir, ValidFlag] : {std::pair{"/CodeGen/Valid", true},
-                                     std::pair{"/CodeGen/Invalid", false}}) {
-    auto Dir = std::filesystem::directory_iterator(
-        std::filesystem::current_path().concat(InputDir));
-    for (const auto &File : Dir) {
-      const auto &Path = File.path();
-      if (Path.extension() == ".wl")
-        RunTest(Path.native(), ValidFlag);
-    }
+  auto Dir = std::filesystem::directory_iterator(
+      std::filesystem::current_path().concat("/CodeGen/Valid"));
+  for (const auto &File : Dir) {
+    const auto &Path = File.path();
+    if (Path.extension() == ".wl")
+      RunTest(Path.native(), /*ValidFlag=*/true);
   }
 
   llvm::outs() << "All tests passed!";

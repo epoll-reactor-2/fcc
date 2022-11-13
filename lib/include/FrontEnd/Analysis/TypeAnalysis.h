@@ -10,6 +10,7 @@
 #include "FrontEnd/Analysis/ASTStorage.h"
 #include "FrontEnd/Analysis/Analysis.h"
 #include "FrontEnd/Lex/DataType.h"
+#include "FrontEnd/Lex/TokenType.h"
 
 namespace weak {
 
@@ -52,6 +53,8 @@ public:
   void Analyze() override;
 
 private:
+  void Visit(ASTCompound *) override;
+
   void Visit(ASTBool *) override;
   void Visit(ASTChar *) override;
   void Visit(ASTFloat *) override;
@@ -72,9 +75,10 @@ private:
   void Visit(ASTFunctionCall *) override;
   void Visit(ASTReturn *) override;
 
+  bool CorrectBinaryOpsAnalysis(TokenType Op, DataType T);
+
   template <typename ASTFun>
-  void DoCallArgumentsAnalysis(ASTNode *Decl,
-                               const std::vector<ASTNode *> &Args);
+  void CallArgumentsAnalysis(ASTNode *Decl, const std::vector<ASTNode *> &Args);
 
   /// Analyzed root AST node.
   ASTNode *mRoot;

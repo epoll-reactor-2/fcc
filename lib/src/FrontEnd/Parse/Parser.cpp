@@ -7,6 +7,7 @@
 #include "FrontEnd/Parse/Parser.h"
 #include "FrontEnd/AST/AST.h"
 #include "Utility/Diagnostic.h"
+#include "Utility/EnumOstreamOperators.h"
 #include <cassert>
 
 namespace weak {
@@ -267,7 +268,7 @@ Parser::LocalizedDataType Parser::ParseType() {
     return {T.LineNo, T.ColumnNo, TokenToDT(T.Type)};
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
-        << "Data type expected, got " << TokenToString(T.Type);
+        << "Data type expected, got " << T.Type;
     Unreachable();
   }
 }
@@ -398,8 +399,7 @@ ASTNode *Parser::ParseStmt() {
   case TOK_DEC: // Fall through.
     return ParsePrefixUnary();
   default:
-    weak::CompileError(T.LineNo, T.ColumnNo)
-        << "Unexpected token: " << TokenToString(T.Type);
+    weak::CompileError(T.LineNo, T.ColumnNo) << "Unexpected token: " << T.Type;
     Unreachable();
   }
 }
@@ -851,7 +851,7 @@ ASTNode *Parser::ParseConstant() {
 
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
-        << "Literal expected, got " << TokenToString(T.Type);
+        << "Literal expected, got " << T.Type;
     Unreachable();
   }
 }
@@ -916,8 +916,7 @@ const Token &Parser::Require(const std::vector<TokenType> &Expected) {
     return *(mTokenPtr - 1);
 
   weak::CompileError(mTokenPtr->LineNo, mTokenPtr->ColumnNo)
-      << "Expected " << TokensToString(Expected) << ", got "
-      << TokenToString(mTokenPtr->Type);
+      << "Expected " << TokensToString(Expected) << ", got " << mTokenPtr->Type;
   Unreachable();
 }
 

@@ -1,4 +1,4 @@
-// Error at line 5, column 19: Cannot apply `<<` to floats
+// Error at line 5, column 19: Cannot apply `<<` to <FLOAT> and <FLOAT>
 int main() {
     float f0 = 0.0;
     float f1 = 1.0;

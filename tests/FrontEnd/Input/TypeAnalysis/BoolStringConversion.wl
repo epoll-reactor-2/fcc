@@ -1,4 +1,4 @@
-// Error at line 5, column 30: Type mismatch: i1 and i8*
+// Error at line 5, column 30: Cannot apply `+` to <BOOLEAN> and <STRING>
 int main() {
     bool   b = true;
     string s =   "";

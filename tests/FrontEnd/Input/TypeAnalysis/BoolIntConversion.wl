@@ -1,4 +1,4 @@
-// Error at line 5, column 30: Type mismatch: i1 and i32
+// Error at line 5, column 30: Cannot apply `+` to <BOOLEAN> and <INT>
 int main() {
     bool  b = true;
     int   i =    0;

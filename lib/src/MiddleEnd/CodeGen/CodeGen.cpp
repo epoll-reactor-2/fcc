@@ -249,7 +249,7 @@ void CodeGen::Visit(ASTBinary *Stmt) {
     auto *Assignment = static_cast<ASTSymbol *>(Stmt->LHS());
     llvm::AllocaInst *Variable = mStorage.Lookup(Assignment->Name());
     TokenType Op = ResolveAssignmentOp(T);
-    mLastInstr = ScalarEmitter.EmitBinOp(Stmt, Op, L, R);
+    mLastInstr = ScalarEmitter.EmitBinOp(Op, L, R);
     mIRBuilder.CreateStore(mLastInstr, Variable);
     break;
   }
@@ -270,7 +270,7 @@ void CodeGen::Visit(ASTBinary *Stmt) {
   case TOK_XOR:
   case TOK_SHL:
   case TOK_SHR:
-    mLastInstr = ScalarEmitter.EmitBinOp(Stmt, T, L, R);
+    mLastInstr = ScalarEmitter.EmitBinOp(T, L, R);
     break;
   default:
     Unreachable();
@@ -293,8 +293,8 @@ void CodeGen::Visit(ASTUnary *Stmt) {
   switch (auto T = Stmt->Operation()) {
   case TOK_INC:
   case TOK_DEC:
-    mLastInstr = ScalarEmitter.EmitBinOp(Stmt, ResolveUnaryOp(T), Op,
-                                         mIRBuilder.getInt32(1));
+    mLastInstr =
+        ScalarEmitter.EmitBinOp(ResolveUnaryOp(T), Op, mIRBuilder.getInt32(1));
     break;
   default:
     Unreachable();
