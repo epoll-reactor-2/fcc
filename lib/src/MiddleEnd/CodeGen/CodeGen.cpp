@@ -26,69 +26,43 @@ template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
 public:
   FunctionBuilder(llvm::IRBuilder<> &I, llvm::Module &M,
                   ASTFunctionDeclOrPrototype *Decl)
-      : mIRBuilder(I), mIRModule(M), mDecl(Decl) {}
+      : mIRBuilder(I), mIRModule(M), mDecl(Decl), mResolver(mIRBuilder) {}
 
   llvm::Function *BuildSignature() {
-    llvm::FunctionType *Signature = CreateSignature();
     /// \todo: Always external linkage? Come here after making multiple files
     ///        compilation.
-    llvm::Function *Func = llvm::Function::Create(
-        Signature, llvm::Function::ExternalLinkage, mDecl->Name(), &mIRModule);
-
-    auto GetSymbol = [](ASTNode *Node) {
-      if (Node->Is(AST_VAR_DECL))
-        return static_cast<ASTVarDecl *>(Node)->Name();
-
-      if (Node->Is(AST_ARRAY_DECL))
-        return static_cast<ASTArrayDecl *>(Node)->Name();
-
-      Unreachable();
-    };
-
-    unsigned Idx{0U};
-    for (llvm::Argument &Arg : Func->args())
-      Arg.setName(GetSymbol(mDecl->Args()[Idx++]));
-
-    return Func;
+    return llvm::Function::Create(CreateSignature(),
+                                  llvm::Function::ExternalLinkage,
+                                  mDecl->Name(), &mIRModule);
   }
 
 private:
   llvm::FunctionType *CreateSignature() {
-    TypeResolver TypeResolver(mIRBuilder);
     llvm::SmallVector<llvm::Type *, 16> ArgTypes;
 
     for (const auto &ArgAST : mDecl->Args())
       ArgTypes.push_back(ResolveParamType(ArgAST));
 
-    llvm::FunctionType *Signature = llvm::FunctionType::get(
+    return llvm::FunctionType::get(
         /// Return type.
-        TypeResolver.Resolve(mDecl->ReturnType(), mDecl->LineNo(),
-                             mDecl->ColumnNo()),
+        mResolver.Resolve(mDecl->ReturnType()),
         /// Arguments.
-        ArgTypes,
+        std::move(ArgTypes),
         /// Variadic parameters?
         false);
-
-    return Signature;
   }
 
-  llvm::Type *ResolveParamType(ASTNode *ArgAST) {
-    TypeResolver TypeResolver(mIRBuilder);
-    if (ArgAST->Is(AST_VAR_DECL))
-      /// Variable.
-      return TypeResolver.ResolveExceptVoid(ArgAST);
-
-    /// Array.
-    auto *ArrayDecl = static_cast<ASTArrayDecl *>(ArgAST);
-    llvm::Type *UnderlyingType = TypeResolver.ResolveExceptVoid(
-        ArrayDecl->DataType(), /*LocationAST=*/ArgAST);
-
-    return llvm::PointerType::get(UnderlyingType, /*AddressSpace=*/0);
+  llvm::Type *ResolveParamType(ASTNode *AST) {
+    auto *T = mResolver.ResolveExceptVoid(AST);
+    return AST->Is(AST_VAR_DECL)
+               ? T
+               : llvm::PointerType::get(T, /*AddressSpace=*/0);
   }
 
   llvm::IRBuilder<> &mIRBuilder;
   llvm::Module &mIRModule;
   ASTFunctionDeclOrPrototype *mDecl;
+  TypeResolver mResolver;
 };
 
 } // namespace
@@ -192,17 +166,6 @@ static TokenType ResolveAssignmentOp(TokenType T) {
   }
 }
 
-static TokenType ResolveUnaryOp(TokenType T) {
-  switch (T) {
-  case TOK_INC:
-    return TOK_PLUS;
-  case TOK_DEC:
-    return TOK_MINUS;
-  default:
-    Unreachable();
-  }
-}
-
 void CodeGen::Visit(ASTBinary *Stmt) {
   Stmt->LHS()->Accept(this);
   llvm::Value *L = mLastInstr;
@@ -276,6 +239,17 @@ void CodeGen::Visit(ASTBinary *Stmt) {
     Unreachable();
     break;
   } // switch
+}
+
+static TokenType ResolveUnaryOp(TokenType T) {
+  switch (T) {
+  case TOK_INC:
+    return TOK_PLUS;
+  case TOK_DEC:
+    return TOK_MINUS;
+  default:
+    Unreachable();
+  }
 }
 
 void CodeGen::Visit(ASTUnary *Stmt) {
@@ -410,19 +384,30 @@ void CodeGen::Visit(ASTIf *Stmt) {
   mIRBuilder.SetInsertPoint(MergeBB);
 }
 
-void CodeGen::Visit(ASTFunctionDecl *Decl) {
-  FunctionBuilder FunctionBuilder(mIRBuilder, mIRModule, Decl);
+const std::string &ASTDeclName(ASTNode *AST) {
+  if (AST->Is(AST_VAR_DECL))
+    return static_cast<ASTVarDecl *>(AST)->Name();
 
-  llvm::Function *Func = FunctionBuilder.BuildSignature();
-  auto *CFGBlock = llvm::BasicBlock::Create(mIRCtx, "entry", Func);
-  mIRBuilder.SetInsertPoint(CFGBlock);
+  if (AST->Is(AST_ARRAY_DECL))
+    return static_cast<ASTArrayDecl *>(AST)->Name();
+
+  Unreachable();
+}
+
+void CodeGen::Visit(ASTFunctionDecl *Decl) {
+  FunctionBuilder FB(mIRBuilder, mIRModule, Decl);
+  llvm::Function *Func = FB.BuildSignature();
+
+  auto *EntryBB = llvm::BasicBlock::Create(mIRCtx, "entry", Func);
+  mIRBuilder.SetInsertPoint(EntryBB);
 
   mStorage.StartScope();
 
+  auto ASTArgIt = Decl->Args().begin();
   for (auto &Arg : Func->args()) {
     auto *ArgAlloca = mIRBuilder.CreateAlloca(Arg.getType());
     mIRBuilder.CreateStore(&Arg, ArgAlloca);
-    mStorage.Push(Arg.getName().str(), ArgAlloca);
+    mStorage.Push(ASTDeclName(*ASTArgIt++), ArgAlloca);
   }
 
   Decl->Body()->Accept(this);
@@ -439,10 +424,8 @@ void CodeGen::Visit(ASTFunctionCall *Stmt) {
   const auto &FunArgs = Stmt->Args();
 
   llvm::SmallVector<llvm::Value *, 16> Args;
-  for (size_t I = 0; I < FunArgs.size(); ++I) {
-    auto *AST = FunArgs[I];
-
-    AST->Accept(this);
+  for (auto *Arg : FunArgs) {
+    Arg->Accept(this);
     Args.push_back(mLastInstr);
   }
 
@@ -500,8 +483,7 @@ void CodeGen::Visit(ASTReturn *Stmt) {
 void CodeGen::Visit(ASTArrayDecl *Stmt) {
   TypeResolver TypeResolver(mIRBuilder);
 
-  llvm::Type *Type =
-      TypeResolver.Resolve(Stmt->DataType(), /*LocationAST=*/Stmt);
+  llvm::Type *Type = TypeResolver.Resolve(Stmt->DataType());
   /// \todo: Temporarily we get only first dimension as parameter and don't
   ///        do something else.
   llvm::AllocaInst *ArrayDecl =
@@ -536,9 +518,9 @@ void CodeGen::Visit(ASTVarDecl *Decl) {
     return;
   }
 
-  TypeResolver TypeResolver(mIRBuilder);
-  llvm::AllocaInst *VarDecl = mIRBuilder.CreateAlloca(
-      TypeResolver.ResolveExceptVoid(Decl->DataType(), /*LocationAST=*/Decl));
+  TypeResolver TR(mIRBuilder);
+  auto *VarDecl =
+      mIRBuilder.CreateAlloca(TR.ResolveExceptVoid(Decl->DataType()));
 
   mIRBuilder.CreateStore(mLastInstr, VarDecl);
   mStorage.Push(Decl->Name(), VarDecl);

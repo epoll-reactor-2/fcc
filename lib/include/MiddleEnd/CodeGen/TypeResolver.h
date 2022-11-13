@@ -24,20 +24,14 @@ public:
   TypeResolver(llvm::IRBuilder<> &);
 
   /// Convert given parameter (including void) to corresponding LLVM type.
-  llvm::Type *Resolve(DataType, unsigned LineNo, unsigned ColumnNo);
-  /// \copydoc TypeResolver::Resolve(DataType, unsigned, unsigned)
-  llvm::Type *Resolve(DataType, ASTNode *LocationAST);
-  /// \copydoc TypeResolver::Resolve(DataType, unsigned, unsigned)
-  llvm::Type *Resolve(ASTNode *LocationAST);
+  llvm::Type *Resolve(ASTNode *);
+  /// \copydoc TypeResolver::Resolve(ASTNode *)
+  llvm::Type *Resolve(DataType);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
-  llvm::Type *ResolveExceptVoid(DataType, unsigned LineNo, unsigned ColumnNo);
-  /// \copydoc TypeResolver::ResolveExceptVoid(DataType, unsigned,
-  /// unsigned)
-  llvm::Type *ResolveExceptVoid(DataType, ASTNode *LocationAST);
-  /// \copydoc TypeResolver::ResolveExceptVoid(DataType, unsigned,
-  /// unsigned)
   llvm::Type *ResolveExceptVoid(ASTNode *LocationAST);
+  /// \copydoc TypeResolver::ResolveExceptVoid(ASTNode *)
+  llvm::Type *ResolveExceptVoid(DataType);
 
 private:
   /// Reference to global LLVM stuff.

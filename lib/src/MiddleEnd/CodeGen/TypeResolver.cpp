@@ -5,6 +5,7 @@
  */
 
 #include "MiddleEnd/CodeGen/TypeResolver.h"
+#include "FrontEnd/AST/ASTArrayDecl.h"
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "FrontEnd/Lex/Token.h"
 #include "Utility/Diagnostic.h"
@@ -13,17 +14,19 @@
 
 namespace weak {
 
-static ASTVarDecl *GetVarDecl(ASTNode *Node) {
-  if (!Node->Is(AST_VAR_DECL))
-    weak::CompileError(Node) << "Expected declaration";
+static DataType DeclType(ASTNode *Node) {
+  if (Node->Is(AST_VAR_DECL))
+    return static_cast<ASTVarDecl *>(Node)->DataType();
 
-  return static_cast<ASTVarDecl *>(Node);
+  if (Node->Is(AST_ARRAY_DECL))
+    return static_cast<ASTArrayDecl *>(Node)->DataType();
+
+  Unreachable();
 }
 
 TypeResolver::TypeResolver(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
 
-llvm::Type *TypeResolver::Resolve(DataType T, unsigned LineNo,
-                                  unsigned ColumnNo) {
+llvm::Type *TypeResolver::Resolve(DataType T) {
   switch (T) {
   case DT_VOID:
     return mIRBuilder.getVoidTy();
@@ -38,22 +41,15 @@ llvm::Type *TypeResolver::Resolve(DataType T, unsigned LineNo,
   case DT_STRING:
     return mIRBuilder.getInt8PtrTy();
   default:
-    weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << T;
     Unreachable();
   }
 }
 
-llvm::Type *TypeResolver::Resolve(DataType T, ASTNode *LocationAST) {
-  return Resolve(T, LocationAST->LineNo(), LocationAST->ColumnNo());
+llvm::Type *TypeResolver::Resolve(ASTNode *AST) {
+  return Resolve(DeclType(AST));
 }
 
-llvm::Type *TypeResolver::Resolve(ASTNode *LocationAST) {
-  ASTVarDecl *Decl = GetVarDecl(LocationAST);
-  return Resolve(Decl->DataType(), Decl->LineNo(), Decl->ColumnNo());
-}
-
-llvm::Type *TypeResolver::ResolveExceptVoid(DataType T, unsigned LineNo,
-                                            unsigned ColumnNo) {
+llvm::Type *TypeResolver::ResolveExceptVoid(DataType T) {
   switch (T) {
   case DT_CHAR:
     return mIRBuilder.getInt8Ty();
@@ -66,18 +62,12 @@ llvm::Type *TypeResolver::ResolveExceptVoid(DataType T, unsigned LineNo,
   case DT_STRING:
     return mIRBuilder.getInt8PtrTy();
   default:
-    weak::CompileError(LineNo, ColumnNo) << "Wrong type: " << T;
     Unreachable();
   }
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(DataType T, ASTNode *LocationAST) {
-  return ResolveExceptVoid(T, LocationAST->LineNo(), LocationAST->ColumnNo());
-}
-
-llvm::Type *TypeResolver::ResolveExceptVoid(ASTNode *LocationAST) {
-  ASTVarDecl *Decl = GetVarDecl(LocationAST);
-  return ResolveExceptVoid(Decl->DataType(), Decl->LineNo(), Decl->ColumnNo());
+llvm::Type *TypeResolver::ResolveExceptVoid(ASTNode *AST) {
+  return ResolveExceptVoid(DeclType(AST));
 }
 
 } // namespace weak
