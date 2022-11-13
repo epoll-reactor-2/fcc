@@ -228,7 +228,8 @@ static const std::string &GetFunArgName(ASTNode *Stmt) {
 template <typename ASTFun>
 void TypeAnalysis::CallArgumentsAnalysis(
     ASTNode *Decl, const std::vector<ASTNode *> &CallArgs) {
-  const auto &DeclArgs = static_cast<ASTFun *>(Decl)->Args();
+  auto *Fun = static_cast<ASTFun *>(Decl);
+  const auto &DeclArgs = Fun->Args();
   assert(DeclArgs.size() == CallArgs.size());
 
   auto CallArg = CallArgs.begin();
@@ -249,6 +250,8 @@ void TypeAnalysis::CallArgumentsAnalysis(
     ++CallArg;
     ++DeclArg;
   }
+
+  mLastDataType = Fun->ReturnType();
 }
 
 void TypeAnalysis::Visit(ASTFunctionCall *Stmt) {
