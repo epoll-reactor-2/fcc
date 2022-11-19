@@ -4,7 +4,7 @@
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "FrontEnd/Analysis/FunctionAnalysis.h"
 #include "FrontEnd/Analysis/TypeAnalysis.h"
-#include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
+#include "MiddleEnd/Driver/Driver.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/Files.h"
 #include <filesystem>
@@ -69,8 +69,8 @@ void RunTestOnValidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen 
       "// "sv.length(), Program.find_first_of('\n') - "// "sv.length()));
 
   CG.CreateCode();
-  weak::TargetCodeBuilder TargetCodeBuilder(CG.Module(), PathToBin);
-  TargetCodeBuilder.Build();
+  weak::Driver Driver(CG.Module(), PathToBin);
+  Driver.Compile();
 
   int ExitCode = RunAndGetExitCode(PathToBin);
   if (ExitCode != ExpectedExitCode) {

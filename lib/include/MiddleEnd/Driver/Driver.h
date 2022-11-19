@@ -1,11 +1,11 @@
-/* TargetCodeBuilder.h - Builder of executable code from LLVM IR.
+/* Driver.h - Builder of executable code from LLVM IR.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_MIDDLE_END_TARGET_CODE_BUILDER_H
-#define WEAK_COMPILER_MIDDLE_END_TARGET_CODE_BUILDER_H
+#ifndef WEAK_COMPILER_MIDDLE_END_DRIVER_H
+#define WEAK_COMPILER_MIDDLE_END_DRIVER_H
 
 #include <string>
 
@@ -16,24 +16,24 @@ class Module;
 namespace weak {
 
 /// Builder of executable code from LLVM IR.
-class TargetCodeBuilder {
+class Driver {
 public:
-  TargetCodeBuilder(llvm::Module &Module, std::string_view ObjFilePath);
+  Driver(llvm::Module &M, std::string_view OutPath);
 
   /// Compile LLVM IR to object code and write it to output file.
   ///
   /// \note In debugging purposes this function uses clang to somehow emit
   ///       executable file.
   /// \todo Judge how properly do emitting of binaries without bash stubs.
-  void Build();
+  void Compile();
 
 private:
   /// Reference to global LLVM stuff.
   llvm::Module &mIRModule;
   /// Reference to global LLVM stuff.
-  std::string mObjFilePath;
+  std::string mOutPath;
 };
 
 } // namespace weak
 
-#endif // WEAK_COMPILER_MIDDLE_END_TARGET_CODE_BUILDER_H
+#endif // WEAK_COMPILER_MIDDLE_END_DRIVER_H

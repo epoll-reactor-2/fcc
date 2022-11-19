@@ -5,7 +5,7 @@
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "FrontEnd/Analysis/TypeAnalysis.h"
 #include "MiddleEnd/CodeGen/CodeGen.h"
-#include "MiddleEnd/CodeGen/TargetCodeBuilder.h"
+#include "MiddleEnd/Driver/Driver.h"
 #include "MiddleEnd/Optimizers/Optimizers.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/Files.h"
@@ -77,9 +77,9 @@ void BuildCode(std::string_view InputPath, std::string_view OutputPath,
   weak::CodeGen CG(AST.get());
   CG.CreateCode();
   weak::RunBuiltinLLVMOptimizationPass(CG.Module(), OptLvl);
-  weak::TargetCodeBuilder TargetCodeBuilder(CG.Module(), OutputPath);
+  weak::Driver Driver(CG.Module(), OutputPath);
   weak::PrintGeneratedWarns(std::cout);
-  TargetCodeBuilder.Build();
+  Driver.Compile();
 }
 
 int main(int Argc, char *Argv[]) {
