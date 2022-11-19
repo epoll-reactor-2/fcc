@@ -15,15 +15,15 @@ set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 string(
-    COMPARE EQUAL
-    "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}"
-    IS_TOP_PROJECT
+  COMPARE EQUAL
+  "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}"
+  IS_TOP_PROJECT
 )
 
 add_subdirectory(lib)
 
 if (IS_TOP_PROJECT)
-    enable_testing()
-    add_subdirectory(tests)
-    add_subdirectory(compiler)
+  enable_testing()
+  add_subdirectory(tests)
+  add_subdirectory(compiler)
 endif()
