@@ -12,7 +12,6 @@
 #include "llvm/Support/Host.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Target/TargetMachine.h"
-#include "llvm/Target/TargetOptions.h"
 
 static void InitializeLLVMTargets() {
   llvm::InitializeAllTargetInfos();

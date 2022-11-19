@@ -7,7 +7,9 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_OPTIMIZERS_H
 #define WEAK_COMPILER_MIDDLE_END_OPTIMIZERS_H
 
-#include "llvm/IR/Module.h"
+namespace llvm {
+class Module;
+} // namespace llvm
 
 /// Global due to clEnumVal use.
 enum WeakOptimizationLevel { O0 = 0, O1, O2, O3 };

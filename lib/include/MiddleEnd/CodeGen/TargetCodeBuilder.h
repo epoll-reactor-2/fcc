@@ -7,7 +7,11 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_TARGET_CODE_BUILDER_H
 #define WEAK_COMPILER_MIDDLE_END_TARGET_CODE_BUILDER_H
 
-#include "llvm/IR/Module.h"
+#include <string>
+
+namespace llvm {
+class Module;
+} // namespace llvm
 
 namespace weak {
 
