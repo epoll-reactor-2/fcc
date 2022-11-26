@@ -1,7 +1,6 @@
-// 100
+// 99
 int sum_of_two(int mem[2]) {
-    // \todo: Unary operators with values accesses through [] does not works.
-    // --mem[0];
+    --mem[0];
     return mem[0] + mem[1];
 }
 
