@@ -13,20 +13,22 @@
 
 namespace weak {
 
+class ASTSymbol;
+
 class ASTMemberAccess : public ASTNode {
 public:
-  ASTMemberAccess(ASTNode *Name, ASTNode *MemberDecl, unsigned LineNo,
+  ASTMemberAccess(ASTSymbol *Name, ASTNode *MemberDecl, unsigned LineNo,
                   unsigned ColumnNo);
 
   ~ASTMemberAccess();
 
   void Accept(ASTVisitor *) override;
 
-  ASTNode *Name() const;
+  ASTSymbol *Name() const;
   ASTNode *MemberDecl() const;
 
 private:
-  ASTNode *mName;
+  ASTSymbol *mName;
   ASTNode *mMemberDecl;
 };
 

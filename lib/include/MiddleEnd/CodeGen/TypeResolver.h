@@ -29,7 +29,7 @@ public:
   llvm::Type *Resolve(DataType);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
-  llvm::Type *ResolveExceptVoid(ASTNode *LocationAST);
+  llvm::Type *ResolveExceptVoid(ASTNode *);
   /// \copydoc TypeResolver::ResolveExceptVoid(ASTNode *)
   llvm::Type *ResolveExceptVoid(DataType);
 

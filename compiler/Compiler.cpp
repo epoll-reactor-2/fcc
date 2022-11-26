@@ -23,7 +23,7 @@ std::vector<weak::Token> DoLexicalAnalysis(std::string_view Path) {
 std::unique_ptr<weak::ASTCompound>
 DoSyntaxAnalysis(std::string_view InputPath) {
   auto Tokens = DoLexicalAnalysis(InputPath);
-  weak::Parser Parser(&Tokens.back(), &Tokens.back());
+  weak::Parser Parser(&Tokens.front(), &Tokens.back());
   auto AST = Parser.Parse();
 
   /// \todo: Compiler options.

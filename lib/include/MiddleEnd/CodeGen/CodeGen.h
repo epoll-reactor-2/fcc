@@ -35,6 +35,8 @@ public:
   /// Get list of already created functions.
   const llvm::SymbolTableList<llvm::Function> &GlobalFunctions() const;
 
+  std::vector<llvm::StructType *> Types() const;
+
   /// Create and get visual representation.
   std::string ToString() const;
 
@@ -70,14 +72,14 @@ private:
   // Declarations.
   void Visit(ASTArrayDecl *) override;
   void Visit(ASTVarDecl *) override;
-  void Visit(ASTStructDecl *) override {}
-  void Visit(ASTMemberAccess *) override {}
+  void Visit(ASTStructDecl *) override;
 
   // The rest.
   void Visit(ASTArrayAccess *) override;
   void Visit(ASTSymbol *) override;
   void Visit(ASTCompound *) override;
   void Visit(ASTReturn *) override;
+  void Visit(ASTMemberAccess *) override;
 
   /// Analyzed root AST node.
   ASTNode *mRoot;
@@ -92,6 +94,10 @@ private:
   llvm::Module mIRModule;
   /// LLVM stuff.
   llvm::IRBuilder<> mIRBuilder;
+
+  using StructVarName = std::string;
+  using TypeName = std::string;
+  std::unordered_map<StructVarName, TypeName> mStructVarsStorage;
 };
 
 } // namespace weak

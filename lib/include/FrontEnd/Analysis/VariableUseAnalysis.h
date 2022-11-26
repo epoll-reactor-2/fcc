@@ -39,12 +39,15 @@ private:
   // Declarations.
   void Visit(ASTArrayDecl *) override;
   void Visit(ASTVarDecl *) override;
+  // Don't visit struct declarations.
+  void Visit(ASTStructDecl *) override {}
 
   // The rest.
   void Visit(ASTArrayAccess *) override;
   void Visit(ASTSymbol *) override;
   void Visit(ASTCompound *) override;
   void Visit(ASTReturn *) override;
+  void Visit(ASTMemberAccess *) override;
 
   /// Check if given AST node is symbol/array access operator and
   /// increment use counter for this.

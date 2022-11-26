@@ -154,6 +154,12 @@ void VariableUseAnalysis::Visit(ASTReturn *Stmt) {
     O->Accept(this);
 }
 
+void VariableUseAnalysis::Visit(ASTMemberAccess *Stmt) {
+  auto *Symbol = static_cast<ASTSymbol *>(Stmt->Name());
+  AssertIsDeclared(Symbol->Name(), Stmt);
+  mStorage.AddUse(Symbol->Name());
+}
+
 void VariableUseAnalysis::AssertIsDeclared(std::string_view Name,
                                            ASTNode *AST) {
   if (!mStorage.Lookup(Name))

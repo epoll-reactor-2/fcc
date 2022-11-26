@@ -192,7 +192,17 @@ void CodeGen::Visit(ASTBinary *Stmt) {
   case TOK_ASSIGN: {
     if (Stmt->LHS()->Is(AST_ARRAY_ACCESS))
       mIRBuilder.CreateStore(R, ArrayPtr);
-    else {
+    else if (Stmt->LHS()->Is(AST_MEMBER_ACCESS)) {
+      const auto &Name =
+          static_cast<ASTMemberAccess *>(Stmt->LHS())->Name()->Name();
+      auto *Type =
+          llvm::StructType::getTypeByName(mIRCtx, mStructVarsStorage[Name]);
+
+      llvm::AllocaInst *Struct = mStorage.Lookup(Name);
+      /// \todo: Get AST for declaration and convert `.field` to index
+      mLastInstr = mIRBuilder.CreateStructGEP(Type, Struct, 1);
+      mIRBuilder.CreateStore(R, mLastInstr);
+    } else {
       auto *Symbol = static_cast<ASTSymbol *>(Stmt->LHS());
       llvm::AllocaInst *Variable = mStorage.Lookup(Symbol->Name());
       mIRBuilder.CreateStore(R, Variable);
@@ -480,6 +490,19 @@ void CodeGen::Visit(ASTReturn *Stmt) {
   mIRBuilder.CreateRet(mLastInstr);
 }
 
+void CodeGen::Visit(ASTMemberAccess *Stmt) {
+  const auto &Name = Stmt->Name()->Name();
+  auto *Type =
+      llvm::StructType::getTypeByName(mIRCtx, mStructVarsStorage[Name]);
+
+  llvm::AllocaInst *Struct = mStorage.Lookup(Name);
+  assert(Struct);
+  /// \todo: Get AST for declaration and convert `.field` to index
+  mLastInstr = mIRBuilder.CreateStructGEP(Type, Struct, 1);
+  mLastInstr = mIRBuilder.CreateLoad(Type->getTypeAtIndex(1U), mLastInstr);
+  /// \todo: Get type, with respect to nested member accesses.
+}
+
 void CodeGen::Visit(ASTArrayDecl *Stmt) {
   TypeResolver TypeResolver(mIRBuilder);
 
@@ -493,14 +516,22 @@ void CodeGen::Visit(ASTArrayDecl *Stmt) {
 }
 
 void CodeGen::Visit(ASTVarDecl *Decl) {
-  Decl->Body()->Accept(this);
+  auto *Body = Decl->Body();
+  if (!Body && Decl->DataType() == DT_STRUCT) {
+    mStructVarsStorage.emplace(Decl->Name(), Decl->TypeName());
+    auto *VarDecl = mIRBuilder.CreateAlloca(
+        llvm::StructType::getTypeByName(mIRCtx, Decl->TypeName()));
+    mStorage.Push(Decl->Name(), VarDecl);
+    return;
+  }
 
-  llvm::Value *LiteralValue = mLastInstr;
+  Body->Accept(this);
 
   /// Special case, since we need to copy array from data section to another
   /// array, placed on stack.
   if (Decl->DataType() == DT_STRING) {
-    auto *Literal = static_cast<ASTString *>(Decl->Body());
+    llvm::Value *LiteralValue = mLastInstr;
+    auto *Literal = static_cast<ASTString *>(Body);
     unsigned NullTerminator = 1;
     llvm::ArrayType *ArrayType = llvm::ArrayType::get(
         mIRBuilder.getInt8Ty(), Literal->Value().size() + NullTerminator);
@@ -526,6 +557,26 @@ void CodeGen::Visit(ASTVarDecl *Decl) {
   mStorage.Push(Decl->Name(), VarDecl);
 }
 
+void CodeGen::Visit(ASTStructDecl *Decl) {
+  auto *Struct = llvm::StructType::create(mIRCtx);
+  Struct->setName(Decl->Name());
+  llvm::SmallVector<llvm::Type *, 8> Members;
+
+  TypeResolver TR(mIRBuilder);
+
+  for (auto *D : Decl->Decls())
+    if (D->Is(AST_ARRAY_DECL)) {
+      auto *Array = static_cast<ASTArrayDecl *>(D);
+      Members.push_back(
+          llvm::ArrayType::get(TR.Resolve(D), Array->ArityList()[0]));
+    } else
+      Members.push_back(TR.Resolve(D));
+
+  Struct->setBody(std::move(Members));
+
+  mLastInstr = nullptr;
+}
+
 llvm::Module &CodeGen::Module() { return mIRModule; }
 
 const llvm::SymbolTableList<llvm::GlobalVariable> &
@@ -537,8 +588,15 @@ const llvm::SymbolTableList<llvm::Function> &CodeGen::GlobalFunctions() const {
   return mIRModule.getFunctionList();
 }
 
+std::vector<llvm::StructType *> CodeGen::Types() const {
+  return mIRModule.getIdentifiedStructTypes();
+}
+
 std::string CodeGen::ToString() const {
   std::string Result;
+
+  for (auto *T : Types())
+    llvm::raw_string_ostream{Result} << *T << '\n';
 
   for (const auto &V : GlobalVariables())
     llvm::raw_string_ostream{Result} << V << '\n';

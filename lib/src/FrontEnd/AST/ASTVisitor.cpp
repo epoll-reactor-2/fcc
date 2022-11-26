@@ -17,6 +17,7 @@
 #include "FrontEnd/AST/ASTMemberAccess.h"
 #include "FrontEnd/AST/ASTReturn.h"
 #include "FrontEnd/AST/ASTStructDecl.h"
+#include "FrontEnd/AST/ASTSymbol.h"
 #include "FrontEnd/AST/ASTUnary.h"
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "FrontEnd/AST/ASTWhile.h"

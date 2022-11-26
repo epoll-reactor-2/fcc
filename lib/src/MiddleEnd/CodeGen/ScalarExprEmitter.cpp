@@ -23,6 +23,14 @@ llvm::Value *ScalarExprEmitter::EmitBinOp(TokenType T, llvm::Value *L,
   if (L->getType()->isFloatTy())
     return EmitFloatBinOp(T, L, R);
 
+  llvm::outs() << "L ";
+  L->print(llvm::outs());
+  llvm::outs() << '\n';
+
+  llvm::outs() << "R ";
+  R->print(llvm::outs());
+  llvm::outs() << '\n';
+
   Unreachable();
 }
 
