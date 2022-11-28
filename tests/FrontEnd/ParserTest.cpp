@@ -45,21 +45,24 @@ void TestAST(std::string_view Path) {
   std::string GeneratedAST = ASTStream.str();
   std::string ExpectedAST = ExtractAST(Program);
 
-  if (ExpectedAST != GeneratedAST) {
-    std::cout << "Error while analyzing program:\n";
-    std::cout << Program << '\n';
-    std::cout << "Expected AST:\n";
-    std::cout << ExpectedAST;
-    std::cout << "\nGenerated AST:\n";
-    std::cout << GeneratedAST;
-    std::cout << "\n";
-    exit(-1);
-  }
+  if (ExpectedAST == GeneratedAST)
+    return;
+
+  std::cout
+    << "Error while analyzing program:\n"
+    << Program << '\n'
+    << "Expected AST:\n"
+    << ExpectedAST
+    << "\nGenerated AST:\n"
+    << GeneratedAST
+    << "\n";
+  exit(-1);
 }
 
 int main() {
   auto Dir = std::filesystem::directory_iterator(
-      std::filesystem::current_path().concat("/Parser"));
+    std::filesystem::current_path().concat("/Parser")
+  );
   for (const auto &File : Dir) {
     const auto &Path = File.path();
     if (Path.extension() == ".wl")

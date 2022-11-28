@@ -8,12 +8,14 @@
 #include <cassert>
 
 namespace std {
-hash()->hash<std::string_view>;
+hash() -> hash<std::string_view>;
 } // namespace std
 
 namespace weak {
 
-void ASTStorage::StartScope() { ++mDepth; }
+void ASTStorage::StartScope() {
+  ++mDepth;
+}
 
 void ASTStorage::EndScope() {
   for (auto It = mScopes.begin(); It != mScopes.end();)
@@ -29,8 +31,16 @@ void ASTStorage::Push(std::string_view Name, ASTNode *Decl) {
 }
 
 void ASTStorage::Push(std::string_view Name, DataType T, ASTNode *Decl) {
-  mScopes.emplace(std::hash{}(Name),
-                  Declaration{Decl, T, Name.data(), /*Uses=*/0, mDepth});
+  mScopes.emplace(
+    std::hash{}(Name),
+    Declaration{
+      Decl,
+      T,
+      Name.data(),
+      /*Uses=*/0,
+      mDepth
+    }
+  );
 }
 
 ASTStorage::Declaration *ASTStorage::Lookup(std::string_view Name) {
@@ -73,6 +83,8 @@ ASTStorage::Declaration &ASTStorage::FindUse(std::string_view Name) {
   return Decl;
 }
 
-unsigned ASTStorage::CurrentDepth() { return mDepth; }
+unsigned ASTStorage::CurrentDepth() {
+  return mDepth;
+}
 
 } // namespace weak

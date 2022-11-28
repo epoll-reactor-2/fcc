@@ -12,6 +12,8 @@ namespace weak {
 ASTContinue::ASTContinue(unsigned LineNo, unsigned ColumnNo)
     : ASTNode(AST_CONTINUE_STMT, LineNo, ColumnNo) {}
 
-void ASTContinue::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTContinue::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
 } // namespace weak

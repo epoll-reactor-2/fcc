@@ -16,83 +16,98 @@ auto &operator+=(std::vector<weak::Token> &V, weak::Token T) {
 
 namespace weak {
 namespace {
+
 static const std::unordered_map<std::string_view, TokenType> LexKeywords = {
-    {"bool", TOK_BOOL},     {"break", TOK_BREAK},
-    {"char", TOK_CHAR},     {"continue", TOK_CONTINUE},
-    {"do", TOK_DO},         {"else", TOK_ELSE},
-    {"false", TOK_FALSE},   {"float", TOK_FLOAT},
-    {"for", TOK_FOR},       {"if", TOK_IF},
-    {"int", TOK_INT},       {"return", TOK_RETURN},
-    {"string", TOK_STRING}, {"struct", TOK_STRUCT},
-    {"true", TOK_TRUE},     {"void", TOK_VOID},
-    {"while", TOK_WHILE}};
+  {"bool", TOK_BOOL},
+  {"break", TOK_BREAK},
+  {"char", TOK_CHAR},
+  {"continue", TOK_CONTINUE},
+  {"do", TOK_DO},
+  {"else", TOK_ELSE},
+  {"false", TOK_FALSE},
+  {"float", TOK_FLOAT},
+  {"for", TOK_FOR},
+  {"if", TOK_IF},
+  {"int", TOK_INT},
+  {"return", TOK_RETURN},
+  {"string", TOK_STRING},
+  {"struct", TOK_STRUCT},
+  {"true", TOK_TRUE},
+  {"void", TOK_VOID},
+  {"while", TOK_WHILE}
+};
 
 static const std::unordered_map<std::string_view, TokenType> LexOperators = {
-    {"=", TOK_ASSIGN},
-    {"*=", TOK_MUL_ASSIGN},
-    {"/=", TOK_DIV_ASSIGN},
-    {"%=", TOK_MOD_ASSIGN},
-    {"+=", TOK_PLUS_ASSIGN},
-    {"-=", TOK_MINUS_ASSIGN},
-    {"<<=", TOK_SHL_ASSIGN},
-    {">>=", TOK_SHR_ASSIGN},
-    {"&=", TOK_BIT_AND_ASSIGN},
-    {"|=", TOK_BIT_OR_ASSIGN},
-    {"^=", TOK_XOR_ASSIGN},
-    {"&&", TOK_AND},
-    {"||", TOK_OR},
-    {"^", TOK_XOR},
-    {"&", TOK_BIT_AND},
-    {"|", TOK_BIT_OR},
-    {"==", TOK_EQ},
-    {"!=", TOK_NEQ},
-    {">", TOK_GT},
-    {"<", TOK_LT},
-    {">=", TOK_GE},
-    {"<=", TOK_LE},
-    {">>", TOK_SHR},
-    {"<<", TOK_SHL},
-    {"+", TOK_PLUS},
-    {"-", TOK_MINUS},
-    {"*", TOK_STAR},
-    {"/", TOK_SLASH},
-    {"%", TOK_MOD},
-    {"++", TOK_INC},
-    {"--", TOK_DEC},
-    {".", TOK_DOT},
-    {",", TOK_COMMA},
-    {";", TOK_SEMICOLON},
-    {"!", TOK_NOT},
-    {"[", TOK_OPEN_BOX_BRACKET},
-    {"]", TOK_CLOSE_BOX_BRACKET},
-    {"{", TOK_OPEN_CURLY_BRACKET},
-    {"}", TOK_CLOSE_CURLY_BRACKET},
-    {"(", TOK_OPEN_PAREN},
-    {")", TOK_CLOSE_PAREN}};
+  {"=", TOK_ASSIGN},
+  {"*=", TOK_MUL_ASSIGN},
+  {"/=", TOK_DIV_ASSIGN},
+  {"%=", TOK_MOD_ASSIGN},
+  {"+=", TOK_PLUS_ASSIGN},
+  {"-=", TOK_MINUS_ASSIGN},
+  {"<<=", TOK_SHL_ASSIGN},
+  {">>=", TOK_SHR_ASSIGN},
+  {"&=", TOK_BIT_AND_ASSIGN},
+  {"|=", TOK_BIT_OR_ASSIGN},
+  {"^=", TOK_XOR_ASSIGN},
+  {"&&", TOK_AND},
+  {"||", TOK_OR},
+  {"^", TOK_XOR},
+  {"&", TOK_BIT_AND},
+  {"|", TOK_BIT_OR},
+  {"==", TOK_EQ},
+  {"!=", TOK_NEQ},
+  {">", TOK_GT},
+  {"<", TOK_LT},
+  {">=", TOK_GE},
+  {"<=", TOK_LE},
+  {">>", TOK_SHR},
+  {"<<", TOK_SHL},
+  {"+", TOK_PLUS},
+  {"-", TOK_MINUS},
+  {"*", TOK_STAR},
+  {"/", TOK_SLASH},
+  {"%", TOK_MOD},
+  {"++", TOK_INC},
+  {"--", TOK_DEC},
+  {".", TOK_DOT},
+  {",", TOK_COMMA},
+  {";", TOK_SEMICOLON},
+  {"!", TOK_NOT},
+  {"[", TOK_OPEN_BOX_BRACKET},
+  {"]", TOK_CLOSE_BOX_BRACKET},
+  {"{", TOK_OPEN_CURLY_BRACKET},
+  {"}", TOK_CLOSE_CURLY_BRACKET},
+  {"(", TOK_OPEN_PAREN},
+  {")", TOK_CLOSE_PAREN}
+};
 
 } // namespace
 
-static void NormalizeColumnPos(std::string_view Data, weak::TokenType Type,
-                               unsigned &ColumnNo) {
+static void NormalizeColumnPos(
+  std::string_view  Data,
+  weak::TokenType   Type,
+  unsigned         &ColumnNo
+) {
   using namespace std::string_view_literals;
 
   static const std::unordered_map TokenLengths{
-      std::make_pair(TOK_BOOL, "bool"sv.length()),
-      {TOK_BREAK, "break"sv.length()},
-      {TOK_CHAR, "char"sv.length()},
-      {TOK_CONTINUE, "continue"sv.length()},
-      {TOK_DO, "do"sv.length()},
-      {TOK_ELSE, "else"sv.length()},
-      {TOK_FALSE, "false"sv.length()},
-      {TOK_FLOAT, "float"sv.length()},
-      {TOK_FOR, "for"sv.length()},
-      {TOK_IF, "if"sv.length()},
-      {TOK_INT, "int"sv.length()},
-      {TOK_RETURN, "return"sv.length()},
-      {TOK_STRING, "string"sv.length()},
-      {TOK_TRUE, "true"sv.length()},
-      {TOK_VOID, "void"sv.length()},
-      {TOK_WHILE, "while"sv.length()}};
+    std::make_pair(TOK_BOOL, "bool"sv.length()),
+    {TOK_BREAK, "break"sv.length()},
+    {TOK_CHAR, "char"sv.length()},
+    {TOK_CONTINUE, "continue"sv.length()},
+    {TOK_DO, "do"sv.length()},
+    {TOK_ELSE, "else"sv.length()},
+    {TOK_FALSE, "false"sv.length()},
+    {TOK_FLOAT, "float"sv.length()},
+    {TOK_FOR, "for"sv.length()},
+    {TOK_IF, "if"sv.length()},
+    {TOK_INT, "int"sv.length()},
+    {TOK_RETURN, "return"sv.length()},
+    {TOK_STRING, "string"sv.length()},
+    {TOK_TRUE, "true"sv.length()},
+    {TOK_VOID, "void"sv.length()},
+    {TOK_WHILE, "while"sv.length()}
+  };
 
   if (auto It = TokenLengths.find(Type); It != TokenLengths.end()) {
     ColumnNo -= It->second;
@@ -114,8 +129,11 @@ static void NormalizeColumnPos(std::string_view Data, weak::TokenType Type,
 }
 
 Lexer::Lexer(const char *TheBufStart, const char *TheBufEnd)
-    : mBufStart(TheBufStart), mBufEnd(TheBufEnd), mBufPtr(TheBufStart),
-      mLineNo(1U), mColumnNo(1U) {
+  : mBufStart(TheBufStart)
+  , mBufEnd(TheBufEnd)
+  , mBufPtr(TheBufStart)
+  , mLineNo(1U)
+  , mColumnNo(1U) {
   assert(mBufStart);
   assert(mBufEnd);
   assert(mBufStart <= mBufEnd);
@@ -177,9 +195,12 @@ Token Lexer::AnalyzeDigit() {
   if (std::isalpha(PeekCurrent()) || !std::isdigit(Digit.back()))
     weak::CompileError(mLineNo, ColNo) << "Digit as last character expected";
 
-  return MakeToken(std::move(Digit), DotsReached == 0U
-                                         ? TOK_INTEGRAL_LITERAL
-                                         : TOK_FLOATING_POINT_LITERAL);
+  return MakeToken(
+    std::move(Digit),
+    DotsReached == 0U
+      ? TOK_INTEGRAL_LITERAL
+      : TOK_FLOATING_POINT_LITERAL
+  );
 }
 
 Token Lexer::AnalyzeCharLiteral() {
@@ -203,7 +224,7 @@ Token Lexer::AnalyzeStringLiteral() {
 
     if (char C = PeekCurrent(); C == '\n' || C == '\0')
       weak::CompileError(mLineNo, mColumnNo)
-          << "Closing \" expected, got `" << C << "`";
+        << "Closing \" expected, got `" << C << "`";
 
     if (Literal.back() == '\\')
       Literal.back() = PeekNext();
@@ -269,11 +290,15 @@ Token Lexer::AnalyzeOperator() {
   }
 
   if (!Operator.empty())
-    return Token("", LexOperators.at(Operator), mLineNo,
-                 SavedColumnNo - Operator.length());
+    return Token(
+      "",
+      LexOperators.at(Operator),
+      mLineNo,
+      SavedColumnNo - Operator.length()
+    );
 
   weak::CompileError(mLineNo, mColumnNo)
-      << "Unknown character `" << WrongOperator << "`";
+    << "Unknown character `" << WrongOperator << "`";
   Unreachable();
 }
 
@@ -317,7 +342,7 @@ void Lexer::ProcessMultiLineComment() {
 void Lexer::Require(char Expected) {
   if (char C = PeekNext(); C != Expected)
     weak::CompileError(mLineNo, mColumnNo)
-        << "Expected `" << Expected << "`, got `" << C << "`";
+      << "Expected `" << Expected << "`, got `" << C << "`";
 }
 
 char Lexer::PeekNext() {
@@ -331,7 +356,9 @@ char Lexer::PeekNext() {
   return Atom;
 }
 
-char Lexer::PeekCurrent() const { return *mBufPtr; }
+char Lexer::PeekCurrent() const {
+  return *mBufPtr;
+}
 
 Token Lexer::MakeToken(std::string Data, TokenType Type) const {
   unsigned CurrLineNo = mLineNo;

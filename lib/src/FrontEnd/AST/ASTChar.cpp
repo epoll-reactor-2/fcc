@@ -10,10 +10,15 @@
 namespace weak {
 
 ASTChar::ASTChar(char Value, unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_CHAR_LITERAL, LineNo, ColumnNo), mValue(Value) {}
+  : ASTNode(AST_CHAR_LITERAL, LineNo, ColumnNo)
+  , mValue(Value) {}
 
-void ASTChar::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTChar::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-char ASTChar::Value() const { return mValue; }
+char ASTChar::Value() const {
+  return mValue;
+}
 
 } // namespace weak

@@ -14,8 +14,14 @@ namespace weak {
 
 class ASTFor : public ASTNode {
 public:
-  ASTFor(ASTNode *Init, ASTNode *Condition, ASTNode *Increment,
-         ASTCompound *Body, unsigned LineNo, unsigned ColumnNo);
+  ASTFor(
+    ASTNode     *Init,
+    ASTNode     *Condition,
+    ASTNode     *Increment,
+    ASTCompound *Body,
+    unsigned     LineNo,
+    unsigned     ColumnNo
+  );
 
   ~ASTFor();
 

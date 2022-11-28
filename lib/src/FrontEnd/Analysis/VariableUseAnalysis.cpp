@@ -26,9 +26,12 @@ static const char *ASTDeclToString(ASTNode *Node) {
   }
 }
 
-VariableUseAnalysis::VariableUseAnalysis(ASTNode *Root) : mRoot(Root) {}
+VariableUseAnalysis::VariableUseAnalysis(ASTNode *Root)
+  : mRoot(Root) {}
 
-void VariableUseAnalysis::Analyze() { mRoot->Accept(this); }
+void VariableUseAnalysis::Analyze() {
+  mRoot->Accept(this);
+}
 
 void VariableUseAnalysis::Visit(ASTBinary *Stmt) {
   Stmt->LHS()->Accept(this);
@@ -46,7 +49,7 @@ void VariableUseAnalysis::Visit(ASTUnary *Stmt) {
   IsVariable |= Op->Is(AST_ARRAY_ACCESS);
   if (!IsVariable)
     weak::CompileError(Stmt)
-        << "Variable as argument of unary operator expected";
+      << "Variable as argument of unary operator expected";
 
   Op->Accept(this);
   AddUseOnVarAccess(Op);
@@ -160,15 +163,13 @@ void VariableUseAnalysis::Visit(ASTMemberAccess *Stmt) {
   mStorage.AddUse(Symbol->Name());
 }
 
-void VariableUseAnalysis::AssertIsDeclared(std::string_view Name,
-                                           ASTNode *AST) {
+void VariableUseAnalysis::AssertIsDeclared(std::string_view Name, ASTNode *AST) {
   if (!mStorage.Lookup(Name))
     weak::CompileError(AST)
-        << ASTDeclToString(AST) << " `" << Name << "` not found";
+      << ASTDeclToString(AST) << " `" << Name << "` not found";
 }
 
-void VariableUseAnalysis::AssertIsNotDeclared(std::string_view Name,
-                                              ASTNode *AST) {
+void VariableUseAnalysis::AssertIsNotDeclared(std::string_view Name, ASTNode *AST) {
   if (!mStorage.Lookup(Name))
     return;
 
@@ -176,9 +177,10 @@ void VariableUseAnalysis::AssertIsNotDeclared(std::string_view Name,
   unsigned LineNo = Decl->LineNo();
   unsigned ColumnNo = Decl->ColumnNo();
 
-  weak::CompileError(AST) << ASTDeclToString(AST) << " `" << Name
-                          << "` already declared at line " << LineNo
-                          << ", column " << ColumnNo;
+  weak::CompileError(AST)
+    << ASTDeclToString(AST) << " `" << Name
+    << "` already declared at line " << LineNo
+    << ", column " << ColumnNo;
 }
 
 void VariableUseAnalysis::AddUseOnVarAccess(ASTNode *Stmt) {
@@ -206,8 +208,9 @@ void VariableUseAnalysis::MakeUnusedVarAndFuncAnalysis() {
     }
 
     if (U->Uses == 0U && !IsMainFunction)
-      weak::CompileWarning(U->AST) << (IsFunction ? "Function" : "Variable")
-                                   << " `" << U->Name << "` is never used";
+      weak::CompileWarning(U->AST)
+        << (IsFunction ? "Function" : "Variable")
+        << " `" << U->Name << "` is never used";
   }
 }
 
@@ -218,8 +221,9 @@ void VariableUseAnalysis::MakeUnusedVarAnalysis() {
     IsFunction |= U->AST->Is(AST_FUNCTION_PROTOTYPE);
 
     if (U->Uses == 0U && !IsFunction)
-      weak::CompileWarning(U->AST) << "Variable"
-                                   << " `" << U->Name << "` is never used";
+      weak::CompileWarning(U->AST)
+        << "Variable"
+        << " `" << U->Name << "` is never used";
   }
 }
 

@@ -16,9 +16,13 @@ namespace weak {
 
 class ASTArrayDecl : public ASTNode {
 public:
-  ASTArrayDecl(weak::DataType DT, std::string Name,
-               std::vector<unsigned> ArityList, unsigned LineNo,
-               unsigned ColumnNo);
+  ASTArrayDecl(
+    weak::DataType        DT,
+    std::string           Name,
+    std::vector<unsigned> ArityList,
+    unsigned              LineNo,
+    unsigned              ColumnNo
+  );
 
   void Accept(ASTVisitor *) override;
 

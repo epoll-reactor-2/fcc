@@ -7,15 +7,15 @@ weak::Token MakeToken(std::string Data, weak::TokenType Type) {
   return {std::move(Data), Type, 0U, 0U};
 }
 
-void RunLexerTest(std::string_view Input,
-                         const std::vector<weak::Token> &ExpectedTokens) {
+void RunLexerTest(std::string_view Input, const std::vector<weak::Token> &ExpectedTokens) {
   auto Tokens = weak::Lexer(&Input.front(), &Input.back()).Analyze();
 
   weak::PrintGeneratedWarns(std::cout);
 
   if (Tokens.size() != ExpectedTokens.size()) {
-    std::cerr << "Output size mismatch: got " << Tokens.size()
-              << " but expected " << ExpectedTokens.size();
+    std::cerr
+      << "Output size mismatch: got " << Tokens.size()
+      << " but expected " << ExpectedTokens.size();
     exit(-1);
   }
   for (size_t I = 0; I < Tokens.size(); ++I) {

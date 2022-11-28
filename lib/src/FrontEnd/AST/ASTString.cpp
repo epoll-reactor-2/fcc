@@ -10,10 +10,15 @@
 namespace weak {
 
 ASTString::ASTString(std::string Value, unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_STRING_LITERAL, LineNo, ColumnNo), mValue(std::move(Value)) {}
+  : ASTNode(AST_STRING_LITERAL, LineNo, ColumnNo)
+  , mValue(std::move(Value)) {}
 
-void ASTString::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTString::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-const std::string &ASTString::Value() const { return mValue; }
+const std::string &ASTString::Value() const {
+  return mValue;
+}
 
 } // namespace weak

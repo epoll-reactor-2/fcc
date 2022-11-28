@@ -20,7 +20,6 @@ namespace weak {
 ///     A->Analyze();
 struct Analysis : protected ASTVisitor {
   virtual ~Analysis() = default;
-
   virtual void Analyze() = 0;
 };
 

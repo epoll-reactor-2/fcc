@@ -10,20 +10,30 @@
 
 namespace weak {
 
-ASTWhile::ASTWhile(ASTNode *Condition, ASTCompound *Body, unsigned LineNo,
-                   unsigned ColumnNo)
-    : ASTNode(AST_WHILE_STMT, LineNo, ColumnNo), mCondition(Condition),
-      mBody(Body) {}
+ASTWhile::ASTWhile(
+  ASTNode     *Condition,
+  ASTCompound *Body,
+  unsigned     LineNo,
+  unsigned     ColumnNo
+) : ASTNode(AST_WHILE_STMT, LineNo, ColumnNo)
+  , mCondition(Condition)
+  , mBody(Body) {}
 
 ASTWhile::~ASTWhile() {
   delete mCondition;
   delete mBody;
 }
 
-void ASTWhile::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTWhile::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-ASTNode *ASTWhile::Condition() const { return mCondition; }
+ASTNode *ASTWhile::Condition() const {
+  return mCondition;
+}
 
-ASTCompound *ASTWhile::Body() const { return mBody; }
+ASTCompound *ASTWhile::Body() const {
+  return mBody;
+}
 
 } // namespace weak

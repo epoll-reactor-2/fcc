@@ -10,10 +10,16 @@
 
 namespace weak {
 
-ASTIf::ASTIf(ASTNode *Condition, ASTCompound *ThenBody, ASTCompound *ElseBody,
-             unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_IF_STMT, LineNo, ColumnNo), mCondition(Condition),
-      mThenBody(ThenBody), mElseBody(ElseBody) {}
+ASTIf::ASTIf(
+  ASTNode     *Condition,
+  ASTCompound *ThenBody,
+  ASTCompound *ElseBody,
+  unsigned     LineNo,
+  unsigned     ColumnNo
+) : ASTNode(AST_IF_STMT, LineNo, ColumnNo)
+  , mCondition(Condition)
+  , mThenBody(ThenBody)
+  , mElseBody(ElseBody) {}
 
 ASTIf::~ASTIf() {
   delete mCondition;
@@ -21,12 +27,20 @@ ASTIf::~ASTIf() {
   delete mElseBody;
 }
 
-void ASTIf::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTIf::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-ASTNode *ASTIf::Condition() const { return mCondition; }
+ASTNode *ASTIf::Condition() const {
+  return mCondition;
+}
 
-ASTCompound *ASTIf::ThenBody() const { return mThenBody; }
+ASTCompound *ASTIf::ThenBody() const {
+  return mThenBody;
+}
 
-ASTCompound *ASTIf::ElseBody() const { return mElseBody; }
+ASTCompound *ASTIf::ElseBody() const {
+  return mElseBody;
+}
 
 } // namespace weak

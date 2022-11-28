@@ -42,8 +42,7 @@ DoSyntaxAnalysis(std::string_view InputPath) {
   return AST;
 }
 
-std::string DoLLVMCodeGen(std::string_view InputPath,
-                          WeakOptimizationLevel OptLvl) {
+std::string DoLLVMCodeGen(std::string_view InputPath, WeakOptimizationLevel OptLvl) {
   auto AST = DoSyntaxAnalysis(InputPath);
   weak::CodeGen CG(AST.get());
   CG.CreateCode();
@@ -71,8 +70,11 @@ void DumpLLVMIR(std::string_view InputPath, WeakOptimizationLevel OptLvl) {
   std::cout << IR << std::endl;
 }
 
-void BuildCode(std::string_view InputPath, std::string_view OutputPath,
-               WeakOptimizationLevel OptLvl) {
+void BuildCode(
+  std::string_view      InputPath,
+  std::string_view      OutputPath,
+  WeakOptimizationLevel OptLvl
+) {
   auto AST = DoSyntaxAnalysis(InputPath);
   weak::CodeGen CG(AST.get());
   CG.CreateCode();
@@ -84,63 +86,63 @@ void BuildCode(std::string_view InputPath, std::string_view OutputPath,
 
 int main(int Argc, char *Argv[]) {
   llvm::cl::OptionCategory
-      CompilerCategory(
-          "Compiler Options",
-          "Options for controlling the compilation process.");
+    CompilerCategory(
+      "Compiler Options",
+      "Options for controlling the compilation process.");
 
   llvm::cl::opt<std::string>
-      InputFilenameOpt(
-          "i",
-          llvm::cl::desc("Specify input program file"),
-          llvm::cl::Required,
-          llvm::cl::cat(CompilerCategory));
+    InputFilenameOpt(
+      "i",
+      llvm::cl::desc("Specify input program file"),
+      llvm::cl::Required,
+      llvm::cl::cat(CompilerCategory));
 
   llvm::cl::opt<std::string>
-      OutputFilenameOpt(
-          "o",
-          llvm::cl::desc("Specify executable file path"),
-          llvm::cl::Optional,
-          llvm::cl::cat(CompilerCategory));
+    OutputFilenameOpt(
+      "o",
+      llvm::cl::desc("Specify executable file path"),
+      llvm::cl::Optional,
+      llvm::cl::cat(CompilerCategory));
 
   llvm::cl::opt<bool>
-      DumpLexemesOpt(
-          "dump-lexemes",
-          llvm::cl::desc("Do lexical analysis of input file"),
-          llvm::cl::Optional,
-          llvm::cl::cat(CompilerCategory));
+    DumpLexemesOpt(
+      "dump-lexemes",
+      llvm::cl::desc("Do lexical analysis of input file"),
+      llvm::cl::Optional,
+      llvm::cl::cat(CompilerCategory));
 
   llvm::cl::opt<bool>
-      DumpASTOpt(
-          "dump-ast",
-          llvm::cl::desc("Show Abstract Syntax Tree of input file"),
-          llvm::cl::Optional,
-          llvm::cl::cat(CompilerCategory));
+    DumpASTOpt(
+      "dump-ast",
+      llvm::cl::desc("Show Abstract Syntax Tree of input file"),
+      llvm::cl::Optional,
+      llvm::cl::cat(CompilerCategory));
 
   llvm::cl::opt<bool>
-      DumpLLVMIROpt(
-          "dump-llvm",
-          llvm::cl::desc("Show the LLVM IR of input file"),
-          llvm::cl::Optional,
-          llvm::cl::cat(CompilerCategory));
+    DumpLLVMIROpt(
+      "dump-llvm",
+      llvm::cl::desc("Show the LLVM IR of input file"),
+      llvm::cl::Optional,
+      llvm::cl::cat(CompilerCategory));
 
   llvm::cl::opt<WeakOptimizationLevel>
-      OptimizationLvlOpt(
-          llvm::cl::desc("Optimization level, from -O0 to -O3"),
-          llvm::cl::values(
-              clEnumVal(O0, "No optimizations"),
-              clEnumVal(O1, "Trivial"),
-              clEnumVal(O2, "Default"),
-              clEnumVal(O3, "Most aggressive")),
-          llvm::cl::init(O0));
+    OptimizationLvlOpt(
+      llvm::cl::desc("Optimization level, from -O0 to -O3"),
+      llvm::cl::values(
+        clEnumVal(O0, "No optimizations"),
+        clEnumVal(O1, "Trivial"),
+        clEnumVal(O2, "Default"),
+        clEnumVal(O3, "Most aggressive")),
+      llvm::cl::init(O0));
 
   llvm::cl::HideUnrelatedOptions(CompilerCategory);
   llvm::cl::ParseCommandLineOptions(Argc, Argv);
 
   std::string InputFilename = InputFilenameOpt;
   std::string OutputFilename =
-      OutputFilenameOpt.empty()
-          ? InputFilename.substr(0, InputFilename.find_first_of('.'))
-          : OutputFilenameOpt;
+    OutputFilenameOpt.empty()
+      ? InputFilename.substr(0, InputFilename.find_first_of('.'))
+      : OutputFilenameOpt;
 
   if (DumpLexemesOpt) {
     DumpLexemes(InputFilename);

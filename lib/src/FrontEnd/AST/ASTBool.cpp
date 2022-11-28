@@ -10,10 +10,15 @@
 namespace weak {
 
 ASTBool::ASTBool(bool Value, unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_BOOLEAN_LITERAL, LineNo, ColumnNo), mValue(Value) {}
+  : ASTNode(AST_BOOLEAN_LITERAL, LineNo, ColumnNo)
+  , mValue(Value) {}
 
-void ASTBool::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTBool::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-bool ASTBool::Value() const { return mValue; }
+bool ASTBool::Value() const {
+  return mValue;
+}
 
 } // namespace weak

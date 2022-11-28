@@ -21,10 +21,18 @@ int RunAndGetExitCode(const std::string &TargetPath) {
 }
 
 /// There semantic analysis expect to be correct.
-void RunTestOnValidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen &CG, const std::string &Program,
-                        const std::string &PathToBin);
+void RunTestOnValidCode(
+  std::vector<weak::Analysis *> &Analyzers,
+  weak::CodeGen                 &CG,
+  const std::string             &Program,
+  const std::string             &PathToBin
+);
 /// There semantic or other analysis should emit error.
-void RunTestOnInvalidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen &CG, const std::string &Program);
+void RunTestOnInvalidCode(
+  std::vector<weak::Analysis *> &Analyzers,
+  weak::CodeGen                 &CG,
+  const std::string             &Program
+);
 
 void RunTest(std::string_view Path, bool IsValid) {
   llvm::outs() << "Testing file " << Path << "... ";
@@ -56,8 +64,12 @@ void RunTest(std::string_view Path, bool IsValid) {
     delete A;
 }
 
-void RunTestOnValidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen &CG, const std::string &Program,
-                        const std::string &PathToBin) {
+void RunTestOnValidCode(
+  std::vector<weak::Analysis *> &Analyzers,
+  weak::CodeGen                 &CG,
+  const std::string             &Program,
+  const std::string             &PathToBin
+) {
   for (auto *A : Analyzers)
     A->Analyze();
 
@@ -65,8 +77,12 @@ void RunTestOnValidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen 
     llvm::errs() << "Expected planned exit code.";
     exit(-1);
   }
-  int ExpectedExitCode = std::stoi(Program.substr(
-      "// "sv.length(), Program.find_first_of('\n') - "// "sv.length()));
+  int ExpectedExitCode = std::stoi(
+    Program.substr(
+      "// "sv.length(),
+      Program.find_first_of('\n') - "// "sv.length()
+    )
+  );
 
   CG.CreateCode();
   weak::Driver Driver(CG.Module(), PathToBin);
@@ -74,22 +90,28 @@ void RunTestOnValidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen 
 
   int ExitCode = RunAndGetExitCode(PathToBin);
   if (ExitCode != ExpectedExitCode) {
-    llvm::errs() << "Process exited with wrong exit code: " << ExitCode
-                 << " got, but " << ExpectedExitCode << " expected.";
+    llvm::errs()
+      << "Process exited with wrong exit code: " << ExitCode
+      << " got, but " << ExpectedExitCode << " expected.";
     exit(-1);
-  } else {
+  } else
     llvm::outs() << "Success!\n";
-  }
 }
 
-void RunTestOnInvalidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGen &CG, const std::string &Program) {
+void RunTestOnInvalidCode(
+  std::vector<weak::Analysis *> &Analyzers,
+  weak::CodeGen                 &CG,
+  const std::string             &Program
+) {
   if (Program.substr(0, 3) != "// ") {
     llvm::errs() << "Expected comment with error message.";
     exit(-1);
   }
 
   std::string ExpectedErrorMsg = Program.substr(
-      "// "sv.length(), Program.find_first_of('\n') - "// "sv.length());
+    "// "sv.length(),
+    Program.find_first_of('\n') - "// "sv.length()
+  );
 
   try {
     for (auto *A : Analyzers)
@@ -99,8 +121,9 @@ void RunTestOnInvalidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGe
     exit(-1);
   } catch (std::exception &Error) {
     if (std::string(Error.what()) != ExpectedErrorMsg) {
-      llvm::errs() << "Errors mismatch:\n\t" << Error.what() << "\ngot, but\n\t"
-                   << ExpectedErrorMsg << "\nexpected.";
+      llvm::errs()
+        << "Errors mismatch:\n\t" << Error.what()
+        << "\ngot, but\n\t" << ExpectedErrorMsg << "\nexpected.";
       exit(-1);
     }
     llvm::outs() << "Caught expected error: " << Error.what() << '\n';
@@ -109,7 +132,8 @@ void RunTestOnInvalidCode(std::vector<weak::Analysis *> &Analyzers, weak::CodeGe
 
 int main() {
   auto Dir = std::filesystem::directory_iterator(
-      std::filesystem::current_path().concat("/CodeGen/Valid"));
+    std::filesystem::current_path().concat("/CodeGen/Valid")
+  );
   for (const auto &File : Dir) {
     const auto &Path = File.path();
     if (Path.extension() == ".wl")

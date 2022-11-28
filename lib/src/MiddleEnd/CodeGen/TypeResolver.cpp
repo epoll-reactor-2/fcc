@@ -24,50 +24,46 @@ static DataType DeclType(ASTNode *Node) {
   Unreachable();
 }
 
-TypeResolver::TypeResolver(llvm::IRBuilder<> &I) : mIRBuilder(I) {}
+TypeResolver::TypeResolver(llvm::IRBuilder<> &I)
+  : mIRBuilder(I) {}
 
 llvm::Type *TypeResolver::Resolve(DataType T) {
   switch (T) {
-  case DT_VOID:
-    return mIRBuilder.getVoidTy();
-  case DT_CHAR:
-    return mIRBuilder.getInt8Ty();
-  case DT_INT:
-    return mIRBuilder.getInt32Ty();
-  case DT_BOOL:
-    return mIRBuilder.getInt1Ty();
-  case DT_FLOAT:
-    return mIRBuilder.getFloatTy();
-  case DT_STRING:
-    return mIRBuilder.getInt8PtrTy();
-  default:
-    Unreachable();
+  case DT_VOID:   return mIRBuilder.getVoidTy();
+  case DT_CHAR:   return mIRBuilder.getInt8Ty();
+  case DT_INT:    return mIRBuilder.getInt32Ty();
+  case DT_BOOL:   return mIRBuilder.getInt1Ty();
+  case DT_FLOAT:  return mIRBuilder.getFloatTy();
+  case DT_STRING: return mIRBuilder.getInt8PtrTy();
+  default:        Unreachable();
   }
 }
 
 llvm::Type *TypeResolver::Resolve(ASTNode *AST) {
-  return Resolve(DeclType(AST));
+  if (!AST->Is(AST_ARRAY_DECL))
+    return Resolve(DeclType(AST));
+
+  auto *AD = static_cast<ASTArrayDecl *>(AST);
+  return llvm::ArrayType::get(ResolveExceptVoid(AD->DataType()), AD->ArityList()[0]);
 }
 
 llvm::Type *TypeResolver::ResolveExceptVoid(DataType T) {
   switch (T) {
-  case DT_CHAR:
-    return mIRBuilder.getInt8Ty();
-  case DT_INT:
-    return mIRBuilder.getInt32Ty();
-  case DT_BOOL:
-    return mIRBuilder.getInt1Ty();
-  case DT_FLOAT:
-    return mIRBuilder.getFloatTy();
-  case DT_STRING:
-    return mIRBuilder.getInt8PtrTy();
-  default:
-    Unreachable();
+  case DT_CHAR:   return mIRBuilder.getInt8Ty();
+  case DT_INT:    return mIRBuilder.getInt32Ty();
+  case DT_BOOL:   return mIRBuilder.getInt1Ty();
+  case DT_FLOAT:  return mIRBuilder.getFloatTy();
+  case DT_STRING: return mIRBuilder.getInt8PtrTy();
+  default:        Unreachable();
   }
 }
 
 llvm::Type *TypeResolver::ResolveExceptVoid(ASTNode *AST) {
-  return ResolveExceptVoid(DeclType(AST));
+  if (!AST->Is(AST_ARRAY_DECL))
+    return ResolveExceptVoid(DeclType(AST));
+
+  auto *AD = static_cast<ASTArrayDecl *>(AST);
+  return llvm::ArrayType::get(ResolveExceptVoid(AD->DataType()), AD->ArityList()[0]);
 }
 
 } // namespace weak

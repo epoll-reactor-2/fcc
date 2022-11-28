@@ -10,19 +10,30 @@
 
 namespace weak {
 
-ASTMemberAccess::ASTMemberAccess(ASTSymbol *Name, ASTNode *MemberDecl,
-                                 unsigned int LineNo, unsigned int ColumnNo)
-    : ASTNode(AST_MEMBER_ACCESS, LineNo, ColumnNo), mName(Name),
-      mMemberDecl(MemberDecl) {}
+ASTMemberAccess::ASTMemberAccess(
+  ASTSymbol *Name,
+  ASTNode   *MemberDecl,
+  unsigned   LineNo,
+  unsigned   ColumnNo
+) : ASTNode(AST_MEMBER_ACCESS, LineNo, ColumnNo)
+  , mName(Name)
+  , mMemberDecl(MemberDecl) {}
 
 ASTMemberAccess::~ASTMemberAccess() {
   delete mName;
   delete mMemberDecl;
 }
 
-void ASTMemberAccess::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTMemberAccess::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-ASTSymbol *ASTMemberAccess::Name() const { return mName; }
-ASTNode *ASTMemberAccess::MemberDecl() const { return mMemberDecl; }
+ASTSymbol *ASTMemberAccess::Name() const {
+  return mName;
+}
+
+ASTNode *ASTMemberAccess::MemberDecl() const {
+  return mMemberDecl;
+}
 
 } // namespace weak

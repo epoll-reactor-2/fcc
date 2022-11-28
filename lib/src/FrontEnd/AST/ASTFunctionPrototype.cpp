@@ -9,23 +9,33 @@
 
 namespace weak {
 
-ASTFunctionPrototype::ASTFunctionPrototype(DataType ReturnType,
-                                           std::string Name,
-                                           std::vector<ASTNode *> Args,
-                                           unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_FUNCTION_PROTOTYPE, LineNo, ColumnNo),
-      mReturnType(ReturnType), mName(std::move(Name)), mArgs(std::move(Args)) {}
+ASTFunctionPrototype::ASTFunctionPrototype(
+  DataType               ReturnType,
+  std::string            Name,
+  std::vector<ASTNode *> Args,
+  unsigned               LineNo,
+  unsigned               ColumnNo
+) : ASTNode(AST_FUNCTION_PROTOTYPE, LineNo, ColumnNo)
+  , mReturnType(ReturnType)
+  , mName(std::move(Name))
+  , mArgs(std::move(Args)) {}
 
 ASTFunctionPrototype::~ASTFunctionPrototype() {
   for (ASTNode *Arg : mArgs)
     delete Arg;
 }
 
-void ASTFunctionPrototype::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTFunctionPrototype::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-DataType ASTFunctionPrototype::ReturnType() const { return mReturnType; }
+DataType ASTFunctionPrototype::ReturnType() const {
+  return mReturnType;
+}
 
-const std::string &ASTFunctionPrototype::Name() const { return mName; }
+const std::string &ASTFunctionPrototype::Name() const {
+  return mName;
+}
 
 const std::vector<ASTNode *> &ASTFunctionPrototype::Args() const {
   return mArgs;

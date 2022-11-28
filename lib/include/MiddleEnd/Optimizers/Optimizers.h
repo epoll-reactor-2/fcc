@@ -19,8 +19,7 @@ namespace weak {
 /// Perform built-in LLVM optimizations of given level.
 ///
 /// \todo Implement own optimizations.
-void RunBuiltinLLVMOptimizationPass(llvm::Module &M,
-                                    WeakOptimizationLevel OptLvl);
+void RunBuiltinLLVMOptimizationPass(llvm::Module &M, WeakOptimizationLevel OptLvl);
 
 } // namespace weak
 

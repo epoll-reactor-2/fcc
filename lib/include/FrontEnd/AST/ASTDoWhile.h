@@ -14,8 +14,12 @@ namespace weak {
 
 class ASTDoWhile : public ASTNode {
 public:
-  ASTDoWhile(ASTCompound *Body, ASTNode *Condition, unsigned LineNo,
-             unsigned ColumnNo);
+  ASTDoWhile(
+    ASTCompound *Body,
+    ASTNode     *Condition,
+    unsigned     LineNo,
+    unsigned     ColumnNo
+  );
 
   ~ASTDoWhile();
 

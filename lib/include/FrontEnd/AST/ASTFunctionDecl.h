@@ -18,9 +18,14 @@ class ASTCompound;
 
 class ASTFunctionDecl : public ASTNode {
 public:
-  ASTFunctionDecl(DataType ReturnType, std::string Name,
-                  std::vector<ASTNode *> Args, ASTCompound *Body,
-                  unsigned LineNo, unsigned ColumnNo);
+  ASTFunctionDecl(
+    DataType                ReturnType,
+    std::string             Name,
+    std::vector<ASTNode *>  Args,
+    ASTCompound            *Body,
+    unsigned                LineNo,
+    unsigned                ColumnNo
+  );
 
   ~ASTFunctionDecl();
 

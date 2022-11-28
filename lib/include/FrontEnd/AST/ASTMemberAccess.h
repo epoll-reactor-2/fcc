@@ -17,8 +17,12 @@ class ASTSymbol;
 
 class ASTMemberAccess : public ASTNode {
 public:
-  ASTMemberAccess(ASTSymbol *Name, ASTNode *MemberDecl, unsigned LineNo,
-                  unsigned ColumnNo);
+  ASTMemberAccess(
+    ASTSymbol *Name,
+    ASTNode   *MemberDecl,
+    unsigned   LineNo,
+    unsigned   ColumnNo
+  );
 
   ~ASTMemberAccess();
 

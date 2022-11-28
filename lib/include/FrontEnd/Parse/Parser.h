@@ -19,7 +19,7 @@ namespace weak {
 class Parser {
 public:
   /// \note Requires random access memory layout of buffer.
-  Parser(const Token *TheBufStart, const Token *TheBufEnd);
+  Parser(const Token *BufStart, const Token *BufEnd);
 
   /// Transform token stream to AST.
   ///

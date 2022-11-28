@@ -14,8 +14,13 @@ namespace weak {
 
 class ASTBinary : public ASTNode {
 public:
-  ASTBinary(TokenType Operation, ASTNode *LHS, ASTNode *RHS, unsigned LineNo,
-            unsigned ColumnNo);
+  ASTBinary(
+    TokenType  Operation,
+    ASTNode   *LHS,
+    ASTNode   *RHS,
+    unsigned   LineNo,
+    unsigned   ColumnNo
+  );
 
   ~ASTBinary();
 

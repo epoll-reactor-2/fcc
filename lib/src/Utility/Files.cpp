@@ -13,6 +13,8 @@ std::string weak::FileAsString(std::string_view Path) {
   if (File.fail())
     throw std::runtime_error("Cannot open " + std::string(Path));
 
-  return {(std::istreambuf_iterator<char>(File)),
-          (std::istreambuf_iterator<char>())};
+  return {
+    (std::istreambuf_iterator<char>(File)),
+    (std::istreambuf_iterator<char>())
+  };
 }

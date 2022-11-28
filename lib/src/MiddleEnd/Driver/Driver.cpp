@@ -15,7 +15,14 @@
 namespace {
 
 struct DriverImpl {
-  DriverImpl(llvm::Module &M) : mIRModule(M) { InitTargets(); }
+  DriverImpl(llvm::Module &M)
+    : mIRModule(M) {
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
+  }
 
   void Build(std::string OutFile) {
     auto *TM = CreateTM(llvm::sys::getDefaultTargetTriple());
@@ -31,8 +38,12 @@ struct DriverImpl {
     }
 
     llvm::legacy::PassManager Pass;
-    TM->addPassesToEmitFile(Pass, OutStream, /*raw_pwrite_stream=*/nullptr,
-                            llvm::CGFT_ObjectFile);
+    TM->addPassesToEmitFile(
+      Pass,
+      OutStream,
+      /*raw_pwrite_stream=*/nullptr,
+      llvm::CGFT_ObjectFile
+    );
 
     Pass.run(mIRModule);
 
@@ -40,14 +51,6 @@ struct DriverImpl {
   }
 
 private:
-  void InitTargets() {
-    llvm::InitializeAllTargetInfos();
-    llvm::InitializeAllTargets();
-    llvm::InitializeAllTargetMCs();
-    llvm::InitializeAllAsmParsers();
-    llvm::InitializeAllAsmPrinters();
-  }
-
   void RunClangFrontEnd(std::string_view OutFile) {
     std::string CompileCmd;
     CompileCmd += "clang++ ";
@@ -59,9 +62,14 @@ private:
 
   llvm::TargetMachine *CreateTM(const std::string &Triple) {
     std::string _;
-    return llvm::TargetRegistry::lookupTarget(Triple, _)->createTargetMachine(
-        Triple, /*CPU=*/"generic", /*Features=*/"", /*Opts=*/{},
-        llvm::Reloc::Model::Static);
+    return llvm::TargetRegistry::lookupTarget(Triple, _)
+      ->createTargetMachine(
+          Triple,
+          /*CPU=*/"generic",
+          /*Features=*/"",
+          /*Opts=*/{},
+          llvm::Reloc::Model::Static
+        );
   }
 
   llvm::Module &mIRModule;
@@ -72,8 +80,11 @@ private:
 namespace weak {
 
 Driver::Driver(llvm::Module &M, std::string_view OutPath)
-    : mIRModule(M), mOutPath(OutPath) {}
+  : mIRModule(M)
+  , mOutPath(OutPath) {}
 
-void Driver::Compile() { DriverImpl{mIRModule}.Build(mOutPath); }
+void Driver::Compile() {
+  DriverImpl{mIRModule}.Build(mOutPath);
+}
 
 } // namespace weak

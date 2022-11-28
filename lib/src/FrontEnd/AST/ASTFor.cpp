@@ -9,10 +9,18 @@
 
 namespace weak {
 
-ASTFor::ASTFor(ASTNode *Init, ASTNode *Condition, ASTNode *Increment,
-               ASTCompound *Body, unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_FOR_STMT, LineNo, ColumnNo), mInit(Init),
-      mCondition(Condition), mIncrement(Increment), mBody(Body) {}
+ASTFor::ASTFor(
+  ASTNode     *Init,
+  ASTNode     *Condition,
+  ASTNode     *Increment,
+  ASTCompound *Body,
+  unsigned     LineNo,
+  unsigned     ColumnNo
+) : ASTNode(AST_FOR_STMT, LineNo, ColumnNo)
+  , mInit(Init)
+  , mCondition(Condition)
+  , mIncrement(Increment)
+  , mBody(Body) {}
 
 ASTFor::~ASTFor() {
   delete mInit;
@@ -21,14 +29,24 @@ ASTFor::~ASTFor() {
   delete mBody;
 }
 
-void ASTFor::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTFor::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-ASTNode *ASTFor::Init() const { return mInit; }
+ASTNode *ASTFor::Init() const {
+  return mInit;
+}
 
-ASTNode *ASTFor::Condition() const { return mCondition; }
+ASTNode *ASTFor::Condition() const {
+  return mCondition;
+}
 
-ASTNode *ASTFor::Increment() const { return mIncrement; }
+ASTNode *ASTFor::Increment() const {
+  return mIncrement;
+}
 
-ASTCompound *ASTFor::Body() const { return mBody; }
+ASTCompound *ASTFor::Body() const {
+  return mBody;
+}
 
 } // namespace weak

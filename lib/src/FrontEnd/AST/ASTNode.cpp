@@ -9,14 +9,24 @@
 namespace weak {
 
 ASTNode::ASTNode(ASTType Type, unsigned LineNo, unsigned ColumnNo)
-    : mType(Type), mLineNo(LineNo), mColumnNo(ColumnNo) {}
+  : mType(Type)
+  , mLineNo(LineNo)
+  , mColumnNo(ColumnNo) {}
 
-ASTType ASTNode::Type() const { return mType; }
+ASTType ASTNode::Type() const {
+  return mType;
+}
 
-bool ASTNode::Is(ASTType T) const { return mType == T; }
+bool ASTNode::Is(ASTType T) const {
+  return mType == T;
+}
 
-unsigned ASTNode::LineNo() const { return mLineNo; }
+unsigned ASTNode::LineNo() const {
+  return mLineNo;
+}
 
-unsigned ASTNode::ColumnNo() const { return mColumnNo; }
+unsigned ASTNode::ColumnNo() const {
+  return mColumnNo;
+}
 
 } // namespace weak

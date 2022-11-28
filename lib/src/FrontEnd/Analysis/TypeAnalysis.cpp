@@ -29,9 +29,13 @@
 namespace weak {
 
 TypeAnalysis::TypeAnalysis(ASTNode *Root)
-    : mRoot(Root), mLastDataType(DT_UNKNOWN), mLastReturnDataType(DT_UNKNOWN) {}
+  : mRoot(Root)
+  , mLastDataType(DT_UNKNOWN)
+  , mLastReturnDataType(DT_UNKNOWN) {}
 
-void TypeAnalysis::Analyze() { mRoot->Accept(this); }
+void TypeAnalysis::Analyze() {
+  mRoot->Accept(this);
+}
 
 void TypeAnalysis::Visit(ASTCompound *Stmt) {
   mStorage.StartScope();
@@ -40,10 +44,10 @@ void TypeAnalysis::Visit(ASTCompound *Stmt) {
   mStorage.EndScope();
 }
 
-void TypeAnalysis::Visit(ASTBool *) { mLastDataType = DT_BOOL; }
-void TypeAnalysis::Visit(ASTChar *) { mLastDataType = DT_CHAR; }
-void TypeAnalysis::Visit(ASTFloat *) { mLastDataType = DT_FLOAT; }
-void TypeAnalysis::Visit(ASTNumber *) { mLastDataType = DT_INT; }
+void TypeAnalysis::Visit(ASTBool *)   { mLastDataType = DT_BOOL;   }
+void TypeAnalysis::Visit(ASTChar *)   { mLastDataType = DT_CHAR;   }
+void TypeAnalysis::Visit(ASTFloat *)  { mLastDataType = DT_FLOAT;  }
+void TypeAnalysis::Visit(ASTNumber *) { mLastDataType = DT_INT;    }
 void TypeAnalysis::Visit(ASTString *) { mLastDataType = DT_STRING; }
 
 bool TypeAnalysis::CorrectBinaryOpsAnalysis(TokenType Op, DataType T) {
@@ -106,17 +110,17 @@ void TypeAnalysis::Visit(ASTBinary *Stmt) {
   DataType RType = mLastDataType;
 
   bool AreSame = false;
-  AreSame |= LType == DT_BOOL && RType == DT_BOOL;
-  AreSame |= LType == DT_CHAR && RType == DT_CHAR;
+  AreSame |= LType == DT_BOOL  && RType == DT_BOOL;
+  AreSame |= LType == DT_CHAR  && RType == DT_CHAR;
   AreSame |= LType == DT_FLOAT && RType == DT_FLOAT;
-  AreSame |= LType == DT_INT && RType == DT_INT;
+  AreSame |= LType == DT_INT   && RType == DT_INT;
 
   auto Op = Stmt->Operation();
   bool CorrectOps = CorrectBinaryOpsAnalysis(Op, LType);
 
   if (!AreSame || !CorrectOps)
     weak::CompileError(Stmt)
-        << "Cannot apply `" << Op << "` to " << LType << " and " << RType;
+      << "Cannot apply `" << Op << "` to " << LType << " and " << RType;
 }
 
 void TypeAnalysis::Visit(ASTUnary *Stmt) {
@@ -129,7 +133,7 @@ void TypeAnalysis::Visit(ASTUnary *Stmt) {
 
   if (!Allowed)
     weak::CompileError(Stmt)
-        << "Cannot apply `" << Stmt->Operation() << "` to " << T;
+      << "Cannot apply `" << Stmt->Operation() << "` to " << T;
 }
 
 void TypeAnalysis::Visit(ASTArrayDecl *Decl) {
@@ -153,8 +157,9 @@ static void OutOfRangeAnalysis(ASTArrayDecl *Array, ASTNode *Index) {
       weak::CompileError(I) << "Array index less than zero";
 
     if (NumIndex >= ArraySize)
-      weak::CompileError(I) << "Out of range! Index (which is " << NumIndex
-                            << ") >= array size (which is " << ArraySize << ")";
+      weak::CompileError(I)
+        << "Out of range! Index (which is " << NumIndex
+        << ") >= array size (which is " << ArraySize << ")";
   }
 }
 
@@ -172,7 +177,7 @@ void TypeAnalysis::Visit(ASTArrayAccess *Stmt) {
   Stmt->Index()->Accept(this);
   if (mLastDataType != DT_INT)
     weak::CompileError(Stmt->Index())
-        << "Expected integer as array index, got " << mLastDataType;
+      << "Expected integer as array index, got " << mLastDataType;
 
   ASTArrayDecl *Array = static_cast<ASTArrayDecl *>(Record);
   OutOfRangeAnalysis(Array, Stmt->Index());
@@ -204,7 +209,7 @@ void TypeAnalysis::Visit(ASTFunctionDecl *Decl) {
 
   if (auto RT = Decl->ReturnType(); RT != DT_VOID && RT != mLastReturnDataType)
     weak::CompileError(Decl)
-        << "Cannot return " << mLastReturnDataType << " instead of " << RT;
+      << "Cannot return " << mLastReturnDataType << " instead of " << RT;
 
   mStorage.EndScope();
   /// This is to have function outside.
@@ -226,8 +231,7 @@ static const std::string &GetFunArgName(ASTNode *Stmt) {
 }
 
 template <typename ASTFun>
-void TypeAnalysis::CallArgumentsAnalysis(
-    ASTNode *Decl, const std::vector<ASTNode *> &CallArgs) {
+void TypeAnalysis::CallArgumentsAnalysis(ASTNode *Decl, const std::vector<ASTNode *> &CallArgs) {
   auto *Fun = static_cast<ASTFun *>(Decl);
   const auto &DeclArgs = Fun->Args();
   assert(DeclArgs.size() == CallArgs.size());
@@ -244,7 +248,9 @@ void TypeAnalysis::CallArgumentsAnalysis(
 
     if (L != R)
       weak::CompileError(*CallArg)
-          << "For argument `" << GetFunArgName(*DeclArg) << "` got " << L
+          << "For argument `"
+          << GetFunArgName(*DeclArg)
+          << "` got " << L
           << ", but expected " << R;
 
     ++CallArg;

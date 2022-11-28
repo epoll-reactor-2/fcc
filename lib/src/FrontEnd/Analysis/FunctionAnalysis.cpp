@@ -16,9 +16,13 @@
 namespace weak {
 
 FunctionAnalysis::FunctionAnalysis(ASTNode *Root)
-    : mRoot(Root), mWasReturnStmt(false), mLastReturnLoc(0, 0) {}
+  : mRoot(Root)
+  , mWasReturnStmt(false)
+  , mLastReturnLoc(0, 0) {}
 
-void FunctionAnalysis::Analyze() { mRoot->Accept(this); }
+void FunctionAnalysis::Analyze() {
+  mRoot->Accept(this);
+}
 
 void FunctionAnalysis::Visit(ASTReturn *Stmt) {
   if (auto *O = Stmt->Operand()) {
@@ -28,7 +32,7 @@ void FunctionAnalysis::Visit(ASTReturn *Stmt) {
   }
 }
 
-static unsigned FunctionASTArgsCount(ASTNode *Stmt) {
+static size_t FunctionASTArgsCount(ASTNode *Stmt) {
   if (Stmt->Is(AST_FUNCTION_DECL))
     return static_cast<ASTFunctionDecl *>(Stmt)->Args().size();
 
@@ -45,8 +49,12 @@ void FunctionAnalysis::Visit(ASTFunctionCall *Stmt) {
   unsigned DeclArgsSize = FunctionASTArgsCount(Func);
 
   if (DeclArgsSize != CallArgsSize)
-    weak::CompileError(Stmt) << "Arguments size mismatch: " << CallArgsSize
-                             << " got, but " << DeclArgsSize << " expected";
+    weak::CompileError(Stmt)
+      << "Arguments size mismatch: "
+      << CallArgsSize
+      << " got, but "
+      << DeclArgsSize
+      << " expected";
 
   for (ASTNode *A : Stmt->Args())
     A->Accept(this);
@@ -67,7 +75,7 @@ void FunctionAnalysis::Visit(ASTFunctionDecl *Decl) {
     auto [LineNo, ColNo] = mLastReturnLoc;
     Reset();
     weak::CompileError(LineNo, ColNo)
-        << "Cannot return value from void function";
+      << "Cannot return value from void function";
   }
 
   if (!mWasReturnStmt && Decl->ReturnType() != DT_VOID) {

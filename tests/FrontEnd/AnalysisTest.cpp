@@ -113,7 +113,8 @@ void TestAnalysis(std::string_view Path, bool IsWarnTest) {
 template <typename Analysis>
 void RunAnalysisTest(const char *TestsDir, bool IsWarnTest) {
   auto Dir = std::filesystem::directory_iterator(
-    std::filesystem::current_path().concat(TestsDir));
+    std::filesystem::current_path().concat(TestsDir)
+  );
   for (const auto& File: Dir) {
     const auto& Path = File.path();
     if (Path.extension() == ".wl")

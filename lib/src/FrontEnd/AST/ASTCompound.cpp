@@ -9,17 +9,24 @@
 
 namespace weak {
 
-ASTCompound::ASTCompound(std::vector<ASTNode *> Stmts, unsigned LineNo,
-                         unsigned ColumnNo)
-    : ASTNode(AST_COMPOUND_STMT, LineNo, ColumnNo), mStmts(std::move(Stmts)) {}
+ASTCompound::ASTCompound(
+  std::vector<ASTNode *> Stmts,
+  unsigned               LineNo,
+  unsigned               ColumnNo
+) : ASTNode(AST_COMPOUND_STMT, LineNo, ColumnNo)
+  , mStmts(std::move(Stmts)) {}
 
 ASTCompound::~ASTCompound() {
   for (ASTNode *S : mStmts)
     delete S;
 }
 
-void ASTCompound::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTCompound::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-const std::vector<ASTNode *> &ASTCompound::Stmts() const { return mStmts; }
+const std::vector<ASTNode *> &ASTCompound::Stmts() const {
+  return mStmts;
+}
 
 } // namespace weak

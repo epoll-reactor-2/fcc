@@ -11,11 +11,18 @@
 
 namespace weak {
 
-ASTFunctionDecl::ASTFunctionDecl(DataType ReturnType, std::string Name,
-                                 std::vector<ASTNode *> Args, ASTCompound *Body,
-                                 unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_FUNCTION_DECL, LineNo, ColumnNo), mReturnType(ReturnType),
-      mName(std::move(Name)), mArgs(std::move(Args)), mBody(Body) {}
+ASTFunctionDecl::ASTFunctionDecl(
+  DataType                ReturnType,
+  std::string             Name,
+  std::vector<ASTNode *>  Args,
+  ASTCompound            *Body,
+  unsigned                LineNo,
+  unsigned                ColumnNo
+) : ASTNode(AST_FUNCTION_DECL, LineNo, ColumnNo)
+  , mReturnType(ReturnType)
+  , mName(std::move(Name))
+  , mArgs(std::move(Args))
+  , mBody(Body) {}
 
 ASTFunctionDecl::~ASTFunctionDecl() {
   for (ASTNode *Arg : mArgs)
@@ -23,14 +30,24 @@ ASTFunctionDecl::~ASTFunctionDecl() {
   delete mBody;
 }
 
-void ASTFunctionDecl::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTFunctionDecl::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-DataType ASTFunctionDecl::ReturnType() const { return mReturnType; }
+DataType ASTFunctionDecl::ReturnType() const {
+  return mReturnType;
+}
 
-const std::string &ASTFunctionDecl::Name() const { return mName; }
+const std::string &ASTFunctionDecl::Name() const {
+  return mName;
+}
 
-const std::vector<ASTNode *> &ASTFunctionDecl::Args() const { return mArgs; }
+const std::vector<ASTNode *> &ASTFunctionDecl::Args() const {
+  return mArgs;
+}
 
-ASTCompound *ASTFunctionDecl::Body() const { return mBody; }
+ASTCompound *ASTFunctionDecl::Body() const {
+  return mBody;
+}
 
 } // namespace weak

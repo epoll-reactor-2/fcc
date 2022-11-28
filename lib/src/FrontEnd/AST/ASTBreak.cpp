@@ -10,8 +10,10 @@
 namespace weak {
 
 ASTBreak::ASTBreak(unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_BREAK_STMT, LineNo, ColumnNo) {}
+  : ASTNode(AST_BREAK_STMT, LineNo, ColumnNo) {}
 
-void ASTBreak::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTBreak::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
 } // namespace weak

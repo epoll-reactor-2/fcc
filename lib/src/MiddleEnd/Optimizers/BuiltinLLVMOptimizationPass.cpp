@@ -9,8 +9,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 
-void weak::RunBuiltinLLVMOptimizationPass(llvm::Module &IRModule,
-                                          WeakOptimizationLevel OptLvl) {
+void weak::RunBuiltinLLVMOptimizationPass(llvm::Module &IRModule, WeakOptimizationLevel OptLvl) {
   llvm::legacy::FunctionPassManager FPM(&IRModule);
   llvm::PassManagerBuilder PassBuilder;
   PassBuilder.OptLevel = static_cast<unsigned>(OptLvl);

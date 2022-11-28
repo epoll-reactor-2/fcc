@@ -13,9 +13,13 @@
 struct Diagnostic {
   enum DiagLevel { WARN, ERROR } Level;
 
-  static void ClearBuf() { std::ostringstream().swap(ErrorStream); }
+  static void ClearBuf() {
+    std::ostringstream().swap(ErrorStream);
+  }
 
-  void SetLvl(DiagLevel L) { Level = L; }
+  void SetLvl(DiagLevel L) {
+    Level = L;
+  }
 
   void EmitLabel(unsigned LineNo, unsigned ColumnNo) {
     ErrorStream << ((Level == ERROR) ? "Error" : "Warning");
@@ -63,8 +67,11 @@ static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level) {
   return weak::OstreamRAII{&Diag};
 }
 
-static weak::OstreamRAII MakeMessage(Diagnostic::DiagLevel Level,
-                                     unsigned LineNo, unsigned ColumnNo) {
+static weak::OstreamRAII MakeMessage(
+  Diagnostic::DiagLevel Level,
+  unsigned              LineNo,
+  unsigned              ColumnNo
+) {
   Diagnostic::ClearBuf();
   static Diagnostic Diag;
   Diag.SetLvl(Level);

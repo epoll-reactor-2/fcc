@@ -9,21 +9,36 @@
 
 namespace weak {
 
-ASTBinary::ASTBinary(TokenType Operation, ASTNode *LHS, ASTNode *RHS,
-                     unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_BINARY, LineNo, ColumnNo), mOperation(Operation), mLHS(LHS),
-      mRHS(RHS) {}
+ASTBinary::ASTBinary(
+  TokenType  Operation,
+  ASTNode   *LHS,
+  ASTNode   *RHS,
+  unsigned   LineNo,
+  unsigned   ColumnNo
+) : ASTNode(AST_BINARY, LineNo, ColumnNo)
+  , mOperation(Operation)
+  , mLHS(LHS)
+  , mRHS(RHS) {}
 
 ASTBinary::~ASTBinary() {
   delete mLHS;
   delete mRHS;
 }
 
-void ASTBinary::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTBinary::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-TokenType ASTBinary::Operation() const { return mOperation; }
+TokenType ASTBinary::Operation() const {
+  return mOperation;
+}
 
-ASTNode *ASTBinary::LHS() const { return mLHS; }
-ASTNode *ASTBinary::RHS() const { return mRHS; }
+ASTNode *ASTBinary::LHS() const {
+  return mLHS;
+}
+
+ASTNode *ASTBinary::RHS() const {
+  return mRHS;
+}
 
 } // namespace weak

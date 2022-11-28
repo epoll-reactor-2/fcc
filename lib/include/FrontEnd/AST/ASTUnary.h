@@ -16,8 +16,13 @@ class ASTUnary : public ASTNode {
 public:
   enum UnaryType { PREFIX, POSTFIX } const PrefixOrPostfix;
 
-  ASTUnary(UnaryType PrefixOrPostfix, TokenType Operation, ASTNode *Operand,
-           unsigned LineNo, unsigned ColumnNo);
+  ASTUnary(
+    UnaryType  PrefixOrPostfix,
+    TokenType  Operation,
+    ASTNode   *Operand,
+    unsigned   LineNo,
+    unsigned   ColumnNo
+  );
 
   ~ASTUnary();
 

@@ -15,8 +15,12 @@ class ASTCompound;
 
 class ASTWhile : public ASTNode {
 public:
-  ASTWhile(ASTNode *Condition, ASTCompound *Body, unsigned LineNo,
-           unsigned ColumnNo);
+  ASTWhile(
+    ASTNode     *Condition,
+    ASTCompound *Body,
+    unsigned     LineNo,
+    unsigned     ColumnNo
+  );
 
   ~ASTWhile();
 

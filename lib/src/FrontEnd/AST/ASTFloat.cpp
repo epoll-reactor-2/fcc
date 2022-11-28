@@ -10,10 +10,15 @@
 namespace weak {
 
 ASTFloat::ASTFloat(float Value, unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_FLOATING_POINT_LITERAL, LineNo, ColumnNo), mValue(Value) {}
+  : ASTNode(AST_FLOATING_POINT_LITERAL, LineNo, ColumnNo)
+  , mValue(Value) {}
 
-void ASTFloat::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTFloat::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-float ASTFloat::Value() const { return mValue; }
+float ASTFloat::Value() const {
+  return mValue;
+}
 
 } // namespace weak

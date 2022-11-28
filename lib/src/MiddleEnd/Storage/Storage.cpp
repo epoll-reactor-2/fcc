@@ -7,7 +7,7 @@
 #include "MiddleEnd/Storage/Storage.h"
 
 namespace std {
-hash()->hash<std::string_view>;
+hash() -> hash<std::string_view>;
 } // namespace std
 
 namespace weak {
@@ -29,7 +29,9 @@ llvm::AllocaInst *Storage::Lookup(std::string_view Name) const {
   return Decl.Value;
 }
 
-void Storage::StartScope() { ++mDepth; }
+void Storage::StartScope() {
+  ++mDepth;
+}
 
 void Storage::EndScope() {
   for (auto It = mScopes.begin(); It != mScopes.end();)

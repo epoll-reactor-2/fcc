@@ -24,16 +24,24 @@ namespace {
 /// Create function header (without body) from AST.
 template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
 public:
-  FunctionBuilder(llvm::IRBuilder<> &I, llvm::Module &M,
-                  ASTFunctionDeclOrPrototype *Decl)
-      : mIRBuilder(I), mIRModule(M), mDecl(Decl), mResolver(mIRBuilder) {}
+  FunctionBuilder(
+    llvm::IRBuilder<>          &I,
+    llvm::Module               &M,
+    ASTFunctionDeclOrPrototype *Decl
+  ) : mIRBuilder(I)
+    , mIRModule(M)
+    , mDecl(Decl)
+    , mResolver(mIRBuilder) {}
 
   llvm::Function *BuildSignature() {
     /// \todo: Always external linkage? Come here after making multiple files
     ///        compilation.
-    return llvm::Function::Create(CreateSignature(),
-                                  llvm::Function::ExternalLinkage,
-                                  mDecl->Name(), &mIRModule);
+    return llvm::Function::Create(
+      CreateSignature(),
+      llvm::Function::ExternalLinkage,
+      mDecl->Name(),
+      &mIRModule
+    );
   }
 
 private:
@@ -44,19 +52,26 @@ private:
       ArgTypes.push_back(ResolveParamType(ArgAST));
 
     return llvm::FunctionType::get(
-        /// Return type.
-        mResolver.Resolve(mDecl->ReturnType()),
-        /// Arguments.
-        std::move(ArgTypes),
-        /// Variadic parameters?
-        false);
+      /* Return type.         */mResolver.Resolve(mDecl->ReturnType()),
+      /* Arguments.           */std::move(ArgTypes),
+      /* Variadic parameters? */false
+    );
   }
 
   llvm::Type *ResolveParamType(ASTNode *AST) {
-    auto *T = mResolver.ResolveExceptVoid(AST);
-    return AST->Is(AST_VAR_DECL)
-               ? T
-               : llvm::PointerType::get(T, /*AddressSpace=*/0);
+    if (AST->Is(AST_VAR_DECL))
+      return mResolver.ResolveExceptVoid(
+        static_cast<ASTVarDecl *>(AST)->DataType()
+      );
+
+    return llvm::PointerType::get(
+      mResolver.ResolveExceptVoid(
+        static_cast<ASTArrayDecl *>(AST)->DataType()
+      ),
+      /*AddressSpace=*/0
+    );
+
+    Unreachable();
   }
 
   llvm::IRBuilder<> &mIRBuilder;
@@ -75,17 +90,23 @@ namespace {
 class StringBuilder {
 public:
   StringBuilder(llvm::Module &M, llvm::IRBuilder<> &I)
-      : mIRModule(M), mIRBuilder(I) {}
+    : mIRModule(M)
+    , mIRBuilder(I) {}
 
   llvm::Value *BuildLiteral(std::string_view Data) {
     llvm::Constant *DataArray = CreateDataArray(Data);
 
     llvm::GlobalVariable *GlobalVar = new llvm::GlobalVariable(
-        mIRModule, DataArray->getType(), true,
-        llvm::GlobalVariable::ExternalLinkage, DataArray);
+      mIRModule, DataArray->getType(),
+      true,
+      llvm::GlobalVariable::ExternalLinkage,
+      DataArray
+    );
 
     return llvm::ConstantExpr::getBitCast(
-        GlobalVar, mIRBuilder.getInt8Ty()->getPointerTo());
+      GlobalVar,
+      mIRBuilder.getInt8Ty()->getPointerTo()
+    );
   }
 
 private:
@@ -101,8 +122,12 @@ private:
     Chars.push_back(mIRBuilder.getInt8('\0'));
 
     return llvm::ConstantArray::get(
-        llvm::ArrayType::get(mIRBuilder.getInt8Ty(), Chars.size()),
-        std::move(Chars));
+      llvm::ArrayType::get(
+        mIRBuilder.getInt8Ty(),
+        Chars.size()
+      ),
+      std::move(Chars)
+    );
   }
 
   llvm::Module &mIRModule;
@@ -112,10 +137,14 @@ private:
 } // namespace
 
 CodeGen::CodeGen(ASTNode *Root)
-    : mRoot(Root), mStorage(), mLastInstr(nullptr), mIRCtx(),
-      mIRModule("LLVM Module", mIRCtx), mIRBuilder(mIRCtx) {}
+  : mRoot(Root)
+  , mLastInstr(nullptr)
+  , mIRModule("LLVM Module", mIRCtx)
+  , mIRBuilder(mIRCtx) {}
 
-void CodeGen::CreateCode() { mRoot->Accept(this); }
+void CodeGen::CreateCode() {
+  mRoot->Accept(this);
+}
 
 void CodeGen::Visit(ASTBool *Stmt) {
   mLastInstr = mIRBuilder.getInt1(Stmt->Value());
@@ -141,46 +170,38 @@ void CodeGen::Visit(ASTString *Stmt) {
 
 static TokenType ResolveAssignmentOp(TokenType T) {
   switch (T) {
-  case TOK_MUL_ASSIGN:
-    return TOK_STAR;
-  case TOK_DIV_ASSIGN:
-    return TOK_SLASH;
-  case TOK_MOD_ASSIGN:
-    return TOK_MOD;
-  case TOK_PLUS_ASSIGN:
-    return TOK_PLUS;
-  case TOK_MINUS_ASSIGN:
-    return TOK_MINUS;
-  case TOK_SHL_ASSIGN:
-    return TOK_SHL;
-  case TOK_SHR_ASSIGN:
-    return TOK_SHR;
-  case TOK_BIT_AND_ASSIGN:
-    return TOK_BIT_AND;
-  case TOK_BIT_OR_ASSIGN:
-    return TOK_BIT_OR;
-  case TOK_XOR_ASSIGN:
-    return TOK_XOR;
-  default:
-    Unreachable();
+  case TOK_MUL_ASSIGN:     return TOK_STAR;
+  case TOK_DIV_ASSIGN:     return TOK_SLASH;
+  case TOK_MOD_ASSIGN:     return TOK_MOD;
+  case TOK_PLUS_ASSIGN:    return TOK_PLUS;
+  case TOK_MINUS_ASSIGN:   return TOK_MINUS;
+  case TOK_SHL_ASSIGN:     return TOK_SHL;
+  case TOK_SHR_ASSIGN:     return TOK_SHR;
+  case TOK_BIT_AND_ASSIGN: return TOK_BIT_AND;
+  case TOK_BIT_OR_ASSIGN:  return TOK_BIT_OR;
+  case TOK_XOR_ASSIGN:     return TOK_XOR;
+  default:                 Unreachable();
   }
 }
 
 void CodeGen::Visit(ASTBinary *Stmt) {
-  Stmt->LHS()->Accept(this);
+  auto *LHS = Stmt->LHS();
+  auto *RHS = Stmt->RHS();
+
+  LHS->Accept(this);
   llvm::Value *L = mLastInstr;
-  Stmt->RHS()->Accept(this);
+  RHS->Accept(this);
   llvm::Value *R = mLastInstr;
 
   /// Load value and save pointer to it.
   llvm::Value *ArrayPtr{nullptr};
-  if (Stmt->LHS()->Is(AST_ARRAY_ACCESS)) {
+  if (LHS->Is(AST_ARRAY_ACCESS)) {
     ArrayPtr = L;
     L = mIRBuilder.CreateLoad(L->getType()->getPointerElementType(), L);
   }
 
   /// Load only value, since right hand side is never writeable.
-  if (Stmt->RHS()->Is(AST_ARRAY_ACCESS))
+  if (RHS->Is(AST_ARRAY_ACCESS))
     R = mIRBuilder.CreateLoad(R->getType()->getPointerElementType(), R);
 
   if (!L || !R)
@@ -190,20 +211,19 @@ void CodeGen::Visit(ASTBinary *Stmt) {
 
   switch (auto T = Stmt->Operation()) {
   case TOK_ASSIGN: {
-    if (Stmt->LHS()->Is(AST_ARRAY_ACCESS))
+    if (LHS->Is(AST_ARRAY_ACCESS))
       mIRBuilder.CreateStore(R, ArrayPtr);
-    else if (Stmt->LHS()->Is(AST_MEMBER_ACCESS)) {
-      const auto &Name =
-          static_cast<ASTMemberAccess *>(Stmt->LHS())->Name()->Name();
-      auto *Type =
-          llvm::StructType::getTypeByName(mIRCtx, mStructVarsStorage[Name]);
+    else if (LHS->Is(AST_MEMBER_ACCESS)) {
+      auto *MA = static_cast<ASTMemberAccess *>(LHS);
+      const auto &Name = MA->Name()->Name();
+      auto *Type = llvm::StructType::getTypeByName(mIRCtx, mStructVarsStorage[Name]);
 
       llvm::AllocaInst *Struct = mStorage.Lookup(Name);
       /// \todo: Get AST for declaration and convert `.field` to index
       mLastInstr = mIRBuilder.CreateStructGEP(Type, Struct, 1);
       mIRBuilder.CreateStore(R, mLastInstr);
     } else {
-      auto *Symbol = static_cast<ASTSymbol *>(Stmt->LHS());
+      auto *Symbol = static_cast<ASTSymbol *>(LHS);
       llvm::AllocaInst *Variable = mStorage.Lookup(Symbol->Name());
       mIRBuilder.CreateStore(R, Variable);
     }
@@ -219,8 +239,8 @@ void CodeGen::Visit(ASTBinary *Stmt) {
   case TOK_BIT_AND_ASSIGN:
   case TOK_BIT_OR_ASSIGN:
   case TOK_XOR_ASSIGN: {
-    auto *Assignment = static_cast<ASTSymbol *>(Stmt->LHS());
-    llvm::AllocaInst *Variable = mStorage.Lookup(Assignment->Name());
+    auto *Symbol = static_cast<ASTSymbol *>(LHS);
+    llvm::AllocaInst *Variable = mStorage.Lookup(Symbol->Name());
     TokenType Op = ResolveAssignmentOp(T);
     mLastInstr = ScalarEmitter.EmitBinOp(Op, L, R);
     mIRBuilder.CreateStore(mLastInstr, Variable);
@@ -247,18 +267,14 @@ void CodeGen::Visit(ASTBinary *Stmt) {
     break;
   default:
     Unreachable();
-    break;
-  } // switch
+  }
 }
 
 static TokenType ResolveUnaryOp(TokenType T) {
   switch (T) {
-  case TOK_INC:
-    return TOK_PLUS;
-  case TOK_DEC:
-    return TOK_MINUS;
-  default:
-    Unreachable();
+  case TOK_INC: return TOK_PLUS;
+  case TOK_DEC: return TOK_MINUS;
+  default:      Unreachable();
   }
 }
 
@@ -277,8 +293,7 @@ void CodeGen::Visit(ASTUnary *Stmt) {
   switch (auto T = Stmt->Operation()) {
   case TOK_INC:
   case TOK_DEC:
-    mLastInstr =
-        ScalarEmitter.EmitBinOp(ResolveUnaryOp(T), Op, mIRBuilder.getInt32(1));
+    mLastInstr = ScalarEmitter.EmitBinOp(ResolveUnaryOp(T), Op, mIRBuilder.getInt32(1));
     break;
   default:
     Unreachable();
@@ -286,8 +301,10 @@ void CodeGen::Visit(ASTUnary *Stmt) {
 
   auto *Symbol = static_cast<ASTSymbol *>(Stmt->Operand());
 
-  mIRBuilder.CreateStore(mLastInstr,
-                         ArrayPtr ? ArrayPtr : mStorage.Lookup(Symbol->Name()));
+  mIRBuilder.CreateStore(
+    mLastInstr,
+    ArrayPtr ? ArrayPtr : mStorage.Lookup(Symbol->Name())
+  );
 }
 
 void CodeGen::Visit(ASTFor *Stmt) {
@@ -301,7 +318,7 @@ void CodeGen::Visit(ASTFor *Stmt) {
   llvm::BasicBlock *CondBB{nullptr};
 
   auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "for.body", Func);
-  auto *EndBB = llvm::BasicBlock::Create(mIRCtx, "for.end", Func);
+  auto *EndBB  = llvm::BasicBlock::Create(mIRCtx, "for.end", Func);
 
   if (auto *C = Stmt->Condition()) {
     CondBB = llvm::BasicBlock::Create(mIRCtx, "for.cond", Func);
@@ -329,7 +346,7 @@ void CodeGen::Visit(ASTWhile *Stmt) {
 
   auto *CondBB = llvm::BasicBlock::Create(mIRCtx, "while.cond", Func);
   auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "while.body", Func);
-  auto *EndBB = llvm::BasicBlock::Create(mIRCtx, "while.end", Func);
+  auto *EndBB  = llvm::BasicBlock::Create(mIRCtx, "while.end", Func);
 
   mIRBuilder.CreateBr(CondBB);
   mIRBuilder.SetInsertPoint(CondBB);
@@ -346,7 +363,7 @@ void CodeGen::Visit(ASTDoWhile *Stmt) {
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
   auto *BodyBB = llvm::BasicBlock::Create(mIRCtx, "do.while.body", Func);
-  auto *EndBB = llvm::BasicBlock::Create(mIRCtx, "do.while.end", Func);
+  auto *EndBB  = llvm::BasicBlock::Create(mIRCtx, "do.while.end", Func);
 
   mIRBuilder.CreateBr(BodyBB);
   mIRBuilder.SetInsertPoint(BodyBB);
@@ -359,20 +376,18 @@ void CodeGen::Visit(ASTDoWhile *Stmt) {
 
 void CodeGen::Visit(ASTIf *Stmt) {
   Stmt->Condition()->Accept(this);
-  llvm::Value *Condition = mLastInstr;
+  llvm::Value *Cond = mLastInstr;
 
-  unsigned NumBits = Condition->getType()->getPrimitiveSizeInBits();
-  Condition =
-      mIRBuilder.CreateICmpNE(Condition, mIRBuilder.getIntN(NumBits, 0));
+  unsigned NumBits = Cond->getType()->getPrimitiveSizeInBits();
+  Cond = mIRBuilder.CreateICmpNE(Cond, mIRBuilder.getIntN(NumBits, 0));
 
   llvm::Function *Func = mIRBuilder.GetInsertBlock()->getParent();
 
-  auto *ThenBB = llvm::BasicBlock::Create(mIRCtx, "if.then", Func);
-  auto *ElseBB = llvm::BasicBlock::Create(mIRCtx, "if.else");
+  auto *ThenBB  = llvm::BasicBlock::Create(mIRCtx, "if.then", Func);
+  auto *ElseBB  = llvm::BasicBlock::Create(mIRCtx, "if.else");
   auto *MergeBB = llvm::BasicBlock::Create(mIRCtx, "if.end");
 
-  mIRBuilder.CreateCondBr(Condition, ThenBB,
-                          Stmt->ElseBody() ? ElseBB : MergeBB);
+  mIRBuilder.CreateCondBr(Cond, ThenBB, Stmt->ElseBody() ? ElseBB : MergeBB);
   mIRBuilder.SetInsertPoint(ThenBB);
 
   Stmt->ThenBody()->Accept(this);
@@ -405,8 +420,8 @@ const std::string &ASTDeclName(ASTNode *AST) {
 }
 
 void CodeGen::Visit(ASTFunctionDecl *Decl) {
-  FunctionBuilder FB(mIRBuilder, mIRModule, Decl);
-  llvm::Function *Func = FB.BuildSignature();
+  FunctionBuilder B(mIRBuilder, mIRModule, Decl);
+  llvm::Function *Func = B.BuildSignature();
 
   auto *EntryBB = llvm::BasicBlock::Create(mIRCtx, "entry", Func);
   mIRBuilder.SetInsertPoint(EntryBB);
@@ -449,8 +464,7 @@ void CodeGen::Visit(ASTFunctionPrototype *Stmt) {
 
 void CodeGen::Visit(ASTArrayAccess *Stmt) {
   llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
-  llvm::Value *Array =
-      mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
+  llvm::Value *Array = mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
   Stmt->Index()->Accept(this);
   llvm::Value *Index = mLastInstr;
 
@@ -461,11 +475,17 @@ void CodeGen::Visit(ASTArrayAccess *Stmt) {
   if (Array->getType()->isPointerTy())
     /// Pointer.
     mLastInstr = mIRBuilder.CreateInBoundsGEP(
-        Array->getType()->getPointerElementType(), Array, Index);
+      Array->getType()->getPointerElementType(),
+      Array,
+      Index
+    );
   else
     /// Array.
     mLastInstr = mIRBuilder.CreateInBoundsGEP(
-        Array->getType(), llvm::getPointerOperand(Array), {Zero, Index});
+      Array->getType(),
+      llvm::getPointerOperand(Array),
+      { Zero, Index }
+    );
 }
 
 void CodeGen::Visit(ASTSymbol *Stmt) {
@@ -492,8 +512,7 @@ void CodeGen::Visit(ASTReturn *Stmt) {
 
 void CodeGen::Visit(ASTMemberAccess *Stmt) {
   const auto &Name = Stmt->Name()->Name();
-  auto *Type =
-      llvm::StructType::getTypeByName(mIRCtx, mStructVarsStorage[Name]);
+  auto *Type = llvm::StructType::getTypeByName(mIRCtx, mStructVarsStorage[Name]);
 
   llvm::AllocaInst *Struct = mStorage.Lookup(Name);
   assert(Struct);
@@ -504,23 +523,26 @@ void CodeGen::Visit(ASTMemberAccess *Stmt) {
 }
 
 void CodeGen::Visit(ASTArrayDecl *Stmt) {
-  TypeResolver TypeResolver(mIRBuilder);
+  TypeResolver TR(mIRBuilder);
 
-  llvm::Type *Type = TypeResolver.Resolve(Stmt->DataType());
   /// \todo: Temporarily we get only first dimension as parameter and don't
   ///        do something else.
-  llvm::AllocaInst *ArrayDecl =
-      mIRBuilder.CreateAlloca(llvm::ArrayType::get(Type, Stmt->ArityList()[0]));
-
+  llvm::Type *ArrayTy = TR.Resolve(Stmt);
+  llvm::AllocaInst *ArrayDecl = mIRBuilder.CreateAlloca(ArrayTy);
   mStorage.Push(Stmt->Name(), ArrayDecl);
 }
 
 void CodeGen::Visit(ASTVarDecl *Decl) {
   auto *Body = Decl->Body();
+
   if (!Body && Decl->DataType() == DT_STRUCT) {
     mStructVarsStorage.emplace(Decl->Name(), Decl->TypeName());
     auto *VarDecl = mIRBuilder.CreateAlloca(
-        llvm::StructType::getTypeByName(mIRCtx, Decl->TypeName()));
+        llvm::StructType::getTypeByName(
+          mIRCtx,
+          Decl->TypeName()
+        )
+      );
     mStorage.Push(Decl->Name(), VarDecl);
     return;
   }
@@ -534,24 +556,25 @@ void CodeGen::Visit(ASTVarDecl *Decl) {
     auto *Literal = static_cast<ASTString *>(Body);
     unsigned NullTerminator = 1;
     llvm::ArrayType *ArrayType = llvm::ArrayType::get(
-        mIRBuilder.getInt8Ty(), Literal->Value().size() + NullTerminator);
+      mIRBuilder.getInt8Ty(),
+      Literal->Value().size() + NullTerminator
+    );
     llvm::AllocaInst *Mem = mIRBuilder.CreateAlloca(ArrayType);
-    llvm::Value *CastedPtr =
-        mIRBuilder.CreateBitCast(Mem, mIRBuilder.getInt8PtrTy());
+    llvm::Value *CastedPtr = mIRBuilder.CreateBitCast(Mem, mIRBuilder.getInt8PtrTy());
     mIRBuilder.CreateMemCpy(
-        /*Dst=*/CastedPtr,
-        /*DstAlign=*/llvm::MaybeAlign(1),
-        /*Src=*/LiteralValue,
-        /*SrcAlign=*/llvm::MaybeAlign(1),
-        /*Size=*/ArrayType->getNumElements(),
-        /*isVolatile=*/false);
+      /*Dst=*/CastedPtr,
+      /*DstAlign=*/llvm::MaybeAlign(1),
+      /*Src=*/LiteralValue,
+      /*SrcAlign=*/llvm::MaybeAlign(1),
+      /*Size=*/ArrayType->getNumElements(),
+      /*isVolatile=*/false
+    );
     mStorage.Push(Decl->Name(), Mem);
     return;
   }
 
   TypeResolver TR(mIRBuilder);
-  auto *VarDecl =
-      mIRBuilder.CreateAlloca(TR.ResolveExceptVoid(Decl->DataType()));
+  auto *VarDecl = mIRBuilder.CreateAlloca(TR.ResolveExceptVoid(Decl->DataType()));
 
   mIRBuilder.CreateStore(mLastInstr, VarDecl);
   mStorage.Push(Decl->Name(), VarDecl);
@@ -565,22 +588,18 @@ void CodeGen::Visit(ASTStructDecl *Decl) {
   TypeResolver TR(mIRBuilder);
 
   for (auto *D : Decl->Decls())
-    if (D->Is(AST_ARRAY_DECL)) {
-      auto *Array = static_cast<ASTArrayDecl *>(D);
-      Members.push_back(
-          llvm::ArrayType::get(TR.Resolve(D), Array->ArityList()[0]));
-    } else
-      Members.push_back(TR.Resolve(D));
+    Members.push_back(TR.Resolve(D));
 
   Struct->setBody(std::move(Members));
 
   mLastInstr = nullptr;
 }
 
-llvm::Module &CodeGen::Module() { return mIRModule; }
+llvm::Module &CodeGen::Module() {
+  return mIRModule;
+}
 
-const llvm::SymbolTableList<llvm::GlobalVariable> &
-CodeGen::GlobalVariables() const {
+const llvm::SymbolTableList<llvm::GlobalVariable> &CodeGen::GlobalVariables() const {
   return mIRModule.getGlobalList();
 }
 

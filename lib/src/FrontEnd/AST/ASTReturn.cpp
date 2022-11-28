@@ -10,12 +10,19 @@
 namespace weak {
 
 ASTReturn::ASTReturn(ASTNode *Operand, unsigned LineNo, unsigned ColumnNo)
-    : ASTNode(AST_RETURN_STMT, LineNo, ColumnNo), mOperand(Operand) {}
+  : ASTNode(AST_RETURN_STMT, LineNo, ColumnNo)
+  , mOperand(Operand) {}
 
-ASTReturn::~ASTReturn() { delete mOperand; }
+ASTReturn::~ASTReturn() {
+  delete mOperand;
+}
 
-void ASTReturn::Accept(ASTVisitor *Visitor) { Visitor->Visit(this); }
+void ASTReturn::Accept(ASTVisitor *Visitor) {
+  Visitor->Visit(this);
+}
 
-ASTNode *ASTReturn::Operand() const { return mOperand; }
+ASTNode *ASTReturn::Operand() const {
+  return mOperand;
+}
 
 } // namespace weak

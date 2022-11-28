@@ -24,7 +24,9 @@
 
 namespace weak {
 
-void ASTVisitor::Visit(ASTArrayAccess *Stmt) { Stmt->Index()->Accept(this); }
+void ASTVisitor::Visit(ASTArrayAccess *Stmt) {
+  Stmt->Index()->Accept(this);
+}
 
 void ASTVisitor::Visit(ASTBinary *Stmt) {
   Stmt->LHS()->Accept(this);
@@ -93,7 +95,9 @@ void ASTVisitor::Visit(ASTMemberAccess *Stmt) {
   Stmt->MemberDecl()->Accept(this);
 }
 
-void ASTVisitor::Visit(ASTUnary *Stmt) { Stmt->Operand()->Accept(this); }
+void ASTVisitor::Visit(ASTUnary *Stmt) {
+  Stmt->Operand()->Accept(this);
+}
 
 void ASTVisitor::Visit(ASTVarDecl *Decl) {
   if (auto *B = Decl->Body())

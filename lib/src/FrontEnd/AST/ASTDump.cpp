@@ -37,7 +37,9 @@ public:
   ASTDumpVisitor(ASTNode *RootNode, std::ostream &Stream)
       : mRootNode(RootNode), mIndent(0U), mStream(Stream) {}
 
-  void Dump() { mRootNode->Accept(this); }
+  void Dump() {
+    mRootNode->Accept(this);
+  }
 
 private:
   void Visit(ASTArrayAccess *Stmt) override {
@@ -210,8 +212,11 @@ private:
   }
 
   void Visit(ASTUnary *Stmt) override {
-    mStream << (Stmt->PrefixOrPostfix == ASTUnary::PREFIX ? "Prefix "
-                                                          : "Postfix ");
+    mStream << (
+      (Stmt->PrefixOrPostfix == ASTUnary::PREFIX)
+        ? "Prefix "
+        : "Postfix "
+    );
     ASTTypePrint("UnaryOperator", Stmt);
     mStream << Stmt->Operation() << '\n';
     mIndent += 2;
@@ -376,8 +381,7 @@ private:
     mIndent -= 2;
   }
 
-  void PrintWithTextPos(std::string_view Label, ASTNode *Node,
-                        bool NewLineNeeded) const {
+  void PrintWithTextPos(std::string_view Label, ASTNode *Node, bool NewLineNeeded) const {
     mStream << Label << " <line:" << Node->LineNo();
     mStream << ", col:" << Node->ColumnNo() << ">";
     mStream << (NewLineNeeded ? '\n' : ' ');

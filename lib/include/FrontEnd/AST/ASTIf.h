@@ -15,8 +15,13 @@ class ASTCompound;
 
 class ASTIf : public ASTNode {
 public:
-  ASTIf(ASTNode *Condition, ASTCompound *ThenBody, ASTCompound *ElseBody,
-        unsigned LineNo, unsigned ColumnNo);
+  ASTIf(
+    ASTNode     *Condition,
+    ASTCompound *ThenBody,
+    ASTCompound *ElseBody,
+    unsigned     LineNo,
+    unsigned     ColumnNo
+  );
 
   ~ASTIf();
 

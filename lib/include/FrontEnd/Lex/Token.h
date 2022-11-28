@@ -16,8 +16,12 @@ const char *TokenToString(TokenType Type);
 TokenType CharToToken(char T);
 
 struct Token {
-  Token(std::string TheData, TokenType TheType, unsigned TheLineNo,
-        unsigned TheColumnNo);
+  Token(
+    std::string TheData,
+    TokenType   TheType,
+    unsigned    TheLineNo,
+    unsigned    TheColumnNo
+  );
 
   /// Judge if token has type denoted by char.
   bool Is(char Token) const;
