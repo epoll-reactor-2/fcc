@@ -9,10 +9,4 @@ check_license_notes() {
     done
 }
 
-format() {
-    find lib -regextype posix-extended -regex ".*\.[hc]pp" | xargs clang-format -i
-    git add --update
-}
-
 check_license_notes
-format
