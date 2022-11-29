@@ -7,9 +7,8 @@
 #include "MiddleEnd/CodeGen/TypeResolver.h"
 #include "FrontEnd/AST/ASTArrayDecl.h"
 #include "FrontEnd/AST/ASTVarDecl.h"
-#include "FrontEnd/Lex/Token.h"
-#include "Utility/Diagnostic.h"
 #include "Utility/EnumOstreamOperators.h"
+#include "Utility/Unreachable.h"
 #include "llvm/IR/Type.h"
 
 namespace weak {

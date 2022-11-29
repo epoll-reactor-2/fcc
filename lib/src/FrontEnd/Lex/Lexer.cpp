@@ -6,6 +6,7 @@
 
 #include "FrontEnd/Lex/Lexer.h"
 #include "Utility/Diagnostic.h"
+#include "Utility/Unreachable.h"
 #include <cassert>
 #include <unordered_map>
 

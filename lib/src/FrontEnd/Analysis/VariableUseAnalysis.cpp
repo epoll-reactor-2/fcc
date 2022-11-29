@@ -7,6 +7,7 @@
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "FrontEnd/AST/AST.h"
 #include "Utility/Diagnostic.h"
+#include "Utility/Unreachable.h"
 
 namespace weak {
 

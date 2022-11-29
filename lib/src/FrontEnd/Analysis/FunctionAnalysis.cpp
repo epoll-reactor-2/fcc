@@ -12,6 +12,7 @@
 #include "FrontEnd/AST/ASTNode.h"
 #include "FrontEnd/AST/ASTReturn.h"
 #include "Utility/Diagnostic.h"
+#include "Utility/Unreachable.h"
 
 namespace weak {
 

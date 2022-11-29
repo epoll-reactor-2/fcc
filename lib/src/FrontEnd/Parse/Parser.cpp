@@ -8,6 +8,7 @@
 #include "FrontEnd/AST/AST.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/EnumOstreamOperators.h"
+#include "Utility/Unreachable.h"
 #include <cassert>
 
 namespace weak {

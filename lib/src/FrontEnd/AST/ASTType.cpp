@@ -5,7 +5,7 @@
  */
 
 #include "FrontEnd/AST/ASTType.h"
-#include "Utility/Diagnostic.h"
+#include "Utility/Unreachable.h"
 
 const char *weak::ASTTypeToString(ASTType T) {
   switch (T) {

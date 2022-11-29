@@ -9,7 +9,7 @@
 #include "FrontEnd/AST/AST.h"
 #include "MiddleEnd/CodeGen/ScalarExprEmitter.h"
 #include "MiddleEnd/CodeGen/TypeResolver.h"
-#include "Utility/Diagnostic.h"
+#include "Utility/Unreachable.h"
 #include "llvm/ADT/APFloat.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Constants.h"

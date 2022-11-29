@@ -24,6 +24,7 @@
 #include "FrontEnd/Lex/Token.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/EnumOstreamOperators.h"
+#include "Utility/Unreachable.h"
 #include <cassert>
 
 namespace weak {

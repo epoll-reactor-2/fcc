@@ -5,7 +5,7 @@
  */
 
 #include "FrontEnd/Lex/DataType.h"
-#include "Utility/Diagnostic.h"
+#include "Utility/Unreachable.h"
 
 const char *weak::DataTypeToString(DataType T) {
   switch (T) {

@@ -5,7 +5,7 @@
  */
 
 #include "FrontEnd/Lex/Token.h"
-#include "Utility/Diagnostic.h"
+#include "Utility/Unreachable.h"
 
 const char *weak::TokenToString(TokenType Type) {
   switch (Type) {
@@ -98,8 +98,7 @@ weak::TokenType weak::CharToToken(char T) {
   case '}': return TOK_CLOSE_CURLY_BRACKET;
   case '(': return TOK_OPEN_PAREN;
   case ')': return TOK_CLOSE_PAREN;
-  default:
-    Unreachable();
+  default:  Unreachable();
   }
 }
 

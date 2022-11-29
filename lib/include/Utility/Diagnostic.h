@@ -9,12 +9,6 @@
 
 #include <ostream>
 
-#define Unreachable()                                                          \
-  {                                                                            \
-    printf("Unreachable point reached at %s:L%d", __FILE__, __LINE__);         \
-    exit(-1);                                                                  \
-  }
-
 struct Diagnostic;
 
 namespace weak {
