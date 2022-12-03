@@ -524,9 +524,6 @@ void CodeGen::Visit(ASTMemberAccess *Stmt) {
 
 void CodeGen::Visit(ASTArrayDecl *Stmt) {
   TypeResolver TR(mIRBuilder);
-
-  /// \todo: Temporarily we get only first dimension as parameter and don't
-  ///        do something else.
   llvm::Type *ArrayTy = TR.Resolve(Stmt);
   llvm::AllocaInst *ArrayDecl = mIRBuilder.CreateAlloca(ArrayTy);
   mStorage.Push(Stmt->Name(), ArrayDecl);

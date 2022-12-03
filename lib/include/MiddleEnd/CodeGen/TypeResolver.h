@@ -34,6 +34,8 @@ public:
   llvm::Type *ResolveExceptVoid(DataType);
 
 private:
+  llvm::Type *ResolveArray(ASTNode *);
+
   /// Reference to global LLVM stuff.
   llvm::IRBuilder<> &mIRBuilder;
 };

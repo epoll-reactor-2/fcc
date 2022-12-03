@@ -42,8 +42,7 @@ llvm::Type *TypeResolver::Resolve(ASTNode *AST) {
   if (!AST->Is(AST_ARRAY_DECL))
     return Resolve(DeclType(AST));
 
-  auto *AD = static_cast<ASTArrayDecl *>(AST);
-  return llvm::ArrayType::get(ResolveExceptVoid(AD->DataType()), AD->ArityList()[0]);
+  return ResolveArray(AST);
 }
 
 llvm::Type *TypeResolver::ResolveExceptVoid(DataType T) {
@@ -61,8 +60,28 @@ llvm::Type *TypeResolver::ResolveExceptVoid(ASTNode *AST) {
   if (!AST->Is(AST_ARRAY_DECL))
     return ResolveExceptVoid(DeclType(AST));
 
-  auto *AD = static_cast<ASTArrayDecl *>(AST);
-  return llvm::ArrayType::get(ResolveExceptVoid(AD->DataType()), AD->ArityList()[0]);
+  return ResolveArray(AST);
+}
+
+llvm::Type *TypeResolver::ResolveArray(ASTNode *AST) {
+  auto *Decl = static_cast<ASTArrayDecl *>(AST);
+  const auto &ArityList = Decl->ArityList();
+  assert(!ArityList.empty());
+
+  llvm::ArrayType *ArrayTy =
+    llvm::ArrayType::get(
+      ResolveExceptVoid(Decl->DataType()),
+      ArityList.back()
+    );
+
+  for (size_t I{ArityList.size() - 1}; I != 0; --I) {
+    ArrayTy = llvm::ArrayType::get(
+      ArrayTy,
+      ArityList[I]
+    );
+  }
+
+  return ArrayTy;
 }
 
 } // namespace weak
