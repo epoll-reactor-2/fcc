@@ -67,17 +67,18 @@ llvm::Type *TypeResolver::ResolveArray(ASTNode *AST) {
   auto *Decl = static_cast<ASTArrayDecl *>(AST);
   const auto &ArityList = Decl->ArityList();
   assert(!ArityList.empty());
+  auto It = ArityList.rbegin();
 
   llvm::ArrayType *ArrayTy =
     llvm::ArrayType::get(
       ResolveExceptVoid(Decl->DataType()),
-      ArityList.back()
+      *It++
     );
 
-  for (size_t I{ArityList.size() - 1}; I != 0; --I) {
+  while (It != ArityList.rend()) {
     ArrayTy = llvm::ArrayType::get(
       ArrayTy,
-      ArityList[I]
+      *It++
     );
   }
 
