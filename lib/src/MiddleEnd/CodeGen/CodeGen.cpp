@@ -22,7 +22,8 @@ namespace weak {
 namespace {
 
 /// Create function header (without body) from AST.
-template <typename ASTFunctionDeclOrPrototype> class FunctionBuilder {
+template <typename ASTFunctionDeclOrPrototype>
+class FunctionBuilder {
 public:
   FunctionBuilder(
     llvm::IRBuilder<>          &I,
@@ -84,57 +85,6 @@ private:
 } // namespace weak
 
 namespace weak {
-namespace {
-
-/// Create string literal (actually an array of 8-bit integers).
-class StringBuilder {
-public:
-  StringBuilder(llvm::Module &M, llvm::IRBuilder<> &I)
-    : mIRModule(M)
-    , mIRBuilder(I) {}
-
-  llvm::Value *BuildLiteral(std::string_view Data) {
-    llvm::Constant *DataArray = CreateDataArray(Data);
-
-    llvm::GlobalVariable *GlobalVar = new llvm::GlobalVariable(
-      mIRModule, DataArray->getType(),
-      true,
-      llvm::GlobalVariable::ExternalLinkage,
-      DataArray
-    );
-
-    return llvm::ConstantExpr::getBitCast(
-      GlobalVar,
-      mIRBuilder.getInt8Ty()->getPointerTo()
-    );
-  }
-
-private:
-  llvm::Constant *CreateDataArray(std::string_view Data) {
-    llvm::SmallVector<llvm::Constant *> Chars;
-    Chars.reserve(Data.size());
-
-    for (char C : Data)
-      Chars.push_back(mIRBuilder.getInt8(C));
-
-    /// Since we are working with libc, we are expecting, that all strings
-    /// will be ended with '\0'.
-    Chars.push_back(mIRBuilder.getInt8('\0'));
-
-    return llvm::ConstantArray::get(
-      llvm::ArrayType::get(
-        mIRBuilder.getInt8Ty(),
-        Chars.size()
-      ),
-      std::move(Chars)
-    );
-  }
-
-  llvm::Module &mIRModule;
-  llvm::IRBuilder<> &mIRBuilder;
-};
-
-} // namespace
 
 CodeGen::CodeGen(ASTNode *Root)
   : mRoot(Root)
@@ -164,8 +114,12 @@ void CodeGen::Visit(ASTFloat *Stmt) {
 }
 
 void CodeGen::Visit(ASTString *Stmt) {
-  StringBuilder Builder(mIRModule, mIRBuilder);
-  mLastInstr = Builder.BuildLiteral(Stmt->Value());
+  auto *Literal = mIRBuilder.CreateGlobalString(Stmt->Value());
+  Literal->setDSOLocal(false);
+  mLastInstr = llvm::ConstantExpr::getBitCast(
+    Literal,
+    mIRBuilder.getInt8PtrTy()
+  );
 }
 
 static TokenType ResolveAssignmentOp(TokenType T) {
