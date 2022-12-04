@@ -25,7 +25,8 @@
 namespace weak {
 
 void ASTVisitor::Visit(ASTArrayAccess *Stmt) {
-  Stmt->Index()->Accept(this);
+  for (auto *I : Stmt->Indices())
+    I->Accept(this);
 }
 
 void ASTVisitor::Visit(ASTBinary *Stmt) {

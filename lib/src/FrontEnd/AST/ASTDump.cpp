@@ -47,8 +47,10 @@ private:
     mStream << Stmt->Name() << '\n';
 
     mIndent += 2;
-    PrintIndent();
-    Stmt->Index()->Accept(this);
+    for (auto *I : Stmt->Indices()) {
+      PrintIndent();
+      I->Accept(this);
+    }
     mIndent -= 2;
   }
 

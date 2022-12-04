@@ -134,7 +134,8 @@ void VariableUseAnalysis::Visit(ASTVarDecl *Decl) {
 
 void VariableUseAnalysis::Visit(ASTArrayAccess *Stmt) {
   AssertIsDeclared(Stmt->Name(), Stmt);
-  Stmt->Index()->Accept(this);
+  for (auto *I : Stmt->Indices())
+    I->Accept(this);
   mStorage.AddUse(Stmt->Name());
 }
 

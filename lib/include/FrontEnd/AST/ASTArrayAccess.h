@@ -9,16 +9,17 @@
 
 #include "FrontEnd/AST/ASTNode.h"
 #include <string>
+#include <vector>
 
 namespace weak {
 
 class ASTArrayAccess : public ASTNode {
 public:
   ASTArrayAccess(
-    std::string  Name,
-    ASTNode     *Index,
-    unsigned     TheLineNo,
-    unsigned     TheColumnNo
+    std::string            Name,
+    std::vector<ASTNode *> Indices,
+    unsigned               TheLineNo,
+    unsigned               TheColumnNo
   );
 
   ~ASTArrayAccess();
@@ -26,11 +27,11 @@ public:
   void Accept(ASTVisitor *) override;
 
   const std::string &Name() const;
-  ASTNode *Index() const;
+  const std::vector<ASTNode *> &Indices() const;
 
 private:
   std::string mName;
-  ASTNode *mIndex;
+  std::vector<ASTNode *> mIndices;
 };
 
 } // namespace weak

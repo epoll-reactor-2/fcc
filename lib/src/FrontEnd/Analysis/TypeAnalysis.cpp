@@ -175,13 +175,15 @@ void TypeAnalysis::Visit(ASTArrayAccess *Stmt) {
     }
   }
 
-  Stmt->Index()->Accept(this);
-  if (mLastDataType != DT_INT)
-    weak::CompileError(Stmt->Index())
-      << "Expected integer as array index, got " << mLastDataType;
+  for (auto *I : Stmt->Indices()) {
+    I->Accept(this);
+    if (mLastDataType != DT_INT)
+      weak::CompileError(I)
+        << "Expected integer as array index, got " << mLastDataType;
+  }
 
   ASTArrayDecl *Array = static_cast<ASTArrayDecl *>(Record);
-  OutOfRangeAnalysis(Array, Stmt->Index());
+//  OutOfRangeAnalysis(Array, Stmt->Index());
   mLastDataType = Array->DataType();
 }
 

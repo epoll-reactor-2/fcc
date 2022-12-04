@@ -417,27 +417,34 @@ void CodeGen::Visit(ASTFunctionPrototype *Stmt) {
 void CodeGen::Visit(ASTArrayAccess *Stmt) {
   llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
   llvm::Value *Array = mIRBuilder.CreateLoad(Symbol->getAllocatedType(), Symbol);
-  Stmt->Index()->Accept(this);
-  llvm::Value *Index = mLastInstr;
-
-  /// If you have a question about this, please see
-  /// https://llvm.org/docs/ElementPtr.html.
+  llvm::Type *ArrayTy = Array->getType();
   llvm::Value *Zero = mIRBuilder.getInt32(0);
 
-  if (Array->getType()->isPointerTy())
-    /// Pointer.
-    mLastInstr = mIRBuilder.CreateInBoundsGEP(
-      Array->getType()->getPointerElementType(),
-      Array,
-      Index
-    );
-  else
-    /// Array.
-    mLastInstr = mIRBuilder.CreateInBoundsGEP(
-      Array->getType(),
-      llvm::getPointerOperand(Array),
-      { Zero, Index }
-    );
+  for (ASTNode *I : Stmt->Indices()) {
+    I->Accept(this);
+    llvm::Value *Index = mLastInstr;
+
+    if (ArrayTy->isPointerTy()) {
+      /// Pointer.
+      mLastInstr = mIRBuilder.CreateInBoundsGEP(
+        ArrayTy->getPointerElementType(),
+        Array,
+        Index
+      );
+      ArrayTy = ArrayTy->getPointerElementType();
+    } else if (ArrayTy->isArrayTy()) {
+      /// Array.
+      mLastInstr = mIRBuilder.CreateInBoundsGEP(
+        ArrayTy,
+        Array->getType()->isArrayTy() ? llvm::getPointerOperand(Array) : Array,
+        {Zero, Index}
+      );
+      ArrayTy = llvm::dyn_cast<llvm::ArrayType>(ArrayTy)->getElementType();
+    } else
+      Unreachable("Expected array or pointer type.");
+
+    Array = mLastInstr;
+  }
 }
 
 void CodeGen::Visit(ASTSymbol *Stmt) {

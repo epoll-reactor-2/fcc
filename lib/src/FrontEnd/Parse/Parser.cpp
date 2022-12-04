@@ -174,9 +174,12 @@ ASTNode *Parser::ParseArrayDecl() {
 
   --mTokenPtr;
 
-  do {
-    Require('[');
+  if (!(mTokenPtr)->Is('['))
+    weak::CompileError(DataType.LineNo, DataType.ColumnNo)
+      << "`[` expected";
 
+  while (PeekCurrent().Is('[')) {
+    Require('[');
     auto *Constant = ParseConstant();
 
     if (!Constant->Is(AST_INTEGER_LITERAL))
@@ -190,11 +193,8 @@ ASTNode *Parser::ParseArrayDecl() {
     /// We need only number, not whole AST node, so we can
     /// get rid of it.
     delete ArraySize;
-
     Require(']');
-  } while (!PeekCurrent().Is(',') && /// Function parameter.
-           !PeekCurrent().Is(')') && /// Last function parameter.
-           !PeekCurrent().Is(';'));  /// End of declaration.
+  }
 
   return new ASTArrayDecl(
     DataType.DT,
@@ -585,11 +585,24 @@ ASTNode *Parser::ParseJumpStmt() {
 ASTNode *Parser::ParseArrayAccess() {
   const Token &Symbol = PeekNext();
 
-  Require('[');
-  auto *Expr = ParseExpr();
-  Require(']');
+  if (!(mTokenPtr)->Is('['))
+    weak::CompileError(Symbol.LineNo, Symbol.ColumnNo)
+      << "`[` expected";
 
-  return new ASTArrayAccess(Symbol.Data, Expr, Symbol.LineNo, Symbol.ColumnNo);
+  std::vector<ASTNode *> AccessList;
+
+  while (PeekCurrent().Is('[')) {
+    Require('[');
+    AccessList.push_back(ParseExpr());
+    Require(']');
+  }
+
+  return new ASTArrayAccess(
+    Symbol.Data,
+    std::move(AccessList),
+    Symbol.LineNo,
+    Symbol.ColumnNo
+  );
 }
 
 ASTNode *Parser::ParseExpr() {
