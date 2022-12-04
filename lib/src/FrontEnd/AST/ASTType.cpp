@@ -34,6 +34,6 @@ const char *weak::ASTTypeToString(ASTType T) {
   case AST_FUNCTION_DECL:          return "AST_FUNCTION_DECL";
   case AST_FUNCTION_CALL:          return "AST_FUNCTION_CALL";
   case AST_FUNCTION_PROTOTYPE:     return "AST_FUNCTION_PROTOTYPE";
-  default:                         Unreachable();
+  default:                         Unreachable("Should not reach there.");
   }
 }

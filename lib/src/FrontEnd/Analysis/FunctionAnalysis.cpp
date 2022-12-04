@@ -40,7 +40,7 @@ static size_t FunctionASTArgsCount(ASTNode *Stmt) {
   if (Stmt->Is(AST_FUNCTION_PROTOTYPE))
     return static_cast<ASTFunctionPrototype *>(Stmt)->Args().size();
 
-  Unreachable();
+  Unreachable("Expected function declaration or prototype.");
 }
 
 void FunctionAnalysis::Visit(ASTFunctionCall *Stmt) {

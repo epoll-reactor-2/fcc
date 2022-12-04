@@ -71,8 +71,6 @@ private:
       ),
       /*AddressSpace=*/0
     );
-
-    Unreachable();
   }
 
   llvm::IRBuilder<> &mIRBuilder;
@@ -134,7 +132,7 @@ static TokenType ResolveAssignmentOp(TokenType T) {
   case TOK_BIT_AND_ASSIGN: return TOK_BIT_AND;
   case TOK_BIT_OR_ASSIGN:  return TOK_BIT_OR;
   case TOK_XOR_ASSIGN:     return TOK_XOR;
-  default:                 Unreachable();
+  default:                 Unreachable("Should not reach there.");
   }
 }
 
@@ -220,7 +218,7 @@ void CodeGen::Visit(ASTBinary *Stmt) {
     mLastInstr = ScalarEmitter.EmitBinOp(T, L, R);
     break;
   default:
-    Unreachable();
+    Unreachable("Should not reach there.");
   }
 }
 
@@ -228,7 +226,7 @@ static TokenType ResolveUnaryOp(TokenType T) {
   switch (T) {
   case TOK_INC: return TOK_PLUS;
   case TOK_DEC: return TOK_MINUS;
-  default:      Unreachable();
+  default:      Unreachable("Should not reach there.");
   }
 }
 
@@ -250,7 +248,7 @@ void CodeGen::Visit(ASTUnary *Stmt) {
     mLastInstr = ScalarEmitter.EmitBinOp(ResolveUnaryOp(T), Op, mIRBuilder.getInt32(1));
     break;
   default:
-    Unreachable();
+    Unreachable("Should not reach there.");
   }
 
   auto *Symbol = static_cast<ASTSymbol *>(Stmt->Operand());
@@ -370,7 +368,7 @@ const std::string &ASTDeclName(ASTNode *AST) {
   if (AST->Is(AST_ARRAY_DECL))
     return static_cast<ASTArrayDecl *>(AST)->Name();
 
-  Unreachable();
+  Unreachable("Expected variable or array declaration.");
 }
 
 void CodeGen::Visit(ASTFunctionDecl *Decl) {

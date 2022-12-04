@@ -71,7 +71,7 @@ const char *weak::TokenToString(TokenType Type) {
   case TOK_CLOSE_CURLY_BRACKET:    return "}";
   case TOK_OPEN_PAREN:             return "(";
   case TOK_CLOSE_PAREN:            return ")";
-  default:                         return "<UNKNOWN>";
+  default:                         Unreachable("Should not reach there.");
   }
 }
 
@@ -98,7 +98,7 @@ weak::TokenType weak::CharToToken(char T) {
   case '}': return TOK_CLOSE_CURLY_BRACKET;
   case '(': return TOK_OPEN_PAREN;
   case ')': return TOK_CLOSE_PAREN;
-  default:  Unreachable();
+  default:  Unreachable("Should not reach there.");
   }
 }
 

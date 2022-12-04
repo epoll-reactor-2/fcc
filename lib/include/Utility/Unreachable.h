@@ -6,8 +6,8 @@
 
 extern "C" int printf(const char *__restrict fmt, ...);
 
-#define Unreachable() \
+#define Unreachable(msg) \
   { \
-    printf("Unreachable point reached at %s:L%d", __FILE__, __LINE__); \
+    printf("Unreachable point reached at %s:L%d: %s\n", __FILE__, __LINE__, msg); \
     __builtin_trap();  \
   }

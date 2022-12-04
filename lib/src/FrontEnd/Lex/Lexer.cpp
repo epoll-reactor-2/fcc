@@ -300,7 +300,7 @@ Token Lexer::AnalyzeOperator() {
 
   weak::CompileError(mLineNo, mColumnNo)
     << "Unknown character `" << WrongOperator << "`";
-  Unreachable();
+  Unreachable("Should not reach there.");
 }
 
 void Lexer::ProcessComment() {

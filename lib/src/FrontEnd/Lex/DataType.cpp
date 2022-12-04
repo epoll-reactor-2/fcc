@@ -18,6 +18,6 @@ const char *weak::DataTypeToString(DataType T) {
   case DT_STRING:  return "<STRING>";
   case DT_BOOL:    return "<BOOLEAN>";
   case DT_STRUCT:  return "<STRUCT>";
-  default:         Unreachable();
+  default:         Unreachable("Should not reach there.");
   }
 }

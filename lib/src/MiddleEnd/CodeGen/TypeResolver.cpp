@@ -20,7 +20,7 @@ static DataType DeclType(ASTNode *Node) {
   if (Node->Is(AST_ARRAY_DECL))
     return static_cast<ASTArrayDecl *>(Node)->DataType();
 
-  Unreachable();
+  Unreachable("Expected variable or array.");
 }
 
 TypeResolver::TypeResolver(llvm::IRBuilder<> &I)
@@ -34,7 +34,7 @@ llvm::Type *TypeResolver::Resolve(DataType T) {
   case DT_BOOL:   return mIRBuilder.getInt1Ty();
   case DT_FLOAT:  return mIRBuilder.getFloatTy();
   case DT_STRING: return mIRBuilder.getInt8PtrTy();
-  default:        Unreachable();
+  default:        Unreachable("Expected data type.");
   }
 }
 
@@ -52,7 +52,7 @@ llvm::Type *TypeResolver::ResolveExceptVoid(DataType T) {
   case DT_BOOL:   return mIRBuilder.getInt1Ty();
   case DT_FLOAT:  return mIRBuilder.getFloatTy();
   case DT_STRING: return mIRBuilder.getInt8PtrTy();
-  default:        Unreachable();
+  default:        Unreachable("Expected data type except void.");
   }
 }
 

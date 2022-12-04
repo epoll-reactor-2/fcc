@@ -23,7 +23,7 @@ llvm::Value *ScalarExprEmitter::EmitBinOp(TokenType T, llvm::Value *L, llvm::Val
   if (L->getType()->isFloatTy())
     return EmitFloatBinOp(T, L, R);
 
-  Unreachable();
+  Unreachable("Expected integer or float operands.");
 }
 
 llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(TokenType T, llvm::Value *L, llvm::Value *R) {
@@ -45,7 +45,7 @@ llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(TokenType T, llvm::Value *L, l
   case TOK_XOR:     return mIRBuilder.CreateXor(L, R);
   case TOK_SHL:     return mIRBuilder.CreateShl(L, R);
   case TOK_SHR:     return mIRBuilder.CreateAShr(L, R);
-  default:          Unreachable();
+  default:          Unreachable("Unknown binary operator.");
   }
 }
 
@@ -63,7 +63,7 @@ llvm::Value *ScalarExprEmitter::EmitFloatBinOp(TokenType T, llvm::Value *L, llvm
   case TOK_NEQ:   return mIRBuilder.CreateFCmpONE(L, R);
   case TOK_OR:    return mIRBuilder.CreateLogicalOr(L, R);
   case TOK_AND:   return mIRBuilder.CreateLogicalAnd(L, R);
-  default:        Unreachable();
+  default:        Unreachable("Unknown binary operator.");
   }
 }
 

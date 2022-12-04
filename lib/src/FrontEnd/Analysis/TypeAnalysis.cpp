@@ -228,7 +228,7 @@ static const std::string &GetFunArgName(ASTNode *Stmt) {
   if (Stmt->Is(AST_ARRAY_DECL))
     return static_cast<ASTArrayDecl *>(Stmt)->Name();
 
-  Unreachable();
+  Unreachable("Expected variable or array.");
 }
 
 template <typename ASTFun>

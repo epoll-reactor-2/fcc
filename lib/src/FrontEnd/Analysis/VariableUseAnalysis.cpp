@@ -23,7 +23,7 @@ static const char *ASTDeclToString(ASTNode *Node) {
   case AST_SYMBOL:
     return "Variable";
   default:
-    Unreachable();
+    Unreachable("Expected variable or function AST.");
   }
 }
 

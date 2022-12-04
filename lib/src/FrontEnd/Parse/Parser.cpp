@@ -22,7 +22,7 @@ static DataType TokenToDT(TokenType T) {
   case TOK_STRING: return DT_STRING;
   case TOK_BOOL:   return DT_BOOL;
   case TOK_STRUCT: return DT_STRUCT;
-  default:         Unreachable();
+  default:         Unreachable("Expected data type.");
   }
 }
 
@@ -236,7 +236,7 @@ ASTNode *Parser::ParseVarDecl() {
 
   weak::CompileError(T.LineNo, T.ColumnNo)
     << "Expected function, variable or array declaration";
-  Unreachable();
+  Unreachable("Should not reach there.");
 }
 
 ASTNode *Parser::ParseDecl() {
@@ -252,7 +252,7 @@ ASTNode *Parser::ParseDecl() {
     return ParseDeclWithoutInitializer();
   default:
     weak::CompileError(T.LineNo, T.ColumnNo) << "Declaration expected";
-    Unreachable();
+    Unreachable("Should not reach there.");
   }
 }
 
@@ -307,7 +307,7 @@ Parser::LocalizedDataType Parser::ParseType() {
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
       << "Data type expected, got " << T.Type;
-    Unreachable();
+    Unreachable("Should not reach there.");
   }
 }
 
@@ -438,7 +438,7 @@ ASTNode *Parser::ParseStmt() {
     return ParsePrefixUnary();
   default:
     weak::CompileError(T.LineNo, T.ColumnNo) << "Unexpected token: " << T.Type;
-    Unreachable();
+    Unreachable("Should not reach there.");
   }
 }
 
@@ -474,7 +474,7 @@ ASTNode *Parser::ParseIterationStmt() {
   case TOK_WHILE:
     return ParseWhile();
   default:
-    Unreachable();
+    Unreachable("Expected iteration statement.");
   }
 }
 
@@ -901,7 +901,7 @@ ASTNode *Parser::ParseConstant() {
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
       << "Literal expected, got " << T.Type;
-    Unreachable();
+    Unreachable("Should not reach there.");
   }
 }
 
@@ -969,7 +969,7 @@ const Token &Parser::Require(const std::vector<TokenType> &Expected) {
   weak::CompileError(mTokenPtr->LineNo, mTokenPtr->ColumnNo)
     << "Expected " << TokensToString(Expected)
     << ", got " << mTokenPtr->Type;
-  Unreachable();
+  Unreachable("Should not reach there.");
 }
 
 const Token &Parser::Require(TokenType Expected) {
