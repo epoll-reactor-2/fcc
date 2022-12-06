@@ -439,7 +439,9 @@ void CodeGen::Visit(ASTArrayAccess *Stmt) {
         Array->getType()->isArrayTy() ? llvm::getPointerOperand(Array) : Array,
         {Zero, Index}
       );
-      ArrayTy = llvm::dyn_cast<llvm::ArrayType>(ArrayTy)->getElementType();
+      llvm::ArrayType *UnderlyingTy = llvm::dyn_cast<llvm::ArrayType>(ArrayTy);
+      assert(UnderlyingTy);
+      ArrayTy = UnderlyingTy->getElementType();
     } else
       Unreachable("Expected array or pointer type.");
 
@@ -491,19 +493,21 @@ void CodeGen::Visit(ASTArrayDecl *Stmt) {
 void CodeGen::Visit(ASTVarDecl *Decl) {
   auto *Body = Decl->Body();
 
-  if (!Body && Decl->DataType() == DT_STRUCT) {
+  if (!Body) {
+    if (Decl->DataType() != DT_STRUCT)
+      Unreachable("Only structs allowed to have no declarator.");
+
     mStructVarsStorage.emplace(Decl->Name(), Decl->TypeName());
     auto *VarDecl = mIRBuilder.CreateAlloca(
-        llvm::StructType::getTypeByName(
-          mIRCtx,
-          Decl->TypeName()
-        )
-      );
+      llvm::StructType::getTypeByName(
+        mIRCtx,
+        Decl->TypeName()
+      )
+    );
     mStorage.Push(Decl->Name(), VarDecl);
     return;
-  }
-
-  Body->Accept(this);
+  } else
+    Body->Accept(this);
 
   /// Special case, since we need to copy array from data section to another
   /// array, placed on stack.

@@ -75,12 +75,11 @@ llvm::Type *TypeResolver::ResolveArray(ASTNode *AST) {
       *It++
     );
 
-  while (It != ArityList.rend()) {
+  while (It != ArityList.rend())
     ArrayTy = llvm::ArrayType::get(
       ArrayTy,
       *It++
     );
-  }
 
   return ArrayTy;
 }
