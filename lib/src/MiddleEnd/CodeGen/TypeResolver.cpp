@@ -9,7 +9,6 @@
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "Utility/EnumOstreamOperators.h"
 #include "Utility/Unreachable.h"
-#include "llvm/IR/Type.h"
 
 namespace weak {
 

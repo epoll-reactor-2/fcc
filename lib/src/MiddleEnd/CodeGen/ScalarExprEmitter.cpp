@@ -6,7 +6,6 @@
 
 #include "MiddleEnd/CodeGen/ScalarExprEmitter.h"
 #include "Utility/Unreachable.h"
-#include "llvm/IR/Value.h"
 
 namespace weak {
 

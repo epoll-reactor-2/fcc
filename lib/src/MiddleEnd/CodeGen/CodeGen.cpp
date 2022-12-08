@@ -10,12 +10,6 @@
 #include "MiddleEnd/CodeGen/ScalarExprEmitter.h"
 #include "MiddleEnd/CodeGen/TypeResolver.h"
 #include "Utility/Unreachable.h"
-#include "llvm/ADT/APFloat.h"
-#include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/Constants.h"
-#include "llvm/IR/DerivedTypes.h"
-#include "llvm/IR/Function.h"
-#include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
 
 namespace weak {
