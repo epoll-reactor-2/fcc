@@ -21,7 +21,6 @@
 #include "FrontEnd/AST/ASTSymbol.h"
 #include "FrontEnd/AST/ASTUnary.h"
 #include "FrontEnd/AST/ASTVarDecl.h"
-#include "FrontEnd/Lex/Token.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/EnumOstreamOperators.h"
 #include "Utility/Unreachable.h"
@@ -149,18 +148,36 @@ void TypeAnalysis::Visit(ASTVarDecl *Decl) {
   mLastDataType = Decl->DataType();
 }
 
-static void OutOfRangeAnalysis(ASTArrayDecl *Array, ASTNode *Index) {
-  if (auto *I = Index; I->Is(AST_INTEGER_LITERAL)) {
-    signed NumIndex = static_cast<ASTNumber *>(I)->Value();
-    signed ArraySize = Array->ArityList()[0];
+static void OutOfRangeAnalysis(ASTArrayDecl *Array, const std::vector<ASTNode *> &Indices) {
+  const auto &ArityList = Array->ArityList();
 
-    if (NumIndex < 0)
-      weak::CompileError(I) << "Array index less than zero";
+  assert(!ArityList.empty());
+  assert(!Indices.empty());
 
-    if (NumIndex >= ArraySize)
-      weak::CompileError(I)
-        << "Out of range! Index (which is " << NumIndex
-        << ") >= array size (which is " << ArraySize << ")";
+  if (ArityList.size() != Indices.size())
+    weak::CompileError(Indices.front())
+      << "Dimensions mismatch: " << ArityList.size() << " and " << Indices.size();
+
+  auto DeclIndexIt = ArityList.begin();
+  auto StmtIndexIt = Indices.begin();
+
+  while (StmtIndexIt != Indices.end()) {
+    if ((*StmtIndexIt)->Is(AST_INTEGER_LITERAL)) {
+      auto *NumAST = static_cast<ASTNumber *>(*StmtIndexIt);
+      signed NumIndex = NumAST->Value();
+      signed Dimension = *DeclIndexIt;
+
+      if (NumIndex < 0)
+        weak::CompileError(*StmtIndexIt) << "Array index less than zero";
+
+      if (NumIndex >= Dimension)
+        weak::CompileError(*StmtIndexIt)
+          << "Out of range! Index (which is " << NumIndex
+          << ") >= array size (which is " << Dimension << ")";
+    }
+
+    ++DeclIndexIt;
+    ++StmtIndexIt;
   }
 }
 
@@ -183,7 +200,7 @@ void TypeAnalysis::Visit(ASTArrayAccess *Stmt) {
   }
 
   ASTArrayDecl *Array = static_cast<ASTArrayDecl *>(Record);
-//  OutOfRangeAnalysis(Array, Stmt->Index());
+  OutOfRangeAnalysis(Array, Stmt->Indices());
   mLastDataType = Array->DataType();
 }
 
