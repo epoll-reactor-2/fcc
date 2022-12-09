@@ -7,7 +7,6 @@
 #include "FrontEnd/AST/ASTFunctionDecl.h"
 #include "FrontEnd/AST/ASTCompound.h"
 #include "FrontEnd/AST/ASTVisitor.h"
-#include "FrontEnd/Lex/Token.h"
 
 namespace weak {
 

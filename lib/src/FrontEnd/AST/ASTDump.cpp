@@ -7,7 +7,6 @@
 #include "FrontEnd/AST/ASTDump.h"
 #include "FrontEnd/AST/AST.h"
 #include "FrontEnd/AST/ASTVisitor.h"
-#include "FrontEnd/Lex/Token.h"
 #include "Utility/EnumOstreamOperators.h"
 
 template <typename It>
