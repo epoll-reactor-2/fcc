@@ -154,9 +154,19 @@ static void OutOfRangeAnalysis(ASTArrayDecl *Array, const std::vector<ASTNode *>
   assert(!ArityList.empty());
   assert(!Indices.empty());
 
-  if (ArityList.size() != Indices.size())
+  auto OrdinalNumeral = [](signed N) {
+    switch (N) {
+    case 1:  return "st";
+    case 2:  return "nd";
+    default: return "th";
+    }
+  };
+
+  if (ArityList.size() < Indices.size())
     weak::CompileError(Indices.front())
-      << "Dimensions mismatch: " << ArityList.size() << " and " << Indices.size();
+      << "Cannot get " << Indices.size() << "'"
+      << OrdinalNumeral(Indices.size()) << " index of "
+      << ArityList.size() << " dimensional array";
 
   auto DeclIndexIt = ArityList.begin();
   auto StmtIndexIt = Indices.begin();
