@@ -70,7 +70,7 @@ void VariableUseAnalysis::Visit(ASTFor *Stmt) {
 
   Stmt->Body()->Accept(this);
 
-  MakeUnusedVarAnalysis();
+  UnusedVarAnalysis();
 
   mStorage.EndScope();
 }
@@ -86,8 +86,7 @@ void VariableUseAnalysis::Visit(ASTFunctionDecl *Decl) {
 
   Decl->Body()->Accept(this);
 
-  MakeUnusedVarAnalysis();
-
+  UnusedVarAnalysis();
   mStorage.EndScope();
   /// This is to have function outside.
   mStorage.Push(Decl->Name(), Decl);
@@ -149,8 +148,7 @@ void VariableUseAnalysis::Visit(ASTCompound *Stmt) {
   for (ASTNode *S : Stmt->Stmts())
     S->Accept(this);
 
-  MakeUnusedVarAndFuncAnalysis();
-
+  UnusedVarAndFuncAnalysis();
   mStorage.EndScope();
 }
 
@@ -197,7 +195,7 @@ void VariableUseAnalysis::AddUseOnVarAccess(ASTNode *Stmt) {
   }
 }
 
-void VariableUseAnalysis::MakeUnusedVarAndFuncAnalysis() {
+void VariableUseAnalysis::UnusedVarAndFuncAnalysis() {
   for (auto *U : mStorage.CurrScopeUses()) {
     bool IsFunction = false;
     IsFunction |= U->AST->Is(AST_FUNCTION_DECL);
@@ -216,7 +214,7 @@ void VariableUseAnalysis::MakeUnusedVarAndFuncAnalysis() {
   }
 }
 
-void VariableUseAnalysis::MakeUnusedVarAnalysis() {
+void VariableUseAnalysis::UnusedVarAnalysis() {
   for (auto *U : mStorage.CurrScopeUses()) {
     bool IsFunction = false;
     IsFunction |= U->AST->Is(AST_FUNCTION_DECL);

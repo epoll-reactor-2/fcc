@@ -56,8 +56,8 @@ private:
   void AssertIsDeclared(std::string_view Name, ASTNode *AST);
   void AssertIsNotDeclared(std::string_view Name, ASTNode *AST);
 
-  void MakeUnusedVarAndFuncAnalysis();
-  void MakeUnusedVarAnalysis();
+  void UnusedVarAndFuncAnalysis();
+  void UnusedVarAnalysis();
 
   /// Storage for declarations.
   ASTStorage mStorage;
