@@ -1,4 +1,4 @@
-// Error at line 5, column 30: Cannot apply `+` to <BOOLEAN> and <STRING>
+// Error at line 5, column 30: Cannot apply `+` to bool and string
 int main() {
     bool   b = true;
     string s =   "";

@@ -1,4 +1,4 @@
-// Error at line 7, column 25: Cannot apply `+` to <INT> and <CHAR>
+// Error at line 7, column 25: Cannot apply `+` to int and char
 int main() {
     int a = 1;
     char b = 'a';

@@ -1,13 +1,13 @@
 //CompoundStmt <line:0, col:0>
 //  FunctionDecl <line:41, col:1>
-//    FunctionDeclRetType <line:41, col:1> <VOID>
+//    FunctionDeclRetType <line:41, col:1> void
 //    FunctionDeclName <line:41, col:1> `f`
 //    FunctionDeclArgs <line:41, col:1>
 //    FunctionDeclBody <line:41, col:1>
 //      CompoundStmt <line:41, col:10>
 //        ForStmt <line:42, col:3>
 //          ForStmtInit <line:42, col:8>
-//            VarDecl <line:42, col:8> <INT> `i`
+//            VarDecl <line:42, col:8> int `i`
 //              Number <line:42, col:16> 0
 //          ForStmtCondition <line:42, col:21>
 //            BinaryOperator <line:42, col:21> <

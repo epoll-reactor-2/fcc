@@ -1,4 +1,4 @@
-// Error at line 5, column 30: Cannot apply `+` to <BOOLEAN> and <FLOAT>
+// Error at line 5, column 30: Cannot apply `+` to bool and float
 int main() {
     bool  b = true;
     float f =  0.0;

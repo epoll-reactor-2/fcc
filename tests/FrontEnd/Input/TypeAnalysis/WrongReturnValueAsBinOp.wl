@@ -1,4 +1,4 @@
-// Error at line 2, column 1: Cannot return <CHAR> instead of <FLOAT>
+// Error at line 2, column 1: Cannot return char instead of float
 float f() {
     char a = 1;
     char b = a;

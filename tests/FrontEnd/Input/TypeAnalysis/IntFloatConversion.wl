@@ -1,4 +1,4 @@
-// Error at line 5, column 30: Cannot apply `+` to <INT> and <FLOAT>
+// Error at line 5, column 30: Cannot apply `+` to int and float
 int main() {
     int   i =   0;
     float f = 0.0;

@@ -1,6 +1,6 @@
 //CompoundStmt <line:0, col:0>
 //  FunctionDecl <line:42, col:1>
-//    FunctionDeclRetType <line:42, col:1> <VOID>
+//    FunctionDeclRetType <line:42, col:1> void
 //    FunctionDeclName <line:42, col:1> `f`
 //    FunctionDeclArgs <line:42, col:1>
 //    FunctionDeclBody <line:42, col:1>

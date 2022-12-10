@@ -1,11 +1,11 @@
 //CompoundStmt <line:0, col:0>
 //  FunctionDecl <line:34, col:1>
-//    FunctionDeclRetType <line:34, col:1> <INT>
+//    FunctionDeclRetType <line:34, col:1> int
 //    FunctionDeclName <line:34, col:1> `main`
 //    FunctionDeclArgs <line:34, col:1>
 //    FunctionDeclBody <line:34, col:1>
 //      CompoundStmt <line:34, col:12>
-//        ArrayDecl <line:35, col:5> <INT> [2] `array`
+//        ArrayDecl <line:35, col:5> int [2] `array`
 //        BinaryOperator <line:36, col:16> =
 //          ArrayAccess <line:36, col:5> array
 //            Number <line:36, col:13> 0

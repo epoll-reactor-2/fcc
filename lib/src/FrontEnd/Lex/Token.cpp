@@ -9,26 +9,26 @@
 
 const char *weak::TokenToString(TokenType Type) {
   switch (Type) {
-  case TOK_BOOL:                   return "<BOOLEAN>";
-  case TOK_BREAK:                  return "<BREAK>";
-  case TOK_CHAR:                   return "<CHAR>";
-  case TOK_CONTINUE:               return "<CONTINUE>";
-  case TOK_DO:                     return "<DO>";
-  case TOK_ELSE:                   return "<ELSE>";
-  case TOK_FALSE:                  return "<FALSE>";
-  case TOK_FLOAT:                  return "<FLOAT>";
-  case TOK_FOR:                    return "<FOR>";
-  case TOK_IF:                     return "<IF>";
-  case TOK_INT:                    return "<INT>";
-  case TOK_RETURN:                 return "<RETURN>";
-  case TOK_STRING:                 return "<STRING>";
-  case TOK_TRUE:                   return "<TRUE>";
-  case TOK_VOID:                   return "<VOID>";
-  case TOK_WHILE:                  return "<WHILE>";
-  case TOK_CHAR_LITERAL:           return "<CHAR LITERAL>";
-  case TOK_INTEGRAL_LITERAL:       return "<INT LITERAL>";
-  case TOK_FLOATING_POINT_LITERAL: return "<FLOAT LITERAL>";
-  case TOK_STRING_LITERAL:         return "<STRING LITERAL>";
+  case TOK_BOOL:                   return "bool";
+  case TOK_BREAK:                  return "break";
+  case TOK_CHAR:                   return "char";
+  case TOK_CONTINUE:               return "continue";
+  case TOK_DO:                     return "do";
+  case TOK_ELSE:                   return "else";
+  case TOK_FALSE:                  return "false";
+  case TOK_FLOAT:                  return "float";
+  case TOK_FOR:                    return "for";
+  case TOK_IF:                     return "if";
+  case TOK_INT:                    return "int";
+  case TOK_RETURN:                 return "return";
+  case TOK_STRING:                 return "string";
+  case TOK_TRUE:                   return "true";
+  case TOK_VOID:                   return "void";
+  case TOK_WHILE:                  return "while";
+  case TOK_CHAR_LITERAL:           return "char literal";
+  case TOK_INTEGRAL_LITERAL:       return "int literal";
+  case TOK_FLOATING_POINT_LITERAL: return "float literal";
+  case TOK_STRING_LITERAL:         return "string literal";
   case TOK_SYMBOL:                 return "<SYMBOL>";
   case TOK_ASSIGN:                 return "=";
   case TOK_MUL_ASSIGN:             return "*=";

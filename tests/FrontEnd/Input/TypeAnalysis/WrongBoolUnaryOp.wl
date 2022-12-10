@@ -1,4 +1,4 @@
-// Error at line 8, column 5: Cannot apply `--` to <BOOLEAN>
+// Error at line 8, column 5: Cannot apply `--` to bool
 int main() {
     int num = 0;
     --num;
