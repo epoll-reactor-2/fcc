@@ -12,9 +12,9 @@ namespace weak {
 ASTArrayAccess::ASTArrayAccess(
   std::string            Name,
   std::vector<ASTNode *> Indices,
-  unsigned               TheLineNo,
-  unsigned               TheColumnNo
-) : ASTNode(AST_ARRAY_ACCESS, TheLineNo, TheColumnNo)
+  unsigned               LineNo,
+  unsigned               ColumnNo
+) : ASTNode(AST_ARRAY_ACCESS, LineNo, ColumnNo)
   , mName(std::move(Name))
   , mIndices(std::move(Indices)) {}
 

@@ -18,8 +18,8 @@ public:
   ASTArrayAccess(
     std::string            Name,
     std::vector<ASTNode *> Indices,
-    unsigned               TheLineNo,
-    unsigned               TheColumnNo
+    unsigned               LineNo,
+    unsigned               ColumnNo
   );
 
   ~ASTArrayAccess();
