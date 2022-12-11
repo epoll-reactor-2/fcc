@@ -31,12 +31,12 @@ void RunLexerTest(std::string_view Input, const std::vector<weak::Token> &Expect
 }
 
 int main() {
-  // This should not be correctly processed, since
-  // there is no newline symbol at the end of comment.
-  // SECTION(LexingEmptyOneLineComment) {
-  //   std::vector<Token> Assertion = {};
-  //   RunLexerTest("//", Assertion);
-  // }
+  /// This should not be correctly processed, since
+  /// there is no newline symbol at the end of comment.
+  /// SECTION(LexingEmptyOneLineComment) {
+  ///   std::vector<Token> Assertion = {};
+  ///   RunLexerTest("//", Assertion);
+  /// }
   using namespace weak;
   SECTION(LexingEmptyOneLineCommentExplicitlyTerminated) {
     std::vector<Token> Assertion = {};
@@ -169,16 +169,5 @@ int main() {
       }
     )__",
                  Assertion);
-  }
-  SECTION(LexerSpeedTest) {
-    std::string Body =
-        "1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1 1.1"
-        "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-        "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ";
-    for (size_t It = 0; It < 16; ++It)
-      Body += std::string(Body);
-    printf("Body size: %zu\n", Body.size());
-    Lexer(&Body.front(), &Body.back()).Analyze();
   }
 }
