@@ -88,6 +88,8 @@ private:
   /// Consequence of using visitor pattern, since we cannot return anything from
   /// visit functions.
   llvm::Value *mLastInstr;
+  /// Last stored pointer to symbol or structure field.
+  llvm::Value *mLastPtr;
   /// LLVM stuff.
   llvm::LLVMContext mIRCtx;
   /// LLVM stuff.

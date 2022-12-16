@@ -81,6 +81,7 @@ namespace weak {
 CodeGen::CodeGen(ASTNode *Root)
   : mRoot(Root)
   , mLastInstr(nullptr)
+  , mLastPtr(nullptr)
   , mIRModule("LLVM Module", mIRCtx)
   , mIRBuilder(mIRCtx) {}
 
@@ -136,19 +137,9 @@ void CodeGen::Visit(ASTBinary *Stmt) {
 
   LHS->Accept(this);
   llvm::Value *L = mLastInstr;
+  llvm::Value *LPtr = mLastPtr;
   RHS->Accept(this);
   llvm::Value *R = mLastInstr;
-
-  /// Load value and save pointer to it.
-  llvm::Value *ArrayPtr{nullptr};
-  if (LHS->Is(AST_ARRAY_ACCESS)) {
-    ArrayPtr = L;
-    L = mIRBuilder.CreateLoad(L->getType()->getPointerElementType(), L);
-  }
-
-  /// Load only value, since right hand side is never writeable.
-  if (RHS->Is(AST_ARRAY_ACCESS))
-    R = mIRBuilder.CreateLoad(R->getType()->getPointerElementType(), R);
 
   if (!L || !R)
     return;
@@ -157,22 +148,7 @@ void CodeGen::Visit(ASTBinary *Stmt) {
 
   switch (auto T = Stmt->Operation()) {
   case TOK_ASSIGN: {
-    if (LHS->Is(AST_ARRAY_ACCESS))
-      mIRBuilder.CreateStore(R, ArrayPtr);
-    else if (LHS->Is(AST_MEMBER_ACCESS)) {
-      auto *MA = static_cast<ASTMemberAccess *>(LHS);
-      const auto &Name = MA->Name()->Name();
-      auto *Type = llvm::StructType::getTypeByName(mIRCtx, mStructVarsStorage[Name]);
-
-      llvm::AllocaInst *Struct = mStorage.Lookup(Name);
-      /// \todo: Get AST for declaration and convert `.field` to index
-      mLastInstr = mIRBuilder.CreateStructGEP(Type, Struct, 1);
-      mIRBuilder.CreateStore(R, mLastInstr);
-    } else {
-      auto *Symbol = static_cast<ASTSymbol *>(LHS);
-      llvm::AllocaInst *Variable = mStorage.Lookup(Symbol->Name());
-      mIRBuilder.CreateStore(R, Variable);
-    }
+    mIRBuilder.CreateStore(R, LPtr);
     break;
   }
   case TOK_MUL_ASSIGN:
@@ -185,11 +161,9 @@ void CodeGen::Visit(ASTBinary *Stmt) {
   case TOK_BIT_AND_ASSIGN:
   case TOK_BIT_OR_ASSIGN:
   case TOK_XOR_ASSIGN: {
-    auto *Symbol = static_cast<ASTSymbol *>(LHS);
-    llvm::AllocaInst *Variable = mStorage.Lookup(Symbol->Name());
     TokenType Op = ResolveAssignmentOp(T);
     mLastInstr = ScalarEmitter.EmitBinOp(Op, L, R);
-    mIRBuilder.CreateStore(mLastInstr, Variable);
+    mIRBuilder.CreateStore(mLastInstr, LPtr);
     break;
   }
   case TOK_PLUS:
@@ -214,6 +188,7 @@ void CodeGen::Visit(ASTBinary *Stmt) {
   default:
     Unreachable("Should not reach there.");
   }
+  mLastPtr = nullptr;
 }
 
 static TokenType ResolveUnaryOp(TokenType T) {
@@ -226,31 +201,19 @@ static TokenType ResolveUnaryOp(TokenType T) {
 
 void CodeGen::Visit(ASTUnary *Stmt) {
   Stmt->Operand()->Accept(this);
-  llvm::Value *Op = mLastInstr;
-  llvm::Value *ArrayPtr{nullptr};
-
-  if (Stmt->Operand()->Is(AST_ARRAY_ACCESS)) {
-    ArrayPtr = Op;
-    Op = mIRBuilder.CreateLoad(Op->getType()->getPointerElementType(), Op);
-  }
-
   ScalarExprEmitter ScalarEmitter(mIRBuilder);
 
   switch (auto T = Stmt->Operation()) {
   case TOK_INC:
   case TOK_DEC:
-    mLastInstr = ScalarEmitter.EmitBinOp(ResolveUnaryOp(T), Op, mIRBuilder.getInt32(1));
+    mLastInstr = ScalarEmitter.EmitBinOp(ResolveUnaryOp(T), mLastInstr, mIRBuilder.getInt32(1));
     break;
   default:
     Unreachable("Should not reach there.");
   }
 
-  auto *Symbol = static_cast<ASTSymbol *>(Stmt->Operand());
-
-  mIRBuilder.CreateStore(
-    mLastInstr,
-    ArrayPtr ? ArrayPtr : mStorage.Lookup(Symbol->Name())
-  );
+  mIRBuilder.CreateStore(mLastInstr, mLastPtr);
+  mLastPtr = nullptr;
 }
 
 void CodeGen::Visit(ASTFor *Stmt) {
@@ -441,11 +404,14 @@ void CodeGen::Visit(ASTArrayAccess *Stmt) {
 
     Array = mLastInstr;
   }
+  mLastPtr = mLastInstr;
+  mLastInstr = mIRBuilder.CreateLoad(mLastInstr->getType()->getPointerElementType(), mLastInstr);
 }
 
 void CodeGen::Visit(ASTSymbol *Stmt) {
   llvm::AllocaInst *Symbol = mStorage.Lookup(Stmt->Name());
   llvm::Type *SymbolTy = Symbol->getAllocatedType();
+  mLastPtr = Symbol;
 
   if (SymbolTy->isArrayTy())
     mLastInstr = mIRBuilder.CreateConstGEP2_32(SymbolTy, Symbol, 0, 0);
@@ -472,8 +438,8 @@ void CodeGen::Visit(ASTMemberAccess *Stmt) {
   llvm::AllocaInst *Struct = mStorage.Lookup(Name);
   assert(Struct);
   /// \todo: Get AST for declaration and convert `.field` to index
-  mLastInstr = mIRBuilder.CreateStructGEP(Type, Struct, 1);
-  mLastInstr = mIRBuilder.CreateLoad(Type->getTypeAtIndex(1U), mLastInstr);
+  mLastPtr = mIRBuilder.CreateStructGEP(Type, Struct, 1);
+  mLastInstr = mIRBuilder.CreateLoad(Type->getTypeAtIndex(1U), mLastPtr);
   /// \todo: Get type, with respect to nested member accesses.
 }
 
