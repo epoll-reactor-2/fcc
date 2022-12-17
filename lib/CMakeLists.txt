@@ -1,4 +1,5 @@
-file (GLOB_RECURSE SOURCES *.cpp)
+# Also add header fiels for conveniencein QtCreator.
+file (GLOB_RECURSE SOURCES *.cpp *.h)
 add_library(WeakCompiler SHARED "${SOURCES}")
 
 find_package(LLVM REQUIRED CONFIG)
