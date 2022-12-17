@@ -137,6 +137,11 @@ void TypeAnalysis::Visit(ASTUnary *Stmt) {
 }
 
 void TypeAnalysis::Visit(ASTArrayDecl *Decl) {
+  for (unsigned Size : Decl->ArityList())
+    if (Size == 0)
+      weak::CompileError(Decl)
+        << "Array size cannot be equal '0'";
+
   mStorage.Push(Decl->Name(), Decl->DataType(), Decl);
   mLastDataType = Decl->DataType();
 }
