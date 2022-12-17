@@ -23,6 +23,7 @@
 #include "FrontEnd/AST/ASTVarDecl.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/EnumOstreamOperators.h"
+#include "Utility/Lexical.h"
 #include "Utility/Unreachable.h"
 #include <cassert>
 
@@ -159,18 +160,9 @@ static void OutOfRangeAnalysis(ASTArrayDecl *Array, const std::vector<ASTNode *>
   assert(!ArityList.empty());
   assert(!Indices.empty());
 
-  auto OrdinalNumeral = [](signed N) {
-    switch (N) {
-    case 1:  return "st";
-    case 2:  return "nd";
-    default: return "th";
-    }
-  };
-
   if (ArityList.size() < Indices.size())
     weak::CompileError(Indices.front())
-      << "Cannot get " << Indices.size() << "'"
-      << OrdinalNumeral(Indices.size()) << " index of "
+      << "Cannot get " << weak::OrdinalNumeral(Indices.size()) << " index of "
       << ArityList.size() << " dimensional array";
 
   auto DeclIndexIt = ArityList.begin();
