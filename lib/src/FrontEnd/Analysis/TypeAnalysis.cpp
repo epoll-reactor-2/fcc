@@ -128,11 +128,7 @@ void TypeAnalysis::Visit(ASTUnary *Stmt) {
   Stmt->Operand()->Accept(this);
   DataType T = mLastDataType;
 
-  bool Allowed = false;
-  Allowed |= T == DT_CHAR;
-  Allowed |= T == DT_INT;
-
-  if (!Allowed)
+  if (T != DT_CHAR && T != DT_INT)
     weak::CompileError(Stmt)
       << "Cannot apply `" << Stmt->Operation() << "` to " << T;
 }

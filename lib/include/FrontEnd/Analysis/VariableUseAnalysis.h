@@ -30,6 +30,8 @@ private:
 
   // Loop statements.
   void Visit(ASTFor *) override;
+  void Visit(ASTWhile *) override;
+  void Visit(ASTDoWhile *) override;
 
   // Function statements.
   void Visit(ASTFunctionDecl *) override;
@@ -51,7 +53,8 @@ private:
 
   /// Check if given AST node is symbol/array access operator and
   /// increment use counter for this.
-  void AddUseOnVarAccess(ASTNode *);
+  void AddReadUse(ASTNode *);
+  void AddWriteUse(ASTNode *);
 
   void AssertIsDeclared(std::string_view Name, ASTNode *AST);
   void AssertIsNotDeclared(std::string_view Name, ASTNode *AST);
@@ -64,6 +67,16 @@ private:
 
   /// Analyzed root AST node.
   ASTNode *mRoot;
+
+  /// Accumulator of AST's with respect of nested blocks. Example usage:
+  /// int a;
+  /// int b;
+  /// while (a + b) { /* Collect a, b. */
+  ///   /* Add read uses for a, b. */
+  ///   ...
+  /// }
+  /// /* Analyze collected nodes (a and b) usages. */
+  std::vector<std::vector<ASTNode *>> mCollectedNodes;
 };
 
 } // namespace weak

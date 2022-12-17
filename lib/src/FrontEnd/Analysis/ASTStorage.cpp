@@ -37,7 +37,8 @@ void ASTStorage::Push(std::string_view Name, DataType T, ASTNode *Decl) {
       Decl,
       T,
       Name.data(),
-      /*Uses=*/0,
+      /*ReadUses=*/0U,
+      /*WriteUses=*/0U,
       mDepth
     }
   );
@@ -56,9 +57,14 @@ ASTStorage::Declaration *ASTStorage::Lookup(std::string_view Name) {
   return &Decl;
 }
 
-void ASTStorage::AddUse(std::string_view Stmt) {
+void ASTStorage::AddReadUse(std::string_view Stmt) {
   Declaration &R = FindUse(Stmt);
-  ++R.Uses;
+  ++R.ReadUses;
+}
+
+void ASTStorage::AddWriteUse(std::string_view Stmt) {
+  Declaration &R = FindUse(Stmt);
+  ++R.WriteUses;
 }
 
 std::vector<ASTStorage::Declaration *> ASTStorage::CurrScopeUses() {

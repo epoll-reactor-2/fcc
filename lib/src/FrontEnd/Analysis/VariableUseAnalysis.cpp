@@ -6,6 +6,7 @@
 
 #include "FrontEnd/Analysis/VariableUseAnalysis.h"
 #include "FrontEnd/AST/AST.h"
+#include "FrontEnd/Lex/Token.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/Unreachable.h"
 
@@ -28,7 +29,9 @@ static const char *ASTDeclToString(ASTNode *Node) {
 }
 
 VariableUseAnalysis::VariableUseAnalysis(ASTNode *Root)
-  : mRoot(Root) {}
+  : mRoot(Root) {
+  mCollectedNodes.push_back({});
+}
 
 void VariableUseAnalysis::Analyze() {
   mRoot->Accept(this);
@@ -38,8 +41,11 @@ void VariableUseAnalysis::Visit(ASTBinary *Stmt) {
   Stmt->LHS()->Accept(this);
   Stmt->RHS()->Accept(this);
 
-  AddUseOnVarAccess(Stmt->LHS());
-  AddUseOnVarAccess(Stmt->RHS());
+  if (Stmt->Operation() == TOK_ASSIGN)
+    AddWriteUse(Stmt->LHS());
+  else
+    AddReadUse(Stmt->LHS());
+  AddReadUse(Stmt->RHS());
 }
 
 void VariableUseAnalysis::Visit(ASTUnary *Stmt) {
@@ -53,7 +59,9 @@ void VariableUseAnalysis::Visit(ASTUnary *Stmt) {
       << "Variable as argument of unary operator expected";
 
   Op->Accept(this);
-  AddUseOnVarAccess(Op);
+  /// Since there are only `++` and `--` operators in language
+  /// they are both writable.
+  AddWriteUse(Op);
 }
 
 void VariableUseAnalysis::Visit(ASTFor *Stmt) {
@@ -62,8 +70,13 @@ void VariableUseAnalysis::Visit(ASTFor *Stmt) {
   if (auto *I = Stmt->Init())
     I->Accept(this);
 
-  if (auto *C = Stmt->Condition())
+  if (auto *C = Stmt->Condition()) {
+    mCollectedNodes.push_back({});
     C->Accept(this);
+    for (ASTNode *Node : mCollectedNodes.back())
+      AddReadUse(Node);
+    mCollectedNodes.pop_back();
+  }
 
   if (auto *I = Stmt->Increment())
     I->Accept(this);
@@ -73,6 +86,24 @@ void VariableUseAnalysis::Visit(ASTFor *Stmt) {
   UnusedVarAnalysis();
 
   mStorage.EndScope();
+}
+
+void VariableUseAnalysis::Visit(ASTWhile *Stmt) {
+  mCollectedNodes.push_back({});
+  Stmt->Condition()->Accept(this);
+  for (ASTNode *Node : mCollectedNodes.back())
+    AddReadUse(Node);
+  mCollectedNodes.pop_back();
+  Stmt->Body()->Accept(this);
+}
+
+void VariableUseAnalysis::Visit(ASTDoWhile *Stmt) {
+  mCollectedNodes.push_back({});
+  Stmt->Condition()->Accept(this);
+  for (ASTNode *Node : mCollectedNodes.back())
+    AddReadUse(Node);
+  mCollectedNodes.pop_back();
+  Stmt->Body()->Accept(this);
 }
 
 void VariableUseAnalysis::Visit(ASTFunctionDecl *Decl) {
@@ -93,10 +124,10 @@ void VariableUseAnalysis::Visit(ASTFunctionDecl *Decl) {
 }
 
 void VariableUseAnalysis::Visit(ASTFunctionCall *Stmt) {
-  const auto &Symbol = Stmt->Name();
-  AssertIsDeclared(Symbol, Stmt);
+  const auto &FunctionName = Stmt->Name();
+  AssertIsDeclared(FunctionName, Stmt);
 
-  ASTNode *Func = mStorage.Lookup(Symbol)->AST;
+  ASTNode *Func = mStorage.Lookup(FunctionName)->AST;
 
   /// Used to handle expressions like that
   /// int value = 0;
@@ -105,12 +136,14 @@ void VariableUseAnalysis::Visit(ASTFunctionCall *Stmt) {
   IsFunction |= Func->Is(AST_FUNCTION_DECL);
   IsFunction |= Func->Is(AST_FUNCTION_PROTOTYPE);
   if (!IsFunction)
-    weak::CompileError(Stmt) << "`" << Symbol << "` is not a function";
+    weak::CompileError(Stmt) << "`" << FunctionName << "` is not a function";
 
-  mStorage.AddUse(Symbol);
+  mStorage.AddReadUse(FunctionName);
 
-  for (ASTNode *A : Stmt->Args())
-    A->Accept(this);
+  for (ASTNode *Arg : Stmt->Args()) {
+    Arg->Accept(this);
+    AddReadUse(Arg);
+  }
 }
 
 void VariableUseAnalysis::Visit(ASTFunctionPrototype *Stmt) {
@@ -133,34 +166,40 @@ void VariableUseAnalysis::Visit(ASTVarDecl *Decl) {
 
 void VariableUseAnalysis::Visit(ASTArrayAccess *Stmt) {
   AssertIsDeclared(Stmt->Name(), Stmt);
+  mCollectedNodes.back().push_back(Stmt);
   for (auto *I : Stmt->Indices())
     I->Accept(this);
-  mStorage.AddUse(Stmt->Name());
+  /// We will decide if there is write use of this statement
+  /// inside binary/unary operators logic.
 }
 
 void VariableUseAnalysis::Visit(ASTSymbol *Stmt) {
   AssertIsDeclared(Stmt->Name(), Stmt);
-  mStorage.AddUse(Stmt->Name());
+  mCollectedNodes.back().push_back(Stmt);
+  /// We will decide if there is write use of this statement
+  /// inside binary/unary operators logic.
+}
+
+void VariableUseAnalysis::Visit(ASTMemberAccess *Stmt) {
+  auto *Symbol = static_cast<ASTSymbol *>(Stmt->Name());
+  AssertIsDeclared(Symbol->Name(), Stmt);
+  mCollectedNodes.back().push_back(Stmt);
 }
 
 void VariableUseAnalysis::Visit(ASTCompound *Stmt) {
   mStorage.StartScope();
-  for (ASTNode *S : Stmt->Stmts())
-    S->Accept(this);
+  for (ASTNode *Stmt : Stmt->Stmts())
+    Stmt->Accept(this);
 
   UnusedVarAndFuncAnalysis();
   mStorage.EndScope();
 }
 
 void VariableUseAnalysis::Visit(ASTReturn *Stmt) {
-  if (auto *O = Stmt->Operand())
+  if (auto *O = Stmt->Operand()) {
     O->Accept(this);
-}
-
-void VariableUseAnalysis::Visit(ASTMemberAccess *Stmt) {
-  auto *Symbol = static_cast<ASTSymbol *>(Stmt->Name());
-  AssertIsDeclared(Symbol->Name(), Stmt);
-  mStorage.AddUse(Symbol->Name());
+    AddReadUse(O);
+  }
 }
 
 void VariableUseAnalysis::AssertIsDeclared(std::string_view Name, ASTNode *AST) {
@@ -183,47 +222,74 @@ void VariableUseAnalysis::AssertIsNotDeclared(std::string_view Name, ASTNode *AS
     << ", column " << ColumnNo;
 }
 
-void VariableUseAnalysis::AddUseOnVarAccess(ASTNode *Stmt) {
+void VariableUseAnalysis::AddReadUse(ASTNode *Stmt) {
   if (Stmt->Is(AST_SYMBOL)) {
     auto *S = static_cast<ASTSymbol *>(Stmt);
-    mStorage.AddUse(S->Name());
+    mStorage.AddReadUse(S->Name());
   }
 
   if (Stmt->Is(AST_ARRAY_ACCESS)) {
     auto *A = static_cast<ASTArrayAccess *>(Stmt);
-    mStorage.AddUse(A->Name());
+    mStorage.AddReadUse(A->Name());
+  }
+
+  if (Stmt->Is(AST_MEMBER_ACCESS)) {
+    auto *M = static_cast<ASTMemberAccess *>(Stmt);
+    mStorage.AddReadUse(M->Name()->Name());
+  }
+}
+
+void VariableUseAnalysis::AddWriteUse(ASTNode *Stmt) {
+  if (Stmt->Is(AST_SYMBOL)) {
+    auto *S = static_cast<ASTSymbol *>(Stmt);
+    mStorage.AddWriteUse(S->Name());
+  }
+
+  if (Stmt->Is(AST_ARRAY_ACCESS)) {
+    auto *A = static_cast<ASTArrayAccess *>(Stmt);
+    mStorage.AddWriteUse(A->Name());
+  }
+
+  if (Stmt->Is(AST_MEMBER_ACCESS)) {
+    auto *M = static_cast<ASTMemberAccess *>(Stmt);
+    mStorage.AddWriteUse(M->Name()->Name());
   }
 }
 
 void VariableUseAnalysis::UnusedVarAndFuncAnalysis() {
-  for (auto *U : mStorage.CurrScopeUses()) {
+  for (auto *Use : mStorage.CurrScopeUses()) {
     bool IsFunction = false;
-    IsFunction |= U->AST->Is(AST_FUNCTION_DECL);
-    IsFunction |= U->AST->Is(AST_FUNCTION_PROTOTYPE);
+    IsFunction |= Use->AST->Is(AST_FUNCTION_DECL);
+    IsFunction |= Use->AST->Is(AST_FUNCTION_PROTOTYPE);
     bool IsMainFunction = false;
 
     if (IsFunction) {
-      auto *Main = static_cast<ASTFunctionDecl *>(U->AST);
+      auto *Main = static_cast<ASTFunctionDecl *>(Use->AST);
       IsMainFunction = Main->Name() == "main";
     }
 
-    if (U->Uses == 0U && !IsMainFunction)
-      weak::CompileWarning(U->AST)
+    if (!IsMainFunction && Use->ReadUses == 0U)
+      weak::CompileWarning(Use->AST)
         << (IsFunction ? "Function" : "Variable")
-        << " `" << U->Name << "` is never used";
+        << " `" << Use->Name << "` "
+        << (Use->WriteUses
+           ? "written, but never read"
+           : "is never used");
   }
 }
 
 void VariableUseAnalysis::UnusedVarAnalysis() {
-  for (auto *U : mStorage.CurrScopeUses()) {
+  for (auto *Use : mStorage.CurrScopeUses()) {
     bool IsFunction = false;
-    IsFunction |= U->AST->Is(AST_FUNCTION_DECL);
-    IsFunction |= U->AST->Is(AST_FUNCTION_PROTOTYPE);
+    IsFunction |= Use->AST->Is(AST_FUNCTION_DECL);
+    IsFunction |= Use->AST->Is(AST_FUNCTION_PROTOTYPE);
 
-    if (U->Uses == 0U && !IsFunction)
-      weak::CompileWarning(U->AST)
-        << "Variable"
-        << " `" << U->Name << "` is never used";
+    if (!IsFunction && Use->ReadUses == 0U)
+      weak::CompileWarning(Use->AST)
+        << "Variable `" << Use->Name << "` "
+        << (Use->WriteUses
+           ? "written, but never read"
+           : "is never used");
   }
 }
 

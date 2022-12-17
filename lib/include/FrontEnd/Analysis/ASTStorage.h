@@ -20,8 +20,10 @@ struct ASTStorage {
     ASTNode *AST{nullptr};
     DataType Type{DT_UNKNOWN};
     std::string Name;
-    /// How many times variable was used (accessed).
-    unsigned Uses{0U};
+    /// How many times variable was accessed.
+    unsigned ReadUses{0U};
+    /// How many times value was written to variable.
+    unsigned WriteUses{0U};
     /// How much variable is nested.
     unsigned Depth{0U};
   };
@@ -41,10 +43,13 @@ struct ASTStorage {
   Declaration *Lookup(std::string_view Name);
 
   /// \brief Add use for variable.
+  void AddReadUse(std::string_view Stmt);
+
+  /// \brief Add use for variable.
   ///
-  /// If use count is equal to 0, it mean that variable
+  /// If write use count is equal to 0, it mean that variable
   /// was not used anywhere and we can emit warning about it.
-  void AddUse(std::string_view Stmt);
+  void AddWriteUse(std::string_view Stmt);
 
   /// \brief Get set of all declared variables in current scope.
   ///
