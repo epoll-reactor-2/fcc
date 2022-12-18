@@ -5,22 +5,7 @@
  */
 
 #include "FrontEnd/Analysis/TypeAnalysis.h"
-#include "FrontEnd/AST/ASTArrayAccess.h"
-#include "FrontEnd/AST/ASTArrayDecl.h"
-#include "FrontEnd/AST/ASTBinary.h"
-#include "FrontEnd/AST/ASTBool.h"
-#include "FrontEnd/AST/ASTChar.h"
-#include "FrontEnd/AST/ASTCompound.h"
-#include "FrontEnd/AST/ASTFloat.h"
-#include "FrontEnd/AST/ASTFunctionCall.h"
-#include "FrontEnd/AST/ASTFunctionDecl.h"
-#include "FrontEnd/AST/ASTFunctionPrototype.h"
-#include "FrontEnd/AST/ASTNumber.h"
-#include "FrontEnd/AST/ASTReturn.h"
-#include "FrontEnd/AST/ASTString.h"
-#include "FrontEnd/AST/ASTSymbol.h"
-#include "FrontEnd/AST/ASTUnary.h"
-#include "FrontEnd/AST/ASTVarDecl.h"
+#include "FrontEnd/AST/AST.h"
 #include "Utility/Diagnostic.h"
 #include "Utility/EnumOstreamOperators.h"
 #include "Utility/Lexical.h"
@@ -132,6 +117,50 @@ void TypeAnalysis::Visit(ASTUnary *Stmt) {
   if (T != DT_CHAR && T != DT_INT)
     weak::CompileError(Stmt)
       << "Cannot apply `" << Stmt->Operation() << "` to " << T;
+}
+
+void TypeAnalysis::ConvertibleToBoolCondAnalysis(ASTNode *Stmt) {
+  DataType T = mLastDataType;
+  if (T != DT_INT && T != DT_BOOL)
+    weak::CompileError(Stmt)
+      << "Cannot convert " << T << " to bool";
+}
+
+void TypeAnalysis::Visit(ASTIf *Stmt) {
+  Stmt->Condition()->Accept(this);
+  ConvertibleToBoolCondAnalysis(Stmt);
+
+  Stmt->ThenBody()->Accept(this);
+
+  if (auto *E = Stmt->ElseBody())
+    E->Accept(this);
+}
+
+void TypeAnalysis::Visit(ASTFor *Stmt) {
+  if (auto *I = Stmt->Init())
+    I->Accept(this);
+
+  if (auto *C = Stmt->Condition()) {
+    C->Accept(this);
+    ConvertibleToBoolCondAnalysis(Stmt);
+  }
+
+  if (auto *I = Stmt->Increment())
+    I->Accept(this);
+
+  Stmt->Body()->Accept(this);
+}
+
+void TypeAnalysis::Visit(ASTWhile *Stmt) {
+  Stmt->Condition()->Accept(this);
+  ConvertibleToBoolCondAnalysis(Stmt);
+  Stmt->Body()->Accept(this);
+}
+
+void TypeAnalysis::Visit(ASTDoWhile *Stmt) {
+  Stmt->Body()->Accept(this);
+  Stmt->Condition()->Accept(this);
+  ConvertibleToBoolCondAnalysis(Stmt);
 }
 
 void TypeAnalysis::Visit(ASTArrayDecl *Decl) {
@@ -295,7 +324,8 @@ void TypeAnalysis::Visit(ASTFunctionCall *Stmt) {
 }
 
 void TypeAnalysis::Visit(ASTReturn *Decl) {
-  Decl->Operand()->Accept(this);
+  if (auto *O = Decl->Operand())
+    O->Accept(this);
   mLastReturnDataType = mLastDataType;
 }
 

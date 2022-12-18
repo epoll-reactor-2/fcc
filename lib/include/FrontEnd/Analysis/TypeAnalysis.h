@@ -64,6 +64,11 @@ private:
   void Visit(ASTBinary *) override;
   void Visit(ASTUnary *) override;
 
+  void Visit(ASTIf *) override;
+  void Visit(ASTFor *) override;
+  void Visit(ASTWhile *) override;
+  void Visit(ASTDoWhile *) override;
+
   void Visit(ASTArrayDecl *) override;
   void Visit(ASTVarDecl *) override;
 
@@ -76,6 +81,8 @@ private:
   void Visit(ASTReturn *) override;
 
   bool CorrectBinaryOpsAnalysis(TokenType Op, DataType T);
+
+  void ConvertibleToBoolCondAnalysis(ASTNode *Stmt);
 
   template <typename ASTFun>
   void CallArgumentsAnalysis(ASTNode *Decl, const std::vector<ASTNode *> &Args);
