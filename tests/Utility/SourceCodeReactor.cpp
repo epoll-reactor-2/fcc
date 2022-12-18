@@ -9,17 +9,29 @@
 #include <set>
 #include <vector>
 
-static const char *Operators[] = {
+static const char *IntOperators[] = {
   "+",
   "-",
   "<<",
+  ">>",
   "%",
   "/",
-  "*"
+  "*",
+  "|",
+  "&",
+  "^"
+};
+
+static const char *FloatOperators[] = {
+  "+",
+  "-",
+  "*",
+  "/"
 };
 
 static const char *DataTypes[] = {
   "int",
+  "float",
   "char",
   "bool"
 };
@@ -38,9 +50,11 @@ static char LettersSet[] = {
 };
 
 std::default_random_engine RandomEngine(std::random_device{}());
+std::uniform_real_distribution<float> FloatDistribution(0, 1);
 std::uniform_int_distribution<> NumericDistribution(0, 674545);
 std::uniform_int_distribution<> LetterDistribution(0, std::size(LettersSet) - 1);
-std::uniform_int_distribution<> OperatorsDistribution(0, std::size(Operators) - 1);
+std::uniform_int_distribution<> IntOperatorsDistribution(0, std::size(IntOperators) - 1);
+std::uniform_int_distribution<> FloatOperatorsDistribution(0, std::size(FloatOperators) - 1);
 std::uniform_int_distribution<> DataTypesDistribution(0, std::size(DataTypes) - 1);
 std::uniform_int_distribution<> BooleanDistribution(0, 1);
 
@@ -52,6 +66,10 @@ std::vector<std::vector<VariableStackRecord>> VariablesStack(1);
 
 signed RandomNumber() {
   return NumericDistribution(RandomEngine);
+}
+
+float RandomFloat() {
+  return FloatDistribution(RandomEngine);
 }
 
 char RandomLetter() {
@@ -66,24 +84,28 @@ const char *RandomDataType() {
   return DataTypes[DataTypesDistribution(RandomEngine)];
 }
 
-const char *RandomOperator() {
-  return Operators[OperatorsDistribution(RandomEngine)];
+const char *RandomIntOperator() {
+  return IntOperators[IntOperatorsDistribution(RandomEngine)];
 }
 
-const VariableStackRecord &RandomVariable() {
-  if (VariablesStack.empty())
-    throw std::logic_error("Empty variables stack");
-  std::uniform_int_distribution<> VariableDistribution(0, VariablesStack.size() - 1);
-  auto &R = VariablesStack.back();
-  if (R.empty())
-    throw std::logic_error("Empty scope variables stack");
+const char *RandomFloatOperator() {
+  return FloatOperators[FloatOperatorsDistribution(RandomEngine)];
+}
+
+const VariableStackRecord &RandomVariable(size_t Index) {
+  auto &R = VariablesStack.at(Index);
+
   std::uniform_int_distribution<> ScopeDistribution(0, R.size() - 1);
-  return R[ScopeDistribution(RandomEngine)];
+  Index = ScopeDistribution(RandomEngine);
+
+  return R.at(Index);
 }
 
 std::string RandomString() {
-  std::string String(32, 0);
-  std::generate_n(String.begin(), 32, RandomLetter);
+  std::uniform_int_distribution<> LengthDistribution(10, 40);
+  size_t Length = LengthDistribution(RandomEngine);
+  std::string String(Length, 0);
+  std::generate_n(String.begin(), Length, RandomLetter);
   return String;
 }
 
@@ -99,11 +121,85 @@ std::ostream &RandomUnary(std::ostream &S) {
   return S << (RandomBool() ? "++" : "--") << RandomNumber();
 }
 
-std::ostream &RandomBinary(std::ostream &S) {
-  if (VariablesStack.empty() || VariablesStack.back().empty())
+
+std::ostream &RandomIntBinary(std::ostream &S) {
+  std::uniform_int_distribution<> VariableDistribution(0, VariablesStack.size() - 1);
+  size_t I = VariableDistribution(RandomEngine);
+
+  if (VariablesStack.empty() || VariablesStack[I].empty())
     S << RandomNumber();
   else {
-    const auto &Var = RandomVariable();
+    const auto &Var = RandomVariable(I);
+    if (Var.Type != "int")
+      S << RandomNumber() << " ";
+    else
+      S << Var.Name << " ";
+  }
+  S << RandomIntOperator() << " ";
+
+  /// Increasing or decreasing `%` operand, we set
+  /// average binary chain length.
+  if (RandomNumber() % 10 == 0) {
+    if (VariablesStack.empty() || VariablesStack[I].empty())
+      return S << RandomNumber() << " ";
+    const auto &Var = RandomVariable(I);
+    if (Var.Type != "int")
+      return S << RandomNumber() << " ";
+    return S << Var.Name << " ";
+  }
+  else
+    return RandomIntBinary(S);
+}
+
+std::ostream &RandomFloatBinary(std::ostream &S) {
+  std::uniform_int_distribution<> VariableDistribution(0, VariablesStack.size() - 1);
+  size_t I = VariableDistribution(RandomEngine);
+
+  if (VariablesStack.empty() || VariablesStack[I].empty())
+    S << std::fixed << RandomFloat();
+  else {
+    const auto &Var = RandomVariable(I);
+    if (Var.Type != "float")
+      S << std::fixed << RandomFloat() << " ";
+    else
+      S << Var.Name << " ";
+  }
+  S << RandomFloatOperator() << " ";
+
+  /// Increasing or decreasing `%` operand, we set
+  /// average binary chain length.
+  if (RandomNumber() % 10 == 0) {
+    if (VariablesStack.empty() || VariablesStack[I].empty())
+      return S << std::fixed << RandomFloat() << " ";
+    const auto &Var = RandomVariable(I);
+    if (Var.Type != "float")
+      return S << std::fixed << RandomFloat() << " ";
+    return S << Var.Name << " ";
+  }
+  else
+    return RandomFloatBinary(S);
+}
+
+std::ostream &RandomBinary(std::ostream &S) {
+  std::string DT = RandomDataType();
+
+  if (DT == "int")
+    return RandomIntBinary(S);
+  else if (DT == "float")
+    return RandomFloatBinary(S);
+  else
+    return S << RandomNumber();
+}
+
+/*
+std::ostream &RandomBinary(std::ostream &S) {
+  std::uniform_int_distribution<> VariableDistribution(0, VariablesStack.size() - 1);
+  size_t I = VariableDistribution(RandomEngine);
+
+  if (VariablesStack.empty() || VariablesStack[I].empty())
+    S << RandomNumber();
+  else {
+    const auto &Var = RandomVariable(I);
     if (Var.Type != "int")
       S << RandomNumber() << " ";
     else
@@ -111,13 +207,12 @@ std::ostream &RandomBinary(std::ostream &S) {
   }
   S << RandomOperator() << " ";
 
-//  S << RandomNumber() << " " << RandomOperator() << " ";
   /// Increasing or decreasing `%` operand, we set
   /// average binary chain length.
-  if (RandomNumber() % 15 == 0) {
-    if (VariablesStack.empty() || VariablesStack.back().empty())
+  if (RandomNumber() % 10 == 0) {
+    if (VariablesStack.empty() || VariablesStack[I].empty())
       return S << RandomNumber() << " ";
-    const auto &Var = RandomVariable();
+    const auto &Var = RandomVariable(I);
     if (Var.Type != "int")
       return S << RandomNumber() << " ";
     return S << Var.Name << " ";
@@ -125,7 +220,7 @@ std::ostream &RandomBinary(std::ostream &S) {
   else
     return RandomBinary(S);
 }
-
+*/
 std::ostream &RandomVarDeclWithoutInitializer(std::ostream &S) {
   std::string Name = RandomString();
   std::string DT = RandomDataType();
@@ -141,6 +236,8 @@ std::ostream &RandomVarDecl(std::ostream &S) {
     S << "int " << Name << " = ";
     RandomBinary(S);
     S << ';';
+  } else if (DT == "float") {
+    S << "float " << Name << " = " << RandomFloat() << ";";
   } else if (DT == "char") {
     S << "char " << Name << " = '" << RandomLetter() << "';";
   } else if (DT == "bool") {
@@ -154,27 +251,69 @@ std::ostream &RandomVarDecl(std::ostream &S) {
 std::ostream &RandomBlock(std::ostream &S);
 
 std::ostream &RandomWhile(std::ostream &S) {
-  printf("While\n");
   for (signed I = 5, Size = (RandomNumber() % 25) + I; I < Size; ++I)
     RandomVarDecl(S);
   S << "while (";
-  RandomBinary(S);
+  RandomIntBinary(S);
   S << ")\n";
   RandomBlock(S);
   return S;
 }
 
+std::ostream &RandomDoWhile(std::ostream &S) {
+  for (signed I = 5, Size = (RandomNumber() % 25) + I; I < Size; ++I)
+    RandomVarDecl(S);
+  S << "do ";
+  RandomBlock(S);
+  S << " while (";
+  RandomIntBinary(S);
+  return S << ");";
+}
+
+std::ostream &RandomFor(std::ostream &S) {
+  for (signed I = 5, Size = (RandomNumber() % 25) + I; I < Size; ++I)
+    RandomVarDecl(S);
+  VariablesStack.push_back({});
+  S << "for (";
+  RandomVarDecl(S); /// `;` already there.
+  RandomIntBinary(S);
+  S << "; ";
+  RandomBinary(S);
+  S << ")\n";
+  RandomBlock(S);
+  VariablesStack.pop_back();
+  return S;
+}
+
+std::ostream &RandomIf(std::ostream &S) {
+  for (signed I = 5, Size = (RandomNumber() % 25) + I; I < Size; ++I)
+    RandomVarDecl(S);
+  S << "if (";
+  RandomIntBinary(S);
+  S << ")\n";
+  RandomBlock(S);
+  if (RandomBool()) {
+    S << " else ";
+    RandomBlock(S);
+  }
+  return S;
+}
+
 std::ostream &RandomStmt(std::ostream &S) {
-  if (RandomNumber() % 5 != 0)
-    return RandomVarDecl(S);
-  else
-    return RandomWhile(S);
+  switch (RandomNumber() % 22) {
+  case 0: return RandomDoWhile(S);
+  case 1: return RandomWhile(S);
+  case 2: return RandomFor(S);
+  case 3: return RandomIf(S);
+  default: return RandomVarDecl(S);
+  }
 }
 
 std::ostream &RandomBlock(std::ostream &S) {
-  printf("Block\n");
   VariablesStack.push_back({});
   S << "{\n";
+  for (signed I = 5, Size = (RandomNumber() % 25) + I; I < Size; ++I)
+    RandomVarDecl(S);
   for (signed I = 5, Size = (RandomNumber() % 10) + I; I < Size; ++I) {
     RandomStmt(S);
     S << '\n';
@@ -184,6 +323,8 @@ std::ostream &RandomBlock(std::ostream &S) {
 }
 
 std::ostream &RandomFunctionDecl(std::ostream &S) {
+  VariablesStack.push_back({});
+
   std::string DataType = RandomDataType();
   S << DataType << " " << RandomString();
   S << "(";
@@ -194,7 +335,7 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   }
   S << ")\n{";
 
-  for (signed I = 10, Size = 100; I < Size; ++I) {
+  for (signed I = 0; I < 100; ++I) {
     RandomStmt(S);
     S << '\n';
   }
@@ -202,18 +343,21 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   S << "return ";
   if (DataType == "int")
     S << RandomNumber();
-  if (DataType == "char")
+  else if (DataType == "float")
+    S << RandomFloat();
+  else if (DataType == "char")
     S << "'" << RandomLetter() << "'";
-  if (DataType == "bool")
+  else if (DataType == "bool")
     S << (RandomBool() ? "true" : "false");
   S << ';';
 
+  VariablesStack.pop_back();
   return S << "\n}\n";
 }
 
 int main() {
   std::ofstream TmpFile("/tmp/code.wl");
-  for (signed I = 0; I < 1; ++I) {
+  for (signed I = 0; I < 5; ++I) {
     RandomFunctionDecl(TmpFile);
     TmpFile << '\n';
   }
