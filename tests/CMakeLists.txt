@@ -36,8 +36,12 @@ CopyInputFiles("FrontEnd/Input/FunctionAnalysis" "FunctionAnalysis")
 CopyInputFiles("FrontEnd/Input/TypeAnalysis" "TypeAnalysis")
 CopyInputFiles("MiddleEnd/Input/CodeGen/Valid" "CodeGen/Valid")
 
-file(GLOB_RECURSE Files "*.cpp")
+file(GLOB_RECURSE Files "FrontEnd/*.cpp MiddleEnd/*.cpp")
 foreach(File ${Files})
   get_filename_component(Name ${File} NAME_WE)
   AddCompilerTest(${Name} ${File})
 endforeach()
+
+add_executable(SourceCodeReactor Utility/SourceCodeReactor)
+target_link_libraries (SourceCodeReactor PRIVATE WeakCompiler)
+target_compile_options(SourceCodeReactor PRIVATE -fPIC -flto -O3)
