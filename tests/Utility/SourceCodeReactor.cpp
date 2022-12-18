@@ -2,8 +2,18 @@
 
 */
 
+#include "FrontEnd/Lex/Lexer.h"
+#include "FrontEnd/Parse/Parser.h"
+#include "FrontEnd/Analysis/FunctionAnalysis.h"
+#include "FrontEnd/Analysis/VariableUseAnalysis.h"
+#include "FrontEnd/Analysis/TypeAnalysis.h"
+#include "MiddleEnd/CodeGen/CodeGen.h"
+#include "MiddleEnd/Driver/Driver.h"
+#include "MiddleEnd/Optimizers/Optimizers.h"
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <fstream>
 #include <random>
 #include <set>
@@ -335,7 +345,7 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   }
   S << ")\n{";
 
-  for (signed I = 0; I < 100; ++I) {
+  for (signed I = 0; I < 20; ++I) {
     RandomStmt(S);
     S << '\n';
   }
@@ -355,12 +365,45 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   return S << "\n}\n";
 }
 
-int main() {
-  std::ofstream TmpFile("/tmp/code.wl");
-  for (signed I = 0; I < 5; ++I) {
-    RandomFunctionDecl(TmpFile);
-    TmpFile << '\n';
-  }
+std::string GenerateFuzzProgram() {
+  std::ostringstream Stream;
+  RandomFunctionDecl(Stream);
+  Stream << "\nint main() { return 0; }";
+  return Stream.str();
+}
 
-  TmpFile << "int main() { return 0; }";
+int main() {
+  for (signed I = 0; I < 1'000; ++I) {
+    std::cout << "#" << std::setw(5) << I << " fuzz test... "  << std::flush;
+    std::string Program = GenerateFuzzProgram();
+    std::ofstream TmpFile("/tmp/last.wl", std::ios::out);
+    TmpFile << Program;
+    TmpFile.close();
+    try {
+      weak::Lexer Lex(&Program.front(), &Program.back());
+      auto Tokens = Lex.Analyze();
+      weak::Parser Parser(&Tokens.front(), &Tokens.back());
+      auto AST = Parser.Parse();
+      std::vector<weak::Analysis *> Analyzers;
+      Analyzers.push_back(new weak::VariableUseAnalysis(AST.get()));
+      Analyzers.push_back(new weak::FunctionAnalysis(AST.get()));
+      Analyzers.push_back(new weak::TypeAnalysis(AST.get()));
+
+      for (auto *A : Analyzers) {
+        A->Analyze();
+        delete A;
+      }
+      weak::CodeGen CG(AST.get());
+      CG.CreateCode();
+      weak::RunBuiltinLLVMOptimizationPass(CG.Module(), O0);
+      weak::Driver Driver(CG.Module(), "/tmp/code.wl");
+      Driver.Compile();
+    } catch (std::exception &E) {
+      std::cout << "For program\n\n" << Program << "\n";
+      std::cout << "Caught error: " << E.what() << std::endl;
+      return -1;
+    }
+
+    std::cout << " success!\n" << std::flush;
+  }
 }
