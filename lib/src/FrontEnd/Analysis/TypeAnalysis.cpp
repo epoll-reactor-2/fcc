@@ -86,6 +86,7 @@ bool TypeAnalysis::CorrectBinaryOpsAnalysis(TokenType Op, DataType T) {
   case TOK_XOR:
   case TOK_SHL:
   case TOK_SHR:
+  case TOK_MOD:
   case TOK_MOD_ASSIGN:
   case TOK_BIT_OR_ASSIGN:
   case TOK_BIT_AND_ASSIGN:

@@ -183,6 +183,7 @@ void CodeGen::Visit(ASTBinary *Stmt) {
   case TOK_XOR:
   case TOK_SHL:
   case TOK_SHR:
+  case TOK_MOD:
     mLastInstr = ScalarEmitter.EmitBinOp(T, L, R);
     break;
   default:

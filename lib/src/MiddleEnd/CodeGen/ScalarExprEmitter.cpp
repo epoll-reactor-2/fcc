@@ -43,6 +43,7 @@ llvm::Value *ScalarExprEmitter::EmitIntegralBinOp(TokenType T, llvm::Value *L, l
   case TOK_XOR:     return mIRBuilder.CreateXor(L, R);
   case TOK_SHL:     return mIRBuilder.CreateShl(L, R);
   case TOK_SHR:     return mIRBuilder.CreateAShr(L, R);
+  case TOK_MOD:     return mIRBuilder.CreateSRem(L, R);
   default:          Unreachable("Unknown binary operator.");
   }
 }
