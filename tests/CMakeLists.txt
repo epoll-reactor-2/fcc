@@ -42,6 +42,5 @@ foreach(File ${Files})
   AddCompilerTest(${Name} ${File})
 endforeach()
 
-add_executable(SourceCodeReactor Utility/SourceCodeReactor)
-target_link_libraries (SourceCodeReactor PRIVATE WeakCompiler)
-target_compile_options(SourceCodeReactor PRIVATE -fPIC -flto -O3)
+add_executable(Fuzzer Utility/Fuzzer.cpp)
+target_link_libraries (Fuzzer PRIVATE WeakCompiler)

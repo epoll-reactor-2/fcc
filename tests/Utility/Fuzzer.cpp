@@ -18,6 +18,7 @@
 #include <random>
 #include <set>
 #include <vector>
+#include <sys/resource.h>
 
 static const char *IntOperators[] = {
   "+",
@@ -190,9 +191,7 @@ std::ostream &RandomFloatBinary(std::ostream &S) {
     return RandomFloatBinary(S);
 }
 
-std::ostream &RandomBinary(std::ostream &S) {
-  std::string DT = RandomDataType();
-
+std::ostream &RandomBinary(std::string DT, std::ostream &S) {
   if (DT == "int")
     return RandomIntBinary(S);
   else if (DT == "float")
@@ -201,36 +200,6 @@ std::ostream &RandomBinary(std::ostream &S) {
     return S << RandomNumber();
 }
 
-/*
-std::ostream &RandomBinary(std::ostream &S) {
-  std::uniform_int_distribution<> VariableDistribution(0, VariablesStack.size() - 1);
-  size_t I = VariableDistribution(RandomEngine);
-
-  if (VariablesStack.empty() || VariablesStack[I].empty())
-    S << RandomNumber();
-  else {
-    const auto &Var = RandomVariable(I);
-    if (Var.Type != "int")
-      S << RandomNumber() << " ";
-    else
-      S << Var.Name << " ";
-  }
-  S << RandomOperator() << " ";
-
-  /// Increasing or decreasing `%` operand, we set
-  /// average binary chain length.
-  if (RandomNumber() % 10 == 0) {
-    if (VariablesStack.empty() || VariablesStack[I].empty())
-      return S << RandomNumber() << " ";
-    const auto &Var = RandomVariable(I);
-    if (Var.Type != "int")
-      return S << RandomNumber() << " ";
-    return S << Var.Name << " ";
-  }
-  else
-    return RandomBinary(S);
-}
-*/
 std::ostream &RandomVarDeclWithoutInitializer(std::ostream &S) {
   std::string Name = RandomString();
   std::string DT = RandomDataType();
@@ -244,10 +213,10 @@ std::ostream &RandomVarDecl(std::ostream &S) {
 
   if (DT == "int") {
     S << "int " << Name << " = ";
-    RandomBinary(S);
+    RandomBinary(DT, S);
     S << ';';
   } else if (DT == "float") {
-    S << "float " << Name << " = " << RandomFloat() << ";";
+    S << "float " << Name << " = " << std::fixed << RandomFloat() << ";";
   } else if (DT == "char") {
     S << "char " << Name << " = '" << RandomLetter() << "';";
   } else if (DT == "bool") {
@@ -288,7 +257,7 @@ std::ostream &RandomFor(std::ostream &S) {
   RandomVarDecl(S); /// `;` already there.
   RandomIntBinary(S);
   S << "; ";
-  RandomBinary(S);
+  RandomBinary("int", S);
   S << ")\n";
   RandomBlock(S);
   VariablesStack.pop_back();
@@ -354,7 +323,7 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   if (DataType == "int")
     S << RandomNumber();
   else if (DataType == "float")
-    S << RandomFloat();
+    S << std::fixed << RandomFloat();
   else if (DataType == "char")
     S << "'" << RandomLetter() << "'";
   else if (DataType == "bool")
@@ -372,7 +341,37 @@ std::string GenerateFuzzProgram() {
   return Stream.str();
 }
 
+void PrintProgramWithLineNumbers(std::string_view Program) {
+  size_t Pos = 0U;
+  size_t LineNo = 0U;
+  while (Pos != std::string_view::npos) {
+    Pos = Program.find_first_of('\n');
+    if (Pos == std::string_view::npos)
+      break;
+    std::string_view Line = Program.substr(0, Pos);
+    std::cout << std::setw(6) << std::right << LineNo++ << ": ";
+    std::cout << Line << '\n';
+    std::cout << std::flush;
+    Program = Program.substr(Pos + 1);
+  }
+}
+
+void ReduceStackSize() {
+  struct rlimit RLimit;
+  if (getrlimit(RLIMIT_STACK, &RLimit) != 0) {
+    std::cerr << "Cannot reduce stack size to 256 KiB." << std::flush;
+    return;
+  }
+
+  RLimit.rlim_cur = 1024 * 512;
+  RLimit.rlim_max = 1024 * 512;
+  if (setrlimit(RLIMIT_STACK, &RLimit) != 0)
+    std::cerr << "Cannot set stack size to 256 KiB." << std::flush;
+}
+
 int main() {
+  ReduceStackSize();
+
   for (signed I = 0; I < 1'000; ++I) {
     std::cout << "#" << std::setw(5) << I << " fuzz test... "  << std::flush;
     std::string Program = GenerateFuzzProgram();
@@ -399,8 +398,9 @@ int main() {
       weak::Driver Driver(CG.Module(), "/tmp/code.wl");
       Driver.Compile();
     } catch (std::exception &E) {
-      std::cout << "For program\n\n" << Program << "\n";
-      std::cout << "Caught error: " << E.what() << std::endl;
+      std::cout << "For program\n";
+      PrintProgramWithLineNumbers(Program);
+      std::cout << "\nCaught error: " << E.what() << std::endl;
       return -1;
     }
 
