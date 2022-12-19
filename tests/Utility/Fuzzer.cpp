@@ -135,6 +135,11 @@ const VariableStackRecord &RandomVariable(size_t Index) {
   return R.at(Index);
 }
 
+const FunctionRecord &RandomFunction() {
+  std::uniform_int_distribution<> FunctionDistribution(0, FunctionsStack.size() - 1);
+  return FunctionsStack[FunctionDistribution(RandomEngine)];
+}
+
 std::string RandomString() {
   std::uniform_int_distribution<> LengthDistribution(10, 20);
   size_t Length = LengthDistribution(RandomEngine);
@@ -277,12 +282,52 @@ std::ostream &RandomIf(std::ostream &S) {
   return S;
 }
 
+std::ostream &RandomFunctionCall(std::ostream &S) {
+  if (FunctionsStack.empty())
+    return S;
+
+  const auto &F = RandomFunction();
+  S << F.Name << "(";
+
+  for (signed I = 0, Size = F.ArgTypes.size(); I < Size; ++I) {
+    std::uniform_int_distribution<> VariableDistribution(0, VariablesStack.size() - 1);
+    size_t StackIndex = VariableDistribution(RandomEngine);
+
+    auto EmitValue = [&](std::string_view Type, auto LiteralFn) mutable {
+      if (VariablesStack.empty() || VariablesStack[StackIndex].empty())
+        LiteralFn();
+      else {
+        const auto &Var = RandomVariable(StackIndex);
+        if (Var.Type != Type)
+          LiteralFn();
+        else
+          S << Var.Name;
+      }
+    };
+
+    const std::string &T = F.ArgTypes[I];
+    if (T == "int")
+      EmitValue("int", [&S]() -> std::ostream & { return S << RandomNumber(); });
+    else if (T == "float")
+      EmitValue("float", [&S]() -> std::ostream & { return S << std::fixed << RandomFloat(); });
+    else if (T == "bool")
+      EmitValue("bool", [&S]() -> std::ostream & { return S << (RandomBool() ? "true" : "false"); });
+    else if (T == "char")
+       S << "'" << RandomLetter() << "'";
+
+    if (I != Size - 1)
+      S << ", ";
+  }
+  return S << ");";
+}
+
 std::ostream &RandomStmt(std::ostream &S) {
   switch (RandomNumber() % 22) {
   case 0: return RandomDoWhile(S);
   case 1: return RandomWhile(S);
   case 2: return RandomFor(S);
   case 3: return RandomIf(S);
+  case 4: return RandomFunctionCall(S);
   default: return RandomVarDecl(S);
   }
 }
@@ -308,7 +353,7 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   std::vector<std::string> ArgTypes;
   S << DataType << " " << Name;
   S << "(";
-  for (signed I = 64, Size = (RandomNumber() % 64) + I; I < Size; ++I) {
+  for (signed I = 10, Size = (RandomNumber() % 10) + I; I < Size; ++I) {
     RandomVarDeclWithoutInitializer(S);
     ArgTypes.push_back(VariablesStack.back().back().Type);
     if (I != Size - 1)
@@ -316,7 +361,7 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   }
   S << ")\n{";
 
-  for (signed I = 0; I < 100; ++I) {
+  for (signed I = 0; I < 10; ++I) {
     RandomStmt(S);
     S << '\n';
   }
@@ -339,8 +384,11 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
 
 std::string GenerateFuzzProgram() {
   std::ostringstream Stream;
-  RandomFunctionDecl(Stream);
+  for (signed I = 0; I < 10; ++I)
+    RandomFunctionDecl(Stream);
   Stream << "\nint main() { return 0; }";
+  VariablesStack.clear();
+  FunctionsStack.clear();
   return Stream.str();
 }
 
