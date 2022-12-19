@@ -235,6 +235,9 @@ void CodeGen::Visit(ASTFor *Stmt) {
     mIRBuilder.CreateBr(CondBB);
     mIRBuilder.SetInsertPoint(CondBB);
     C->Accept(this);
+
+    unsigned NumBits = mLastInstr->getType()->getPrimitiveSizeInBits();
+    mLastInstr = mIRBuilder.CreateICmpNE(mLastInstr, mIRBuilder.getIntN(NumBits, 0));
     mIRBuilder.CreateCondBr(mLastInstr, BodyBB, EndBB);
   } else
     mIRBuilder.CreateBr(BodyBB);
@@ -262,7 +265,11 @@ void CodeGen::Visit(ASTWhile *Stmt) {
   mIRBuilder.SetInsertPoint(CondBB);
 
   Stmt->Condition()->Accept(this);
+
+  unsigned NumBits = mLastInstr->getType()->getPrimitiveSizeInBits();
+  mLastInstr = mIRBuilder.CreateICmpNE(mLastInstr, mIRBuilder.getIntN(NumBits, 0));
   mIRBuilder.CreateCondBr(mLastInstr, BodyBB, EndBB);
+
   mIRBuilder.SetInsertPoint(BodyBB);
   Stmt->Body()->Accept(this);
   mIRBuilder.CreateBr(CondBB);
@@ -280,6 +287,10 @@ void CodeGen::Visit(ASTDoWhile *Stmt) {
 
   Stmt->Body()->Accept(this);
   Stmt->Condition()->Accept(this);
+
+  unsigned NumBits = mLastInstr->getType()->getPrimitiveSizeInBits();
+  mLastInstr = mIRBuilder.CreateICmpNE(mLastInstr, mIRBuilder.getIntN(NumBits, 0));
+
   mIRBuilder.CreateCondBr(mLastInstr, BodyBB, EndBB);
   mIRBuilder.SetInsertPoint(EndBB);
 }
