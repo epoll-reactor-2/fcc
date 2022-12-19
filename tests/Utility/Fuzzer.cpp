@@ -20,7 +20,6 @@
 #include <random>
 #include <set>
 #include <vector>
-#include <sys/resource.h>
 
 static const char *IntOperators[] = {
   "+",
@@ -310,7 +309,7 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   std::string DataType = RandomDataType();
   S << DataType << " " << RandomString();
   S << "(";
-  for (signed I = 3, Size = (RandomNumber() % 11) + I; I < Size; ++I) {
+  for (signed I = 64, Size = (RandomNumber() % 64) + I; I < Size; ++I) {
     RandomVarDeclWithoutInitializer(S);
     if (I != Size - 1)
       S << ", ";
@@ -359,22 +358,7 @@ void PrintProgramWithLineNumbers(std::string_view Program) {
   }
 }
 
-void ReduceStackSize() {
-  struct rlimit RLimit;
-  if (getrlimit(RLIMIT_STACK, &RLimit) != 0) {
-    std::cerr << "Cannot reduce stack size to 256 KiB." << std::flush;
-    return;
-  }
-
-  RLimit.rlim_cur = 1024 * 512;
-  RLimit.rlim_max = 1024 * 512;
-  if (setrlimit(RLIMIT_STACK, &RLimit) != 0)
-    std::cerr << "Cannot set stack size to 256 KiB." << std::flush;
-}
-
 int main() {
-  ReduceStackSize();
-
   for (signed I = 0; I < 1'000; ++I) {
     std::cout << "#" << std::setw(5) << I << " fuzz test... "  << std::flush;
     std::string Program = GenerateFuzzProgram();
