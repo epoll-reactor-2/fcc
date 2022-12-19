@@ -53,7 +53,7 @@ struct DriverImpl {
 private:
   void RunClangFrontEnd(std::string_view OutFile) {
     std::string CompileCmd;
-    CompileCmd += "clang++ ";
+    CompileCmd += "clang ";
     CompileCmd += OutFile;
     CompileCmd += " -o ";
     CompileCmd += OutFile.substr(0, OutFile.size() - 2);
