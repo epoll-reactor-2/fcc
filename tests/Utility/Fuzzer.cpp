@@ -207,6 +207,7 @@ std::ostream &RandomVarDeclWithoutInitializer(std::ostream &S) {
   std::string DT = RandomDataType();
   return S << RandomDataType() << ' ' << Name;
   VariablesStack.back().emplace_back(VariableStackRecord{DT, Name});
+  return S;
 }
 
 std::ostream &RandomVarDecl(std::ostream &S) {
@@ -316,7 +317,7 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   }
   S << ")\n{";
 
-  for (signed I = 0; I < 20; ++I) {
+  for (signed I = 0; I < 100; ++I) {
     RandomStmt(S);
     S << '\n';
   }
