@@ -41,6 +41,17 @@ static const char *FloatOperators[] = {
   "/"
 };
 
+static const char *BoolOperators[] = {
+  "&&",
+  "||",
+  "==",
+  "!=",
+  ">",
+  "<",
+  ">=",
+  "<="
+};
+
 static const char *DataTypes[] = {
   "int",
   "float",
@@ -67,6 +78,7 @@ std::uniform_int_distribution<> NumericDistribution(0, 674545);
 std::uniform_int_distribution<> LetterDistribution(0, std::size(LettersSet) - 1);
 std::uniform_int_distribution<> IntOperatorsDistribution(0, std::size(IntOperators) - 1);
 std::uniform_int_distribution<> FloatOperatorsDistribution(0, std::size(FloatOperators) - 1);
+std::uniform_int_distribution<> BoolOperatorsDistribution(0, std::size(BoolOperators) - 1);
 std::uniform_int_distribution<> DataTypesDistribution(0, std::size(DataTypes) - 1);
 std::uniform_int_distribution<> BooleanDistribution(0, 1);
 
@@ -74,7 +86,13 @@ struct VariableStackRecord {
   std::string Type, Name;
 };
 
+struct FunctionRecord {
+  std::string ReturnType, Name;
+  std::vector<std::string> ArgTypes;
+};
+
 std::vector<std::vector<VariableStackRecord>> VariablesStack(1);
+std::vector<FunctionRecord> FunctionsStack;
 
 signed RandomNumber() {
   return NumericDistribution(RandomEngine);
@@ -104,6 +122,10 @@ const char *RandomFloatOperator() {
   return FloatOperators[FloatOperatorsDistribution(RandomEngine)];
 }
 
+const char *RandomBoolOperator() {
+  return BoolOperators[BoolOperatorsDistribution(RandomEngine)];
+}
+
 const VariableStackRecord &RandomVariable(size_t Index) {
   auto &R = VariablesStack.at(Index);
 
@@ -114,7 +136,7 @@ const VariableStackRecord &RandomVariable(size_t Index) {
 }
 
 std::string RandomString() {
-  std::uniform_int_distribution<> LengthDistribution(10, 40);
+  std::uniform_int_distribution<> LengthDistribution(10, 20);
   size_t Length = LengthDistribution(RandomEngine);
   std::string String(Length, 0);
   std::generate_n(String.begin(), Length, RandomLetter);
@@ -133,80 +155,54 @@ std::ostream &RandomUnary(std::ostream &S) {
   return S << (RandomBool() ? "++" : "--") << RandomNumber();
 }
 
-
-std::ostream &RandomIntBinary(std::ostream &S) {
+template <typename EmitterFn, typename RandomOperatorFn>
+std::ostream &RandomBinaryGeneric(std::ostream &S, std::string_view Type, EmitterFn LiteralEmit, RandomOperatorFn RandomOperator) {
   std::uniform_int_distribution<> VariableDistribution(0, VariablesStack.size() - 1);
   size_t I = VariableDistribution(RandomEngine);
 
   if (VariablesStack.empty() || VariablesStack[I].empty())
-    S << RandomNumber();
-  else {
-    const auto &Var = RandomVariable(I);
-    if (Var.Type != "int")
-      S << RandomNumber() << " ";
+    LiteralEmit();
+  else
+    if (const auto &Var = RandomVariable(I); Var.Type != Type)
+      LiteralEmit();
     else
-      S << Var.Name << " ";
-  }
-  S << RandomIntOperator() << " ";
+      S << Var.Name;
+  S << RandomOperator();
 
   /// Increasing or decreasing `%` operand, we set
   /// average binary chain length.
   if (RandomNumber() % 10 == 0) {
     if (VariablesStack.empty() || VariablesStack[I].empty())
-      return S << RandomNumber() << " ";
+      return LiteralEmit();
     const auto &Var = RandomVariable(I);
-    if (Var.Type != "int")
-      return S << RandomNumber() << " ";
-    return S << Var.Name << " ";
+    if (Var.Type != Type)
+      return LiteralEmit();
+    return S << Var.Name;
   }
-  else
-    return RandomIntBinary(S);
-}
-
-std::ostream &RandomFloatBinary(std::ostream &S) {
-  std::uniform_int_distribution<> VariableDistribution(0, VariablesStack.size() - 1);
-  size_t I = VariableDistribution(RandomEngine);
-
-  if (VariablesStack.empty() || VariablesStack[I].empty())
-    S << std::fixed << RandomFloat();
-  else {
-    const auto &Var = RandomVariable(I);
-    if (Var.Type != "float")
-      S << std::fixed << RandomFloat() << " ";
-    else
-      S << Var.Name << " ";
-  }
-  S << RandomFloatOperator() << " ";
-
-  /// Increasing or decreasing `%` operand, we set
-  /// average binary chain length.
-  if (RandomNumber() % 10 == 0) {
-    if (VariablesStack.empty() || VariablesStack[I].empty())
-      return S << std::fixed << RandomFloat() << " ";
-    const auto &Var = RandomVariable(I);
-    if (Var.Type != "float")
-      return S << std::fixed << RandomFloat() << " ";
-    return S << Var.Name << " ";
-  }
-  else
-    return RandomFloatBinary(S);
+  return RandomBinaryGeneric(S, Type, LiteralEmit, RandomOperator);
 }
 
 std::ostream &RandomBinary(std::string DT, std::ostream &S) {
   if (DT == "int")
-    return RandomIntBinary(S);
-  else if (DT == "float")
-    return RandomFloatBinary(S);
-  else
-    return S << RandomNumber();
+    return RandomBinaryGeneric(S, DT, [&S]() -> std::ostream & { return S << RandomNumber(); }, RandomIntOperator);
+  if (DT == "float")
+    return RandomBinaryGeneric(S, DT, [&S]() -> std::ostream & { return S << std::fixed << RandomFloat(); }, RandomFloatOperator);
+  if (DT == "bool")
+    return RandomBinaryGeneric(S, DT, [&S]() -> std::ostream & { return S << (RandomBool() ? "true" : "false"); }, RandomBoolOperator);
+  if (DT == "char")
+    return S << RandomLetter();
+  __builtin_trap();
+}
+
+std::ostream &RandomBoolBinary(std::ostream &S) {
+  return RandomBinaryGeneric(S, "bool", [&S]() -> std::ostream & { return S << (RandomBool() ? "true" : "false"); }, RandomBoolOperator);
 }
 
 std::ostream &RandomVarDeclWithoutInitializer(std::ostream &S) {
   std::string Name = RandomString();
   std::string DT = RandomDataType();
-  return S << RandomDataType() << ' ' << Name;
   VariablesStack.back().emplace_back(VariableStackRecord{DT, Name});
-  return S;
+  return S << DT << ' ' << Name;
 }
 
 std::ostream &RandomVarDecl(std::ostream &S) {
@@ -216,7 +212,7 @@ std::ostream &RandomVarDecl(std::ostream &S) {
   if (DT == "int") {
     S << "int " << Name << " = ";
     RandomBinary(DT, S);
-    S << ';';
+    S << ";";
   } else if (DT == "float") {
     S << "float " << Name << " = " << std::fixed << RandomFloat() << ";";
   } else if (DT == "char") {
@@ -224,6 +220,7 @@ std::ostream &RandomVarDecl(std::ostream &S) {
   } else if (DT == "bool") {
     S << "bool " << Name << " = " << (RandomBool() ? "true" : "false") << ";";
   }
+  S << '\n';
 
   VariablesStack.back().emplace_back(VariableStackRecord{DT, Name});
   return S;
@@ -235,7 +232,7 @@ std::ostream &RandomWhile(std::ostream &S) {
   for (signed I = 5, Size = (RandomNumber() % 25) + I; I < Size; ++I)
     RandomVarDecl(S);
   S << "while (";
-  RandomIntBinary(S);
+  RandomBoolBinary(S);
   S << ")\n";
   RandomBlock(S);
   return S;
@@ -247,7 +244,7 @@ std::ostream &RandomDoWhile(std::ostream &S) {
   S << "do ";
   RandomBlock(S);
   S << " while (";
-  RandomIntBinary(S);
+  RandomBoolBinary(S);
   return S << ");";
 }
 
@@ -257,7 +254,7 @@ std::ostream &RandomFor(std::ostream &S) {
   VariablesStack.push_back({});
   S << "for (";
   RandomVarDecl(S); /// `;` already there.
-  RandomIntBinary(S);
+  RandomBoolBinary(S);
   S << "; ";
   RandomBinary("int", S);
   S << ")\n";
@@ -270,7 +267,7 @@ std::ostream &RandomIf(std::ostream &S) {
   for (signed I = 5, Size = (RandomNumber() % 25) + I; I < Size; ++I)
     RandomVarDecl(S);
   S << "if (";
-  RandomIntBinary(S);
+  RandomBoolBinary(S);
   S << ")\n";
   RandomBlock(S);
   if (RandomBool()) {
@@ -307,10 +304,13 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   VariablesStack.push_back({});
 
   std::string DataType = RandomDataType();
-  S << DataType << " " << RandomString();
+  std::string Name = RandomString();
+  std::vector<std::string> ArgTypes;
+  S << DataType << " " << Name;
   S << "(";
   for (signed I = 64, Size = (RandomNumber() % 64) + I; I < Size; ++I) {
     RandomVarDeclWithoutInitializer(S);
+    ArgTypes.push_back(VariablesStack.back().back().Type);
     if (I != Size - 1)
       S << ", ";
   }
@@ -333,6 +333,7 @@ std::ostream &RandomFunctionDecl(std::ostream &S) {
   S << ';';
 
   VariablesStack.pop_back();
+  FunctionsStack.emplace_back(FunctionRecord{std::move(DataType), std::move(Name), std::move(ArgTypes)});
   return S << "\n}\n";
 }
 
@@ -359,7 +360,7 @@ void PrintProgramWithLineNumbers(std::string_view Program) {
 }
 
 int main() {
-  for (signed I = 0; I < 1'000; ++I) {
+  for (signed I = 0; ; ++I) {
     std::cout << "#" << std::setw(5) << I << " fuzz test... "  << std::flush;
     std::string Program = GenerateFuzzProgram();
     std::ofstream TmpFile("/tmp/last.wl", std::ios::out);
