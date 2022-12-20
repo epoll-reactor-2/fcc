@@ -42,5 +42,5 @@ foreach(File ${Files})
   AddCompilerTest(${Name} ${File})
 endforeach()
 
-add_executable(Fuzzer Utility/Fuzzer.cpp)
+add_executable(Fuzzer Fuzzer/Fuzzer.cpp)
 target_link_libraries (Fuzzer PRIVATE WeakCompiler)
