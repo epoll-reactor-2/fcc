@@ -9,15 +9,15 @@
 
 const char *weak::DataTypeToString(DataType T) {
   switch (T) {
-  case DT_UNKNOWN: return "<UNKNOWN>";
-  case DT_FUNC:    return "<FUNCTION>";
+  case DT_UNKNOWN: return "unknown";
+  case DT_FUNC:    return "function";
   case DT_VOID:    return "void";
   case DT_INT:     return "int";
   case DT_FLOAT:   return "float";
   case DT_CHAR:    return "char";
   case DT_STRING:  return "string";
   case DT_BOOL:    return "bool";
-  case DT_STRUCT:  return "<STRUCT>";
+  case DT_STRUCT:  return "struct";
   default:         Unreachable("Should not reach there.");
   }
 }

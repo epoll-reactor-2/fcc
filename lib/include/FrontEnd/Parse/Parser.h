@@ -31,9 +31,10 @@ public:
 
 private:
   struct LocalizedDataType {
+    DataType DT;
+    unsigned PointerIndirectionLevel;
     unsigned LineNo;
     unsigned ColumnNo;
-    DataType DT;
   };
 
   /// Function with or without body (prototype).
@@ -41,6 +42,9 @@ private:
 
   /// Function call with optional argument list.
   ASTNode *ParseFunctionCall();
+
+  /// Variable declaration with initializer.
+  ASTNode *ParseVarDecl();
 
   /// Expressions like `int variable`. Used in function parameters.
   ASTNode *ParseVarDeclWithoutInitializer();
@@ -50,9 +54,6 @@ private:
 
   /// < id > [ < expression > ].
   ASTNode *ParseArrayAccess();
-
-  /// Variable declaration with initializer.
-  ASTNode *ParseVarDecl();
 
   ASTNode *ParseDecl();
 

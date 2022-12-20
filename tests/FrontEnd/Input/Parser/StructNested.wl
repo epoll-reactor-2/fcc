@@ -16,7 +16,7 @@
 //    FunctionDeclArgs <line:44, col:1>
 //    FunctionDeclBody <line:44, col:1>
 //      CompoundStmt <line:44, col:10>
-//        VarDecl <line:45, col:5> <STRUCT> custom `x`
+//        VarDecl <line:45, col:5> struct custom `x`
 //        BinaryOperator <line:46, col:32> =
 //          StructMemberAccess <line:46, col:5>
 //            Symbol <line:46, col:5> `x`

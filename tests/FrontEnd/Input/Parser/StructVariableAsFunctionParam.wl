@@ -7,7 +7,7 @@
 //    VarDecl <line:16, col:5> string `description`
 //  FunctionPrototype <line:19, col:1> `f`
 //    FunctionPrototypeArgs <line:19, col:1>
-//      VarDecl <line:19, col:8> <STRUCT> custom `record`
+//      VarDecl <line:19, col:8> struct custom `record`
 struct custom {
     int a;
     int b;

@@ -29,7 +29,7 @@ std::string ExtractAST(std::string Program) {
 }
 
 void TestAST(std::string_view Path) {
-  std::cout << "Testing file " << Path << "...\n";
+  std::cout << "Testing file " << Path << "...\n" << std::flush;
   std::string Program = weak::FileAsString(Path);
 
   weak::Lexer Lex(&Program.front(), &Program.back());

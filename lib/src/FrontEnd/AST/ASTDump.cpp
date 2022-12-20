@@ -41,28 +41,6 @@ public:
   }
 
 private:
-  void Visit(ASTArrayAccess *Stmt) override {
-    ASTTypePrint("ArrayAccess", Stmt);
-    mStream << Stmt->Name() << '\n';
-
-    mIndent += 2;
-    for (auto *I : Stmt->Indices()) {
-      PrintIndent();
-      I->Accept(this);
-    }
-    mIndent -= 2;
-  }
-
-  void Visit(ASTArrayDecl *Decl) override {
-    ASTTypePrint("ArrayDecl", Decl);
-
-    const auto &ArityList = Decl->ArityList();
-    mStream << Decl->DataType() << " "
-            << IntegerRangeToString(ArityList.cbegin(), ArityList.cend())
-            << " `";
-    mStream << Decl->Name() << "`\n";
-  }
-
   void Visit(ASTBinary *Stmt) override {
     ASTTypePrint("BinaryOperator", Stmt);
     mStream << Stmt->Operation() << '\n';
@@ -256,6 +234,10 @@ private:
     ASTTypePrint("VarDecl", Decl);
     mStream << Decl->DataType() << ' ';
     mStream << (Decl->DataType() == DT_STRUCT ? Decl->TypeName() + ' ' : "");
+    if (unsigned PIL = Decl->PointerIndirectionLevel(); PIL > 0) {
+      mStream << std::string(PIL, '*');
+      mStream << ' ';
+    }
     mStream << "`" << Decl->Name();
     mStream << "`\n";
 
@@ -265,6 +247,32 @@ private:
       Body->Accept(this);
       mIndent -= 2;
     }
+  }
+
+  void Visit(ASTArrayAccess *Stmt) override {
+    ASTTypePrint("ArrayAccess", Stmt);
+    mStream << Stmt->Name() << '\n';
+
+    mIndent += 2;
+    for (auto *I : Stmt->Indices()) {
+      PrintIndent();
+      I->Accept(this);
+    }
+    mIndent -= 2;
+  }
+
+  void Visit(ASTArrayDecl *Decl) override {
+    ASTTypePrint("ArrayDecl", Decl);
+
+    const auto &ArityList = Decl->ArityList();
+    mStream << Decl->DataType() << " " << Decl->TypeName();
+    if (unsigned PIL = Decl->PointerIndirectionLevel(); PIL > 0) {
+      mStream << ' ';
+      mStream << std::string(PIL, '*');
+      mStream << ' ';
+    }
+    mStream << IntegerRangeToString(ArityList.cbegin(), ArityList.cend());
+    mStream << " `" << Decl->Name() << "`\n";
   }
 
   void Visit(ASTFunctionDecl *Decl) override {

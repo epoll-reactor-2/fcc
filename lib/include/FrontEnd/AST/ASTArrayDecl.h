@@ -20,6 +20,17 @@ public:
     weak::DataType        DT,
     std::string           Name,
     std::vector<unsigned> ArityList,
+    unsigned              PointerIndirectionLevel,
+    unsigned              LineNo,
+    unsigned              ColumnNo
+  );
+
+  ASTArrayDecl(
+    weak::DataType        DT,
+    std::string           TypeName,
+    std::string           Name,
+    std::vector<unsigned> ArityList,
+    unsigned              PointerIndirectionLevel,
     unsigned              LineNo,
     unsigned              ColumnNo
   );
@@ -28,7 +39,9 @@ public:
 
   weak::DataType DataType() const;
   const std::string &Name() const;
+  const std::string &TypeName() const;
   const std::vector<unsigned> &ArityList() const;
+  unsigned PointerIndirectionLevel() const;
 
 private:
   /// Data type of array.
@@ -37,10 +50,19 @@ private:
   /// Variable name.
   std::string mName;
 
+  /// Optional structure type name.
+  std::string mTypeName;
+
   /// This stores information about array arity (dimension)
   /// and size for each dimension, e.g.,
   /// for array[1][2][3], ArityList equal to { 1, 2, 3 }.
   std::vector<unsigned> mArityList;
+
+  /// Depth of pointer, like for
+  /// int ***ptr indirection level = 3, for
+  /// int *ptr = 1, for
+  /// int var = 0.
+  unsigned mPointerIndirectionLevel;
 };
 
 } // namespace weak

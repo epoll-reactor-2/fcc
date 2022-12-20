@@ -134,18 +134,41 @@ ASTNode *Parser::ParseFunctionCall() {
   return Finish();
 }
 
-ASTNode *Parser::ParseStructVarDecl() {
-  const Token &Type = Require(TOK_SYMBOL);
-  const Token &VariableName = Require(TOK_SYMBOL);
+ASTNode *Parser::ParseVarDecl() {
+  const auto &DT = ParseType();
+  std::string VariableName = PeekNext().Data;
+  const Token &T = PeekNext();
 
-  return new ASTVarDecl(
-    DT_STRUCT,
-    Type.Data,
-    VariableName.Data,
-    /*Body=*/nullptr,
-    Type.LineNo,
-    Type.ColumnNo
-  );
+  if (T.Is('='))
+    return new ASTVarDecl(
+      DT.DT,
+      std::move(VariableName),
+      DT.PointerIndirectionLevel,
+      ParseLogicalOr(),
+      DT.LineNo,
+      DT.ColumnNo
+    );
+
+  /// This is placed here because language supports nested functions.
+  if (T.Is('(')) {
+    --mTokenPtr; /// Open paren.
+    --mTokenPtr; /// Function name.
+    --mTokenPtr; /// Data type.
+    mTokenPtr -= DT.PointerIndirectionLevel;
+    return ParseFunctionDecl();
+  }
+
+  if (T.Is('[')) {
+    --mTokenPtr; /// Open paren.
+    --mTokenPtr; /// Declaration name.
+    --mTokenPtr; /// Data type.
+    mTokenPtr -= DT.PointerIndirectionLevel;
+    return ParseArrayDecl();
+  }
+
+  weak::CompileError(T.LineNo, T.ColumnNo)
+    << "Expected function, variable or array declaration";
+  Unreachable("Should not reach there.");
 }
 
 ASTNode *Parser::ParseVarDeclWithoutInitializer() {
@@ -159,6 +182,7 @@ ASTNode *Parser::ParseVarDeclWithoutInitializer() {
   return new ASTVarDecl(
     DataType.DT,
     std::string(VariableName.Data),
+    DataType.PointerIndirectionLevel,
     /*Body=*/nullptr,
     DataType.LineNo,
     DataType.ColumnNo
@@ -167,7 +191,12 @@ ASTNode *Parser::ParseVarDeclWithoutInitializer() {
 
 ASTNode *Parser::ParseArrayDecl() {
   const auto &DataType = ParseType();
-  std::string VariableName = PeekNext().Data;
+  const Token &VariableName = PeekNext();
+
+  if (VariableName.Type != TOK_SYMBOL)
+    weak::CompileError(VariableName.LineNo, VariableName.ColumnNo)
+      << "Variable name expected";
+
   const Token &T = PeekNext();
 
   std::vector<unsigned> ArityList;
@@ -198,45 +227,12 @@ ASTNode *Parser::ParseArrayDecl() {
 
   return new ASTArrayDecl(
     DataType.DT,
-    std::move(VariableName),
+    std::move(VariableName.Data),
     std::move(ArityList),
+    DataType.PointerIndirectionLevel,
     DataType.LineNo,
     DataType.ColumnNo
   );
-}
-
-ASTNode *Parser::ParseVarDecl() {
-  const auto &DataType = ParseType();
-  std::string VariableName = PeekNext().Data;
-  const Token &T = PeekNext();
-
-  if (T.Is('='))
-    return new ASTVarDecl(
-      DataType.DT,
-      std::move(VariableName),
-      ParseLogicalOr(),
-      DataType.LineNo,
-      DataType.ColumnNo
-    );
-
-  /// This is placed here because language supports nested functions.
-  if (T.Is('(')) {
-    --mTokenPtr; /// Open paren.
-    --mTokenPtr; /// Function name.
-    --mTokenPtr; /// Data type.
-    return ParseFunctionDecl();
-  }
-
-  if (T.Is('[')) {
-    --mTokenPtr; /// Open paren.
-    --mTokenPtr; /// Declaration name.
-    --mTokenPtr; /// Data type.
-    return ParseArrayDecl();
-  }
-
-  weak::CompileError(T.LineNo, T.ColumnNo)
-    << "Expected function, variable or array declaration";
-  Unreachable("Should not reach there.");
 }
 
 ASTNode *Parser::ParseDecl() {
@@ -279,6 +275,59 @@ ASTNode *Parser::ParseStructDecl() {
   );
 }
 
+ASTNode *Parser::ParseStructVarDecl() {
+  const Token &Type = Require(TOK_SYMBOL);
+
+  unsigned PointerIndirectionLevel = 0U;
+  while (PeekCurrent().Is('*')) {
+    ++PointerIndirectionLevel;
+    PeekNext();
+  }
+
+  const Token &VariableName = Require(TOK_SYMBOL);
+
+  std::vector<unsigned> ArityList;
+
+  while (PeekCurrent().Is('[')) {
+    Require('[');
+    auto *Constant = ParseConstant();
+
+    if (!Constant->Is(AST_INTEGER_LITERAL))
+      weak::CompileError(Constant->LineNo(), Constant->ColumnNo())
+        << "Integer size declarator expected";
+
+    auto *ArraySize = static_cast<ASTNumber *>(Constant);
+
+    ArityList.push_back(ArraySize->Value());
+
+    /// We need only number, not whole AST node, so we can
+    /// get rid of it.
+    delete ArraySize;
+    Require(']');
+  }
+
+  if (ArityList.empty())
+    return new ASTVarDecl(
+      DT_STRUCT,
+      Type.Data,
+      VariableName.Data,
+      PointerIndirectionLevel,
+      /*Body=*/nullptr,
+      Type.LineNo,
+      Type.ColumnNo
+    );
+  else
+    return new ASTArrayDecl(
+      DT_STRUCT,
+      Type.Data,
+      VariableName.Data,
+      std::move(ArityList),
+      PointerIndirectionLevel,
+      Type.LineNo,
+      Type.ColumnNo
+    );
+}
+
 ASTNode *Parser::ParseStructFieldAccess() {
   const Token &Symbol = Require(TOK_SYMBOL);
   const Token &Next = PeekNext();
@@ -301,9 +350,15 @@ Parser::LocalizedDataType Parser::ParseType() {
   case TOK_FLOAT:
   case TOK_CHAR:
   case TOK_STRING:
-  case TOK_BOOL: // Fall through.
+  case TOK_BOOL: { // Fall through.
     PeekNext();
-    return {T.LineNo, T.ColumnNo, TokenToDT(T.Type)};
+    unsigned PointerIndirectionLevel = 0U;
+    while (PeekCurrent().Is('*')) {
+      ++PointerIndirectionLevel;
+      PeekNext();
+    }
+    return {TokenToDT(T.Type), PointerIndirectionLevel, T.LineNo, T.ColumnNo};
+  }
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
       << "Data type expected, got " << T.Type;
@@ -316,22 +371,33 @@ Parser::LocalizedDataType Parser::ParseReturnType() {
   if (T.Type != TOK_VOID)
     return ParseType();
   PeekNext();
-  return {T.LineNo, T.ColumnNo, TokenToDT(T.Type)};
+  return {TokenToDT(T.Type), /*PointerIndirectionLevel=*/0, T.LineNo, T.ColumnNo};
 }
 
 ASTNode *Parser::ParseDeclWithoutInitializer() {
-  unsigned Offset = 0U;
-  ++Offset; /// Data type.
-  ++Offset; /// Parameter name.
-
-  if ((mTokenPtr + Offset)->Is('['))
-    return ParseArrayDecl();
-
-  if (PeekCurrent().Is(TOK_SYMBOL))
+  const Token *Ptr = mTokenPtr;
+  if (Ptr->Is(TOK_SYMBOL))
     return ParseStructVarDecl();
 
-  /// Built-in data types.
-  return ParseVarDeclWithoutInitializer();
+  ParseType();
+  bool IsArray = (mTokenPtr + 1)->Is('[');
+  ptrdiff_t Offset = mTokenPtr - Ptr;
+  mTokenPtr -= Offset;
+
+  switch (Ptr->Type) {
+  case TOK_VOID:
+  case TOK_INT:
+  case TOK_FLOAT:
+  case TOK_CHAR:
+  case TOK_STRING:
+  case TOK_BOOL: // Fall through.
+    if (IsArray)
+      return ParseArrayDecl();
+    else
+      return ParseVarDeclWithoutInitializer();
+  default:
+    Unreachable("Should not reach here.");
+  }
 }
 
 std::vector<ASTNode *> Parser::ParseParameterList() {

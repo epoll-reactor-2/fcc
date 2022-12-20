@@ -35,21 +35,23 @@ int main() {
   llvm::IRBuilder<> IRBuilder(IRCtx);
   TypeResolver TR(IRBuilder);
 
-  RunTest<ASTVarDecl>(TR, "i32", DT_INT, "Name", /*Body=*/nullptr);
-  RunTest<ASTVarDecl>(TR, "float", DT_FLOAT, "Name", /*Body=*/nullptr);
-  RunTest<ASTArrayDecl>(TR, "[1 x i32]", DT_INT, "Name", ArrayArgs{ 1 });
+  RunTest<ASTVarDecl>(TR, "i32", DT_INT, "Name", /*PointerIndirectionLevel=*/0U, /*Body=*/nullptr);
+  RunTest<ASTVarDecl>(TR, "float", DT_FLOAT, "Name", /*PointerIndirectionLevel=*/0U, /*Body=*/nullptr);
+  RunTest<ASTArrayDecl>(TR, "[1 x i32]", DT_INT, "Name", ArrayArgs{ 1 }, /*PointerIndirectionLevel=*/0U);
   RunTest<ASTArrayDecl>(
     TR,
     "[1 x [2 x [3 x i32]]]",
     DT_INT,
     "Name",
-    ArrayArgs{ 1, 2, 3 }
+    ArrayArgs{ 1, 2, 3 },
+    /*PointerIndirectionLevel=*/0U
   );
   RunTest<ASTArrayDecl>(
     TR,
     "[1 x [1 x [2 x [3 x [5 x [8 x [13 x [21 x [34 x i1]]]]]]]]]",
     DT_BOOL,
     "Name",
-    ArrayArgs{ 1, 1, 2, 3, 5, 8, 13, 21, 34 }
+    ArrayArgs{ 1, 1, 2, 3, 5, 8, 13, 21, 34 },
+    /*PointerIndirectionLevel=*/0U
   );
 }

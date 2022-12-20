@@ -18,6 +18,7 @@ public:
   ASTVarDecl(
     weak::DataType  DT,
     std::string     Name,
+    unsigned        PointerIndirectionLevel,
     ASTNode        *Body,
     unsigned        LineNo,
     unsigned        ColumnNo
@@ -27,6 +28,7 @@ public:
     weak::DataType  DT,
     std::string     TypeName,
     std::string     Name,
+    unsigned        PointerIndirectionLevel,
     ASTNode        *Body,
     unsigned        LineNo,
     unsigned        ColumnNo
@@ -39,12 +41,25 @@ public:
   weak::DataType DataType() const;
   const std::string &Name() const;
   const std::string &TypeName() const;
+  unsigned PointerIndirectionLevel() const;
   ASTNode *Body() const;
 
 private:
+  /// Data type of array.
   weak::DataType mDataType;
-  std::string mTypeName;
+
+  /// Variable name.
   std::string mName;
+
+  /// Optional structure type name.
+  std::string mTypeName;
+
+  /// Depth of pointer, like for
+  /// int ***ptr indirection level = 3, for
+  /// int *ptr = 1, for
+  /// int var = 0.
+  unsigned mPointerIndirectionLevel;
+
   ASTNode *mBody;
 };
 

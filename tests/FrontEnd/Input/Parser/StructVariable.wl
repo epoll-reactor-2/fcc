@@ -11,7 +11,7 @@
 //    FunctionDeclArgs <line:23, col:1>
 //    FunctionDeclBody <line:23, col:1>
 //      CompoundStmt <line:23, col:10>
-//        VarDecl <line:24, col:5> <STRUCT> custom `x`
+//        VarDecl <line:24, col:5> struct custom `x`
 struct custom {
     int a;
     int b;

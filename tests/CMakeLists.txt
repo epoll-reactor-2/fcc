@@ -36,8 +36,13 @@ CopyInputFiles("FrontEnd/Input/FunctionAnalysis" "FunctionAnalysis")
 CopyInputFiles("FrontEnd/Input/TypeAnalysis" "TypeAnalysis")
 CopyInputFiles("MiddleEnd/Input/CodeGen/Valid" "CodeGen/Valid")
 
-file(GLOB_RECURSE Files "FrontEnd/*.cpp MiddleEnd/*.cpp")
-foreach(File ${Files})
+file(
+  GLOB TestFiles
+  LIST_DIRECTORIES true
+  FrontEnd/*.cpp
+  MiddleEnd/*.cpp
+)
+foreach(File ${TestFiles})
   get_filename_component(Name ${File} NAME_WE)
   AddCompilerTest(${Name} ${File})
 endforeach()
