@@ -20,7 +20,7 @@ public:
     weak::DataType        DT,
     std::string           Name,
     std::vector<unsigned> ArityList,
-    unsigned              PointerIndirectionLevel,
+    unsigned              IndirectionLvl,
     unsigned              LineNo,
     unsigned              ColumnNo
   );
@@ -30,7 +30,7 @@ public:
     std::string           TypeName,
     std::string           Name,
     std::vector<unsigned> ArityList,
-    unsigned              PointerIndirectionLevel,
+    unsigned              IndirectionLvl,
     unsigned              LineNo,
     unsigned              ColumnNo
   );
@@ -41,7 +41,7 @@ public:
   const std::string &Name() const;
   const std::string &TypeName() const;
   const std::vector<unsigned> &ArityList() const;
-  unsigned PointerIndirectionLevel() const;
+  unsigned IndirectionLvl() const;
 
 private:
   /// Data type of array.
@@ -62,7 +62,7 @@ private:
   /// int ***ptr indirection level = 3, for
   /// int *ptr = 1, for
   /// int var = 0.
-  unsigned mPointerIndirectionLevel;
+  unsigned mIndirectionLvl;
 };
 
 } // namespace weak

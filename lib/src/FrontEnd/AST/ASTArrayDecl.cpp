@@ -13,21 +13,21 @@ ASTArrayDecl::ASTArrayDecl(
   weak::DataType        DT,
   std::string           Name,
   std::vector<unsigned> ArityList,
-  unsigned              PointerIndirectionLevel,
+  unsigned              IndirectionLvl,
   unsigned              LineNo,
   unsigned              ColumnNo
 ) : ASTNode(AST_ARRAY_DECL, LineNo, ColumnNo)
   , mDataType(DT)
   , mName(std::move(Name))
   , mArityList(std::move(ArityList))
-  , mPointerIndirectionLevel(PointerIndirectionLevel) {}
+  , mIndirectionLvl(IndirectionLvl) {}
 
 ASTArrayDecl::ASTArrayDecl(
   weak::DataType        DT,
   std::string           TypeName,
   std::string           Name,
   std::vector<unsigned> ArityList,
-  unsigned              PointerIndirectionLevel,
+  unsigned              IndirectionLvl,
   unsigned              LineNo,
   unsigned              ColumnNo
 ) : ASTNode(AST_ARRAY_DECL, LineNo, ColumnNo)
@@ -35,7 +35,7 @@ ASTArrayDecl::ASTArrayDecl(
   , mName(std::move(Name))
   , mTypeName(std::move(TypeName))
   , mArityList(std::move(ArityList))
-  , mPointerIndirectionLevel(PointerIndirectionLevel) {}
+  , mIndirectionLvl(IndirectionLvl) {}
 
 void ASTArrayDecl::Accept(ASTVisitor *Visitor) {
   Visitor->Visit(this);
@@ -57,8 +57,8 @@ const std::vector<unsigned> &ASTArrayDecl::ArityList() const {
   return mArityList;
 }
 
-unsigned ASTArrayDecl::PointerIndirectionLevel() const {
-  return mPointerIndirectionLevel;
+unsigned ASTArrayDecl::IndirectionLvl() const {
+  return mIndirectionLvl;
 }
 
 } // namespace weak

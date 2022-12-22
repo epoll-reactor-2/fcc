@@ -54,14 +54,19 @@ private:
   }
 
   llvm::Type *ResolveParamType(ASTNode *AST) {
-    if (AST->Is(AST_VAR_DECL))
+    if (AST->Is(AST_VAR_DECL)) {
+      auto *D = static_cast<ASTVarDecl *>(AST);
       return mResolver.ResolveExceptVoid(
-        static_cast<ASTVarDecl *>(AST)->DataType()
+        D->DataType(),
+        D->IndirectionLvl()
       );
+    }
 
+    auto *A = static_cast<ASTArrayDecl *>(AST);
     return llvm::PointerType::get(
       mResolver.ResolveExceptVoid(
-        static_cast<ASTArrayDecl *>(AST)->DataType()
+        A->DataType(),
+        A->IndirectionLvl()
       ),
       /*AddressSpace=*/0
     );
@@ -457,7 +462,7 @@ void CodeGen::Visit(ASTMemberAccess *Stmt) {
 
 void CodeGen::Visit(ASTArrayDecl *Stmt) {
   TypeResolver TR(mIRBuilder);
-  llvm::Type *ArrayTy = TR.Resolve(Stmt);
+  llvm::Type *ArrayTy = TR.Resolve(Stmt, Stmt->IndirectionLvl());
   llvm::AllocaInst *ArrayDecl = mIRBuilder.CreateAlloca(ArrayTy);
   mStorage.Push(Stmt->Name(), ArrayDecl);
 }
@@ -506,7 +511,12 @@ void CodeGen::Visit(ASTVarDecl *Decl) {
   }
 
   TypeResolver TR(mIRBuilder);
-  auto *VarDecl = mIRBuilder.CreateAlloca(TR.ResolveExceptVoid(Decl->DataType()));
+  auto *VarDecl = mIRBuilder.CreateAlloca(
+    TR.ResolveExceptVoid(
+      Decl->DataType(),
+      Decl->IndirectionLvl()
+    )
+  );
 
   mIRBuilder.CreateStore(mLastInstr, VarDecl);
   mStorage.Push(Decl->Name(), VarDecl);

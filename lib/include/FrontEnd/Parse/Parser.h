@@ -32,7 +32,7 @@ public:
 private:
   struct LocalizedDataType {
     DataType DT;
-    unsigned PointerIndirectionLevel;
+    unsigned IndirectionLvl;
     unsigned LineNo;
     unsigned ColumnNo;
   };

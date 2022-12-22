@@ -12,7 +12,7 @@ namespace weak {
 ASTVarDecl::ASTVarDecl(
   weak::DataType  DT,
   std::string     Name,
-  unsigned        PointerIndirectionLevel,
+  unsigned        IndirectionLvl,
   ASTNode        *Body,
   unsigned        LineNo,
   unsigned        ColumnNo
@@ -20,14 +20,14 @@ ASTVarDecl::ASTVarDecl(
   , mDataType(DT)
   , mName(std::move(Name))
   , mTypeName("")
-  , mPointerIndirectionLevel(PointerIndirectionLevel)
+  , mIndirectionLvl(IndirectionLvl)
   , mBody(Body) {}
 
 ASTVarDecl::ASTVarDecl(
   weak::DataType  DT,
   std::string     TypeName,
   std::string     Name,
-  unsigned        PointerIndirectionLevel,
+  unsigned        IndirectionLvl,
   ASTNode        *Body,
   unsigned        LineNo,
   unsigned        ColumnNo
@@ -35,7 +35,7 @@ ASTVarDecl::ASTVarDecl(
   , mDataType(DT)
   , mName(std::move(Name))
   , mTypeName(std::move(TypeName))
-  , mPointerIndirectionLevel(PointerIndirectionLevel)
+  , mIndirectionLvl(IndirectionLvl)
   , mBody(Body) {}
 
 ASTVarDecl::~ASTVarDecl() {
@@ -58,8 +58,8 @@ const std::string &ASTVarDecl::TypeName() const {
   return mTypeName;
 }
 
-unsigned ASTVarDecl::PointerIndirectionLevel() const {
-  return mPointerIndirectionLevel;
+unsigned ASTVarDecl::IndirectionLvl() const {
+  return mIndirectionLvl;
 }
 
 ASTNode *ASTVarDecl::Body() const {

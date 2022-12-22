@@ -143,7 +143,7 @@ ASTNode *Parser::ParseVarDecl() {
     return new ASTVarDecl(
       DT.DT,
       std::move(VariableName),
-      DT.PointerIndirectionLevel,
+      DT.IndirectionLvl,
       ParseLogicalOr(),
       DT.LineNo,
       DT.ColumnNo
@@ -154,7 +154,7 @@ ASTNode *Parser::ParseVarDecl() {
     --mTokenPtr; /// Open paren.
     --mTokenPtr; /// Function name.
     --mTokenPtr; /// Data type.
-    mTokenPtr -= DT.PointerIndirectionLevel;
+    mTokenPtr -= DT.IndirectionLvl;
     return ParseFunctionDecl();
   }
 
@@ -162,7 +162,7 @@ ASTNode *Parser::ParseVarDecl() {
     --mTokenPtr; /// Open paren.
     --mTokenPtr; /// Declaration name.
     --mTokenPtr; /// Data type.
-    mTokenPtr -= DT.PointerIndirectionLevel;
+    mTokenPtr -= DT.IndirectionLvl;
     return ParseArrayDecl();
   }
 
@@ -182,7 +182,7 @@ ASTNode *Parser::ParseVarDeclWithoutInitializer() {
   return new ASTVarDecl(
     DataType.DT,
     std::string(VariableName.Data),
-    DataType.PointerIndirectionLevel,
+    DataType.IndirectionLvl,
     /*Body=*/nullptr,
     DataType.LineNo,
     DataType.ColumnNo
@@ -229,7 +229,7 @@ ASTNode *Parser::ParseArrayDecl() {
     DataType.DT,
     std::move(VariableName.Data),
     std::move(ArityList),
-    DataType.PointerIndirectionLevel,
+    DataType.IndirectionLvl,
     DataType.LineNo,
     DataType.ColumnNo
   );
@@ -278,9 +278,9 @@ ASTNode *Parser::ParseStructDecl() {
 ASTNode *Parser::ParseStructVarDecl() {
   const Token &Type = Require(TOK_SYMBOL);
 
-  unsigned PointerIndirectionLevel = 0U;
+  unsigned IndirectionLvl = 0U;
   while (PeekCurrent().Is('*')) {
-    ++PointerIndirectionLevel;
+    ++IndirectionLvl;
     PeekNext();
   }
 
@@ -311,7 +311,7 @@ ASTNode *Parser::ParseStructVarDecl() {
       DT_STRUCT,
       Type.Data,
       VariableName.Data,
-      PointerIndirectionLevel,
+      IndirectionLvl,
       /*Body=*/nullptr,
       Type.LineNo,
       Type.ColumnNo
@@ -322,7 +322,7 @@ ASTNode *Parser::ParseStructVarDecl() {
       Type.Data,
       VariableName.Data,
       std::move(ArityList),
-      PointerIndirectionLevel,
+      IndirectionLvl,
       Type.LineNo,
       Type.ColumnNo
     );
@@ -352,12 +352,12 @@ Parser::LocalizedDataType Parser::ParseType() {
   case TOK_STRING:
   case TOK_BOOL: { // Fall through.
     PeekNext();
-    unsigned PointerIndirectionLevel = 0U;
+    unsigned IndirectionLvl = 0U;
     while (PeekCurrent().Is('*')) {
-      ++PointerIndirectionLevel;
+      ++IndirectionLvl;
       PeekNext();
     }
-    return {TokenToDT(T.Type), PointerIndirectionLevel, T.LineNo, T.ColumnNo};
+    return {TokenToDT(T.Type), IndirectionLvl, T.LineNo, T.ColumnNo};
   }
   default:
     weak::CompileError(T.LineNo, T.ColumnNo)
@@ -371,7 +371,7 @@ Parser::LocalizedDataType Parser::ParseReturnType() {
   if (T.Type != TOK_VOID)
     return ParseType();
   PeekNext();
-  return {TokenToDT(T.Type), /*PointerIndirectionLevel=*/0, T.LineNo, T.ColumnNo};
+  return {TokenToDT(T.Type), /*IndirectionLvl=*/0, T.LineNo, T.ColumnNo};
 }
 
 ASTNode *Parser::ParseDeclWithoutInitializer() {

@@ -25,62 +25,73 @@ static DataType DeclType(ASTNode *Node) {
 TypeResolver::TypeResolver(llvm::IRBuilder<> &I)
   : mIRBuilder(I) {}
 
-llvm::Type *TypeResolver::Resolve(DataType T) {
-  switch (T) {
-  case DT_VOID:   return mIRBuilder.getVoidTy();
-  case DT_CHAR:   return mIRBuilder.getInt8Ty();
-  case DT_INT:    return mIRBuilder.getInt32Ty();
-  case DT_BOOL:   return mIRBuilder.getInt1Ty();
-  case DT_FLOAT:  return mIRBuilder.getFloatTy();
-  case DT_STRING: return mIRBuilder.getInt8PtrTy();
+llvm::Type *TypeResolver::Resolve(DataType DT, unsigned IndirectionLvl) {
+  llvm::Type *Ty = nullptr;
+  switch (DT) {
+  case DT_VOID:   Ty = mIRBuilder.getVoidTy(); break;
+  case DT_CHAR:   Ty = mIRBuilder.getInt8Ty(); break;
+  case DT_INT:    Ty = mIRBuilder.getInt32Ty(); break;
+  case DT_BOOL:   Ty = mIRBuilder.getInt1Ty(); break;
+  case DT_FLOAT:  Ty = mIRBuilder.getFloatTy(); break;
+  case DT_STRING: Ty = mIRBuilder.getInt8PtrTy(); break;
   default:        Unreachable("Expected data type.");
   }
+  for (unsigned I = 0U; I < IndirectionLvl; ++I)
+    Ty = llvm::PointerType::get(Ty, /*AddressSpace=*/0U);
+  return Ty;
 }
 
-llvm::Type *TypeResolver::Resolve(ASTNode *AST) {
+llvm::Type *TypeResolver::Resolve(ASTNode *AST, unsigned IndirectionLvl) {
   if (!AST->Is(AST_ARRAY_DECL))
-    return Resolve(DeclType(AST));
+    return Resolve(DeclType(AST), IndirectionLvl);
 
-  return ResolveArray(AST);
+  return ResolveArray(AST, IndirectionLvl);
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(DataType T) {
-  switch (T) {
-  case DT_CHAR:   return mIRBuilder.getInt8Ty();
-  case DT_INT:    return mIRBuilder.getInt32Ty();
-  case DT_BOOL:   return mIRBuilder.getInt1Ty();
-  case DT_FLOAT:  return mIRBuilder.getFloatTy();
-  case DT_STRING: return mIRBuilder.getInt8PtrTy();
+llvm::Type *TypeResolver::ResolveExceptVoid(DataType DT, unsigned IndirectionLvl) {
+  llvm::Type *Ty = nullptr;
+  switch (DT) {
+  case DT_CHAR:   Ty = mIRBuilder.getInt8Ty(); break;
+  case DT_INT:    Ty = mIRBuilder.getInt32Ty(); break;
+  case DT_BOOL:   Ty = mIRBuilder.getInt1Ty(); break;
+  case DT_FLOAT:  Ty = mIRBuilder.getFloatTy(); break;
+  case DT_STRING: Ty = mIRBuilder.getInt8PtrTy(); break;
   default:        Unreachable("Expected data type except void.");
   }
+  for (unsigned I = 0U; I < IndirectionLvl; ++I)
+    Ty = llvm::PointerType::get(Ty, /*AddressSpace=*/0U);
+  return Ty;
 }
 
-llvm::Type *TypeResolver::ResolveExceptVoid(ASTNode *AST) {
+llvm::Type *TypeResolver::ResolveExceptVoid(ASTNode *AST, unsigned IndirectionLvl) {
   if (!AST->Is(AST_ARRAY_DECL))
-    return ResolveExceptVoid(DeclType(AST));
+    return ResolveExceptVoid(DeclType(AST), IndirectionLvl);
 
-  return ResolveArray(AST);
+  return ResolveArray(AST, IndirectionLvl);
 }
 
-llvm::Type *TypeResolver::ResolveArray(ASTNode *AST) {
+llvm::Type *TypeResolver::ResolveArray(ASTNode *AST, unsigned IndirectionLvl) {
   auto *Decl = static_cast<ASTArrayDecl *>(AST);
   const auto &ArityList = Decl->ArityList();
   assert(!ArityList.empty());
   auto It = ArityList.rbegin();
 
-  llvm::ArrayType *ArrayTy =
+  llvm::Type *Ty =
     llvm::ArrayType::get(
       ResolveExceptVoid(Decl->DataType()),
       *It++
     );
 
   while (It != ArityList.rend())
-    ArrayTy = llvm::ArrayType::get(
-      ArrayTy,
+    Ty = llvm::ArrayType::get(
+      Ty,
       *It++
     );
 
-  return ArrayTy;
+  for (unsigned I = 0U; I < IndirectionLvl; ++I)
+    Ty = llvm::PointerType::get(Ty, /*AddressSpace=*/0U);
+
+  return Ty;
 }
 
 } // namespace weak

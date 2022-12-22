@@ -234,7 +234,7 @@ private:
     ASTTypePrint("VarDecl", Decl);
     mStream << Decl->DataType() << ' ';
     mStream << (Decl->DataType() == DT_STRUCT ? Decl->TypeName() + ' ' : "");
-    if (unsigned PIL = Decl->PointerIndirectionLevel(); PIL > 0) {
+    if (unsigned PIL = Decl->IndirectionLvl(); PIL > 0) {
       mStream << std::string(PIL, '*');
       mStream << ' ';
     }
@@ -266,7 +266,7 @@ private:
 
     const auto &ArityList = Decl->ArityList();
     mStream << Decl->DataType() << " " << Decl->TypeName();
-    if (unsigned PIL = Decl->PointerIndirectionLevel(); PIL > 0) {
+    if (unsigned PIL = Decl->IndirectionLvl(); PIL > 0) {
       mStream << ' ';
       mStream << std::string(PIL, '*');
       mStream << ' ';

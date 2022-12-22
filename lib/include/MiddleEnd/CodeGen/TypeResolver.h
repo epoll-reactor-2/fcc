@@ -18,23 +18,24 @@ namespace weak {
 
 class ASTNode;
 
-/// Helper class to translate frontend types to LLVM.
+/// Helper class to translate trivial frontend types to LLVM.
+/// Structures should be analyzed outside this class.
 class TypeResolver {
 public:
   TypeResolver(llvm::IRBuilder<> &);
 
   /// Convert given parameter (including void) to corresponding LLVM type.
-  llvm::Type *Resolve(ASTNode *);
-  /// \copydoc TypeResolver::Resolve(ASTNode *)
-  llvm::Type *Resolve(DataType);
+  llvm::Type *Resolve(ASTNode *AST, unsigned IndirectionLvl = 0U);
+  /// \copydoc TypeResolver::Resolve(ASTNode *, unsigned)
+  llvm::Type *Resolve(DataType DT, unsigned IndirectionLvl = 0U);
 
   /// Convert given parameter (excluding void) to corresponding LLVM type.
-  llvm::Type *ResolveExceptVoid(ASTNode *);
-  /// \copydoc TypeResolver::ResolveExceptVoid(ASTNode *)
-  llvm::Type *ResolveExceptVoid(DataType);
+  llvm::Type *ResolveExceptVoid(ASTNode *AST, unsigned IndirectionLvl = 0U);
+  /// \copydoc TypeResolver::ResolveExceptVoid(ASTNode *, unsigned)
+  llvm::Type *ResolveExceptVoid(DataType DT, unsigned IndirectionLvl = 0U);
 
 private:
-  llvm::Type *ResolveArray(ASTNode *);
+  llvm::Type *ResolveArray(ASTNode *AST, unsigned IndirectionLvl);
 
   /// Reference to global LLVM stuff.
   llvm::IRBuilder<> &mIRBuilder;
