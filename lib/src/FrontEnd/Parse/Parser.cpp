@@ -466,12 +466,14 @@ ASTCompound *Parser::ParseIterationBlock() {
     case AST_PREFIX_UNARY:
     case AST_SYMBOL:
     case AST_RETURN_STMT:
-    case AST_BREAK_STMT:
-    case AST_CONTINUE_STMT:
     case AST_DO_WHILE_STMT:
     case AST_VAR_DECL:
+    case AST_ARRAY_DECL:
+    case AST_ARRAY_ACCESS:
     case AST_MEMBER_ACCESS:
-    case AST_FUNCTION_CALL: /// Fall through.
+    case AST_FUNCTION_CALL:
+    case AST_BREAK_STMT:
+    case AST_CONTINUE_STMT: /// Fall through.
       Require(';');
       break;
     default:
