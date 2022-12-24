@@ -83,6 +83,8 @@ void FunctionAnalysis::Visit(ASTFunctionDecl *Decl) {
     Reset();
     weak::CompileError(Decl) << "Expected return value";
   }
+
+  mWasReturnStmt = false;
 }
 
 void FunctionAnalysis::Visit(ASTFunctionPrototype *Stmt) {
