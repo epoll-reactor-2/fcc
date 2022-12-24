@@ -1,6 +1,6 @@
-\documentclass{article}
+\documentclass[leqno]{article}
 
-\usepackage{amsmath}
+\usepackage[fleqn]{amsmath}  % Aligned to left equations.
 \usepackage{syntax}
 \usepackage{fancyhdr}
 \usepackage{array}
@@ -25,282 +25,441 @@
 
     \section{Scope}
         This document describes requirements for implementation of weak
-        programming language.
+        programming language. \\
+        \\
+        \textbf{\thesubsection.1} Language is not required to have one implementation, \\
+        \textbf{\thesubsection.2} as well as the implementation is not required to be
+        a compiler.
 
     \section{Lexical elements}
         \upshape
 
         \subsection{Keywords}
             \begin{tabular}{ R{3cm} R{3cm} R{3cm} }
-                \textbf{boolean}  & \textbf{break}  & \textbf{char}   \\
-                \textbf{continue} & \textbf{do }    & \textbf{false}  \\
-                \textbf{float}    & \textbf{for}    & \textbf{if}     \\
-                \textbf{int}      & \textbf{return} & \textbf{string} \\
-                \textbf{true}     & \textbf{void}   & \textbf{while}  \\
+                \tt{boolean}  & \tt{break}  & \tt{char}   \\
+                \tt{continue} & \tt{do}     & \tt{else}   \\
+                \tt{false}    & \tt{float}  & \tt{for}    \\
+                \tt{if}       & \tt{int}    & \tt{return} \\
+                \tt{string}   & \tt{struct} & \tt{true}   \\
+                \tt{void}     & \tt{while}
             \end{tabular}
 
         \subsection{Operators and punctuators}
             \begin{tabular}{ R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} R{1.5cm} }
-                \tt{=}   & \tt{*=}     & \tt{/=}  & \tt{\%=} & \tt{+=}  & \tt{-=}   \\
-                \tt{<<=} & \tt{>>=}    & \tt{\&=} & \tt{|=}  & \tt{\^=} & \tt{\&\&} \\
-                \tt{|}   & \textbf{\^} & \tt{\&}  & \tt{==}  & \tt{!=}  & \tt{>}    \\
-                \tt{<}   & \tt{>=}     & \tt{<=}  & \tt{<<}  & \tt{>>}  & \tt{+}    \\
-                \tt{-}   & \tt{*}      & \tt{/}   & \tt{\%}  & \tt{++}  & \tt{--}   \\
-                \tt{[}   & \tt{]}      & \tt{(}   & \tt{)}   & \tt{\{}  & \tt{\}}   \\
+                \tt{=}   & \tt{*=}     & \tt{/=}  & \tt{\%=} & \tt{+=}   & \tt{-=}   \\
+                \tt{<<=} & \tt{>>=}    & \tt{\&=} & \tt{|=}  & \tt{\^=}  & \tt{\&\&} \\
+                \tt{||}  & \tt{\^=}    & \tt{\&}  & \tt{|}   & \tt{==}   & \tt{!=}   \\
+                \tt{>}   & \tt{<}      & \tt{>}   & \tt{<=}  & \tt{>=}   & \tt{<<}   \\
+                \tt{>>}  & \tt{+}      & \tt{-}   & \tt{*}   & \tt{/}    & \tt{\%}   \\
+                \tt{++}  & \tt{--}     & \tt{.}   & \tt{,}   & \tt{;}    & \tt{!}    \\
+                \tt{[}   & \tt{]}      & \tt{(}   & \tt{)}   & \tt{\{}   & \tt{\}}   \\
             \end{tabular}
 
         \subsection{Comments}
             Comments are not involved into the parsing and should be processed at the
-            lexical analysis stage.
+            lexical analysis stage. \\
+            \\
+            \textbf{\thesubsection.1} All text starting with // should be ignored until the end of line. \\
+            \textbf{\thesubsection.2} All text after /*  and before */ character sequences should be ignored.
 
-            \begin{itemize}
-                \item All text starting with // should be ignored until the end of line.
+    \section{Data types}
+        \upshape
+            \textbf{\thesubsection.1} Language must implement static strong type system. \\
+            \textbf{\thesubsection.2} All casts must be explicit.
 
-                \item All text after /*  and before */ character sequences should be
-                      ignored.
-            \end{itemize}
+            \subsection{Primitive}
+                \textbf{int} -- signed 32-bit; \\
+                \textbf{float} -- signed 32-bit; \\
+                \textbf{char} -- 8-bit; \\
+                \textbf{bool} -- 8-bit; \\
+                \textbf{void} -- empty type; used as return type only. \\
+                \\
+                \textbf{\thesubsection.1} Primitive types must be trivial copyable. It means
+                \textbf{memcpy()} must copy all primtive types between memory locations
+                without side effects. \\
+                \textbf{\thesubsection.2} No one primitive type can be converted to another implicitly.
+                \subsubsection{String}
+                
+                \textbf{\thesubsubsection.1} Character sequences must be represented
+                as arrays of character type, for example,
+                \begin{align*}
+                    \tt{char\ string[25];}
+                \end{align*}
+                or
+                \begin{align*}
+                    \tt{char\ *string = /* Implementation-defined. */;}
+                \end{align*}
+                , where implementation-defined part is some memory allocation.
+
+            \subsection{Aggregate}
+                \textbf{struct} -- aggregate type; may constructed from primitive
+                types and from structures. \\
+                \\
+                \textbf{\thesubsection.1} Structures may be nested. \\
+                \textbf{\thesubsection.2} Maximum structures depth is implementation-defined. \\
+                \textbf{\thesubsection.3} Structure may not contain fields (be empty).
+
+            \subsection{Arrays}
+                Each type except \textbf{void} can represent array, for example,
+                \begin{equation} \tag{\textbf{\thesubsection.1}}
+                    \tt{bool\ array[10];}
+                \end{equation}
+                \textbf{\thesubsection.2} Arrays should (but not required to) be zero-initialized. \\
+                \textbf{\thesubsection.3} Arrays can be multi-dimensional with arity of any depth
+                greather than 0. \\
+                \textbf{\thesubsection.4} Minimum array size must be at least 1 byte. \\
+                \textbf{\thesubsection.5} Maximum array size is implementation-defined. \\
+                \textbf{\thesubsection.6} Array indexing must start from 0. Zero index must
+                point to first array element, and so on.
+
+            \subsection{Pointers}
+                \begin{equation} \tag{\textbf{\thesubsection.1}}
+                    \tt{int\ *ptr\ =\ ...;}
+                \end{equation}
+                Address of the variable can be taken with \textbf{\&} operator, for example
+                \begin{equation} \tag{\textbf{\thesubsection.2}}
+                    \tt{int\ *ptr\ =\ \&var;}
+                \end{equation}
+                \textbf{\thesubsection.3} Pointer cannot have \textbf{NULL} (\textbf{0}) value. \\
+                \textbf{\thesubsection.4} Pointers cannot be converted to another pointer type in any way. \\
+                \textbf{\thesubsection.5} Pointer to \textbf{void} is forbidden. All other types (including structures) are allowed to have pointer to it. \\
+                \textbf{\thesubsection.6} Pointers must allow to change the same memory
+                location through them (for example, in other function).
+                \begin{align*}
+                    \tt{void\ f(int\ *ptr)\ \{\ *ptr\ =\ 100;\ \} }
+                \end{align*}
+                Now \textbf{ptr} must be equal 100 outside this context. \\
+                \textbf{\thesubsection.7} \textbf{\&} operator may be applied to
+                non-pointer type.
+                \begin{align*}
+                    \tt{int\ mem\ =\ ...;\ int\ *ptr\ =\ \&mem;}
+                \end{align*}
+                \textbf{\thesubsection.8} \textbf{\&} operator may be applied to pointer
+                type.
+                \begin{align*}
+                    \tt{int\ *ptr1\ =\ ...;\ int\ **ptr2\ =\ \&ptr1;}
+                \end{align*}
+
+    \section{Inside-iteration statements}
+
+        \subsection{Break}
+            \begin{equation} \tag{\textbf{\thesubsection.1}}
+                \tt{break;}
+            \end{equation}
+            \textbf{\thesubsection.2} \textbf{break} usable only inside \textbf{while},
+            \textbf{do-while} and \textbf{for} statements. \\
+            \textbf{\thesubsection.3} \textbf{break} performs exit from a loop.
+
+        \subsection{Continue}
+            \begin{equation} \tag{\textbf{\thesubsection.1}}
+                \tt{continue;}
+            \end{equation}
+            \textbf{\thesubsection.2} \textbf{continue} usable only inside the \textbf{while},
+            \textbf{do-while} and \textbf{for} statements. \\
+            \textbf{\thesubsection.3} \textbf{continue} performs jump to the next loop iteration.
+
+    \section{Iteration statements}
+
+        \subsection{While}
+            \begin{equation} \tag{\textbf{\thesubsection.1}}
+                \tt{while\ (<stmt>)\ \{\ <stmt>*\ \}}
+            \end{equation}
+            \textbf{\thesubsection.2} \textbf{while} is the loop statement that executes its
+            body until the condition evaluates to false.
+
+        \subsection{Do-While}
+            \begin{equation} \tag{\textbf{\thesubsection.1}}
+                \tt{do\ \{\ <stmt>*\ \} \ while\ (<stmt>);}
+            \end{equation}
+            \textbf{\thesubsection.2} \textbf{do-while} is the loop statement with similar to 
+            \textbf{while} semantics, but it executes body before contition check at first time.
+
+        \subsection{For}
+            \begin{equation} \tag{\textbf{\thesubsection.1}}
+                \tt{for\ (<stmt>\ |\ \epsilon;\ <stmt>\ |\ \epsilon;\ <stmt>\ |\ \epsilon)\ \{\ <stmt>*\ \}}
+            \end{equation}
+            \textbf{\thesubsection.2} \textbf{for} is the loop statement with three initial parts
+            and body. \\
+            \\
+            \textbf{\thesubsection.3} Initial part \\
+            \textbf{\thesubsection.3.1} should (but not required to) have variable
+            assignment; \\
+            \textbf{\thesubsection.3.2} executed once before all remaining statements in
+            \textbf{for} loop. \\
+            \\
+            \textbf{\thesubsection.4} Conditional part \\
+            \textbf{\thesubsection.4.1} should (but not required to) have expression convertible to boolean; \\
+            \textbf{\thesubsection.4.2} executed before each body part execution. \\
+            \\
+            \textbf{\thesubsection.5} Incremental part \\
+            \textbf{\thesubsection.5.1} should (but not required to) have binary or unary expression.
+
+    \section{Conditional statements}
+        \subsection{If}
+            \begin{equation} \tag{\textbf{\thesubsection.1}}
+                \tt{if\ ( <stmt> )\ \{ <stmt>* \}}
+            \end{equation}
+            \begin{equation} \tag{\textbf{\thesubsection.2}}
+                \tt{if\ ( <stmt> )\ \{ <stmt>* \}\ else\ \{ <stmt>* \}}
+            \end{equation}
+            \textbf{\thesubsection.3} \textbf{if} is the statament that executes its body if condition is true. \\
+            \textbf{\thesubsection.4} \textbf{if} statement optionally can have \textbf{else} part. \\
+            \textbf{\thesubsection.5} if condition is false and \textbf{else} part exists, it
+            should be executed.
+
+    \section{Jump statements}
+        \subsection{Return}
+            \begin{equation} \tag{\textbf{\thesubsection.1}}
+                \tt{return;}
+            \end{equation}
+            \begin{equation} \tag{\textbf{\thesubsection.2}}
+                \tt{return <stmt>;}
+            \end{equation}
+            \textbf{\thesubsection.3} \textbf{return} is the statement being the end of control flow. \\
+            \textbf{\thesubsection.4} If parent function have return type other than
+            \textbf{void}, value of this type must be returned on every exit point. \\
+            \textbf{\thesubsection.5} If parent function have \textbf{void} return type,
+            control flow may (but not required to) break at any point whith \textbf{return;}
+            statement.
+    
+    \section{Functions}
+        \begin{equation} \tag{\textbf{\thesubsection.1}}
+            \tt{<ret-type>}\ \tt{<id>}\ \tt{(}\ \tt{<parameter-list>}\ \tt{);}
+        \end{equation}
+        \begin{equation} \tag{\textbf{\thesubsection.2}}
+            \tt{<ret-type>}\ \tt{<id>}\ \tt{(}\ \tt{<parameter-list>}\ \tt{)}\ \tt{\{}\ <stmt>*\ \tt{\}}
+        \end{equation}
+
+        \subsection{Return value}
+            Function can return \\
+            \textbf{\thesubsection.1} any primitive type, or \\
+            \textbf{\thesubsection.2} pointer to any primitive type, or \\
+            \textbf{\thesubsection.3} structure type, or \\
+            \textbf{\thesubsection.4} pointer to structure type, or \\
+            \textbf{\thesubsection.5} nothing (\textbf{void}).\\
+            \\
+            \textbf{\thesubsection.6} Return value can be ignored (if any).
+        
+        \subsection{Recursion}
+            \textbf{\thesubsection.1} Function can call itself (recursive call). \\
+            \textbf{\thesubsection.2} Maximum recursive call depth is implementation-defined.
+
+        \subsection{Arguments}
+            \textbf{\thesubsection.1} Arguments count must be at least 0. \\
+            \textbf{\thesubsection.2} Maximum arguments count is implementation-defined. \\
+            \textbf{\thesubsection.3} To be called, a function call statement must have
+            the same arguments count as its declaration. \\
+            \textbf{\thesubsection.4} To be called, a function call statement must have
+            the same argument types as its declaration. \\
+            \textbf{\thesubsection.4} Pointers can be passed to function call statement.
+
+    \section{Execution flow}
+        \textbf{\thesubsection.1} Code can be executed only inside functions. \\
+        \textbf{\thesubsection.2} Entry point is the function
+            \begin{align*}
+                \tt{int\ main()\ \{\ ...\ \}}
+            \end{align*}
+            or
+            \begin{align*}
+                \tt{int\ main(int\ argc, char **argv)\ \{\ ...\ \}}
+            \end{align*}
+        \textbf{\thesubsection.3} Main function can optionally support command-line
+        arguments. \\
+        \textbf{\thesubsection.4} \textbf{argc} must be 1 or greater. \\
+        \textbf{\thesubsection.4} \textbf{argv[0]} must contain executable file name or any representation of program file (in case if this is an interpreter). \\
+        \textbf{\thesubsection.5} Command-line arguments are passed to main function
+        through received from operation system values.
+
+    \section{FFI}
+        \subsection{Call conventions}
+            \textbf{\thesubsection.1} \textbf{cdecl} call convention must be used in order
+            to be able to link with other shared libraries supporting this convention.
 
     \section{Grammar summary}
         \itshape
         \setlength{\grammarindent}{12em}
 
         \begin{grammar}
-            <program> ::= <function-decl>*
+            <program> ::= ( <function-decl> | <structure-decl> )*
 
-            <function-decl> ::= <ret-type> <id> \textbf{(} <parameter-list-opt> \textbf{)} \textbf{\{} <stmt>* \textbf{\}}
+            <structure-decl> ::= \tt{struct} \tt{\{} <structure-decl-list> \tt{\}}
+
+            <structure-decl-list> ::= (
+            <decl-without-initialiser> \tt{;}
+            \alt <structure-decl> \tt{;}
+            )*
+
+            <function-decl> ::= <ret-type> <id> \tt{(} <parameter-list-opt> \tt{)} \tt{\{} <stmt>* \tt{\}}
 
             <ret-type> ::= <type>
             \alt <void-type>
 
-            <type> ::= \textbf{int}
-            \alt \textbf{float}
-            \alt \textbf{char}
-            \alt \textbf{string}
-            \alt \textbf{boolean}
+            <type> ::= \tt{int}
+            \alt \tt{float}
+            \alt \tt{char}
+            \alt \tt{string}
+            \alt \tt{boolean}
 
-            <void-type> ::= \textbf{void}
+            <void-type> ::= \tt{void}
 
             <constant> ::= <integral-literal>
             \alt <floating-literal>
             \alt <string-literal>
+            \alt <char-literal>
             \alt <boolean-literal>
 
             <integral-literal> ::= <digit>*
+            
+            <floating-literal> ::= <digit>* \tt{.} <digit>*
 
-            <floating-literal> ::= <digit>* \textbf{.} <digit>*
+            <string-literal> ::= ''\tt{( "x00000000-x0010FFFF" )*}''
 
-            <string-literal> ::= \textbf{\"} ( "\\x00000000-\\x0010FFFF" )*  \textbf{\"}
+            <char-literal> ::= '\tt{ASCII(0)}-\tt{ASCII(127)}'
 
-            <boolean-literal> ::= \textbf{true}
-            \alt \textbf{false}
+            <boolean-literal> ::= \tt{true}
+            \alt \tt{false}
 
-            <alpha> ::= \textbf{a} | \textbf{b} | ... | \textbf{z} | \textbf{_}
+            <alpha> ::= \tt{a} | \tt{b} | ... | \tt{z} | \tt{_}
 
-            <digit> ::= \textbf{0} | \textbf{1} | ... | \textbf{9}
+            <digit> ::= \tt{0} | \tt{1} | ... | \tt{9}
 
             <id> ::= <alpha> ( <alpha> | <digit> )*
 
-            <array-decl> ::= <type> <id> \textbf{[} <digit>* \textbf{]}
+            <array-decl> ::= <type> ( \tt{*} )* <id> \tt{[} <integral-literal> \tt{]}
 
-            <var-decl> ::= <type> <id> \tt{=} <logical-or-expr>
+            <var-decl> ::= <type> ( \tt{*} )* <id> \tt{=} <logical-or-stmt> \tt{;}
+            
+            <structure-var-decl> ::= <id> ( \tt{*} )* <id>
 
-            <var-decl-without-initialiser> ::= <type> <id>
-
-            <parameter> ::= <var-decl-without-initialiser>
+            <decl> ::= <var-decl>
             \alt <array-decl>
+            \alt <structure-var-decl>
 
-            <parameter-list> ::= <parameter> \textbf{,} <parameter-list>
-            \alt <parameter>
+            <decl-without-initialiser> ::= <type> ( \tt{*} )* <id>
+            \alt <array-decl>
+            \alt <structure-var-decl>
+
+            <parameter-list> ::= <decl-without-initialiser> \tt{,} <parameter-list>
+            \alt <decl-without-initialiser>
 
             <parameter-list-opt> ::= <parameter-list> | $\epsilon$
 
-            <stmt> ::= <selection-stmt>
-            \alt <array-access-stmt>
+            <stmt> ::= <block-stmt>
+            \alt <selection-stmt>
             \alt <iteration-stmt>
             \alt <jump-stmt>
-            \alt <var-decl>
+            \alt <decl>
             \alt <expr>
-            \alt <unary-expr>
-
-            <array-access-stmt> ::= <id> \textbf{[} <logical-or-expr> \textbf{]}
+            \alt <assignment-stmt>
+            \alt <primary-stmt>
+            
+            <member-access-stmt> ::= <id> \tt{.} <member-access-stmt>
+            \alt <id> \tt{.} <id>
 
             <iteration-stmt> ::= <stmt>
-            \alt \textbf{break};
-            \alt \textbf{continue};
+            \alt \tt{break};
+            \alt \tt{continue};
+            
+            <block-stmt> ::= \tt{\{} <stmt>* \tt{\}}
+            
+            <iteration-block-stmt> ::= \tt{\{} <iteration-stmt>* \tt{\}}
 
-            <selection-stmt> ::= \textbf{if} \textbf{(} <expr> \textbf{)} \textbf{\{} <stmt>* \textbf{\}}
-            \alt \textbf{if} \textbf{(} <expr> \textbf{)} \textbf{\{} <stmt>* \textbf{\}} \textbf{else} \textbf{\{} <stmt>* \textbf{\}}
+            <selection-stmt> ::= \tt{if} \tt{(} <expr> \tt{)} <block-stmt>
+            \alt \tt{if} \tt{(} <expr> \tt{)} <block-stmt> \tt{else} <block-stmt>
 
-            <iteration-stmt> ::= \textbf{for} \textbf{(} <expr-opt> \textbf{;} <expr-opt> \textbf{;} <expr-opt> \textbf{)} \textbf{\{} <iteration-stmt>* \textbf{\}}
-            \alt \textbf{while} \textbf{(} <expr> \textbf{)} \textbf{\{} <iteration-stmt>* \textbf{\}}
-            \alt \textbf{do} \textbf{\{} <iteration-stmt>* \textbf{\}} \textbf{while} \textbf{(} <expr> \textbf{)} 
+            <iteration-stmt> ::= \tt{for} \tt{(} <expr-opt> \tt{;} <expr-opt> \tt{;} <expr-opt> \tt{)} <iteration-block-stmt>
+            \alt \tt{while} \tt{(} <expr> \tt{)} <iteration-block-stmt>
+            \alt \tt{do} <iteration-block-stmt> \tt{while} \tt{(} <expr> \tt{)} \tt{;}
 
-            <jump-stmt> ::= \textbf{return} <expr>? \textbf{;}
+            <jump-stmt> ::= \tt{return} <expr> ? \tt{;}
 
-            <assignment-op> ::= \tt{"="}
-            \alt \tt{"*="}
-            \alt \tt{"/="}
-            \alt \tt{"%="}
-            \alt \tt{"+="}
-            \alt \tt{"-="}
+            <assignment-op> ::= \tt{=}
+            \alt \tt{*=}
+            \alt \tt{/=}
+            \alt \tt{\%=}
+            \alt \tt{+=}
+            \alt \tt{-=}
             \alt \tt{"<<="}
             \alt \tt{">>="}
-            \alt \tt{"&="}
-            \alt \tt{"|="}
+            \alt \tt{\&=}
+            \alt \tt{|=}
             \alt \tt{"^="}
 
-            <expr> ::= <assignment-expr>
+            <expr> ::= <assignment-stmt>
+            \alt <var-decl>
 
             <expr-opt> ::= <expr> | $\epsilon$
 
-            <assignment-expr> ::= <logical-or-expr>
-            \alt <unary-expr> <assignment-op> <assignment-expr>
+            <assignment-stmt> ::= <logical-or-stmt>
+            \alt <logical-or-stmt> <assignment-op> <assignment-stmt>
 
-            <logical-or-expr> ::= <logical-and-expr>
-            \alt <logical-or-expr> \textbf{||} <logical-and-expr>
+            <logical-or-stmt> ::= <logical-and-stmt>
+            \alt <logical-and-stmt> \tt{||} <logical-or-stmt>
 
-            <logical-and-expr> ::= <inclusive-or-expr>
-            \alt <logical-and-expr> \textbf{\&\&} <inclusive-or-expr>
+            <logical-and-stmt> ::= <inclusive-or-stmt>
+            \alt <inclusive-or-stmt> \tt{\&\&} <logical-and-stmt>
 
-            <inclusive-or-expr> ::= <exclusive-or-expr>
-            \alt <inclusive-or-expr> \textbf{|} <exclusive-or-expr>
+            <inclusive-or-stmt> ::= <exclusive-or-stmt>
+            \alt <exclusive-or-stmt> \tt{|} <inclusive-or-stmt>
 
-            <exclusive-or-expr> ::= <and-expr>
-            \alt <exclusive-or-expr> \textbf{\^} <and-expr>
+            <exclusive-or-stmt> ::= <and-stmt>
+            \alt <and-stmt> \tt{"^"} <exclusive-or-stmt>
 
-            <and-expr> ::= <equality-expr>
-            \alt <and-expr> \textbf{\&} <equality-expr>
+            <and-stmt> ::= <equality-stmt>
+            \alt <equality-stmt> \tt{\&} <and-stmt>
 
-            <equality-expr> ::= <relational-expr>
-            \alt <equality-expr> \textbf{==} <relational-expr>
-            \alt <equality-expr> \textbf{!=} <relational-expr>
+            <equality-stmt> ::= <relational-stmt>
+            \alt <relational-stmt> \tt{==} <equality-stmt>
+            \alt <relational-stmt> \tt{!=} <equality-stmt>
 
-            <relational-expr> ::= <shift-expr>
-            \alt <relational-expr> \tt{">"} <shift-expr>
-            \alt <relational-expr> \tt{"<"} <shift-expr>
-            \alt <relational-expr> \tt{">="} <shift-expr>
-            \alt <relational-expr> \tt{"<="} <shift-expr>
+            <relational-stmt> ::= <shift-stmt>
+            \alt <shift-stmt> \tt{">"} <relational-stmt>
+            \alt <shift-stmt> \tt{"<"} <relational-stmt>
+            \alt <shift-stmt> \tt{">="} <relational-stmt>
+            \alt <shift-stmt> \tt{"<="} <relational-stmt>
 
-            <shift-expr> ::= <additive-expr>
-            \alt <shift-expr> \tt{"<<"} <additive-expr>
-            \alt <shift-expr> \tt{">>"} <additive-expr>
+            <shift-stmt> ::= <additive-stmt>
+            \alt <additive-stmt> \tt{"<<"} <shift-stmt>
+            \alt <additive-stmt> \tt{">>"} <shift-stmt>
 
-            <additive-expr> ::= <multiplicative-expr>
-            \alt <additive-expr> \tt{"+"} <multiplicative-expr>
-            \alt <additive-expr> \tt{"-"} <multiplicative-expr>
+            <additive-stmt> ::= <multiplicative-stmt>
+            \alt <multiplicative-stmt> \tt{"+"} <additive-stmt>
+            \alt <multiplicative-stmt> \tt{"-"} <additive-stmt>
 
-            <multiplicative-expr> ::= <unary-expr>
-            \alt <multiplicative-expr> \tt{"*"} <unary-expr>
-            \alt <multiplicative-expr> \tt{"/"} <unary-expr>
-            \alt <multiplicative-expr> \tt{"%"} <unary-expr>
+            <multiplicative-stmt> ::= <prefix-unary-stmt>
+            \alt <prefix-unary-stmt> \tt{"*"} <multiplicative-stmt>
+            \alt <prefix-unary-stmt> \tt{"/"} <multiplicative-stmt>
+            \alt <prefix-unary-stmt> \tt{"%"} <multiplicative-stmt>
 
-            <unary-expr> ::= <postfix-expr>
-            \alt \tt{"++"} <unary-expr>
-            \alt \tt{"--"} <unary-expr>
+            <prefix-unary-stmt> ::= <postfix-unary-stmt>
+            \alt \tt{++} <postfix-unary-stmt>
+            \alt \tt{--} <postfix-unary-stmt>
+            \alt \tt{*} <postfix-unary-stmt>
+            \alt \tt{\&} <postfix-unary-stmt>
+            \alt \tt{!} <postfix-unary-stmt>
 
-            <postfix-expr> ::= <primary-expr>
-            \alt <postfix-expr> \tt{"["} <expr> \tt{"]"}
-            \alt <postfix-expr> \tt{"++"}
-            \alt <postfix-expr> \tt{"--"}
+            <postfix-unary-stmt> ::= <primary-stmt>
+            \alt <primary-stmt> \tt{++}
+            \alt <primary-stmt> \tt{--}
 
-            <primary-expr> ::= <constant>
+            <primary-stmt> ::= <constant>
+            \alt <symbol-stmt>
+            \alt \tt{(} <logical-or-stmt> \tt{)}
+            
+            <symbol-stmt> ::= <function-call-stmt>
+            \alt <array-access-stmt>
+            \alt <member-access-stmt>
             \alt <id>
-            \alt \tt{"("} <expr> \tt{")"}
+            
+            <array-access-stmt> ::= <id> ( \tt{[} <expr> ] )*
+            
+            <function-call-arg-list> ::= <logical-or-stmt> \tt{,} <function-call-arg-list>
+            \alt <logical-or-stmt>
+            
+            <function-call-arg-list-opt> ::= <function-call-arg-list> | $\epsilon$
+
+            <function-call-expr> ::= <id> \tt{(} <function-call-arg-list-opt> \tt{)}
 
         \end{grammar}
-
-    \section{Environment}
-        \upshape
-
-        \subsection{Backend}
-            The language use the LLVM backend, although another backend can be implemented
-            (including self-written one).
-
-        \subsection{Data types}
-            The language must implement static strong typing. All casts must
-            be explicit.
-            \begin{itemize}
-                \item \textbf{Int} -- Signed 32-bit;
-                \item \textbf{Float} -- Signed 32-bit;
-                \item \textbf{Bool} -- 8-bit;
-                \item \textbf{String} -- Character sequence, that ends with Null character;
-                \item \textbf{Void} -- Empty type, used as return type only.
-            \end{itemize}
-
-            Each type except \textbf{void} can represent array, for example,
-
-            $$\textbf{bool array[10];}$$
-
-            .
-
-        \subsection{Inside-iteration statements}
-            \begin{itemize}
-                \item \textbf{Break} -- Usable only inside the \textbf{while},
-                        \textbf{do-while} and \textbf{for} statements. Performs exit from a
-                        loop.
-
-                \item \textbf{Continue} -- Usable only inside the \textbf{while},
-                        \textbf{do-while} and \textbf{for} statements. Performs jump to
-                        the next iteration.
-            \end{itemize}
-
-        \subsection{Iteration statements}
-            \begin{itemize}
-                  \item \textbf{While} -- Loop statement that performs its body until the
-                        condition evaluates to true.
-
-                  \item \textbf{Do-While} -- Loop statement with similar to \textbf{While}
-                        semantics, but it executes body before contition check at first time.
-
-                  \item \textbf{For} -- Loop statement with three initial parts and body.
-                        This includes:
-                        \begin{itemize}
-                            \item \textbf{Initial} part with the variable assignment;
-                            \item \textbf{Conditional} part with the some condition;
-                            \item \textbf{Incremental} part with the some statement, that
-                                  should change assigned variable.
-                        \end{itemize}
-
-                      All parts are optional.
-            \end{itemize}
-
-        \subsection{Conditional statements}
-            \begin{itemize}
-                \item \textbf{If} -- Conditional statement, that should execute
-                      If-part when it's condition evaluates to true. Otherwise, Else-part
-                      should be executed.
-            \end{itemize}
-
-        \subsection{Jump statements}
-            \begin{itemize}
-                \item \textbf{Return} -- The end point of control flow, may return
-                      value, may not (void functions).
-            \end{itemize}
-
-    \section{Semantics}
-        \upshape
-
-        \subsection{Types}
-            \begin{itemize}
-                \item Integer (boolean, integer, floating point) types are simple
-                      numeric types, which can be copied in trivial way (with
-                      memcpy and so on).
-
-                  \item String type initially is a pointer to string literal. However, once
-                        contents under this pointer are "modified", copy of literal
-                        created and emplaced onto stack. After that, all operations on
-                        string variable affecting local copy.
-            \end{itemize}
-
-        \subsection{Function parameters}
-            \begin{itemize}
-                \item All types including arrays are copied to function parameters
-                      during call.
-            \end{itemize}
-
-    \section{FFI}
-        \subsection{Linking with C}
-            The language have FFI with the GNU C Library and with other C
-            libraries in general. This mean, that \textbf{cdecl} call convention is used.
 
 \end{document}
