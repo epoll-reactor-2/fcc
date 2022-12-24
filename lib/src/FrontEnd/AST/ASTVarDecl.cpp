@@ -46,6 +46,10 @@ void ASTVarDecl::Accept(ASTVisitor *Visitor) {
   Visitor->Visit(this);
 }
 
+bool ASTVarDecl::IsStruct() const {
+  return mTypeName != "";
+}
+
 weak::DataType ASTVarDecl::DataType() const {
   return mDataType;
 }

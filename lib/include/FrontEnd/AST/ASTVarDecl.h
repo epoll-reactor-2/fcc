@@ -38,6 +38,7 @@ public:
 
   void Accept(ASTVisitor *) override;
 
+  bool IsStruct() const;
   weak::DataType DataType() const;
   const std::string &Name() const;
   const std::string &TypeName() const;

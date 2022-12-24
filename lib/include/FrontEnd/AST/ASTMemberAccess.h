@@ -18,21 +18,21 @@ class ASTSymbol;
 class ASTMemberAccess : public ASTNode {
 public:
   ASTMemberAccess(
-    ASTSymbol *Name,
-    ASTNode   *MemberDecl,
-    unsigned   LineNo,
-    unsigned   ColumnNo
+    ASTNode  *Name,
+    ASTNode  *MemberDecl,
+    unsigned  LineNo,
+    unsigned  ColumnNo
   );
 
   ~ASTMemberAccess();
 
   void Accept(ASTVisitor *) override;
 
-  ASTSymbol *Name() const;
+  ASTNode *Name() const;
   ASTNode *MemberDecl() const;
 
 private:
-  ASTSymbol *mName;
+  ASTNode *mName;
   ASTNode *mMemberDecl;
 };
 

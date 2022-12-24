@@ -54,6 +54,10 @@ void VariableUseAnalysis::Visit(ASTUnary *Stmt) {
   bool IsVariable = false;
   IsVariable |= Op->Is(AST_SYMBOL);
   IsVariable |= Op->Is(AST_ARRAY_ACCESS);
+  IsVariable |= Op->Is(AST_MEMBER_ACCESS);
+  IsVariable |= Op->Is(AST_BINARY);
+  IsVariable |= Op->Is(AST_PREFIX_UNARY);
+  IsVariable |= Op->Is(AST_POSTFIX_UNARY);
   if (!IsVariable)
     weak::CompileError(Stmt)
       << "Variable as argument of unary operator expected";
@@ -181,8 +185,8 @@ void VariableUseAnalysis::Visit(ASTSymbol *Stmt) {
 }
 
 void VariableUseAnalysis::Visit(ASTMemberAccess *Stmt) {
-  auto *Symbol = static_cast<ASTSymbol *>(Stmt->Name());
-  AssertIsDeclared(Symbol->Name(), Stmt);
+//  auto *Symbol = static_cast<ASTSymbol *>(Stmt->Name());
+//  AssertIsDeclared(Symbol->Name(), Stmt);
   mCollectedNodes.back().push_back(Stmt);
 }
 
@@ -235,7 +239,10 @@ void VariableUseAnalysis::AddReadUse(ASTNode *Stmt) {
 
   if (Stmt->Is(AST_MEMBER_ACCESS)) {
     auto *M = static_cast<ASTMemberAccess *>(Stmt);
-    mStorage.AddReadUse(M->Name()->Name());
+    if (M->Name()->Is(AST_SYMBOL)) {
+      auto *S = static_cast<ASTSymbol *>(M->Name());
+      mStorage.AddReadUse(S->Name());
+    }
   }
 }
 
@@ -252,7 +259,10 @@ void VariableUseAnalysis::AddWriteUse(ASTNode *Stmt) {
 
   if (Stmt->Is(AST_MEMBER_ACCESS)) {
     auto *M = static_cast<ASTMemberAccess *>(Stmt);
-    mStorage.AddWriteUse(M->Name()->Name());
+    if (M->Name()->Is(AST_SYMBOL)) {
+      auto *S = static_cast<ASTSymbol *>(M->Name());
+      mStorage.AddWriteUse(S->Name());
+    }
   }
 }
 

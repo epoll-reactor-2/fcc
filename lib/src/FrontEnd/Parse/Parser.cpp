@@ -48,7 +48,7 @@ std::unique_ptr<ASTCompound> Parser::Parse() {
     case TOK_CHAR:
     case TOK_STRING:
     case TOK_FLOAT:
-    case TOK_BOOL: // Fall through.
+    case TOK_BOOL: /// Fall through.
       Stmts.push_back(ParseFunctionDecl());
       break;
     default:
@@ -239,12 +239,14 @@ ASTNode *Parser::ParseDecl() {
   switch (const Token &T = PeekCurrent(); T.Type) {
   case TOK_STRUCT:
     return ParseStructDecl();
+  case TOK_SYMBOL:
+    return ParseStructVarDecl();
   case TOK_VOID:
   case TOK_INT:
   case TOK_CHAR:
   case TOK_STRING:
   case TOK_FLOAT:
-  case TOK_BOOL: // Fall through.
+  case TOK_BOOL: /// Fall through.
     return ParseDeclWithoutInitializer();
   default:
     weak::CompileError(T.LineNo, T.ColumnNo) << "Declaration expected";
@@ -332,13 +334,14 @@ ASTNode *Parser::ParseStructFieldAccess() {
   const Token &Symbol = Require(TOK_SYMBOL);
   const Token &Next = PeekNext();
 
-  if (Next.Type == TOK_DOT)
+  if (Next.Type == TOK_DOT) {
     return new ASTMemberAccess(
       new ASTSymbol(Symbol.Data, Symbol.LineNo, Symbol.ColumnNo),
       ParseStructFieldAccess(),
       Symbol.LineNo,
       Symbol.ColumnNo
     );
+  }
 
   --mTokenPtr;
   return new ASTSymbol(Symbol.Data, Symbol.LineNo, Symbol.ColumnNo);
@@ -350,7 +353,7 @@ Parser::LocalizedDataType Parser::ParseType() {
   case TOK_FLOAT:
   case TOK_CHAR:
   case TOK_STRING:
-  case TOK_BOOL: { // Fall through.
+  case TOK_BOOL: { /// Fall through.
     PeekNext();
     unsigned IndirectionLvl = 0U;
     while (PeekCurrent().Is('*')) {
@@ -390,7 +393,7 @@ ASTNode *Parser::ParseDeclWithoutInitializer() {
   case TOK_FLOAT:
   case TOK_CHAR:
   case TOK_STRING:
-  case TOK_BOOL: // Fall through.
+  case TOK_BOOL: /// Fall through.
     if (IsArray)
       return ParseArrayDecl();
     else
@@ -439,7 +442,7 @@ ASTCompound *Parser::ParseBlock() {
     case AST_ARRAY_DECL:
     case AST_ARRAY_ACCESS:
     case AST_MEMBER_ACCESS:
-    case AST_FUNCTION_CALL: // Fall through.
+    case AST_FUNCTION_CALL: /// Fall through.
       Require(';');
       break;
     default:
@@ -468,7 +471,7 @@ ASTCompound *Parser::ParseIterationBlock() {
     case AST_DO_WHILE_STMT:
     case AST_VAR_DECL:
     case AST_MEMBER_ACCESS:
-    case AST_FUNCTION_CALL: // Fall through.
+    case AST_FUNCTION_CALL: /// Fall through.
       Require(';');
       break;
     default:
@@ -488,7 +491,7 @@ ASTNode *Parser::ParseStmt() {
     return ParseSelectionStmt();
   case TOK_FOR:
   case TOK_DO:
-  case TOK_WHILE: // Fall through.
+  case TOK_WHILE: /// Fall through.
     return ParseIterationStmt();
   case TOK_RETURN:
     return ParseJumpStmt();
@@ -496,12 +499,24 @@ ASTNode *Parser::ParseStmt() {
   case TOK_CHAR:
   case TOK_FLOAT:
   case TOK_STRING:
-  case TOK_BOOL:
-  case TOK_SYMBOL: // Fall through.
-    return ParseExpr();
+  case TOK_BOOL: /// Fall through.
+    return ParseVarDecl();
+  case TOK_SYMBOL:
+    /// Expression like `a *b` means structure
+    /// variable declaration only in global context
+    /// (most top level in block), elsewise this is
+    /// a multiplication operator.
+    if ((mTokenPtr + 1)->Is('*') || (mTokenPtr + 1)->Is(TOK_SYMBOL))
+      return ParseStructVarDecl();
+    else
+      return ParseExpr();
+  case TOK_BIT_AND: /// Address operator `&`.
+  case TOK_STAR: /// Dereference operator `*`.
   case TOK_INC:
-  case TOK_DEC: // Fall through.
-    return ParsePrefixUnary();
+  case TOK_DEC: /// Fall through.
+    return ParseAssignment();
+  case TOK_OPEN_PAREN:
+    return ParsePrimary();
   default:
     weak::CompileError(T.LineNo, T.ColumnNo) << "Unexpected token: " << T.Type;
     Unreachable("Should not reach there.");
@@ -638,7 +653,7 @@ ASTNode *Parser::ParseJumpStmt() {
   if (!Match(';')) {
     /// This is `return;` case.
     /// Rollback to allow match ';' in block parse function.
-    Body = ParseExpr();
+    Body = ParseLogicalOr();
   } else
     /// Go back to body of return statement.
     --mTokenPtr;
@@ -677,7 +692,7 @@ ASTNode *Parser::ParseExpr() {
   case TOK_CHAR:
   case TOK_FLOAT:
   case TOK_STRING:
-  case TOK_BOOL: // Fall through.
+  case TOK_BOOL: /// Fall through.
     return ParseVarDecl();
   default:
     return ParseAssignment();
@@ -698,7 +713,7 @@ ASTNode *Parser::ParseAssignment() {
     case TOK_SHR_ASSIGN:
     case TOK_BIT_AND_ASSIGN:
     case TOK_BIT_OR_ASSIGN:
-    case TOK_XOR_ASSIGN: // Fall through.
+    case TOK_XOR_ASSIGN: /// Fall through.
       Expr = new ASTBinary(T.Type, Expr, ParseAssignment(), T.LineNo, T.ColumnNo);
       continue;
     default:
@@ -797,7 +812,7 @@ ASTNode *Parser::ParseEquality() {
   while (true) {
     switch (const Token &T = PeekNext(); T.Type) {
     case TOK_EQ:
-    case TOK_NEQ: // Fall through.
+    case TOK_NEQ: /// Fall through.
       Expr = new ASTBinary(T.Type, Expr, ParseEquality(), T.LineNo, T.ColumnNo);
       continue;
     default:
@@ -816,7 +831,7 @@ ASTNode *Parser::ParseRelational() {
     case TOK_GT:
     case TOK_LT:
     case TOK_GE:
-    case TOK_LE: // Fall through.
+    case TOK_LE: /// Fall through.
       Expr = new ASTBinary(T.Type, Expr, ParseRelational(), T.LineNo, T.ColumnNo);
       continue;
     default:
@@ -833,7 +848,7 @@ ASTNode *Parser::ParseShift() {
   while (true) {
     switch (const Token &T = PeekNext(); T.Type) {
     case TOK_SHL:
-    case TOK_SHR: // Fall through.
+    case TOK_SHR: /// Fall through.
       Expr = new ASTBinary(T.Type, Expr, ParseShift(), T.LineNo, T.ColumnNo);
       continue;
     default:
@@ -850,7 +865,7 @@ ASTNode *Parser::ParseAdditive() {
   while (true) {
     switch (const Token &T = PeekNext(); T.Type) {
     case TOK_PLUS:
-    case TOK_MINUS: // Fall through.
+    case TOK_MINUS: /// Fall through.
       Expr = new ASTBinary(T.Type, Expr, ParseAdditive(), T.LineNo, T.ColumnNo);
       continue;
     default:
@@ -868,7 +883,7 @@ ASTNode *Parser::ParseMultiplicative() {
     switch (const Token &T = PeekNext(); T.Type) {
     case TOK_STAR:
     case TOK_SLASH:
-    case TOK_MOD: // Fall through.
+    case TOK_MOD: /// Fall through.
       Expr = new ASTBinary(T.Type, Expr, ParseMultiplicative(), T.LineNo, T.ColumnNo);
       continue;
     default:
@@ -882,8 +897,10 @@ ASTNode *Parser::ParseMultiplicative() {
 
 ASTNode *Parser::ParsePrefixUnary() {
   switch (const Token &T = PeekNext(); T.Type) {
+  case TOK_BIT_AND: /// Address operator `&`.
+  case TOK_STAR: /// Dereference operator `*`.
   case TOK_INC:
-  case TOK_DEC: // Fall through.
+  case TOK_DEC: /// Fall through.
     return new ASTUnary(
       ASTUnary::PREFIX,
       T.Type,
@@ -902,7 +919,7 @@ ASTNode *Parser::ParsePostfixUnary() {
   auto* Expr = ParsePrimary();
   switch (const Token& T = PeekNext(); T.Type) {
   case TOK_INC:
-  case TOK_DEC: // Fall through.
+  case TOK_DEC: /// Fall through.
     return new ASTUnary(
       ASTUnary::POSTFIX,
       T.Type, Expr,
@@ -928,11 +945,6 @@ ASTNode *Parser::ParseSymbol() {
     --mTokenPtr;
     return ParseArrayAccess();
   }
-  /// symbol symbol
-  case TOK_SYMBOL: {
-    --mTokenPtr;
-    return ParseStructVarDecl();
-  }
   /// symbol.
   case TOK_DOT: {
     --mTokenPtr;
@@ -951,6 +963,14 @@ ASTNode *Parser::ParsePrimary() {
     /// We expect all binary/unary/constant statements expect assignment.
     auto *Expr = ParseLogicalOr();
     Require(')');
+    if (Match('.')) {
+      Expr = new ASTMemberAccess(
+        Expr,
+        ParseStructFieldAccess(),
+        Expr->LineNo(),
+        Expr->ColumnNo()
+      );
+    }
     return Expr;
   }
   default:

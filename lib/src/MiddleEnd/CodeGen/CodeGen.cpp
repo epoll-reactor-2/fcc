@@ -21,12 +21,16 @@ class FunctionBuilder {
 public:
   FunctionBuilder(
     llvm::IRBuilder<>          &I,
+    llvm::LLVMContext          &Ctx,
     llvm::Module               &M,
+    std::unordered_map</*VarName=*/std::string, /*TypeName=*/std::string> &StructVarsStorage,
     ASTFunctionDeclOrPrototype *Decl
   ) : mIRBuilder(I)
+    , mIRCtx(Ctx)
     , mIRModule(M)
     , mDecl(Decl)
-    , mResolver(mIRBuilder) {}
+    , mResolver(mIRBuilder)
+    , mStructVarsStorage(StructVarsStorage) {}
 
   llvm::Function *BuildSignature() {
     /// \todo: Always external linkage? Come here after making multiple files
@@ -56,13 +60,23 @@ private:
   llvm::Type *ResolveParamType(ASTNode *AST) {
     if (AST->Is(AST_VAR_DECL)) {
       auto *D = static_cast<ASTVarDecl *>(AST);
-      return mResolver.ResolveExceptVoid(
-        D->DataType(),
-        D->IndirectionLvl()
-      );
+      mStructVarsStorage.emplace(D->Name(), D->TypeName());
+
+      if (D->IsStruct()) {
+        llvm::Type *Ty = llvm::StructType::getTypeByName(mIRCtx, D->TypeName());
+        for (unsigned I = 0U; I < D->IndirectionLvl(); ++I)
+          Ty = llvm::PointerType::get(Ty, /*AddressSpace=*/0U);
+        return Ty;
+      } else
+        return mResolver.ResolveExceptVoid(
+          D->DataType(),
+          D->IndirectionLvl()
+        );
     }
 
     auto *A = static_cast<ASTArrayDecl *>(AST);
+    mStructVarsStorage.emplace(A->Name(), A->TypeName());
+
     return llvm::PointerType::get(
       mResolver.ResolveExceptVoid(
         A->DataType(),
@@ -73,9 +87,11 @@ private:
   }
 
   llvm::IRBuilder<> &mIRBuilder;
+  llvm::LLVMContext &mIRCtx;
   llvm::Module &mIRModule;
   ASTFunctionDeclOrPrototype *mDecl;
   TypeResolver mResolver;
+  std::unordered_map</*VarName=*/std::string, /*TypeName=*/std::string> &mStructVarsStorage;
 };
 
 } // namespace
@@ -213,13 +229,19 @@ void CodeGen::Visit(ASTUnary *Stmt) {
   case TOK_INC:
   case TOK_DEC:
     mLastInstr = ScalarEmitter.EmitBinOp(ResolveUnaryOp(T), mLastInstr, mIRBuilder.getInt32(1));
+    mIRBuilder.CreateStore(mLastInstr, mLastPtr);
+    break;
+  case TOK_BIT_AND: /// Address operator `&`.
+    mLastInstr = llvm::getPointerOperand(mLastInstr);
+    mLastPtr = mLastInstr;
+    break;
+  case TOK_STAR: /// Dereference operator `*`.
+    mLastPtr = mLastInstr;
+    mLastInstr = mIRBuilder.CreateLoad(mLastPtr->getType()->getPointerElementType(), mLastPtr);
     break;
   default:
     Unreachable("Should not reach there.");
   }
-
-  mIRBuilder.CreateStore(mLastInstr, mLastPtr);
-  mLastPtr = nullptr;
 }
 
 void CodeGen::Visit(ASTFor *Stmt) {
@@ -346,7 +368,7 @@ const std::string &ASTDeclName(ASTNode *AST) {
 }
 
 void CodeGen::Visit(ASTFunctionDecl *Decl) {
-  FunctionBuilder B(mIRBuilder, mIRModule, Decl);
+  FunctionBuilder B(mIRBuilder, mIRCtx, mIRModule, mStructVarsStorage, Decl);
   llvm::Function *Func = B.BuildSignature();
 
   auto *EntryBB = llvm::BasicBlock::Create(mIRCtx, "entry", Func);
@@ -384,7 +406,7 @@ void CodeGen::Visit(ASTFunctionCall *Stmt) {
 }
 
 void CodeGen::Visit(ASTFunctionPrototype *Stmt) {
-  FunctionBuilder B(mIRBuilder, mIRModule, Stmt);
+  FunctionBuilder B(mIRBuilder, mIRCtx, mIRModule, mStructVarsStorage, Stmt);
   B.BuildSignature();
 }
 
@@ -449,15 +471,15 @@ void CodeGen::Visit(ASTReturn *Stmt) {
 }
 
 void CodeGen::Visit(ASTMemberAccess *Stmt) {
-  const auto &Name = Stmt->Name()->Name();
-  auto *Type = llvm::StructType::getTypeByName(mIRCtx, mStructVarsStorage[Name]);
+  Stmt->Name()->Accept(this);
+  llvm::Value *LHS = mLastPtr;
 
-  llvm::AllocaInst *Struct = mStorage.Lookup(Name);
-  assert(Struct);
-  /// \todo: Get AST for declaration and convert `.field` to index
-  mLastPtr = mIRBuilder.CreateStructGEP(Type, Struct, 1);
-  mLastInstr = mIRBuilder.CreateLoad(Type->getTypeAtIndex(1U), mLastPtr);
-  /// \todo: Get type, with respect to nested member accesses.
+  if (auto *M = Stmt->MemberDecl(); !M->Is(AST_SYMBOL))
+    M->Accept(this);
+
+  /// Get struct (0 index) and field (0 index).
+  mLastPtr = mIRBuilder.CreateConstInBoundsGEP2_32(LHS->getType()->getPointerElementType(), LHS, 0, 0);
+  mLastInstr = mIRBuilder.CreateLoad(mLastPtr->getType()->getPointerElementType(), mLastPtr);
 }
 
 void CodeGen::Visit(ASTArrayDecl *Stmt) {
@@ -522,18 +544,46 @@ void CodeGen::Visit(ASTVarDecl *Decl) {
   mStorage.Push(Decl->Name(), VarDecl);
 }
 
-void CodeGen::Visit(ASTStructDecl *Decl) {
-  auto *Struct = llvm::StructType::create(mIRCtx);
-  Struct->setName(Decl->Name());
+/// \todo: Proper nested structures somehow.
+llvm::StructType *BuildStruct(llvm::LLVMContext &IRCtx, TypeResolver &TR, std::string_view Name, const std::vector<ASTNode *> &Decls) {
+  auto *Struct = llvm::StructType::create(IRCtx);
+  Struct->setName(Name);
   llvm::SmallVector<llvm::Type *, 8> Members;
 
-  TypeResolver TR(mIRBuilder);
+  for (auto *D : Decls) {
+    unsigned IndirectionLvl = 0U;
 
-  for (auto *D : Decl->Decls())
-    Members.push_back(TR.Resolve(D));
+    if (D->Is(AST_VAR_DECL)) {
+      auto *Decl = static_cast<ASTVarDecl *>(D);
+      IndirectionLvl = Decl->IndirectionLvl();
+      if (Decl->IsStruct()) {
+        Members.push_back(
+          llvm::StructType::getTypeByName(IRCtx, Decl->Name())
+        );
+      } else {
+        Members.push_back(TR.Resolve(D, IndirectionLvl));
+      }
+    }
+
+    if (D->Is(AST_ARRAY_DECL)) {
+      auto *Decl = static_cast<ASTArrayDecl *>(D);
+      IndirectionLvl = Decl->IndirectionLvl();
+      Members.push_back(TR.Resolve(D, IndirectionLvl));
+    }
+
+    if (D->Is(AST_STRUCT_DECL)) {
+      auto *Decl = static_cast<ASTStructDecl *>(D);
+      Members.push_back(BuildStruct(IRCtx, TR, Decl->Name(), Decl->Decls()));
+    }
+  }
 
   Struct->setBody(std::move(Members));
+  return Struct;
+}
 
+void CodeGen::Visit(ASTStructDecl *Decl) {
+  TypeResolver TR(mIRBuilder);
+  BuildStruct(mIRCtx, TR, Decl->Name(), Decl->Decls());
   mLastInstr = nullptr;
 }
 

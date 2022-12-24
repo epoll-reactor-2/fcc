@@ -105,8 +105,7 @@ private:
   /// Return statement.
   ASTNode *ParseJumpStmt();
 
-  /// Unary/binary statement, literal, symbol, assignment, variable declaration
-  /// or function call.
+  /// Alias for ParseAssignment() for readability.
   ASTNode *ParseExpr();
 
   ASTNode *ParseAssignment();

@@ -22,6 +22,7 @@ const char *weak::TokenToString(TokenType Type) {
   case TOK_INT:                    return "int";
   case TOK_RETURN:                 return "return";
   case TOK_STRING:                 return "string";
+  case TOK_STRUCT:                 return "struct";
   case TOK_TRUE:                   return "true";
   case TOK_VOID:                   return "void";
   case TOK_WHILE:                  return "while";

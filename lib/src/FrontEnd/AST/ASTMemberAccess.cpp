@@ -5,16 +5,15 @@
  */
 
 #include "FrontEnd/AST/ASTMemberAccess.h"
-#include "FrontEnd/AST/ASTSymbol.h"
 #include "FrontEnd/AST/ASTVisitor.h"
 
 namespace weak {
 
 ASTMemberAccess::ASTMemberAccess(
-  ASTSymbol *Name,
-  ASTNode   *MemberDecl,
-  unsigned   LineNo,
-  unsigned   ColumnNo
+  ASTNode  *Name,
+  ASTNode  *MemberDecl,
+  unsigned  LineNo,
+  unsigned  ColumnNo
 ) : ASTNode(AST_MEMBER_ACCESS, LineNo, ColumnNo)
   , mName(Name)
   , mMemberDecl(MemberDecl) {}
@@ -28,7 +27,7 @@ void ASTMemberAccess::Accept(ASTVisitor *Visitor) {
   Visitor->Visit(this);
 }
 
-ASTSymbol *ASTMemberAccess::Name() const {
+ASTNode *ASTMemberAccess::Name() const {
   return mName;
 }
 

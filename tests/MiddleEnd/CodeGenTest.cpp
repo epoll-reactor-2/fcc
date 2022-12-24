@@ -36,6 +36,7 @@ void RunTestOnInvalidCode(
 
 void RunTest(std::string_view Path, bool IsValid) {
   llvm::outs() << "Testing file " << Path << "... ";
+  llvm::outs().flush();
 
   std::string Program = weak::FileAsString(Path);
   weak::Lexer Lex(&Program.front(), &Program.back());

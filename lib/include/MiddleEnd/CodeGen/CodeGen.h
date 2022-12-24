@@ -97,9 +97,7 @@ private:
   /// LLVM stuff.
   llvm::IRBuilder<> mIRBuilder;
 
-  using StructVarName = std::string;
-  using TypeName = std::string;
-  std::unordered_map<StructVarName, TypeName> mStructVarsStorage;
+  std::unordered_map</*VarName=*/std::string, /*TypeName=*/std::string> mStructVarsStorage;
 };
 
 } // namespace weak

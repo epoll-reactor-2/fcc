@@ -114,9 +114,21 @@ void TypeAnalysis::Visit(ASTUnary *Stmt) {
   Stmt->Operand()->Accept(this);
   DataType T = mLastDataType;
 
-  if (T != DT_CHAR && T != DT_INT)
-    weak::CompileError(Stmt)
-      << "Cannot apply `" << Stmt->Operation() << "` to " << T;
+  switch (Stmt->Operation()) {
+  case TOK_INC:
+  case TOK_DEC: /// Fall through.
+    if (T != DT_CHAR && T != DT_INT)
+      weak::CompileError(Stmt)
+        << "Cannot apply `" << Stmt->Operation() << "` to " << T;
+    break;
+  case TOK_BIT_AND: /// Address operator `&`.
+  case TOK_STAR: /// Dereference operator `*`.
+    /// Should not analyze anything because operands
+    /// of unary operator are checked in parser.
+    break;
+  default:
+    Unreachable("Should not reach there.");
+  }
 }
 
 void TypeAnalysis::ConvertibleToBoolCondAnalysis(ASTNode *Stmt) {
@@ -220,9 +232,9 @@ void TypeAnalysis::Visit(ASTArrayAccess *Stmt) {
   ///        C-style char arrays.
   if (!Record->Is(AST_ARRAY_DECL)) {
     auto *D = static_cast<ASTVarDecl *>(Record);
-    if (D->DataType() != DT_STRING) {
-      weak::CompileError(D) << "Cannot get index of non-array type";
-    }
+    if (D->IndirectionLvl() == 0 && D->DataType() != DT_STRING)
+      weak::CompileError(Stmt) << "Cannot get index of non-array type";
+    mLastDataType = D->DataType();
   }
 
   for (auto *I : Stmt->Indices()) {
@@ -232,9 +244,11 @@ void TypeAnalysis::Visit(ASTArrayAccess *Stmt) {
         << "Expected integer as array index, got " << mLastDataType;
   }
 
-  ASTArrayDecl *Array = static_cast<ASTArrayDecl *>(Record);
-  OutOfRangeAnalysis(Array, Stmt->Indices());
-  mLastDataType = Array->DataType();
+  if (Record->Is(AST_ARRAY_DECL)) {
+    auto *Array = static_cast<ASTArrayDecl *>(Record);
+    OutOfRangeAnalysis(Array, Stmt->Indices());
+    mLastDataType = Array->DataType();
+  }
 }
 
 void TypeAnalysis::Visit(ASTSymbol *Stmt) {
