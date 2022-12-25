@@ -255,7 +255,9 @@ ASTNode *Parser::ParseDecl() {
 }
 
 ASTNode *Parser::ParseStructDecl() {
-  std::vector<ASTNode *> Decls;
+  using IndexedDeclaration = ASTStructDecl::IndexedDeclaration;
+  std::vector<IndexedDeclaration> Decls;
+  unsigned DeclIndex = 0U;
 
   const Token &Start = Require(TOK_STRUCT);
   const Token &Name = Require(TOK_SYMBOL);
@@ -263,7 +265,12 @@ ASTNode *Parser::ParseStructDecl() {
   Require('{');
 
   while (!PeekCurrent().Is('}')) {
-    Decls.push_back(ParseDecl());
+    auto *Decl = ParseDecl();
+    Decls.push_back(IndexedDeclaration{Decl, DeclIndex});
+    /// Only variables needed to get indices for its positions in the
+    /// structure. Nested structure declarations not.
+    if (Decl->Is(AST_VAR_DECL) || Decl->Is(AST_ARRAY_DECL))
+      ++DeclIndex;
     Require(';');
   }
 

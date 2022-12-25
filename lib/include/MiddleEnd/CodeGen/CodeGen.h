@@ -96,8 +96,9 @@ private:
   llvm::Module mIRModule;
   /// LLVM stuff.
   llvm::IRBuilder<> mIRBuilder;
-
-  std::unordered_map</*VarName=*/std::string, /*TypeName=*/std::string> mStructVarsStorage;
+  /// Mapping between LLVM type and AST. Needed for member access type indexes
+  /// solving.
+  std::unordered_map<llvm::StructType *, ASTStructDecl *> mStructASTsMapping;
 };
 
 } // namespace weak

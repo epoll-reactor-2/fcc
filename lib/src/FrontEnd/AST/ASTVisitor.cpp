@@ -87,8 +87,8 @@ void ASTVisitor::Visit(ASTReturn *Stmt) {
 }
 
 void ASTVisitor::Visit(ASTStructDecl *Decl) {
-  for (auto *D : Decl->Decls())
-    D->Accept(this);
+  for (auto [Decl, _] : Decl->Decls())
+    Decl->Accept(this);
 }
 
 void ASTVisitor::Visit(ASTMemberAccess *Stmt) {

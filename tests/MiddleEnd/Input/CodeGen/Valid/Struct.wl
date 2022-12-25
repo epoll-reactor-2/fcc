@@ -1,6 +1,4 @@
-// 9
-// \todo: Now we get field with concrete index (for example, 1).
-//        Make proper fields access with respect to StructGEP indices.
+// 6
 struct x {
     int a;
     int b;

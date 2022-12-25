@@ -15,23 +15,30 @@ namespace weak {
 
 class ASTStructDecl : public ASTNode {
 public:
+  /// Consequense of LLVM IR backend. It requires
+  /// indices of struct fields in order to access them.
+  struct IndexedDeclaration {
+    ASTNode *Decl;
+    unsigned Idx;
+  };
+
   ASTStructDecl(
-    std::string            Name,
-    std::vector<ASTNode *> Decls,
-    unsigned               LineNo,
-    unsigned               ColumnNo
+    std::string                     Name,
+    std::vector<IndexedDeclaration> Decls,
+    unsigned                        LineNo,
+    unsigned                        ColumnNo
   );
 
   ~ASTStructDecl();
 
   void Accept(ASTVisitor *) override;
 
-  const std::vector<ASTNode *> &Decls() const;
+  const std::vector<IndexedDeclaration> &Decls() const;
   const std::string &Name() const;
 
 private:
   std::string mName;
-  std::vector<ASTNode *> mDecls;
+  std::vector<IndexedDeclaration> mDecls;
 };
 
 } // namespace weak

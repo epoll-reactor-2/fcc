@@ -10,24 +10,24 @@
 namespace weak {
 
 ASTStructDecl::ASTStructDecl(
-  std::string            Name,
-  std::vector<ASTNode *> Decls,
-  unsigned               LineNo,
-  unsigned               ColumnNo
+  std::string                     Name,
+  std::vector<IndexedDeclaration> Decls,
+  unsigned                        LineNo,
+  unsigned                        ColumnNo
 ) : ASTNode(AST_STRUCT_DECL, LineNo, ColumnNo)
   , mName(std::move(Name))
   , mDecls(std::move(Decls)) {}
 
 ASTStructDecl::~ASTStructDecl() {
-  for (ASTNode *D : mDecls)
-    delete D;
+  for (auto [Decl, _] : mDecls)
+    delete Decl;
 }
 
 void ASTStructDecl::Accept(ASTVisitor *Visitor) {
   Visitor->Visit(this);
 }
 
-const std::vector<ASTNode *> &ASTStructDecl::Decls() const {
+const std::vector<ASTStructDecl::IndexedDeclaration> &ASTStructDecl::Decls() const {
   return mDecls;
 }
 

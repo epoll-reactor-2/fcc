@@ -11,6 +11,7 @@
 #include "MiddleEnd/CodeGen/TypeResolver.h"
 #include "Utility/Unreachable.h"
 #include "llvm/IR/Verifier.h"
+#include <iostream>
 
 namespace weak {
 namespace {
@@ -23,14 +24,12 @@ public:
     llvm::IRBuilder<>          &I,
     llvm::LLVMContext          &Ctx,
     llvm::Module               &M,
-    std::unordered_map</*VarName=*/std::string, /*TypeName=*/std::string> &StructVarsStorage,
     ASTFunctionDeclOrPrototype *Decl
   ) : mIRBuilder(I)
     , mIRCtx(Ctx)
     , mIRModule(M)
     , mDecl(Decl)
-    , mResolver(mIRBuilder)
-    , mStructVarsStorage(StructVarsStorage) {}
+    , mResolver(mIRBuilder) {}
 
   llvm::Function *BuildSignature() {
     /// \todo: Always external linkage? Come here after making multiple files
@@ -60,7 +59,6 @@ private:
   llvm::Type *ResolveParamType(ASTNode *AST) {
     if (AST->Is(AST_VAR_DECL)) {
       auto *D = static_cast<ASTVarDecl *>(AST);
-      mStructVarsStorage.emplace(D->Name(), D->TypeName());
 
       if (D->IsStruct()) {
         llvm::Type *Ty = llvm::StructType::getTypeByName(mIRCtx, D->TypeName());
@@ -75,7 +73,6 @@ private:
     }
 
     auto *A = static_cast<ASTArrayDecl *>(AST);
-    mStructVarsStorage.emplace(A->Name(), A->TypeName());
 
     return llvm::PointerType::get(
       mResolver.ResolveExceptVoid(
@@ -91,7 +88,6 @@ private:
   llvm::Module &mIRModule;
   ASTFunctionDeclOrPrototype *mDecl;
   TypeResolver mResolver;
-  std::unordered_map</*VarName=*/std::string, /*TypeName=*/std::string> &mStructVarsStorage;
 };
 
 } // namespace
@@ -368,7 +364,7 @@ const std::string &ASTDeclName(ASTNode *AST) {
 }
 
 void CodeGen::Visit(ASTFunctionDecl *Decl) {
-  FunctionBuilder B(mIRBuilder, mIRCtx, mIRModule, mStructVarsStorage, Decl);
+  FunctionBuilder B(mIRBuilder, mIRCtx, mIRModule, Decl);
   llvm::Function *Func = B.BuildSignature();
 
   auto *EntryBB = llvm::BasicBlock::Create(mIRCtx, "entry", Func);
@@ -406,7 +402,7 @@ void CodeGen::Visit(ASTFunctionCall *Stmt) {
 }
 
 void CodeGen::Visit(ASTFunctionPrototype *Stmt) {
-  FunctionBuilder B(mIRBuilder, mIRCtx, mIRModule, mStructVarsStorage, Stmt);
+  FunctionBuilder B(mIRBuilder, mIRCtx, mIRModule, Stmt);
   B.BuildSignature();
 }
 
@@ -471,15 +467,51 @@ void CodeGen::Visit(ASTReturn *Stmt) {
 }
 
 void CodeGen::Visit(ASTMemberAccess *Stmt) {
-  Stmt->Name()->Accept(this);
+  if (!mLastInstr || !mLastInstr->getType()->isStructTy())
+    Stmt->Name()->Accept(this);
+
   llvm::Value *LHS = mLastPtr;
+  assert(LHS->getType()->getPointerElementType()->isStructTy());
 
-  if (auto *M = Stmt->MemberDecl(); !M->Is(AST_SYMBOL))
+  if (auto *M = Stmt->MemberDecl(); !M->Is(AST_SYMBOL)) {
     M->Accept(this);
+  } else {
+    auto *Symbol = static_cast<ASTSymbol *>(M);
+    llvm::StructType *StructTy = llvm::dyn_cast_or_null<llvm::StructType>(LHS->getType()->getPointerElementType());
+    const std::string &MemberName = Symbol->Name();
 
-  /// Get struct (0 index) and field (0 index).
-  mLastPtr = mIRBuilder.CreateConstInBoundsGEP2_32(LHS->getType()->getPointerElementType(), LHS, 0, 0);
-  mLastInstr = mIRBuilder.CreateLoad(mLastPtr->getType()->getPointerElementType(), mLastPtr);
+    auto *StructAST = mStructASTsMapping[StructTy];
+
+    assert(StructAST);
+    signed Idx = -1;
+    /// \todo: Check if such field exists. Work of variable use analyzer.
+    for (unsigned I = 0U; I < StructAST->Decls().size(); ++I) {
+      ASTNode *Decl = StructAST->Decls()[I].Decl;
+      unsigned DeclIdx = StructAST->Decls()[I].Idx;
+
+      if (Decl->Is(AST_VAR_DECL)) {
+        auto *D = static_cast<ASTVarDecl *>(Decl);
+        if (D->Name() == MemberName) {
+          Idx = DeclIdx;
+          break;
+        }
+      }
+
+      if (Decl->Is(AST_ARRAY_DECL)) {
+        auto *D = static_cast<ASTVarDecl *>(Decl);
+        if (D->Name() == MemberName) {
+          Idx = DeclIdx;
+          break;
+        }
+      }
+    }
+
+    if (Idx == -1)
+      __builtin_trap();
+
+    mLastPtr = mIRBuilder.CreateConstInBoundsGEP2_32(StructTy, LHS, 0, Idx);
+    mLastInstr = mIRBuilder.CreateLoad(mLastPtr->getType()->getPointerElementType(), mLastPtr);
+  }
 }
 
 void CodeGen::Visit(ASTArrayDecl *Stmt) {
@@ -496,13 +528,12 @@ void CodeGen::Visit(ASTVarDecl *Decl) {
     if (Decl->DataType() != DT_STRUCT)
       Unreachable("Only structs allowed to have no declarator.");
 
-    mStructVarsStorage.emplace(Decl->Name(), Decl->TypeName());
-    auto *VarDecl = mIRBuilder.CreateAlloca(
-      llvm::StructType::getTypeByName(
-        mIRCtx,
-        Decl->TypeName()
-      )
+    llvm::Type *Ty = llvm::StructType::getTypeByName(
+      mIRCtx,
+      Decl->TypeName()
     );
+    assert(Ty && "Cannot find given type in global IR context.");
+    auto *VarDecl = mIRBuilder.CreateAlloca(Ty);
     mStorage.Push(Decl->Name(), VarDecl);
     return;
   } else
@@ -544,22 +575,36 @@ void CodeGen::Visit(ASTVarDecl *Decl) {
   mStorage.Push(Decl->Name(), VarDecl);
 }
 
-/// \todo: Proper nested structures somehow.
-llvm::StructType *BuildStruct(llvm::LLVMContext &IRCtx, TypeResolver &TR, std::string_view Name, const std::vector<ASTNode *> &Decls) {
+static llvm::StructType *BuildStruct(
+  llvm::LLVMContext &IRCtx,
+  llvm::IRBuilder<> &IRBuilder,
+  TypeResolver      &TR,
+  std::unordered_map<llvm::StructType *, ASTStructDecl *> &StructASTsMapping,
+  ASTStructDecl    *StructDecl
+) {
   auto *Struct = llvm::StructType::create(IRCtx);
-  Struct->setName(Name);
+  Struct->setName(StructDecl->Name());
   llvm::SmallVector<llvm::Type *, 8> Members;
 
-  for (auto *D : Decls) {
+  for (auto [D, _] : StructDecl->Decls()) {
+    if (D->Is(AST_STRUCT_DECL)) {
+      auto *SD = static_cast<ASTStructDecl *>(D);
+      BuildStruct(IRCtx, IRBuilder, TR, StructASTsMapping, SD);
+    }
+  }
+
+  for (auto [D, _] : StructDecl->Decls()) {
     unsigned IndirectionLvl = 0U;
 
     if (D->Is(AST_VAR_DECL)) {
       auto *Decl = static_cast<ASTVarDecl *>(D);
       IndirectionLvl = Decl->IndirectionLvl();
       if (Decl->IsStruct()) {
-        Members.push_back(
-          llvm::StructType::getTypeByName(IRCtx, Decl->Name())
+        llvm::Type *Ty = llvm::StructType::getTypeByName(
+          IRCtx,
+          Decl->TypeName()
         );
+        Members.push_back(Ty);
       } else {
         Members.push_back(TR.Resolve(D, IndirectionLvl));
       }
@@ -570,20 +615,18 @@ llvm::StructType *BuildStruct(llvm::LLVMContext &IRCtx, TypeResolver &TR, std::s
       IndirectionLvl = Decl->IndirectionLvl();
       Members.push_back(TR.Resolve(D, IndirectionLvl));
     }
-
-    if (D->Is(AST_STRUCT_DECL)) {
-      auto *Decl = static_cast<ASTStructDecl *>(D);
-      Members.push_back(BuildStruct(IRCtx, TR, Decl->Name(), Decl->Decls()));
-    }
   }
 
+  StructASTsMapping[Struct] = StructDecl;
+
   Struct->setBody(std::move(Members));
+
   return Struct;
 }
 
 void CodeGen::Visit(ASTStructDecl *Decl) {
   TypeResolver TR(mIRBuilder);
-  BuildStruct(mIRCtx, TR, Decl->Name(), Decl->Decls());
+  BuildStruct(mIRCtx, mIRBuilder, TR, mStructASTsMapping, Decl);
   mLastInstr = nullptr;
 }
 

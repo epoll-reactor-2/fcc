@@ -34,7 +34,7 @@ namespace {
 class ASTDumpVisitor : public ASTVisitor {
 public:
   ASTDumpVisitor(ASTNode *RootNode, std::ostream &Stream)
-      : mRootNode(RootNode), mIndent(0U), mStream(Stream) {}
+      : mRootNode(RootNode), mIndent(0U), mStream(Stream), ShouldPutNewLineAfterDecl(true) {}
 
   void Dump() {
     mRootNode->Accept(this);
@@ -211,9 +211,20 @@ private:
     mStream << '`' << Decl->Name() << "`\n";
 
     mIndent += 2;
-    for (const auto &Field : Decl->Decls()) {
+    for (auto [Decl, Index] : Decl->Decls()) {
       PrintIndent();
-      Field->Accept(this);
+      bool IsVariable = Decl->Is(AST_VAR_DECL) || Decl->Is(AST_ARRAY_DECL);
+
+      if (IsVariable) {
+        ShouldPutNewLineAfterDecl = false;
+        mStream << "Indexed ";
+      }
+
+      Decl->Accept(this);
+
+      if (IsVariable)
+        mStream << " `" << Index << "`\n";
+      ShouldPutNewLineAfterDecl = true;
     }
     mIndent -= 2;
   }
@@ -238,8 +249,10 @@ private:
       mStream << std::string(PIL, '*');
       mStream << ' ';
     }
-    mStream << "`" << Decl->Name();
-    mStream << "`\n";
+    mStream << '`' << Decl->Name();
+    mStream << '`';
+    if (ShouldPutNewLineAfterDecl)
+      mStream << '\n';
 
     if (auto *Body = Decl->Body()) {
       mIndent += 2;
@@ -272,7 +285,9 @@ private:
       mStream << ' ';
     }
     mStream << IntegerRangeToString(ArityList.cbegin(), ArityList.cend());
-    mStream << " `" << Decl->Name() << "`\n";
+    mStream << " `" << Decl->Name() << '`';
+    if (ShouldPutNewLineAfterDecl)
+      mStream << '\n';
   }
 
   void Visit(ASTFunctionDecl *Decl) override {
@@ -408,6 +423,7 @@ private:
   ASTNode *mRootNode;
   unsigned mIndent;
   std::ostream &mStream;
+  bool ShouldPutNewLineAfterDecl;
 };
 
 } // namespace
