@@ -1,51 +1,48 @@
 include_directories(../lib/include)
 include_directories(../tests)
+include_directories(../tests/utils)
 
-function(AddCompilerTest ExecFile Path)
-  message(STATUS "Adding test ${ExecFile}")
-  add_executable(${ExecFile} ${Path})
-  target_link_libraries (${ExecFile} PRIVATE WeakCompiler)
-  target_compile_options(${ExecFile} PRIVATE -fPIC -flto -O3)
-  add_test(NAME ${ExecFile} COMMAND ${ExecFile})
+function(add_compiler_test exec_file path)
+  message(STATUS "Adding test ${exec_file}")
+  add_executable(${exec_file} ${path})
+  target_link_libraries (${exec_file} PRIVATE weak_compiler)
+  target_compile_options(${exec_file} PRIVATE -fPIC -flto)
+  add_test(NAME ${exec_file} COMMAND ${exec_file})
 endfunction()
 
-function(DeleteOldInputFiles)
-  file(GLOB_RECURSE Files "${CMAKE_CURRENT_BINARY_DIR}/*.wl")
-  foreach (File ${Files})
-    file(REMOVE ${File})
+function(delete_old_inputs)
+  file(GLOB_RECURSE files "${CMAKE_CURRENT_BINARY_DIR}/*.wl")
+  foreach (file ${files})
+    file(REMOVE ${file})
   endforeach()
 endfunction()
 
-function(CopyInputFiles SourcePath TargetPath)
-  file(GLOB_RECURSE InputFiles "${SourcePath}/*.wl")
-  foreach (File ${InputFiles})
-    get_filename_component(Name ${File} NAME_WE)
-    message(STATUS "Copying test to ${CMAKE_CURRENT_BINARY_DIR}/${TargetPath}/${Name}.wl")
+function(copy_inputs source_path target_path)
+  file(GLOB_RECURSE inputs "${source_path}/*.wl")
+  foreach (file ${inputs})
+    get_filename_component(name ${file} NAME_WE)
+    message(STATUS "Copying test to ${CMAKE_CURRENT_BINARY_DIR}/${target_path}/${name}.wl")
     file(
-      COPY ${File}
-      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${TargetPath}
+      COPY ${file}
+      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${target_path}
     )
   endforeach()
 endfunction()
 
-DeleteOldInputFiles()
-CopyInputFiles("FrontEnd/Input/Parser" "Parser")
-CopyInputFiles("FrontEnd/Input/VariableUseAnalysis/Warns" "VariableUseAnalysis/Warns")
-CopyInputFiles("FrontEnd/Input/VariableUseAnalysis/Errors" "VariableUseAnalysis/Errors")
-CopyInputFiles("FrontEnd/Input/FunctionAnalysis" "FunctionAnalysis")
-CopyInputFiles("FrontEnd/Input/TypeAnalysis" "TypeAnalysis")
-CopyInputFiles("MiddleEnd/Input/CodeGen/Valid" "CodeGen/Valid")
+delete_old_inputs()
+copy_inputs("front_end/input/parser" "Parser")
+copy_inputs("front_end/input/variable_use_analysis/warns" "variable_use_analysis/warns")
+copy_inputs("front_end/input/variable_use_analysis/errors" "variable_use_analysis/errors")
+copy_inputs("front_end/input/function_analysis" "function_analysis")
+copy_inputs("front_end/input/type_analysis" "type_analysis")
+copy_inputs("MiddleEnd/input/code_gen" "code_gen")
 
-file(
-  GLOB TestFiles
-  LIST_DIRECTORIES true
-  FrontEnd/*.cpp
-  MiddleEnd/*.cpp
-)
-foreach(File ${TestFiles})
-  get_filename_component(Name ${File} NAME_WE)
-  AddCompilerTest(${Name} ${File})
+file(GLOB_RECURSE test_files *.c)
+foreach(file ${test_files})
+  message(STATUS "Test file ${file}")
+  get_filename_component(name ${file} NAME_WE)
+  add_compiler_test(${name} ${file})
 endforeach()
 
-add_executable(Fuzzer Fuzzer/Fuzzer.cpp)
-target_link_libraries (Fuzzer PRIVATE WeakCompiler)
+# add_executable(fuzzer fuzzer/fuzzer.cpp)
+# target_link_libraries (fuzzer PRIVATE weak_compiler)
