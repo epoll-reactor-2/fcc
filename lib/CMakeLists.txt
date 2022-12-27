@@ -1,5 +1,5 @@
 execute_process (
-    COMMAND bash -c "flex ${CMAKE_SOURCE_DIR}/lib/include/front_end/lex/lex.l"
+    COMMAND bash -c "flex ${CMAKE_SOURCE_DIR}/lex/grammar.lex"
 )
 
 # Also add header fiels for conveniencein QtCreator.
