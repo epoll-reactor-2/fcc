@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 typedef struct {
-    const char *data;
+    char       *data;
     tok_type_e  type;
     uint16_t    line_no;
     uint16_t    col_no;

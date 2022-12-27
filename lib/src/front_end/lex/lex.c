@@ -6,10 +6,14 @@
 
 #include "front_end/lex/lex.h"
 #include <stdio.h>
+#include <stdlib.h>
 
-void lex_get_token(tok_t *tok)
+void lex_consume_token(tok_t *tok)
 {
     /// \todo: Collect tokens to some sort of vector.
     printf("lineno: %d, colno: %d\n", tok->line_no, tok->col_no);
     fflush(stdout);
+    if (tok->data) {
+        free(tok->data);
+    }
 }

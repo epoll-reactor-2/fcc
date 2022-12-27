@@ -2,7 +2,6 @@
 #include "front_end/lex/tok.h"
 
 int yycolumn = 1;
-extern const char *path;
 
 #define YY_USER_ACTION                                                   \
   lex_lineno = prev_yylineno;                                            \
@@ -14,6 +13,8 @@ extern const char *path;
     prev_yylineno = yylineno;                                            \
   }
 
+extern void lex_consume_token(tok_t *tok);
+
 #define LEX_CONSUME_WORD(tok_type) do {                                  \
     tok_t t = {                                                          \
         .data = strdup(yytext),                                          \
@@ -21,10 +22,20 @@ extern const char *path;
         .line_no = lex_lineno,                                           \
         .col_no = lex_colno                                              \
     };                                                                   \
-    lex_get_token(&t);                                                   \
+    lex_consume_token(&t);                                               \
 } while (0);
 
-extern void lex_get_token(tok_t *tok);
+/// Operator can have no data, since all information about it contained
+/// in type.OPERATOR
+#define LEX_CONSUME_OPERATOR(tok_type) do {                              \
+    tok_t t = {                                                          \
+        .data = NULL,                                                    \
+        .type = tok_type,                                                \
+        .line_no = lex_lineno,                                           \
+        .col_no = lex_colno                                              \
+    };                                                                   \
+    lex_consume_token(&t);                                               \
+} while (0);
 
 %}
 %option noyywrap nounput noinput
@@ -63,45 +74,45 @@ extern void lex_get_token(tok_t *tok);
 "void"                       LEX_CONSUME_WORD(TOK_VOID)
 "while"                      LEX_CONSUME_WORD(TOK_WHILE)
 
-"="                          LEX_CONSUME_WORD(TOK_ASSIGN)
-"/="                         LEX_CONSUME_WORD(TOK_DIV_ASSIGN)
-"%="                         LEX_CONSUME_WORD(TOK_MOD_ASSIGN)
-"+="                         LEX_CONSUME_WORD(TOK_PLUS_ASSIGN)
-"-="                         LEX_CONSUME_WORD(TOK_MINUS_ASSIGN)
-">>="                        LEX_CONSUME_WORD(TOK_SHR_ASSIGN)
-"<<="                        LEX_CONSUME_WORD(TOK_SHL_ASSIGN)
-"&="                         LEX_CONSUME_WORD(TOK_BIT_AND_ASSIGN)
-"|="                         LEX_CONSUME_WORD(TOK_BIT_OR_ASSIGN)
-"^="                         LEX_CONSUME_WORD(TOK_XOR_ASSIGN)
-"&&"                         LEX_CONSUME_WORD(TOK_AND)
-"||"                         LEX_CONSUME_WORD(TOK_OR)
-"&"                          LEX_CONSUME_WORD(TOK_BIT_AND)
-"|"                          LEX_CONSUME_WORD(TOK_BIT_OR)
-"=="                         LEX_CONSUME_WORD(TOK_EQ)
-"!="                         LEX_CONSUME_WORD(TOK_NEQ)
-">"                          LEX_CONSUME_WORD(TOK_GT)
-"<"                          LEX_CONSUME_WORD(TOK_LT)
-">="                         LEX_CONSUME_WORD(TOK_GE)
-"<="                         LEX_CONSUME_WORD(TOK_LE)
-"<<"                         LEX_CONSUME_WORD(TOK_SHL)
-">>"                         LEX_CONSUME_WORD(TOK_SHR)
-"+"                          LEX_CONSUME_WORD(TOK_PLUS)
-"-"                          LEX_CONSUME_WORD(TOK_MINUS)
-"*"                          LEX_CONSUME_WORD(TOK_STAR)
-"/"                          LEX_CONSUME_WORD(TOK_SLASH)
-"%"                          LEX_CONSUME_WORD(TOK_MOD)
-"++"                         LEX_CONSUME_WORD(TOK_INC)
-"--"                         LEX_CONSUME_WORD(TOK_DEC)
-"."                          LEX_CONSUME_WORD(TOK_DOT)
-","                          LEX_CONSUME_WORD(TOK_COMMA)
-";"                          LEX_CONSUME_WORD(TOK_SEMICOLON)
-"!"                          LEX_CONSUME_WORD(TOK_NOT)
-"["                          LEX_CONSUME_WORD(TOK_OPEN_BOX_BRACKET)
-"]"                          LEX_CONSUME_WORD(TOK_CLOSE_BOX_BRACKET)
-"("                          LEX_CONSUME_WORD(TOK_OPEN_PAREN)
-")"                          LEX_CONSUME_WORD(TOK_CLOSE_PAREN)
-"{"                          LEX_CONSUME_WORD(TOK_OPEN_CURLY_BRACKET)
-"}"                          LEX_CONSUME_WORD(TOK_CLOSE_CURLY_BRACKET)
+"="                          LEX_CONSUME_OPERATOR(TOK_ASSIGN)
+"/="                         LEX_CONSUME_OPERATOR(TOK_DIV_ASSIGN)
+"%="                         LEX_CONSUME_OPERATOR(TOK_MOD_ASSIGN)
+"+="                         LEX_CONSUME_OPERATOR(TOK_PLUS_ASSIGN)
+"-="                         LEX_CONSUME_OPERATOR(TOK_MINUS_ASSIGN)
+">>="                        LEX_CONSUME_OPERATOR(TOK_SHR_ASSIGN)
+"<<="                        LEX_CONSUME_OPERATOR(TOK_SHL_ASSIGN)
+"&="                         LEX_CONSUME_OPERATOR(TOK_BIT_AND_ASSIGN)
+"|="                         LEX_CONSUME_OPERATOR(TOK_BIT_OR_ASSIGN)
+"^="                         LEX_CONSUME_OPERATOR(TOK_XOR_ASSIGN)
+"&&"                         LEX_CONSUME_OPERATOR(TOK_AND)
+"||"                         LEX_CONSUME_OPERATOR(TOK_OR)
+"&"                          LEX_CONSUME_OPERATOR(TOK_BIT_AND)
+"|"                          LEX_CONSUME_OPERATOR(TOK_BIT_OR)
+"=="                         LEX_CONSUME_OPERATOR(TOK_EQ)
+"!="                         LEX_CONSUME_OPERATOR(TOK_NEQ)
+">"                          LEX_CONSUME_OPERATOR(TOK_GT)
+"<"                          LEX_CONSUME_OPERATOR(TOK_LT)
+">="                         LEX_CONSUME_OPERATOR(TOK_GE)
+"<="                         LEX_CONSUME_OPERATOR(TOK_LE)
+"<<"                         LEX_CONSUME_OPERATOR(TOK_SHL)
+">>"                         LEX_CONSUME_OPERATOR(TOK_SHR)
+"+"                          LEX_CONSUME_OPERATOR(TOK_PLUS)
+"-"                          LEX_CONSUME_OPERATOR(TOK_MINUS)
+"*"                          LEX_CONSUME_OPERATOR(TOK_STAR)
+"/"                          LEX_CONSUME_OPERATOR(TOK_SLASH)
+"%"                          LEX_CONSUME_OPERATOR(TOK_MOD)
+"++"                         LEX_CONSUME_OPERATOR(TOK_INC)
+"--"                         LEX_CONSUME_OPERATOR(TOK_DEC)
+"."                          LEX_CONSUME_OPERATOR(TOK_DOT)
+","                          LEX_CONSUME_OPERATOR(TOK_COMMA)
+";"                          LEX_CONSUME_OPERATOR(TOK_SEMICOLON)
+"!"                          LEX_CONSUME_OPERATOR(TOK_NOT)
+"["                          LEX_CONSUME_OPERATOR(TOK_OPEN_BOX_BRACKET)
+"]"                          LEX_CONSUME_OPERATOR(TOK_CLOSE_BOX_BRACKET)
+"("                          LEX_CONSUME_OPERATOR(TOK_OPEN_PAREN)
+")"                          LEX_CONSUME_OPERATOR(TOK_CLOSE_PAREN)
+"{"                          LEX_CONSUME_OPERATOR(TOK_OPEN_CURLY_BRACKET)
+"}"                          LEX_CONSUME_OPERATOR(TOK_CLOSE_CURLY_BRACKET)
 
 [_a-zA-Z][_a-zA-Z0-9]*       LEX_CONSUME_WORD(TOK_SYMBOL)
 
