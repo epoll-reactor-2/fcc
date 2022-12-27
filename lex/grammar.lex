@@ -1,3 +1,9 @@
+/* grammar.lex - Language acceptable tokens specification.
+ * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
+ *
+ * This file is distributed under the MIT license.
+ */
+
 %{
 #include "front_end/lex/tok.h"
 
@@ -25,8 +31,8 @@ extern void lex_consume_token(tok_t *tok);
     lex_consume_token(&t);                                               \
 } while (0);
 
-/// Operator can have no data, since all information about it contained
-/// in type.OPERATOR
+/* Operator can have no data, since all information about it contained
+   in type. */
 #define LEX_CONSUME_OPERATOR(tok_type) do {                              \
     tok_t t = {                                                          \
         .data = NULL,                                                    \
@@ -50,7 +56,7 @@ extern void lex_consume_token(tok_t *tok);
  /* Requirement [2.3.2] */
 \/\*.*\*\/
  /* Ignore whitespace. */
-" "|"\a"|"\b"|"\f"|"\n"|"\r"|"\t"|"\v"
+[[:space:]]
 
 -?[0-9]+                     LEX_CONSUME_WORD(TOK_INTEGRAL_LITERAL)
 -?[0-9]+\.[0-9]+             LEX_CONSUME_WORD(TOK_FLOATING_POINT_LITERAL)
