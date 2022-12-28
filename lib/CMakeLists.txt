@@ -1,6 +1,4 @@
-execute_process (
-    COMMAND bash -c "flex ${CMAKE_SOURCE_DIR}/lex/grammar.lex"
-)
+execute_process (COMMAND bash -c "flex ${CMAKE_SOURCE_DIR}/lex/grammar.lex")
 
 # Also add header fiels for conveniencein QtCreator.
 file (GLOB_RECURSE SOURCES *.c *.h)

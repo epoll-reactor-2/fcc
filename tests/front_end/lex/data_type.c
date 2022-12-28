@@ -9,11 +9,11 @@
 
 int main()
 {
-    ASSERT_STREQ(data_type_to_string(DT_UNKNOWN), "unknown");
-    ASSERT_STREQ(data_type_to_string(DT_VOID), "void");
-    ASSERT_STREQ(data_type_to_string(DT_INT), "int");
-    ASSERT_STREQ(data_type_to_string(DT_FLOAT), "float");
-    ASSERT_STREQ(data_type_to_string(DT_CHAR), "char");
-    ASSERT_STREQ(data_type_to_string(DT_BOOL), "bool");
-    ASSERT_STREQ(data_type_to_string(DT_STRUCT), "struct");
+    ASSERT_STREQ(data_type_to_string(D_T_UNKNOWN), "unknown");
+    ASSERT_STREQ(data_type_to_string(D_T_VOID), "void");
+    ASSERT_STREQ(data_type_to_string(D_T_INT), "int");
+    ASSERT_STREQ(data_type_to_string(D_T_FLOAT), "float");
+    ASSERT_STREQ(data_type_to_string(D_T_CHAR), "char");
+    ASSERT_STREQ(data_type_to_string(D_T_BOOL), "bool");
+    ASSERT_STREQ(data_type_to_string(D_T_STRUCT), "struct");
 }

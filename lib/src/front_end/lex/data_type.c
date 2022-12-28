@@ -10,13 +10,13 @@
 const char *data_type_to_string(data_type_e dt)
 {
     switch (dt) {
-    case DT_UNKNOWN: return "unknown";
-    case DT_VOID:    return "void";
-    case DT_INT:     return "int";
-    case DT_FLOAT:   return "float";
-    case DT_CHAR:    return "char";
-    case DT_BOOL:    return "bool";
-    case DT_STRUCT:  return "struct";
+    case D_T_UNKNOWN: return "unknown";
+    case D_T_VOID:    return "void";
+    case D_T_INT:     return "int";
+    case D_T_FLOAT:   return "float";
+    case D_T_CHAR:    return "char";
+    case D_T_BOOL:    return "bool";
+    case D_T_STRUCT:  return "struct";
     default:         weak_unreachable("Should not reach there.");
     }
 }

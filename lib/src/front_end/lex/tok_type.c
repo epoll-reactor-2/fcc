@@ -1,4 +1,4 @@
-/* tok_type.c - String conversion function to the token enum.
+/* tok_type.c - String conversion function for the token enum.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

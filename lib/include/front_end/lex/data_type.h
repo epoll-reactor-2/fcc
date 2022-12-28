@@ -8,15 +8,15 @@
 #define WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H
 
 typedef enum {
-    DT_UNKNOWN,
-    DT_FUNC,
-    DT_STRUCT,
-    DT_VOID,
-    DT_INT,
-    DT_CHAR,
-    DT_STRING,
-    DT_FLOAT,
-    DT_BOOL
+    D_T_UNKNOWN,
+    D_T_FUNC,
+    D_T_STRUCT,
+    D_T_VOID,
+    D_T_INT,
+    D_T_CHAR,
+    D_T_STRING,
+    D_T_FLOAT,
+    D_T_BOOL
 } data_type_e;
 
 /// \return String representation of the token. Don't

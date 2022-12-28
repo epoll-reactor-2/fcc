@@ -30,7 +30,7 @@ function(copy_inputs source_path target_path)
 endfunction()
 
 delete_old_inputs()
-copy_inputs("front_end/input/parser" "Parser")
+copy_inputs("front_end/input/parser" "parser")
 copy_inputs("front_end/input/variable_use_analysis/warns" "variable_use_analysis/warns")
 copy_inputs("front_end/input/variable_use_analysis/errors" "variable_use_analysis/errors")
 copy_inputs("front_end/input/function_analysis" "function_analysis")
