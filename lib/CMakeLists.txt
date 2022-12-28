@@ -9,18 +9,7 @@ add_library(
   ${CMAKE_BINARY_DIR}/lex.yy.c
 )
 
-find_package(LLVM REQUIRED CONFIG)
-
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake from ${LLVM_DIR}")
-
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
-add_definitions(${LLVM_DEFINITIONS_LIST})
-separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
-llvm_map_components_to_libnames(llvm_libs ${LLVM_TARGETS_TO_BUILD} support core irreader)
-
-target_link_libraries(weak_compiler PRIVATE ${llvm_libs} fl)
+target_link_libraries(weak_compiler PRIVATE fl)
 target_compile_options(weak_compiler PRIVATE -Wall -Wextra -Wpedantic -fPIC -flto -O3)
 
 if (WEAK_COMPILER_SANITIZE)
@@ -30,7 +19,6 @@ if (WEAK_COMPILER_SANITIZE)
     -fsanitize=undefined -fno-sanitize-recover=all\
     -fsanitize-address-use-after-scope"
   )
-  message(STATUS "Sanitizer flags: ${weak_san_flags}")
 
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     string(APPEND weak_san_flags " -fsanitize=cfi -fvisibility=default -flto")
