@@ -8,12 +8,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static tok_array_t consumed_tokens = {0};
+
 void lex_consume_token(tok_t *tok)
 {
-    /// \todo: Collect tokens to some sort of vector.
-    printf("lineno: %d, colno: %d\n", tok->line_no, tok->col_no);
-    fflush(stdout);
-    if (tok->data) {
-        free(tok->data);
-    }
+    vector_push_back(consumed_tokens, *tok);
+}
+
+tok_array_t *lex_consumed_tokens()
+{
+    return &consumed_tokens;
+}
+
+void lex_init_global_state()
+{
+    vector_init(consumed_tokens);
+}
+
+void lex_cleanup_global_state()
+{
+    vector_free(consumed_tokens);
 }

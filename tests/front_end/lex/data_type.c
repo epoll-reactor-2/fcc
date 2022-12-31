@@ -7,6 +7,9 @@
 #include "front_end/lex/data_type.h"
 #include "utils/test_utils.h"
 
+void *diag_error_memstream = NULL;
+void *diag_warn_memstream = NULL;
+
 int main()
 {
     ASSERT_STREQ(data_type_to_string(D_T_UNKNOWN), "unknown");

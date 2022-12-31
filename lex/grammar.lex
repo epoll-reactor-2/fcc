@@ -51,12 +51,9 @@ extern void lex_consume_token(tok_t *tok);
  int lex_lineno, lex_colno;
  int prev_yylineno = yylineno;
    
- /* Requirement [2.3.1] */
-\/\/.*\n
- /* Requirement [2.3.2] */
-\/\*.*\*\/
- /* Ignore whitespace. */
-[[:space:]]
+\/\/.*\n                     /* Requirement [2.3.1] */
+\/\*.*\*\/                   /* Requirement [2.3.2] */
+[[:space:]]                  /* Ignore whitespace. */
 
 -?[0-9]+                     LEX_CONSUME_WORD(TOK_INTEGRAL_LITERAL)
 -?[0-9]+\.[0-9]+             LEX_CONSUME_WORD(TOK_FLOATING_POINT_LITERAL)

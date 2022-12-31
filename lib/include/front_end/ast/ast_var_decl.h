@@ -43,12 +43,13 @@ typedef struct {
 
 /// \note type_name may be NULL.
 ast_node_t *ast_var_decl_init(
-    char       *name,
-    char       *type_name,
-    uint16_t    indirection_lvl,
-    ast_node_t *body,
-    uint16_t    line_no,
-    uint16_t    col_no
+    data_type_e  data_type,
+    char        *name,
+    char        *type_name,
+    uint16_t     indirection_lvl,
+    ast_node_t  *body,
+    uint16_t     line_no,
+    uint16_t     col_no
 );
 
 void ast_var_decl_cleanup(ast_var_decl_t *ast);

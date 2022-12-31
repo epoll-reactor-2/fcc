@@ -8,19 +8,18 @@
 #define WEAK_COMPILER_UTILITY_UNREACHABLE_H
 
 #include "utility/compiler.h"
+#include <stdio.h>
 
-extern int printf(const char *__restrict fmt, ...);
+#define weak_fatal_error(msg) do {                                       \
+    printf("Fatal error ocurred at %s: %s\n", SOURCE_LINE, (msg));       \
+    fflush(stdout);                                                      \
+    __builtin_trap();                                                    \
+} while (0);
 
-#define weak_fatal_error(msg) \
-  { \
-    printf("Fatal error ocurred at %s: %s\n", SOURCE_LINE, (msg)); \
-    __builtin_trap();  \
-  }
-
-#define weak_unreachable(msg) \
-  { \
+#define weak_unreachable(msg) do {                                       \
     printf("Unreachable point reached at %s: %s\n", SOURCE_LINE, (msg)); \
-    __builtin_trap();  \
-  }
+    fflush(stdout);                                                      \
+    __builtin_trap();                                                    \
+} while (0);
 
 #endif // WEAK_COMPILER_UTILITY_UNREACHABLE_H

@@ -40,6 +40,7 @@ typedef struct {
 
 /// \note type_name may be NULL.
 ast_node_t *ast_array_decl_init(
+    data_type_e     data_type,
     char           *name,
     char           *type_name,
     ast_compound_t *arity_list,

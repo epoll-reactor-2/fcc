@@ -7,6 +7,9 @@
 #include "utility/alloc.h"
 #include "utils/test_utils.h"
 
+void *diag_error_memstream = NULL;
+void *diag_warn_memstream = NULL;
+
 int main() {
     {
         void *addr = weak_malloc(1);

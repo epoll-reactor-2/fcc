@@ -7,6 +7,9 @@
 #include "front_end/lex/tok.h"
 #include "utils/test_utils.h"
 
+void *diag_error_memstream = NULL;
+void *diag_warn_memstream = NULL;
+
 int main()
 {
     tok_t token1 = {

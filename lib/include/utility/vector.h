@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef WEAK_COMPILER_UTILITY_UNREACHABLE_H
-#define WEAK_COMPILER_UTILITY_UNREACHABLE_H
+#ifndef WEAK_COMPILER_UTILITY_VECTOR_H
+#define WEAK_COMPILER_UTILITY_VECTOR_H
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -106,4 +106,4 @@ do { \
 #define vector_foreach_back(vec, iter) \
     for (size_t iter=(vec).count; iter--;)
 
-#endif // WEAK_COMPILER_UTILITY_UNREACHABLE_H
+#endif // WEAK_COMPILER_UTILITY_VECTOR_H

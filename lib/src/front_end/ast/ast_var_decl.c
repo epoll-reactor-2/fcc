@@ -9,14 +9,16 @@
 #include "utility/alloc.h"
 
 ast_node_t *ast_var_decl_init(
-    char       *name,
-    char       *type_name,
-    uint16_t    indirection_lvl,
-    ast_node_t *body,
-    uint16_t    line_no,
-    uint16_t    col_no
+    data_type_e  data_type,
+    char        *name,
+    char        *type_name,
+    uint16_t     indirection_lvl,
+    ast_node_t  *body,
+    uint16_t     line_no,
+    uint16_t     col_no
 ) {
     ast_var_decl_t *ast = weak_calloc(1, sizeof(ast_var_decl_t));
+    ast->data_type = data_type;
     ast->name = name;
     ast->type_name = type_name;
     ast->body = body;
