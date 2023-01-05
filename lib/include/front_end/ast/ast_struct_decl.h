@@ -7,17 +7,16 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_STRUCT_DECL_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_STRUCT_DECL_H
 
-#include "front_end/ast/ast_compound.h"
 #include <stdint.h>
 
 typedef struct ast_node_t ast_node_t;
 
 typedef struct {
-    char           *name; /// \note Must be dynamically allocated.
-    ast_compound_t *decls;
+    char       *name; /// \note Must be dynamically allocated.
+    ast_node_t *decls;
 } ast_struct_decl_t;
 
-ast_node_t *ast_struct_decl_init(char *name, ast_compound_t *decls, uint16_t line_no, uint16_t col_no);
+ast_node_t *ast_struct_decl_init(char *name, ast_node_t *decls, uint16_t line_no, uint16_t col_no);
 void        ast_struct_decl_cleanup(ast_struct_decl_t *ast);
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_STRUCT_DECL_H

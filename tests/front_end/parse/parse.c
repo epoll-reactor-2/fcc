@@ -4,6 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
+#include "front_end/ast/ast_dump.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
 #include "utility/diagnostic.h"
@@ -82,13 +83,8 @@ int main()
         bool fatal_error = false;
 
         if (!setjmp(weak_fatal_error_buf)) {
-            printf("count: %zu\n", consumed->count);
-            for (size_t i = 0; i < consumed->count; ++i) {
-                tok_t *t = &vector_at(*consumed, i);
-                printf("Input token: %s\n", t->data ? t->data : tok_to_string(t->type));
-            }
-
-            parse(consumed->data, consumed->data + consumed->count);
+            ast_node_t *ast = parse(consumed->data, consumed->data + consumed->count);
+            ast_node_cleanup(ast);
         } else {
             printf("Fatal error occurred: ");
             fatal_error = true;

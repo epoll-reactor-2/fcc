@@ -12,11 +12,11 @@
 typedef struct ast_node_t ast_node_t;
 
 typedef struct {
-    ast_compound_t *body;
-    ast_node_t     *condition;
+    ast_node_t *body;
+    ast_node_t *condition;
 } ast_do_while_t;
 
-ast_node_t *ast_do_while_init(ast_compound_t *body, ast_node_t *condition, uint16_t line_no, uint16_t col_no);
+ast_node_t *ast_do_while_init(ast_node_t *body, ast_node_t *condition, uint16_t line_no, uint16_t col_no);
 void        ast_do_while_cleanup(ast_do_while_t *ast);
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_DO_WHILE_H

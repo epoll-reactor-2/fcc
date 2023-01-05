@@ -23,6 +23,7 @@
 #include "front_end/ast/ast_num.h"
 #include "front_end/ast/ast_return.h"
 #include "front_end/ast/ast_string.h"
+#include "front_end/ast/ast_struct_decl.h"
 #include "front_end/ast/ast_symbol.h"
 #include "front_end/ast/ast_unary.h"
 #include "front_end/ast/ast_var_decl.h"
@@ -58,6 +59,7 @@ void ast_node_cleanup(ast_node_t *ast)
         ast_array_decl_cleanup(ast->ast);
         break;
     case AST_STRUCT_DECL:
+        ast_struct_decl_cleanup(ast->ast);
         break;
     case AST_BREAK_STMT:
         ast_break_cleanup(ast->ast);

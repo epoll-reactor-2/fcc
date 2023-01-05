@@ -8,7 +8,7 @@
 #include "front_end/ast/ast_node.h"
 #include "utility/alloc.h"
 
-ast_node_t *ast_do_while_init(ast_compound_t *body, ast_node_t *condition, uint16_t line_no, uint16_t col_no)
+ast_node_t *ast_do_while_init(ast_node_t *body, ast_node_t *condition, uint16_t line_no, uint16_t col_no)
 {
     ast_do_while_t *ast = weak_calloc(1, sizeof(ast_do_while_t));
     ast->body = body;
@@ -18,7 +18,7 @@ ast_node_t *ast_do_while_init(ast_compound_t *body, ast_node_t *condition, uint1
 
 void ast_do_while_cleanup(ast_do_while_t *ast)
 {
-    ast_compound_cleanup(ast->body);
+    ast_node_cleanup(ast->body);
     ast_node_cleanup(ast->condition);
     weak_free(ast);
 }

@@ -12,19 +12,19 @@
 typedef struct ast_node_t ast_node_t;
 
 typedef struct {
-    ast_node_t     *init; /// \note May be NULL.
-    ast_node_t     *condition; /// \note May be NULL.
-    ast_node_t     *increment; /// \note May be NULL.
-    ast_compound_t *body;
+    ast_node_t *init; /// \note May be NULL.
+    ast_node_t *condition; /// \note May be NULL.
+    ast_node_t *increment; /// \note May be NULL.
+    ast_node_t *body;
 } ast_for_t;
 
 ast_node_t *ast_for_init(
-    ast_node_t     *init,
-    ast_node_t     *condition,
-    ast_node_t     *increment,
-    ast_compound_t *body,
-    uint16_t        line_no,
-    uint16_t        col_no
+    ast_node_t *init,
+    ast_node_t *condition,
+    ast_node_t *increment,
+    ast_node_t *body,
+    uint16_t    line_no,
+    uint16_t    col_no
 );
 
 void ast_for_cleanup(ast_for_t *ast);

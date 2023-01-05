@@ -33,7 +33,6 @@
 #include "utility/diagnostic.h"
 #include "utility/vector.h"
 #include <setjmp.h>
-#include <stdio.h>
 
 typedef vector_t(ast_node_t *) ast_vector_t;
 
@@ -68,9 +67,6 @@ static tok_t *peek_next()
 tok_t *require_token(tok_type_e t)
 {
     tok_t *curr_tok = peek_current();
-
-    printf("-- Require `%s` --\n", curr_tok->data ? curr_tok->data : tok_to_string(curr_tok->type));
-    fflush(stdout);
 
     if (curr_tok->type != t) {
         weak_compile_error(
@@ -200,8 +196,6 @@ static localized_data_type_t parse_type()
             .line_no = curr_tok->line_no,
             .col_no = curr_tok->col_no
         };
-        printf("Parsed type `%s` <%u:%u>\n", data_type_to_string(l.data_type), l.line_no, l.col_no);
-        fflush(stdout);
         return l;
     }
     default:
@@ -428,15 +422,15 @@ static ast_node_t *parse_struct_decl()
     require_char('}');
 
     ast_node_t *decls_list = ast_compound_init(
-        decls.size,
+        decls.count,
         decls.data,
-        0,
-        0
+        start->line_no,
+        start->col_no
     );
 
     return ast_struct_decl_init(
         strdup(name->data),
-        decls_list->ast,
+        decls_list,
         start->line_no,
         start->col_no
     );
@@ -478,11 +472,7 @@ static ast_node_t *parse_function_param_list()
 static ast_node_t *parse_function_decl()
 {
     localized_data_type_t dt = parse_return_type();
-    printf("type: %s, ", data_type_to_string(dt.data_type));
-    fflush(stdout);
     tok_t *name = require_token(TOK_SYMBOL);
-    printf("name: %s, ", name->data);
-    fflush(stdout);
 
     require_char('(');
     ast_node_t *param_list = parse_function_param_list();
@@ -491,22 +481,17 @@ static ast_node_t *parse_function_decl()
     ast_node_t *block = NULL;
     if (tok_is(peek_current(), '{')) {
         /// Function.
-        printf("<function>, ");
         block = parse_block();
     } else {
         /// Prototype.
-        printf("<prototype>, ");
         require_char(';');
     }
-
-    printf("parsed %s\n", name->data);
-    fflush(stdout);
 
     return ast_function_decl_init(
         dt.data_type,
         strdup(name->data),
-        param_list->ast,
-        block ? block->ast : NULL,
+        param_list,
+        block ? block : NULL,
         dt.line_no,
         dt.col_no
     );
@@ -1091,8 +1076,8 @@ static ast_node_t *parse_primary()
 static ast_node_t *parse_struct_var_decl()
 {
     tok_t *type_name = require_token(TOK_SYMBOL);
-
     uint16_t indirection_lvl = 0;
+
     while (tok_is(peek_current(), '*')) {
         ++indirection_lvl;
         peek_next();
@@ -1100,7 +1085,7 @@ static ast_node_t *parse_struct_var_decl()
 
     tok_t *name = require_token(TOK_SYMBOL);
 
-    ast_vector_t arity_list;
+    ast_vector_t arity_list = {0};
 
     while (tok_is(peek_current(), '[')) {
         require_char('[');
@@ -1302,8 +1287,6 @@ static ast_node_t *parse_function_call()
 static ast_node_t *parse_constant()
 {
     tok_t *t = peek_next();
-    printf("Constant: %s\n", tok_to_string(t->type));
-    fflush(stdout);
 
     switch (t->type) {
     case TOK_INTEGRAL_LITERAL:

@@ -12,17 +12,17 @@
 typedef struct ast_node_t ast_node_t;
 
 typedef struct {
-    ast_node_t     *condition;
-    ast_compound_t *body;
-    ast_compound_t *else_body; /// \note May be NULL.
+    ast_node_t *condition;
+    ast_node_t *body;
+    ast_node_t *else_body; /// \note May be NULL.
 } ast_if_t;
 
 ast_node_t *ast_if_init(
-    ast_node_t     *condition,
-    ast_compound_t *body,
-    ast_compound_t *else_body,
-    uint16_t        line_no,
-    uint16_t        col_no
+    ast_node_t *condition,
+    ast_node_t *body,
+    ast_node_t *else_body,
+    uint16_t    line_no,
+    uint16_t    col_no
 );
 
 void ast_if_cleanup(ast_if_t *ast);
