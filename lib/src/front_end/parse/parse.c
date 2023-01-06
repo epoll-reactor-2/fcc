@@ -279,7 +279,7 @@ static ast_node_t *parse_array_decl()
         dt.data_type,
         strdup(var_name->data),
         dt.type_name,
-        arity_list_compound->ast,
+        arity_list_compound,
         dt.indirection_lvl,
         dt.line_no,
         dt.col_no
@@ -289,15 +289,13 @@ static ast_node_t *parse_array_decl()
 static ast_node_t *parse_decl_without_initializer()
 {
     tok_t *ptr = peek_current();
-    if (ptr->type == TOK_SYMBOL)
-        return parse_struct_var_decl();
-
     parse_type();
     bool is_array = tok_is((tok_begin + 1), '[');
     ptrdiff_t offset = tok_begin - ptr;
     tok_begin -= offset;
 
     switch (ptr->type) {
+    case TOK_SYMBOL:
     case TOK_VOID:
     case TOK_INT:
     case TOK_FLOAT:
@@ -440,8 +438,7 @@ static ast_node_t *parse_function_param_list()
 {
     ast_vector_t list = {0};
 
-    if (tok_is(peek_next(), ')')) {
-        --tok_begin;
+    if (tok_is(peek_current(), ')')) {
         return ast_compound_init(
             0,
             NULL,
@@ -450,7 +447,6 @@ static ast_node_t *parse_function_param_list()
         );
     }
 
-    --tok_begin;
     while (!tok_is(peek_current(), ')')) {
         vector_push_back(list, parse_decl_without_initializer());
         if (tok_is(peek_current(), ')')) {
@@ -660,8 +656,8 @@ static ast_node_t *parse_selection_stmt()
 
     return ast_if_init(
         cond,
-        then_body->ast,
-        else_body ? else_body->ast : NULL,
+        then_body,
+        else_body,
         start->line_no,
         start->col_no
     );
@@ -731,7 +727,7 @@ static ast_node_t *parse_for()
         init,
         cond,
         increment,
-        body->ast,
+        body,
         start->line_no,
         start->col_no
     );
@@ -752,7 +748,7 @@ static ast_node_t *parse_do_while()
     require_char(')');
 
     return ast_do_while_init(
-        body->ast,
+        body,
         cond,
         start->line_no,
         start->col_no
@@ -773,7 +769,7 @@ static ast_node_t *parse_while()
 
     return ast_while_init(
         cond,
-        body->ast,
+        body,
         start->line_no,
         start->col_no
     );
@@ -1075,14 +1071,7 @@ static ast_node_t *parse_primary()
 
 static ast_node_t *parse_struct_var_decl()
 {
-    tok_t *type_name = require_token(TOK_SYMBOL);
-    uint16_t indirection_lvl = 0;
-
-    while (tok_is(peek_current(), '*')) {
-        ++indirection_lvl;
-        peek_next();
-    }
-
+    localized_data_type_t dt = parse_type();
     tok_t *name = require_token(TOK_SYMBOL);
 
     ast_vector_t arity_list = {0};
@@ -1101,36 +1090,35 @@ static ast_node_t *parse_struct_var_decl()
         }
 
         vector_push_back(arity_list, constant->ast);
-
         require_char(']');
     }
 
     ast_node_t *arity_list_ast = ast_compound_init(
         arity_list.count,
         arity_list.data,
-        type_name->line_no,
-        type_name->col_no
+        dt.line_no,
+        dt.col_no
     );
 
     if (arity_list.count > 0)
         return ast_array_decl_init(
             D_T_STRUCT,
             strdup(name->data),
-            strdup(type_name->data),
-            arity_list_ast->ast,
-            indirection_lvl,
-            type_name->line_no,
-            type_name->col_no
+            strdup(dt.type_name),
+            arity_list_ast,
+            dt.indirection_lvl,
+            dt.line_no,
+            dt.col_no
         );
 
     return ast_var_decl_init(
         D_T_STRUCT,
         strdup(name->data),
-        strdup(type_name->data),
-        indirection_lvl,
+        strdup(dt.type_name),
+        dt.indirection_lvl,
         /*body=*/NULL,
-        type_name->line_no,
-        type_name->col_no
+        dt.line_no,
+        dt.col_no
     );
 }
 
@@ -1248,17 +1236,15 @@ static ast_node_t *parse_function_call()
 
     require_char('(');
 
-    ast_node_t *args = ast_compound_init(
-        args_list.count,
-        args_list.data,
-        name->line_no,
-        name->col_no
-    );
-
     if (tok_is(peek_next(), ')'))
         return ast_function_call_init(
             strdup(name->data),
-            args->ast,
+            ast_compound_init(
+                0,
+                NULL,
+                name->line_no,
+                name->col_no
+            ),
             name->line_no,
             name->col_no
         );
@@ -1276,9 +1262,16 @@ static ast_node_t *parse_function_call()
 
     require_char(')');
 
+    ast_node_t *args = ast_compound_init(
+        args_list.count,
+        args_list.data,
+        name->line_no,
+        name->col_no
+    );
+
     return ast_function_call_init(
         strdup(name->data),
-        args->ast,
+        args,
         name->line_no,
         name->col_no
     );

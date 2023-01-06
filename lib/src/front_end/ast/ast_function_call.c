@@ -9,10 +9,10 @@
 #include "utility/alloc.h"
 
 ast_node_t *ast_function_call_init(
-    char           *name,
-    ast_compound_t *args,
-    uint16_t        line_no,
-    uint16_t        col_no
+    char       *name,
+    ast_node_t *args,
+    uint16_t    line_no,
+    uint16_t    col_no
 ) {
     ast_function_call_t *ast = weak_calloc(1, sizeof(ast_function_call_t));
     ast->name = name;
@@ -22,7 +22,7 @@ ast_node_t *ast_function_call_init(
 
 void ast_function_call_cleanup(ast_function_call_t *ast)
 {
-    ast_compound_cleanup(ast->args);
+    ast_node_cleanup(ast->args);
     weak_free(ast->name);
     weak_free(ast);
 }

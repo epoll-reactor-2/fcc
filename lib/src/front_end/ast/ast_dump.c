@@ -125,10 +125,13 @@ void visit_ast_compound(FILE *memstream, ast_node_t *ast)
 {
     ast_compound_t *compound = ast->ast;
 
-    if (!compound || !compound->stmts)
+    if (!compound)
         return;
 
     ast_print_line(memstream, ast, "CompoundStmt");
+
+    if (!compound->stmts)
+        return;
 
     ast_indent += 2;
     for (uint64_t i = 0; i < compound->size; ++i) {
@@ -224,6 +227,7 @@ void visit_ast_return(FILE *memstream, ast_node_t *ast)
 {
     ast_return_t *ret = ast->ast;
 
+    ast_print_line(memstream, ast, "ReturnStmt");
     if (ret->operand) {
         ast_indent += 2;
         visit_node(memstream, ret->operand);
@@ -244,14 +248,15 @@ void visit_ast_symbol(FILE *memstream, ast_node_t *ast)
     ast_symbol_t *sym = ast->ast;
 
     ast_print(memstream, ast, "Symbol");
-    fprintf(memstream, "%s\n", sym->value);
+    fprintf(memstream, "`%s`\n", sym->value);
 }
 
 void visit_ast_unary(FILE *memstream, ast_node_t *ast)
 {
     ast_unary_t *unary = ast->ast;
 
-    ast_print(memstream, ast, "%sfix UnaryOperator", unary->type == AST_POSTFIX_UNARY ? "Pre" : "Post");
+    fflush(stdout);
+    ast_print(memstream, ast, "%sfix UnaryOperator", ast->type == AST_POSTFIX_UNARY ? "Post" : "Pre");
     fprintf(memstream, "%s\n", tok_to_string(unary->operation));
 
     ast_indent += 2;
@@ -279,7 +284,7 @@ void visit_ast_var_decl(FILE *memstream, ast_node_t *ast)
 
     ast_print(memstream, ast, "VarDecl");
     if (dt == D_T_STRUCT) {
-        fprintf(memstream, "%s ", decl->type_name);
+        fprintf(memstream, "struct %s ", decl->type_name);
     } else {
         fprintf(memstream, "%s ", data_type_to_string(dt));
     }
@@ -307,7 +312,9 @@ void visit_ast_array_decl(FILE *memstream, ast_node_t *ast)
     ast_print(memstream, ast, "ArrayDecl");
 
     if (dt == D_T_STRUCT) {
-        fprintf(memstream, "%s ", decl->type_name);
+        fprintf(memstream, "struct %s ", decl->type_name);
+    } else {
+        fprintf(memstream, "%s ", data_type_to_string(decl->data_type));
     }
 
     if (il > 0) {
@@ -315,10 +322,11 @@ void visit_ast_array_decl(FILE *memstream, ast_node_t *ast)
         fprintf(memstream, " ");
     }
 
-    ast_compound_t *dimensions = decl->arity_list;
-    for (uint64_t i = 0; i < dimensions->size; ++i) {
-        fprintf(memstream, "[%d]", ((ast_num_t *)dimensions->stmts[i])->value);
-    }
+    ast_compound_t *dimensions = decl->arity_list->ast;
+
+    for (uint64_t i = 0; i < dimensions->size; ++i)
+        fprintf(memstream, "[%d]", ((ast_num_t *)(dimensions->stmts[i]->ast) )->value);
+
     fprintf(memstream, " `%s`\n", decl->name);
 }
 
@@ -327,7 +335,7 @@ void visit_ast_array_access(FILE *memstream, ast_node_t *ast)
     ast_array_access_t *stmt = ast->ast;
 
     ast_print(memstream, ast, "ArrayAccess");
-    fprintf(memstream, "`%s`", stmt->name);
+    fprintf(memstream, "`%s`\n", stmt->name);
 
     ast_indent += 2;
     for (uint64_t i = 0; i < stmt->indices->size; ++i) {
@@ -353,29 +361,29 @@ void visit_ast_function_decl(FILE *memstream, ast_node_t *ast)
     ast_function_decl_t *decl = ast->ast;
     bool is_proto = decl->body == NULL;
 
-    ast_print_line(memstream, ast, is_proto ? "FunctionPrototype" : "FunctionDecl");
+    ast_print_line(memstream, ast, is_proto ? "FunctionProtoDecl" : "FunctionDecl");
 
     ast_indent += 2;
-    ast_print(memstream, ast, "FunctionDeclRetType");
+    ast_print(memstream, ast, is_proto ? "FunctionProtoRetType" : "FunctionDeclRetType");
     fprintf(memstream, "%s\n", data_type_to_string(decl->data_type));
 
-    ast_print(memstream, ast, "FunctionDeclName");
+    ast_print(memstream, ast, is_proto ? "FunctionProtoName" : "FunctionDeclName");
     fprintf(memstream, "`%s`\n", decl->name);
 
-    ast_print_line(memstream, ast, "FunctionDeclArgs");
+    ast_print_line(memstream, ast, is_proto ? "FunctionProtoArgs" : "FunctionDeclArgs");
 
-    visit_node(memstream, decl->args);
+    ast_indent += 2;
+    ast_compound_t *args = decl->args->ast;
+    if (args && args->size > 0)
+        visit_node(memstream, decl->args);
+    ast_indent -= 2;
 
     if (is_proto) {
         ast_indent -= 2;
         return;
     }
 
-    ast_indent += 2;
-    visit_node(memstream, decl->body);
-    ast_indent -= 2;
-
-    ast_print_line(memstream, ast, "FunctionDeclBody");
+    ast_print_line(memstream, ast, is_proto ? "FunctionProtoBody" : "FunctionDeclBody");
 
     ast_indent += 2;
     visit_node(memstream, decl->body);
@@ -393,9 +401,9 @@ void visit_ast_function_call(FILE *memstream, ast_node_t *ast)
     ast_print_line(memstream, ast, "FunctionCallArgs");
 
     ast_indent += 2;
-    for (uint64_t i = 0; i < stmt->args->size; ++i) {
-        visit_node(memstream, stmt->args->stmts[i]);
-    }
+    ast_compound_t *args = stmt->args->ast;
+    if (args && args->size > 0)
+        visit_node(memstream, stmt->args);
     ast_indent -= 2;
     ast_indent -= 2;
 }
@@ -412,7 +420,7 @@ void visit_ast_while(FILE *memstream, ast_node_t *ast)
     visit_node(memstream, stmt->condition);
     ast_indent -= 2;
 
-    ast_print_line(memstream, stmt->condition, "WhileStmtBody");
+    ast_print_line(memstream, stmt->body, "WhileStmtBody");
     ast_indent += 2;
     visit_node(memstream, stmt->body);
     ast_indent -= 2;
@@ -425,9 +433,11 @@ void visit_ast_do_while(FILE *memstream, ast_node_t *ast)
 
     ast_print_line(memstream, ast, "DoWhileStmt");
 
-    ast_print_line(memstream, stmt->condition, "DoWhileStmtBody");
+    ast_indent += 2;
+    ast_print_line(memstream, stmt->body, "DoWhileStmtBody");
     ast_indent += 2;
     visit_node(memstream, stmt->body);
+    ast_indent -= 2;
     ast_indent -= 2;
 
     ast_indent += 2;

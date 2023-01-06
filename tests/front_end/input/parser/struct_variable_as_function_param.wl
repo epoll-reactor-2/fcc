@@ -1,13 +1,17 @@
 //CompoundStmt <line:0, col:0>
-//  StructDecl <line:11, col:7> `custom`
-//    VarDecl <line:12, col:5> int `a`
-//    VarDecl <line:13, col:5> int `b`
-//    VarDecl <line:14, col:5> int `c`
-//    ArrayDecl <line:15, col:5> char [1000] `mem`
-//    VarDecl <line:16, col:5> string `description`
-//  FunctionPrototype <line:19, col:1> `f`
-//    FunctionPrototypeArgs <line:19, col:1>
-//      VarDecl <line:19, col:8> struct custom `record`
+//  StructDecl <line:15, col:1> `custom`
+//    CompoundStmt <line:15, col:1>
+//      VarDecl <line:16, col:5> int `a`
+//      VarDecl <line:17, col:5> int `b`
+//      VarDecl <line:18, col:5> int `c`
+//      ArrayDecl <line:19, col:5> char [1000] `mem`
+//      VarDecl <line:20, col:5> struct string `description`
+//  FunctionProtoDecl <line:23, col:1>
+//    FunctionProtoRetType <line:23, col:1> void
+//    FunctionProtoName <line:23, col:1> `f`
+//    FunctionProtoArgs <line:23, col:1>
+//      CompoundStmt <line:23, col:21>
+//        VarDecl <line:23, col:8> struct custom `record`
 struct custom {
     int a;
     int b;

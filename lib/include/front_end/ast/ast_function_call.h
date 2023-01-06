@@ -7,18 +7,20 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_FUNCTION_CALL_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_FUNCTION_CALL_H
 
-#include "front_end/ast/ast_compound.h"
+#include <stdint.h>
+
+typedef struct ast_node_t ast_node_t;
 
 typedef struct {
-    char *name; /// \note Must be dynamically allocated.
-    ast_compound_t *args;
+    char       *name; /// \note Must be dynamically allocated.
+    ast_node_t *args;
 } ast_function_call_t;
 
 ast_node_t *ast_function_call_init(
-    char           *name,
-    ast_compound_t *args,
-    uint16_t        line_no,
-    uint16_t        col_no
+    char       *name,
+    ast_node_t *args,
+    uint16_t    line_no,
+    uint16_t    col_no
 );
 
 void ast_function_call_cleanup(ast_function_call_t *ast);

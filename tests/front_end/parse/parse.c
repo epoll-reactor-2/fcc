@@ -29,6 +29,69 @@ static bool is_directory(const char *path)
         || strcmp(path, "..") == 0;
 }
 
+void extract_expected_ast(FILE *memstream, FILE *file)
+{
+    char   *line = NULL;
+    size_t  len = 0;
+    ssize_t read = 0;
+
+    while ((read = getline(&line, &len, file)) != -1) {
+        if (read <= 3)
+            continue;
+        if (strncmp(line, "//", 2) == 0) {
+            char *ptr = line + 2;
+            while (*ptr != '\n' && *ptr != '\0') {
+                fputc(*ptr++, memstream);
+            }
+            fputc('\n', memstream);
+            fflush(memstream);
+        }
+    }
+}
+
+/// Parse file and compare result with expected.
+///
+/// \pre    Reset lexer state.
+/// \return true on success, false on failure.
+bool parse_test(const char *filename)
+{
+    yyin = fopen(filename, "r");
+    if (yyin == NULL) {
+        perror("fopen()");
+        return -1;
+    }
+    yylex();
+
+    char  *expected_ast = NULL;
+    size_t expected_ast_size = 0;
+    char  *generated_ast = NULL;
+    size_t generated_ast_size = 0;
+    FILE  *memstream = open_memstream(&expected_ast, &expected_ast_size);
+    FILE  *out_memstream = open_memstream(&generated_ast, &generated_ast_size);
+
+    fseek(yyin, 0, SEEK_SET);
+    extract_expected_ast(memstream, yyin);
+
+    tok_array_t *consumed = lex_consumed_tokens();
+
+    if (!setjmp(weak_fatal_error_buf)) {
+        ast_node_t *ast = parse(consumed->data, consumed->data + consumed->count);
+        ast_dump(out_memstream, ast);
+        ast_node_cleanup(ast);
+
+        if (strcmp(expected_ast, generated_ast) != 0) {
+            printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated_ast, expected_ast);
+            return false;
+        }
+    } else {
+        printf("Fatal error occurred: ");
+        return false;
+    }
+
+    yylex_destroy();
+    return true;
+}
+
 int main()
 {
     static char *err_buf = NULL;
@@ -63,41 +126,24 @@ int main()
             continue;
         }
 
-        char buf[1024];
-        sprintf(buf, "%s/%s", cwd, dir->d_name);
-
-        printf("Testing file %s...\n", buf);
-        fflush(stdout);
-
         lex_cleanup_global_state();
         lex_init_global_state();
 
-        yyin = fopen(buf, "r");
-        if (yyin == NULL) {
-            perror("fopen()");
-            return -1;
-        }
-        yylex();
+        char filename[1024];
+        sprintf(filename, "%s/%s", cwd, dir->d_name);
 
-        tok_array_t *consumed = lex_consumed_tokens();
-        bool fatal_error = false;
+        printf("Testing file %s...\n", filename);
+        fflush(stdout);
 
-        if (!setjmp(weak_fatal_error_buf)) {
-            ast_node_t *ast = parse(consumed->data, consumed->data + consumed->count);
-            ast_node_cleanup(ast);
-        } else {
-            printf("Fatal error occurred: ");
-            fatal_error = true;
-        }
+        if (!parse_test(filename)) {
+            if (err_buf)
+                printf("%s\n", err_buf);
 
-        if (warn_buf)
-            puts(warn_buf);
+            if (warn_buf)
+                printf("%s\n", warn_buf);
 
-        if (err_buf)
-            puts(err_buf);
-
-        if (fatal_error || err_buf)
             return 1;
+        }
 
         yylex_destroy();
     }

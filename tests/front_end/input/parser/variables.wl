@@ -6,7 +6,7 @@
 //    FunctionDeclBody <line:14, col:1>
 //      CompoundStmt <line:14, col:10>
 //        VarDecl <line:15, col:3> float `value`
-//          FloatingPointLiteral <line:15, col:17> 3.1415
+//          FloatLiteral <line:15, col:17> 3.141500
 //        VarDecl <line:16, col:3> bool `good_boolean`
 //          BooleanLiteral <line:16, col:23> true
 //        VarDecl <line:17, col:3> bool `malevolent_boolean`

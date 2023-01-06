@@ -7,8 +7,8 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_ARRAY_DECL_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_ARRAY_DECL_H
 
-#include "front_end/ast/ast_compound.h"
 #include "front_end/lex/data_type.h"
+#include <stdint.h>
 
 typedef struct ast_node_t ast_node_t;
 
@@ -29,7 +29,7 @@ typedef struct {
     /// This stores information about array arity (dimension)
     /// and size for each dimension, e.g.,
     /// for array[1][2][3], ArityList equal to { 1, 2, 3 }.
-    ast_compound_t *arity_list;
+    ast_node_t *arity_list;
 
     /// Depth of pointer, like for
     /// int ***ptr[2] indirection level = 3, for
@@ -40,13 +40,13 @@ typedef struct {
 
 /// \note type_name may be NULL.
 ast_node_t *ast_array_decl_init(
-    data_type_e     data_type,
-    char           *name,
-    char           *type_name,
-    ast_compound_t *arity_list,
-    uint16_t        indirection_lvl,
-    uint16_t        line_no,
-    uint16_t        col_no
+    data_type_e  data_type,
+    char        *name,
+    char        *type_name,
+    ast_node_t  *arity_list,
+    uint16_t     indirection_lvl,
+    uint16_t     line_no,
+    uint16_t     col_no
 );
 
 void ast_array_decl_cleanup(ast_array_decl_t *ast);

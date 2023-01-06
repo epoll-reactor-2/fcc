@@ -1,4 +1,6 @@
 //CompoundStmt <line:0, col:0>
-//  FunctionPrototype <line:4, col:1> `f`
-//    FunctionPrototypeArgs <line:4, col:1>
+//  FunctionProtoDecl <line:6, col:1>
+//    FunctionProtoRetType <line:6, col:1> void
+//    FunctionProtoName <line:6, col:1> `f`
+//    FunctionProtoArgs <line:6, col:1>
 void f();
