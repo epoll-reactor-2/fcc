@@ -23,12 +23,6 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-bool is_directory(const char *path)
-{
-    return strcmp(path,  ".") == 0
-        || strcmp(path, "..") == 0;
-}
-
 void tokens_cleanup(tok_array_t *toks) {
     for (uint64_t i = 0; i < toks->count; ++i) {
         tok_t *t = &toks->data[i];
@@ -140,9 +134,8 @@ int main()
     }
 
     while ((dir = readdir(dir_iterator)) != NULL) {
-        if (is_directory(dir->d_name)) {
+        if (dir->d_type == DT_DIR)
             continue;
-        }
 
         lex_cleanup_global_state();
         lex_init_global_state();
