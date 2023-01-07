@@ -30,9 +30,10 @@
 #include "front_end/ast/ast_while.h"
 #include "front_end/lex/data_type.h"
 #include "front_end/parse/parse.h"
+#include "utility/alloc.h"
 #include "utility/diagnostic.h"
 #include "utility/vector.h"
-#include <setjmp.h>
+#include <assert.h>
 
 typedef vector_t(ast_node_t *) ast_vector_t;
 
@@ -49,24 +50,24 @@ static data_type_e tok_to_data_type(tok_type_e t)
     }
 }
 
-static tok_t *tok_begin;
-static tok_t *tok_end;
+static const tok_t *tok_begin;
+static const tok_t *tok_end;
 
 static uint32_t loops_depth = 0;
 
-static tok_t *peek_current()
+static const tok_t *peek_current()
 {
     return tok_begin;
 }
 
-static tok_t *peek_next()
+static const tok_t *peek_next()
 {
     return tok_begin++;
 }
 
-tok_t *require_token(tok_type_e t)
+const tok_t *require_token(tok_type_e t)
 {
-    tok_t *curr_tok = peek_current();
+    const tok_t *curr_tok = peek_current();
 
     if (curr_tok->type != t) {
         weak_compile_error(
@@ -82,7 +83,7 @@ tok_t *require_token(tok_type_e t)
     return curr_tok;
 }
 
-tok_t *require_char(char c)
+const tok_t *require_char(char c)
 {
     return require_token(tok_char_to_tok(c));
 }
@@ -131,7 +132,7 @@ ast_node_t *parse(const tok_t *begin, const tok_t *end)
     typedef vector_t(ast_node_t *) stmts_t;
 
     stmts_t global_stmts = {0};
-    tok_t *curr_tok = NULL;
+    const tok_t *curr_tok = NULL;
 
     while (tok_begin < tok_end) {
         curr_tok = peek_current();
@@ -175,7 +176,7 @@ typedef struct {
 
 static localized_data_type_t parse_type()
 {
-    tok_t *curr_tok = peek_current();
+    const tok_t *curr_tok = peek_current();
 
     switch (curr_tok->type) {
     case TOK_INT:
@@ -211,7 +212,7 @@ static localized_data_type_t parse_type()
 
 static localized_data_type_t parse_return_type()
 {
-    tok_t *curr_tok = peek_current();
+    const tok_t *curr_tok = peek_current();
 
     if (curr_tok->type != TOK_VOID) {
         return parse_type();
@@ -231,7 +232,7 @@ static localized_data_type_t parse_return_type()
 static ast_node_t *parse_array_decl()
 {
     localized_data_type_t dt = parse_type();
-    tok_t *var_name = peek_next();
+    const tok_t *var_name = peek_next();
 
     if (var_name->type != TOK_SYMBOL) {
         weak_compile_error(
@@ -288,11 +289,18 @@ static ast_node_t *parse_array_decl()
 
 static ast_node_t *parse_decl_without_initializer()
 {
-    tok_t *ptr = peek_current();
-    parse_type();
+    const tok_t *ptr = peek_current();
+    localized_data_type_t dt = parse_type();
     bool is_array = tok_is((tok_begin + 1), '[');
     ptrdiff_t offset = tok_begin - ptr;
     tok_begin -= offset;
+
+    /// We just compute the offset of whole type
+    /// declaration, e.g for `char ********` to judge
+    /// what type of declaration there is. All other
+    /// allocated strings are not needed.
+    if (dt.type_name)
+        weak_free(dt.type_name);
 
     switch (ptr->type) {
     case TOK_SYMBOL:
@@ -313,12 +321,12 @@ static ast_node_t *parse_decl_without_initializer()
 static ast_node_t *parse_var_decl_without_initializer()
 {
     localized_data_type_t dt = parse_type();
-    tok_t *var_name = require_token(TOK_SYMBOL);
+    const tok_t *var_name = require_token(TOK_SYMBOL);
 
     return ast_var_decl_init(
         dt.data_type,
-        var_name->data,
-        dt.type_name,
+        strdup(var_name->data),
+        dt.type_name, /// Already strdup()'ed.
         dt.indirection_lvl,
         /*body=*/NULL,
         dt.line_no,
@@ -329,7 +337,7 @@ static ast_node_t *parse_var_decl_without_initializer()
 static ast_node_t *parse_var_decl()
 {
     localized_data_type_t dt = parse_type();
-    tok_t *var_name = peek_next();
+    const tok_t *var_name = peek_next();
 
     if (var_name->type != TOK_SYMBOL) {
         weak_compile_error(
@@ -340,12 +348,12 @@ static ast_node_t *parse_var_decl()
         weak_terminate_compilation();
     }
 
-    tok_t *operator = peek_next();
+    const tok_t *operator = peek_next();
 
     if (tok_is(operator, '='))
         return ast_var_decl_init(
             dt.data_type,
-            var_name->data,
+            strdup(var_name->data),
             dt.type_name,
             dt.indirection_lvl,
             parse_logical_or(),
@@ -380,7 +388,7 @@ static ast_node_t *parse_var_decl()
 
 static ast_node_t *parse_decl()
 {
-    tok_t *t = peek_current();
+    const tok_t *t = peek_current();
 
     switch (t->type) {
     case TOK_STRUCT:
@@ -407,8 +415,8 @@ static ast_node_t *parse_struct_decl()
 {
     ast_vector_t decls = {0};
 
-    tok_t *start = require_token(TOK_STRUCT);
-    tok_t *name = require_token(TOK_SYMBOL);
+    const tok_t *start = require_token(TOK_STRUCT);
+    const tok_t *name = require_token(TOK_SYMBOL);
 
     require_char('{');
 
@@ -468,7 +476,7 @@ static ast_node_t *parse_function_param_list()
 static ast_node_t *parse_function_decl()
 {
     localized_data_type_t dt = parse_return_type();
-    tok_t *name = require_token(TOK_SYMBOL);
+    const tok_t *name = require_token(TOK_SYMBOL);
 
     require_char('(');
     ast_node_t *param_list = parse_function_param_list();
@@ -495,7 +503,7 @@ static ast_node_t *parse_function_decl()
 
 static ast_node_t *parse_stmt()
 {
-    tok_t *t = peek_current();
+    const tok_t *t = peek_current();
 
     switch (t->type) {
     case TOK_OPEN_CURLY_BRACKET:
@@ -542,7 +550,7 @@ static ast_node_t *parse_stmt()
 
 static ast_node_t *parse_loop_stmt()
 {
-    tok_t *t = peek_next();
+    const tok_t *t = peek_next();
 
     switch (t->type) {
     case TOK_BREAK:
@@ -558,7 +566,7 @@ static ast_node_t *parse_loop_stmt()
 static ast_node_t *parse_iteration_block()
 {
     ast_vector_t stmts = {0};
-    tok_t *start = require_char('{');
+    const tok_t *start = require_char('{');
 
     while (!tok_is(peek_current(), '}')) {
         vector_push_back(stmts, parse_loop_stmt());
@@ -601,7 +609,7 @@ static ast_node_t *parse_block()
         return parse_iteration_block();
 
     ast_vector_t stmts = {0};
-    tok_t *start = require_char('{');
+    const tok_t *start = require_char('{');
 
     while (!tok_is(peek_current(), '}')) {
         vector_push_back(stmts, parse_stmt());
@@ -641,7 +649,7 @@ static ast_node_t *parse_selection_stmt()
     ast_node_t *cond = NULL;
     ast_node_t *then_body = NULL;
     ast_node_t *else_body = NULL;
-    tok_t *start = require_token(TOK_IF);
+    const tok_t *start = require_token(TOK_IF);
 
     require_char('(');
     cond = parse_logical_or();
@@ -665,7 +673,7 @@ static ast_node_t *parse_selection_stmt()
 
 static ast_node_t *parse_iteration_stmt()
 {
-    tok_t *t = peek_current();
+    const tok_t *t = peek_current();
 
     switch (t->type) {
     case TOK_FOR:
@@ -681,7 +689,7 @@ static ast_node_t *parse_iteration_stmt()
 
 static ast_node_t *parse_jump_stmt()
 {
-    tok_t *start = require_token(TOK_RETURN);
+    const tok_t *start = require_token(TOK_RETURN);
     ast_node_t *body = NULL;
 
     if (!tok_is(peek_current(), ';')) {
@@ -693,7 +701,7 @@ static ast_node_t *parse_jump_stmt()
 
 static ast_node_t *parse_for()
 {
-    tok_t *start = require_token(TOK_FOR);
+    const tok_t *start = require_token(TOK_FOR);
     require_char('(');
 
     ast_node_t *init = NULL;
@@ -735,7 +743,7 @@ static ast_node_t *parse_for()
 
 static ast_node_t *parse_do_while()
 {
-    tok_t *start = require_token(TOK_DO);
+    const tok_t *start = require_token(TOK_DO);
 
     ++loops_depth;
     ast_node_t *body = parse_block();
@@ -757,7 +765,7 @@ static ast_node_t *parse_do_while()
 
 static ast_node_t *parse_while()
 {
-    tok_t *start = require_token(TOK_WHILE);
+    const tok_t *start = require_token(TOK_WHILE);
 
     require_char('(');
     ast_node_t *cond = parse_logical_or();
@@ -780,7 +788,7 @@ static ast_node_t *parse_logical_or()
     ast_node_t *expr = parse_logical_and();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_OR:
             expr = ast_binary_init(t->type, expr, parse_logical_or(), t->line_no, t->col_no);
@@ -799,7 +807,7 @@ static ast_node_t *parse_logical_and()
     ast_node_t *expr = parse_inclusive_or();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_AND:
             expr = ast_binary_init(t->type, expr, parse_logical_and(), t->line_no, t->col_no);
@@ -818,7 +826,7 @@ static ast_node_t *parse_inclusive_or()
     ast_node_t *expr = parse_exclusive_or();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_BIT_OR:
             expr = ast_binary_init(t->type, expr, parse_inclusive_or(), t->line_no, t->col_no);
@@ -837,7 +845,7 @@ static ast_node_t *parse_exclusive_or()
     ast_node_t *expr = parse_and();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_XOR:
             expr = ast_binary_init(t->type, expr, parse_exclusive_or(), t->line_no, t->col_no);
@@ -856,7 +864,7 @@ static ast_node_t *parse_and()
     ast_node_t *expr = parse_equality();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_BIT_AND:
             expr = ast_binary_init(t->type, expr, parse_and(), t->line_no, t->col_no);
@@ -875,7 +883,7 @@ static ast_node_t *parse_equality()
     ast_node_t *expr = parse_relational();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_EQ:
         case TOK_NEQ: /// Fall through.
@@ -895,7 +903,7 @@ static ast_node_t *parse_relational()
     ast_node_t *expr = parse_shift();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_GT:
         case TOK_LT:
@@ -917,7 +925,7 @@ static ast_node_t *parse_shift()
     ast_node_t *expr = parse_additive();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_SHL:
         case TOK_SHR: /// Fall through.
@@ -937,7 +945,7 @@ static ast_node_t *parse_additive()
     ast_node_t *expr = parse_multiplicative();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_PLUS:
         case TOK_MINUS: /// Fall through.
@@ -957,7 +965,7 @@ static ast_node_t *parse_multiplicative()
     ast_node_t *expr = parse_prefix_unary();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
         switch (t->type) {
         case TOK_STAR:
         case TOK_SLASH:
@@ -975,7 +983,7 @@ static ast_node_t *parse_multiplicative()
 
 static ast_node_t *parse_prefix_unary()
 {
-    tok_t *t = peek_next();
+   const tok_t *t = peek_next();
 
     switch (t->type) {
     case TOK_BIT_AND: /// Address operator `&`.
@@ -999,7 +1007,7 @@ static ast_node_t *parse_prefix_unary()
 static ast_node_t *parse_postfix_unary()
 {
     ast_node_t *expr = parse_primary();
-    tok_t *t = peek_next();
+    const tok_t *t = peek_next();
 
     switch (t->type) {
     case TOK_INC:
@@ -1020,8 +1028,8 @@ static ast_node_t *parse_postfix_unary()
 static ast_node_t *parse_symbol()
 {
     /// \todo: Fix.
-    tok_t *start = tok_begin - 1;
-    tok_t *curr_tok = tok_begin;
+    const tok_t *start = tok_begin - 1;
+    const tok_t *curr_tok = tok_begin;
 
     switch (curr_tok->type) {
     /// symbol(
@@ -1044,7 +1052,7 @@ static ast_node_t *parse_symbol()
 
 static ast_node_t *parse_primary()
 {
-    tok_t *t = peek_next();
+    const tok_t *t = peek_next();
 
     switch (t->type) {
     case TOK_SYMBOL:
@@ -1072,8 +1080,9 @@ static ast_node_t *parse_primary()
 static ast_node_t *parse_struct_var_decl()
 {
     localized_data_type_t dt = parse_type();
-    tok_t *name = require_token(TOK_SYMBOL);
+    const tok_t *name = require_token(TOK_SYMBOL);
 
+    assert(dt.data_type == D_T_STRUCT);
     ast_vector_t arity_list = {0};
 
     while (tok_is(peek_current(), '[')) {
@@ -1093,28 +1102,28 @@ static ast_node_t *parse_struct_var_decl()
         require_char(']');
     }
 
-    ast_node_t *arity_list_ast = ast_compound_init(
-        arity_list.count,
-        arity_list.data,
-        dt.line_no,
-        dt.col_no
-    );
-
-    if (arity_list.count > 0)
+    if (arity_list.count > 0) {
+        ast_node_t *arity_list_ast = ast_compound_init(
+            arity_list.count,
+            arity_list.data,
+            dt.line_no,
+            dt.col_no
+        );
         return ast_array_decl_init(
             D_T_STRUCT,
             strdup(name->data),
-            strdup(dt.type_name),
+            dt.type_name, /// Already strdup()'ed.
             arity_list_ast,
             dt.indirection_lvl,
             dt.line_no,
             dt.col_no
         );
+    }
 
     return ast_var_decl_init(
         D_T_STRUCT,
         strdup(name->data),
-        strdup(dt.type_name),
+        dt.type_name, /// Already strdup()'ed.
         dt.indirection_lvl,
         /*body=*/NULL,
         dt.line_no,
@@ -1124,8 +1133,8 @@ static ast_node_t *parse_struct_var_decl()
 
 static ast_node_t *parse_struct_field_access()
 {
-    tok_t *symbol = require_token(TOK_SYMBOL);
-    tok_t *next = peek_next();
+    const tok_t *symbol = require_token(TOK_SYMBOL);
+    const tok_t *next = peek_next();
 
     if (tok_is(next, '.')) {
         return ast_member_init(
@@ -1142,7 +1151,7 @@ static ast_node_t *parse_struct_field_access()
 
 static ast_node_t *parse_array_access()
 {
-    tok_t *symbol = peek_next();
+    const tok_t *symbol = peek_next();
 
     if (!tok_is(peek_current(), '[')) {
         weak_compile_error(
@@ -1170,7 +1179,7 @@ static ast_node_t *parse_array_access()
 
     return ast_array_access_init(
         strdup(symbol->data),
-        args->ast,
+        args,
         symbol->line_no,
         symbol->col_no
     );
@@ -1178,7 +1187,7 @@ static ast_node_t *parse_array_access()
 
 static ast_node_t *parse_expr()
 {
-    tok_t *t = peek_current();
+    const tok_t *t = peek_current();
 
     switch (t->type) {
     case TOK_INT:
@@ -1196,7 +1205,7 @@ static ast_node_t *parse_assignment()
     ast_node_t *expr = parse_logical_or();
 
     while (true) {
-        tok_t *t = peek_next();
+        const tok_t *t = peek_next();
 
         switch (t->type) {
         case TOK_ASSIGN:
@@ -1230,7 +1239,7 @@ static ast_node_t *parse_assignment()
 
 static ast_node_t *parse_function_call()
 {
-    tok_t *name = peek_next();
+    const tok_t *name = peek_next();
 
     ast_vector_t args_list = {0};
 
@@ -1279,7 +1288,7 @@ static ast_node_t *parse_function_call()
 
 static ast_node_t *parse_constant()
 {
-    tok_t *t = peek_next();
+    const tok_t *t = peek_next();
 
     switch (t->type) {
     case TOK_INTEGRAL_LITERAL:

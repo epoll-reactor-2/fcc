@@ -23,30 +23,40 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-static bool is_directory(const char *path)
+bool is_directory(const char *path)
 {
     return strcmp(path,  ".") == 0
         || strcmp(path, "..") == 0;
 }
 
-void extract_expected_ast(FILE *memstream, FILE *file)
+void tokens_cleanup(tok_array_t *toks) {
+    for (uint64_t i = 0; i < toks->count; ++i) {
+        tok_t *t = &toks->data[i];
+        if (t->data)
+            free(t->data);
+    }
+}
+
+void extract_expected_ast(FILE *mem, FILE *file)
 {
     char   *line = NULL;
     size_t  len = 0;
     ssize_t read = 0;
 
     while ((read = getline(&line, &len, file)) != -1) {
-        if (read <= 3)
+        if (read <= 3) {
             continue;
+        }
         if (strncmp(line, "//", 2) == 0) {
             char *ptr = line + 2;
             while (*ptr != '\n' && *ptr != '\0') {
-                fputc(*ptr++, memstream);
+                fputc(*ptr++, mem);
             }
-            fputc('\n', memstream);
-            fflush(memstream);
+            fputc('\n', mem);
+            fflush(mem);
         }
     }
+    free(line);
 }
 
 /// Parse file and compare result with expected.
@@ -61,26 +71,25 @@ bool parse_test(const char *filename)
         return -1;
     }
     yylex();
-
-    char  *expected_ast = NULL;
-    size_t expected_ast_size = 0;
-    char  *generated_ast = NULL;
-    size_t generated_ast_size = 0;
-    FILE  *memstream = open_memstream(&expected_ast, &expected_ast_size);
-    FILE  *out_memstream = open_memstream(&generated_ast, &generated_ast_size);
-
     fseek(yyin, 0, SEEK_SET);
-    extract_expected_ast(memstream, yyin);
 
-    tok_array_t *consumed = lex_consumed_tokens();
+    char   *expected = NULL;
+    char   *generated = NULL;
+    size_t  _ = 0;
+    FILE   *ast_stream = open_memstream(&expected, &_);
+    FILE   *dump_stream = open_memstream(&generated, &_);
+
+    extract_expected_ast(ast_stream, yyin);
+
+    tok_array_t *toks = lex_consumed_tokens();
 
     if (!setjmp(weak_fatal_error_buf)) {
-        ast_node_t *ast = parse(consumed->data, consumed->data + consumed->count);
-        ast_dump(out_memstream, ast);
+        ast_node_t *ast = parse(toks->data, toks->data + toks->count);
+        ast_dump(dump_stream, ast);
         ast_node_cleanup(ast);
 
-        if (strcmp(expected_ast, generated_ast) != 0) {
-            printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated_ast, expected_ast);
+        if (strcmp(expected, generated) != 0) {
+            printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
             return false;
         }
     } else {
@@ -89,11 +98,18 @@ bool parse_test(const char *filename)
     }
 
     yylex_destroy();
+    tokens_cleanup(toks);
+    fclose(ast_stream);
+    fclose(dump_stream);
+    free(expected);
+    free(generated);
+
     return true;
 }
 
 int main()
 {
+    int ret = 0;
     static char *err_buf = NULL;
     static char *warn_buf = NULL;
     static size_t err_buf_len = 0;
@@ -108,7 +124,8 @@ int main()
     char cwd[512];
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
         perror("getcwd()");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     sprintf(cwd + strlen(cwd), "/parser");
@@ -118,7 +135,8 @@ int main()
 
     if (!dir_iterator) {
         perror("opendir()");
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
     while ((dir = readdir(dir_iterator)) != NULL) {
@@ -142,11 +160,16 @@ int main()
             if (warn_buf)
                 printf("%s\n", warn_buf);
 
-            return 1;
+            ret = -1;
+            goto exit;
         }
-
-        yylex_destroy();
     }
 
     closedir(dir_iterator);
+exit:
+    fclose(diag_error_memstream);
+    fclose(diag_warn_memstream);
+    free(err_buf);
+    free(warn_buf);
+    return ret;
 }

@@ -6,7 +6,7 @@
 
 #include "front_end/lex/tok.h"
 
-bool tok_is(tok_t *tok, char symbol)
+bool tok_is(const tok_t *tok, char symbol)
 {
     return tok->type == tok_char_to_tok(symbol);
 }

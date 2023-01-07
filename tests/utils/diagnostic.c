@@ -63,6 +63,8 @@ void diagnostics_memstream_test()
 
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);
+    free(err_buf);
+    free(warn_buf);
 
     diag_error_memstream = NULL;
     diag_warn_memstream = NULL;

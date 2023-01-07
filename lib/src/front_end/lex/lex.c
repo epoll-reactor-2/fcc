@@ -8,24 +8,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static tok_array_t consumed_tokens = {0};
+static tok_array_t tokens = {0};
 
 void lex_consume_token(tok_t *tok)
 {
-    vector_push_back(consumed_tokens, *tok);
+    vector_push_back(tokens, *tok);
 }
 
 tok_array_t *lex_consumed_tokens()
 {
-    return &consumed_tokens;
+    return &tokens;
 }
 
 void lex_init_global_state()
 {
-    vector_init(consumed_tokens);
+    vector_init(tokens);
 }
 
 void lex_cleanup_global_state()
 {
-    vector_free(consumed_tokens);
+    vector_free(tokens);
 }

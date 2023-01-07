@@ -14,16 +14,19 @@ int main() {
     {
         void *addr = weak_malloc(1);
         ASSERT_TRUE(addr);
+        weak_free(addr);
     }
 
     {
         void *addr = weak_calloc(1, 1);
         ASSERT_TRUE(addr);
+        weak_free(addr);
     }
 
     {
         void *addr = weak_malloc(1);
         addr = weak_realloc(addr, 2);
         ASSERT_TRUE(addr);
+        weak_free(addr);
     }
 }

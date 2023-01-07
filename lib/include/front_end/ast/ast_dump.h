@@ -14,9 +14,9 @@
 ///
 /// \return 0 on success
 ///         1 on following errors:
-///           - memstream is NULL
+///           - memory stream is NULL
 ///           - ast is NULL
 ///           - any required non-NULL AST node is NULL
-int32_t ast_dump(FILE *memstream, ast_node_t *ast);
+int32_t ast_dump(FILE *mem, ast_node_t *ast);
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_DUMP_H

@@ -32,7 +32,7 @@
 
 static uint32_t ast_indent = 0;
 
-static int32_t visit_node(FILE *memstream, ast_node_t *ast);
+static int32_t visit_node(FILE *mem, ast_node_t *ast);
 
 static void fprintf_n(FILE *stream, uint32_t count, char c)
 {
@@ -48,334 +48,336 @@ static void ast_print_indent(FILE *stream)
 }
 
 static void ast_print_positioned(
-    FILE       *memstream,
+    FILE       *mem,
     ast_node_t *ast,
     bool        new_line_wanted,
     const char *fmt,
     va_list     list
 ) {
-    ast_print_indent(memstream);
+    ast_print_indent(mem);
 
-    vfprintf(memstream, fmt, list);
+    vfprintf(mem, fmt, list);
 
     fprintf(
-        memstream, " <line:%u, col:%u>%c",
+        mem, " <line:%u, col:%u>%c",
         ast->line_no,
         ast->col_no,
         new_line_wanted ? '\n' : ' '
     );
-    fflush(memstream);
+    fflush(mem);
 }
 
-static void ast_print(FILE *memstream, ast_node_t *ast, const char *fmt, ...)
+static void ast_print(FILE *mem, ast_node_t *ast, const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
 
-    ast_print_positioned(memstream, ast, /*new_line_wanted=*/false, fmt, args);
+    ast_print_positioned(mem, ast, /*new_line_wanted=*/false, fmt, args);
 
     va_end(args);
 }
 
-static void ast_print_line(FILE *memstream, ast_node_t *ast, const char *fmt, ...)
+static void ast_print_line(FILE *mem, ast_node_t *ast, const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
 
-    ast_print_positioned(memstream, ast, /*new_line_wanted=*/true, fmt, args);
+    ast_print_positioned(mem, ast, /*new_line_wanted=*/true, fmt, args);
 
     va_end(args);
 }
 
-void visit_ast_binary(FILE *memstream, ast_node_t *ast)
+void visit_ast_binary(FILE *mem, ast_node_t *ast)
 {
     ast_binary_t *binary = ast->ast;
 
-    ast_print(memstream, ast, "BinaryOperator");
-    fprintf(memstream, "%s\n", tok_to_string(binary->operation));
+    ast_print(mem, ast, "BinaryOperator");
+    fprintf(mem, "%s\n", tok_to_string(binary->operation));
 
     ast_indent += 2;
-    visit_node(memstream, binary->lhs);
-    visit_node(memstream, binary->rhs);
+    visit_node(mem, binary->lhs);
+    visit_node(mem, binary->rhs);
     ast_indent -= 2;
 }
 
-void visit_ast_bool(FILE *memstream, ast_node_t *ast)
+void visit_ast_bool(FILE *mem, ast_node_t *ast)
 {
     ast_bool_t *boolean = ast->ast;
 
-    ast_print(memstream, ast, "BooleanLiteral");
-    fprintf(memstream, "%s\n", boolean->value ? "true" : "false");
+    ast_print(mem, ast, "BooleanLiteral");
+    fprintf(mem, "%s\n", boolean->value ? "true" : "false");
 }
 
-void visit_ast_break(FILE *memstream, ast_node_t *ast)
+void visit_ast_break(FILE *mem, ast_node_t *ast)
 {
-    ast_print_line(memstream, ast, "BreakStmt");
+    ast_print_line(mem, ast, "BreakStmt");
 }
 
-void visit_ast_char(FILE *memstream, ast_node_t *ast)
+void visit_ast_char(FILE *mem, ast_node_t *ast)
 {
     ast_char_t *c = ast->ast;
 
-    ast_print(memstream, ast, "CharLiteral");
-    fprintf(memstream, "'%c'\n", c->value);
+    ast_print(mem, ast, "CharLiteral");
+    fprintf(mem, "'%c'\n", c->value);
 }
 
-void visit_ast_compound(FILE *memstream, ast_node_t *ast)
+void visit_ast_compound(FILE *mem, ast_node_t *ast)
 {
     ast_compound_t *compound = ast->ast;
 
     if (!compound)
         return;
 
-    ast_print_line(memstream, ast, "CompoundStmt");
+    ast_print_line(mem, ast, "CompoundStmt");
 
     if (!compound->stmts)
         return;
 
     ast_indent += 2;
     for (uint64_t i = 0; i < compound->size; ++i) {
-        visit_node(memstream, compound->stmts[i]);
+        visit_node(mem, compound->stmts[i]);
     }
     ast_indent -= 2;
 }
 
-void visit_ast_continue(FILE *memstream, ast_node_t *ast)
+void visit_ast_continue(FILE *mem, ast_node_t *ast)
 {
-    ast_print_line(memstream, ast, "ContinueStmt");
+    ast_print_line(mem, ast, "ContinueStmt");
 }
 
-void visit_ast_float(FILE *memstream, ast_node_t *ast)
+void visit_ast_float(FILE *mem, ast_node_t *ast)
 {
     ast_float_t *f = ast->ast;
 
-    ast_print(memstream, ast, "FloatLiteral");
-    fprintf(memstream, "%f\n", f->value);
+    ast_print(mem, ast, "FloatLiteral");
+    fprintf(mem, "%f\n", f->value);
 }
 
-void visit_ast_for(FILE *memstream, ast_node_t *ast)
+void visit_ast_for(FILE *mem, ast_node_t *ast)
 {
     ast_for_t *for_stmt = ast->ast;
 
-    ast_print_line(memstream, ast, "ForStmt");
+    ast_print_line(mem, ast, "ForStmt");
     ast_indent += 2;
 
     if (for_stmt->init) {
-        ast_print_line(memstream, for_stmt->init, "ForStmtInit");
+        ast_print_line(mem, for_stmt->init, "ForStmtInit");
         ast_indent += 2;
-        visit_node(memstream, for_stmt->init);
+        visit_node(mem, for_stmt->init);
         ast_indent -= 2;
     }
 
     if (for_stmt->condition) {
-        ast_print_line(memstream, for_stmt->condition, "ForStmtCondition");
+        ast_print_line(mem, for_stmt->condition, "ForStmtCondition");
         ast_indent += 2;
-        visit_node(memstream, for_stmt->condition);
+        visit_node(mem, for_stmt->condition);
         ast_indent -= 2;
     }
 
     if (for_stmt->increment) {
-        ast_print_line(memstream, for_stmt->increment, "ForStmtIncrement");
+        ast_print_line(mem, for_stmt->increment, "ForStmtIncrement");
         ast_indent += 2;
-        visit_node(memstream, for_stmt->increment);
+        visit_node(mem, for_stmt->increment);
         ast_indent -= 2;
     }
 
-    ast_print_line(memstream, for_stmt->body, "ForStmtBody");
+    ast_print_line(mem, for_stmt->body, "ForStmtBody");
     ast_indent += 2;
-    visit_node(memstream, for_stmt->body);
+    visit_node(mem, for_stmt->body);
     ast_indent -= 2;
     ast_indent -= 2;
 }
 
-void visit_ast_if(FILE *memstream, ast_node_t *ast)
+void visit_ast_if(FILE *mem, ast_node_t *ast)
 {
     ast_if_t *if_stmt = ast->ast;
 
-    ast_print_line(memstream, ast, "IfStmt");
+    ast_print_line(mem, ast, "IfStmt");
     ast_indent += 2;
 
-    ast_print_line(memstream, if_stmt->condition, "IfStmtCondition");
+    ast_print_line(mem, if_stmt->condition, "IfStmtCondition");
     ast_indent += 2;
-    visit_node(memstream, if_stmt->condition);
+    visit_node(mem, if_stmt->condition);
     ast_indent -= 2;
 
-    ast_print_line(memstream, if_stmt->body, "IfStmtThenBody");
+    ast_print_line(mem, if_stmt->body, "IfStmtThenBody");
     ast_indent += 2;
-    visit_node(memstream, if_stmt->body);
+    visit_node(mem, if_stmt->body);
     ast_indent -= 2;
 
     if (if_stmt->else_body) {
-        ast_print_line(memstream, if_stmt->else_body, "IfStmtElseBody");
+        ast_print_line(mem, if_stmt->else_body, "IfStmtElseBody");
         ast_indent += 2;
-        visit_node(memstream, if_stmt->else_body);
+        visit_node(mem, if_stmt->else_body);
         ast_indent -= 2;
     }
 
     ast_indent -= 2;
 }
 
-void visit_ast_num(FILE *memstream, ast_node_t *ast)
+void visit_ast_num(FILE *mem, ast_node_t *ast)
 {
     ast_num_t *number = ast->ast;
 
-    ast_print(memstream, ast, "Number");
-    fprintf(memstream, "%d\n", number->value);
+    ast_print(mem, ast, "Number");
+    fprintf(mem, "%d\n", number->value);
 }
 
-void visit_ast_return(FILE *memstream, ast_node_t *ast)
+void visit_ast_return(FILE *mem, ast_node_t *ast)
 {
     ast_return_t *ret = ast->ast;
 
-    ast_print_line(memstream, ast, "ReturnStmt");
+    ast_print_line(mem, ast, "ReturnStmt");
     if (ret->operand) {
         ast_indent += 2;
-        visit_node(memstream, ret->operand);
+        visit_node(mem, ret->operand);
         ast_indent -= 2;
     }
 }
 
-void visit_ast_string(FILE *memstream, ast_node_t *ast)
+void visit_ast_string(FILE *mem, ast_node_t *ast)
 {
     ast_string_t *string = ast->ast;
 
-    ast_print(memstream, ast, "StringLiteral");
-    fprintf(memstream, "%s\n", string->value);
+    ast_print(mem, ast, "StringLiteral");
+    fprintf(mem, "%s\n", string->value);
 }
 
-void visit_ast_symbol(FILE *memstream, ast_node_t *ast)
+void visit_ast_symbol(FILE *mem, ast_node_t *ast)
 {
     ast_symbol_t *sym = ast->ast;
 
-    ast_print(memstream, ast, "Symbol");
-    fprintf(memstream, "`%s`\n", sym->value);
+    ast_print(mem, ast, "Symbol");
+    fprintf(mem, "`%s`\n", sym->value);
 }
 
-void visit_ast_unary(FILE *memstream, ast_node_t *ast)
+void visit_ast_unary(FILE *mem, ast_node_t *ast)
 {
     ast_unary_t *unary = ast->ast;
 
     fflush(stdout);
-    ast_print(memstream, ast, "%sfix UnaryOperator", ast->type == AST_POSTFIX_UNARY ? "Post" : "Pre");
-    fprintf(memstream, "%s\n", tok_to_string(unary->operation));
+    ast_print(mem, ast, "%sfix UnaryOperator", ast->type == AST_POSTFIX_UNARY ? "Post" : "Pre");
+    fprintf(mem, "%s\n", tok_to_string(unary->operation));
 
     ast_indent += 2;
-    visit_node(memstream, unary->operand);
+    visit_node(mem, unary->operand);
     ast_indent -= 2;
 }
 
-void visit_ast_struct_decl(FILE *memstream, ast_node_t *ast)
+void visit_ast_struct_decl(FILE *mem, ast_node_t *ast)
 {
     ast_struct_decl_t *decl = ast->ast;
 
-    ast_print(memstream, ast, "StructDecl");
-    fprintf(memstream, "`%s`\n", decl->name);
+    ast_print(mem, ast, "StructDecl");
+    fprintf(mem, "`%s`\n", decl->name);
 
     ast_indent += 2;
-    visit_node(memstream, decl->decls);
+    visit_node(mem, decl->decls);
     ast_indent -= 2;
 }
 
-void visit_ast_var_decl(FILE *memstream, ast_node_t *ast)
+void visit_ast_var_decl(FILE *mem, ast_node_t *ast)
 {
     ast_var_decl_t *decl = ast->ast;
     data_type_e dt = decl->data_type;
     unsigned il = decl->indirection_lvl;
 
-    ast_print(memstream, ast, "VarDecl");
+    ast_print(mem, ast, "VarDecl");
     if (dt == D_T_STRUCT) {
-        fprintf(memstream, "struct %s ", decl->type_name);
+        fprintf(mem, "struct %s ", decl->type_name);
     } else {
-        fprintf(memstream, "%s ", data_type_to_string(dt));
+        fprintf(mem, "%s ", data_type_to_string(dt));
     }
 
     if (il > 0) {
-        fprintf_n(memstream, il, '*');
-        fprintf(memstream, " ");
+        fprintf_n(mem, il, '*');
+        fprintf(mem, " ");
     }
 
-    fprintf(memstream, "`%s`\n", decl->name);
+    fprintf(mem, "`%s`\n", decl->name);
 
     if (decl->body) {
         ast_indent += 2;
-        visit_node(memstream, decl->body);
+        visit_node(mem, decl->body);
         ast_indent -= 2;
     }
 }
 
-void visit_ast_array_decl(FILE *memstream, ast_node_t *ast)
+void visit_ast_array_decl(FILE *mem, ast_node_t *ast)
 {
     ast_array_decl_t *decl = ast->ast;
     data_type_e dt = decl->data_type;
     unsigned il = decl->indirection_lvl;
 
-    ast_print(memstream, ast, "ArrayDecl");
+    ast_print(mem, ast, "ArrayDecl");
 
     if (dt == D_T_STRUCT) {
-        fprintf(memstream, "struct %s ", decl->type_name);
+        fprintf(mem, "struct %s ", decl->type_name);
     } else {
-        fprintf(memstream, "%s ", data_type_to_string(decl->data_type));
+        fprintf(mem, "%s ", data_type_to_string(decl->data_type));
     }
 
     if (il > 0) {
-        fprintf_n(memstream, il, '*');
-        fprintf(memstream, " ");
+        fprintf_n(mem, il, '*');
+        fprintf(mem, " ");
     }
 
     ast_compound_t *dimensions = decl->arity_list->ast;
 
     for (uint64_t i = 0; i < dimensions->size; ++i)
-        fprintf(memstream, "[%d]", ((ast_num_t *)(dimensions->stmts[i]->ast) )->value);
+        fprintf(mem, "[%d]", ((ast_num_t *)(dimensions->stmts[i]->ast) )->value);
 
-    fprintf(memstream, " `%s`\n", decl->name);
+    fprintf(mem, " `%s`\n", decl->name);
 }
 
-void visit_ast_array_access(FILE *memstream, ast_node_t *ast)
+void visit_ast_array_access(FILE *mem, ast_node_t *ast)
 {
     ast_array_access_t *stmt = ast->ast;
 
-    ast_print(memstream, ast, "ArrayAccess");
-    fprintf(memstream, "`%s`\n", stmt->name);
+    ast_print(mem, ast, "ArrayAccess");
+    fprintf(mem, "`%s`\n", stmt->name);
+
+    ast_compound_t *indices = stmt->indices->ast;
 
     ast_indent += 2;
-    for (uint64_t i = 0; i < stmt->indices->size; ++i) {
-        visit_node(memstream, stmt->indices->stmts[i]);
+    for (uint64_t i = 0; i < indices->size; ++i) {
+        visit_node(mem, indices->stmts[i]);
     }
     ast_indent -= 2;
 }
 
-void visit_ast_member(FILE *memstream, ast_node_t *ast)
+void visit_ast_member(FILE *mem, ast_node_t *ast)
 {
     ast_member_t *stmt = ast->ast;
 
-    ast_print_line(memstream, ast, "StructMember");
+    ast_print_line(mem, ast, "StructMember");
 
     ast_indent += 2;
-    visit_node(memstream, stmt->structure);
-    visit_node(memstream, stmt->member);
+    visit_node(mem, stmt->structure);
+    visit_node(mem, stmt->member);
     ast_indent -= 2;
 }
 
-void visit_ast_function_decl(FILE *memstream, ast_node_t *ast)
+void visit_ast_function_decl(FILE *mem, ast_node_t *ast)
 {
     ast_function_decl_t *decl = ast->ast;
     bool is_proto = decl->body == NULL;
 
-    ast_print_line(memstream, ast, is_proto ? "FunctionProtoDecl" : "FunctionDecl");
+    ast_print_line(mem, ast, is_proto ? "FunctionProtoDecl" : "FunctionDecl");
 
     ast_indent += 2;
-    ast_print(memstream, ast, is_proto ? "FunctionProtoRetType" : "FunctionDeclRetType");
-    fprintf(memstream, "%s\n", data_type_to_string(decl->data_type));
+    ast_print(mem, ast, is_proto ? "FunctionProtoRetType" : "FunctionDeclRetType");
+    fprintf(mem, "%s\n", data_type_to_string(decl->data_type));
 
-    ast_print(memstream, ast, is_proto ? "FunctionProtoName" : "FunctionDeclName");
-    fprintf(memstream, "`%s`\n", decl->name);
+    ast_print(mem, ast, is_proto ? "FunctionProtoName" : "FunctionDeclName");
+    fprintf(mem, "`%s`\n", decl->name);
 
-    ast_print_line(memstream, ast, is_proto ? "FunctionProtoArgs" : "FunctionDeclArgs");
+    ast_print_line(mem, ast, is_proto ? "FunctionProtoArgs" : "FunctionDeclArgs");
 
     ast_indent += 2;
     ast_compound_t *args = decl->args->ast;
     if (args && args->size > 0)
-        visit_node(memstream, decl->args);
+        visit_node(mem, decl->args);
     ast_indent -= 2;
 
     if (is_proto) {
@@ -383,149 +385,149 @@ void visit_ast_function_decl(FILE *memstream, ast_node_t *ast)
         return;
     }
 
-    ast_print_line(memstream, ast, is_proto ? "FunctionProtoBody" : "FunctionDeclBody");
+    ast_print_line(mem, ast, is_proto ? "FunctionProtoBody" : "FunctionDeclBody");
 
     ast_indent += 2;
-    visit_node(memstream, decl->body);
+    visit_node(mem, decl->body);
     ast_indent -= 2;
 }
 
-void visit_ast_function_call(FILE *memstream, ast_node_t *ast)
+void visit_ast_function_call(FILE *mem, ast_node_t *ast)
 {
     ast_function_call_t *stmt = ast->ast;
 
-    ast_print(memstream, ast, "FunctionCall");
-    fprintf(memstream, "`%s`\n", stmt->name);
+    ast_print(mem, ast, "FunctionCall");
+    fprintf(mem, "`%s`\n", stmt->name);
 
     ast_indent += 2;
-    ast_print_line(memstream, ast, "FunctionCallArgs");
+    ast_print_line(mem, ast, "FunctionCallArgs");
 
     ast_indent += 2;
     ast_compound_t *args = stmt->args->ast;
     if (args && args->size > 0)
-        visit_node(memstream, stmt->args);
+        visit_node(mem, stmt->args);
     ast_indent -= 2;
     ast_indent -= 2;
 }
 
-void visit_ast_while(FILE *memstream, ast_node_t *ast)
+void visit_ast_while(FILE *mem, ast_node_t *ast)
 {
     ast_while_t *stmt = ast->ast;
 
-    ast_print_line(memstream, ast, "WhileStmt");
+    ast_print_line(mem, ast, "WhileStmt");
 
     ast_indent += 2;
-    ast_print_line(memstream, stmt->condition, "WhileStmtCond");
+    ast_print_line(mem, stmt->condition, "WhileStmtCond");
     ast_indent += 2;
-    visit_node(memstream, stmt->condition);
+    visit_node(mem, stmt->condition);
     ast_indent -= 2;
 
-    ast_print_line(memstream, stmt->body, "WhileStmtBody");
+    ast_print_line(mem, stmt->body, "WhileStmtBody");
     ast_indent += 2;
-    visit_node(memstream, stmt->body);
+    visit_node(mem, stmt->body);
     ast_indent -= 2;
     ast_indent -= 2;
 }
 
-void visit_ast_do_while(FILE *memstream, ast_node_t *ast)
+void visit_ast_do_while(FILE *mem, ast_node_t *ast)
 {
     ast_do_while_t *stmt = ast->ast;
 
-    ast_print_line(memstream, ast, "DoWhileStmt");
+    ast_print_line(mem, ast, "DoWhileStmt");
 
     ast_indent += 2;
-    ast_print_line(memstream, stmt->body, "DoWhileStmtBody");
+    ast_print_line(mem, stmt->body, "DoWhileStmtBody");
     ast_indent += 2;
-    visit_node(memstream, stmt->body);
+    visit_node(mem, stmt->body);
     ast_indent -= 2;
     ast_indent -= 2;
 
     ast_indent += 2;
-    ast_print_line(memstream, stmt->condition, "DoWhileStmtCond");
+    ast_print_line(mem, stmt->condition, "DoWhileStmtCond");
     ast_indent += 2;
-    visit_node(memstream, stmt->condition);
+    visit_node(mem, stmt->condition);
     ast_indent -= 2;
     ast_indent -= 2;
 }
 
-int32_t visit_node(FILE *memstream, ast_node_t *ast)
+int32_t visit_node(FILE *mem, ast_node_t *ast)
 {
-    if (memstream == NULL || ast == NULL) {
+    if (mem == NULL || ast == NULL) {
         return -1;
     }
 
     switch (ast->type) {
     case AST_CHAR_LITERAL:
-        visit_ast_char(memstream, ast);
+        visit_ast_char(mem, ast);
         break;
     case AST_INTEGER_LITERAL:
-        visit_ast_num(memstream, ast);
+        visit_ast_num(mem, ast);
         break;
     case AST_FLOATING_POINT_LITERAL:
-        visit_ast_float(memstream, ast);
+        visit_ast_float(mem, ast);
         break;
     case AST_STRING_LITERAL:
-        visit_ast_string(memstream, ast);
+        visit_ast_string(mem, ast);
         break;
     case AST_BOOLEAN_LITERAL:
-        visit_ast_bool(memstream, ast);
+        visit_ast_bool(mem, ast);
         break;
     case AST_SYMBOL:
-        visit_ast_symbol(memstream, ast);
+        visit_ast_symbol(mem, ast);
         break;
     case AST_VAR_DECL:
-        visit_ast_var_decl(memstream, ast);
+        visit_ast_var_decl(mem, ast);
         break;
     case AST_ARRAY_DECL:
-        visit_ast_array_decl(memstream, ast);
+        visit_ast_array_decl(mem, ast);
         break;
     case AST_STRUCT_DECL:
-        visit_ast_struct_decl(memstream, ast);
+        visit_ast_struct_decl(mem, ast);
         break;
     case AST_BREAK_STMT:
-        visit_ast_break(memstream, ast);
+        visit_ast_break(mem, ast);
         break;
     case AST_CONTINUE_STMT:
-        visit_ast_continue(memstream, ast);
+        visit_ast_continue(mem, ast);
         break;
     case AST_BINARY:
-        visit_ast_binary(memstream, ast);
+        visit_ast_binary(mem, ast);
         break;
     case AST_PREFIX_UNARY:
-        visit_ast_unary(memstream, ast);
+        visit_ast_unary(mem, ast);
         break;
     case AST_POSTFIX_UNARY:
-        visit_ast_unary(memstream, ast);
+        visit_ast_unary(mem, ast);
         break;
     case AST_ARRAY_ACCESS:
-        visit_ast_array_access(memstream, ast);
+        visit_ast_array_access(mem, ast);
         break;
     case AST_MEMBER:
-        visit_ast_member(memstream, ast);
+        visit_ast_member(mem, ast);
         break;
     case AST_IF_STMT:
-        visit_ast_if(memstream, ast);
+        visit_ast_if(mem, ast);
         break;
     case AST_FOR_STMT:
-        visit_ast_for(memstream, ast);
+        visit_ast_for(mem, ast);
         break;
     case AST_WHILE_STMT:
-        visit_ast_while(memstream, ast);
+        visit_ast_while(mem, ast);
         break;
     case AST_DO_WHILE_STMT:
-        visit_ast_do_while(memstream, ast);
+        visit_ast_do_while(mem, ast);
         break;
     case AST_RETURN_STMT:
-        visit_ast_return(memstream, ast);
+        visit_ast_return(mem, ast);
         break;
     case AST_COMPOUND_STMT:
-        visit_ast_compound(memstream, ast);
+        visit_ast_compound(mem, ast);
         break;
     case AST_FUNCTION_DECL:
-        visit_ast_function_decl(memstream, ast);
+        visit_ast_function_decl(mem, ast);
         break;
     case AST_FUNCTION_CALL:
-        visit_ast_function_call(memstream, ast);
+        visit_ast_function_call(mem, ast);
         break;
     default:
         fprintf(stderr, "Wrong ast type: %d\n", (int)ast->type);
@@ -535,9 +537,9 @@ int32_t visit_node(FILE *memstream, ast_node_t *ast)
     return 0;
 }
 
-int32_t ast_dump(FILE *memstream, ast_node_t *ast)
+int32_t ast_dump(FILE *mem, ast_node_t *ast)
 {
     ast_indent = 0;
 
-    return visit_node(memstream, ast);
+    return visit_node(mem, ast);
 }

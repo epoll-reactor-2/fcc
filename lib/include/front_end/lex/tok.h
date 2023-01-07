@@ -18,6 +18,6 @@ typedef struct {
     uint16_t    col_no;
 } tok_t;
 
-bool tok_is(tok_t *tok, char symbol);
+bool tok_is(const tok_t *tok, char symbol);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOK_H
