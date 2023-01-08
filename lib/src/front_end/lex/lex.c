@@ -20,12 +20,12 @@ tok_array_t *lex_consumed_tokens()
     return &tokens;
 }
 
-void lex_init_global_state()
+void lex_init_state()
 {
     vector_init(tokens);
 }
 
-void lex_cleanup_global_state()
+void lex_reset_state()
 {
     vector_free(tokens);
 }

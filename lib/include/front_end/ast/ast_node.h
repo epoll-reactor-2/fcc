@@ -8,7 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_AST_AST_NODE_H
 
 #include "front_end/ast/ast_type.h"
-#include  <stdint.h>
+#include <stdint.h>
 
 /// Typed pointer to AST node of any type.
 ///

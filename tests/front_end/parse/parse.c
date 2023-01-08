@@ -137,8 +137,8 @@ int main()
         if (dir->d_type == DT_DIR)
             continue;
 
-        lex_cleanup_global_state();
-        lex_init_global_state();
+        lex_reset_state();
+        lex_init_state();
 
         char filename[1024];
         sprintf(filename, "%s/%s", cwd, dir->d_name);

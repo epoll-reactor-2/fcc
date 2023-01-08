@@ -34,6 +34,7 @@
 #include "utility/diagnostic.h"
 #include "utility/vector.h"
 #include <assert.h>
+#include <string.h>
 
 typedef vector_t(ast_node_t *) ast_vector_t;
 

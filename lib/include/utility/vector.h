@@ -18,10 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef WEAK_COMPILER_UTILITY_VECTOR_H
 #define WEAK_COMPILER_UTILITY_VECTOR_H
 
-#include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 
 #define vector_t(type) struct {type* data; size_t size; size_t count;}
 
