@@ -26,6 +26,7 @@
 #include "front_end/ast/ast_unary.h"
 #include "front_end/ast/ast_var_decl.h"
 #include "front_end/ast/ast_while.h"
+#include "utility/unreachable.h"
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -87,7 +88,7 @@ static void ast_print_line(FILE *mem, ast_node_t *ast, const char *fmt, ...)
     va_end(args);
 }
 
-void visit_ast_binary(FILE *mem, ast_node_t *ast)
+static void visit_ast_binary(FILE *mem, ast_node_t *ast)
 {
     ast_binary_t *binary = ast->ast;
 
@@ -100,7 +101,7 @@ void visit_ast_binary(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_bool(FILE *mem, ast_node_t *ast)
+static void visit_ast_bool(FILE *mem, ast_node_t *ast)
 {
     ast_bool_t *boolean = ast->ast;
 
@@ -108,12 +109,12 @@ void visit_ast_bool(FILE *mem, ast_node_t *ast)
     fprintf(mem, "%s\n", boolean->value ? "true" : "false");
 }
 
-void visit_ast_break(FILE *mem, ast_node_t *ast)
+static void visit_ast_break(FILE *mem, ast_node_t *ast)
 {
     ast_print_line(mem, ast, "BreakStmt");
 }
 
-void visit_ast_char(FILE *mem, ast_node_t *ast)
+static void visit_ast_char(FILE *mem, ast_node_t *ast)
 {
     ast_char_t *c = ast->ast;
 
@@ -121,7 +122,7 @@ void visit_ast_char(FILE *mem, ast_node_t *ast)
     fprintf(mem, "'%c'\n", c->value);
 }
 
-void visit_ast_compound(FILE *mem, ast_node_t *ast)
+static void visit_ast_compound(FILE *mem, ast_node_t *ast)
 {
     ast_compound_t *compound = ast->ast;
 
@@ -140,12 +141,12 @@ void visit_ast_compound(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_continue(FILE *mem, ast_node_t *ast)
+static void visit_ast_continue(FILE *mem, ast_node_t *ast)
 {
     ast_print_line(mem, ast, "ContinueStmt");
 }
 
-void visit_ast_float(FILE *mem, ast_node_t *ast)
+static void visit_ast_float(FILE *mem, ast_node_t *ast)
 {
     ast_float_t *f = ast->ast;
 
@@ -153,7 +154,7 @@ void visit_ast_float(FILE *mem, ast_node_t *ast)
     fprintf(mem, "%f\n", f->value);
 }
 
-void visit_ast_for(FILE *mem, ast_node_t *ast)
+static void visit_ast_for(FILE *mem, ast_node_t *ast)
 {
     ast_for_t *for_stmt = ast->ast;
 
@@ -188,7 +189,7 @@ void visit_ast_for(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_if(FILE *mem, ast_node_t *ast)
+static void visit_ast_if(FILE *mem, ast_node_t *ast)
 {
     ast_if_t *if_stmt = ast->ast;
 
@@ -215,7 +216,7 @@ void visit_ast_if(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_num(FILE *mem, ast_node_t *ast)
+static void visit_ast_num(FILE *mem, ast_node_t *ast)
 {
     ast_num_t *number = ast->ast;
 
@@ -223,7 +224,7 @@ void visit_ast_num(FILE *mem, ast_node_t *ast)
     fprintf(mem, "%d\n", number->value);
 }
 
-void visit_ast_return(FILE *mem, ast_node_t *ast)
+static void visit_ast_return(FILE *mem, ast_node_t *ast)
 {
     ast_return_t *ret = ast->ast;
 
@@ -235,7 +236,7 @@ void visit_ast_return(FILE *mem, ast_node_t *ast)
     }
 }
 
-void visit_ast_string(FILE *mem, ast_node_t *ast)
+static void visit_ast_string(FILE *mem, ast_node_t *ast)
 {
     ast_string_t *string = ast->ast;
 
@@ -243,7 +244,7 @@ void visit_ast_string(FILE *mem, ast_node_t *ast)
     fprintf(mem, "%s\n", string->value);
 }
 
-void visit_ast_symbol(FILE *mem, ast_node_t *ast)
+static void visit_ast_symbol(FILE *mem, ast_node_t *ast)
 {
     ast_symbol_t *sym = ast->ast;
 
@@ -251,7 +252,7 @@ void visit_ast_symbol(FILE *mem, ast_node_t *ast)
     fprintf(mem, "`%s`\n", sym->value);
 }
 
-void visit_ast_unary(FILE *mem, ast_node_t *ast)
+static void visit_ast_unary(FILE *mem, ast_node_t *ast)
 {
     ast_unary_t *unary = ast->ast;
 
@@ -264,7 +265,7 @@ void visit_ast_unary(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_struct_decl(FILE *mem, ast_node_t *ast)
+static void visit_ast_struct_decl(FILE *mem, ast_node_t *ast)
 {
     ast_struct_decl_t *decl = ast->ast;
 
@@ -276,7 +277,7 @@ void visit_ast_struct_decl(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_var_decl(FILE *mem, ast_node_t *ast)
+static void visit_ast_var_decl(FILE *mem, ast_node_t *ast)
 {
     ast_var_decl_t *decl = ast->ast;
     data_type_e dt = decl->data_type;
@@ -303,7 +304,7 @@ void visit_ast_var_decl(FILE *mem, ast_node_t *ast)
     }
 }
 
-void visit_ast_array_decl(FILE *mem, ast_node_t *ast)
+static void visit_ast_array_decl(FILE *mem, ast_node_t *ast)
 {
     ast_array_decl_t *decl = ast->ast;
     data_type_e dt = decl->data_type;
@@ -330,7 +331,7 @@ void visit_ast_array_decl(FILE *mem, ast_node_t *ast)
     fprintf(mem, " `%s`\n", decl->name);
 }
 
-void visit_ast_array_access(FILE *mem, ast_node_t *ast)
+static void visit_ast_array_access(FILE *mem, ast_node_t *ast)
 {
     ast_array_access_t *stmt = ast->ast;
 
@@ -346,7 +347,7 @@ void visit_ast_array_access(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_member(FILE *mem, ast_node_t *ast)
+static void visit_ast_member(FILE *mem, ast_node_t *ast)
 {
     ast_member_t *stmt = ast->ast;
 
@@ -358,7 +359,7 @@ void visit_ast_member(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_function_decl(FILE *mem, ast_node_t *ast)
+static void visit_ast_function_decl(FILE *mem, ast_node_t *ast)
 {
     ast_function_decl_t *decl = ast->ast;
     bool is_proto = decl->body == NULL;
@@ -392,7 +393,7 @@ void visit_ast_function_decl(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_function_call(FILE *mem, ast_node_t *ast)
+static void visit_ast_function_call(FILE *mem, ast_node_t *ast)
 {
     ast_function_call_t *stmt = ast->ast;
 
@@ -410,7 +411,7 @@ void visit_ast_function_call(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_while(FILE *mem, ast_node_t *ast)
+static void visit_ast_while(FILE *mem, ast_node_t *ast)
 {
     ast_while_t *stmt = ast->ast;
 
@@ -429,7 +430,7 @@ void visit_ast_while(FILE *mem, ast_node_t *ast)
     ast_indent -= 2;
 }
 
-void visit_ast_do_while(FILE *mem, ast_node_t *ast)
+static void visit_ast_do_while(FILE *mem, ast_node_t *ast)
 {
     ast_do_while_t *stmt = ast->ast;
 
@@ -530,8 +531,7 @@ int32_t visit_node(FILE *mem, ast_node_t *ast)
         visit_ast_function_call(mem, ast);
         break;
     default:
-        fprintf(stderr, "Wrong ast type: %d\n", (int)ast->type);
-        return -1;
+        weak_unreachable("Wrong AST type");
     }
 
     return 0;

@@ -23,9 +23,7 @@ static noreturn void weak_terminate_compilation()
 
 void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
 {
-    bool should_terminate = diag_error_memstream == NULL;
-
-    FILE *stream = !should_terminate
+    FILE *stream = diag_error_memstream != NULL
         ? diag_error_memstream
         : stderr;
 
@@ -39,16 +37,12 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
     fputc('\n', stream);
     fflush(stream);
 
-    if (should_terminate) {
-        abort();
-    }
-
     weak_terminate_compilation();
 }
 
 void weak_compile_warn(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
 {
-    FILE *stream = diag_warn_memstream
+    FILE *stream = diag_warn_memstream != NULL
         ? diag_warn_memstream
         : stderr;
 

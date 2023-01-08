@@ -59,6 +59,8 @@ do { \
 
 #define vector_at(vec, pos) (vec).data[pos]
 
+#define vector_back(vec) (vec).data[(vec).count - 1]
+
 #define vector_push_back(vec, val) \
 do { \
     VECTOR_GROW(vec); \

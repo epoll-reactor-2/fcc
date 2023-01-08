@@ -108,6 +108,7 @@ static inline void hashmap_put(hashmap_t* map, size_t key, size_t val)
 
 static inline size_t hashmap_get(const hashmap_t* map, size_t key)
 {
+    if (map->size == 0) return 0;
     size_t hash = hashmap_hash(key);
     size_t index;
     for (size_t i=0; i<HASHMAP_MAX_PROBES; ++i) {

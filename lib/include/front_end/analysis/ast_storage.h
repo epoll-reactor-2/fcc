@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_AST_AST_STORAGE_H
-#define WEAK_COMPILER_FRONTEND_AST_AST_STORAGE_H
+#ifndef WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
+#define WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
 
 #include "front_end/ast/ast_node.h"
 #include "front_end/lex/data_type.h"
@@ -58,4 +58,8 @@ void ast_storage_add_read_use(const char *var_name);
 ///      - Variable depth is <= current depth.
 void ast_storage_add_write_use(const char *var_name);
 
-#endif // WEAK_COMPILER_FRONTEND_AST_AST_STORAGE_H
+/// Collect all variable usages in current scope. Don't care
+/// about reads and writes, though.
+void ast_storage_current_scope_uses(ast_storage_decl_array_t *out_set);
+
+#endif // WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H

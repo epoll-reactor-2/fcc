@@ -5,9 +5,11 @@
  */
 
 #include "front_end/analysis/ast_storage.h"
+#include "utility/alloc.h"
 #include "utility/crc32.h"
 #include "utility/hashmap.h"
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
 
 static uint16_t scope_depth;
@@ -47,18 +49,15 @@ void ast_storage_push(const char *var_name, ast_node_t *ast)
 
 void ast_storage_push_typed(const char *var_name, data_type_e dt, ast_node_t *ast)
 {
-    ast_storage_decl_t decl = {
-        .ast = ast,
-        .data_type = dt,
-        .name = strdup(var_name),
-        .read_uses = 0,
-        .write_uses = 0,
-        .depth = scope_depth,
-    };
-    hashmap_put(&scopes, (size_t)crc32_string(var_name), (size_t)&decl);
+    ast_storage_decl_t *decl = weak_calloc(1, sizeof(ast_storage_decl_t));
+    decl->ast = ast;
+    decl->data_type = dt;
+    decl->name = strdup(var_name);
+    decl->read_uses = 0;
+    decl->write_uses = 0;
+    decl->depth = scope_depth;
+    hashmap_put(&scopes, crc32_string(var_name), (size_t)decl);
 }
-
-
 
 ast_storage_decl_t *ast_storage_lookup(const char *var_name)
 {
@@ -90,4 +89,14 @@ void ast_storage_add_write_use(const char *var_name)
     assert(decl && "Variable expected to be declared before");
     assert(decl->depth <= scope_depth && "Impossible case: variable depth >= current depth");
     decl->write_uses++;
+}
+
+void ast_storage_current_scope_uses(ast_storage_decl_array_t *out_set)
+{
+    hashmap_foreach(&scopes, key, val) {
+        (void)key;
+        ast_storage_decl_t *decl = (ast_storage_decl_t *)val;
+        if (decl->depth == scope_depth)
+            vector_push_back(*out_set, decl);
+    }
 }

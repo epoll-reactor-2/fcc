@@ -37,7 +37,7 @@
 #include <assert.h>
 #include <string.h>
 
-typedef vector_t(ast_node_t *) ast_vector_t;
+typedef vector_t(ast_node_t *) ast_array_t;
 
 static data_type_e tok_to_data_type(tok_type_e t)
 {
@@ -239,7 +239,7 @@ static ast_node_t *parse_array_decl()
             "Variable name expected"
         );
 
-    ast_vector_t arity_list = {0};
+    ast_array_t arity_list = {0};
 
     if (!tok_is(peek_current(), '['))
         weak_compile_error(
@@ -402,7 +402,7 @@ static ast_node_t *parse_decl()
 
 static ast_node_t *parse_struct_decl()
 {
-    ast_vector_t decls = {0};
+    ast_array_t decls = {0};
 
     const tok_t *start = require_token(TOK_STRUCT);
     const tok_t *name = require_token(TOK_SYMBOL);
@@ -433,7 +433,7 @@ static ast_node_t *parse_struct_decl()
 
 static ast_node_t *parse_function_param_list()
 {
-    ast_vector_t list = {0};
+    ast_array_t list = {0};
 
     if (tok_is(peek_current(), ')')) {
         return ast_compound_init(
@@ -553,7 +553,7 @@ static ast_node_t *parse_loop_stmt()
 
 static ast_node_t *parse_iteration_block()
 {
-    ast_vector_t stmts = {0};
+    ast_array_t stmts = {0};
     const tok_t *start = require_char('{');
 
     while (!tok_is(peek_current(), '}')) {
@@ -596,7 +596,7 @@ static ast_node_t *parse_block()
     if (loops_depth > 0)
         return parse_iteration_block();
 
-    ast_vector_t stmts = {0};
+    ast_array_t stmts = {0};
     const tok_t *start = require_char('{');
 
     while (!tok_is(peek_current(), '}')) {
@@ -1015,7 +1015,6 @@ static ast_node_t *parse_postfix_unary()
 
 static ast_node_t *parse_symbol()
 {
-    /// \todo: Fix.
     const tok_t *start = tok_begin - 1;
     const tok_t *curr_tok = tok_begin;
 
@@ -1071,7 +1070,7 @@ static ast_node_t *parse_struct_var_decl()
     const tok_t *name = require_token(TOK_SYMBOL);
 
     assert(dt.data_type == D_T_STRUCT);
-    ast_vector_t arity_list = {0};
+    ast_array_t arity_list = {0};
 
     while (tok_is(peek_current(), '[')) {
         require_char('[');
@@ -1148,7 +1147,7 @@ static ast_node_t *parse_array_access()
             "`[` expected"
         );
 
-    ast_vector_t access_list = {0};
+    ast_array_t access_list = {0};
 
     while (tok_is(peek_current(), '[')) {
         require_char('[');
@@ -1227,7 +1226,7 @@ static ast_node_t *parse_function_call()
 {
     const tok_t *name = peek_next();
 
-    ast_vector_t args_list = {0};
+    ast_array_t args_list = {0};
 
     require_char('(');
 

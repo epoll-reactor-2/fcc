@@ -23,46 +23,18 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void tokens_cleanup(tok_array_t *toks) {
-    for (uint64_t i = 0; i < toks->count; ++i) {
-        tok_t *t = &toks->data[i];
-        if (t->data)
-            free(t->data);
-    }
-}
-
-void extract_expected_ast(FILE *mem, FILE *file)
-{
-    char   *line = NULL;
-    size_t  len = 0;
-    ssize_t read = 0;
-
-    while ((read = getline(&line, &len, file)) != -1) {
-        if (read <= 3) {
-            continue;
-        }
-        if (strncmp(line, "//", 2) == 0) {
-            char *ptr = line + 2;
-            while (*ptr != '\n' && *ptr != '\0') {
-                fputc(*ptr++, mem);
-            }
-            fputc('\n', mem);
-            fflush(mem);
-        }
-    }
-    free(line);
-}
-
 /// Parse file and compare result with expected.
 ///
-/// \pre    Reset lexer state.
 /// \return true on success, false on failure.
 bool parse_test(const char *filename)
 {
+    lex_reset_state();
+    lex_init_state();
+
     yyin = fopen(filename, "r");
     if (yyin == NULL) {
         perror("fopen()");
-        return -1;
+        return false;
     }
     yylex();
     fseek(yyin, 0, SEEK_SET);
@@ -73,7 +45,7 @@ bool parse_test(const char *filename)
     FILE   *ast_stream = open_memstream(&expected, &_);
     FILE   *dump_stream = open_memstream(&generated, &_);
 
-    extract_expected_ast(ast_stream, yyin);
+    extract_assertion_comment(yyin, ast_stream);
 
     tok_array_t *toks = lex_consumed_tokens();
 
@@ -87,7 +59,7 @@ bool parse_test(const char *filename)
             return false;
         }
     } else {
-        printf("Fatal error occurred: ");
+        /// Error, will be printed in main.
         return false;
     }
 
@@ -115,51 +87,16 @@ int main()
     ASSERT_TRUE(diag_error_memstream != NULL);
     ASSERT_TRUE(diag_warn_memstream != NULL);
 
-    char cwd[512];
-    if (getcwd(cwd, sizeof(cwd)) == NULL) {
-        perror("getcwd()");
+    if (!do_on_each_file("/parser", parse_test)) {
         ret = -1;
-        goto exit;
+
+        if (err_buf)
+            fputs(err_buf, stderr);
+
+        if (warn_buf)
+            fputs(err_buf, stderr);
     }
 
-    sprintf(cwd + strlen(cwd), "/parser");
-
-    DIR *dir_iterator = opendir(cwd);
-    struct dirent *dir;
-
-    if (!dir_iterator) {
-        perror("opendir()");
-        ret = -1;
-        goto exit;
-    }
-
-    while ((dir = readdir(dir_iterator)) != NULL) {
-        if (dir->d_type == DT_DIR)
-            continue;
-
-        lex_reset_state();
-        lex_init_state();
-
-        char filename[1024];
-        sprintf(filename, "%s/%s", cwd, dir->d_name);
-
-        printf("Testing file %s...\n", filename);
-        fflush(stdout);
-
-        if (!parse_test(filename)) {
-            if (err_buf)
-                printf("%s\n", err_buf);
-
-            if (warn_buf)
-                printf("%s\n", warn_buf);
-
-            ret = -1;
-            goto exit;
-        }
-    }
-
-    closedir(dir_iterator);
-exit:
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);
     free(err_buf);
