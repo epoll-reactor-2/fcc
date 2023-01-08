@@ -15,27 +15,10 @@ jmp_buf weak_fatal_error_buf;
 extern void *diag_error_memstream;
 extern void *diag_warn_memstream;
 
-void weak_terminate_compilation()
+static noreturn void weak_terminate_compilation()
 {
     longjmp(weak_fatal_error_buf, 1);
     __builtin_trap(); /// Just to be sure that we will never get there.
-}
-
-void weak_compile_warn(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
-{
-    FILE *stream = diag_warn_memstream
-        ? diag_warn_memstream
-        : stderr;
-
-    fprintf(stream, "Warning at line %u, column %u: ", line_no, col_no);
-
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(stream, fmt, args);
-    va_end(args);
-
-    fputc('\n', stream);
-    fflush(stream);
 }
 
 void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
@@ -59,4 +42,23 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
     if (should_terminate) {
         abort();
     }
+
+    weak_terminate_compilation();
+}
+
+void weak_compile_warn(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
+{
+    FILE *stream = diag_warn_memstream
+        ? diag_warn_memstream
+        : stderr;
+
+    fprintf(stream, "Warning at line %u, column %u: ", line_no, col_no);
+
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stream, fmt, args);
+    va_end(args);
+
+    fputc('\n', stream);
+    fflush(stream);
 }

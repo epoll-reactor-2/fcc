@@ -32,6 +32,7 @@
 #include "front_end/parse/parse.h"
 #include "utility/alloc.h"
 #include "utility/diagnostic.h"
+#include "utility/unreachable.h"
 #include "utility/vector.h"
 #include <assert.h>
 #include <string.h>
@@ -47,7 +48,7 @@ static data_type_e tok_to_data_type(tok_type_e t)
     case TOK_CHAR:   return D_T_CHAR;
     case TOK_BOOL:   return D_T_BOOL;
     case TOK_SYMBOL: return D_T_STRUCT;
-    default:         weak_terminate_compilation();
+    default:         weak_unreachable("Cannot convert token to data type");
     }
 }
 
@@ -70,15 +71,13 @@ const tok_t *require_token(tok_type_e t)
 {
     const tok_t *curr_tok = peek_current();
 
-    if (curr_tok->type != t) {
+    if (curr_tok->type != t)
         weak_compile_error(
             curr_tok->line_no,
             curr_tok->col_no,
             "Expected `%s`, got `%s`",
             tok_to_string(t), tok_to_string(curr_tok->type)
         );
-        weak_terminate_compilation();
-    }
 
     ++tok_begin;
     return curr_tok;
@@ -155,7 +154,6 @@ ast_node_t *parse(const tok_t *begin, const tok_t *end)
                 "Unexpected token in global context: %s\n",
                 tok_to_string(curr_tok->type)
             );
-            weak_terminate_compilation();
         }
     }
 
@@ -207,7 +205,6 @@ static localized_data_type_t parse_type()
             "Data type expected, got %s",
             tok_to_string(curr_tok->type)
         );
-        weak_terminate_compilation();
     }
 }
 
@@ -235,37 +232,32 @@ static ast_node_t *parse_array_decl()
     localized_data_type_t dt = parse_type();
     const tok_t *var_name = peek_next();
 
-    if (var_name->type != TOK_SYMBOL) {
+    if (var_name->type != TOK_SYMBOL)
         weak_compile_error(
             var_name->line_no,
             var_name->col_no,
             "Variable name expected"
         );
-        weak_terminate_compilation();
-    }
 
     ast_vector_t arity_list = {0};
 
-    if (!tok_is(peek_current(), '[')) {
+    if (!tok_is(peek_current(), '['))
         weak_compile_error(
             peek_current()->line_no,
             peek_current()->col_no,
             "`[` expected"
         );
-        weak_terminate_compilation();
-    }
 
     while (tok_is(peek_current(), '[')) {
         require_char('[');
         ast_node_t *constant = parse_constant();
-        if (constant->type != AST_INTEGER_LITERAL) {
+        if (constant->type != AST_INTEGER_LITERAL)
             weak_compile_error(
                 constant->line_no,
                 constant->col_no,
                 "Integer size declarator expected"
             );
-            weak_terminate_compilation();
-        }
+
         vector_push_back(arity_list, constant);
         require_char(']');
     }
@@ -315,7 +307,7 @@ static ast_node_t *parse_decl_without_initializer()
       else
         return parse_var_decl_without_initializer();
     default:
-      weak_terminate_compilation();
+      weak_unreachable("Data type expected");
     }
 }
 
@@ -340,14 +332,12 @@ static ast_node_t *parse_var_decl()
     localized_data_type_t dt = parse_type();
     const tok_t *var_name = peek_next();
 
-    if (var_name->type != TOK_SYMBOL) {
+    if (var_name->type != TOK_SYMBOL)
         weak_compile_error(
             var_name->line_no,
             var_name->col_no,
             "Variable name expected"
         );
-        weak_terminate_compilation();
-    }
 
     const tok_t *operator = peek_next();
 
@@ -384,7 +374,6 @@ static ast_node_t *parse_var_decl()
         var_name->col_no,
         "Function, variable or array declaration expected"
     );
-    weak_terminate_compilation();
 }
 
 static ast_node_t *parse_decl()
@@ -408,7 +397,6 @@ static ast_node_t *parse_decl()
             t->col_no,
             "Declaration expected"
         );
-        weak_terminate_compilation();
     }
 }
 
@@ -545,7 +533,6 @@ static ast_node_t *parse_stmt()
             "Unexpected token %s\n",
             tok_to_string(t->type)
         );
-        weak_terminate_compilation();
     }
 }
 
@@ -684,7 +671,7 @@ static ast_node_t *parse_iteration_stmt()
     case TOK_WHILE:
         return parse_while();
     default:
-        weak_terminate_compilation();
+        weak_unreachable("Loop types are checked in function above");
     }
 }
 
@@ -1154,14 +1141,12 @@ static ast_node_t *parse_array_access()
 {
     const tok_t *symbol = peek_next();
 
-    if (!tok_is(peek_current(), '[')) {
+    if (!tok_is(peek_current(), '['))
         weak_compile_error(
             symbol->line_no,
             symbol->col_no,
             "`[` expected"
         );
-        weak_terminate_compilation();
-    }
 
     ast_vector_t access_list = {0};
 
@@ -1310,6 +1295,5 @@ static ast_node_t *parse_constant()
             "Literal expected, got ",
             tok_to_string(t->type)
         );
-        weak_terminate_compilation();
     }
 }
