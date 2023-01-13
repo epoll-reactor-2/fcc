@@ -95,8 +95,8 @@ bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
         char filename[1024];
         sprintf(filename, "%s/%s", cwd, dir->d_name);
 
-        printf("Testing file %s...\n", filename);
-        fflush(stdout);
+        fprintf(stderr, "Testing file %s...\n", filename);
+        fflush(stderr);
 
         if (!callback(filename)) {
             success = false;

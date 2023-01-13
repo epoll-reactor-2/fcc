@@ -21,74 +21,93 @@ void *diag_warn_memstream = NULL;
 
 bool should_handle_fatal_errors = false;
 
+void(*analysis_fn)(ast_node_t *) = NULL;
+
 bool analysis_test(const char *filename)
 {
+    bool success = true;
+    char *err_buf = NULL;
+    char *warn_buf = NULL;
+    size_t err_buf_len = 0;
+    size_t warn_buf_len = 0;
+
+    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
+    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+
+    lex_reset_state();
+    lex_init_state();
+
     yyin = fopen(filename, "r");
     if (yyin == NULL) {
         perror("fopen()");
         return false;
     }
     yylex();
-    fseek(yyin, 0, SEEK_SET);
 
     char   *msg = NULL;
     size_t  _ = 0;
     FILE   *msg_stream = open_memstream(&msg, &_);
 
+    fseek(yyin, 0, SEEK_SET);
     extract_assertion_comment(yyin, msg_stream);
 
     tok_array_t *toks = lex_consumed_tokens();
+    ast_node_t *ast = parse(toks->data, toks->data + toks->count);
 
     if (!setjmp(weak_fatal_error_buf)) {
-        ast_node_t *ast = parse(toks->data, toks->data + toks->count);
-        analysis_variable_use_analysis(ast);
-        ast_node_cleanup(ast);
+        analysis_fn(ast);
+        printf("generated:\n%s", warn_buf);
+        printf("expected:\n%s", msg);
+        if (strcmp(warn_buf, msg) == 0) {
+            printf("Success!\n");
+            fflush(stdout);
+        } else {
+            success = false;
+            goto exit;
+        }
+    } else {
+        printf("generated:\n%s", err_buf);
+        printf("expected:\n%s", msg);
+        if (strcmp(err_buf, msg) == 0) {
+            printf("Success!\n");
+            fflush(stdout);
+        } else {
+            success = false;
+            goto exit;
+        }
     }
 
-    lex_reset_state();
-    lex_init_state();
-
+exit:
+    ast_node_cleanup(ast);
     yylex_destroy();
-    tokens_cleanup(toks);
-    fclose(msg_stream);
-    free(msg);
 
-    return true;
+    return success;
 }
 
 int main()
 {
     int ret = 0;
-//    static char *err_buf = NULL;
-//    static char *warn_buf = NULL;
-//    static size_t err_buf_len = 0;
-//    static size_t warn_buf_len = 0;
 
-//    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-//    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+    analysis_fn = analysis_functions_analysis;
+    should_handle_fatal_errors = true;
+    if (!do_on_each_file("/function_analysis", analysis_test)) {
+        ret = -1;
+        goto exit;
+    }
 
-//    ASSERT_TRUE(diag_error_memstream != NULL);
-//    ASSERT_TRUE(diag_warn_memstream != NULL);
-
+    analysis_fn = analysis_variable_use_analysis;
     should_handle_fatal_errors = true;
     if (!do_on_each_file("/variable_use_analysis/errors", analysis_test)) {
         ret = -1;
+        goto exit;
     }
 
+    analysis_fn = analysis_variable_use_analysis;
     should_handle_fatal_errors = false;
     if (!do_on_each_file("/variable_use_analysis/warns", analysis_test)) {
         ret = -1;
     }
 
-//    if (err_buf)
-//        fputs(err_buf, stderr);
-
-//    if (warn_buf)
-//        fputs(err_buf, stderr);
-
-//    fclose(diag_error_memstream);
-//    fclose(diag_warn_memstream);
-//    free(err_buf);
-//    free(warn_buf);
+exit:
     return ret;
 }

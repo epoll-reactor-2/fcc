@@ -60,6 +60,10 @@ void ast_storage_add_write_use(const char *var_name);
 
 /// Collect all variable usages in current scope. Don't care
 /// about reads and writes, though.
+///
+/// \todo  Order of output uses is undefined, since it operates on
+///        hashmap, hence we don't have properly sorted by occurrence
+///        warnings. Maybe, just sort result array?
 void ast_storage_current_scope_uses(ast_storage_decl_array_t *out_set);
 
 #endif // WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H

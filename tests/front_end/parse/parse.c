@@ -94,7 +94,7 @@ int main()
             fputs(err_buf, stderr);
 
         if (warn_buf)
-            fputs(err_buf, stderr);
+            fputs(warn_buf, stderr);
     }
 
     fclose(diag_error_memstream);

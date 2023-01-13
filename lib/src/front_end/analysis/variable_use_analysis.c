@@ -8,6 +8,7 @@
 #include "front_end/analysis/ast_storage.h"
 #include "front_end/ast/ast_array_access.h"
 #include "front_end/ast/ast_binary.h"
+#include "front_end/ast/ast_do_while.h"
 #include "front_end/ast/ast_for.h"
 #include "front_end/ast/ast_function_call.h"
 #include "front_end/ast/ast_function_decl.h"
@@ -53,6 +54,7 @@ static void analysis_reset_state()
         vector_clear(collected_uses.data[i]);
     }
     vector_clear(collected_uses);
+    memset(&collected_uses, 0, sizeof(ast_usage_stack_t));
 }
 
 static void collect_ast(ast_node_t *ast)
@@ -184,7 +186,7 @@ void make_unused_var_analysis()
                 use->ast->line_no,
                 use->ast->col_no,
                 "Variable `%s` %s",
-                is_func ? "Function" : "Variable",
+                use->name,
                 use->write_uses ? "written, but never read" : "is never used"
             );
         }
@@ -216,7 +218,7 @@ void make_unused_var_and_func_analysis()
     }
 }
 
-static int32_t visit_node(ast_node_t *ast);
+static int32_t visit_ast_node(ast_node_t *ast);
 
 static void visit_ast_symbol(ast_node_t *ast)
 {
@@ -233,23 +235,22 @@ static void visit_ast_var_decl(ast_node_t *ast)
     ast_var_decl_t *decl = ast->ast;
     assert_is_not_declared(decl->name, ast);
     ast_storage_push(decl->name, ast);
-    collect_ast(ast);
     if (decl->body)
-        visit_node(decl->body);
+        visit_ast_node(decl->body);
 }
 
 static void visit_ast_array_decl(ast_node_t *ast)
 {
     ast_var_decl_t *decl = ast->ast;
     assert_is_not_declared(decl->name, ast);
-    collect_ast(ast);
+    ast_storage_push(decl->name, ast);
 }
 
 static void visit_ast_binary(ast_node_t *ast)
 {
     ast_binary_t *stmt = ast->ast;
-    visit_node(stmt->lhs);
-    visit_node(stmt->rhs);
+    visit_ast_node(stmt->lhs);
+    visit_ast_node(stmt->rhs);
 
     /// Only left hand side can be writable.
     if (is_assignment_op(stmt->operation))
@@ -287,8 +288,7 @@ static void visit_ast_unary(ast_node_t *ast)
     default:
         weak_unreachable("Wrong unary operator");
     }
-
-    visit_node(op);
+    visit_ast_node(op);
 }
 
 /// \todo: What if (*mem_ptr)[0][1][2]?
@@ -300,22 +300,21 @@ static void visit_ast_array_access(ast_node_t *ast)
     ast_compound_t *indices = stmt->indices->ast;
 
     for (uint64_t i = 0; i < indices->size; ++i)
-        visit_node(indices->stmts[i]);
+        visit_ast_node(indices->stmts[i]);
 }
 
 static void visit_ast_member(ast_node_t *ast)
 {
-    add_read_use(ast);
     collect_ast(ast);
 }
 
 static void visit_ast_if(ast_node_t *ast)
 {
     ast_if_t *stmt = ast->ast;
-    visit_node(stmt->condition);
-    visit_node(stmt->body);
+    visit_ast_node(stmt->condition);
+    visit_ast_node(stmt->body);
     if (stmt->else_body)
-        visit_node(stmt->else_body);
+        visit_ast_node(stmt->else_body);
 }
 
 static void visit_ast_for(ast_node_t *ast)
@@ -324,20 +323,19 @@ static void visit_ast_for(ast_node_t *ast)
     ast_storage_start_scope();
 
     if (stmt->init)
-        visit_node(stmt->init);
+        visit_ast_node(stmt->init);
 
     if (stmt->condition) {
         collected_uses_start_scope();
-        visit_node(stmt->condition);
+        visit_ast_node(stmt->condition);
         collected_uses_mark_top_scope_as_read();
         collected_uses_end_scope();
     }
 
     if (stmt->increment)
-        visit_node(stmt->increment);
+        visit_ast_node(stmt->increment);
 
-    visit_node(stmt->body);
-    make_unused_var_analysis();
+    visit_ast_node(stmt->body);
     ast_storage_end_scope();
 }
 
@@ -345,27 +343,27 @@ static void visit_ast_while(ast_node_t *ast)
 {
     ast_while_t *stmt = ast->ast;
     collected_uses_start_scope();
-    visit_node(stmt->condition);
+    visit_ast_node(stmt->condition);
     collected_uses_mark_top_scope_as_read();
     collected_uses_end_scope();
-    visit_node(stmt->body);
+    visit_ast_node(stmt->body);
 }
 
 static void visit_ast_do_while(ast_node_t *ast)
 {
-    ast_while_t *stmt = ast->ast;
+    ast_do_while_t *stmt = ast->ast;
     collected_uses_start_scope();
-    visit_node(stmt->condition);
+    visit_ast_node(stmt->condition);
     collected_uses_mark_top_scope_as_read();
     collected_uses_end_scope();
-    visit_node(stmt->body);
+    visit_ast_node(stmt->body);
 }
 
 static void visit_ast_return(ast_node_t *ast)
 {
     ast_return_t *stmt = ast->ast;
     if (stmt->operand) {
-        visit_node(stmt->operand);
+        visit_ast_node(stmt->operand);
         add_read_use(stmt->operand);
     }
 }
@@ -375,7 +373,7 @@ static void visit_ast_compound(ast_node_t *ast)
     ast_compound_t *stmt = ast->ast;
     ast_storage_start_scope();
     for (uint64_t i = 0; i < stmt->size; ++i)
-        visit_node(stmt->stmts[i]);
+        visit_ast_node(stmt->stmts[i]);
     make_unused_var_and_func_analysis();
     ast_storage_end_scope();
 }
@@ -389,8 +387,8 @@ static void visit_ast_function_decl(ast_node_t *ast)
     ast_storage_push(decl->name, ast); /// This is to have function in recursive calls.
     ast_compound_t *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
-        visit_node(args->stmts[i]);
-    visit_node(decl->body);
+        visit_ast_node(args->stmts[i]);
+    visit_ast_node(decl->body);
     make_unused_var_analysis();
     ast_storage_end_scope();
     ast_storage_push(decl->name, ast); /// This is to have function outside.
@@ -400,6 +398,8 @@ static void visit_ast_function_call(ast_node_t *ast)
 {
     ast_function_call_t *stmt = ast->ast;
     assert_is_declared(stmt->name, ast);
+
+    /*! \todo: Should be moved to type checker.
     ast_node_t *func = ast_storage_lookup(stmt->name)->ast;
     if (func->type != AST_FUNCTION_DECL)
         weak_compile_error(
@@ -408,18 +408,19 @@ static void visit_ast_function_call(ast_node_t *ast)
             "`%s` is not a function",
             stmt->name
         );
+    */
 
     add_read_use(ast);
 
     assert(stmt->args->type == AST_COMPOUND_STMT);
     ast_compound_t *args = stmt->args->ast;
     for (uint64_t i = 0; i < args->size; ++i) {
-        visit_node(args->stmts[i]);
+        visit_ast_node(args->stmts[i]);
         add_read_use(args->stmts[i]);
     }
 }
 
-int32_t visit_node(ast_node_t *ast)
+int32_t visit_ast_node(ast_node_t *ast)
 {
     assert(ast);
 
@@ -491,7 +492,7 @@ void analysis_variable_use_analysis(ast_node_t *root)
 {
     ast_storage_init_state();
     analysis_init_state();
-    visit_node(root);
+    visit_ast_node(root);
     ast_storage_reset_state();
     analysis_reset_state();
 }
