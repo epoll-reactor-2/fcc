@@ -29,6 +29,7 @@
   int32_t rc = strcmp((lhs), (rhs));  \
   if (rc != 0) {                      \
     fprintf(stderr, "%s: Strings mismatch:\n\t`%s` and\n\t`%s`\n", SOURCE_LINE, (lhs), (rhs)); \
+    return rc;                        \
   }                                   \
 } while(0);
 

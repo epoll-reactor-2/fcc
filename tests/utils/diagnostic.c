@@ -6,7 +6,6 @@
 
 #include "utility/diagnostic.h"
 #include "utils/test_utils.h"
-#include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,25 +13,7 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void sighandler(int sig)
-{
-    if (sig == SIGABRT) {
-        fprintf(stderr, "Caught SIGABRT on compile error, now exit normally...\n");
-        fflush(stderr);
-        exit(0);
-    }
-}
-
-void diagnostics_stderr_test()
-{
-    ASSERT_TRUE(diag_error_memstream == NULL);
-    ASSERT_TRUE(diag_warn_memstream == NULL);
-
-    weak_compile_warn(0, 0, "Hello, ");
-    weak_compile_error(1, 1, "World!");
-}
-
-void diagnostics_memstream_test()
+int diagnostics_memstream_test()
 {
     static char *err_buf = NULL;
     static char *warn_buf = NULL;
@@ -54,6 +35,7 @@ void diagnostics_memstream_test()
 
     if (!setjmp(weak_fatal_error_buf)) {
         weak_compile_error(1, 1, "World!");
+        ASSERT_TRUE(false && "Must never reach here.");
     } else {
         ASSERT_TRUE(warn_buf_len > 0);
         ASSERT_STREQ("Warning at line 0, column 0: Hello, \n"
@@ -64,16 +46,15 @@ void diagnostics_memstream_test()
         fclose(diag_warn_memstream);
         free(err_buf);
         free(warn_buf);
-
-        diag_error_memstream = NULL;
-        diag_warn_memstream = NULL;
     }
+
+    return 0;
 }
 
 int main()
 {
-    signal(SIGABRT, sighandler);
-
-    diagnostics_memstream_test();
-//    diagnostics_stderr_test();
+    int rc = 0;
+    rc = diagnostics_memstream_test();
+    if (rc != 0)
+        return rc;
 }

@@ -17,6 +17,6 @@ int main()
     ASSERT_STREQ(data_type_to_string(D_T_INT), "int");
     ASSERT_STREQ(data_type_to_string(D_T_FLOAT), "float");
     ASSERT_STREQ(data_type_to_string(D_T_CHAR), "char");
-    ASSERT_STREQ(data_type_to_string(D_T_BOOL), "bool");
+    ASSERT_STREQ(data_type_to_string(D_T_BOOL), "boolean");
     ASSERT_STREQ(data_type_to_string(D_T_STRUCT), "struct");
 }

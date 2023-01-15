@@ -212,9 +212,8 @@ static localized_data_type_t parse_return_type()
 {
     const tok_t *curr_tok = peek_current();
 
-    if (curr_tok->type != TOK_VOID) {
+    if (curr_tok->type != TOK_VOID)
         return parse_type();
-    }
 
     peek_next();
 
@@ -302,10 +301,10 @@ static ast_node_t *parse_decl_without_initializer()
     case TOK_FLOAT:
     case TOK_CHAR:
     case TOK_BOOL: /// Fall through.
-      if (is_array)
-        return parse_array_decl();
-      else
-        return parse_var_decl_without_initializer();
+        if (is_array)
+            return parse_array_decl();
+        else
+            return parse_var_decl_without_initializer();
     default:
       weak_unreachable("Data type expected");
     }
@@ -435,23 +434,20 @@ static ast_node_t *parse_function_param_list()
 {
     ast_array_t list = {0};
 
-    if (tok_is(peek_current(), ')')) {
+    if (tok_is(peek_current(), ')'))
         return ast_compound_init(
             0,
             NULL,
             peek_current()->line_no,
             peek_current()->col_no
         );
-    }
 
     while (!tok_is(peek_current(), ')')) {
         vector_push_back(list, parse_decl_without_initializer());
-        if (tok_is(peek_current(), ')')) {
+        if (tok_is(peek_current(), ')'))
             break;
-        }
-        if (tok_is(peek_current(), ',')) {
+        if (tok_is(peek_current(), ','))
             peek_next();
-        }
     }
 
     return ast_compound_init(
@@ -472,13 +468,11 @@ static ast_node_t *parse_function_decl()
     require_char(')');
 
     ast_node_t *block = NULL;
-    if (tok_is(peek_current(), '{')) {
-        /// Function.
-        block = parse_block();
-    } else {
-        /// Prototype.
-        require_char(';');
-    }
+
+    if (tok_is(peek_current(), '{'))
+        block = parse_block(); /// Function.
+    else
+        require_char(';'); /// Prototype.
 
     return ast_function_decl_init(
         dt.data_type,
@@ -510,15 +504,15 @@ static ast_node_t *parse_stmt()
     case TOK_FLOAT:
     case TOK_BOOL: /// Fall through.
         return parse_var_decl();
-    case TOK_SYMBOL:
-      /// Expression like `a *b` means structure
-      /// variable declaration only in global context
-      /// (most top level in block), elsewise this is
-      /// a multiplication operator.
-      if (tok_is(tok_begin + 1, '*') || (tok_begin + 1)->type == TOK_SYMBOL)
-        return parse_struct_var_decl();
-      else
-        return parse_expr();
+    case TOK_SYMBOL: {
+        /// Expression like `a *b` means structure
+        /// variable declaration only in global context
+        /// (most top level in block), elsewise this is
+        /// a multiplication operator.
+        return (tok_is(tok_begin + 1, '*') || (tok_begin + 1)->type == TOK_SYMBOL)
+            ? parse_struct_var_decl()
+            : parse_expr();
+    }
     case TOK_BIT_AND: /// Address operator `&`.
     case TOK_STAR: /// Dereference operator `*`.
     case TOK_INC:
@@ -680,9 +674,8 @@ static ast_node_t *parse_jump_stmt()
     const tok_t *start = require_token(TOK_RETURN);
     ast_node_t *body = NULL;
 
-    if (!tok_is(peek_current(), ';')) {
+    if (!tok_is(peek_current(), ';'))
         body = parse_logical_or();
-    }
 
     return ast_return_init(body, start->line_no, start->col_no);
 }
@@ -1077,13 +1070,12 @@ static ast_node_t *parse_struct_var_decl()
         /// \todo: Just peek number.
         ast_node_t *constant = parse_constant();
 
-        if (constant->type != AST_INTEGER_LITERAL) {
+        if (constant->type != AST_INTEGER_LITERAL)
             weak_compile_error(
                 constant->line_no,
                 constant->col_no,
                 "Integer size declarator expected"
             );
-        }
 
         vector_push_back(arity_list, constant->ast);
         require_char(']');
@@ -1123,14 +1115,13 @@ static ast_node_t *parse_struct_field_access()
     const tok_t *symbol = require_token(TOK_SYMBOL);
     const tok_t *next = peek_next();
 
-    if (tok_is(next, '.')) {
+    if (tok_is(next, '.'))
         return ast_member_init(
             ast_symbol_init(strdup(symbol->data), symbol->line_no, symbol->col_no),
             parse_struct_field_access(),
             symbol->line_no,
             symbol->col_no
         );
-    }
 
     --tok_begin;
     return ast_symbol_init(strdup(symbol->data), symbol->line_no, symbol->col_no);
@@ -1246,12 +1237,8 @@ static ast_node_t *parse_function_call()
     --tok_begin;
     while (!tok_is(peek_current(), ')')) {
         vector_push_back(args_list, parse_logical_or());
-        if (tok_is(peek_current(), ')')) {
-            --tok_begin;
+        if (tok_is(peek_current(), ','))
             peek_next();
-        } else if (tok_is(peek_current(), ',')) {
-            peek_next();
-        }
     }
 
     require_char(')');
