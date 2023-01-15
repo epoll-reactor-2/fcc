@@ -110,6 +110,7 @@ extern void lex_consume_token(tok_t *tok);
 ","                          LEX_CONSUME_OPERATOR(TOK_COMMA)
 ";"                          LEX_CONSUME_OPERATOR(TOK_SEMICOLON)
 "!"                          LEX_CONSUME_OPERATOR(TOK_NOT)
+"^"                          LEX_CONSUME_OPERATOR(TOK_XOR)
 "["                          LEX_CONSUME_OPERATOR(TOK_OPEN_BOX_BRACKET)
 "]"                          LEX_CONSUME_OPERATOR(TOK_CLOSE_BOX_BRACKET)
 "("                          LEX_CONSUME_OPERATOR(TOK_OPEN_PAREN)
