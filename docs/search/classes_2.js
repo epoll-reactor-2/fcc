@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['declaration_0',['Declaration',['../structweak_1_1ASTStorage_1_1Declaration.html',1,'weak::ASTStorage']]],
-  ['declrecord_1',['DeclRecord',['../structweak_1_1Storage_1_1DeclRecord.html',1,'weak::Storage']]]
+  ['localized_5fdata_5ftype_5ft_0',['localized_data_type_t',['../structlocalized__data__type__t.html',1,'']]]
 ];

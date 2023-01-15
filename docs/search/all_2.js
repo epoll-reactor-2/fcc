@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['codegen_0',['CodeGen',['../classweak_1_1CodeGen.html',1,'weak']]],
-  ['columnno_1',['ColumnNo',['../structweak_1_1Token.html#af72259b233d7b871379ad243d54d6be5',1,'weak::Token']]],
-  ['createcode_2',['CreateCode',['../classweak_1_1CodeGen.html#a0571a76e661ec437f38d52296b76b997',1,'weak::CodeGen']]],
-  ['currentdepth_3',['CurrentDepth',['../structweak_1_1ASTStorage.html#abf71cdccbced610c437797dd5961260e',1,'weak::ASTStorage']]],
-  ['currscopeuses_4',['CurrScopeUses',['../structweak_1_1ASTStorage.html#a94be511ba2f0fc9f79cc1fc70a04caf5',1,'weak::ASTStorage']]]
+  ['body_0',['body',['../structast__do__while__t.html#acbfbb53dd516a056006db475fde07e7a',1,'ast_do_while_t::body()'],['../structast__for__t.html#abb6e8b44991353e0f625ba293ea5ea1a',1,'ast_for_t::body()'],['../structast__function__decl__t.html#affa09906e51b9d775899e4e18b80db12',1,'ast_function_decl_t::body()'],['../structast__if__t.html#ae35ef9b90d52b9bbdcdfdb5f179ebe74',1,'ast_if_t::body()'],['../structast__var__decl__t.html#a453ecf6be64675c9a1af85893a3af930',1,'ast_var_decl_t::body()'],['../structast__while__t.html#aa8f5d1322100868d1bf925d83cd33fd4',1,'ast_while_t::body()']]],
+  ['buckets_1',['buckets',['../structhashmap__t.html#ae6773f6df29c3b7c260b68167b626b40',1,'hashmap_t']]]
 ];

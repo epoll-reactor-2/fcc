@@ -1,6 +1,9 @@
 var searchData=
 [
-  ['require_0',['Require',['../classweak_1_1Parser.html#acfca68e62c1269f38bf691f0166d2381',1,'weak::Parser::Require(const std::vector&lt; TokenType &gt; &amp;Expected)'],['../classweak_1_1Parser.html#ae143a4c1108d8feeb1d5736aef3e5176',1,'weak::Parser::Require(TokenType Expected)'],['../classweak_1_1Parser.html#a983c21c39ae25d06044e167a5c39c104',1,'weak::Parser::Require(const std::vector&lt; char &gt; &amp;Expected)'],['../classweak_1_1Parser.html#a31e7e4cc8cb8569e186aa1227f7a0cad',1,'weak::Parser::Require(char Expected)']]],
-  ['resolve_1',['Resolve',['../classweak_1_1TypeResolver.html#a66ba607f6734f69b6ff0b92e6db11c97',1,'weak::TypeResolver::Resolve(ASTNode *)'],['../classweak_1_1TypeResolver.html#a6ee81e78ee0cc33d73bb08e0994bf648',1,'weak::TypeResolver::Resolve(DataType)']]],
-  ['resolveexceptvoid_2',['ResolveExceptVoid',['../classweak_1_1TypeResolver.html#a06dcb2f80eab88c2d6448a874bcc8e68',1,'weak::TypeResolver::ResolveExceptVoid(ASTNode *LocationAST)'],['../classweak_1_1TypeResolver.html#ab4d553fc53ee4a476bf9537abb86910e',1,'weak::TypeResolver::ResolveExceptVoid(DataType)']]]
+  ['macro_5fmkstring_0',['MACRO_MKSTRING',['../compiler_8h.html#aa5643187ea08260ba515c70f5e14979a',1,'compiler.h']]],
+  ['macro_5ftostring_1',['MACRO_TOSTRING',['../compiler_8h.html#a29425329442416555d10b1da0cd2727c',1,'compiler.h']]],
+  ['make_5funused_5fvar_5fanalysis_2',['make_unused_var_analysis',['../variable__use__analysis_8c.html#a73c0e03207893cc576e5fa7e0018488c',1,'variable_use_analysis.c']]],
+  ['make_5funused_5fvar_5fand_5ffunc_5fanalysis_3',['make_unused_var_and_func_analysis',['../variable__use__analysis_8c.html#a22fb758a443b9f2d69941161f5d0a93e',1,'variable_use_analysis.c']]],
+  ['member_4',['member',['../structast__member__t.html#a3826202cbb65437a317741d27feb8e63',1,'ast_member_t']]],
+  ['min_5',['MIN',['../type__analysis_8c.html#a3acffbd305ee72dcd4593c0d8af64a4f',1,'type_analysis.c']]]
 ];

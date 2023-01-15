@@ -48,14 +48,14 @@ ast_storage_decl_t *ast_storage_lookup(const char *var_name);
 
 /// Add read use.
 ///
-/// \pre - Variable as declared before.
-///      - Variable depth is <= current depth.
+/// \pre Variable as declared before.
+/// \pre Variable depth is <= current depth.
 void ast_storage_add_read_use(const char *var_name);
 
 /// Add read use.
 ///
-/// \pre - Variable as declared before.
-///      - Variable depth is <= current depth.
+/// \pre Variable as declared before.
+/// \pre Variable depth is <= current depth.
 void ast_storage_add_write_use(const char *var_name);
 
 /// Collect all variable usages in current scope. Don't care
