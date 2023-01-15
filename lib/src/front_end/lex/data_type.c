@@ -15,7 +15,8 @@ const char *data_type_to_string(data_type_e dt)
     case D_T_INT:     return "int";
     case D_T_FLOAT:   return "float";
     case D_T_CHAR:    return "char";
-    case D_T_BOOL:    return "bool";
+    case D_T_BOOL:    return "boolean";
+    case D_T_STRING:  return "string";
     case D_T_STRUCT:  return "struct";
     default:         weak_unreachable("Should not reach there.");
     }

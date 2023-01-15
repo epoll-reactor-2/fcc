@@ -22,8 +22,6 @@ void generate_random_string(char *out, uint64_t len)
         srand(ts.tv_nsec);
         out[i] = alphabet[rand() % sizeof alphabet - 1];
     }
-
-    out[len] = '\0';
 }
 
 int main() {

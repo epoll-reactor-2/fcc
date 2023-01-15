@@ -398,18 +398,6 @@ static void visit_ast_function_call(ast_node_t *ast)
 {
     ast_function_call_t *stmt = ast->ast;
     assert_is_declared(stmt->name, ast);
-
-    /*! \todo: Should be moved to type checker.
-    ast_node_t *func = ast_storage_lookup(stmt->name)->ast;
-    if (func->type != AST_FUNCTION_DECL)
-        weak_compile_error(
-            ast->line_no,
-            ast->col_no,
-            "`%s` is not a function",
-            stmt->name
-        );
-    */
-
     add_read_use(ast);
 
     assert(stmt->args->type == AST_COMPOUND_STMT);

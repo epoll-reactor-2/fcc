@@ -58,6 +58,8 @@ bool parse_test(const char *filename)
             printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
             return false;
         }
+        printf("Success!\n");
+        fflush(stdout);
     } else {
         /// Error, will be printed in main.
         return false;

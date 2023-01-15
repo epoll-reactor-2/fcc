@@ -1,4 +1,4 @@
-// Error at line 5, column 30: Cannot apply `+` to int and bool
+//Error at line 5, column 30: Cannot apply `+` to int and boolean
 int main() {
     int  i =   0;
     bool b = true;

@@ -326,7 +326,7 @@ static void visit_ast_array_decl(FILE *mem, ast_node_t *ast)
     ast_compound_t *dimensions = decl->arity_list->ast;
 
     for (uint64_t i = 0; i < dimensions->size; ++i)
-        fprintf(mem, "[%d]", ((ast_num_t *)(dimensions->stmts[i]->ast) )->value);
+        fprintf(mem, "[%d]", ( (ast_num_t *)(dimensions->stmts[i]->ast) )->value);
 
     fprintf(mem, " `%s`\n", decl->name);
 }

@@ -19,7 +19,7 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-bool should_handle_fatal_errors = false;
+bool ignore_warns = false;
 
 void(*analysis_fn)(ast_node_t *) = NULL;
 
@@ -56,25 +56,35 @@ bool analysis_test(const char *filename)
 
     if (!setjmp(weak_fatal_error_buf)) {
         analysis_fn(ast);
-        printf("generated:\n%s", warn_buf);
-        printf("expected:\n%s", msg);
-        if (strcmp(warn_buf, msg) == 0) {
-            printf("Success!\n");
-            fflush(stdout);
-        } else {
-            success = false;
-            goto exit;
+        /// Normal code.
+        if (!ignore_warns) {
+            if (strcmp(warn_buf, msg) == 0) {
+                printf("Success!\n");
+                fflush(stdout);
+            } else {
+                printf("generated warning:\n%s", warn_buf);
+                printf("expected warning:\n%s", msg);
+                success = false;
+                goto exit;
+            }
         }
     } else {
-        printf("generated:\n%s", err_buf);
-        printf("expected:\n%s", msg);
+        /// Code with fatal errors.
         if (strcmp(err_buf, msg) == 0) {
             printf("Success!\n");
             fflush(stdout);
         } else {
+            printf("generated error:\n%s", err_buf);
+            printf("expected error:\n%s", msg);
             success = false;
             goto exit;
         }
+    }
+
+    if (ignore_warns && !err_buf) {
+        fprintf(stderr, "Expected compile error\n");
+        fflush(stderr);
+        success = false;
     }
 
 exit:
@@ -89,23 +99,31 @@ int main()
     int ret = 0;
 
     analysis_fn = analysis_functions_analysis;
-    should_handle_fatal_errors = true;
+    ignore_warns = true;
     if (!do_on_each_file("/function_analysis", analysis_test)) {
         ret = -1;
         goto exit;
     }
 
     analysis_fn = analysis_variable_use_analysis;
-    should_handle_fatal_errors = true;
+    ignore_warns = true;
     if (!do_on_each_file("/variable_use_analysis/errors", analysis_test)) {
         ret = -1;
         goto exit;
     }
 
     analysis_fn = analysis_variable_use_analysis;
-    should_handle_fatal_errors = false;
+    ignore_warns = false;
     if (!do_on_each_file("/variable_use_analysis/warns", analysis_test)) {
         ret = -1;
+        goto exit;
+    }
+
+    analysis_fn = analysis_type_analysis;
+    ignore_warns = true;
+    if (!do_on_each_file("/type_analysis", analysis_test)) {
+        ret = -1;
+        goto exit;
     }
 
 exit:
