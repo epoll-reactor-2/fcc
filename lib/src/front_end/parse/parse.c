@@ -974,7 +974,7 @@ static ast_node_t *parse_prefix_unary()
         return ast_unary_init(
             AST_PREFIX_UNARY,
             t->type,
-            parse_postfix_unary(),
+            parse_prefix_unary(),
             t->line_no,
             t->col_no
         );
