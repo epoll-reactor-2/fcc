@@ -43,7 +43,7 @@ static void return_ctx_reset_state()
 /// \note Interesting in this context things are only in the
 ///       conditional and iteration statements body, not in
 ///       the conditions.
-static int32_t visit_ast_node(ast_node_t *ast);
+static void visit_ast_node(ast_node_t *ast);
 
 static void visit_ast_compound(ast_node_t *ast)
 {
@@ -137,7 +137,7 @@ static void visit_ast_function_call(ast_node_t *ast)
         visit_ast_node(call_args->stmts[i]);
 }
 
-int32_t visit_ast_node(ast_node_t *ast)
+void visit_ast_node(ast_node_t *ast)
 {
     switch (ast->type) {
     case AST_CHAR_LITERAL: /// Unused.
@@ -183,8 +183,6 @@ int32_t visit_ast_node(ast_node_t *ast)
     default:
         weak_unreachable("Wrong AST type");
     }
-
-    return 0;
 }
 
 void analysis_functions_analysis(ast_node_t *root)

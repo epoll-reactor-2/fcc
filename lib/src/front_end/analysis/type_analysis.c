@@ -33,7 +33,7 @@
 static data_type_e last_dt = D_T_UNKNOWN;
 static data_type_e last_return_dt = D_T_UNKNOWN;
 
-static int32_t visit_ast_node(ast_node_t *ast);
+static void visit_ast_node(ast_node_t *ast);
 
 static void visit_ast_char  () { last_dt = D_T_CHAR; }
 static void visit_ast_num   () { last_dt = D_T_INT; }
@@ -414,7 +414,7 @@ static void visit_ast_function_decl(ast_node_t *ast)
     ast_storage_push_typed(decl->name, D_T_FUNC, ast);
 }
 
-int32_t visit_ast_node(ast_node_t *ast)
+void visit_ast_node(ast_node_t *ast)
 {
     assert(ast);
 
@@ -486,8 +486,6 @@ int32_t visit_ast_node(ast_node_t *ast)
     default:
         weak_unreachable("Wrong AST type");
     }
-
-    return 0;
 }
 
 void analysis_type_analysis(ast_node_t *root)

@@ -218,7 +218,7 @@ void make_unused_var_and_func_analysis()
     }
 }
 
-static int32_t visit_ast_node(ast_node_t *ast);
+static void visit_ast_node(ast_node_t *ast);
 
 static void visit_ast_symbol(ast_node_t *ast)
 {
@@ -408,7 +408,7 @@ static void visit_ast_function_call(ast_node_t *ast)
     }
 }
 
-int32_t visit_ast_node(ast_node_t *ast)
+void visit_ast_node(ast_node_t *ast)
 {
     assert(ast);
 
@@ -472,8 +472,6 @@ int32_t visit_ast_node(ast_node_t *ast)
     default:
         weak_unreachable("Wrong AST type");
     }
-
-    return 0;
 }
 
 void analysis_variable_use_analysis(ast_node_t *root)
