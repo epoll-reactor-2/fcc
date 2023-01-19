@@ -9,6 +9,9 @@ add_library(
   ${CMAKE_BINARY_DIR}/lex.yy.c
 )
 
+# This is to play with compile time optimization a little.
+# set_property(TARGET weak_compiler PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
+
 target_link_libraries(weak_compiler PRIVATE fl)
 target_compile_options(weak_compiler PRIVATE -Wall -Wextra -Wpedantic -fPIC -flto -O3)
 

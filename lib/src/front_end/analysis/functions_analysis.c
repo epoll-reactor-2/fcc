@@ -22,9 +22,7 @@
 #include "front_end/ast/ast_while.h"
 #include "utility/diagnostic.h"
 #include "utility/unreachable.h"
-#include <assert.h>
 #include <stdint.h>
-#include <string.h>
 
 typedef struct {
     uint16_t line_no;
@@ -37,7 +35,9 @@ static return_ctx_t return_ctx = {0};
 
 static void return_ctx_reset_state()
 {
-    memset(&return_ctx, 0, sizeof(return_ctx_t));
+    return_ctx.col_no = 0;
+    return_ctx.line_no = 0;
+    return_ctx.occurred = false;
 }
 
 /// \note Interesting in this context things are only in the

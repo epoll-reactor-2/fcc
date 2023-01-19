@@ -9,7 +9,6 @@
 #include "utility/crc32.h"
 #include "utility/hashmap.h"
 #include <assert.h>
-#include <stdio.h>
 #include <string.h>
 
 static uint16_t scope_depth;
