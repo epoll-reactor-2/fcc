@@ -8,18 +8,25 @@
 #define WEAK_COMPILER_UTILITY_COMPILER_H
 
 #if defined(__GNUC__) || defined(__llvm__) || defined(__INTEL_COMPILER)
-# define GNU_EXTENSIONS 1
+# define __weak_gnu_exts 1
 #endif
 
-#if defined(GNU_EXTENSIONS) && defined(__has_attribute)
-# define GNU_ATTRIBUTE(attr) __has_attribute(attr)
+#if defined(__weak_gnu_exts) && defined(__has_attribute)
+# define __weak_likely(x)       __builtin_expect(!!(x), 1)
+# define __weak_unlikely(x)     __builtin_expect(!!(x), 0)
+# define __weak_wur__           __attribute__((warn_unused_result))
+# define __weak_noinline__      __attribute__((noinline))
+# define __weak_really_inline__ inline __attribute__((always_inline))
 #else
-# define GNU_ATTRIBUTE(attr) 0
+# define __weak_likely(x)
+# define __weak_unlikely(x)
+# define __weak_wur__
+# define __weak_noinline__
+# define __weak_really_inline__
 #endif
 
-#define MACRO_MKSTRING(x) #x
-#define MACRO_TOSTRING(x) MACRO_MKSTRING(x)
+#define __weak_to_string(x) #x
 
-#define SOURCE_LINE __FILE__ "@" MACRO_TOSTRING(__LINE__)
+#define __weak_source_line __FILE__ "@" __weak_to_string(__LINE__)
 
 #endif // WEAK_COMPILER_UTILITY_COMPILER_H

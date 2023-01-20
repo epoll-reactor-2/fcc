@@ -88,16 +88,16 @@ $(function() {
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="compiler_8h.html">utility/compiler.h</a>&quot;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="unreachable_8h.html#a55be86ca07668b1cce039ddc7b748575">   13</a></span><span class="preprocessor">#define weak_fatal_error(msg) do {                                       \</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">    printf(&quot;Fatal error ocurred at %s: %s\n&quot;</span>, SOURCE_LINE, (msg));       \</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    fflush(stdout);                                                      \</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    __builtin_trap();                                                    \</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="unreachable_8h.html#a55be86ca07668b1cce039ddc7b748575">   13</a></span><span class="preprocessor">#define weak_fatal_error(msg) do {                                        \</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">    printf(&quot;Fatal error ocurred at %s: %s\n&quot;</span>, __weak_source_line, (msg)); \</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    fflush(stdout);                                                       \</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    __builtin_trap();                                                     \</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>} while (0);</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="unreachable_8h.html#a481b68c14e5e4b8829e2cfa5c91c4746">   19</a></span><span class="preprocessor">#define weak_unreachable(msg) do {                                       \</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">    printf(&quot;Unreachable point reached at %s: %s\n&quot;</span>, SOURCE_LINE, (msg)); \</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    fflush(stdout);                                                      \</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    __builtin_trap();                                                    \</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="unreachable_8h.html#a481b68c14e5e4b8829e2cfa5c91c4746">   19</a></span><span class="preprocessor">#define weak_unreachable(msg) do {                                        \</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">    printf(&quot;Unreachable point reached at %s: %s\n&quot;</span>, __weak_source_line, (msg));  \</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    fflush(stdout);                                                       \</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    __builtin_trap();                                                     \</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>} while (0);</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#endif </span><span class="comment">// WEAK_COMPILER_UTILITY_UNREACHABLE_H</span></div>

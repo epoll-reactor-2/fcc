@@ -1,9 +1,4 @@
 var searchData=
 [
-  ['macro_5fmkstring_0',['MACRO_MKSTRING',['../compiler_8h.html#aa5643187ea08260ba515c70f5e14979a',1,'compiler.h']]],
-  ['macro_5ftostring_1',['MACRO_TOSTRING',['../compiler_8h.html#a29425329442416555d10b1da0cd2727c',1,'compiler.h']]],
-  ['make_5funused_5fvar_5fanalysis_2',['make_unused_var_analysis',['../variable__use__analysis_8c.html#a73c0e03207893cc576e5fa7e0018488c',1,'variable_use_analysis.c']]],
-  ['make_5funused_5fvar_5fand_5ffunc_5fanalysis_3',['make_unused_var_and_func_analysis',['../variable__use__analysis_8c.html#a22fb758a443b9f2d69941161f5d0a93e',1,'variable_use_analysis.c']]],
-  ['member_4',['member',['../structast__member__t.html#a3826202cbb65437a317741d27feb8e63',1,'ast_member_t']]],
-  ['min_5',['MIN',['../type__analysis_8c.html#a3acffbd305ee72dcd4593c0d8af64a4f',1,'type_analysis.c']]]
+  ['name_0',['name',['../structast__storage__decl__t.html#af37b8efbcce44d92153f4d137b0271ac',1,'ast_storage_decl_t::name()'],['../structast__array__access__t.html#a1ecdbb7e2d42754e85b1f9f141e16475',1,'ast_array_access_t::name()'],['../structast__array__decl__t.html#aa3447f2f1ed2fd34a05cebe8e841817b',1,'ast_array_decl_t::name()'],['../structast__function__call__t.html#a628fce54e796db139a079bee1367427b',1,'ast_function_call_t::name()'],['../structast__function__decl__t.html#a87357596fc68dc2ac6bb153cf1318f53',1,'ast_function_decl_t::name()'],['../structast__struct__decl__t.html#af27016ebc38451a9e91da96d6959afad',1,'ast_struct_decl_t::name()'],['../structast__var__decl__t.html#ac1a13f5f04364946206895b1b95115a8',1,'ast_var_decl_t::name()']]]
 ];

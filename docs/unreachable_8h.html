@@ -106,12 +106,12 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                       \</div>
-<div class="line">    printf(<span class="stringliteral">&quot;Fatal error ocurred at %s: %s\n&quot;</span>, <a class="code hl_define" href="compiler_8h.html#acf16e3e245e0e3b5d45b2a11075d4d36">SOURCE_LINE</a>, (msg));       \</div>
-<div class="line">    fflush(stdout);                                                      \</div>
-<div class="line">    __builtin_trap();                                                    \</div>
+<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                        \</div>
+<div class="line">    printf(<span class="stringliteral">&quot;Fatal error ocurred at %s: %s\n&quot;</span>, <a class="code hl_define" href="compiler_8h.html#a4b930df12764e1b2b8bd196290826451">__weak_source_line</a>, (msg)); \</div>
+<div class="line">    fflush(stdout);                                                       \</div>
+<div class="line">    __builtin_trap();                                                     \</div>
 <div class="line">} <span class="keywordflow">while</span> (0);</div>
-<div class="ttc" id="acompiler_8h_html_acf16e3e245e0e3b5d45b2a11075d4d36"><div class="ttname"><a href="compiler_8h.html#acf16e3e245e0e3b5d45b2a11075d4d36">SOURCE_LINE</a></div><div class="ttdeci">#define SOURCE_LINE</div><div class="ttdef"><b>Definition:</b> compiler.h:23</div></div>
+<div class="ttc" id="acompiler_8h_html_a4b930df12764e1b2b8bd196290826451"><div class="ttname"><a href="compiler_8h.html#a4b930df12764e1b2b8bd196290826451">__weak_source_line</a></div><div class="ttdeci">#define __weak_source_line</div><div class="ttdef"><b>Definition:</b> compiler.h:30</div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -130,10 +130,10 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                       \</div>
-<div class="line">    printf(<span class="stringliteral">&quot;Unreachable point reached at %s: %s\n&quot;</span>, <a class="code hl_define" href="compiler_8h.html#acf16e3e245e0e3b5d45b2a11075d4d36">SOURCE_LINE</a>, (msg)); \</div>
-<div class="line">    fflush(stdout);                                                      \</div>
-<div class="line">    __builtin_trap();                                                    \</div>
+<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                        \</div>
+<div class="line">    printf(<span class="stringliteral">&quot;Unreachable point reached at %s: %s\n&quot;</span>, <a class="code hl_define" href="compiler_8h.html#a4b930df12764e1b2b8bd196290826451">__weak_source_line</a>, (msg));  \</div>
+<div class="line">    fflush(stdout);                                                       \</div>
+<div class="line">    __builtin_trap();                                                     \</div>
 <div class="line">} <span class="keywordflow">while</span> (0);</div>
 </div><!-- fragment -->
 </div>

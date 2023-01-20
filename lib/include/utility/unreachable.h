@@ -10,16 +10,16 @@
 #include "utility/compiler.h"
 #include <stdio.h>
 
-#define weak_fatal_error(msg) do {                                       \
-    printf("Fatal error ocurred at %s: %s\n", SOURCE_LINE, (msg));       \
-    fflush(stdout);                                                      \
-    __builtin_trap();                                                    \
+#define weak_fatal_error(msg) do {                                        \
+    printf("Fatal error ocurred at %s: %s\n", __weak_source_line, (msg)); \
+    fflush(stdout);                                                       \
+    __builtin_trap();                                                     \
 } while (0);
 
-#define weak_unreachable(msg) do {                                       \
-    printf("Unreachable point reached at %s: %s\n", SOURCE_LINE, (msg)); \
-    fflush(stdout);                                                      \
-    __builtin_trap();                                                    \
+#define weak_unreachable(msg) do {                                        \
+    printf("Unreachable point reached at %s: %s\n", __weak_source_line, (msg));  \
+    fflush(stdout);                                                       \
+    __builtin_trap();                                                     \
 } while (0);
 
 #endif // WEAK_COMPILER_UTILITY_UNREACHABLE_H

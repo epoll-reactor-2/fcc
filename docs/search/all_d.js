@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['name_0',['name',['../structast__storage__decl__t.html#af37b8efbcce44d92153f4d137b0271ac',1,'ast_storage_decl_t::name()'],['../structast__array__access__t.html#a1ecdbb7e2d42754e85b1f9f141e16475',1,'ast_array_access_t::name()'],['../structast__array__decl__t.html#aa3447f2f1ed2fd34a05cebe8e841817b',1,'ast_array_decl_t::name()'],['../structast__function__call__t.html#a628fce54e796db139a079bee1367427b',1,'ast_function_call_t::name()'],['../structast__function__decl__t.html#a87357596fc68dc2ac6bb153cf1318f53',1,'ast_function_decl_t::name()'],['../structast__struct__decl__t.html#af27016ebc38451a9e91da96d6959afad',1,'ast_struct_decl_t::name()'],['../structast__var__decl__t.html#ac1a13f5f04364946206895b1b95115a8',1,'ast_var_decl_t::name()']]]
+  ['occurred_0',['occurred',['../structreturn__ctx__t.html#a63f77749e19643442d9b3bc78d25e8ec',1,'return_ctx_t']]],
+  ['operand_1',['operand',['../structast__return__t.html#a5a7ae93f91c8e14d084cd9eb71919931',1,'ast_return_t::operand()'],['../structast__unary__t.html#ad3e4d06f9cd03244cb4f69471a4ba1c4',1,'ast_unary_t::operand()']]],
+  ['operation_2',['operation',['../structast__binary__t.html#a57d8556e7f56b7dac04bb210d3441471',1,'ast_binary_t::operation()'],['../structast__unary__t.html#a02770e320ec4465da5d5a8599c80c0cf',1,'ast_unary_t::operation()']]],
+  ['ordinal_5fnumeral_3',['ordinal_numeral',['../lexical_8h.html#a8014ba98960b6b1209b3c227e5733fb9',1,'ordinal_numeral(uint64_t num, char *out):&#160;lexical.c'],['../lexical_8c.html#a8014ba98960b6b1209b3c227e5733fb9',1,'ordinal_numeral(uint64_t num, char *out):&#160;lexical.c']]]
 ];
