@@ -48,6 +48,7 @@ bool parse_test(const char *filename)
     extract_assertion_comment(yyin, ast_stream);
 
     tok_array_t *toks = lex_consumed_tokens();
+    fclose(yyin);
 
     if (!setjmp(weak_fatal_error_buf)) {
         ast_node_t *ast = parse(toks->data, toks->data + toks->count);

@@ -12,6 +12,7 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
+/// Slow as fuck.
 void generate_random_string(char *out, uint64_t len)
 {
     static const char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -92,8 +93,8 @@ int main() {
         ast_storage_init_state();
         ast_node_t *ast = ast_num_init(1, 2, 3);
 
+        char rand_string[32];
         for (uint64_t i = 0; i < 1000; ++i) {
-            char rand_string[32];
             memset(rand_string, 0, 32);
             generate_random_string(rand_string, 32);
             ast_storage_push(rand_string, ast);
