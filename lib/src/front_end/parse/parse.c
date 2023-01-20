@@ -175,7 +175,7 @@ typedef struct {
 
 static localized_data_type_t parse_type()
 {
-    const tok_t *curr_tok = peek_current();
+    const tok_t *curr_tok = peek_next();
 
     switch (curr_tok->type) {
     case TOK_INT:
@@ -183,11 +183,10 @@ static localized_data_type_t parse_type()
     case TOK_CHAR:
     case TOK_BOOL:
     case TOK_SYMBOL: { /// Fall through.
-        peek_next(); /// Move from data type.
         unsigned indirection_lvl = 0;
         while (tok_is(peek_current(), '*')) {
             ++indirection_lvl;
-            peek_next();
+            peek_next(); /// Don't needed to require '*'.
         }
         localized_data_type_t l = {
             .data_type = tok_to_data_type(curr_tok->type),
@@ -444,10 +443,8 @@ static ast_node_t *parse_function_param_list()
 
     while (!tok_is(peek_current(), ')')) {
         vector_push_back(list, parse_decl_without_initializer());
-        if (tok_is(peek_current(), ')'))
-            break;
         if (tok_is(peek_current(), ','))
-            peek_next();
+            require_char(',');
     }
 
     return ast_compound_init(
@@ -692,13 +689,13 @@ static ast_node_t *parse_for()
     if (!tok_is(peek_next(), ';')) {
         --tok_begin;
         init = parse_expr();
-        peek_next();
+        require_char(';');
     }
 
     if (!tok_is(peek_next(), ';')) {
         --tok_begin;
         cond = parse_expr();
-        peek_next();
+        require_char(';');
     }
 
     if (!tok_is(peek_next(), ')')) {
@@ -1237,7 +1234,7 @@ static ast_node_t *parse_function_call()
     while (!tok_is(peek_current(), ')')) {
         vector_push_back(args_list, parse_logical_or());
         if (tok_is(peek_current(), ','))
-            peek_next();
+            require_char(',');
     }
 
     require_char(')');
