@@ -704,9 +704,8 @@ static ast_node_t *parse_for()
     if (!tok_is(peek_next(), ')')) {
         --tok_begin;
         increment = parse_expr();
+        require_char(')');
     }
-
-    require_char(')');
 
     ++loops_depth;
     ast_node_t *body = parse_block();
