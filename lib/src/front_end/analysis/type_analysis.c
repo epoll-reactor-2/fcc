@@ -33,6 +33,12 @@
 static data_type_e last_dt = D_T_UNKNOWN;
 static data_type_e last_return_dt = D_T_UNKNOWN;
 
+static void reset_internal_state()
+{
+    last_dt = D_T_UNKNOWN;
+    last_return_dt = D_T_UNKNOWN;
+}
+
 static void visit_ast_node(ast_node_t *ast);
 
 static void visit_ast_char  () { last_dt = D_T_CHAR; }
@@ -41,58 +47,59 @@ static void visit_ast_float () { last_dt = D_T_FLOAT; }
 static void visit_ast_string() { last_dt = D_T_STRING; }
 static void visit_ast_bool  () { last_dt = D_T_BOOL; }
 
-static bool is_correct_bin_op(tok_type_e op, data_type_e t) {
-  bool are_correct = false;
+static bool is_correct_bin_op(tok_type_e op, data_type_e t)
+{
+    bool are_correct = false;
 
-  switch (op) {
-  case TOK_ASSIGN: /// Fall through.
-    /// We need only check if there are same types on assignment.
-    are_correct = true;
-    break;
-  /// Integer and floats.
-  case TOK_PLUS:
-  case TOK_MINUS:
-  case TOK_STAR:
-  case TOK_SLASH:
-  case TOK_LE:
-  case TOK_LT:
-  case TOK_GE:
-  case TOK_GT:
-  case TOK_EQ:
-  case TOK_NEQ:
-  case TOK_OR:
-  case TOK_AND:
-  case TOK_MUL_ASSIGN:
-  case TOK_DIV_ASSIGN:
-  case TOK_PLUS_ASSIGN:
-  case TOK_MINUS_ASSIGN: /// Fall through.
-    are_correct |= t == D_T_INT;
-    are_correct |= t == D_T_CHAR;
-    are_correct |= t == D_T_BOOL;
-    are_correct |= t == D_T_FLOAT;
-    break;
-  /// Only integers.
-  case TOK_BIT_OR:
-  case TOK_BIT_AND:
-  case TOK_XOR:
-  case TOK_SHL:
-  case TOK_SHR:
-  case TOK_MOD:
-  case TOK_MOD_ASSIGN:
-  case TOK_BIT_OR_ASSIGN:
-  case TOK_BIT_AND_ASSIGN:
-  case TOK_XOR_ASSIGN:
-  case TOK_SHL_ASSIGN:
-  case TOK_SHR_ASSIGN: /// Fall through.
-    are_correct |= t == D_T_INT;
-    are_correct |= t == D_T_CHAR;
-    are_correct |= t == D_T_BOOL;
-    break;
-  default:
-    break;
-  }
+    switch (op) {
+    case TOK_ASSIGN: /// Fall through.
+        /// We need only check if there are same types on assignment.
+        are_correct = true;
+        break;
+    /// Integer and floats.
+    case TOK_PLUS:
+    case TOK_MINUS:
+    case TOK_STAR:
+    case TOK_SLASH:
+    case TOK_LE:
+    case TOK_LT:
+    case TOK_GE:
+    case TOK_GT:
+    case TOK_EQ:
+    case TOK_NEQ:
+    case TOK_OR:
+    case TOK_AND:
+    case TOK_MUL_ASSIGN:
+    case TOK_DIV_ASSIGN:
+    case TOK_PLUS_ASSIGN:
+    case TOK_MINUS_ASSIGN: /// Fall through.
+        are_correct |= t == D_T_INT;
+        are_correct |= t == D_T_CHAR;
+        are_correct |= t == D_T_BOOL;
+        are_correct |= t == D_T_FLOAT;
+        break;
+    /// Only integers.
+    case TOK_BIT_OR:
+    case TOK_BIT_AND:
+    case TOK_XOR:
+    case TOK_SHL:
+    case TOK_SHR:
+    case TOK_MOD:
+    case TOK_MOD_ASSIGN:
+    case TOK_BIT_OR_ASSIGN:
+    case TOK_BIT_AND_ASSIGN:
+    case TOK_XOR_ASSIGN:
+    case TOK_SHL_ASSIGN:
+    case TOK_SHR_ASSIGN: /// Fall through.
+        are_correct |= t == D_T_INT;
+        are_correct |= t == D_T_CHAR;
+        are_correct |= t == D_T_BOOL;
+        break;
+    default:
+        break;
+    }
 
-  return are_correct;
+    return are_correct;
 }
 
 static void visit_ast_binary(ast_node_t *ast)
@@ -392,7 +399,7 @@ static void visit_ast_function_decl(ast_node_t *ast)
 {
     ast_function_decl_t *decl = ast->ast;
     data_type_e dt = decl->data_type;
-    if (decl->body == NULL) {
+    if (decl->body == NULL) { /// Function prototype.
         ast_storage_push_typed(decl->name, D_T_FUNC, ast);
         return;
     }
@@ -492,5 +499,6 @@ void analysis_type_analysis(ast_node_t *root)
 {
     ast_storage_init_state();
     visit_ast_node(root);
+    reset_internal_state();
     ast_storage_reset_state();
 }

@@ -41,14 +41,14 @@ static void collected_uses_end_scope()
     vector_erase(collected_uses, collected_uses.count - 1);
 }
 
-static void analysis_init_state()
+static void init_internal_state()
 {
     /// Initialize first stack entry for the first
     /// scope depth.
     collected_uses_start_scope();
 }
 
-static void analysis_reset_state()
+static void reset_internal_state()
 {
     vector_foreach(collected_uses, i) {
         vector_clear(collected_uses.data[i]);
@@ -98,7 +98,7 @@ static const char *ast_decl_or_expr_to_string(ast_node_t *ast)
     case AST_SYMBOL:
         return "Variable";
     default:
-      weak_unreachable("Expected variable or function AST");
+        weak_unreachable("Expected variable or function AST");
     }
 }
 
@@ -321,20 +321,16 @@ static void visit_ast_for(ast_node_t *ast)
 {
     ast_for_t *stmt = ast->ast;
     ast_storage_start_scope();
-
     if (stmt->init)
         visit_ast_node(stmt->init);
-
     if (stmt->condition) {
         collected_uses_start_scope();
         visit_ast_node(stmt->condition);
         collected_uses_mark_top_scope_as_read();
         collected_uses_end_scope();
     }
-
     if (stmt->increment)
         visit_ast_node(stmt->increment);
-
     visit_ast_node(stmt->body);
     ast_storage_end_scope();
 }
@@ -477,8 +473,8 @@ void visit_ast_node(ast_node_t *ast)
 void analysis_variable_use_analysis(ast_node_t *root)
 {
     ast_storage_init_state();
-    analysis_init_state();
+    init_internal_state();
     visit_ast_node(root);
+    reset_internal_state();
     ast_storage_reset_state();
-    analysis_reset_state();
 }

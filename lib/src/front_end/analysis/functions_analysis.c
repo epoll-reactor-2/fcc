@@ -22,22 +22,24 @@
 #include "front_end/ast/ast_while.h"
 #include "utility/diagnostic.h"
 #include "utility/unreachable.h"
+#include <assert.h>
 #include <stdint.h>
 
-typedef struct {
+/// Last return occurence context.
+///
+/// \pre All fields set to 0 at the start
+///      of each function.
+static struct {
     uint16_t line_no;
     uint16_t col_no;
-    bool     occurred; /// Occurred in the functions. Reset
-                       /// in the end of each analyzed function.
-} return_ctx_t;
+    bool     occurred;
+} last_ret = {0};
 
-static return_ctx_t return_ctx = {0};
-
-static void return_ctx_reset_state()
+static void reset_internal_state()
 {
-    return_ctx.col_no = 0;
-    return_ctx.line_no = 0;
-    return_ctx.occurred = false;
+    last_ret.col_no = 0;
+    last_ret.line_no = 0;
+    last_ret.occurred = false;
 }
 
 /// \note Interesting in this context things are only in the
@@ -83,9 +85,9 @@ static void visit_ast_return(ast_node_t *ast)
     ast_return_t *stmt = ast->ast;
     if (stmt->operand) {
         visit_ast_node(stmt->operand);
-        return_ctx.line_no = ast->line_no;
-        return_ctx.col_no = ast->col_no;
-        return_ctx.occurred = true;
+        last_ret.line_no = ast->line_no;
+        last_ret.col_no = ast->col_no;
+        last_ret.occurred = true;
     }
 }
 
@@ -96,19 +98,19 @@ static void visit_ast_function_decl(ast_node_t *ast)
     /// Don't need to analyze arguments though.
     visit_ast_node(decl->body);
 
-    uint16_t line_no = return_ctx.line_no;
-    uint16_t col_no = return_ctx.col_no;
+    uint16_t line_no = last_ret.line_no;
+    uint16_t col_no = last_ret.col_no;
 
-    if (return_ctx.occurred && decl->data_type == D_T_VOID) {
-        return_ctx_reset_state();
+    if (last_ret.occurred && decl->data_type == D_T_VOID) {
+        reset_internal_state();
         weak_compile_error(
             line_no, col_no,
             "Cannot return value from void function"
         );
     }
 
-    if (!return_ctx.occurred && decl->data_type != D_T_VOID) {
-        return_ctx_reset_state();
+    if (!last_ret.occurred && decl->data_type != D_T_VOID) {
+        reset_internal_state();
         weak_compile_error(
             ast->line_no, ast->col_no,
             "Expected return value"
@@ -123,7 +125,7 @@ static void visit_ast_function_call(ast_node_t *ast)
     ast_compound_t *call_args = stmt->args->ast;
     ast_compound_t *decl_args = fun->args->ast;
 
-    if (call_args->size != decl_args->size) {
+    if (call_args->size != decl_args->size)
         weak_compile_error(
             ast->line_no,
             ast->col_no,
@@ -131,7 +133,6 @@ static void visit_ast_function_call(ast_node_t *ast)
             call_args->size,
             decl_args->size
         );
-    }
 
     for (uint64_t i = 0; i < call_args->size; ++i)
         visit_ast_node(call_args->stmts[i]);
@@ -139,6 +140,8 @@ static void visit_ast_function_call(ast_node_t *ast)
 
 void visit_ast_node(ast_node_t *ast)
 {
+    assert(ast);
+
     switch (ast->type) {
     case AST_CHAR_LITERAL: /// Unused.
     case AST_INTEGER_LITERAL: /// Unused.
@@ -189,6 +192,6 @@ void analysis_functions_analysis(ast_node_t *root)
 {
     ast_storage_init_state();
     visit_ast_node(root);
-    return_ctx_reset_state();
+    reset_internal_state();
     ast_storage_reset_state();
 }
