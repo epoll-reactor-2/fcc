@@ -38,7 +38,7 @@ static int32_t visit_node(FILE *mem, ast_node_t *ast);
 static void fprintf_n(FILE *stream, uint32_t count, char c)
 {
     for (uint32_t i = 0; i < count; ++i)
-        fputc(c, stream);
+        fputc_unlocked(c, stream);
 }
 
 static void ast_print_indent(FILE *stream)

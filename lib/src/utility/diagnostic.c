@@ -34,7 +34,7 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
     vfprintf(stream, fmt, args);
     va_end(args);
 
-    fputc('\n', stream);
+    fputc_unlocked('\n', stream);
     fflush(stream);
 
     weak_terminate_compilation();
@@ -53,6 +53,6 @@ void weak_compile_warn(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
     vfprintf(stream, fmt, args);
     va_end(args);
 
-    fputc('\n', stream);
+    fputc_unlocked('\n', stream);
     fflush(stream);
 }

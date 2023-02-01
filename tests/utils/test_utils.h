@@ -60,9 +60,9 @@ void extract_assertion_comment(FILE *in, FILE *out)
         if (strncmp(line, "//", 2) == 0) {
             char *ptr = line + 2;
             while (*ptr != '\n' && *ptr != '\0') {
-                fputc(*ptr++, out);
+                fputc_unlocked(*ptr++, out);
             }
-            fputc('\n', out);
+            fputc_unlocked('\n', out);
             fflush(out);
         }
     }
