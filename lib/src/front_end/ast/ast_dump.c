@@ -39,8 +39,6 @@ static void fprintf_n(FILE *stream, uint32_t count, char c)
 {
     for (uint32_t i = 0; i < count; ++i)
         fputc(c, stream);
-
-    fflush(stream);
 }
 
 static void ast_print_indent(FILE *stream)
@@ -65,7 +63,6 @@ static void ast_print_positioned(
         ast->col_no,
         new_line_wanted ? '\n' : ' '
     );
-    fflush(mem);
 }
 
 static void ast_print(FILE *mem, ast_node_t *ast, const char *fmt, ...)
@@ -256,7 +253,6 @@ static void visit_ast_unary(FILE *mem, ast_node_t *ast)
 {
     ast_unary_t *unary = ast->ast;
 
-    fflush(stdout);
     ast_print(mem, ast, "%sfix UnaryOperator", ast->type == AST_POSTFIX_UNARY ? "Post" : "Pre");
     fprintf(mem, "%s\n", tok_to_string(unary->operation));
 
@@ -541,5 +537,7 @@ int32_t ast_dump(FILE *mem, ast_node_t *ast)
 {
     ast_indent = 0;
 
-    return visit_node(mem, ast);
+    int32_t code = visit_node(mem, ast);
+    fflush(mem);
+    return code;
 }
