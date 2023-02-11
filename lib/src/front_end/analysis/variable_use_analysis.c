@@ -297,10 +297,7 @@ static void visit_ast_array_access(ast_node_t *ast)
     ast_array_access_t *stmt = ast->ast;
     collect_ast(ast);
     assert(stmt->indices->type == AST_COMPOUND_STMT);
-    ast_compound_t *indices = stmt->indices->ast;
-
-    for (uint64_t i = 0; i < indices->size; ++i)
-        visit_ast_node(indices->stmts[i]);
+    visit_ast_node(stmt->indices->ast);
 }
 
 static void visit_ast_member(ast_node_t *ast)
@@ -381,6 +378,7 @@ static void visit_ast_function_decl(ast_node_t *ast)
 
     ast_storage_start_scope();
     ast_storage_push(decl->name, ast); /// This is to have function in recursive calls.
+    /// Don't just visit compound AST, which creates and terminates scope.
     ast_compound_t *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
         visit_ast_node(args->stmts[i]);

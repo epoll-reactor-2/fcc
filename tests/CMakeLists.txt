@@ -35,7 +35,7 @@ copy_inputs("front_end/input/variable_use_analysis/warns" "variable_use_analysis
 copy_inputs("front_end/input/variable_use_analysis/errors" "variable_use_analysis/errors")
 copy_inputs("front_end/input/function_analysis" "function_analysis")
 copy_inputs("front_end/input/type_analysis" "type_analysis")
-copy_inputs("MiddleEnd/input/code_gen" "code_gen")
+copy_inputs("back_end/input/code_generator" "code_generator")
 
 file(GLOB_RECURSE test_files *.c)
 foreach(file ${test_files})

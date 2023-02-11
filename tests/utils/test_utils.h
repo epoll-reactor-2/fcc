@@ -81,6 +81,8 @@ bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
 
     sprintf(cwd + strlen(cwd), "%s", tests_dir);
 
+    printf("cwd: %s\n", cwd);
+
     DIR *dir_iterator = opendir(cwd);
     struct dirent *dir;
 

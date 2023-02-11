@@ -407,6 +407,11 @@ static void visit_ast_function_decl(ast_node_t *ast)
     /// This is to have function in recursive calls.
     ast_storage_push_typed(decl->name, D_T_FUNC, ast);
 
+    /// Don't just visit compound AST, which creates and terminates scope.
+    ast_compound_t *args = decl->args->ast;
+    for (uint64_t i = 0; i < args->size; ++i)
+        visit_ast_node(args->stmts[i]);
+
     visit_ast_node(decl->body);
     if (dt != D_T_VOID && dt != last_return_dt)
         weak_compile_error(

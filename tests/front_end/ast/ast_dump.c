@@ -1,4 +1,4 @@
-/* ast_dump.c - AST stringify function tests.
+/* ast_dump.c - Test cases for AST stringify function.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
