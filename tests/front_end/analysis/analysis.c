@@ -100,28 +100,28 @@ int main()
 
     analysis_fn = analysis_functions_analysis;
     ignore_warns = true;
-    if (!do_on_each_file("/function_analysis", analysis_test)) {
+    if (!do_on_each_file("/test_inputs/function_analysis", analysis_test)) {
         ret = -1;
         goto exit;
     }
 
     analysis_fn = analysis_variable_use_analysis;
     ignore_warns = true;
-    if (!do_on_each_file("/variable_use_analysis/errors", analysis_test)) {
+    if (!do_on_each_file("/test_inputs/variable_use_analysis/errors", analysis_test)) {
         ret = -1;
         goto exit;
     }
 
     analysis_fn = analysis_variable_use_analysis;
     ignore_warns = false;
-    if (!do_on_each_file("/variable_use_analysis/warns", analysis_test)) {
+    if (!do_on_each_file("/test_inputs/variable_use_analysis/warns", analysis_test)) {
         ret = -1;
         goto exit;
     }
 
     analysis_fn = analysis_type_analysis;
     ignore_warns = true;
-    if (!do_on_each_file("/type_analysis", analysis_test)) {
+    if (!do_on_each_file("/test_inputs/type_analysis", analysis_test)) {
         ret = -1;
         goto exit;
     }
