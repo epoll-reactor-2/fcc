@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -O2 -fPIC -Ilib/include
-LDFLAGS = -lfl -Wl,-rpath=.
+CFLAGS = -O0 -ggdb   -fPIC -Ilib/include
+LDFLAGS = -lfl -Wl,-R
 LIB=libweak_compiler.so
 
 .PHONY: test clean all
@@ -50,12 +50,12 @@ parse_test: tests/front_end/parse/parse.c | $(LIB)
 	$(CC) -Itests $(CFLAGS) $^ build/lex.yy.o -o build/parse_test -Lbuild -lweak_compiler $(LDFLAGS)
 
 test:
-	@(cd build; ./analysis_test)
-	@(cd build; ./ast_storage_test)
-	@(cd build; ./ast_dump_test)
-	@(cd build; ./data_type_test)
-	@(cd build; ./tok_test)
-	@(cd build; ./parse_test)
+	@(cd build; LD_LIBRARY_PATH=. ./analysis_test)
+	@(cd build; LD_LIBRARY_PATH=. ./ast_storage_test)
+	@(cd build; LD_LIBRARY_PATH=. ./ast_dump_test)
+	@(cd build; LD_LIBRARY_PATH=. ./data_type_test)
+	@(cd build; LD_LIBRARY_PATH=. ./tok_test)
+	@(cd build; LD_LIBRARY_PATH=. ./parse_test)
 
 clean:
 	@rm -rf build $(OBJECTS) *.o
