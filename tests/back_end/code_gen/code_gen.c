@@ -73,7 +73,7 @@ int main()
     ASSERT_TRUE(diag_error_memstream != NULL);
     ASSERT_TRUE(diag_warn_memstream != NULL);
 
-    if (!do_on_each_file("/code_generator", code_gen_test)) {
+    if (!do_on_each_file("/test_inputs/code_generator", code_gen_test)) {
         ret = -1;
 
         if (err_buf)
