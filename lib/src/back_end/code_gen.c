@@ -60,7 +60,7 @@ static void func_reset_state()
         (void)var_hash;
         weak_free((void *)arg_addr);
     }
-    hashmap_clear(&stack_args);
+    hashmap_destroy(&stack_args);
     stack_offset = 0;
 }
 
@@ -192,11 +192,11 @@ static void visit_ast_binary(ast_node_t *ast)
 
     printf(
         "Binary (`%s`, -%d(%%rbp)), (`%s`, -%d(%%rbp))\n",
-                l_arg->name,
-                l_arg->offset,
-                r_arg->name,
-                r_arg->offset
-        );
+        l_arg->name,
+        l_arg->offset,
+        r_arg->name,
+        r_arg->offset
+    );
     fflush(stdout);
 
     /// \todo: Store two values in two any free registers,

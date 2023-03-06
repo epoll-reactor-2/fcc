@@ -23,7 +23,11 @@ void ast_storage_init_state()
 void ast_storage_reset_state()
 {
     scope_depth = 0;
-    hashmap_clear(&scopes);
+    hashmap_foreach(&scopes, key, val) {
+        ast_storage_decl_t *decl = (ast_storage_decl_t *)val;
+        weak_free(decl);
+    }
+    hashmap_destroy(&scopes);
 }
 
 void ast_storage_start_scope()
@@ -37,6 +41,7 @@ void ast_storage_end_scope()
         ast_storage_decl_t *decl = (ast_storage_decl_t *)val;
         if (decl->depth == scope_depth)
             hashmap_remove(&scopes, key);
+//        weak_free(decl);
     }
     --scope_depth;
 }

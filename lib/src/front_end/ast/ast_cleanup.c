@@ -33,6 +33,7 @@
 
 void ast_node_cleanup(ast_node_t *ast)
 {
+    if (!ast) return;
     switch (ast->type) {
     case AST_CHAR_LITERAL:
         ast_char_cleanup(ast->ast);

@@ -1,4 +1,4 @@
-/* ast_storage.с - Test case for code generator.
+/* code_gen.с - Test case for code generator.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -10,7 +10,8 @@
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
 #include "utility/diagnostic.h"
-#include "utils/test_utils.h"
+    #include "utils/test_utils.h"
+#include <string.h>
 
 extern FILE *yyin;
 extern int yylex();
@@ -24,6 +25,8 @@ bool code_gen_test(const char *filename)
     lex_reset_state();
     lex_init_state();
 
+    bool success = true;
+
     if (!yyin) yyin = fopen(filename, "r");
     else yyin = freopen(filename, "r", yyin);
     if (yyin == NULL) {
@@ -35,28 +38,60 @@ bool code_gen_test(const char *filename)
 
     tok_array_t *toks = lex_consumed_tokens();
 
+    char *expected = NULL;
+    size_t _;
+    FILE *stream = open_memstream(&expected, &_);
+    extract_assertion_comment(yyin, stream);
+
+    int expected_exit_code = 0;
+    sscanf(expected, "%d", &expected_exit_code);
+    fclose(stream);
+
+    ast_node_t *ast = NULL;
+
     if (!setjmp(weak_fatal_error_buf)) {
+        /// No compilation errors, all fine.
         printf("\n");
-        ast_node_t *ast = parse(toks->data, toks->data + toks->count);
+        ast = parse(toks->data, toks->data + toks->count);
         analysis_variable_use_analysis(ast);
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
         code_gen(ast);
 
-        system("cat /tmp/__code_dump.s");
-        system("as /tmp/__code_dump.s -o /tmp/__code_dump.o");
-        system("ld /tmp/__code_dump.o -o /tmp/__code_dump");
-        system("strip --remove-section=.note.gnu.property /tmp/__code_dump");
-        system("strace /tmp/__code_dump");
+        system(
+            "cat /tmp/__code_dump.s && "
+            "as /tmp/__code_dump.s -o /tmp/__code_dump.o && "
+            "ld /tmp/__code_dump.o -o /tmp/__code_dump && "
+            "strip --remove-section=.note.gnu.property /tmp/__code_dump"
+        );
+        int ret = system("/tmp/__code_dump");
+        /// \todo: What if we will test Unix signals too?
+        ///        Then other test function with signal handling can be
+        ///        implemented, I guess.
+        if (WIFSIGNALED(ret)) {
+            printf("Unexpected signal received: %s\n", strsignal(WTERMSIG(ret)));
+            success = false;
+            goto exit;
+        }
+        int exit_code = WEXITSTATUS(ret);
+        if (exit_code != expected_exit_code) {
+            printf("Exit codes mismatch: got %d, expected %d\n", exit_code, expected_exit_code);
+            success = false;
+            goto exit;
+        }
+        printf("Success!\n");
     } else {
-        /// Error, will be printed in main.
-        return false;
+        /// Compilation error; will be displayed in main().
+        success = false;
+        goto exit;
     }
 
+exit:
     yylex_destroy();
     tokens_cleanup(toks);
+    ast_node_cleanup(ast);
 
-    return true;
+    return success;
 }
 
 int main()
@@ -85,7 +120,5 @@ int main()
 
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);
-    free(err_buf);
-    free(warn_buf);
     return ret;
 }
