@@ -183,7 +183,8 @@ static void visit_ast_var_decl(ast_node_t *ast)
 static void visit_ast_array_decl(ast_node_t *ast)
 {
     ast_array_decl_t *decl = ast->ast;
-    ast_compound_t *dimensions = decl->arity_list->ast; /// Required to be compound.
+    /// Required to be compound.
+    ast_compound_t *dimensions = decl->arity_list->ast;
     for (uint64_t i = 0; i < dimensions->size; ++i) {
         int32_t num = ( (ast_num_t *)(dimensions->stmts[i]->ast) )->value;
         if (num == 0)
@@ -406,7 +407,6 @@ static void visit_ast_function_decl(ast_node_t *ast)
     ast_storage_start_scope();
     /// This is to have function in recursive calls.
     ast_storage_push_typed(decl->name, D_T_FUNC, ast);
-
     /// Don't just visit compound AST, which creates and terminates scope.
     ast_compound_t *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
@@ -431,8 +431,8 @@ void visit_ast_node(ast_node_t *ast)
     assert(ast);
 
     switch (ast->type) {
-    case AST_MEMBER: /// \todo Unused... Or should be used?
-    case AST_STRUCT_DECL: /// \todo Unused... Or should be used?
+    case AST_MEMBER: /// Unused... Or should be used?
+    case AST_STRUCT_DECL: /// Unused... Or should be used?
     case AST_BREAK_STMT: /// Unused.
     case AST_CONTINUE_STMT: break; /// Unused.
     case AST_CHAR_LITERAL:

@@ -41,7 +41,6 @@ void ast_storage_end_scope()
         ast_storage_decl_t *decl = (ast_storage_decl_t *)val;
         if (decl->depth == scope_depth)
             hashmap_remove(&scopes, key);
-//        weak_free(decl);
     }
     --scope_depth;
 }

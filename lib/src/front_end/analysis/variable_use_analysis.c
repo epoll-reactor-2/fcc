@@ -265,10 +265,10 @@ static void visit_ast_unary(ast_node_t *ast)
     ast_unary_t *stmt = ast->ast;
     ast_node_t *op = stmt->operand;
     bool is_var = false;
-    is_var |= op->type == AST_SYMBOL; /// ++var
-    is_var |= op->type == AST_ARRAY_ACCESS; /// ++var[0]
-    is_var |= op->type == AST_MEMBER; /// ++var.field
-    is_var |= op->type == AST_PREFIX_UNARY; /// ++(++var)
+    is_var |= op->type == AST_SYMBOL; /// *var
+    is_var |= op->type == AST_ARRAY_ACCESS; /// *var[0]
+    is_var |= op->type == AST_MEMBER; /// *var.field
+    is_var |= op->type == AST_PREFIX_UNARY; /// *(*var)
     if (!is_var)
         weak_compile_error(
             ast->line_no,
@@ -377,7 +377,8 @@ static void visit_ast_function_decl(ast_node_t *ast)
     assert_is_not_declared(decl->name, ast);
 
     ast_storage_start_scope();
-    ast_storage_push(decl->name, ast); /// This is to have function in recursive calls.
+    /// This is to have function in recursive calls.
+    ast_storage_push(decl->name, ast);
     /// Don't just visit compound AST, which creates and terminates scope.
     ast_compound_t *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
@@ -385,7 +386,8 @@ static void visit_ast_function_decl(ast_node_t *ast)
     visit_ast_node(decl->body);
     make_unused_var_analysis();
     ast_storage_end_scope();
-    ast_storage_push(decl->name, ast); /// This is to have function outside.
+    /// This is to have function outside.
+    ast_storage_push(decl->name, ast);
 }
 
 static void visit_ast_function_call(ast_node_t *ast)
