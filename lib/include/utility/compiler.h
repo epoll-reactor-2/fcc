@@ -27,6 +27,4 @@
 
 #define __weak_to_string(x) #x
 
-#define __weak_source_line __FILE__ "@" __weak_to_string(__LINE__)
-
 #endif // WEAK_COMPILER_UTILITY_COMPILER_H

@@ -28,7 +28,7 @@
 #define ASSERT_STREQ(lhs, rhs) do {   \
   int32_t rc = strcmp((lhs), (rhs));  \
   if (rc != 0) {                      \
-    fprintf(stderr, "%s: Strings mismatch:\n\t`%s` and\n\t`%s`\n", __weak_source_line, (lhs), (rhs)); \
+    fprintf(stderr, "%s@%d: Strings mismatch:\n\t`%s` and\n\t`%s`\n", __FILE__, __LINE__, (lhs), (rhs)); \
     return rc;                        \
   }                                   \
 } while(0);
