@@ -14,6 +14,9 @@
 
 typedef enum {
     IR_ALLOCA,
+    /// Immediate value.
+    IR_IMM,
+    IR_SYM,
     IR_STORE,
     IR_BINARY,
     IR_LABEL,
@@ -38,6 +41,10 @@ typedef enum {
 /// .
 typedef struct {
     ir_type_e  type;
+    /// Instruction index. Needed to build
+    /// Control Flow Graph from this IR in order
+    /// to do graph-bases analysis.
+    int32_t    instr_idx;
     void      *ir;
 } ir_node_t;
 
@@ -50,14 +57,31 @@ typedef struct {
 } ir_alloca_t;
 
 typedef struct {
+    /// Immediate value. Used as argument of
+    /// store or binary instructions.
+    int32_t imm;
+} ir_imm_t;
+
+typedef struct {
+    int32_t idx;
+} ir_sym_t;
+
+typedef enum {
+    IR_STORE_IMM,
+    IR_STORE_VAR,
+    IR_STORE_BINARY,
+} ir_store_type_e;
+
+typedef struct {
     /// Variable name, or index.
     /// %1 = ...
-    int32_t   idx;
+    int32_t         idx;
     /// Allowed body for store instruction:
     /// - immediate value
     /// - binary operation
     /// - variable (var)
-    ir_node_t body;
+    ir_store_type_e type;
+    ir_node_t       body;
 } ir_store_t;
 
 typedef struct {
@@ -126,11 +150,12 @@ typedef struct {
 } ir_array_access_t;
 
 typedef struct {
-    uint64_t   decls_size;
+    const char *name;
+    uint64_t    decls_size;
     /// Accepted values:
     /// - ir_alloca_t (primitive type)
     /// - ir_type_decl_t (compound type, nested).
-    ir_node_t *decls;
+    ir_node_t  *decls;
 } ir_type_decl_t;
 
 typedef struct {
@@ -138,7 +163,10 @@ typedef struct {
     /// (to be able to view something at all in assembly file).
     const char   *name;
     uint64_t      args_size;
-    ir_alloca_t  *args;
+    /// Accepted values:
+    /// - ir_alloca_t (primitive type)
+    /// - ir_type_decl_t (compound type, nested).
+    ir_node_t    *args;
     uint64_t      body_size;
     ir_node_t    *body;
 } ir_func_decl_t;
@@ -146,14 +174,24 @@ typedef struct {
 typedef struct {
     const char *name;
     uint64_t    args_size;
-    /// Arguments (varaibles) as indices. No types given, so
-    /// correct argument types is code generator responsibility.
-    int32_t    *args_idxs;
+    /// Accepted values:
+    /// - ir_sym_t
+    /// - ir_imm_t
+    /// Correct argument types is code generator responsibility.
+    ir_node_t  *args;
 } ir_func_call_t;
+
+void ir_reset_internal_state();
 
 ir_node_t ir_node_init(ir_type_e type, void *ir);
 ir_node_t ir_alloca_init(data_type_e dt, int32_t idx);
-ir_node_t ir_store_init(int32_t idx, ir_node_t body);
+ir_node_t ir_imm_init(int32_t imm);
+ir_node_t ir_sym_init(int32_t idx);
+/// \todo: Multiple init functions for variable and immediate value.
+ir_node_t ir_store_imm_init(int32_t idx, int32_t imm);
+ir_node_t ir_store_var_init(int32_t idx, int32_t var_idx);
+ir_node_t ir_store_bin_init(int32_t idx, ir_node_t bin);
+
 ir_node_t ir_binary_init(tok_type_e op, ir_node_t lhs, ir_node_t rhs);
 ir_node_t ir_label_init(int32_t idx);
 ir_node_t ir_jump_init(int32_t idx);
@@ -161,12 +199,14 @@ ir_node_t ir_cond_init(ir_binary_t cond, ir_label_t goto_label);
 ir_node_t ir_ret_init(bool is_void, ir_node_t op);
 ir_node_t ir_member_init(int32_t idx, int32_t field_idx);
 ir_node_t ir_array_access_init(int32_t idx, ir_node_t op);
-ir_node_t ir_type_decl_init(uint64_t decls_size, ir_node_t *decls);
-ir_node_t ir_func_decl_init(const char *name, uint64_t args_size, ir_alloca_t *args, uint64_t body_size, ir_node_t *body);
-ir_node_t ir_func_call_init(const char *name, uint64_t args_size, int32_t *args_idxs);
+ir_node_t ir_type_decl_init(const char *name, uint64_t decls_size, ir_node_t *decls);
+ir_node_t ir_func_decl_init(const char *name, uint64_t args_size, ir_node_t *args, uint64_t body_size, ir_node_t *body);
+ir_node_t ir_func_call_init(const char *name, uint64_t args_size, ir_node_t *args);
 
 void ir_node_cleanup(ir_node_t ir);
 void ir_alloca_cleanup(ir_node_t ir);
+void ir_imm_cleanup(ir_node_t ir);
+void ir_sym_cleanup(ir_node_t ir);
 void ir_store_cleanup(ir_node_t ir);
 void ir_binary_cleanup(ir_node_t ir);
 void ir_label_cleanup(ir_node_t ir);

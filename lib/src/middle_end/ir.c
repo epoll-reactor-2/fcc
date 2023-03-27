@@ -7,10 +7,19 @@
  #include "middle_end/ir.h"
  #include "utility/alloc.h"
 
+/// Global state.
+static int32_t ir_instr_index = 0;
+
+void ir_reset_internal_state()
+{
+    ir_instr_index = 0;
+}
+
 ir_node_t ir_node_init(ir_type_e type, void *ir)
 {
     ir_node_t node = {
         .type = type,
+        .instr_idx = ir_instr_index++,
         .ir = ir
     };
     return node;
@@ -24,11 +33,51 @@ ir_node_t ir_alloca_init(data_type_e dt, int32_t idx)
     return ir_node_init(IR_ALLOCA, ir);
 }
 
-ir_node_t ir_store_init(int32_t idx, ir_node_t body)
+ir_node_t ir_imm_init(int32_t imm)
+{
+    ir_imm_t *ir = weak_calloc(1, sizeof(ir_imm_t));
+    ir->imm = imm;
+    return ir_node_init(IR_IMM, ir);
+}
+
+ir_node_t ir_sym_init(int32_t idx)
+{
+    ir_sym_t *ir = weak_calloc(1, sizeof(ir_sym_t));
+    ir->idx = idx;
+    return ir_node_init(IR_SYM, ir);
+}
+
+ir_node_t ir_store_imm_init(int32_t idx, int32_t imm)
 {
     ir_store_t *ir = weak_calloc(1, sizeof(ir_store_t));
+    ir->type = IR_STORE_IMM;
     ir->idx = idx;
-    ir->body = body;
+    ir->body = ir_imm_init(imm);
+    /// The inline instruction was created above.
+    --ir_instr_index;
+    return ir_node_init(IR_STORE, ir);
+}
+
+ir_node_t ir_store_var_init(int32_t idx, int32_t var_idx)
+{
+    ir_store_t *ir = weak_calloc(1, sizeof(ir_store_t));
+    ir->type = IR_STORE_VAR;
+    ir->idx = idx;
+    /// \todo: Some IR to variables (just number index...)
+    ///        Or left immediate value and treat this as
+    ///        variable index with IR_STORE_VAR.
+    ir->body = ir_sym_init(var_idx);
+    /// The inline instruction was created above.
+    --ir_instr_index;
+    return ir_node_init(IR_STORE, ir);
+}
+
+ir_node_t ir_store_bin_init(int32_t idx, ir_node_t bin)
+{
+    ir_store_t *ir = weak_calloc(1, sizeof(ir_store_t));
+    ir->type = IR_STORE_BINARY;
+    ir->idx = idx;
+    ir->body = bin;
     return ir_node_init(IR_STORE, ir);
 }
 
@@ -87,16 +136,22 @@ ir_node_t ir_array_access_init(int32_t idx, ir_node_t op)
     return ir_node_init(IR_ARRAY_ACCESS, ir);    
 }
 
-ir_node_t ir_type_decl_init(uint64_t decls_size, ir_node_t *decls)
+ir_node_t ir_type_decl_init(const char *name, uint64_t decls_size, ir_node_t *decls)
 {
     ir_type_decl_t *ir = weak_calloc(1, sizeof(ir_type_decl_t));
+    ir->name = name;
     ir->decls_size = decls_size;
     ir->decls = decls;
     return ir_node_init(IR_TYPE_DECL, ir);    
 }
 
-ir_node_t ir_func_decl_init(const char *name, uint64_t args_size, ir_alloca_t *args, uint64_t body_size, ir_node_t *body)
-{
+ir_node_t ir_func_decl_init(
+    const char  *name,
+    uint64_t     args_size,
+    ir_node_t   *args,
+    uint64_t     body_size,
+    ir_node_t   *body
+) {
     ir_func_decl_t *ir = weak_calloc(1, sizeof(ir_func_decl_t));
     ir->name = name;
     ir->args_size = args_size;
@@ -106,17 +161,19 @@ ir_node_t ir_func_decl_init(const char *name, uint64_t args_size, ir_alloca_t *a
     return ir_node_init(IR_FUNC_DECL, ir);    
 }
 
-ir_node_t ir_func_call_init(const char *name, uint64_t args_size, int32_t *args_idxs)
+ir_node_t ir_func_call_init(const char *name, uint64_t args_size, ir_node_t  *args)
 {
     ir_func_call_t *ir = weak_calloc(1, sizeof(ir_func_call_t));
     ir->name = name;
     ir->args_size = args_size;
-    ir->args_idxs = args_idxs;
+    ir->args = args;
     return ir_node_init(IR_FUNC_CALL, ir);    
 }
 
 void ir_node_cleanup(ir_node_t ir) { (void)ir; }
 void ir_alloca_cleanup(ir_node_t ir) { (void)ir; }
+void ir_imm_cleanup(ir_node_t ir) { (void)ir; }
+void ir_sym_cleanup(ir_node_t ir) { (void)ir; }
 void ir_store_cleanup(ir_node_t ir) { (void)ir; }
 void ir_binary_cleanup(ir_node_t ir) { (void)ir; }
 void ir_label_cleanup(ir_node_t ir) { (void)ir; }
