@@ -38,7 +38,8 @@ int main()
         "  Number <line:2, col:3> 1\n"
         "  Number <line:2, col:3> 1\n"
         "  Number <line:2, col:3> 1\n"
-        "  CompoundStmt <line:0, col:0>\n");
+        "  CompoundStmt <line:0, col:0>\n"
+    );
 
     fclose(stream);
     free(buf);

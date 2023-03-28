@@ -168,7 +168,7 @@ static void ir_dump_func_call(FILE *mem, ir_func_call_t *ir)
             t == IR_SYM ||
             t == IR_IMM
         ) && (
-            "Array access expects immediate value or symbol"
+            "Function call expression expects immediate value or symbol"
         ) );
         ir_dump_node(mem, node);
         if (i < size -1) {
@@ -182,8 +182,8 @@ static void ir_dump_func_call(FILE *mem, ir_func_call_t *ir)
 {
     switch (ir.type) {
     case IR_ALLOCA: ir_dump_alloca(mem, ir.ir); break;
-    case IR_IMM:  ir_dump_imm(mem, ir.ir); break;
-    case IR_SYM:  ir_dump_sym(mem, ir.ir); break;
+    case IR_IMM: ir_dump_imm(mem, ir.ir); break;
+    case IR_SYM: ir_dump_sym(mem, ir.ir); break;
     case IR_STORE: ir_dump_store(mem, ir.ir); break;
     case IR_BINARY: ir_dump_binary(mem, ir.ir); break;
     case IR_LABEL: ir_dump_label(mem, ir.ir); break;
