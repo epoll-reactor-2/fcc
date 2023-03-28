@@ -18,7 +18,7 @@ typedef enum {
     IR_IMM,
     IR_SYM,
     IR_STORE,
-    IR_BINARY,
+    IR_BIN,
     IR_LABEL,
     IR_JUMP,
     IR_COND,
@@ -69,7 +69,7 @@ typedef struct {
 typedef enum {
     IR_STORE_IMM,
     IR_STORE_VAR,
-    IR_STORE_BINARY,
+    IR_STORE_BIN,
 } ir_store_type_e;
 
 typedef struct {
@@ -96,7 +96,7 @@ typedef struct {
     tok_type_e op;
     ir_node_t  lhs;
     ir_node_t  rhs;
-} ir_binary_t;
+} ir_bin_t;
 
 typedef struct {
     /// Label used to jump to.
@@ -115,7 +115,7 @@ typedef struct {
     /// it should looks like
     ///   if cmpneq x, 0.
     /// Requires only binary IR instruction.
-    ir_binary_t cond;
+    ir_bin_t cond;
     /// Where to jump if condition passes.
     ir_label_t  goto_label;
 } ir_cond_t;
@@ -187,15 +187,15 @@ ir_node_t ir_node_init(ir_type_e type, void *ir);
 ir_node_t ir_alloca_init(data_type_e dt, int32_t idx);
 ir_node_t ir_imm_init(int32_t imm);
 ir_node_t ir_sym_init(int32_t idx);
-/// \todo: Multiple init functions for variable and immediate value.
+
 ir_node_t ir_store_imm_init(int32_t idx, int32_t imm);
 ir_node_t ir_store_var_init(int32_t idx, int32_t var_idx);
-ir_node_t ir_store_bin_init(int32_t idx, ir_node_t bin);
+ir_node_t ir_store_binary_init(int32_t idx, ir_node_t bin);
 
-ir_node_t ir_binary_init(tok_type_e op, ir_node_t lhs, ir_node_t rhs);
+ir_node_t ir_bin_init(tok_type_e op, ir_node_t lhs, ir_node_t rhs);
 ir_node_t ir_label_init(int32_t idx);
 ir_node_t ir_jump_init(int32_t idx);
-ir_node_t ir_cond_init(ir_binary_t cond, ir_label_t goto_label);
+ir_node_t ir_cond_init(ir_bin_t cond, ir_label_t goto_label);
 ir_node_t ir_ret_init(bool is_void, ir_node_t op);
 ir_node_t ir_member_init(int32_t idx, int32_t field_idx);
 ir_node_t ir_array_access_init(int32_t idx, ir_node_t op);
@@ -204,18 +204,5 @@ ir_node_t ir_func_decl_init(const char *name, uint64_t args_size, ir_node_t *arg
 ir_node_t ir_func_call_init(const char *name, uint64_t args_size, ir_node_t *args);
 
 void ir_node_cleanup(ir_node_t ir);
-void ir_alloca_cleanup(ir_node_t ir);
-void ir_imm_cleanup(ir_node_t ir);
-void ir_sym_cleanup(ir_node_t ir);
-void ir_store_cleanup(ir_node_t ir);
-void ir_binary_cleanup(ir_node_t ir);
-void ir_label_cleanup(ir_node_t ir);
-void ir_jump_cleanup(ir_node_t ir);
-void ir_cond_cleanup(ir_node_t ir);
-void ir_ret_cleanup(ir_node_t ir);
-void ir_member_cleanup(ir_node_t ir);
-void ir_type_decl_cleanup(ir_node_t ir);
-void ir_func_decl_cleanup(ir_node_t ir);
-void ir_func_call_cleanup(ir_node_t ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_H
