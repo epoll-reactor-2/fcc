@@ -34,7 +34,7 @@ static void ir_dump_store(FILE *mem, ir_store_t *ir)
     assert( (
         t == IR_SYM ||
         t == IR_IMM ||
-        t == IR_BINARY
+        t == IR_BIN
     ) && (
         "Only variables or immedaite values "
         "can be stored"
@@ -42,7 +42,7 @@ static void ir_dump_store(FILE *mem, ir_store_t *ir)
     ir_dump_node(mem, ir->body);
 }
 
-static void ir_dump_binary(FILE *mem, ir_binary_t *ir)
+static void ir_dump_bin(FILE *mem, ir_bin_t *ir)
 {
     const char *op = NULL;
     switch (ir->op) {
@@ -84,7 +84,7 @@ static void ir_dump_jump(FILE *mem, ir_jump_t *ir)
 static void ir_dump_cond(FILE *mem, ir_cond_t *ir)
 {
     fprintf(mem, "if ");
-    ir_dump_binary(mem, &ir->cond);
+    ir_dump_bin(mem, &ir->cond);
     fprintf(mem, " goto L%d", ir->goto_label);
 }
 
@@ -185,7 +185,7 @@ static void ir_dump_func_call(FILE *mem, ir_func_call_t *ir)
     case IR_IMM: ir_dump_imm(mem, ir.ir); break;
     case IR_SYM: ir_dump_sym(mem, ir.ir); break;
     case IR_STORE: ir_dump_store(mem, ir.ir); break;
-    case IR_BINARY: ir_dump_binary(mem, ir.ir); break;
+    case IR_BIN: ir_dump_bin(mem, ir.ir); break;
     case IR_LABEL: ir_dump_label(mem, ir.ir); break;
     case IR_JUMP: ir_dump_jump(mem, ir.ir); break;
     case IR_COND: ir_dump_cond(mem, ir.ir); break;
