@@ -77,9 +77,9 @@ typedef struct {
     /// %1 = ...
     int32_t         idx;
     /// Allowed body for store instruction:
-    /// - immediate value
-    /// - binary operation
-    /// - variable (var)
+    /// - immediate value,
+    /// - binary operation,
+    /// - variable (var).
     ir_store_type_e type;
     ir_node_t       body;
 } ir_store_t;
@@ -115,15 +115,18 @@ typedef struct {
     /// it should looks like
     ///   if cmpneq x, 0.
     /// Requires only binary IR instruction.
-    ir_bin_t cond;
+    ir_node_t cond;
     /// Where to jump if condition passes.
-    ir_label_t  goto_label;
+    int32_t   goto_label;
 } ir_cond_t;
 
 typedef struct {
     /// Requires IR_RET or IR_RET_VOID. In case
     /// of the last one, op is NULL.
     bool is_void;
+    /// Accepted values:
+    /// - symbol (variable index),
+    /// - immediate value.
     ir_node_t op;
 } ir_ret_t;
 
@@ -144,7 +147,7 @@ typedef struct {
 typedef struct {
     int32_t  idx;
     /// Accepted values:
-    /// - symbol (variable index)
+    /// - symbol (variable index),
     /// - immediate value.
     ir_node_t op;
 } ir_array_access_t;
@@ -153,7 +156,7 @@ typedef struct {
     const char *name;
     uint64_t    decls_size;
     /// Accepted values:
-    /// - ir_alloca_t (primitive type)
+    /// - ir_alloca_t (primitive type),
     /// - ir_type_decl_t (compound type, nested).
     ir_node_t  *decls;
 } ir_type_decl_t;
@@ -164,7 +167,7 @@ typedef struct {
     const char   *name;
     uint64_t      args_size;
     /// Accepted values:
-    /// - ir_alloca_t (primitive type)
+    /// - ir_alloca_t (primitive type),
     /// - ir_type_decl_t (compound type, nested).
     ir_node_t    *args;
     uint64_t      body_size;
@@ -175,8 +178,8 @@ typedef struct {
     const char *name;
     uint64_t    args_size;
     /// Accepted values:
-    /// - ir_sym_t
-    /// - ir_imm_t
+    /// - ir_sym_t,
+    /// - ir_imm_t.
     /// Correct argument types is code generator responsibility.
     ir_node_t  *args;
 } ir_func_call_t;
@@ -195,7 +198,7 @@ ir_node_t ir_store_binary_init(int32_t idx, ir_node_t bin);
 ir_node_t ir_bin_init(tok_type_e op, ir_node_t lhs, ir_node_t rhs);
 ir_node_t ir_label_init(int32_t idx);
 ir_node_t ir_jump_init(int32_t idx);
-ir_node_t ir_cond_init(ir_bin_t cond, ir_label_t goto_label);
+ir_node_t ir_cond_init(ir_node_t cond, int32_t goto_label);
 ir_node_t ir_ret_init(bool is_void, ir_node_t op);
 ir_node_t ir_member_init(int32_t idx, int32_t field_idx);
 ir_node_t ir_array_access_init(int32_t idx, ir_node_t op);

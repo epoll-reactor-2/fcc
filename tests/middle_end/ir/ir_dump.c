@@ -34,8 +34,14 @@ void ir_dump_basic(FILE *stream, char **expected)
     ir_array_t body = {0};
     vector_push_back(body, ir_alloca_init(D_T_VOID, 0));
     vector_push_back(body, ir_alloca_init(D_T_VOID, 1));
+    vector_push_back(body, ir_label_init(0));
     vector_push_back(body, ir_store_imm_init(0, 123));
+    vector_push_back(body, ir_cond_init(
+        ir_bin_init(TOK_EQ, ir_imm_init(1), ir_sym_init(1)),
+        0
+    ));
     vector_push_back(body, ir_store_var_init(1, 0));
+    vector_push_back(body, ir_jump_init(0));
 
     ir_func_decl_t func = {
         .name      = "decl_f",
@@ -51,8 +57,11 @@ void ir_dump_basic(FILE *stream, char **expected)
         "fun decl_f(alloca int %0, alloca char %1, alloca float %2, alloca int %3):\n"
         "       0:   alloca void %0\n"
         "       1:   alloca void %1\n"
+        "L0:\n"
         "       2:   store %0 $123\n"
-        "       3:   store %1 %0\n";
+        "       3:   if $1 eq %1 goto L0\n"
+        "       4:   store %1 %0\n"
+        "       5:   jmp L0\n";
 
     vector_foreach(args, i) {
         ir_node_cleanup(args.data[i]);
