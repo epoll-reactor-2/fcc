@@ -4,9 +4,10 @@
  * This file is distributed under the MIT license.
  */
 
- #include "middle_end/ir.h"
- #include "utility/alloc.h"
- #include "utility/unreachable.h"
+#include "middle_end/ir.h"
+#include "utility/alloc.h"
+#include "utility/unreachable.h"
+#include <assert.h>
 
 /// Global state.
 static int32_t ir_instr_index = 0;
@@ -75,6 +76,7 @@ ir_node_t ir_store_var_init(int32_t idx, int32_t var_idx)
 
 ir_node_t ir_store_bin_init(int32_t idx, ir_node_t bin)
 {
+    assert(bin.type == IR_BIN && "Store expects binary expression in this context");
     ir_store_t *ir = weak_calloc(1, sizeof(ir_store_t));
     ir->type = IR_STORE_BIN;
     ir->idx = idx;
@@ -84,6 +86,15 @@ ir_node_t ir_store_bin_init(int32_t idx, ir_node_t bin)
 
 ir_node_t ir_bin_init(tok_type_e op, ir_node_t lhs, ir_node_t rhs)
 {
+    assert(((
+        lhs.type == IR_SYM ||
+        lhs.type == IR_IMM
+     ) && (
+        rhs.type == IR_SYM ||
+        rhs.type == IR_IMM
+    )) && (
+        "Binary operation expects variable or immediate value"
+    ));
     ir_bin_t *ir = weak_calloc(1, sizeof(ir_bin_t));
     ir->op = op;
     ir->lhs = lhs;
@@ -95,7 +106,10 @@ ir_node_t ir_label_init(int32_t idx)
 {
     ir_label_t *ir = weak_calloc(1, sizeof(ir_label_t));
     ir->idx = idx;
-    return ir_node_init(IR_LABEL, ir);    
+    ir_node_t node = ir_node_init(IR_LABEL, ir);
+    /// Goto label has no own instruction index.
+    --ir_instr_index;
+    return node;
 }
 
 ir_node_t ir_jump_init(int32_t idx)
@@ -105,16 +119,29 @@ ir_node_t ir_jump_init(int32_t idx)
     return ir_node_init(IR_JUMP, ir);    
 }
 
-ir_node_t ir_cond_init(ir_bin_t cond, ir_label_t goto_label)
+ir_node_t ir_cond_init(ir_node_t cond, int32_t goto_label)
 {
+    assert(cond.type == IR_BIN && "Only binary instruction supported as condition body");
     ir_cond_t *ir = weak_calloc(1, sizeof(ir_cond_t));
     ir->cond = cond;
     ir->goto_label = goto_label;
+    /// Condition always built from 3 inline instructions.
+    ir_instr_index -=
+        1 + /// LHS.
+        1 + /// RHS.
+        1 ; /// Goto label.
     return ir_node_init(IR_COND, ir);    
 }
 
 ir_node_t ir_ret_init(bool is_void, ir_node_t op)
 {
+    ir_type_e t = op.type;
+    assert((
+        op.type == IR_SYM ||
+        op.type == IR_IMM
+    ) && (
+        "Ret expects immediate value or variable"
+    ));
     ir_ret_t *ir = weak_calloc(1, sizeof(ir_ret_t));
     ir->is_void = is_void;
     ir->op = op;
@@ -126,11 +153,17 @@ ir_node_t ir_member_init(int32_t idx, int32_t field_idx)
     ir_member_t *ir = weak_calloc(1, sizeof(ir_member_t));
     ir->idx = idx;
     ir->field_idx = field_idx;
-    return ir_node_init(IR_MEMBER   , ir);    
+    return ir_node_init(IR_MEMBER, ir);
 }
 
 ir_node_t ir_array_access_init(int32_t idx, ir_node_t op)
 {
+    assert((
+        op.type == IR_SYM ||
+        op.type == IR_IMM
+    ) && (
+        "Array access expects immediate value or variable"
+    ));
     ir_array_access_t *ir = weak_calloc(1, sizeof(ir_array_access_t));
     ir->idx = idx;
     ir->op = op;
@@ -139,6 +172,17 @@ ir_node_t ir_array_access_init(int32_t idx, ir_node_t op)
 
 ir_node_t ir_type_decl_init(const char *name, uint64_t decls_size, ir_node_t *decls)
 {
+#ifndef NDEBUG
+    for (uint64_t i = 0; i < decls_size; ++i) {
+        ir_type_e t = decls[i].type;
+        assert((
+            t == IR_ALLOCA ||
+            t == IR_TYPE_DECL
+        ) && (
+            "Primitive or compound type as type field expected"
+        ));
+    }
+#endif // NDEBUG
     ir_type_decl_t *ir = weak_calloc(1, sizeof(ir_type_decl_t));
     ir->name = name;
     ir->decls_size = decls_size;
@@ -153,6 +197,14 @@ ir_node_t ir_func_decl_init(
     uint64_t     body_size,
     ir_node_t   *body
 ) {
+#ifndef NDEBUG
+    for (uint64_t i = 0; i < args_size; ++i) {
+        ir_type_e t = args[i].type;
+        assert((t == IR_ALLOCA) && (
+            "Function expects alloca instruction as parameter"
+        ));
+    }
+#endif // NDEBUG
     ir_func_decl_t *ir = weak_calloc(1, sizeof(ir_func_decl_t));
     ir->name = name;
     ir->args_size = args_size;
@@ -164,6 +216,17 @@ ir_node_t ir_func_decl_init(
 
 ir_node_t ir_func_call_init(const char *name, uint64_t args_size, ir_node_t  *args)
 {
+#ifndef NDEBUG
+    for (uint64_t i = 0; i < args_size; ++i) {
+        ir_type_e t = args[i].type;
+        assert((
+            t == IR_SYM ||
+            t == IR_IMM
+        ) && (
+            "Function call expression expects immediate value or variable"
+        ));
+    }
+#endif // NDEBUG
     ir_func_call_t *ir = weak_calloc(1, sizeof(ir_func_call_t));
     ir->name = name;
     ir->args_size = args_size;
@@ -185,7 +248,7 @@ static void ir_bin_cleanup(ir_bin_t *ir)
 
 static void ir_cond_cleanup(ir_cond_t *ir)
 {
-    ir_bin_cleanup(&ir->cond);
+    ir_node_cleanup(ir->cond);
 }
 
 static void ir_ret_cleanup(ir_ret_t *ir)

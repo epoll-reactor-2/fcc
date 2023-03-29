@@ -31,14 +31,6 @@ static void ir_dump_store(FILE *mem, ir_store_t *ir)
 {
     fprintf(mem, "store %%%d ", ir->idx);
     ir_type_e t = ir->body.type;
-    assert( (
-        t == IR_SYM ||
-        t == IR_IMM ||
-        t == IR_BIN
-    ) && (
-        "Only variables or immedaite values "
-        "can be stored"
-    ) );
     ir_dump_node(mem, ir->body);
 }
 
@@ -65,15 +57,14 @@ static void ir_dump_bin(FILE *mem, ir_bin_t *ir)
     default: weak_unreachable("Unknown operation");
     }
 
-    fprintf(mem, "%s <arg1> <arg2>", op);
-    /// \todo: Variable index or immedaite value...
-    ///        Rather IR nodes for that.
-    // assert(ir->lhs.type == IR_...);
+    ir_dump_node(mem, ir->lhs);
+    fprintf(mem, " %s ", op);
+    ir_dump_node(mem, ir->rhs);
 }
 
 static void ir_dump_label(FILE *mem, ir_label_t *ir)
 {
-    fprintf(mem, "%d:", ir->idx);
+    fprintf(mem, "\nL%d:", ir->idx);
 }
 
 static void ir_dump_jump(FILE *mem, ir_jump_t *ir)
@@ -84,19 +75,12 @@ static void ir_dump_jump(FILE *mem, ir_jump_t *ir)
 static void ir_dump_cond(FILE *mem, ir_cond_t *ir)
 {
     fprintf(mem, "if ");
-    ir_dump_bin(mem, &ir->cond);
+    ir_dump_node(mem, ir->cond);
     fprintf(mem, " goto L%d", ir->goto_label);
 }
 
 static void ir_dump_ret(FILE *mem, ir_ret_t *ir)
 {
-    ir_type_e t = ir->op.type;
-    assert( (
-        t == IR_SYM ||
-        t == IR_IMM
-    ) && (
-        "Ret expects immediate value or symbol"
-    ) );
     fprintf(mem, " ");
     ir_dump_node(mem, ir->op);
 }
@@ -116,13 +100,8 @@ static void ir_dump_array_access(FILE *mem, ir_array_access_t *ir)
 {
     /// %1[%2]
     /// %1[$123]
-    ir_type_e t = ir->op.type;
-    assert( (
-        t == IR_SYM ||
-        t == IR_IMM
-    ) && (
-        "Array access expects immediate value or symbol"
-    ) );
+    (void)mem;
+    (void)ir;
     weak_unreachable("todo: implement");
 }
 
@@ -151,7 +130,9 @@ static void ir_dump_func_decl(FILE *mem, ir_func_decl_t *ir)
     size = ir->body_size;
     for (uint64_t i = 0; i < size; ++i) {
         ir_node_t node = *(ir->body + i);
-        fprintf(mem, "\n% 8d:   ", node.instr_idx);
+
+        if (node.type != IR_LABEL)
+            fprintf(mem, "\n% 8d:   ", node.instr_idx);
         ir_dump_node(mem, node);
     }
 }
@@ -162,14 +143,6 @@ static void ir_dump_func_call(FILE *mem, ir_func_call_t *ir)
     uint64_t size = ir->args_size;
     for (uint64_t i = 0; i < size; ++i) {
         ir_node_t node = *(ir->args + i);
-        ir_type_e t = node.type;
-
-        assert( (
-            t == IR_SYM ||
-            t == IR_IMM
-        ) && (
-            "Function call expression expects immediate value or symbol"
-        ) );
         ir_dump_node(mem, node);
         if (i < size -1) {
             fprintf(mem, ", ");
