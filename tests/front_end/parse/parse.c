@@ -40,11 +40,17 @@ bool parse_test(const char *filename)
     yylex();
     fseek(yyin, 0, SEEK_SET);
 
+    bool    success = true;
     char   *expected = NULL;
     char   *generated = NULL;
     size_t  _ = 0;
     FILE   *ast_stream = open_memstream(&expected, &_);
     FILE   *dump_stream = open_memstream(&generated, &_);
+
+    if (ast_stream == NULL || dump_stream == NULL) {
+        perror("open_memstream()");
+        return false;
+    }
 
     extract_assertion_comment(yyin, ast_stream);
 
@@ -57,15 +63,17 @@ bool parse_test(const char *filename)
 
         if (strcmp(expected, generated) != 0) {
             printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            return false;
+            success = false;
+            goto exit;
         }
         printf("Success!\n");
         fflush(stdout);
     } else {
         /// Error, will be printed in main.
-        return false;
+        success = false;
     }
 
+exit:
     yylex_destroy();
     tokens_cleanup(toks);
     fclose(ast_stream);
@@ -73,7 +81,7 @@ bool parse_test(const char *filename)
     free(expected);
     free(generated);
 
-    return true;
+    return success;
 }
 
 int main()
@@ -104,5 +112,6 @@ int main()
     fclose(diag_warn_memstream);
     free(err_buf);
     free(warn_buf);
+
     return ret;
 }

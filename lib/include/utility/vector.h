@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define WEAK_COMPILER_UTILITY_VECTOR_H
 
 #include <stdlib.h>
+#include "utility/alloc.h"
 
 #define vector_t(type) struct {type* data; size_t size; size_t count;}
 
@@ -31,7 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     if ((vec).count >= (vec).size) { \
         (vec).size += (vec).size >> 1; \
         if ((vec).size == 0) (vec).size = 2; \
-        (vec).data = realloc((vec).data, (vec).size * sizeof(*(vec).data)); \
+        (vec).data = weak_realloc((vec).data, (vec).size * sizeof(*(vec).data)); \
     }
 
 #define vector_init(vec) \
