@@ -167,17 +167,17 @@ static void visit_ast_var_decl(ast_node_t *ast)
     ast_var_decl_t *decl = ast->ast;
     if (decl->body) {
         visit_ast_node(decl->body);
-        if (decl->data_type != last_dt)
+        if (decl->dt != last_dt)
             weak_compile_error(
                 ast->line_no,
                 ast->col_no,
                 "Cannot assign %s to variable of type %s",
                 data_type_to_string(last_dt),
-                data_type_to_string(decl->data_type)
+                data_type_to_string(decl->dt)
             );
     }
-    ast_storage_push_typed(decl->name, decl->data_type, ast);
-    last_dt = decl->data_type;
+    ast_storage_push_typed(decl->name, decl->dt, ast);
+    last_dt = decl->dt;
 }
 
 static void visit_ast_array_decl(ast_node_t *ast)
@@ -195,8 +195,8 @@ static void visit_ast_array_decl(ast_node_t *ast)
             );
     }
 
-    ast_storage_push_typed(decl->name, decl->data_type, ast);
-    last_dt = decl->data_type;
+    ast_storage_push_typed(decl->name, decl->dt, ast);
+    last_dt = decl->dt;
 }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -259,7 +259,7 @@ static void visit_ast_array_access(ast_node_t *ast)
                 ast->col_no,
                 "Cannot get index of non-array type"
             );
-        last_dt = decl->data_type;
+        last_dt = decl->dt;
     } else {
         ast_array_decl_t *decl = record->ast;
         out_of_range_analysis(decl->arity_list, stmt->indices);
