@@ -70,17 +70,17 @@ static void visit_ast_num(ast_num_t *ast)
     ir_last = ir_imm_init(ast->value);
 }
 
-static void visit_ast_string(ast_string_t *ast) {}
+static void visit_ast_string(ast_string_t *ast) { (void) ast; }
 
-static void visit_ast_binary(ast_binary_t *ast) {}
+static void visit_ast_binary(ast_binary_t *ast) { (void) ast; }
 
-static void visit_ast_break(ast_break_t *ast) {}
-static void visit_ast_continue(ast_continue_t *ast) {}
+static void visit_ast_break(ast_break_t *ast) { (void) ast; }
+static void visit_ast_continue(ast_continue_t *ast) { (void) ast; }
 
-static void visit_ast_for(ast_for_t *ast) {}
-static void visit_ast_while(ast_while_t *ast) {}
-static void visit_ast_do_while(ast_do_while_t *ast) {}
-static void visit_ast_if(ast_if_t *ast) {}
+static void visit_ast_for(ast_for_t *ast) { (void) ast; }
+static void visit_ast_while(ast_while_t *ast) { (void) ast; }
+static void visit_ast_do_while(ast_do_while_t *ast) { (void) ast; }
+static void visit_ast_if(ast_if_t *ast) { (void) ast; }
 
 static void visit_ast_return(ast_return_t *ast)
 {
@@ -92,9 +92,9 @@ static void visit_ast_return(ast_return_t *ast)
     vector_push_back(ir_stmts, ir_last);
 }
 
-static void visit_ast_symbol(ast_symbol_t *ast) {}
-static void visit_ast_unary(ast_unary_t *ast) {}
-static void visit_ast_struct_decl(ast_struct_decl_t *ast) {}
+static void visit_ast_symbol(ast_symbol_t *ast) { (void) ast; }
+static void visit_ast_unary(ast_unary_t *ast) { (void) ast; }
+static void visit_ast_struct_decl(ast_struct_decl_t *ast) { (void) ast; }
 
 static void visit_ast_var_decl(ast_var_decl_t *ast)
 {
@@ -103,9 +103,9 @@ static void visit_ast_var_decl(ast_var_decl_t *ast)
     vector_push_back(ir_stmts, ir_last);
 }
 
-static void visit_ast_array_decl(ast_array_decl_t *ast) {}
-static void visit_ast_array_access(ast_array_access_t *ast) {}
-static void visit_ast_member(ast_member_t *ast) {}
+static void visit_ast_array_decl(ast_array_decl_t *ast) { (void) ast; }
+static void visit_ast_array_access(ast_array_access_t *ast) { (void) ast; }
+static void visit_ast_member(ast_member_t *ast) { (void) ast; }
 
 static void visit_ast_compound(ast_compound_t *ast)
 {
@@ -141,7 +141,7 @@ static void visit_ast_function_decl(ast_function_decl_t *decl)
     );
 }
 
-static void visit_ast_function_call(ast_function_call_t *ast) {}
+static void visit_ast_function_call(ast_function_call_t *ast) { (void) ast; }
 
 /* static */ void visit_ast(ast_node_t *ast)
 {

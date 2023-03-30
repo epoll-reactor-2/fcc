@@ -24,6 +24,7 @@ void ast_storage_reset_state()
 {
     scope_depth = 0;
     hashmap_foreach(&scopes, key, val) {
+        (void) key;
         ast_storage_decl_t *decl = (ast_storage_decl_t *)val;
         weak_free(decl);
     }

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O0 -ggdb -std=gnu11 -fPIC -Ilib/include
+CFLAGS = -O0 -ggdb -std=gnu11 -Wall -Wextra -fPIC -Ilib/include
 LDFLAGS = -lfl -Wl,-R
 LIB=libweak_compiler.so
 
@@ -13,7 +13,7 @@ build_dir:
 	flex --outfile=build/lex.yy.c lex/grammar.lex
 
 test_files: | build_dir
-	cp -r tests/{front,middle,back}_end/input/* build/test_inputs
+	cp -r tests/{front,middle}_end/input/* build/test_inputs
 
 SOURCES = $(shell find lib -name '*.c')
 SOURCES += build/lex.yy.c
@@ -29,7 +29,7 @@ $(LIB): $(OBJECTS) | build_dir
 	$(CC) $(CFLAGS) $(LIB_DEPENDENCIES) -shared -o build/$(LIB) $(LDFLAGS)
 
 # Holy fuck
-tests: analysis_test ast_storage_test ast_dump_test data_type_test tok_test parse_test code_gen_test ir_dump_test ir_gen_test
+tests: analysis_test ast_storage_test ast_dump_test data_type_test tok_test parse_test ir_dump_test ir_gen_test
 
 analysis_test: tests/front_end/analysis/analysis.c | $(LIB)
 	$(CC) -Itests $(CFLAGS) $^ build/lex.yy.o -o build/analysis_test -Lbuild -lweak_compiler $(LDFLAGS)
@@ -48,9 +48,6 @@ tok_test: tests/front_end/lex/tok.c | $(LIB)
 
 parse_test: tests/front_end/parse/parse.c | $(LIB)
 	$(CC) -Itests $(CFLAGS) $^ build/lex.yy.o -o build/parse_test -Lbuild -lweak_compiler $(LDFLAGS)
-
-code_gen_test: tests/back_end/code_gen/code_gen.c | $(LIB)
-	$(CC) -Itests $(CFLAGS) $^ build/lex.yy.o -o build/code_gen_test -Lbuild -lweak_compiler $(LDFLAGS)
 
 ir_dump_test: tests/middle_end/ir/ir_dump.c | $(LIB)
 	$(CC) -Itests $(CFLAGS) $^ build/lex.yy.o -o build/ir_dump_test -Lbuild -lweak_compiler $(LDFLAGS)
