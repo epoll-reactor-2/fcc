@@ -39,7 +39,7 @@ typedef enum {
 /// - ir_%name%_init(...)
 /// - ir_%name%_cleanup(...)
 /// .
-typedef struct {
+typedef struct ir_node_t {
     ir_type_e  type;
     /// Instruction index. Needed to build
     /// Control Flow Graph from this IR in order

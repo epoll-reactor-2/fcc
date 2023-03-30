@@ -14,7 +14,7 @@ typedef struct ast_node_t ast_node_t;
 
 typedef struct {
     /// Data type of array.
-    data_type_e data_type;
+    data_type_e dt;
 
     /// Variable name.
     ///
@@ -40,7 +40,7 @@ typedef struct {
 
 /// \note type_name may be NULL.
 ast_node_t *ast_array_decl_init(
-    data_type_e  data_type,
+    data_type_e  dt,
     char        *name,
     char        *type_name,
     ast_node_t  *arity_list,

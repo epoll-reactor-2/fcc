@@ -4,6 +4,12 @@
  * This file is distributed under the MIT license.
  */
 
+/////////////////////////////
+/// Super important note. ///
+/////////////////////////////
+///
+/// This is a junk. Will be in git history but actually to throw out.
+
 #include "back_end/code_gen.h"
 #include "front_end/ast/ast_array_decl.h"
 #include "front_end/ast/ast_binary.h"
@@ -85,7 +91,7 @@ static uint32_t decl_bytes_size(ast_var_decl_t *decl)
     if (decl->indirection_lvl > 0)
         return 8;
 
-    switch (decl->data_type) {
+    switch (decl->dt) {
     case D_T_BOOL:   return 1;
     case D_T_CHAR:   return 1;
     case D_T_INT:    return 4;
@@ -148,7 +154,7 @@ static void visit_ast_var_decl(ast_node_t *ast)
     fflush(stdout);
 
     /// \todo: Other types.
-    if (decl->data_type == D_T_INT) {
+    if (decl->dt == D_T_INT) {
         /// \todo: Not 1, just constant or something else.
         emit("\tmovl    $1, -%d(%%rbp)", stack_offset);
     }

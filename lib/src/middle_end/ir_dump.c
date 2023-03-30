@@ -81,7 +81,7 @@ static void ir_dump_cond(FILE *mem, ir_cond_t *ir)
 
 static void ir_dump_ret(FILE *mem, ir_ret_t *ir)
 {
-    fprintf(mem, " ");
+    fprintf(mem, "ret ");
     ir_dump_node(mem, ir->op);
 }
 

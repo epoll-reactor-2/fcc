@@ -276,7 +276,7 @@ static void visit_ast_struct_decl(FILE *mem, ast_node_t *ast)
 static void visit_ast_var_decl(FILE *mem, ast_node_t *ast)
 {
     ast_var_decl_t *decl = ast->ast;
-    data_type_e dt = decl->data_type;
+    data_type_e dt = decl->dt;
     unsigned il = decl->indirection_lvl;
 
     ast_print(mem, ast, "VarDecl");
@@ -303,7 +303,7 @@ static void visit_ast_var_decl(FILE *mem, ast_node_t *ast)
 static void visit_ast_array_decl(FILE *mem, ast_node_t *ast)
 {
     ast_array_decl_t *decl = ast->ast;
-    data_type_e dt = decl->data_type;
+    data_type_e dt = decl->dt;
     unsigned il = decl->indirection_lvl;
 
     ast_print(mem, ast, "ArrayDecl");
@@ -311,7 +311,7 @@ static void visit_ast_array_decl(FILE *mem, ast_node_t *ast)
     if (dt == D_T_STRUCT) {
         fprintf(mem, "struct %s ", decl->type_name);
     } else {
-        fprintf(mem, "%s ", data_type_to_string(decl->data_type));
+        fprintf(mem, "%s ", data_type_to_string(dt));
     }
 
     if (il > 0) {

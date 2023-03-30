@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
- #ifndef WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
- #define WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
+#ifndef WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
+#define WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
 
 #include "middle_end/ir.h"
 #include <stdio.h>
@@ -20,4 +20,4 @@
 ///           - ir is NULL
 int32_t ir_dump(FILE *mem, ir_func_decl_t *ir);
 
- #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
+#endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
