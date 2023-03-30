@@ -135,7 +135,6 @@ ir_node_t ir_cond_init(ir_node_t cond, int32_t goto_label)
 
 ir_node_t ir_ret_init(bool is_void, ir_node_t op)
 {
-    ir_type_e t = op.type;
     assert((
         op.type == IR_SYM ||
         op.type == IR_IMM

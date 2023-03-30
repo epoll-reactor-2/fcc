@@ -30,7 +30,6 @@ static void ir_dump_sym(FILE *mem, ir_imm_t *ir)
 static void ir_dump_store(FILE *mem, ir_store_t *ir)
 {
     fprintf(mem, "store %%%d ", ir->idx);
-    ir_type_e t = ir->body.type;
     ir_dump_node(mem, ir->body);
 }
 
