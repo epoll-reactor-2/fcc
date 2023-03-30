@@ -20,6 +20,12 @@ typedef struct {
 } ir_t;
 
 /// Create IR from AST. Implemented as recursive visitor.
+///
+/// Preconditions:
+/// - Applied all front-end analysis
+///   - variable_use_analysis
+///   - functions_analysis
+///   - type_analysis 
 ir_t ir_gen(ast_node_t *ast);
 void ir_cleanup(ir_t *ir);
 

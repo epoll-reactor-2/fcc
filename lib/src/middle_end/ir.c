@@ -144,6 +144,8 @@ ir_node_t ir_ret_init(bool is_void, ir_node_t op)
     ir_ret_t *ir = weak_calloc(1, sizeof(ir_ret_t));
     ir->is_void = is_void;
     ir->op = op;
+    /// Return operand is inline instruction.
+    if (!is_void) --ir_instr_index;
     return ir_node_init(is_void ? IR_RET_VOID : IR_RET, ir);    
 }
 

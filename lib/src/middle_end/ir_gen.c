@@ -46,6 +46,14 @@ static ir_node_t  ir_last;
 /// - increments with every created alloca instruction.
 static int32_t    ir_var_idx;
 
+static void invalidate()
+{
+    vector_free(ir_stmts);
+    vector_free(ir_func_decls);
+    memset(&ir_last, 0, sizeof(ir_last));
+    ir_var_idx = 0;
+}
+
 static void visit_ast(ast_node_t *ast);
 
 /// Primitives. Are not pushed to ir_stmts, because
@@ -72,7 +80,23 @@ static void visit_ast_num(ast_num_t *ast)
 
 static void visit_ast_string(ast_string_t *ast) { (void) ast; }
 
-static void visit_ast_binary(ast_binary_t *ast) { (void) ast; }
+static void visit_ast_binary(ast_binary_t *ast)
+{
+    visit_ast(ast->lhs);
+    ir_node_t lhs = ir_last;
+    visit_ast(ast->rhs);
+    ir_node_t rhs = ir_last;
+
+    /// \todo: Store binary result to variable?...
+    ///
+    /// \todo: Return expects symbol or immediate value as argument.
+    ///        However this (binary) operation looks like
+    ///          %N = add %1 %2
+    ///        , return thinks that there is binary instruction and
+    ///        not symbol.
+    ir_last = ir_bin_init(ast->operation, lhs, rhs);
+    vector_push_back(ir_stmts, ir_last);    
+}
 
 static void visit_ast_break(ast_break_t *ast) { (void) ast; }
 static void visit_ast_continue(ast_continue_t *ast) { (void) ast; }
@@ -88,7 +112,10 @@ static void visit_ast_return(ast_return_t *ast)
     if (ast->operand) {
         visit_ast(ast->operand);
     }
-    ir_last = ir_ret_init(/*is_void=*/! ( (bool) ast->operand ), ir_last);
+    ir_last = ir_ret_init(
+        /*is_void=*/! ( (bool) ast->operand ),
+        ir_last.type == IR_IMM ? ir_last : ir_sym_init(ir_last.instr_idx)
+    );
     vector_push_back(ir_stmts, ir_last);
 }
 
@@ -227,6 +254,7 @@ static void visit_ast_function_call(ast_function_call_t *ast) { (void) ast; }
 
 ir_t ir_gen(ast_node_t *ast)
 {
+    invalidate();
     visit_ast(ast);
 
     ir_t ir = {
