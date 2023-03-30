@@ -41,6 +41,11 @@ bool ir_test(const char *filename)
     size_t  _ = 0;
     FILE   *expected_stream = open_memstream(&expected, &_);
 
+    if (expected_stream == NULL) {
+        perror("open_memstream()");
+        return false;
+    }
+
     extract_assertion_comment(yyin, expected_stream);
 
     printf("Expected: %s\n", expected);

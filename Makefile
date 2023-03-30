@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O0 -ggdb -std=gnu11 -Wall -Wextra -fPIC -Ilib/include
+CFLAGS = -O0 -ggdb -std=gnu11 -Wall -Wextra -fanalyzer -fPIC -Ilib/include
 LDFLAGS = -lfl -Wl,-R
 LIB=libweak_compiler.so
 

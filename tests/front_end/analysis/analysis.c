@@ -48,6 +48,11 @@ bool analysis_test(const char *filename)
     size_t  _ = 0;
     FILE   *msg_stream = open_memstream(&msg, &_);
 
+    if (msg_stream == NULL) {
+        perror("open_memstream()");
+        return false;
+    }
+
     fseek(yyin, 0, SEEK_SET);
     extract_assertion_comment(yyin, msg_stream);
 
@@ -90,6 +95,8 @@ bool analysis_test(const char *filename)
 exit:
     ast_node_cleanup(ast);
     yylex_destroy();
+    fclose(msg_stream);
+    free(msg);
 
     return success;
 }

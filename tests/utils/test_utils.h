@@ -16,14 +16,9 @@
 #include "front_end/lex/lex.h"
 #include "utility/compiler.h"
 
-#define ASSERT_TRUE(expr) \
-  assert((expr));
-
-#define ASSERT_FALSE(expr) \
-  assert(!(expr));
-
-#define ASSERT_EQ(lhs, rhs) \
-  assert((lhs) == (rhs));
+#define ASSERT_TRUE(expr)   assert((expr));
+#define ASSERT_FALSE(expr)  assert(!(expr));
+#define ASSERT_EQ(lhs, rhs) assert((lhs) == (rhs));
 
 #define ASSERT_STREQ(lhs, rhs) do {   \
   int32_t rc = strcmp((lhs), (rhs));  \
@@ -39,6 +34,7 @@ void tokens_cleanup(tok_array_t *toks) {
         if (t->data)
             free(t->data);
     }
+    vector_free(*toks);
 }
 
 /// Get string represented as comment placed in the very
