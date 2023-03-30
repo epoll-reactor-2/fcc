@@ -1,0 +1,6 @@
+//fun main():
+//       %0 alloca ...
+//       ret ......
+int main() {
+    return 1 + 2;
+}
