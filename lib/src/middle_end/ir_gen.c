@@ -37,8 +37,12 @@
 
 typedef vector_t(ir_node_t) ir_array_t;
 
+/// Statements of current function. Every function
+/// start to fill this array from scratch.
 static ir_array_t ir_stmts;
+/// Total list of functions.
 static ir_array_t ir_func_decls;
+/// Last generated opcode.
 static ir_node_t  ir_last;
 /// Used to count alloca instructions.
 /// Conditions:
@@ -82,20 +86,20 @@ static void visit_ast_string(ast_string_t *ast) { (void) ast; }
 
 static void visit_ast_binary(ast_binary_t *ast)
 {
+    ir_node_t alloca = ir_alloca_init(D_T_INT, ir_var_idx++);
+    int32_t   alloca_idx = ((ir_alloca_t *) alloca.ir)->idx;
+
+    vector_push_back(ir_stmts, alloca);
+
     visit_ast(ast->lhs);
     ir_node_t lhs = ir_last;
     visit_ast(ast->rhs);
     ir_node_t rhs = ir_last;
 
-    /// \todo: Store binary result to variable?...
-    ///
-    /// \todo: Return expects symbol or immediate value as argument.
-    ///        However this (binary) operation looks like
-    ///          %N = add %1 %2
-    ///        , return thinks that there is binary instruction and
-    ///        not symbol.
-    ir_last = ir_bin_init(ast->operation, lhs, rhs);
-    vector_push_back(ir_stmts, ir_last);    
+    ir_node_t bin = ir_bin_init(ast->operation, lhs, rhs);
+    ir_last = ir_store_bin_init(alloca_idx, bin);
+    vector_push_back(ir_stmts, ir_last);
+    ir_last = ir_sym_init(alloca_idx);
 }
 
 static void visit_ast_break(ast_break_t *ast) { (void) ast; }
@@ -114,7 +118,7 @@ static void visit_ast_return(ast_return_t *ast)
     }
     ir_last = ir_ret_init(
         /*is_void=*/! ( (bool) ast->operand ),
-        ir_last.type == IR_IMM ? ir_last : ir_sym_init(ir_last.instr_idx)
+        /*op=*/ir_last
     );
     vector_push_back(ir_stmts, ir_last);
 }

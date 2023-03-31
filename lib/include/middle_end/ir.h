@@ -193,7 +193,7 @@ ir_node_t ir_sym_init(int32_t idx);
 
 ir_node_t ir_store_imm_init(int32_t idx, int32_t imm);
 ir_node_t ir_store_var_init(int32_t idx, int32_t var_idx);
-ir_node_t ir_store_binary_init(int32_t idx, ir_node_t bin);
+ir_node_t ir_store_bin_init(int32_t idx, ir_node_t bin);
 
 ir_node_t ir_bin_init(tok_type_e op, ir_node_t lhs, ir_node_t rhs);
 ir_node_t ir_label_init(int32_t idx);

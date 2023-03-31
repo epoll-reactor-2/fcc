@@ -12,6 +12,7 @@ build_dir:
 	    || echo "Build direcory already exists..."; \
 	flex --outfile=build/lex.yy.c lex/grammar.lex
 
+# TODO: make symlinks and not torture my SSD...
 test_files: | build_dir
 	cp -r tests/{front,middle}_end/input/* build/test_inputs
 
