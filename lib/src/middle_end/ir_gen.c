@@ -108,7 +108,51 @@ static void visit_ast_continue(ast_continue_t *ast) { (void) ast; }
 static void visit_ast_for(ast_for_t *ast) { (void) ast; }
 static void visit_ast_while(ast_while_t *ast) { (void) ast; }
 static void visit_ast_do_while(ast_do_while_t *ast) { (void) ast; }
-static void visit_ast_if(ast_if_t *ast) { (void) ast; }
+
+static void visit_ast_if(ast_if_t *ast)
+{
+    /// Schema:
+    ///
+    ///      if condition is true jump to L1
+    /// L0:  jump to L3 (exit label)
+    /// L1:  body instr 1 (first if stmt)
+    /// L2:  body instr 2
+    /// L3:  after body
+    visit_ast(ast->condition);
+    assert((
+        ir_last.type == IR_IMM ||
+        ir_last.type == IR_SYM
+    ) && ("Immediate value or symbol required."));
+    /// Condition always looks like comparison with 0.
+    ///
+    /// Possible cases:
+    /// - if (1    ) -> if imm neq $0 goto ...
+    ///
+    ///                    v Binary operation result.
+    /// - if (1 + 1) -> if sym neq $0 goto ...
+    ///
+    /// - if (var  ) -> if sym neq $0 goto ...
+    ir_last = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
+
+    ir_node_t  cond = ir_cond_init(ir_last, /*Not used for now.*/-1);
+    ir_cond_t *cond_ptr = cond.ir;
+
+    ir_node_t  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
+    ir_jump_t *exit_jmp_ptr = exit_jmp.ir;
+
+    /// Body starts after exit jump.
+    cond_ptr->goto_label = exit_jmp.instr_idx + 1;
+    vector_push_back(ir_stmts, cond);
+    vector_push_back(ir_stmts, exit_jmp);
+
+    visit_ast(ast->body);
+    /// Even with code like
+    /// void f() { if (x) { f(); } }
+    /// this will make us to jump to the `ret`
+    /// instruction, which terminates each (regardless
+    /// on the return type) function.
+    exit_jmp_ptr->idx = ir_last.instr_idx + 1;
+}
 
 static void visit_ast_return(ast_return_t *ast)
 {
@@ -157,6 +201,10 @@ static void visit_ast_function_decl(ast_function_decl_t *decl)
 
     memset(&ir_stmts, 0, sizeof(ir_stmts));
     visit_ast(decl->body);
+    if (decl->data_type == D_T_VOID) {
+        ir_node_t op = ir_node_init(IR_RET_VOID, NULL);
+        vector_push_back(ir_stmts, ir_ret_init(true, op));
+    }
     uint64_t   body_size = ir_stmts.count;
     ir_node_t *body      = ir_stmts.data;
 

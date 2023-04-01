@@ -132,7 +132,8 @@ ir_node_t ir_ret_init(bool is_void, ir_node_t op)
 {
     assert((
         op.type == IR_SYM ||
-        op.type == IR_IMM
+        op.type == IR_IMM ||
+        (is_void && op.type == IR_RET_VOID)
     ) && (
         "Ret expects immediate value or variable"
     ));
