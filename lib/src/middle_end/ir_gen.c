@@ -117,7 +117,17 @@ static void visit_ast_if(ast_if_t *ast)
     /// L0:  jump to L3 (exit label)
     /// L1:  body instr 1 (first if stmt)
     /// L2:  body instr 2
-    /// L3:  after body
+    /// L3:  after if
+    ///
+    /// or
+    ///      if condition is true jump to L1
+    /// L0:  jump to L4 (else label)
+    /// L1:  body instr 1 (first if stmt)
+    /// L2:  body instr 2
+    /// L3:  jump to L6
+    /// L4:  else body instr 1
+    /// L5:  else body instr 2
+    /// L6:  after if
     visit_ast(ast->condition);
     assert((
         ir_last.type == IR_IMM ||
@@ -137,13 +147,13 @@ static void visit_ast_if(ast_if_t *ast)
     ir_node_t  cond = ir_cond_init(ir_last, /*Not used for now.*/-1);
     ir_cond_t *cond_ptr = cond.ir;
 
-    ir_node_t  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
-    ir_jump_t *exit_jmp_ptr = exit_jmp.ir;
+    ir_node_t  cond_false_jmp = ir_jump_init(/*Not used for now.*/-1);
+    ir_jump_t *cond_false_jmp_ptr = cond_false_jmp.ir;
 
     /// Body starts after exit jump.
-    cond_ptr->goto_label = exit_jmp.instr_idx + 1;
+    cond_ptr->goto_label = cond_false_jmp.instr_idx + 1;
     vector_push_back(ir_stmts, cond);
-    vector_push_back(ir_stmts, exit_jmp);
+    vector_push_back(ir_stmts, cond_false_jmp);
 
     visit_ast(ast->body);
     /// Even with code like
@@ -151,7 +161,21 @@ static void visit_ast_if(ast_if_t *ast)
     /// this will make us to jump to the `ret`
     /// instruction, which terminates each (regardless
     /// on the return type) function.
-    exit_jmp_ptr->idx = ir_last.instr_idx + 1;
+    cond_false_jmp_ptr->idx = ir_last.instr_idx + 1;
+
+    if (!ast->else_body) return;
+    ir_node_t  end_jmp = ir_jump_init(/*Not used for now.*/-1);
+    ir_jump_t *end_jmp_ptr = end_jmp.ir;
+    /// Will be changed through ptr.
+    vector_push_back(ir_stmts, end_jmp);
+
+    /// Jump over the `then` statement to `else`.
+    cond_false_jmp_ptr->idx = ir_last.instr_idx
+        + 1  /// Jump statement.
+        + 1; /// The next one (first in `else` part).
+    visit_ast(ast->else_body);
+    /// `then` part ends with jump over `else` part.
+    end_jmp_ptr->idx = ir_last.instr_idx + 1;
 }
 
 static void visit_ast_return(ast_return_t *ast)
