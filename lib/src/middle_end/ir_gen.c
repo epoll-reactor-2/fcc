@@ -5,6 +5,7 @@
  */
 
 #include "middle_end/ir_gen.h"
+#include "middle_end/ir_storage.h"
 #include "middle_end/ir.h"
 #include "front_end/ast/ast_array_access.h"
 #include "front_end/ast/ast_array_decl.h"
@@ -136,11 +137,9 @@ static void visit_ast_if(ast_if_t *ast)
     /// Condition always looks like comparison with 0.
     ///
     /// Possible cases:
-    /// - if (1    ) -> if imm neq $0 goto ...
-    ///
     ///                    v Binary operation result.
     /// - if (1 + 1) -> if sym neq $0 goto ...
-    ///
+    /// - if (1    ) -> if imm neq $0 goto ...
     /// - if (var  ) -> if sym neq $0 goto ...
     ir_last = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
 
@@ -166,7 +165,7 @@ static void visit_ast_if(ast_if_t *ast)
     if (!ast->else_body) return;
     ir_node_t  end_jmp = ir_jump_init(/*Not used for now.*/-1);
     ir_jump_t *end_jmp_ptr = end_jmp.ir;
-    /// Will be changed through ptr.
+    /// Index of this jump will be changed through pointer.
     vector_push_back(ir_stmts, end_jmp);
 
     /// Jump over the `then` statement to `else`.
@@ -185,21 +184,48 @@ static void visit_ast_return(ast_return_t *ast)
         visit_ast(ast->operand);
     }
     ir_last = ir_ret_init(
-        /*is_void=*/! ( (bool) ast->operand ),
+        /*is_void=*/!ast->operand,
         /*op=*/ir_last
     );
     vector_push_back(ir_stmts, ir_last);
 }
 
-static void visit_ast_symbol(ast_symbol_t *ast) { (void) ast; }
+static void visit_ast_symbol(ast_symbol_t *ast)
+{
+    int32_t idx = ir_storage_get(ast->value);
+    ir_last = ir_sym_init(idx);
+}
+
 static void visit_ast_unary(ast_unary_t *ast) { (void) ast; }
 static void visit_ast_struct_decl(ast_struct_decl_t *ast) { (void) ast; }
 
 static void visit_ast_var_decl(ast_var_decl_t *ast)
 {
-    ir_last = ir_alloca_init(ast->dt, ir_var_idx++);
+    int32_t next_idx = ir_var_idx++;
+    ir_last = ir_alloca_init(ast->dt, next_idx);
     /// Used as function argument or as function body statement.
     vector_push_back(ir_stmts, ir_last);
+    ir_storage_push(ast->name, next_idx);
+
+    if (ast->body) {
+        visit_ast(ast->body);
+
+        switch (ir_last.type) {
+        case IR_IMM: {
+            ir_imm_t *imm = ir_last.ir;
+            ir_last = ir_store_imm_init(next_idx, imm->imm);
+            break;
+        }
+        case IR_SYM: {
+            ir_sym_t *sym = ir_last.ir;
+            ir_last = ir_store_var_init(next_idx, sym->idx);
+            break;
+        }
+        default:
+            assert(!"Expected symbol or immediate value as variable initializer.");
+        }
+        vector_push_back(ir_stmts, ir_last);
+    }
 }
 
 static void visit_ast_array_decl(ast_array_decl_t *ast) { (void) ast; }
@@ -214,9 +240,11 @@ static void visit_ast_compound(ast_compound_t *ast)
 
 static void visit_ast_function_decl(ast_function_decl_t *decl)
 {
-    /// [1] Store function statements in ir_stmts
-    /// [2] Save pointer to ir_stmts on end
-    /// [3] ir_stmts = {0} (dispose allocated data)
+    ir_storage_init();
+
+    /// 1: Store function statements in ir_stmts
+    /// 2: Save pointer to ir_stmts on end
+    /// 3: ir_stmts = {0} (dispose allocated data)
     ir_var_idx = 0;
     memset(&ir_stmts, 0, sizeof(ir_stmts));
     visit_ast(decl->args);
@@ -242,6 +270,8 @@ static void visit_ast_function_decl(ast_function_decl_t *decl)
             body
         )
     );
+
+    ir_storage_reset();
 }
 
 static void visit_ast_function_call(ast_function_call_t *ast) { (void) ast; }
