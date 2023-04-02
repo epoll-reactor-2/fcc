@@ -280,79 +280,32 @@ static void visit_ast_function_call(ast_function_call_t *ast) { (void) ast; }
 {
     assert(ast);
 
+    void *ptr = ast->ast;
     switch (ast->type) {
-    case AST_CHAR_LITERAL:
-        visit_ast_char(ast->ast);
-        break;
-    case AST_INTEGER_LITERAL:
-        visit_ast_num(ast->ast);
-        break;
-    case AST_FLOATING_POINT_LITERAL:
-        visit_ast_float(ast->ast);
-        break;
-    case AST_STRING_LITERAL:
-        visit_ast_string(ast->ast);
-        break;
-    case AST_BOOLEAN_LITERAL:
-        visit_ast_bool(ast->ast);
-        break;
-    case AST_SYMBOL:
-        visit_ast_symbol(ast->ast);
-        break;
-    case AST_VAR_DECL:
-        visit_ast_var_decl(ast->ast);
-        break;
-    case AST_ARRAY_DECL:
-        visit_ast_array_decl(ast->ast);
-        break;
-    case AST_STRUCT_DECL:
-        visit_ast_struct_decl(ast->ast);
-        break;
-    case AST_BREAK_STMT:
-        visit_ast_break(ast->ast);
-        break;
-    case AST_CONTINUE_STMT:
-        visit_ast_continue(ast->ast);
-        break;
-    case AST_BINARY:
-        visit_ast_binary(ast->ast);
-        break;
-    case AST_PREFIX_UNARY:
-        visit_ast_unary(ast->ast);
-        break;
-    case AST_POSTFIX_UNARY:
-        visit_ast_unary(ast->ast);
-        break;
-    case AST_ARRAY_ACCESS:
-        visit_ast_array_access(ast->ast);
-        break;
-    case AST_MEMBER:
-        visit_ast_member(ast->ast);
-        break;
-    case AST_IF_STMT:
-        visit_ast_if(ast->ast);
-        break;
-    case AST_FOR_STMT:
-        visit_ast_for(ast->ast);
-        break;
-    case AST_WHILE_STMT:
-        visit_ast_while(ast->ast);
-        break;
-    case AST_DO_WHILE_STMT:
-        visit_ast_do_while(ast->ast);
-        break;
-    case AST_RETURN_STMT:
-        visit_ast_return(ast->ast);
-        break;
-    case AST_COMPOUND_STMT:
-        visit_ast_compound(ast->ast);
-        break;
-    case AST_FUNCTION_DECL:
-        visit_ast_function_decl(ast->ast);
-        break;
-    case AST_FUNCTION_CALL:
-        visit_ast_function_call(ast->ast);
-        break;
+    case AST_CHAR_LITERAL:    visit_ast_char(ptr); break;
+    case AST_INTEGER_LITERAL: visit_ast_num(ptr); break;
+    case AST_FLOATING_POINT_LITERAL: visit_ast_float(ptr); break;
+    case AST_STRING_LITERAL:  visit_ast_string(ptr); break;
+    case AST_BOOLEAN_LITERAL: visit_ast_bool(ptr); break;
+    case AST_SYMBOL:          visit_ast_symbol(ptr); break;
+    case AST_VAR_DECL:        visit_ast_var_decl(ptr); break;
+    case AST_ARRAY_DECL:      visit_ast_array_decl(ptr); break;
+    case AST_STRUCT_DECL:     visit_ast_struct_decl(ptr); break;
+    case AST_BREAK_STMT:      visit_ast_break(ptr); break;
+    case AST_CONTINUE_STMT:   visit_ast_continue(ptr); break;
+    case AST_BINARY:          visit_ast_binary(ptr); break;
+    case AST_PREFIX_UNARY:    visit_ast_unary(ptr); break;
+    case AST_POSTFIX_UNARY:   visit_ast_unary(ptr); break;
+    case AST_ARRAY_ACCESS:    visit_ast_array_access(ptr); break;
+    case AST_MEMBER:          visit_ast_member(ptr); break;
+    case AST_IF_STMT:         visit_ast_if(ptr); break;
+    case AST_FOR_STMT:        visit_ast_for(ptr); break;
+    case AST_WHILE_STMT:      visit_ast_while(ptr); break;
+    case AST_DO_WHILE_STMT:   visit_ast_do_while(ptr); break;
+    case AST_RETURN_STMT:     visit_ast_return(ptr); break;
+    case AST_COMPOUND_STMT:   visit_ast_compound(ptr); break;
+    case AST_FUNCTION_DECL:   visit_ast_function_decl(ptr); break;
+    case AST_FUNCTION_CALL:   visit_ast_function_call(ptr); break;
     default:
         weak_unreachable("Wrong AST type");
     }
