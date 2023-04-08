@@ -106,7 +106,57 @@ static void visit_ast_binary(ast_binary_t *ast)
 static void visit_ast_break(ast_break_t *ast) { (void) ast; }
 static void visit_ast_continue(ast_continue_t *ast) { (void) ast; }
 
-static void visit_ast_for(ast_for_t *ast) { (void) ast; }
+static void visit_ast_for(ast_for_t *ast)
+{
+    /// Schema:
+    ///
+    /// L0:  init variable
+    /// L1:  if condition is true jump to L3
+    /// L2:  jump to L7 (exit label)
+    /// L3:  body instr 1
+    /// L4:  body instr 2
+    /// L5:  increment
+    /// L6:  jump to L1 (condition)
+    /// L7:  after for instr
+
+    /// Initial part is optional.
+    if (ast->init) visit_ast(ast->init);
+
+    /// Body starts with condition that is checked on each
+    /// iteration.
+    int32_t    next_iter_jump_idx = 0;
+    ir_jump_t *exit_jmp_ptr = NULL;
+
+    /// Condition is optional.
+    if (ast->condition) {
+        visit_ast(ast->condition);
+        ir_node_t  cond_sym = ir_last;
+        ir_node_t  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
+        ir_node_t  cond     = ir_cond_init(cond_bin, -1);
+        ir_cond_t *cond_ptr = cond.ir;
+        ir_node_t  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
+        next_iter_jump_idx  = ir_last.instr_idx;
+        exit_jmp_ptr        = exit_jmp.ir;
+
+        vector_push_back(ir_stmts, cond);
+        vector_push_back(ir_stmts, exit_jmp);
+
+        cond_ptr->goto_label = vector_back(ir_stmts).instr_idx + 1;
+    } else {
+        next_iter_jump_idx = ir_last.instr_idx + 1;
+    }
+
+    visit_ast(ast->body);
+    /// Increment is optional.
+    if (ast->increment) visit_ast(ast->increment);
+    ir_last = ir_jump_init(next_iter_jump_idx);
+
+    if (ast->condition)
+        exit_jmp_ptr->idx = ir_last.instr_idx + 1;
+
+    vector_push_back(ir_stmts, ir_last);
+}
+
 static void visit_ast_while(ast_while_t *ast) { (void) ast; }
 static void visit_ast_do_while(ast_do_while_t *ast) { (void) ast; }
 
@@ -146,13 +196,13 @@ static void visit_ast_if(ast_if_t *ast)
     ir_node_t  cond = ir_cond_init(ir_last, /*Not used for now.*/-1);
     ir_cond_t *cond_ptr = cond.ir;
 
-    ir_node_t  cond_false_jmp = ir_jump_init(/*Not used for now.*/-1);
-    ir_jump_t *cond_false_jmp_ptr = cond_false_jmp.ir;
+    ir_node_t  end_jmp = ir_jump_init(/*Not used for now.*/-1);
+    ir_jump_t *end_jmp_ptr = end_jmp.ir;
 
     /// Body starts after exit jump.
-    cond_ptr->goto_label = cond_false_jmp.instr_idx + 1;
+    cond_ptr->goto_label = end_jmp.instr_idx + 1;
     vector_push_back(ir_stmts, cond);
-    vector_push_back(ir_stmts, cond_false_jmp);
+    vector_push_back(ir_stmts, end_jmp);
 
     visit_ast(ast->body);
     /// Even with code like
@@ -160,21 +210,21 @@ static void visit_ast_if(ast_if_t *ast)
     /// this will make us to jump to the `ret`
     /// instruction, which terminates each (regardless
     /// on the return type) function.
-    cond_false_jmp_ptr->idx = ir_last.instr_idx + 1;
+    end_jmp_ptr->idx = ir_last.instr_idx + 1;
 
     if (!ast->else_body) return;
-    ir_node_t  end_jmp = ir_jump_init(/*Not used for now.*/-1);
-    ir_jump_t *end_jmp_ptr = end_jmp.ir;
+    ir_node_t  else_jmp = ir_jump_init(/*Not used for now.*/-1);
+    ir_jump_t *else_jmp_ptr = else_jmp.ir;
     /// Index of this jump will be changed through pointer.
-    vector_push_back(ir_stmts, end_jmp);
+    vector_push_back(ir_stmts, else_jmp);
 
     /// Jump over the `then` statement to `else`.
-    cond_false_jmp_ptr->idx = ir_last.instr_idx
+    end_jmp_ptr->idx = ir_last.instr_idx
         + 1  /// Jump statement.
         + 1; /// The next one (first in `else` part).
     visit_ast(ast->else_body);
     /// `then` part ends with jump over `else` part.
-    end_jmp_ptr->idx = ir_last.instr_idx + 1;
+    else_jmp_ptr->idx = ir_last.instr_idx + 1;
 }
 
 static void visit_ast_return(ast_return_t *ast)
@@ -196,7 +246,23 @@ static void visit_ast_symbol(ast_symbol_t *ast)
     ir_last = ir_sym_init(idx);
 }
 
-static void visit_ast_unary(ast_unary_t *ast) { (void) ast; }
+static void visit_ast_unary(ast_unary_t *ast)
+{
+    visit_ast(ast->operand);
+    assert((
+        ir_last.type == IR_SYM
+    ) && ("Unary operator expects variable argument."));
+    ir_sym_t *sym = ir_last.ir;
+
+    switch (ast->operation) {
+    case TOK_INC: ir_last = ir_bin_init(TOK_PLUS,  ir_last, ir_imm_init(1)); break;
+    case TOK_DEC: ir_last = ir_bin_init(TOK_MINUS, ir_last, ir_imm_init(1)); break;
+    default: weak_unreachable("Unknown unary operator.");
+    }
+    ir_last = ir_store_bin_init(sym->idx, ir_last);
+    vector_push_back(ir_stmts, ir_last);
+}
+
 static void visit_ast_struct_decl(ast_struct_decl_t *ast) { (void) ast; }
 
 static void visit_ast_var_decl(ast_var_decl_t *ast)
