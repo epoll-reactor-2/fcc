@@ -130,7 +130,6 @@ static void visit_ast_for(ast_for_t *ast)
     /// Condition is optional.
     if (ast->condition) {
         visit_ast(ast->condition);
-        ir_node_t  cond_sym = ir_last;
         ir_node_t  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
         ir_node_t  cond     = ir_cond_init(cond_bin, -1);
         ir_cond_t *cond_ptr = cond.ir;
