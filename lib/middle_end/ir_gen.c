@@ -131,7 +131,7 @@ static void visit_ast_for(ast_for_t *ast)
     if (ast->condition) {
         visit_ast(ast->condition);
         ir_node_t  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
-        ir_node_t  cond     = ir_cond_init(cond_bin, -1);
+        ir_node_t  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
         ir_cond_t *cond_ptr = cond.ir;
         ir_node_t  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
         next_iter_jump_idx  = ir_last.instr_idx;
@@ -156,7 +156,38 @@ static void visit_ast_for(ast_for_t *ast)
     vector_push_back(ir_stmts, ir_last);
 }
 
-static void visit_ast_while(ast_while_t *ast) { (void) ast; }
+static void visit_ast_while(ast_while_t *ast)
+{
+    /// Schema:
+    ///
+    /// L0: if condition is true jump to L2
+    /// L1: jump to L5 (exit label)
+    /// L2: body instr 1
+    /// L3: body instr 2
+    /// L4: jump to L0 (condition)
+    /// L5: after while instr
+
+    visit_ast(ast->condition);
+    ir_node_t  cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
+    ir_node_t  cond          = ir_cond_init(cond_bin, /*Not used for now.*/-1);
+    ir_cond_t *cond_ptr      = cond.ir;
+    ir_node_t  exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
+    ir_jump_t *exit_jmp_ptr  = exit_jmp.ir;
+    int32_t    next_iter_idx = ir_last.instr_idx;
+
+    vector_push_back(ir_stmts, cond);
+    vector_push_back(ir_stmts, exit_jmp);
+
+    cond_ptr->goto_label = vector_back(ir_stmts).instr_idx + 1;
+
+    visit_ast(ast->body);
+
+    ir_node_t next_iter_jmp = ir_jump_init(next_iter_idx);
+    vector_push_back(ir_stmts, next_iter_jmp);
+
+    exit_jmp_ptr->idx = next_iter_jmp.instr_idx + 1;
+}
+
 static void visit_ast_do_while(ast_do_while_t *ast) { (void) ast; }
 
 static void visit_ast_if(ast_if_t *ast)
