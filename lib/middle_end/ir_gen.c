@@ -318,7 +318,9 @@ static void visit_ast_var_decl(ast_var_decl_t *ast)
             break;
         }
         default:
-            assert(!"Expected symbol or immediate value as variable initializer.");
+            weak_unreachable(
+                "Expected symbol or immediate value as variable initializer."
+	    );
         }
         vector_push_back(ir_stmts, ir_last);
     }
