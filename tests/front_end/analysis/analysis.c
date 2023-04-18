@@ -5,7 +5,7 @@
  */
 
 #include "front_end/analysis/analysis.h"
-#include "front_end/ast/ast_node.h"
+#include "front_end/ast/ast.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
 #include "utility/diagnostic.h"

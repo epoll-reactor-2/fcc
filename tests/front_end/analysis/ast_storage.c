@@ -5,7 +5,7 @@
  */
 
 #include "front_end/analysis/ast_storage.h"
-#include "front_end/ast/ast_num.h"
+#include "front_end/ast/ast.h"
 #include "utils/test_utils.h"
 #include <time.h>
 

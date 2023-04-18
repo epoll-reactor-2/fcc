@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
 #define WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
 
-#include "front_end/ast/ast_node.h"
+#include "front_end/ast/ast.h"
 #include "front_end/lex/data_type.h"
 #include "utility/vector.h"
 
