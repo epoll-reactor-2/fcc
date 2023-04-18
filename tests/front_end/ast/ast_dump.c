@@ -4,12 +4,12 @@
  * This file is distributed under the MIT license.
  */
 
+#include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
-#include "front_end/ast/ast_compound.h"
-#include "front_end/ast/ast_num.h"
 #include "utility/alloc.h"
 #include "utils/test_utils.h"
 #include <stdlib.h>
+#include <string.h>
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;

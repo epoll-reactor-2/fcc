@@ -7,8 +7,10 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_DUMP_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_DUMP_H
 
-#include "front_end/ast/ast_node.h"
 #include <stdio.h>
+#include <stdint.h>
+
+typedef struct ast_node_t ast_node_t;
 
 /// Write AST represented as string to given file or memory stream.
 ///

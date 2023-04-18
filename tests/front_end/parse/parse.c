@@ -4,6 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
+#include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
