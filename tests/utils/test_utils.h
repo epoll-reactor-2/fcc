@@ -59,10 +59,10 @@ void extract_assertion_comment(FILE *in, FILE *out)
                 fputc_unlocked(*ptr++, out);
             }
             fputc_unlocked('\n', out);
-            fflush(out);
         }
     }
     free(line);
+    fflush(out);
 }
 
 bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
@@ -95,7 +95,6 @@ bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
         sprintf(filename, "%s/%s", cwd, dir->d_name);
 
         printf("Testing file %s... ", filename);
-        fflush(stdout);
 
         if (!callback(filename)) {
             success = false;
