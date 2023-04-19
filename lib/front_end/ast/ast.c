@@ -1,6 +1,5 @@
 /* ast.c - All AST statements.
- * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
- * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
+ * Copyright (C) 2022-2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
