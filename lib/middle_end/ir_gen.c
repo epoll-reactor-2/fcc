@@ -165,7 +165,37 @@ static void visit_ast_while(ast_while_t *ast)
     exit_jmp_ptr->idx = next_iter_jmp.instr_idx + 1;
 }
 
-static void visit_ast_do_while(ast_do_while_t *ast) { (void) ast; }
+static void visit_ast_do_while(ast_do_while_t *ast)
+{
+    /// Schema:
+    ///
+    /// L0: body instr 1
+    /// L1: body instr 2
+    /// L2: allocate temporary for condition
+    /// L3: store condition in temporary
+    /// L4: if condition is true jump to L0
+
+    int32_t stmt_begin;
+
+    if (vector_size(ir_stmts) == 0)
+        stmt_begin = 0;
+    else
+        stmt_begin = vector_back(ir_stmts).instr_idx;
+
+    visit_ast(ast->body);
+    /// There we allocate temporary variable for
+    /// comparison at the end of body.
+    visit_ast(ast->condition);
+
+    ir_node_t  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
+    ir_node_t  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
+    ir_cond_t *cond_ptr = cond.ir;
+    int32_t    next_idx = ir_var_idx++;
+
+    vector_push_back(ir_stmts, cond);
+
+    cond_ptr->goto_label = stmt_begin + 1;
+}
 
 static void visit_ast_if(ast_if_t *ast)
 {
