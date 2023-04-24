@@ -51,6 +51,7 @@ test:
 	@(cd build; LD_LIBRARY_PATH=. ./parse_test)
 	@(cd build; LD_LIBRARY_PATH=. ./ir_dump_test)
 	@(cd build; LD_LIBRARY_PATH=. ./ir_gen_test)
+	@(cd build; LD_LIBRARY_PATH=. ./ir_graph_test)
 
 clean:
 	@rm -rf build $(OBJECTS) *.o
