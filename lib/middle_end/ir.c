@@ -23,16 +23,16 @@ void ir_reset_internal_state()
 ir_node_t ir_node_init(ir_type_e type, void *ir)
 {
     ir_node_t node = {
-        .type = type,
+        .type      = type,
         .instr_idx = ir_instr_index,
-        .ir = ir
+        .ir        = ir
     };
     return node;
 }
 
 ir_node_t ir_alloca_init(data_type_e dt, int32_t idx)
 {
-    ir_alloca_t *ir = weak_calloc(1, sizeof(ir_alloca_t));
+    ir_alloca_t *ir = weak_calloc(1, sizeof (ir_alloca_t));
     ir->dt = dt;
     ir->idx = idx;
     ++ir_instr_index;
@@ -41,21 +41,21 @@ ir_node_t ir_alloca_init(data_type_e dt, int32_t idx)
 
 ir_node_t ir_imm_init(int32_t imm)
 {
-    ir_imm_t *ir = weak_calloc(1, sizeof(ir_imm_t));
+    ir_imm_t *ir = weak_calloc(1, sizeof (ir_imm_t));
     ir->imm = imm;
     return ir_node_init(IR_IMM, ir);
 }
 
 ir_node_t ir_sym_init(int32_t idx)
 {
-    ir_sym_t *ir = weak_calloc(1, sizeof(ir_sym_t));
+    ir_sym_t *ir = weak_calloc(1, sizeof (ir_sym_t));
     ir->idx = idx;
     return ir_node_init(IR_SYM, ir);
 }
 
 ir_node_t ir_store_imm_init(int32_t idx, int32_t imm)
 {
-    ir_store_t *ir = weak_calloc(1, sizeof(ir_store_t));
+    ir_store_t *ir = weak_calloc(1, sizeof (ir_store_t));
     ir->type = IR_STORE_IMM;
     ir->idx = idx;
     ir->body = ir_imm_init(imm);
@@ -65,7 +65,7 @@ ir_node_t ir_store_imm_init(int32_t idx, int32_t imm)
 
 ir_node_t ir_store_var_init(int32_t idx, int32_t var_idx)
 {
-    ir_store_t *ir = weak_calloc(1, sizeof(ir_store_t));
+    ir_store_t *ir = weak_calloc(1, sizeof (ir_store_t));
     ir->type = IR_STORE_VAR;
     ir->idx = idx;
     ir->body = ir_sym_init(var_idx);
@@ -76,7 +76,7 @@ ir_node_t ir_store_var_init(int32_t idx, int32_t var_idx)
 ir_node_t ir_store_bin_init(int32_t idx, ir_node_t bin)
 {
     assert(bin.type == IR_BIN && "Store expects binary expression in this context");
-    ir_store_t *ir = weak_calloc(1, sizeof(ir_store_t));
+    ir_store_t *ir = weak_calloc(1, sizeof (ir_store_t));
     ir->type = IR_STORE_BIN;
     ir->idx = idx;
     ir->body = bin;
@@ -95,7 +95,7 @@ ir_node_t ir_bin_init(tok_type_e op, ir_node_t lhs, ir_node_t rhs)
     )) && (
         "Binary operation expects variable or immediate value"
     ));
-    ir_bin_t *ir = weak_calloc(1, sizeof(ir_bin_t));
+    ir_bin_t *ir = weak_calloc(1, sizeof (ir_bin_t));
     ir->op = op;
     ir->lhs = lhs;
     ir->rhs = rhs;
@@ -104,7 +104,7 @@ ir_node_t ir_bin_init(tok_type_e op, ir_node_t lhs, ir_node_t rhs)
 
 ir_node_t ir_label_init(int32_t idx)
 {
-    ir_label_t *ir = weak_calloc(1, sizeof(ir_label_t));
+    ir_label_t *ir = weak_calloc(1, sizeof (ir_label_t));
     ir->idx = idx;
     ir_node_t node = ir_node_init(IR_LABEL, ir);
     return node;
@@ -112,7 +112,7 @@ ir_node_t ir_label_init(int32_t idx)
 
 ir_node_t ir_jump_init(int32_t idx)
 {
-    ir_jump_t *ir = weak_calloc(1, sizeof(ir_jump_t));
+    ir_jump_t *ir = weak_calloc(1, sizeof (ir_jump_t));
     ir->idx = idx;
     ++ir_instr_index;
     return ir_node_init(IR_JUMP, ir);    
@@ -121,7 +121,7 @@ ir_node_t ir_jump_init(int32_t idx)
 ir_node_t ir_cond_init(ir_node_t cond, int32_t goto_label)
 {
     assert(cond.type == IR_BIN && "Only binary instruction supported as condition body");
-    ir_cond_t *ir = weak_calloc(1, sizeof(ir_cond_t));
+    ir_cond_t *ir = weak_calloc(1, sizeof (ir_cond_t));
     ir->cond = cond;
     ir->goto_label = goto_label;
     ++ir_instr_index;
@@ -137,7 +137,7 @@ ir_node_t ir_ret_init(bool is_void, ir_node_t op)
     ) && (
         "Ret expects immediate value or variable"
     ));
-    ir_ret_t *ir = weak_calloc(1, sizeof(ir_ret_t));
+    ir_ret_t *ir = weak_calloc(1, sizeof (ir_ret_t));
     ir->is_void = is_void;
     ir->op = op;
     /// Return operand is inline instruction.
@@ -148,7 +148,7 @@ ir_node_t ir_ret_init(bool is_void, ir_node_t op)
 
 ir_node_t ir_member_init(int32_t idx, int32_t field_idx)
 {
-    ir_member_t *ir = weak_calloc(1, sizeof(ir_member_t));
+    ir_member_t *ir = weak_calloc(1, sizeof (ir_member_t));
     ir->idx = idx;
     ir->field_idx = field_idx;
     return ir_node_init(IR_MEMBER, ir);
@@ -162,7 +162,7 @@ ir_node_t ir_array_access_init(int32_t idx, ir_node_t op)
     ) && (
         "Array access expects immediate value or variable"
     ));
-    ir_array_access_t *ir = weak_calloc(1, sizeof(ir_array_access_t));
+    ir_array_access_t *ir = weak_calloc(1, sizeof (ir_array_access_t));
     ir->idx = idx;
     ir->op = op;
     return ir_node_init(IR_ARRAY_ACCESS, ir);    
@@ -181,7 +181,7 @@ ir_node_t ir_type_decl_init(const char *name, uint64_t decls_size, ir_node_t *de
         ));
     }
 #endif // NDEBUG
-    ir_type_decl_t *ir = weak_calloc(1, sizeof(ir_type_decl_t));
+    ir_type_decl_t *ir = weak_calloc(1, sizeof (ir_type_decl_t));
     ir->name = name;
     ir->decls_size = decls_size;
     ir->decls = decls;
@@ -203,7 +203,7 @@ ir_node_t ir_func_decl_init(
         ));
     }
 #endif // NDEBUG
-    ir_func_decl_t *ir = weak_calloc(1, sizeof(ir_func_decl_t));
+    ir_func_decl_t *ir = weak_calloc(1, sizeof (ir_func_decl_t));
     ir->name = name;
     ir->args_size = args_size;
     ir->args = args;
@@ -225,7 +225,7 @@ ir_node_t ir_func_call_init(const char *name, uint64_t args_size, ir_node_t  *ar
         ));
     }
 #endif // NDEBUG
-    ir_func_call_t *ir = weak_calloc(1, sizeof(ir_func_call_t));
+    ir_func_call_t *ir = weak_calloc(1, sizeof (ir_func_call_t));
     ir->name = name;
     ir->args_size = args_size;
     ir->args = args;
@@ -291,15 +291,15 @@ void ir_node_cleanup(ir_node_t ir)
     case IR_MEMBER: /// Fall through.
         /// Nothing to clean except ir.ir itself.
         break;
-    case IR_STORE: ir_store_cleanup(ir.ir); break;
-    case IR_BIN: ir_bin_cleanup(ir.ir); break;
-    case IR_COND: ir_cond_cleanup(ir.ir); break;
-    case IR_RET: ir_ret_cleanup(ir.ir); break;
-    case IR_RET_VOID: ir_ret_cleanup(ir.ir); break;
+    case IR_STORE:        ir_store_cleanup(ir.ir); break;
+    case IR_BIN:          ir_bin_cleanup(ir.ir); break;
+    case IR_COND:         ir_cond_cleanup(ir.ir); break;
+    case IR_RET:          ir_ret_cleanup(ir.ir); break;
+    case IR_RET_VOID:     ir_ret_cleanup(ir.ir); break;
     case IR_ARRAY_ACCESS: ir_array_access_cleanup(ir.ir); break;
-    case IR_TYPE_DECL: ir_type_decl_cleanup(ir.ir); break;
-    case IR_FUNC_DECL: ir_func_decl_cleanup(ir.ir); break;
-    case IR_FUNC_CALL: ir_func_call_cleanup(ir.ir); break;
+    case IR_TYPE_DECL:    ir_type_decl_cleanup(ir.ir); break;
+    case IR_FUNC_DECL:    ir_func_decl_cleanup(ir.ir); break;
+    case IR_FUNC_CALL:    ir_func_call_cleanup(ir.ir); break;
     default: weak_unreachable("Something went wrong.");
     }
 

@@ -25,11 +25,12 @@ void(*analysis_fn)(ast_node_t *) = NULL;
 
 bool analysis_test(const char *filename)
 {
-    bool success = true;
-    char *err_buf = NULL;
-    char *warn_buf = NULL;
-    size_t err_buf_len = 0;
-    size_t warn_buf_len = 0;
+    /// Static due to the `longjmp()` semantics [-Werror=clobbered].
+    static  bool success = true;
+    char   *err_buf      = NULL;
+    char   *warn_buf     = NULL;
+    size_t  err_buf_len  = 0;
+    size_t  warn_buf_len = 0;
 
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);

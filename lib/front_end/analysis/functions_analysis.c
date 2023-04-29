@@ -11,6 +11,7 @@
 #include "utility/unreachable.h"
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 
 /// Last return occurence context.
 ///
@@ -24,9 +25,7 @@ static struct {
 
 static void reset_internal_state()
 {
-    last_ret.col_no = 0;
-    last_ret.line_no = 0;
-    last_ret.occurred = false;
+    memset(&last_ret, 0, sizeof (last_ret));
 }
 
 /// \note Interesting in this context things are only in the
@@ -145,7 +144,8 @@ void visit_ast_node(ast_node_t *ast)
     case AST_PREFIX_UNARY: /// Unused.
     case AST_POSTFIX_UNARY: /// Unused.
     case AST_ARRAY_ACCESS: /// Unused.
-    case AST_MEMBER: break; /// Unused.
+    case AST_MEMBER: /// Unused.
+        break;
     case AST_COMPOUND_STMT:
         visit_ast_compound(ast);
         break;

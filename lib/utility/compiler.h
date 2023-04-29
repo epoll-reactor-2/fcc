@@ -14,15 +14,17 @@
 #if defined(__weak_gnu_exts) && defined(__has_attribute)
 # define __weak_likely(x)       __builtin_expect(!!(x), 1)
 # define __weak_unlikely(x)     __builtin_expect(!!(x), 0)
-# define __weak_wur__           __attribute__((warn_unused_result))
-# define __weak_noinline__      __attribute__((noinline))
-# define __weak_really_inline__ inline __attribute__((always_inline))
+# define __weak_wur__           __attribute__ ((warn_unused_result))
+# define __weak_noinline__      __attribute__ ((noinline))
+# define __weak_really_inline__ inline __attribute__ ((always_inline))
+# define __weak_unused          __attribute__ ((unused))
 #else
 # define __weak_likely(x)
 # define __weak_unlikely(x)
 # define __weak_wur__
 # define __weak_noinline__
 # define __weak_really_inline__
+# define __weak_unused
 #endif
 
 #define __weak_to_string(x) #x

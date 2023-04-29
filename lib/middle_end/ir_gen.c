@@ -32,7 +32,7 @@ static void invalidate()
 {
     vector_free(ir_stmts);
     vector_free(ir_func_decls);
-    memset(&ir_last, 0, sizeof(ir_last));
+    memset(&ir_last, 0, sizeof (ir_last));
     ir_var_idx = 0;
 }
 
@@ -190,7 +190,6 @@ static void visit_ast_do_while(ast_do_while_t *ast)
     ir_node_t  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
     ir_node_t  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     ir_cond_t *cond_ptr = cond.ir;
-    int32_t    next_idx = ir_var_idx++;
 
     vector_push_back(ir_stmts, cond);
 
@@ -266,7 +265,7 @@ static void visit_ast_if(ast_if_t *ast)
 
 static void visit_ast_return(ast_return_t *ast)
 {
-    memset(&ir_last, 0, sizeof(ir_last));
+    memset(&ir_last, 0, sizeof (ir_last));
     if (ast->operand) {
         visit_ast(ast->operand);
     }
@@ -351,12 +350,12 @@ static void visit_ast_function_decl(ast_function_decl_t *decl)
     /// 2: Save pointer to ir_stmts on end
     /// 3: ir_stmts = {0} (dispose allocated data)
     ir_var_idx = 0;
-    memset(&ir_stmts, 0, sizeof(ir_stmts));
+    memset(&ir_stmts, 0, sizeof (ir_stmts));
     visit_ast(decl->args);
     uint64_t   args_size = ir_stmts.count;
     ir_node_t *args      = ir_stmts.data;
 
-    memset(&ir_stmts, 0, sizeof(ir_stmts));
+    memset(&ir_stmts, 0, sizeof (ir_stmts));
     visit_ast(decl->body);
     if (decl->data_type == D_T_VOID) {
         ir_node_t op = ir_node_init(IR_RET_VOID, NULL);

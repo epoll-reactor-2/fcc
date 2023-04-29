@@ -25,7 +25,7 @@ void ast_storage_reset_state()
     scope_depth = 0;
     hashmap_foreach(&scopes, key, val) {
         (void) key;
-        ast_storage_decl_t *decl = (ast_storage_decl_t *)val;
+        ast_storage_decl_t *decl = (ast_storage_decl_t *) val;
         weak_free(decl);
     }
     hashmap_destroy(&scopes);
@@ -39,7 +39,7 @@ void ast_storage_start_scope()
 void ast_storage_end_scope()
 {
     hashmap_foreach(&scopes, key, val) {
-        ast_storage_decl_t *decl = (ast_storage_decl_t *)val;
+        ast_storage_decl_t *decl = (ast_storage_decl_t *) val;
         if (decl->depth == scope_depth)
             hashmap_remove(&scopes, key);
     }
@@ -53,14 +53,14 @@ void ast_storage_push(const char *var_name, ast_node_t *ast)
 
 void ast_storage_push_typed(const char *var_name, data_type_e dt, ast_node_t *ast)
 {
-    ast_storage_decl_t *decl = weak_calloc(1, sizeof(ast_storage_decl_t));
+    ast_storage_decl_t *decl = weak_calloc(1, sizeof (ast_storage_decl_t));
     decl->ast = ast;
     decl->data_type = dt;
     decl->name = strdup(var_name);
     decl->read_uses = 0;
     decl->write_uses = 0;
     decl->depth = scope_depth;
-    hashmap_put(&scopes, crc32_string(var_name), (size_t)decl);
+    hashmap_put(&scopes, crc32_string(var_name), (size_t) decl);
 }
 
 ast_storage_decl_t *ast_storage_lookup(const char *var_name)
@@ -71,7 +71,7 @@ ast_storage_decl_t *ast_storage_lookup(const char *var_name)
     if (addr == 0)
         return NULL;
 
-    ast_storage_decl_t *decl = (ast_storage_decl_t *)addr;
+    ast_storage_decl_t *decl = (ast_storage_decl_t *) addr;
 
     if (decl->depth > scope_depth)
         return NULL;
@@ -98,8 +98,8 @@ void ast_storage_add_write_use(const char *var_name)
 void ast_storage_current_scope_uses(ast_storage_decl_array_t *out_set)
 {
     hashmap_foreach(&scopes, key, val) {
-        (void)key;
-        ast_storage_decl_t *decl = (ast_storage_decl_t *)val;
+        (void) key;
+        ast_storage_decl_t *decl = (ast_storage_decl_t *) val;
         if (decl->depth == scope_depth)
             vector_push_back(*out_set, decl);
     }
