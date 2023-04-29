@@ -41,7 +41,7 @@ static void reset_internal_state()
         vector_clear(collected_uses.data[i]);
     }
     vector_clear(collected_uses);
-    memset(&collected_uses, 0, sizeof(ast_usage_stack_t));
+    memset(&collected_uses, 0, sizeof (ast_usage_stack_t));
 }
 
 static void collect_ast(ast_node_t *ast)

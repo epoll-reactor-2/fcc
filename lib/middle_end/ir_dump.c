@@ -37,22 +37,22 @@ static void ir_dump_bin(FILE *mem, ir_bin_t *ir)
 {
     const char *op = NULL;
     switch (ir->op) {
-    case TOK_XOR: op = "xor"; break;
+    case TOK_XOR:     op = "xor"; break;
     case TOK_BIT_AND: op = "and"; break;
-    case TOK_BIT_OR: op = "or"; break;
-    case TOK_EQ: op = "eq"; break;
-    case TOK_NEQ: op = "neq"; break;
-    case TOK_GT: op = "gt"; break;
-    case TOK_LT: op = "lt"; break;
-    case TOK_GE: op = "ge"; break;
-    case TOK_LE: op = "le"; break;
-    case TOK_SHL: op = "shl"; break;
-    case TOK_SHR: op = "shr"; break;
-    case TOK_PLUS: op = "add"; break;
-    case TOK_MINUS: op = "sub"; break;
-    case TOK_STAR: op = "mul"; break;
-    case TOK_SLASH: op = "div"; break;
-    case TOK_MOD: op = "mod"; break;
+    case TOK_BIT_OR:  op = "or";  break;
+    case TOK_EQ:      op = "eq";  break;
+    case TOK_NEQ:     op = "neq"; break;
+    case TOK_GT:      op = "gt";  break;
+    case TOK_LT:      op = "lt";  break;
+    case TOK_GE:      op = "ge";  break;
+    case TOK_LE:      op = "le";  break;
+    case TOK_SHL:     op = "shl"; break;
+    case TOK_SHR:     op = "shr"; break;
+    case TOK_PLUS:    op = "add"; break;
+    case TOK_MINUS:   op = "sub"; break;
+    case TOK_STAR:    op = "mul"; break;
+    case TOK_SLASH:   op = "div"; break;
+    case TOK_MOD:     op = "mod"; break;
     default: weak_unreachable("Unknown operation");
     }
 
@@ -99,8 +99,8 @@ static void ir_dump_array_access(FILE *mem, ir_array_access_t *ir)
 {
     /// %1[%2]
     /// %1[$123]
-    (void)mem;
-    (void)ir;
+    (void) mem;
+    (void) ir;
     weak_unreachable("todo: implement");
 }
 
@@ -153,21 +153,21 @@ static void ir_dump_func_call(FILE *mem, ir_func_call_t *ir)
 /* static */ void ir_dump_node(FILE *mem, ir_node_t ir)
 {
     switch (ir.type) {
-    case IR_ALLOCA: ir_dump_alloca(mem, ir.ir); break;
-    case IR_IMM: ir_dump_imm(mem, ir.ir); break;
-    case IR_SYM: ir_dump_sym(mem, ir.ir); break;
-    case IR_STORE: ir_dump_store(mem, ir.ir); break;
-    case IR_BIN: ir_dump_bin(mem, ir.ir); break;
-    case IR_LABEL: ir_dump_label(mem, ir.ir); break;
-    case IR_JUMP: ir_dump_jump(mem, ir.ir); break;
-    case IR_COND: ir_dump_cond(mem, ir.ir); break;
-    case IR_RET: ir_dump_ret(mem, ir.ir); break;
-    case IR_RET_VOID: ir_dump_ret_void(mem); break;
-    case IR_MEMBER: ir_dump_member(mem, ir.ir); break;
+    case IR_ALLOCA:       ir_dump_alloca(mem, ir.ir); break;
+    case IR_IMM:          ir_dump_imm(mem, ir.ir); break;
+    case IR_SYM:          ir_dump_sym(mem, ir.ir); break;
+    case IR_STORE:        ir_dump_store(mem, ir.ir); break;
+    case IR_BIN:          ir_dump_bin(mem, ir.ir); break;
+    case IR_LABEL:        ir_dump_label(mem, ir.ir); break;
+    case IR_JUMP:         ir_dump_jump(mem, ir.ir); break;
+    case IR_COND:         ir_dump_cond(mem, ir.ir); break;
+    case IR_RET:          ir_dump_ret(mem, ir.ir); break;
+    case IR_RET_VOID:     ir_dump_ret_void(mem); break;
+    case IR_MEMBER:       ir_dump_member(mem, ir.ir); break;
     case IR_ARRAY_ACCESS: ir_dump_array_access(mem, ir.ir); break;
-    case IR_TYPE_DECL: ir_dump_type_decl(mem, ir.ir); break;
-    case IR_FUNC_DECL: ir_dump_func_decl(mem, ir.ir); break;
-    case IR_FUNC_CALL: ir_dump_func_call(mem, ir.ir); break;
+    case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir.ir); break;
+    case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir.ir); break;
+    case IR_FUNC_CALL:    ir_dump_func_call(mem, ir.ir); break;
     default: weak_unreachable("Something went wrong");
     }
 }

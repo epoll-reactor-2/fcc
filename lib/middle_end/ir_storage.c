@@ -23,10 +23,10 @@ void ir_storage_reset()
 
 void ir_storage_push(const char *name, int32_t ir_idx)
 {
-    hashmap_put(&storage, crc32_string(name), (size_t)ir_idx);
+    hashmap_put(&storage, crc32_string(name), (size_t) ir_idx);
 }
 
 int32_t ir_storage_get(const char *name)
 {
-    return (int32_t)hashmap_get(&storage, crc32_string(name));
+    return (int32_t) hashmap_get(&storage, crc32_string(name));
 }

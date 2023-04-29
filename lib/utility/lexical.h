@@ -13,7 +13,7 @@
 ///
 /// http://www.lifeprint.com/asl101/pages-signs/n/numbersordianlandcardinal.htm
 ///
-/// \param[out] out Requiers at most (sizeof(uint64_t) * CHAR_BIT + 4) bytes
+/// \param[out] out Requiers at most (sizeof (uint64_t) * CHAR_BIT + 4) bytes
 void ordinal_numeral(uint64_t num, char *out);
 
 #endif // WEAK_COMPILER_UTILITY_LEXICAL_H

@@ -5,7 +5,6 @@
  */
 
 #include "utility/crc32.h"
-#include <stdio.h>
 
 /*
  * Name  : CRC-32

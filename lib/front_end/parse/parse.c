@@ -103,8 +103,8 @@ static ast_node_t *parse_function_call();
 
 ast_node_t *parse(const tok_t *begin, const tok_t *end)
 {
-    tok_begin = (tok_t *)begin;
-    tok_end = (tok_t *)end;
+    tok_begin = (tok_t *) begin;
+    tok_end = (tok_t *) end;
 
     typedef vector_t(ast_node_t *) stmts_t;
 
@@ -165,14 +165,16 @@ static localized_data_type_t parse_type()
             ++indirection_lvl;
             peek_next(); /// Don't needed to require '*'.
         }
-        localized_data_type_t l = {
-            .data_type = tok_to_data_type(curr_tok->type),
-            .type_name = (curr_tok->type == TOK_SYMBOL) ? strdup(curr_tok->data) : NULL,
+
+        localized_data_type_t dt = {
+            .data_type       = tok_to_data_type(curr_tok->type),
+            .type_name       = (curr_tok->type == TOK_SYMBOL) ? strdup(curr_tok->data) : NULL,
             .indirection_lvl = indirection_lvl,
-            .line_no = curr_tok->line_no,
-            .col_no = curr_tok->col_no
+            .line_no         = curr_tok->line_no,
+            .col_no          = curr_tok->col_no
         };
-        return l;
+
+        return dt;
     }
     default:
         weak_compile_error(
@@ -193,13 +195,15 @@ static localized_data_type_t parse_return_type()
 
     peek_next();
 
-    localized_data_type_t l = {
-        .data_type = tok_to_data_type(curr_tok->type),
+    localized_data_type_t dt = {
+        .data_type       = tok_to_data_type(curr_tok->type),
+        .type_name       = NULL,
         .indirection_lvl = 0,
-        .line_no = curr_tok->line_no,
-        .col_no = curr_tok->col_no
+        .line_no         = curr_tok->line_no,
+        .col_no          = curr_tok->col_no
     };
-    return l;
+
+    return dt;
 }
 
 static ast_node_t *parse_array_decl()
@@ -261,6 +265,7 @@ static ast_node_t *parse_decl_without_initializer()
     localized_data_type_t dt = parse_type();
     bool is_array = tok_is((tok_begin + 1), '[');
     ptrdiff_t offset = tok_begin - ptr;
+
     tok_begin -= offset;
 
     /// We just compute the offset of whole type
@@ -602,10 +607,10 @@ static ast_node_t *parse_block()
 
 static ast_node_t *parse_selection_stmt()
 {
-    ast_node_t *cond = NULL;
-    ast_node_t *then_body = NULL;
-    ast_node_t *else_body = NULL;
-    const tok_t *start = require_token(TOK_IF);
+    ast_node_t  *cond      = NULL;
+    ast_node_t  *then_body = NULL;
+    ast_node_t  *else_body = NULL;
+    const tok_t *start     = require_token(TOK_IF);
 
     require_char('(');
     cond = parse_logical_or();
@@ -646,7 +651,7 @@ static ast_node_t *parse_iteration_stmt()
 static ast_node_t *parse_jump_stmt()
 {
     const tok_t *start = require_token(TOK_RETURN);
-    ast_node_t *body = NULL;
+    ast_node_t  *body  = NULL;
 
     if (!tok_is(peek_current(), ';'))
         body = parse_logical_or();
@@ -659,8 +664,8 @@ static ast_node_t *parse_for()
     const tok_t *start = require_token(TOK_FOR);
     require_char('(');
 
-    ast_node_t *init = NULL;
-    ast_node_t *cond = NULL;
+    ast_node_t *init      = NULL;
+    ast_node_t *cond      = NULL;
     ast_node_t *increment = NULL;
 
     if (!tok_is(peek_next(), ';')) {
@@ -960,8 +965,8 @@ static ast_node_t *parse_prefix_unary()
 
 static ast_node_t *parse_postfix_unary()
 {
-    ast_node_t *expr = parse_primary();
-    const tok_t *t = peek_next();
+    ast_node_t  *expr = parse_primary();
+    const tok_t *t    = peek_next();
 
     switch (t->type) {
     case TOK_INC:
@@ -981,7 +986,7 @@ static ast_node_t *parse_postfix_unary()
 
 static ast_node_t *parse_symbol()
 {
-    const tok_t *start = tok_begin - 1;
+    const tok_t *start    = tok_begin - 1;
     const tok_t *curr_tok = tok_begin;
 
     switch (curr_tok->type) {
@@ -1032,11 +1037,11 @@ static ast_node_t *parse_primary()
 
 static ast_node_t *parse_struct_var_decl()
 {
-    localized_data_type_t dt = parse_type();
+    localized_data_type_t  dt  = parse_type();
     const tok_t *name = require_token(TOK_SYMBOL);
+    ast_array_t arity_list = {0};
 
     assert(dt.data_type == D_T_STRUCT);
-    ast_array_t arity_list = {0};
 
     while (tok_is(peek_current(), '[')) {
         require_char('[');

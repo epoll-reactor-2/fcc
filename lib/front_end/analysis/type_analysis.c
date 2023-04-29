@@ -168,7 +168,7 @@ static void visit_ast_array_decl(ast_node_t *ast)
     /// Required to be compound.
     ast_compound_t *dimensions = decl->arity_list->ast;
     for (uint64_t i = 0; i < dimensions->size; ++i) {
-        int32_t num = ( (ast_num_t *)(dimensions->stmts[i]->ast) )->value;
+        int32_t num = ( (ast_num_t *) (dimensions->stmts[i]->ast) )->value;
         if (num == 0)
             weak_compile_error(
                 ast->line_no,
@@ -332,10 +332,10 @@ static void visit_ast_compound(ast_node_t *ast)
 static char *decl_name(ast_node_t *decl)
 {
     if (decl->type == AST_VAR_DECL)
-        return ( (ast_var_decl_t *)decl->ast )->name;
+        return ( (ast_var_decl_t *) decl->ast )->name;
 
     if (decl->type == AST_ARRAY_DECL)
-        return ( (ast_array_decl_t *)decl->ast )->name;
+        return ( (ast_array_decl_t *) decl->ast )->name;
 
     weak_unreachable("Declaration expected");
 }

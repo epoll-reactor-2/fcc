@@ -6,7 +6,6 @@
 
 #include "utility/lexical.h"
 #include <assert.h>
-#include <limits.h>
 #include <stdio.h>
 
 void ordinal_numeral(uint64_t num, char *out)
@@ -22,7 +21,7 @@ void ordinal_numeral(uint64_t num, char *out)
         case 1:  postfix = "st"; break;
         case 2:  postfix = "nd"; break;
         case 3:  postfix = "rd"; break;
-        default: postfix = "th";
+        default: postfix = "th"; break;
         }
     }
     sprintf(out, "%zu'%s", num, postfix);

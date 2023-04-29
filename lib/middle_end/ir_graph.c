@@ -7,13 +7,14 @@
 #include "middle_end/ir_graph.h"
 #include "middle_end/ir.h"
 #include "utility/alloc.h"
+#include "utility/compiler.h"
 
-static void ir_graph_set_at(ir_graph_t *graph, size_t col, size_t row, bool v)
+static __weak_unused void ir_graph_set_at(ir_graph_t *graph, size_t col, size_t row, bool v)
 {
     graph->adj_matrix[graph->cols_count * col + row] = v;
 }
 
-static bool ir_graph_get_at(ir_graph_t *graph, size_t col, size_t row)
+static __weak_unused bool ir_graph_get_at(ir_graph_t *graph, size_t col, size_t row)
 {
     return graph->adj_matrix[graph->cols_count * col + row];
 }
