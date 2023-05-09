@@ -43,7 +43,7 @@ typedef struct ir_node_t ir_node_t;
 /// Build directed graph from IR statements list.
 ///
 /// \note User should cleanup returnd graph with ir_graph_cleanup().
-ir_graph_t ir_graph_make(ir_node_t *ir, size_t ir_size);
+ir_graph_t ir_graph_init(ir_node_t *ir, size_t ir_size);
 void       ir_graph_cleanup(ir_graph_t *g);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H
