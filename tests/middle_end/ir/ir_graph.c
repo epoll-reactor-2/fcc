@@ -43,7 +43,7 @@ int main()
         ir_imm_init(1)
     };
 
-    ir_graph_t graph = ir_graph_make(ir, 5);
+    ir_graph_t graph = ir_graph_init(ir, 5);
 
     bool assertion[] = {
         0, 0, 0, 0, 0,

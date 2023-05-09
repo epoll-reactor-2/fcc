@@ -9,13 +9,20 @@
 #include "utility/alloc.h"
 #include "utility/compiler.h"
 
-static __weak_unused void ir_graph_set_at(ir_graph_t *graph, size_t col, size_t row, bool v)
-{
+static __weak_unused inline void ir_graph_set_at(
+    ir_graph_t *graph,
+    size_t      col,
+    size_t      row,
+    bool        v
+) {
     graph->adj_matrix[graph->cols_count * col + row] = v;
 }
 
-static __weak_unused bool ir_graph_get_at(ir_graph_t *graph, size_t col, size_t row)
-{
+static __weak_unused inline bool ir_graph_get_at(
+    ir_graph_t *graph,
+    size_t      col,
+    size_t      row
+) {
     return graph->adj_matrix[graph->cols_count * col + row];
 }
 
@@ -43,16 +50,15 @@ static void ir_graph_build_matrix(
             break;
         }
         default: {
-            size_t next_idx = i + 1;
             /// All other statements are sequentional ones.
             /// Make edge to the next statement.
-            ir_graph_set_at(graph, next_idx, i, 1);
+            ir_graph_set_at(graph, i + 1, i, 1);
             break;
         }
         } /// switch
 }
 
-ir_graph_t ir_graph_make(ir_node_t *ir, size_t ir_size)
+ir_graph_t ir_graph_init(ir_node_t *ir, size_t ir_size)
 {
     size_t matrix_size = ir_size * ir_size;
 
