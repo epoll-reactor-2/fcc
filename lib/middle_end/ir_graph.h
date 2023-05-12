@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H
 #define WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H
 
-#include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 /// \todo: How to represent graph?
@@ -18,10 +18,10 @@
 /// Graph represented as adjacency matrix.
 typedef struct {
     /// Tells size N x N of the adjacency matrix.
-    size_t  bytes_size;
+    uint64_t bytes_size;
     /// Always equal sqrt(bytes_size) since
     /// adjacency matrix is square by definition.
-    size_t  cols_count;
+    uint64_t cols_count;
 
     /// Example:
     ///          C0   C1    C2
@@ -35,7 +35,7 @@ typedef struct {
     ///
     /// 1 indicates edge from graph node (L%) to graph node (C%)
     /// 0 indicates edge disconnection
-    bool   *adj_matrix;
+    bool *adj_matrix;
 } ir_graph_t;
 
 typedef struct ir_node_t ir_node_t;
@@ -43,7 +43,7 @@ typedef struct ir_node_t ir_node_t;
 /// Build directed graph from IR statements list.
 ///
 /// \note User should cleanup returnd graph with ir_graph_cleanup().
-ir_graph_t ir_graph_init(ir_node_t *ir, size_t ir_size);
+ir_graph_t ir_graph_init(ir_node_t *ir, uint64_t ir_size);
 void       ir_graph_cleanup(ir_graph_t *g);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H

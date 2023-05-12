@@ -60,13 +60,13 @@ void ast_storage_push_typed(const char *var_name, data_type_e dt, ast_node_t *as
     decl->read_uses = 0;
     decl->write_uses = 0;
     decl->depth = scope_depth;
-    hashmap_put(&scopes, crc32_string(var_name), (size_t) decl);
+    hashmap_put(&scopes, crc32_string(var_name), (uint64_t) decl);
 }
 
 ast_storage_decl_t *ast_storage_lookup(const char *var_name)
 {
-    size_t hash = crc32_string(var_name);
-    size_t addr = hashmap_get(&scopes, hash);
+    uint64_t hash = crc32_string(var_name);
+    uint64_t addr = hashmap_get(&scopes, hash);
 
     if (addr == 0)
         return NULL;
