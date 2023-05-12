@@ -11,8 +11,8 @@
 
 static __weak_unused inline void ir_graph_set_at(
     ir_graph_t *graph,
-    size_t      col,
-    size_t      row,
+    uint64_t    col,
+    uint64_t    row,
     bool        v
 ) {
     graph->adj_matrix[graph->cols_count * col + row] = v;
@@ -20,8 +20,8 @@ static __weak_unused inline void ir_graph_set_at(
 
 static __weak_unused inline bool ir_graph_get_at(
     ir_graph_t *graph,
-    size_t      col,
-    size_t      row
+    uint64_t    col,
+    uint64_t    row
 ) {
     return graph->adj_matrix[graph->cols_count * col + row];
 }
@@ -30,9 +30,9 @@ static void ir_graph_build_matrix(
     ir_node_t  *ir,
     ir_graph_t *graph
 ) {
-    size_t ir_size = graph->cols_count;
+    uint64_t ir_size = graph->cols_count;
 
-    for (size_t i = 0; i < ir_size; ++i)
+    for (uint64_t i = 0; i < ir_size; ++i)
         switch (ir[i].type) {
         case IR_COND: {
             ir_cond_t *cond = ir[i].ir;
@@ -58,9 +58,9 @@ static void ir_graph_build_matrix(
         } /// switch
 }
 
-ir_graph_t ir_graph_init(ir_node_t *ir, size_t ir_size)
+ir_graph_t ir_graph_init(ir_node_t *ir, uint64_t ir_size)
 {
-    size_t matrix_size = ir_size * ir_size;
+    uint64_t matrix_size = ir_size * ir_size;
 
     ir_graph_t graph = {
         .bytes_size = matrix_size,

@@ -3,7 +3,7 @@ DEBUG_BUILD := 1
 CC          = gcc
 LIB         = libweak_compiler.so
 LDFLAGS     = -lfl -Wl,-R
-CFLAGS      = -std=gnu11 -Wall -Wextra -Werror -fPIC -Ilib
+CFLAGS      = -std=gnu99 -Wall -Wextra -Werror -fPIC -Ilib
 
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb

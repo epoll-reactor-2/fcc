@@ -19,7 +19,7 @@ void generate_random_string(char *out, uint64_t len)
     struct timespec ts;
 
     for (uint64_t i = 0; i < len; ++i) {
-        timespec_get(&ts, TIME_UTC);
+        clock_gettime(CLOCK_REALTIME, &ts);
         srand(ts.tv_nsec);
         out[i] = alphabet[rand() % sizeof alphabet - 1];
     }
