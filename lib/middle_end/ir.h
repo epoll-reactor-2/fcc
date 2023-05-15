@@ -28,6 +28,9 @@ typedef enum {
     IR_RET_VOID,
     IR_MEMBER,
     IR_ARRAY_ACCESS,
+    /// Code generator should store type declarations
+    /// and refer to it in order to compute type
+    /// size and member offsets.
     IR_TYPE_DECL,
     IR_FUNC_DECL,
     IR_FUNC_CALL,
