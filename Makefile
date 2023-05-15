@@ -22,7 +22,7 @@ build_dir:
 
 # TODO: make symlinks and not torture my SSD...
 test_files: | build_dir
-	cp -r tests/{front,middle}_end/input/* build/test_inputs
+	cp -r tests/{front,middle,back}_end/input/* build/test_inputs
 
 SRC = $(shell find lib -name '*.c') build/lex.yy.c
 
@@ -52,6 +52,7 @@ test:
 	@(cd build; LD_LIBRARY_PATH=. ./ir_dump_test)
 	@(cd build; LD_LIBRARY_PATH=. ./ir_gen_test)
 	@(cd build; LD_LIBRARY_PATH=. ./ir_graph_test)
+	@(cd build; LD_LIBRARY_PATH=. ./code_gen_test)
 
 clean:
 	@rm -rf build $(OBJECTS) *.o
