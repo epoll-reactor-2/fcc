@@ -11,13 +11,7 @@
 
 typedef struct ast_node_t ast_node_t;
 typedef struct ir_node_t ir_node_t;
-
-typedef struct {
-    uint64_t   decls_size;
-    /// This is allocated dynamically.
-    /// Accepted values: ir_func_decl_t.
-    ir_node_t *decls;
-} ir_t;
+typedef struct ir_t ir_t;
 
 /// Create IR from AST. Implemented as recursive visitor.
 ///
