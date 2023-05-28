@@ -36,6 +36,13 @@ typedef enum {
     IR_FUNC_CALL,
 } ir_type_e;
 
+typedef struct ir_t {
+    uint64_t          decls_size;
+    /// This is allocated dynamically.
+    /// Accepted values: ir_func_decl_t.
+    struct ir_node_t *decls;
+} ir_t;
+
 /// Typed pointer to the IR node of any type.
 ///
 /// Each implemented IR node must have methods

@@ -4,11 +4,13 @@
  * This file is distributed under the MIT license.
  */
 
-#include "back_end/code_gen.h"
 #include "front_end/analysis/analysis.h"
 #include "front_end/ast/ast.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
+#include "middle_end/ir_gen.h"
+#include "middle_end/ir_dump.h"
+#include "back_end/code_gen.h"
 #include "utility/diagnostic.h"
 #include "utils/test_utils.h"
 
@@ -34,6 +36,9 @@ bool code_gen_test(const char *filename)
     fseek(yyin, 0, SEEK_SET);
 
     tok_array_t *toks = lex_consumed_tokens();
+    char        *generated = NULL;
+    size_t       _ = 0;
+    FILE        *generated_stream = open_memstream(&generated, &_);
 
     if (!setjmp(weak_fatal_error_buf)) {
         printf("\n");
@@ -41,13 +46,18 @@ bool code_gen_test(const char *filename)
         analysis_variable_use_analysis(ast);
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
-        code_gen(ast);
 
-        system("cat /tmp/__code_dump.s");
-        system("as /tmp/__code_dump.s -o /tmp/__code_dump.o");
-        system("ld /tmp/__code_dump.o -o /tmp/__code_dump");
-        system("strip --remove-section=.note.gnu.property /tmp/__code_dump");
-        system("strace /tmp/__code_dump");
+        ir_t ir = ir_gen(ast);
+        for (uint64_t i = 0; i < ir.decls_size; ++i)
+            ir_dump(generated_stream, ir.decls[i].ir);
+
+        code_gen(&ir);
+
+        // system("cat /tmp/__code_dump.s");
+        // system("as /tmp/__code_dump.s -o /tmp/__code_dump.o");
+        // system("ld /tmp/__code_dump.o -o /tmp/__code_dump");
+        // system("strip --remove-section=.note.gnu.property /tmp/__code_dump");
+        // system("strace /tmp/__code_dump");
     } else {
         /// Error, will be printed in main.
         return false;
