@@ -37,22 +37,18 @@ $(LIB): $(OBJ) | build_dir
 TEST_SRC = $(shell find tests -name '*.c')
 TEST_OBJ = $(TEST_SRC:.c=.o)
 
+TEST_CFLAGS  = -Lbuild
+TEST_LDFLAGS = -lweak_compiler
+
 $(TEST_OBJ): $(TEST_SRC) | $(LIB)
-	$(CC) -Itests $(CFLAGS) $(@:.o=.c) build/lex.yy.o -o build/$(notdir $(@:.o=))_test -Lbuild -lweak_compiler $(LDFLAGS)
+	$(CC) -Itests $(CFLAGS) $(@:.o=.c) build/lex.yy.o -o build/$(notdir $(@:.o=))_test $(TEST_CFLAGS) $(TEST_LDFLAGS) $(LDFLAGS)
 
 tests: $(TEST_OBJ)
 
 test:
-	@(cd build; LD_LIBRARY_PATH=. ./analysis_test)
-	@(cd build; LD_LIBRARY_PATH=. ./ast_storage_test)
-	@(cd build; LD_LIBRARY_PATH=. ./ast_dump_test)
-	@(cd build; LD_LIBRARY_PATH=. ./data_type_test)
-	@(cd build; LD_LIBRARY_PATH=. ./tok_test)
-	@(cd build; LD_LIBRARY_PATH=. ./parse_test)
-	@(cd build; LD_LIBRARY_PATH=. ./ir_dump_test)
-	@(cd build; LD_LIBRARY_PATH=. ./ir_gen_test)
-	@(cd build; LD_LIBRARY_PATH=. ./ir_graph_test)
-	@(cd build; LD_LIBRARY_PATH=. ./code_gen_test)
+	$(foreach file,$(shell \
+		find build -executable -name '*_test' -printf "./%f\n"),\
+		 (cd build; LD_LIBRARY_PATH=. $(file));)
 
 clean:
 	@rm -rf build $(OBJECTS) *.o
