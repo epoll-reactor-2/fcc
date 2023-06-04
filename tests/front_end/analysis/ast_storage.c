@@ -27,7 +27,7 @@ void generate_random_string(char *out, uint64_t len)
 
 int main() {
     {
-        ast_node_t *ast = ast_num_init(1, 2, 3);
+        struct ast_node *ast = ast_num_init(1, 2, 3);
 
         ast_storage_init_state();
         ASSERT_FALSE(ast_storage_lookup("var"));
@@ -40,13 +40,13 @@ int main() {
     {
         /// Loop to check proper internal states handling.
         for (uint64_t i = 0; i < 5; ++i) {
-            ast_node_t *ast = ast_num_init(1, 2, 3);
+            struct ast_node *ast = ast_num_init(1, 2, 3);
 
             ast_storage_init_state();
             ast_storage_start_scope();
             ast_storage_push("var", ast);
 
-            ast_storage_decl_t *record = ast_storage_lookup("var");
+            struct ast_storage_decl *record = ast_storage_lookup("var");
             ASSERT_TRUE(record->read_uses == 0);
             ASSERT_TRUE(record->write_uses == 0);
             ASSERT_TRUE(record->depth == 1);
@@ -63,14 +63,14 @@ int main() {
     }
 
     {
-        ast_node_t *ast = ast_num_init(1, 2, 3);
+        struct ast_node *ast = ast_num_init(1, 2, 3);
         ast_storage_init_state();
 
         ast_storage_start_scope();
         ast_storage_start_scope();
         ast_storage_push_typed("var", D_T_BOOL, ast);
 
-        ast_storage_decl_t *record = ast_storage_lookup("var");
+        struct ast_storage_decl *record = ast_storage_lookup("var");
         ASSERT_TRUE(record);
         ASSERT_TRUE(record->depth == 2);
         ASSERT_TRUE(record->data_type == D_T_BOOL);
@@ -78,7 +78,7 @@ int main() {
         ast_storage_end_scope();
 
         ast_storage_push("var2", ast);
-        ast_storage_decl_t *second_record = ast_storage_lookup("var2");
+        struct ast_storage_decl *second_record = ast_storage_lookup("var2");
         ASSERT_TRUE(second_record);
         ASSERT_TRUE(second_record->depth == 1);
 
@@ -91,7 +91,7 @@ int main() {
 
     {
         ast_storage_init_state();
-        ast_node_t *ast = ast_num_init(1, 2, 3);
+        struct ast_node *ast = ast_num_init(1, 2, 3);
 
         char rand_string[32];
         for (uint64_t i = 0; i < 1000; ++i) {

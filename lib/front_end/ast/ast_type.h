@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_TYPE_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_TYPE_H
 
-typedef enum {
+enum ast_type {
   /// Literals.
   AST_CHAR_LITERAL,
   AST_INTEGER_LITERAL,
@@ -51,12 +51,12 @@ typedef enum {
   /// Functions.
   AST_FUNCTION_DECL,
   AST_FUNCTION_CALL
-} ast_type_e;
+};
 
 /// \return String representation of the AST type. Don't
 ///         apply free() to the result.
 ///
 /// \note   weak_unreachable() called on unknown integer value of t.
-const char *ast_type_to_string(ast_type_e t);
+const char *ast_type_to_string(enum ast_type t);
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_TYPE_H

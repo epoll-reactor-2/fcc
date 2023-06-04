@@ -10,30 +10,30 @@
 #include "utility/unreachable.h"
 #include <assert.h>
 
-static void ir_dump_node(FILE *mem, ir_node_t ir);
+static void ir_dump_node(FILE *mem, struct ir_node ir);
 
-static void ir_dump_alloca(FILE *mem, ir_alloca_t *ir)
+static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 {
     fprintf(mem, "alloca %s %%%d", data_type_to_string(ir->dt), ir->idx);
 }
 
-static void ir_dump_imm(FILE *mem, ir_imm_t *ir)
+static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
 {
     fprintf(mem, "$%d", ir->imm);
 }
 
-static void ir_dump_sym(FILE *mem, ir_imm_t *ir)
+static void ir_dump_sym(FILE *mem, struct ir_imm *ir)
 {
     fprintf(mem, "%%%d", ir->imm);
 }
 
-static void ir_dump_store(FILE *mem, ir_store_t *ir)
+static void ir_dump_store(FILE *mem, struct ir_store *ir)
 {
     fprintf(mem, "store %%%d ", ir->idx);
     ir_dump_node(mem, ir->body);
 }
 
-static void ir_dump_bin(FILE *mem, ir_bin_t *ir)
+static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
 {
     const char *op = NULL;
     switch (ir->op) {
@@ -61,24 +61,24 @@ static void ir_dump_bin(FILE *mem, ir_bin_t *ir)
     ir_dump_node(mem, ir->rhs);
 }
 
-static void ir_dump_label(FILE *mem, ir_label_t *ir)
+static void ir_dump_label(FILE *mem, struct ir_label *ir)
 {
     fprintf(mem, "\nL%d:", ir->idx);
 }
 
-static void ir_dump_jump(FILE *mem, ir_jump_t *ir)
+static void ir_dump_jump(FILE *mem, struct ir_jump *ir)
 {
     fprintf(mem, "jmp L%d", ir->idx);
 }
 
-static void ir_dump_cond(FILE *mem, ir_cond_t *ir)
+static void ir_dump_cond(FILE *mem, struct ir_cond *ir)
 {
     fprintf(mem, "if ");
     ir_dump_node(mem, ir->cond);
     fprintf(mem, " goto L%d", ir->goto_label);
 }
 
-static void ir_dump_ret(FILE *mem, ir_ret_t *ir)
+static void ir_dump_ret(FILE *mem, struct ir_ret *ir)
 {
     fprintf(mem, "ret ");
     ir_dump_node(mem, ir->op);
@@ -89,13 +89,13 @@ static void ir_dump_ret_void(FILE *mem)
     fprintf(mem, "ret");
 }
 
-static void ir_dump_member(FILE *mem, ir_member_t *ir)
+static void ir_dump_member(FILE *mem, struct ir_member *ir)
 {
     /// %1.0
     fprintf(mem, "%%%d.%d", ir->idx, ir->field_idx);
 }
 
-static void ir_dump_array_access(FILE *mem, ir_array_access_t *ir)
+static void ir_dump_array_access(FILE *mem, struct ir_array_access *ir)
 {
     /// %1[%2]
     /// %1[$123]
@@ -104,7 +104,7 @@ static void ir_dump_array_access(FILE *mem, ir_array_access_t *ir)
     weak_unreachable("todo: implement");
 }
 
-static void ir_dump_type_decl(FILE *mem, ir_type_decl_t *ir)
+static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
 {
     fprintf(mem, "%%%s = {", ir->name);
     for (uint64_t i = 0; i < ir->decls_size; ++i) {
@@ -114,7 +114,7 @@ static void ir_dump_type_decl(FILE *mem, ir_type_decl_t *ir)
     fprintf(mem, "\n}");
 }
 
-static void ir_dump_func_decl(FILE *mem, ir_func_decl_t *ir)
+static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
 {
     fprintf(mem, "fun %s(", ir->name);
     uint64_t size = ir->args_size;
@@ -128,7 +128,7 @@ static void ir_dump_func_decl(FILE *mem, ir_func_decl_t *ir)
 
     size = ir->body_size;
     for (uint64_t i = 0; i < size; ++i) {
-        ir_node_t node = *(ir->body + i);
+        struct ir_node node = *(ir->body + i);
 
         if (node.type != IR_LABEL)
             fprintf(mem, "\n% 8d:   ", node.instr_idx);
@@ -136,12 +136,12 @@ static void ir_dump_func_decl(FILE *mem, ir_func_decl_t *ir)
     }
 }
 
-static void ir_dump_func_call(FILE *mem, ir_func_call_t *ir)
+static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
 {
     fprintf(mem, "call %s(", ir->name);
     uint64_t size = ir->args_size;
     for (uint64_t i = 0; i < size; ++i) {
-        ir_node_t node = *(ir->args + i);
+        struct ir_node node = *(ir->args + i);
         ir_dump_node(mem, node);
         if (i < size -1) {
             fprintf(mem, ", ");
@@ -150,7 +150,7 @@ static void ir_dump_func_call(FILE *mem, ir_func_call_t *ir)
     fprintf(mem, ")");
 }
 
-/* static */ void ir_dump_node(FILE *mem, ir_node_t ir)
+/* static */ void ir_dump_node(FILE *mem, struct ir_node ir)
 {
     switch (ir.type) {
     case IR_ALLOCA:       ir_dump_alloca(mem, ir.ir); break;
@@ -172,7 +172,7 @@ static void ir_dump_func_call(FILE *mem, ir_func_call_t *ir)
     }
 }
 
-int32_t ir_dump(FILE *mem, ir_func_decl_t *ir)
+int32_t ir_dump(FILE *mem, struct ir_func_decl *ir)
 {
     if (mem == NULL || ir == NULL) return -1;
 

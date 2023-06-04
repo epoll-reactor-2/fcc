@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_FRONTEND_ANALYSIS_VARIABLE_USAGE_H
 #define WEAK_COMPILER_FRONTEND_ANALYSIS_VARIABLE_USAGE_H
 
-typedef struct ast_node_t ast_node_t;
+struct ast_node;
 
 /// \brief Variable usage analyzer.
 ///
@@ -15,7 +15,7 @@ typedef struct ast_node_t ast_node_t;
 ///   - Function is unused.
 ///   - Variable is unused.
 ///   - Variable is written, but not read.
-void analysis_variable_use_analysis(ast_node_t *root);
+void analysis_variable_use_analysis(struct ast_node *root);
 
 /// \brief Function analyzer.
 ///
@@ -24,7 +24,7 @@ void analysis_variable_use_analysis(ast_node_t *root);
 /// Asserts listed below conditions.
 ///   - Arguments size and types matches called function prototype.
 ///   - Return value matches its function return type.
-void analysis_functions_analysis(ast_node_t *root);
+void analysis_functions_analysis(struct ast_node *root);
 
 /// \brief Type checker.
 ///
@@ -59,6 +59,6 @@ void analysis_functions_analysis(ast_node_t *root);
 ///   </tr>
 /// </table>
 
-void analysis_type_analysis(ast_node_t *root);
+void analysis_type_analysis(struct ast_node *root);
 
 #endif // WEAK_COMPILER_FRONTEND_ANALYSIS_VARIABLE_USAGE_H

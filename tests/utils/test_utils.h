@@ -30,7 +30,7 @@
 
 void tokens_cleanup(tok_array_t *toks) {
     for (uint64_t i = 0; i < toks->count; ++i) {
-        tok_t *t = &toks->data[i];
+        struct token *t = &toks->data[i];
         if (t->data)
             free(t->data);
     }

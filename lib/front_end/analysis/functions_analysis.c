@@ -31,44 +31,44 @@ static void reset_internal_state()
 /// \note Interesting in this context things are only in the
 ///       conditional and iteration statements body, not in
 ///       the conditions.
-static void visit_ast_node(ast_node_t *ast);
+static void visit_ast_node(struct ast_node *ast);
 
-static void visit_ast_compound(ast_node_t *ast)
+static void visit_ast_compound(struct ast_node *ast)
 {
-    ast_compound_t *stmt = ast->ast;
+    struct ast_compound *stmt = ast->ast;
     for (uint64_t i = 0; i < stmt->size; ++i)
         visit_ast_node(stmt->stmts[i]);
 }
 
-static void visit_ast_if(ast_node_t *ast)
+static void visit_ast_if(struct ast_node *ast)
 {
-    ast_if_t *stmt = ast->ast;
+    struct ast_if *stmt = ast->ast;
     visit_ast_node(stmt->body);
     if (stmt->else_body)
         visit_ast_node(stmt->else_body);
 }
 
-static void visit_ast_for(ast_node_t *ast)
+static void visit_ast_for(struct ast_node *ast)
 {
-    ast_for_t *stmt = ast->ast;
+    struct ast_for *stmt = ast->ast;
     visit_ast_node(stmt->body);
 }
 
-static void visit_ast_while(ast_node_t *ast)
+static void visit_ast_while(struct ast_node *ast)
 {
-    ast_while_t *stmt = ast->ast;
+    struct ast_while *stmt = ast->ast;
     visit_ast_node(stmt->body);
 }
 
-static void visit_ast_do_while(ast_node_t *ast)
+static void visit_ast_do_while(struct ast_node *ast)
 {
-    ast_do_while_t *stmt = ast->ast;
+    struct ast_do_while *stmt = ast->ast;
     visit_ast_node(stmt->body);
 }
 
-static void visit_ast_return(ast_node_t *ast)
+static void visit_ast_return(struct ast_node *ast)
 {
-    ast_return_t *stmt = ast->ast;
+    struct ast_return *stmt = ast->ast;
     if (stmt->operand) {
         visit_ast_node(stmt->operand);
         last_ret.line_no = ast->line_no;
@@ -77,9 +77,9 @@ static void visit_ast_return(ast_node_t *ast)
     }
 }
 
-static void visit_ast_function_decl(ast_node_t *ast)
+static void visit_ast_function_decl(struct ast_node *ast)
 {
-    ast_function_decl_t *decl = ast->ast;
+    struct ast_function_decl *decl = ast->ast;
     ast_storage_push(decl->name, ast);
     /// Don't need to analyze arguments though.
     visit_ast_node(decl->body);
@@ -104,12 +104,12 @@ static void visit_ast_function_decl(ast_node_t *ast)
     }
 }
 
-static void visit_ast_function_call(ast_node_t *ast)
+static void visit_ast_function_call(struct ast_node *ast)
 {
-    ast_function_call_t *stmt = ast->ast;
-    ast_function_decl_t *fun = ast_storage_lookup(stmt->name)->ast->ast;
-    ast_compound_t *call_args = stmt->args->ast;
-    ast_compound_t *decl_args = fun->args->ast;
+    struct ast_function_call *stmt = ast->ast;
+    struct ast_function_decl *fun = ast_storage_lookup(stmt->name)->ast->ast;
+    struct ast_compound *call_args = stmt->args->ast;
+    struct ast_compound *decl_args = fun->args->ast;
 
     if (call_args->size != decl_args->size)
         weak_compile_error(
@@ -124,7 +124,7 @@ static void visit_ast_function_call(ast_node_t *ast)
         visit_ast_node(call_args->stmts[i]);
 }
 
-void visit_ast_node(ast_node_t *ast)
+void visit_ast_node(struct ast_node *ast)
 {
     assert(ast);
 
@@ -175,7 +175,7 @@ void visit_ast_node(ast_node_t *ast)
     }
 }
 
-void analysis_functions_analysis(ast_node_t *root)
+void analysis_functions_analysis(struct ast_node *root)
 {
     ast_storage_init_state();
     visit_ast_node(root);

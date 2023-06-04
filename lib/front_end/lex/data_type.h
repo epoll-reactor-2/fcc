@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H
 #define WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H
 
-typedef enum {
+enum data_type {
     D_T_UNKNOWN,
     D_T_FUNC,
     D_T_STRUCT,
@@ -17,12 +17,12 @@ typedef enum {
     D_T_STRING,
     D_T_FLOAT,
     D_T_BOOL
-} data_type_e;
+};
 
 /// \return String representation of the token. Don't
 ///         apply free() to the result.
 ///
 /// \note   weak_unreachable() called on unknown integer value of dt.
-const char *data_type_to_string(data_type_e dt);
+const char *data_type_to_string(enum data_type dt);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H

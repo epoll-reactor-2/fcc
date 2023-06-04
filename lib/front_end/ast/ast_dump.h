@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-typedef struct ast_node_t ast_node_t;
+struct ast_node;
 
 /// Write AST represented as string to given file or memory stream.
 ///
@@ -19,6 +19,6 @@ typedef struct ast_node_t ast_node_t;
 ///           - memory stream is NULL
 ///           - ast is NULL
 ///           - any required non-NULL AST node is NULL
-int32_t ast_dump(FILE *mem, ast_node_t *ast);
+int32_t ast_dump(FILE *mem, struct ast_node *ast);
 
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_DUMP_H

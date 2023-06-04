@@ -7,8 +7,8 @@
 #ifndef WEAK_COMPILER_BACKEND_CODE_GEN_H
 #define WEAK_COMPILER_BACKEND_CODE_GEN_H
 
-typedef struct ir_t ir_t;
+struct ir;
 
-void code_gen(ir_t *ir);
+void code_gen(struct ir *ir);
 
 #endif // WEAK_COMPILER_BACKEND_CODE_GEN_H

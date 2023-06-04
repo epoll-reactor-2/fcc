@@ -53,14 +53,14 @@ bool ir_test(const char *filename)
     extract_assertion_comment(yyin, expected_stream);
 
     if (!setjmp(weak_fatal_error_buf)) {
-        ast_node_t *ast = parse(toks->data, toks->data + toks->count);
+        struct ast_node *ast = parse(toks->data, toks->data + toks->count);
 
         /// Preconditions for IR generator.
         analysis_variable_use_analysis(ast);
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
 
-        ir_t ir = ir_gen(ast);
+        struct ir ir = ir_gen(ast);
         for (uint64_t i = 0; i < ir.decls_size; ++i)
             ir_dump(generated_stream, ir.decls[i].ir);
 

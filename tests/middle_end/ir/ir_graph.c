@@ -28,7 +28,7 @@ int main()
 {
     printf("Testing IR graph...\n");
 
-    ir_node_t ir[] = {
+    struct ir_node ir[] = {
         ir_imm_init(1),
         ir_jump_init(4),
         ir_imm_init(1),
@@ -43,7 +43,7 @@ int main()
         ir_imm_init(1)
     };
 
-    ir_graph_t graph = ir_graph_init(ir, 5);
+    struct ir_graph graph = ir_graph_init(ir, 5);
 
     bool assertion[] = {
         0, 0, 0, 0, 0,
