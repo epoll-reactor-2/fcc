@@ -42,12 +42,12 @@ bool code_gen_test(const char *filename)
 
     if (!setjmp(weak_fatal_error_buf)) {
         printf("\n");
-        ast_node_t *ast = parse(toks->data, toks->data + toks->count);
+        struct ast_node *ast = parse(toks->data, toks->data + toks->count);
         analysis_variable_use_analysis(ast);
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
 
-        ir_t ir = ir_gen(ast);
+        struct ir ir = ir_gen(ast);
         for (uint64_t i = 0; i < ir.decls_size; ++i)
             ir_dump(generated_stream, ir.decls[i].ir);
 

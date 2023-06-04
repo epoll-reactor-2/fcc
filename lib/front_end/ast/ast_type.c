@@ -7,7 +7,7 @@
 #include "front_end/ast/ast_type.h"
 #include "utility/unreachable.h"
 
-const char *ast_type_to_string(ast_type_e t) {
+const char *ast_type_to_string(enum ast_type t) {
     switch (t) {
     case AST_CHAR_LITERAL:           return "AST_CHAR_LITERAL";
     case AST_INTEGER_LITERAL:        return "AST_INTEGER_LITERAL";

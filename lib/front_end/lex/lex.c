@@ -10,7 +10,7 @@
 
 static tok_array_t tokens = {0};
 
-void lex_consume_token(tok_t *tok)
+void lex_consume_token(struct token *tok)
 {
     vector_push_back(tokens, *tok);
 }

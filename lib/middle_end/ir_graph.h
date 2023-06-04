@@ -16,7 +16,7 @@
 ///            https://www.sciencedirect.com/science/article/pii/S1571066107005324
 
 /// Graph represented as adjacency matrix.
-typedef struct {
+struct ir_graph {
     /// Tells size N x N of the adjacency matrix.
     uint64_t bytes_size;
     /// Always equal sqrt(bytes_size) since
@@ -36,14 +36,15 @@ typedef struct {
     /// 1 indicates edge from graph node (L%) to graph node (C%)
     /// 0 indicates edge disconnection
     bool *adj_matrix;
-} ir_graph_t;
+};
 
-typedef struct ir_node_t ir_node_t;
+struct ir_node;
 
 /// Build directed graph from IR statements list.
 ///
 /// \note User should cleanup returnd graph with ir_graph_cleanup().
-ir_graph_t ir_graph_init(ir_node_t *ir, uint64_t ir_size);
-void       ir_graph_cleanup(ir_graph_t *g);
+struct ir_graph ir_graph_init(struct ir_node *ir, uint64_t ir_size);
+
+void ir_graph_cleanup(struct ir_graph *g);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H

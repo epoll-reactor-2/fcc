@@ -10,32 +10,32 @@
 #include "utility/compiler.h"
 
 static __weak_unused inline void ir_graph_set_at(
-    ir_graph_t *graph,
-    uint64_t    col,
-    uint64_t    row,
-    bool        v
+    struct ir_graph *graph,
+    uint64_t         col,
+    uint64_t         row,
+    bool             v
 ) {
     graph->adj_matrix[graph->cols_count * col + row] = v;
 }
 
 static __weak_unused inline bool ir_graph_get_at(
-    ir_graph_t *graph,
-    uint64_t    col,
-    uint64_t    row
+    struct ir_graph *graph,
+    uint64_t         col,
+    uint64_t         row
 ) {
     return graph->adj_matrix[graph->cols_count * col + row];
 }
 
 static void ir_graph_build_matrix(
-    ir_node_t  *ir,
-    ir_graph_t *graph
+    struct ir_node  *ir,
+    struct ir_graph *graph
 ) {
     uint64_t ir_size = graph->cols_count;
 
     for (uint64_t i = 0; i < ir_size; ++i)
         switch (ir[i].type) {
         case IR_COND: {
-            ir_cond_t *cond = ir[i].ir;
+            struct ir_cond *cond = ir[i].ir;
             /// Make edge to the next statement.
             ir_graph_set_at(graph, i + 1, i, 1);
             /// Make edge to the jump target.
@@ -43,7 +43,7 @@ static void ir_graph_build_matrix(
             break;
         }
         case IR_JUMP: {
-            ir_jump_t *jump = ir[i].ir;
+            struct ir_jump *jump = ir[i].ir;
             /// Make edge only to the jump target, not
             /// to next statement after this one.
             ir_graph_set_at(graph, jump->idx, i, 1);
@@ -58,11 +58,11 @@ static void ir_graph_build_matrix(
         } /// switch
 }
 
-ir_graph_t ir_graph_init(ir_node_t *ir, uint64_t ir_size)
+struct ir_graph ir_graph_init(struct ir_node *ir, uint64_t ir_size)
 {
     uint64_t matrix_size = ir_size * ir_size;
 
-    ir_graph_t graph = {
+    struct ir_graph graph = {
         .bytes_size = matrix_size,
         .cols_count = ir_size,
         .adj_matrix = weak_calloc(matrix_size, sizeof (bool))
@@ -73,7 +73,7 @@ ir_graph_t ir_graph_init(ir_node_t *ir, uint64_t ir_size)
     return graph;
 }
 
-void ir_graph_cleanup(ir_graph_t *g)
+void ir_graph_cleanup(struct ir_graph *g)
 {
     weak_free(g->adj_matrix);
 }

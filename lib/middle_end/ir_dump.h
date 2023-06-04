@@ -18,6 +18,6 @@
 ///         1 on following errors:
 ///           - memory stream is NULL
 ///           - ir is NULL
-int32_t ir_dump(FILE *mem, ir_func_decl_t *ir);
+int32_t ir_dump(FILE *mem, struct ir_func_decl *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H

@@ -9,6 +9,7 @@
 
 #include "front_end/lex/tok.h"
 
-struct ast_node_t *parse(const tok_t *begin, const tok_t *end);
+struct ast_node;
+struct ast_node *parse(const struct token *begin, const struct token *end);
 
 #endif // WEAK_COMPILER_FRONTEND_PARSE_PARSE_H

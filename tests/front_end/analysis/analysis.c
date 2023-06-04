@@ -21,7 +21,7 @@ void *diag_warn_memstream = NULL;
 
 bool ignore_warns = false;
 
-void(*analysis_fn)(ast_node_t *) = NULL;
+void(*analysis_fn)(struct ast_node *) = NULL;
 
 bool analysis_test(const char *filename)
 {
@@ -58,7 +58,7 @@ bool analysis_test(const char *filename)
     extract_assertion_comment(yyin, msg_stream);
 
     tok_array_t *toks = lex_consumed_tokens();
-    ast_node_t *ast = parse(toks->data, toks->data + toks->count);
+    struct ast_node *ast = parse(toks->data, toks->data + toks->count);
 
     if (!setjmp(weak_fatal_error_buf)) {
         analysis_fn(ast);

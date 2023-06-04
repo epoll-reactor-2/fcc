@@ -16,7 +16,7 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-typedef vector_t(ir_node_t) ir_array_t;
+typedef vector_t(struct ir_node) ir_array_t;
 
 void ir_dump_basic(FILE *stream, char **expected)
 {
@@ -43,7 +43,7 @@ void ir_dump_basic(FILE *stream, char **expected)
     vector_push_back(body, ir_store_var_init(1, 0));
     vector_push_back(body, ir_jump_init(0));
 
-    ir_func_decl_t func = {
+    struct ir_func_decl func = {
         .name      = "decl_f",
         .args_size = args.count,
         .args      = args.data,
@@ -93,7 +93,7 @@ void ir_dump_call(FILE *stream, char **expected)
     vector_push_back(calls, ir_func_call_init("f4", args.count, args.data));
     vector_push_back(calls, ir_func_call_init("f5", args.count, args.data));
 
-    ir_func_decl_t decl = {
+    struct ir_func_decl decl = {
         .name      = "decl_f",
         .args_size = 0,
         .args      = NULL,

@@ -11,13 +11,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct {
-    char       *data;
-    tok_type_e  type;
-    uint16_t    line_no;
-    uint16_t    col_no;
-} tok_t;
+struct token {
+    char            *data;
+    enum token_type  type;
+    uint16_t         line_no;
+    uint16_t         col_no;
+};
 
-bool tok_is(const tok_t *tok, char symbol);
+bool tok_is(const struct token *tok, char symbol);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOK_H

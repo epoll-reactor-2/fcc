@@ -12,7 +12,7 @@ void *diag_warn_memstream = NULL;
 
 int main()
 {
-    tok_t token1 = {
+    struct token token1 = {
         .data    = "",
         .type    = TOK_ASSIGN,
         .line_no = 0U,

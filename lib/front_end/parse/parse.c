@@ -14,9 +14,9 @@
 #include <assert.h>
 #include <string.h>
 
-typedef vector_t(ast_node_t *) ast_array_t;
+typedef vector_t(struct ast_node *) ast_array_t;
 
-static data_type_e tok_to_data_type(tok_type_e t)
+static enum data_type tok_to_data_type(enum token_type t)
 {
     switch (t) {
     case TOK_VOID:   return D_T_VOID;
@@ -29,24 +29,23 @@ static data_type_e tok_to_data_type(tok_type_e t)
     }
 }
 
-static const tok_t *tok_begin;
-static const tok_t *tok_end;
+static const struct token *tok_begin;
+static const struct token *tok_end;
+static uint32_t            loops_depth = 0;
 
-static uint32_t loops_depth = 0;
-
-static const tok_t *peek_current()
+static const struct token *peek_current()
 {
     return tok_begin;
 }
 
-static const tok_t *peek_next()
+static const struct token *peek_next()
 {
     return tok_begin++;
 }
 
-const tok_t *require_token(tok_type_e t)
+const struct token *require_token(enum token_type t)
 {
-    const tok_t *curr_tok = peek_current();
+    const struct token *curr_tok = peek_current();
 
     if (curr_tok->type != t)
         weak_compile_error(
@@ -60,56 +59,56 @@ const tok_t *require_token(tok_type_e t)
     return curr_tok;
 }
 
-const tok_t *require_char(char c)
+const struct token *require_char(char c)
 {
     return require_token(tok_char_to_tok(c));
 }
 
-static ast_node_t *parse_decl();
-static ast_node_t *parse_struct_decl();
-static ast_node_t *parse_function_decl();
-static ast_node_t *parse_stmt();
-static ast_node_t *parse_selection_stmt();
-static ast_node_t *parse_iteration_stmt();
-static ast_node_t *parse_jump_stmt();
-static ast_node_t *parse_for();
-static ast_node_t *parse_do_while();
-static ast_node_t *parse_while();
-static ast_node_t *parse_block();
-static ast_node_t *parse_iteration_block();
-static ast_node_t *parse_constant();
-static ast_node_t *parse_logical_or();
-static ast_node_t *parse_logical_and();
-static ast_node_t *parse_inclusive_or();
-static ast_node_t *parse_exclusive_or();
-static ast_node_t *parse_and();
-static ast_node_t *parse_equality();
-static ast_node_t *parse_relational();
-static ast_node_t *parse_shift();
-static ast_node_t *parse_additive();
-static ast_node_t *parse_multiplicative();
-static ast_node_t *parse_prefix_unary();
-static ast_node_t *parse_postfix_unary();
-static ast_node_t *parse_symbol();
-static ast_node_t *parse_primary();
-static ast_node_t *parse_decl_without_initializer();
-static ast_node_t *parse_var_decl_without_initializer();
-static ast_node_t *parse_struct_var_decl();
-static ast_node_t *parse_struct_field_access();
-static ast_node_t *parse_array_access();
-static ast_node_t *parse_expr();
-static ast_node_t *parse_assignment();
-static ast_node_t *parse_function_call();
+static struct ast_node *parse_decl();
+static struct ast_node *parse_struct_decl();
+static struct ast_node *parse_function_decl();
+static struct ast_node *parse_stmt();
+static struct ast_node *parse_selection_stmt();
+static struct ast_node *parse_iteration_stmt();
+static struct ast_node *parse_jump_stmt();
+static struct ast_node *parse_for();
+static struct ast_node *parse_do_while();
+static struct ast_node *parse_while();
+static struct ast_node *parse_block();
+static struct ast_node *parse_iteration_block();
+static struct ast_node *parse_constant();
+static struct ast_node *parse_logical_or();
+static struct ast_node *parse_logical_and();
+static struct ast_node *parse_inclusive_or();
+static struct ast_node *parse_exclusive_or();
+static struct ast_node *parse_and();
+static struct ast_node *parse_equality();
+static struct ast_node *parse_relational();
+static struct ast_node *parse_shift();
+static struct ast_node *parse_additive();
+static struct ast_node *parse_multiplicative();
+static struct ast_node *parse_prefix_unary();
+static struct ast_node *parse_postfix_unary();
+static struct ast_node *parse_symbol();
+static struct ast_node *parse_primary();
+static struct ast_node *parse_decl_without_initializer();
+static struct ast_node *parse_var_decl_without_initializer();
+static struct ast_node *parse_struct_var_decl();
+static struct ast_node *parse_struct_field_access();
+static struct ast_node *parse_array_access();
+static struct ast_node *parse_expr();
+static struct ast_node *parse_assignment();
+static struct ast_node *parse_function_call();
 
-ast_node_t *parse(const tok_t *begin, const tok_t *end)
+struct ast_node *parse(const struct token *begin, const struct token *end)
 {
-    tok_begin = (tok_t *) begin;
-    tok_end = (tok_t *) end;
+    tok_begin = (struct token *) begin;
+    tok_end = (struct token *) end;
 
-    typedef vector_t(ast_node_t *) stmts_t;
+    typedef vector_t(struct ast_node *) stmts_t;
 
     stmts_t global_stmts = {0};
-    const tok_t *curr_tok = NULL;
+    const struct token *curr_tok = NULL;
 
     while (tok_begin < tok_end) {
         curr_tok = peek_current();
@@ -142,17 +141,17 @@ ast_node_t *parse(const tok_t *begin, const tok_t *end)
     );
 }
 
-typedef struct {
-    data_type_e  data_type;
-    char        *type_name;
-    uint16_t     indirection_lvl;
-    uint16_t     line_no;
-    int16_t      col_no;
-} localized_data_type_t;
+struct localized_data_type {
+    enum data_type  data_type;
+    char           *type_name;
+    uint16_t        indirection_lvl;
+    uint16_t        line_no;
+    int16_t         col_no;
+};
 
-static localized_data_type_t parse_type()
+static struct localized_data_type parse_type()
 {
-    const tok_t *curr_tok = peek_next();
+    const struct token *curr_tok = peek_next();
 
     switch (curr_tok->type) {
     case TOK_INT:
@@ -166,9 +165,11 @@ static localized_data_type_t parse_type()
             peek_next(); /// Don't needed to require '*'.
         }
 
-        localized_data_type_t dt = {
+        struct localized_data_type dt = {
             .data_type       = tok_to_data_type(curr_tok->type),
-            .type_name       = (curr_tok->type == TOK_SYMBOL) ? strdup(curr_tok->data) : NULL,
+            .type_name       = (curr_tok->type == TOK_SYMBOL)
+                                 ? strdup(curr_tok->data)
+                                 : NULL,
             .indirection_lvl = indirection_lvl,
             .line_no         = curr_tok->line_no,
             .col_no          = curr_tok->col_no
@@ -186,16 +187,16 @@ static localized_data_type_t parse_type()
     }
 }
 
-static localized_data_type_t parse_return_type()
+static struct localized_data_type parse_return_type()
 {
-    const tok_t *curr_tok = peek_current();
+    const struct token *curr_tok = peek_current();
 
     if (curr_tok->type != TOK_VOID)
         return parse_type();
 
     peek_next();
 
-    localized_data_type_t dt = {
+    struct localized_data_type dt = {
         .data_type       = tok_to_data_type(curr_tok->type),
         .type_name       = NULL,
         .indirection_lvl = 0,
@@ -206,10 +207,10 @@ static localized_data_type_t parse_return_type()
     return dt;
 }
 
-static ast_node_t *parse_array_decl()
+static struct ast_node *parse_array_decl()
 {
-    localized_data_type_t dt = parse_type();
-    const tok_t *var_name = peek_next();
+    struct localized_data_type dt = parse_type();
+    const struct token *var_name = peek_next();
 
     if (var_name->type != TOK_SYMBOL)
         weak_compile_error(
@@ -229,7 +230,7 @@ static ast_node_t *parse_array_decl()
 
     while (tok_is(peek_current(), '[')) {
         require_char('[');
-        ast_node_t *constant = parse_constant();
+        struct ast_node *constant = parse_constant();
         if (constant->type != AST_INTEGER_LITERAL)
             weak_compile_error(
                 constant->line_no,
@@ -241,7 +242,7 @@ static ast_node_t *parse_array_decl()
         require_char(']');
     }
 
-    ast_node_t *arity_list_compound = ast_compound_init(
+    struct ast_node *arity_list_compound = ast_compound_init(
         arity_list.count,
         arity_list.data,
         dt.line_no,
@@ -259,10 +260,10 @@ static ast_node_t *parse_array_decl()
     );
 }
 
-static ast_node_t *parse_decl_without_initializer()
+static struct ast_node *parse_decl_without_initializer()
 {
-    const tok_t *ptr = peek_current();
-    localized_data_type_t dt = parse_type();
+    const struct token *ptr = peek_current();
+    struct localized_data_type dt = parse_type();
     bool is_array = tok_is((tok_begin + 1), '[');
     ptrdiff_t offset = tok_begin - ptr;
 
@@ -291,10 +292,10 @@ static ast_node_t *parse_decl_without_initializer()
     }
 }
 
-static ast_node_t *parse_var_decl_without_initializer()
+static struct ast_node *parse_var_decl_without_initializer()
 {
-    localized_data_type_t dt = parse_type();
-    const tok_t *var_name = require_token(TOK_SYMBOL);
+    struct localized_data_type dt = parse_type();
+    const struct token *var_name = require_token(TOK_SYMBOL);
 
     return ast_var_decl_init(
         dt.data_type,
@@ -307,10 +308,10 @@ static ast_node_t *parse_var_decl_without_initializer()
     );
 }
 
-static ast_node_t *parse_var_decl()
+static struct ast_node *parse_var_decl()
 {
-    localized_data_type_t dt = parse_type();
-    const tok_t *var_name = peek_next();
+    struct localized_data_type dt = parse_type();
+    const struct token *var_name = peek_next();
 
     if (var_name->type != TOK_SYMBOL)
         weak_compile_error(
@@ -319,7 +320,7 @@ static ast_node_t *parse_var_decl()
             "Variable name expected"
         );
 
-    const tok_t *operator = peek_next();
+    const struct token *operator = peek_next();
 
     if (tok_is(operator, '='))
         return ast_var_decl_init(
@@ -356,9 +357,9 @@ static ast_node_t *parse_var_decl()
     );
 }
 
-static ast_node_t *parse_decl()
+static struct ast_node *parse_decl()
 {
-    const tok_t *t = peek_current();
+    const struct token *t = peek_current();
 
     switch (t->type) {
     case TOK_STRUCT:
@@ -380,12 +381,12 @@ static ast_node_t *parse_decl()
     }
 }
 
-static ast_node_t *parse_struct_decl()
+static struct ast_node *parse_struct_decl()
 {
     ast_array_t decls = {0};
 
-    const tok_t *start = require_token(TOK_STRUCT);
-    const tok_t *name = require_token(TOK_SYMBOL);
+    const struct token *start = require_token(TOK_STRUCT);
+    const struct token *name = require_token(TOK_SYMBOL);
 
     require_char('{');
 
@@ -396,7 +397,7 @@ static ast_node_t *parse_struct_decl()
 
     require_char('}');
 
-    ast_node_t *decls_list = ast_compound_init(
+    struct ast_node *decls_list = ast_compound_init(
         decls.count,
         decls.data,
         start->line_no,
@@ -411,7 +412,7 @@ static ast_node_t *parse_struct_decl()
     );
 }
 
-static ast_node_t *parse_function_param_list()
+static struct ast_node *parse_function_param_list()
 {
     ast_array_t list = {0};
 
@@ -437,16 +438,16 @@ static ast_node_t *parse_function_param_list()
     );
 }
 
-static ast_node_t *parse_function_decl()
+static struct ast_node *parse_function_decl()
 {
-    localized_data_type_t dt = parse_return_type();
-    const tok_t *name = require_token(TOK_SYMBOL);
+    struct localized_data_type dt = parse_return_type();
+    const struct token *name = require_token(TOK_SYMBOL);
 
     require_char('(');
-    ast_node_t *param_list = parse_function_param_list();
+    struct ast_node *param_list = parse_function_param_list();
     require_char(')');
 
-    ast_node_t *block = NULL;
+    struct ast_node *block = NULL;
 
     if (tok_is(peek_current(), '{'))
         block = parse_block(); /// Function.
@@ -463,9 +464,9 @@ static ast_node_t *parse_function_decl()
     );
 }
 
-static ast_node_t *parse_stmt()
+static struct ast_node *parse_stmt()
 {
-    const tok_t *t = peek_current();
+    const struct token *t = peek_current();
 
     switch (t->type) {
     case TOK_OPEN_CURLY_BRACKET:
@@ -509,9 +510,9 @@ static ast_node_t *parse_stmt()
     }
 }
 
-static ast_node_t *parse_loop_stmt()
+static struct ast_node *parse_loop_stmt()
 {
-    const tok_t *t = peek_next();
+    const struct token *t = peek_next();
 
     switch (t->type) {
     case TOK_BREAK:
@@ -524,14 +525,14 @@ static ast_node_t *parse_loop_stmt()
     }
 }
 
-static ast_node_t *parse_iteration_block()
+static struct ast_node *parse_iteration_block()
 {
     ast_array_t stmts = {0};
-    const tok_t *start = require_char('{');
+    const struct token *start = require_char('{');
 
     while (!tok_is(peek_current(), '}')) {
         vector_push_back(stmts, parse_loop_stmt());
-        ast_type_e t = vector_at(stmts, stmts.count - 1)->type;
+        enum ast_type t = vector_at(stmts, stmts.count - 1)->type;
 
         switch (t) {
         case AST_BINARY:
@@ -564,17 +565,17 @@ static ast_node_t *parse_iteration_block()
     );
 }
 
-static ast_node_t *parse_block()
+static struct ast_node *parse_block()
 {
     if (loops_depth > 0)
         return parse_iteration_block();
 
     ast_array_t stmts = {0};
-    const tok_t *start = require_char('{');
+    const struct token *start = require_char('{');
 
     while (!tok_is(peek_current(), '}')) {
         vector_push_back(stmts, parse_stmt());
-        ast_type_e t = vector_at(stmts, stmts.count - 1)->type;
+        enum ast_type t = vector_at(stmts, stmts.count - 1)->type;
 
         switch (t) {
         case AST_BINARY:
@@ -605,12 +606,12 @@ static ast_node_t *parse_block()
     );
 }
 
-static ast_node_t *parse_selection_stmt()
+static struct ast_node *parse_selection_stmt()
 {
-    ast_node_t  *cond      = NULL;
-    ast_node_t  *then_body = NULL;
-    ast_node_t  *else_body = NULL;
-    const tok_t *start     = require_token(TOK_IF);
+    struct ast_node    *cond      = NULL;
+    struct ast_node    *then_body = NULL;
+    struct ast_node    *else_body = NULL;
+    const struct token *start     = require_token(TOK_IF);
 
     require_char('(');
     cond = parse_logical_or();
@@ -632,9 +633,9 @@ static ast_node_t *parse_selection_stmt()
     );
 }
 
-static ast_node_t *parse_iteration_stmt()
+static struct ast_node *parse_iteration_stmt()
 {
-    const tok_t *t = peek_current();
+    const struct token *t = peek_current();
 
     switch (t->type) {
     case TOK_FOR:
@@ -648,10 +649,10 @@ static ast_node_t *parse_iteration_stmt()
     }
 }
 
-static ast_node_t *parse_jump_stmt()
+static struct ast_node *parse_jump_stmt()
 {
-    const tok_t *start = require_token(TOK_RETURN);
-    ast_node_t  *body  = NULL;
+    const struct token *start = require_token(TOK_RETURN);
+    struct ast_node  *body  = NULL;
 
     if (!tok_is(peek_current(), ';'))
         body = parse_logical_or();
@@ -659,14 +660,14 @@ static ast_node_t *parse_jump_stmt()
     return ast_return_init(body, start->line_no, start->col_no);
 }
 
-static ast_node_t *parse_for()
+static struct ast_node *parse_for()
 {
-    const tok_t *start = require_token(TOK_FOR);
+    const struct token *start = require_token(TOK_FOR);
     require_char('(');
 
-    ast_node_t *init      = NULL;
-    ast_node_t *cond      = NULL;
-    ast_node_t *increment = NULL;
+    struct ast_node *init      = NULL;
+    struct ast_node *cond      = NULL;
+    struct ast_node *increment = NULL;
 
     if (!tok_is(peek_next(), ';')) {
         --tok_begin;
@@ -687,7 +688,7 @@ static ast_node_t *parse_for()
     }
 
     ++loops_depth;
-    ast_node_t *body = parse_block();
+    struct ast_node *body = parse_block();
     --loops_depth;
 
     return ast_for_init(
@@ -700,18 +701,18 @@ static ast_node_t *parse_for()
     );
 }
 
-static ast_node_t *parse_do_while()
+static struct ast_node *parse_do_while()
 {
-    const tok_t *start = require_token(TOK_DO);
+    const struct token *start = require_token(TOK_DO);
 
     ++loops_depth;
-    ast_node_t *body = parse_block();
+    struct ast_node *body = parse_block();
     --loops_depth;
 
     require_token(TOK_WHILE);
 
     require_char('(');
-    ast_node_t *cond = parse_logical_or();
+    struct ast_node *cond = parse_logical_or();
     require_char(')');
 
     return ast_do_while_init(
@@ -722,16 +723,16 @@ static ast_node_t *parse_do_while()
     );
 }
 
-static ast_node_t *parse_while()
+static struct ast_node *parse_while()
 {
-    const tok_t *start = require_token(TOK_WHILE);
+    const struct token *start = require_token(TOK_WHILE);
 
     require_char('(');
-    ast_node_t *cond = parse_logical_or();
+    struct ast_node *cond = parse_logical_or();
     require_char(')');
 
     ++loops_depth;
-    ast_node_t *body = parse_block();
+    struct ast_node *body = parse_block();
     --loops_depth;
 
     return ast_while_init(
@@ -742,12 +743,12 @@ static ast_node_t *parse_while()
     );
 }
 
-static ast_node_t *parse_logical_or()
+static struct ast_node *parse_logical_or()
 {
-    ast_node_t *expr = parse_logical_and();
+    struct ast_node *expr = parse_logical_and();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_OR:
             expr = ast_binary_init(t->type, expr, parse_logical_or(), t->line_no, t->col_no);
@@ -761,12 +762,12 @@ static ast_node_t *parse_logical_or()
     return expr;
 }
 
-static ast_node_t *parse_logical_and()
+static struct ast_node *parse_logical_and()
 {
-    ast_node_t *expr = parse_inclusive_or();
+    struct ast_node *expr = parse_inclusive_or();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_AND:
             expr = ast_binary_init(t->type, expr, parse_logical_and(), t->line_no, t->col_no);
@@ -780,12 +781,12 @@ static ast_node_t *parse_logical_and()
     return expr;
 }
 
-static ast_node_t *parse_inclusive_or()
+static struct ast_node *parse_inclusive_or()
 {
-    ast_node_t *expr = parse_exclusive_or();
+    struct ast_node *expr = parse_exclusive_or();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_BIT_OR:
             expr = ast_binary_init(t->type, expr, parse_inclusive_or(), t->line_no, t->col_no);
@@ -799,12 +800,12 @@ static ast_node_t *parse_inclusive_or()
     return expr;
 }
 
-static ast_node_t *parse_exclusive_or()
+static struct ast_node *parse_exclusive_or()
 {
-    ast_node_t *expr = parse_and();
+    struct ast_node *expr = parse_and();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_XOR:
             expr = ast_binary_init(t->type, expr, parse_exclusive_or(), t->line_no, t->col_no);
@@ -818,12 +819,12 @@ static ast_node_t *parse_exclusive_or()
     return expr;
 }
 
-static ast_node_t *parse_and()
+static struct ast_node *parse_and()
 {
-    ast_node_t *expr = parse_equality();
+    struct ast_node *expr = parse_equality();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_BIT_AND:
             expr = ast_binary_init(t->type, expr, parse_and(), t->line_no, t->col_no);
@@ -837,12 +838,12 @@ static ast_node_t *parse_and()
     return expr;
 }
 
-static ast_node_t *parse_equality()
+static struct ast_node *parse_equality()
 {
-    ast_node_t *expr = parse_relational();
+    struct ast_node *expr = parse_relational();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_EQ:
         case TOK_NEQ: /// Fall through.
@@ -857,12 +858,12 @@ static ast_node_t *parse_equality()
     return expr;
 }
 
-static ast_node_t *parse_relational()
+static struct ast_node *parse_relational()
 {
-    ast_node_t *expr = parse_shift();
+    struct ast_node *expr = parse_shift();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_GT:
         case TOK_LT:
@@ -879,12 +880,12 @@ static ast_node_t *parse_relational()
     return expr;
 }
 
-static ast_node_t *parse_shift()
+static struct ast_node *parse_shift()
 {
-    ast_node_t *expr = parse_additive();
+    struct ast_node *expr = parse_additive();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_SHL:
         case TOK_SHR: /// Fall through.
@@ -899,12 +900,12 @@ static ast_node_t *parse_shift()
     return expr;
 }
 
-static ast_node_t *parse_additive()
+static struct ast_node *parse_additive()
 {
-    ast_node_t *expr = parse_multiplicative();
+    struct ast_node *expr = parse_multiplicative();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_PLUS:
         case TOK_MINUS: /// Fall through.
@@ -919,12 +920,12 @@ static ast_node_t *parse_additive()
     return expr;
 }
 
-static ast_node_t *parse_multiplicative()
+static struct ast_node *parse_multiplicative()
 {
-    ast_node_t *expr = parse_prefix_unary();
+    struct ast_node *expr = parse_prefix_unary();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
         switch (t->type) {
         case TOK_STAR:
         case TOK_SLASH:
@@ -940,9 +941,9 @@ static ast_node_t *parse_multiplicative()
     return expr;
 }
 
-static ast_node_t *parse_prefix_unary()
+static struct ast_node *parse_prefix_unary()
 {
-   const tok_t *t = peek_next();
+   const struct token *t = peek_next();
 
     switch (t->type) {
     case TOK_BIT_AND: /// Address operator `&`.
@@ -963,10 +964,10 @@ static ast_node_t *parse_prefix_unary()
     }
 }
 
-static ast_node_t *parse_postfix_unary()
+static struct ast_node *parse_postfix_unary()
 {
-    ast_node_t  *expr = parse_primary();
-    const tok_t *t    = peek_next();
+    struct ast_node  *expr = parse_primary();
+    const struct token *t    = peek_next();
 
     switch (t->type) {
     case TOK_INC:
@@ -984,10 +985,10 @@ static ast_node_t *parse_postfix_unary()
     }
 }
 
-static ast_node_t *parse_symbol()
+static struct ast_node *parse_symbol()
 {
-    const tok_t *start    = tok_begin - 1;
-    const tok_t *curr_tok = tok_begin;
+    const struct token *start    = tok_begin - 1;
+    const struct token *curr_tok = tok_begin;
 
     switch (curr_tok->type) {
     /// symbol(
@@ -1008,15 +1009,15 @@ static ast_node_t *parse_symbol()
     }
 }
 
-static ast_node_t *parse_primary()
+static struct ast_node *parse_primary()
 {
-    const tok_t *t = peek_next();
+    const struct token *t = peek_next();
 
     switch (t->type) {
     case TOK_SYMBOL:
         return parse_symbol();
     case TOK_OPEN_PAREN: {
-        ast_node_t *expr = parse_logical_or();
+        struct ast_node *expr = parse_logical_or();
         require_char(')');
         if (tok_is(peek_current(), '.')) {
             peek_next();
@@ -1035,10 +1036,10 @@ static ast_node_t *parse_primary()
     }
 }
 
-static ast_node_t *parse_struct_var_decl()
+static struct ast_node *parse_struct_var_decl()
 {
-    localized_data_type_t  dt  = parse_type();
-    const tok_t *name = require_token(TOK_SYMBOL);
+    struct localized_data_type dt = parse_type();
+    const struct token *name = require_token(TOK_SYMBOL);
     ast_array_t arity_list = {0};
 
     assert(dt.data_type == D_T_STRUCT);
@@ -1046,7 +1047,7 @@ static ast_node_t *parse_struct_var_decl()
     while (tok_is(peek_current(), '[')) {
         require_char('[');
         /// \todo: Just peek number.
-        ast_node_t *constant = parse_constant();
+        struct ast_node *constant = parse_constant();
 
         if (constant->type != AST_INTEGER_LITERAL)
             weak_compile_error(
@@ -1060,7 +1061,7 @@ static ast_node_t *parse_struct_var_decl()
     }
 
     if (arity_list.count > 0) {
-        ast_node_t *arity_list_ast = ast_compound_init(
+        struct ast_node *arity_list_ast = ast_compound_init(
             arity_list.count,
             arity_list.data,
             dt.line_no,
@@ -1088,10 +1089,10 @@ static ast_node_t *parse_struct_var_decl()
     );
 }
 
-static ast_node_t *parse_struct_field_access()
+static struct ast_node *parse_struct_field_access()
 {
-    const tok_t *symbol = require_token(TOK_SYMBOL);
-    const tok_t *next = peek_next();
+    const struct token *symbol = require_token(TOK_SYMBOL);
+    const struct token *next = peek_next();
 
     if (tok_is(next, '.'))
         return ast_member_init(
@@ -1105,9 +1106,9 @@ static ast_node_t *parse_struct_field_access()
     return ast_symbol_init(strdup(symbol->data), symbol->line_no, symbol->col_no);
 }
 
-static ast_node_t *parse_array_access()
+static struct ast_node *parse_array_access()
 {
-    const tok_t *symbol = peek_next();
+    const struct token *symbol = peek_next();
 
     if (!tok_is(peek_current(), '['))
         weak_compile_error(
@@ -1124,7 +1125,7 @@ static ast_node_t *parse_array_access()
         require_char(']');
     }
 
-    ast_node_t *args = ast_compound_init(
+    struct ast_node *args = ast_compound_init(
         access_list.count,
         access_list.data,
         symbol->line_no,
@@ -1139,9 +1140,9 @@ static ast_node_t *parse_array_access()
     );
 }
 
-static ast_node_t *parse_expr()
+static struct ast_node *parse_expr()
 {
-    const tok_t *t = peek_current();
+    const struct token *t = peek_current();
 
     switch (t->type) {
     case TOK_INT:
@@ -1154,12 +1155,12 @@ static ast_node_t *parse_expr()
     }
 }
 
-static ast_node_t *parse_assignment()
+static struct ast_node *parse_assignment()
 {
-    ast_node_t *expr = parse_logical_or();
+    struct ast_node *expr = parse_logical_or();
 
     while (true) {
-        const tok_t *t = peek_next();
+        const struct token *t = peek_next();
 
         switch (t->type) {
         case TOK_ASSIGN:
@@ -1191,9 +1192,9 @@ static ast_node_t *parse_assignment()
     return expr;
 }
 
-static ast_node_t *parse_function_call()
+static struct ast_node *parse_function_call()
 {
-    const tok_t *name = peek_next();
+    const struct token *name = peek_next();
 
     ast_array_t args_list = {0};
 
@@ -1221,7 +1222,7 @@ static ast_node_t *parse_function_call()
 
     require_char(')');
 
-    ast_node_t *args = ast_compound_init(
+    struct ast_node *args = ast_compound_init(
         args_list.count,
         args_list.data,
         name->line_no,
@@ -1236,9 +1237,9 @@ static ast_node_t *parse_function_call()
     );
 }
 
-static ast_node_t *parse_constant()
+static struct ast_node *parse_constant()
 {
-    const tok_t *t = peek_next();
+    const struct token *t = peek_next();
 
     switch (t->type) {
     case TOK_INTEGRAL_LITERAL:

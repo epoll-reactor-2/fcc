@@ -12,8 +12,8 @@
 #include "utility/unreachable.h"
 #include <assert.h>
 
-static data_type_e last_dt = D_T_UNKNOWN;
-static data_type_e last_return_dt = D_T_UNKNOWN;
+static enum data_type last_dt = D_T_UNKNOWN;
+static enum data_type last_return_dt = D_T_UNKNOWN;
 
 static void reset_internal_state()
 {
@@ -21,7 +21,7 @@ static void reset_internal_state()
     last_return_dt = D_T_UNKNOWN;
 }
 
-static void visit_ast_node(ast_node_t *ast);
+static void visit_ast_node(struct ast_node *ast);
 
 static void visit_ast_char  () { last_dt = D_T_CHAR; }
 static void visit_ast_num   () { last_dt = D_T_INT; }
@@ -29,7 +29,7 @@ static void visit_ast_float () { last_dt = D_T_FLOAT; }
 static void visit_ast_string() { last_dt = D_T_STRING; }
 static void visit_ast_bool  () { last_dt = D_T_BOOL; }
 
-static bool is_correct_bin_op(tok_type_e op, data_type_e t)
+static bool is_correct_bin_op(enum token_type op, enum data_type t)
 {
     bool are_correct = false;
 
@@ -84,13 +84,13 @@ static bool is_correct_bin_op(tok_type_e op, data_type_e t)
     return are_correct;
 }
 
-static void visit_ast_binary(ast_node_t *ast)
+static void visit_ast_binary(struct ast_node *ast)
 {
-    ast_binary_t *stmt = ast->ast;
+    struct ast_binary *stmt = ast->ast;
     visit_ast_node(stmt->lhs);
-    data_type_e l_dt = last_dt;
+    enum data_type l_dt = last_dt;
     visit_ast_node(stmt->rhs);
-    data_type_e r_dt = last_dt;
+    enum data_type r_dt = last_dt;
 
     bool are_same = false;
     are_same |= l_dt == D_T_BOOL && r_dt == D_T_BOOL;
@@ -110,11 +110,11 @@ static void visit_ast_binary(ast_node_t *ast)
         );
 }
 
-static void visit_ast_unary(ast_node_t *ast)
+static void visit_ast_unary(struct ast_node *ast)
 {
-    ast_unary_t *stmt = ast->ast;
+    struct ast_unary *stmt = ast->ast;
     visit_ast_node(stmt->operand);
-    data_type_e dt = last_dt;
+    enum data_type dt = last_dt;
 
     switch (stmt->operation) {
     case TOK_INC:
@@ -138,15 +138,15 @@ static void visit_ast_unary(ast_node_t *ast)
     }
 }
 
-static void visit_ast_symbol(ast_node_t *ast)
+static void visit_ast_symbol(struct ast_node *ast)
 {
-    ast_symbol_t *stmt = ast->ast;
+    struct ast_symbol *stmt = ast->ast;
     last_dt = ast_storage_lookup(stmt->value)->data_type;
 }
 
-static void visit_ast_var_decl(ast_node_t *ast)
+static void visit_ast_var_decl(struct ast_node *ast)
 {
-    ast_var_decl_t *decl = ast->ast;
+    struct ast_var_decl *decl = ast->ast;
     if (decl->body) {
         visit_ast_node(decl->body);
         if (decl->dt != last_dt)
@@ -162,13 +162,13 @@ static void visit_ast_var_decl(ast_node_t *ast)
     last_dt = decl->dt;
 }
 
-static void visit_ast_array_decl(ast_node_t *ast)
+static void visit_ast_array_decl(struct ast_node *ast)
 {
-    ast_array_decl_t *decl = ast->ast;
+    struct ast_array_decl *decl = ast->ast;
     /// Required to be compound.
-    ast_compound_t *dimensions = decl->arity_list->ast;
+    struct ast_compound *dimensions = decl->arity_list->ast;
     for (uint64_t i = 0; i < dimensions->size; ++i) {
-        int32_t num = ( (ast_num_t *) (dimensions->stmts[i]->ast) )->value;
+        int32_t num = ( (struct ast_num *) (dimensions->stmts[i]->ast) )->value;
         if (num == 0)
             weak_compile_error(
                 ast->line_no,
@@ -182,10 +182,10 @@ static void visit_ast_array_decl(ast_node_t *ast)
 }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
-static void out_of_range_analysis(ast_node_t *decl_indices_ast, ast_node_t *indices_ast)
+static void out_of_range_analysis(struct ast_node *decl_indices_ast, struct ast_node *indices_ast)
 {
-    ast_compound_t *call_indices = indices_ast->ast;
-    ast_compound_t *decl_indices = decl_indices_ast->ast;
+    struct ast_compound *call_indices = indices_ast->ast;
+    struct ast_compound *decl_indices = decl_indices_ast->ast;
     assert(call_indices->size);
     assert(decl_indices->size);
     if (decl_indices->size < call_indices->size) {
@@ -202,9 +202,9 @@ static void out_of_range_analysis(ast_node_t *decl_indices_ast, ast_node_t *indi
     for (uint64_t i = 0; i < MIN(call_indices->size, decl_indices->size); ++i) {
         if (call_indices->stmts[i]->type != AST_INTEGER_LITERAL)
             continue;
-        ast_node_t *index_ast = call_indices->stmts[i];
-        ast_num_t *num = index_ast->ast;
-        ast_num_t *decl_index_ast = decl_indices->stmts[i]->ast;
+        struct ast_node *index_ast = call_indices->stmts[i];
+        struct ast_num *num = index_ast->ast;
+        struct ast_num *decl_index_ast = decl_indices->stmts[i]->ast;
         int32_t index = num->value;
         int32_t decl_index = decl_index_ast->value;
 
@@ -226,15 +226,15 @@ static void out_of_range_analysis(ast_node_t *decl_indices_ast, ast_node_t *indi
 }
 #undef MIN
 
-static void visit_ast_array_access(ast_node_t *ast)
+static void visit_ast_array_access(struct ast_node *ast)
 {
-    ast_array_access_t *stmt = ast->ast;
-    ast_node_t *record = ast_storage_lookup(stmt->name)->ast;
+    struct ast_array_access *stmt = ast->ast;
+    struct ast_node *record = ast_storage_lookup(stmt->name)->ast;
 
     if (record->type != AST_ARRAY_DECL) {
         /// If it is not an array, then obviously variable
         /// declaration.
-        ast_var_decl_t *decl = record->ast;
+        struct ast_var_decl *decl = record->ast;
         if (decl->indirection_lvl == 0)
             weak_compile_error(
                 ast->line_no,
@@ -243,10 +243,10 @@ static void visit_ast_array_access(ast_node_t *ast)
             );
         last_dt = decl->dt;
     } else {
-        ast_array_decl_t *decl = record->ast;
+        struct ast_array_decl *decl = record->ast;
         out_of_range_analysis(decl->arity_list, stmt->indices);
     }
-    ast_compound_t *arity = stmt->indices->ast;
+    struct ast_compound *arity = stmt->indices->ast;
     for (uint64_t i = 0; i < arity->size; ++i) {
         visit_ast_node(arity->stmts[i]);
         if (last_dt != D_T_INT)
@@ -259,9 +259,9 @@ static void visit_ast_array_access(ast_node_t *ast)
     }
 }
 
-static void require_last_dt_convertible_to_bool(ast_node_t *location)
+static void require_last_dt_convertible_to_bool(struct ast_node *location)
 {
-    data_type_e dt = last_dt;
+    enum data_type dt = last_dt;
     if (dt != D_T_INT && dt != D_T_BOOL)
         weak_compile_error(
             location->line_no,
@@ -271,9 +271,9 @@ static void require_last_dt_convertible_to_bool(ast_node_t *location)
         );
 }
 
-static void visit_ast_if(ast_node_t *ast)
+static void visit_ast_if(struct ast_node *ast)
 {
-    ast_if_t *stmt = ast->ast;
+    struct ast_if *stmt = ast->ast;
     visit_ast_node(stmt->condition);
     require_last_dt_convertible_to_bool(ast);
 
@@ -282,9 +282,9 @@ static void visit_ast_if(ast_node_t *ast)
         visit_ast_node(stmt->else_body);
 }
 
-static void visit_ast_for(ast_node_t *ast)
+static void visit_ast_for(struct ast_node *ast)
 {
-    ast_for_t *stmt = ast->ast;
+    struct ast_for *stmt = ast->ast;
     if (stmt->init)
         visit_ast_node(stmt->init);
     if (stmt->condition) {
@@ -296,54 +296,54 @@ static void visit_ast_for(ast_node_t *ast)
     visit_ast_node(stmt->body);
 }
 
-static void visit_ast_while(ast_node_t *ast)
+static void visit_ast_while(struct ast_node *ast)
 {
-    ast_while_t *stmt = ast->ast;
+    struct ast_while *stmt = ast->ast;
     visit_ast_node(stmt->condition);
     require_last_dt_convertible_to_bool(ast);
     visit_ast_node(stmt->body);
 }
 
-static void visit_ast_do_while(ast_node_t *ast)
+static void visit_ast_do_while(struct ast_node *ast)
 {
-    ast_do_while_t *stmt = ast->ast;
+    struct ast_do_while *stmt = ast->ast;
     visit_ast_node(stmt->body);
     visit_ast_node(stmt->condition);
     require_last_dt_convertible_to_bool(ast);
 }
 
-static void visit_ast_return(ast_node_t *ast)
+static void visit_ast_return(struct ast_node *ast)
 {
-    ast_return_t *stmt = ast->ast;
+    struct ast_return *stmt = ast->ast;
     if (stmt->operand)
         visit_ast_node(stmt->operand);
     last_return_dt = last_dt;
 }
 
-static void visit_ast_compound(ast_node_t *ast)
+static void visit_ast_compound(struct ast_node *ast)
 {
-    ast_compound_t *stmt = ast->ast;
+    struct ast_compound *stmt = ast->ast;
     ast_storage_start_scope();
     for (uint64_t i = 0; i < stmt->size; ++i)
         visit_ast_node(stmt->stmts[i]);
     ast_storage_end_scope();
 }
 
-static char *decl_name(ast_node_t *decl)
+static char *decl_name(struct ast_node *decl)
 {
     if (decl->type == AST_VAR_DECL)
-        return ( (ast_var_decl_t *) decl->ast )->name;
+        return ( (struct ast_var_decl *) decl->ast )->name;
 
     if (decl->type == AST_ARRAY_DECL)
-        return ( (ast_array_decl_t *) decl->ast )->name;
+        return ( (struct ast_array_decl *) decl->ast )->name;
 
     weak_unreachable("Declaration expected");
 }
 
-static void visit_ast_function_call(ast_node_t *ast)
+static void visit_ast_function_call(struct ast_node *ast)
 {
-    ast_function_call_t *call = ast->ast;
-    ast_node_t *decl = ast_storage_lookup(call->name)->ast;
+    struct ast_function_call *call = ast->ast;
+    struct ast_node *decl = ast_storage_lookup(call->name)->ast;
     if (decl->type != AST_FUNCTION_DECL)
         weak_compile_error(
             ast->line_no,
@@ -352,9 +352,9 @@ static void visit_ast_function_call(ast_node_t *ast)
             call->name
         );
 
-    ast_function_decl_t *fun = decl->ast;
-    ast_compound_t *fun_args = fun->args->ast;
-    ast_compound_t *call_args = call->args->ast;
+    struct ast_function_decl *fun = decl->ast;
+    struct ast_compound *fun_args = fun->args->ast;
+    struct ast_compound *call_args = call->args->ast;
     assert(
         fun_args->size == call_args->size &&
         "Call arguments size checked in function analyzer."
@@ -362,9 +362,9 @@ static void visit_ast_function_call(ast_node_t *ast)
 
     for (uint64_t i = 0; i < call_args->size; ++i) {
         visit_ast_node(fun_args->stmts[i]);
-        data_type_e l_dt = last_dt;
+        enum data_type l_dt = last_dt;
         visit_ast_node(call_args->stmts[i]);
-        data_type_e r_dt = last_dt;
+        enum data_type r_dt = last_dt;
         if (l_dt != r_dt)
             weak_compile_error(
                 call_args->stmts[i]->line_no,
@@ -378,10 +378,10 @@ static void visit_ast_function_call(ast_node_t *ast)
     last_dt = fun->data_type;
 }
 
-static void visit_ast_function_decl(ast_node_t *ast)
+static void visit_ast_function_decl(struct ast_node *ast)
 {
-    ast_function_decl_t *decl = ast->ast;
-    data_type_e dt = decl->data_type;
+    struct ast_function_decl *decl = ast->ast;
+    enum data_type dt = decl->data_type;
     if (decl->body == NULL) { /// Function prototype.
         ast_storage_push_typed(decl->name, D_T_FUNC, ast);
         return;
@@ -390,7 +390,7 @@ static void visit_ast_function_decl(ast_node_t *ast)
     /// This is to have function in recursive calls.
     ast_storage_push_typed(decl->name, D_T_FUNC, ast);
     /// Don't just visit compound AST, which creates and terminates scope.
-    ast_compound_t *args = decl->args->ast;
+    struct ast_compound *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
         visit_ast_node(args->stmts[i]);
 
@@ -408,7 +408,7 @@ static void visit_ast_function_decl(ast_node_t *ast)
     ast_storage_push_typed(decl->name, D_T_FUNC, ast);
 }
 
-void visit_ast_node(ast_node_t *ast)
+void visit_ast_node(struct ast_node *ast)
 {
     assert(ast);
 
@@ -482,7 +482,7 @@ void visit_ast_node(ast_node_t *ast)
     }
 }
 
-void analysis_type_analysis(ast_node_t *root)
+void analysis_type_analysis(struct ast_node *root)
 {
     ast_storage_init_state();
     visit_ast_node(root);

@@ -9,9 +9,9 @@
 
 #include <stdint.h>
 
-typedef struct ast_node_t ast_node_t;
-typedef struct ir_node_t ir_node_t;
-typedef struct ir_t ir_t;
+struct ast_node;
+struct ir_node;
+struct ir;
 
 /// Create IR from AST. Implemented as recursive visitor.
 ///
@@ -20,7 +20,7 @@ typedef struct ir_t ir_t;
 ///   - variable_use_analysis
 ///   - functions_analysis
 ///   - type_analysis 
-ir_t ir_gen(ast_node_t *ast);
-void ir_cleanup(ir_t *ir);
+struct ir ir_gen(struct ast_node *ast);
+void   ir_cleanup(struct ir *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GEN_H

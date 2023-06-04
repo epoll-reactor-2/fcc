@@ -7,7 +7,7 @@
 #include "front_end/lex/data_type.h"
 #include "utility/unreachable.h"
 
-const char *data_type_to_string(data_type_e dt)
+const char *data_type_to_string(enum data_type dt)
 {
     switch (dt) {
     case D_T_UNKNOWN: return "unknown";

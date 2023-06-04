@@ -12,78 +12,78 @@
 #include "utility/unreachable.h"
 #include <assert.h>
 
-void visit_ir_alloca(ir_alloca_t *ir)
+void visit_ir_alloca(struct ir_alloca *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_imm(ir_imm_t *ir)
+void visit_ir_imm(struct ir_imm *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_sym(ir_imm_t *ir)
+void visit_ir_sym(struct ir_imm *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_store(ir_store_t *ir)
+void visit_ir_store(struct ir_store *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_bin(ir_bin_t *ir)
+void visit_ir_bin(struct ir_bin *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_label(ir_label_t *ir)
+void visit_ir_label(struct ir_label *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_jump(ir_jump_t *ir)
+void visit_ir_jump(struct ir_jump *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_cond(ir_cond_t *ir)
+void visit_ir_cond(struct ir_cond *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_ret(ir_ret_t *ir)
+void visit_ir_ret(struct ir_ret *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_member(ir_member_t *ir)
+void visit_ir_member(struct ir_member *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_array_access(ir_node_t *ir)
+void visit_ir_array_access(struct ir_node *ir)
 {
 	(void) ir;
 }
 
 /// Store this in some internal state.
-void visit_ir_type_decl(ir_type_decl_t *ir)
+void visit_ir_type_decl(struct ir_type_decl *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_func_decl(ir_func_decl_t *ir)
+void visit_ir_func_decl(struct ir_func_decl *ir)
 {
 	(void) ir;
 }
 
-void visit_ir_func_call(ir_func_call_t *ir)
+void visit_ir_func_call(struct ir_func_call *ir)
 {
 	(void) ir;
 }
 
-static void visit_ir_node(ir_node_t ir)
+static void visit_ir_node(struct ir_node ir)
 {
     switch (ir.type) {
     case IR_ALLOCA:       visit_ir_alloca(ir.ir); break;
@@ -105,7 +105,7 @@ static void visit_ir_node(ir_node_t ir)
     }
 }
 
-void code_gen(ir_t *ir)
+void code_gen(struct ir *ir)
 {
 	for (uint64_t i = 0; i < ir->decls_size; ++i)
 		visit_ir_node(ir->decls[i]);

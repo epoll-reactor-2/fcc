@@ -1,4 +1,4 @@
-/* tok_type.h - List of all token types.
+/* struct tokenype.h - List of all token types.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_FRONTEND_LEX_TOK_TYPE_H
 #define WEAK_COMPILER_FRONTEND_LEX_TOK_TYPE_H
 
-typedef enum {
+enum token_type {
     /// Keywords.
     TOK_BOOL,
     TOK_BREAK,
@@ -75,17 +75,17 @@ typedef enum {
     TOK_CLOSE_CURLY_BRACKET, // }
     TOK_OPEN_PAREN,          // (
     TOK_CLOSE_PAREN          // )
-} tok_type_e;
+};
 
 /// \return String representation of the token. Don't
 ///         apply free() to the result.
 ///
 /// \note   weak_unreachable() called on unknown integer value of t.
-const char *tok_to_string(tok_type_e t);
+const char *tok_to_string(enum token_type t);
 
 /// \return Token type based on its character value.
 ///
 /// \note   weak_unreachable() called on unknown char.
-tok_type_e tok_char_to_tok(char c);
+enum token_type tok_char_to_tok(char c);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOK_TYPE_H

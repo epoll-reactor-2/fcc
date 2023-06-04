@@ -1,4 +1,4 @@
-/* tok_type.c - String conversion function for the token enum.
+/* struct tokenype.c - String conversion function for the token enum.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -7,7 +7,7 @@
 #include "front_end/lex/tok_type.h"
 #include "utility/unreachable.h"
 
-const char *tok_to_string(tok_type_e t)
+const char *tok_to_string(enum token_type t)
 {
     switch (t) {
     case TOK_BOOL:                   return "bool";
@@ -76,7 +76,7 @@ const char *tok_to_string(tok_type_e t)
     }
 }
 
-tok_type_e tok_char_to_tok(char c)
+enum token_type tok_char_to_tok(char c)
 {
     switch (c) {
     case '=': return TOK_ASSIGN;

@@ -20,14 +20,14 @@ int main()
     size_t size = 0;
     FILE *stream = open_memstream(&buf, &size);
 
-    ast_node_t **nums = weak_calloc(5, sizeof(ast_node_t *));
+    struct ast_node **nums = weak_calloc(5, sizeof(struct ast_node *));
     nums[0] = ast_num_init(1, 2, 3);
     nums[1] = ast_num_init(1, 2, 3);
     nums[2] = ast_num_init(1, 2, 3);
     nums[3] = ast_num_init(1, 2, 3);
     nums[4] = ast_compound_init(0, NULL, 0, 0);
 
-    ast_node_t *block = ast_compound_init(5, nums, 0, 0);
+    struct ast_node *block = ast_compound_init(5, nums, 0, 0);
     ast_dump(stream, block);
     ast_node_cleanup(block);
 

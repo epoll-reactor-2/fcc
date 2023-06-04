@@ -19,14 +19,14 @@ int yycolumn = 1;
     prev_yylineno = yylineno;                                            \
   }
 
-extern void lex_consume_token(tok_t *tok);
+extern void lex_consume_token(struct token *tok);
 
 #define LEX_CONSUME_WORD(tok_type) do {                                  \
-    tok_t t = {                                                          \
-        .data = strdup(yytext),                                          \
-        .type = tok_type,                                                \
+    struct token t = {                                                   \
+        .data    = strdup(yytext),                                       \
+        .type    = tok_type,                                             \
         .line_no = lex_lineno,                                           \
-        .col_no = lex_colno                                              \
+        .col_no  = lex_colno                                             \
     };                                                                   \
     lex_consume_token(&t);                                               \
 } while (0);
@@ -34,11 +34,11 @@ extern void lex_consume_token(tok_t *tok);
 /* Operator can have no data, since all information about it contained
    in type. */
 #define LEX_CONSUME_OPERATOR(tok_type) do {                              \
-    tok_t t = {                                                          \
-        .data = NULL,                                                    \
-        .type = tok_type,                                                \
+    struct token t = {                                                   \
+        .data    = NULL,                                                 \
+        .type    = tok_type,                                             \
         .line_no = lex_lineno,                                           \
-        .col_no = lex_colno                                              \
+        .col_no  = lex_colno                                             \
     };                                                                   \
     lex_consume_token(&t);                                               \
 } while (0);

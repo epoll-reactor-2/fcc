@@ -58,7 +58,7 @@ bool parse_test(const char *filename)
     tok_array_t *toks = lex_consumed_tokens();
 
     if (!setjmp(weak_fatal_error_buf)) {
-        ast_node_t *ast = parse(toks->data, toks->data + toks->count);
+        struct ast_node *ast = parse(toks->data, toks->data + toks->count);
         ast_dump(dump_stream, ast);
         ast_node_cleanup(ast);
 
