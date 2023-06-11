@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "front_end/lex/lex.h"
+#include "utility/diagnostic.h"
 #include "utility/compiler.h"
 
 #define ASSERT_TRUE(expr)   assert((expr));
@@ -54,6 +55,30 @@ void extract_assertion_comment(FILE *in, FILE *out)
             continue;
         }
         if (strncmp(line, "//", 2) == 0) {
+            char *ptr = line + 2;
+            while (*ptr != '\n' && *ptr != '\0') {
+                fputc_unlocked(*ptr++, out);
+            }
+            fputc_unlocked('\n', out);
+        }
+    }
+    free(line);
+    fflush(out);
+}
+
+void extract_compiler_messages(const char *filename, FILE *in, FILE *out)
+{
+    char   *line = NULL;
+    size_t  len = 0;
+    ssize_t read = 0;
+
+    while ((read = getline(&line, &len, in)) != -1) {
+        if (read <= 3) {
+            continue;
+        }
+        if (strncmp(line, "//", 2) == 0) {
+            fprintf(out, "%s: ", filename);
+
             char *ptr = line + 2;
             while (*ptr != '\n' && *ptr != '\0') {
                 fputc_unlocked(*ptr++, out);

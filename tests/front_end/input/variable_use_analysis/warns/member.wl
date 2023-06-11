@@ -1,4 +1,4 @@
-//Warning at line 7, column 5: Variable `t1` is never used
+//W<7:5>: Variable `t1` is never used
 struct type {
     int x;
 }

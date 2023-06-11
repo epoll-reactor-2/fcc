@@ -1,4 +1,4 @@
-//Error at line 5, column 5: Variable as argument of unary operator expected
+//E<5:5>: Variable as argument of unary operator expected
 void f() {}
 
 int main() {

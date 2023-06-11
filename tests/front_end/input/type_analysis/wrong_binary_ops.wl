@@ -1,4 +1,4 @@
-//Error at line 11, column 7: Cannot apply `<<=` to float and float
+//E<11:7>: Cannot apply `<<=` to float and float
 int main() {
     int i1 = 1;
     int i2 = 2;

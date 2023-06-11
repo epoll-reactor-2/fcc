@@ -20,7 +20,6 @@ build_dir:
 	    || echo "Build direcory already exists..."; \
 	flex --outfile=build/lex.yy.c lex/grammar.lex
 
-# TODO: make symlinks and not torture my SSD...
 test_files: | build_dir
 	cp -r tests/{front,middle,back}_end/input/* build/test_inputs
 
@@ -48,7 +47,9 @@ tests: $(TEST_OBJ)
 test:
 	$(foreach file,$(shell \
 		find build -executable -name '*_test' -printf "./%f\n"),\
-		 (cd build; LD_LIBRARY_PATH=. $(file));)
+		 (cd build; LD_LIBRARY_PATH=. $(file); \
+		 ([[ $$? -eq 0 ]] && echo "OK") ||\
+		 ([[ $$? -ne 0 ]] && echo "Test failed. Interrupt the rest."; kill -KILL $$$$));)
 
 clean:
 	@rm -rf build $(OBJECTS) *.o

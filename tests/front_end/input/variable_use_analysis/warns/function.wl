@@ -1,6 +1,6 @@
-//Warning at line 5, column 5: Variable `x` is never used
-//Warning at line 9, column 5: Variable `y` is never used
-//Warning at line 8, column 1: Function `g` is never used
+//W<5:5>: Variable `x` is never used
+//W<9:5>: Variable `y` is never used
+//W<8:1>: Function `g` is never used
 void f() {
     char x = 'a';
 }

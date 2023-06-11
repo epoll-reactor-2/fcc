@@ -32,6 +32,8 @@ bool analysis_test(const char *filename)
     size_t  err_buf_len  = 0;
     size_t  warn_buf_len = 0;
 
+    weak_set_source_filename(filename);
+
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
@@ -55,7 +57,8 @@ bool analysis_test(const char *filename)
     }
 
     fseek(yyin, 0, SEEK_SET);
-    extract_assertion_comment(yyin, msg_stream);
+
+    extract_compiler_messages(filename, yyin, msg_stream);
 
     tok_array_t *toks = lex_consumed_tokens();
     struct ast_node *ast = parse(toks->data, toks->data + toks->count);
