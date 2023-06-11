@@ -26,21 +26,23 @@ int diagnostics_memstream_test()
     ASSERT_TRUE(diag_error_memstream != NULL);
     ASSERT_TRUE(diag_warn_memstream != NULL);
 
+    weak_set_source_filename("text.txt");
+
     weak_compile_warn(0, 0, "Hello, ");
     weak_compile_warn(0, 0, "Hello, ");
 
     ASSERT_TRUE(warn_buf_len > 0);
-    ASSERT_STREQ("Warning at line 0, column 0: Hello, \n"
-                 "Warning at line 0, column 0: Hello, \n", warn_buf);
+    ASSERT_STREQ("text.txt: W<0:0>: Hello, \n"
+                 "text.txt: W<0:0>: Hello, \n", warn_buf);
 
     if (!setjmp(weak_fatal_error_buf)) {
         weak_compile_error(1, 1, "World!");
         ASSERT_TRUE(false && "Must never reach here.");
     } else {
         ASSERT_TRUE(warn_buf_len > 0);
-        ASSERT_STREQ("Warning at line 0, column 0: Hello, \n"
-                     "Warning at line 0, column 0: Hello, \n", warn_buf);
-        ASSERT_STREQ("Error at line 1, column 1: World!\n", err_buf);
+        ASSERT_STREQ("text.txt: W<0:0>: Hello, \n"
+                     "text.txt: W<0:0>: Hello, \n", warn_buf);
+        ASSERT_STREQ("text.txt: E<1:1>: World!\n", err_buf);
 
         fclose(diag_error_memstream);
         fclose(diag_warn_memstream);

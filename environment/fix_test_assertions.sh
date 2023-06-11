@@ -1,0 +1,2 @@
+for f in `find tests -name '*wl'`; do sed -i 's/Warning\ at\ line \([0-9]*\),\ column\ \([0-9]*\):\ \(.*\)/W<\1:\2>: \3/g' $f; done
+for f in `find tests -name '*wl'`; do sed -i 's/Error\ at\ line \([0-9]*\),\ column\ \([0-9]*\):\ \(.*\)/W<\1:\2>: \3/g' $f; done

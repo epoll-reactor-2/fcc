@@ -1,4 +1,4 @@
-//Error at line 7, column 11: Expected integer as array index, got char
+//E<7:11>: Expected integer as array index, got char
 int main() {
     int array[100];
     int index = 2;

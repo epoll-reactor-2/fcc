@@ -1,2 +1,2 @@
-//Error at line 2, column 1: Expected return value
+//E<2:1>: Expected return value
 int main() {}

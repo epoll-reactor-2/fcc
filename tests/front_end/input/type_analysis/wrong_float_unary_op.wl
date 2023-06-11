@@ -1,4 +1,4 @@
-//Error at line 8, column 5: Cannot apply `--` to float
+//E<8:5>: Cannot apply `--` to float
 int main() {
     int num = 0;
     --num;

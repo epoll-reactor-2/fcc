@@ -1,4 +1,4 @@
-//Error at line 5, column 15: For argument `c` got char, but int expected
+//E<5:15>: For argument `c` got char, but int expected
 void f(int a, char b, int c) {}
 
 int main() {

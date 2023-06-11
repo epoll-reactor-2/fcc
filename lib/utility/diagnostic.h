@@ -38,6 +38,12 @@ extern jmp_buf weak_fatal_error_buf;
 /// void *diag_error_memstream;
 /// void *diag_warn_memstream;
 /// \endcode
+extern void *diag_error_memstream;
+extern void *diag_warn_memstream;
+
+/// \brief Set source code location being analyzed. Used to display
+///        warns and errors.
+void weak_set_source_filename(const char *filename);
 
 /// \brief Emit compile error according to \ref weak_diagnostic_streams rule
 ///        and go out from executor function of any depth.

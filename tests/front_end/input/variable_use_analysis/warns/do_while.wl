@@ -1,6 +1,6 @@
-//Warning at line 8, column 5: Variable `l` is never used
-//Warning at line 7, column 5: Variable `k` is never used
-//Warning at line 6, column 5: Variable `j` written, but never read
+//W<8:5>: Variable `l` is never used
+//W<7:5>: Variable `k` is never used
+//W<6:5>: Variable `j` written, but never read
 int main() {
     int i = 0;
     int j = 0;

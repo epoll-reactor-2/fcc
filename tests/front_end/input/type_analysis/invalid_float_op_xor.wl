@@ -1,4 +1,4 @@
-//Error at line 5, column 19: Cannot apply `^` to float and float
+//E<5:19>: Cannot apply `^` to float and float
 int main() {
     float f0 = 0.0;
     float f1 = 1.0;

@@ -1,4 +1,4 @@
-//Error at line 5, column 5: Arguments size mismatch: 9 got, but 5 expected
+//E<5:5>: Arguments size mismatch: 9 got, but 5 expected
 void f(int a, int b, int c, int d, int e) {}
 
 int main() {
