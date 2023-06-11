@@ -119,7 +119,7 @@ bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
         char filename[1024];
         sprintf(filename, "%s/%s", cwd, dir->d_name);
 
-        printf("Testing file %s... ", filename);
+        printf("Testing file %s... ", dir->d_name);
 
         if (!callback(filename)) {
             success = false;
