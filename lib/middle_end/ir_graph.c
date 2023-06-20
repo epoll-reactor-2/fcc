@@ -51,6 +51,11 @@ static void ir_graph_build_matrix(
             ir_graph_set_at(graph, jump->idx, i, 1);
             break;
         }
+        case IR_RET:
+        case IR_RET_VOID: {
+            /// Do nothing.
+            break;
+        }
         default: {
             /// All other statements are sequentional ones.
             /// Make edge to the next statement.
