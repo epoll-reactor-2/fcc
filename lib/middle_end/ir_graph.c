@@ -58,17 +58,19 @@ static void ir_graph_build_matrix(
         } /// switch
 }
 
-struct ir_graph ir_graph_init(struct ir_node *ir, uint64_t ir_size)
+struct ir_graph ir_graph_init(struct ir *ir)
 {
-    uint64_t matrix_size = ir_size * ir_size;
+    /// \todo Placeholder. Implement for multiple functions.
+    struct ir_func_decl *decl = ir->decls[0].ir;
+    uint64_t matrix_size = decl->body_size * decl->body_size;
 
     struct ir_graph graph = {
         .bytes_size = matrix_size,
-        .cols_count = ir_size,
+        .cols_count = decl->body_size,
         .adj_matrix = weak_calloc(matrix_size, sizeof (bool))
     };
 
-    ir_graph_build_matrix(ir, &graph);
+    ir_graph_build_matrix(decl->body, &graph);
 
     return graph;
 }
