@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_UTILITY_DIAGNOSTICS_H
-#define WEAK_COMPILER_UTILITY_DIAGNOSTICS_H
+#ifndef WEAK_COMPILER_UTIL_DIAGNOSTICS_H
+#define WEAK_COMPILER_UTIL_DIAGNOSTICS_H
 
 #include <stdint.h>
 #include <setjmp.h>
@@ -52,4 +52,4 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
 /// \brief Emit compile warning according to \ref weak_diagnostic_streams rule.
 void weak_compile_warn (uint16_t line_no, uint16_t col_no, const char *fmt, ...);
 
-#endif // WEAK_COMPILER_UTILITY_DIAGNOSTICS_H
+#endif // WEAK_COMPILER_UTIL_DIAGNOSTICS_H

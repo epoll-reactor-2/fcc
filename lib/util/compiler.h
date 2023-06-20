@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_UTILITY_COMPILER_H
-#define WEAK_COMPILER_UTILITY_COMPILER_H
+#ifndef WEAK_COMPILER_UTIL_COMPILER_H
+#define WEAK_COMPILER_UTIL_COMPILER_H
 
 #if defined(__GNUC__) || defined(__llvm__) || defined(__INTEL_COMPILER)
 # define __weak_gnu_exts 1
@@ -35,4 +35,4 @@
 # define __weak_debug(stmt)
 #endif /// NDEBUG
 
-#endif // WEAK_COMPILER_UTILITY_COMPILER_H
+#endif // WEAK_COMPILER_UTIL_COMPILER_H
