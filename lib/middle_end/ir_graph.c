@@ -8,6 +8,9 @@
 #include "middle_end/ir.h"
 #include "util/alloc.h"
 #include "util/compiler.h"
+#include <stdio.h>
+
+static __weak_unused void ir_graph_dfs(struct ir_graph *graph);
 
 static __weak_unused inline void ir_graph_set_at(
     struct ir_graph *graph,
@@ -79,6 +82,8 @@ struct ir_graph ir_graph_init(struct ir *ir)
 
     ir_graph_build_matrix(decl->body, &graph);
 
+    ir_graph_dfs(&graph);
+
     return graph;
 }
 
@@ -86,3 +91,56 @@ void ir_graph_cleanup(struct ir_graph *g)
 {
     weak_free(g->adj_matrix);
 }
+
+/*******************************************************
+ * Playground, for now not related to the compiler.    *
+ *                                                     *
+ * Just reminder for me what the graph is.             *
+ *******************************************************/
+static void __ir_graph_dfs(
+    struct ir_graph *graph,
+    bool            *visited,
+    uint64_t         from
+);
+
+static void ir_graph_dfs(struct ir_graph *graph)
+{
+    bool *visited = weak_calloc(graph->bytes_size, sizeof (bool));
+
+    __ir_graph_dfs(graph, visited, 0);
+
+    weak_free(visited);
+}
+
+static void __ir_graph_dfs(
+    struct ir_graph *graph,
+    bool            *visited,
+    uint64_t         from
+) {
+    uint64_t  total = graph->cols_count;
+    bool     *matrix = graph->adj_matrix;
+
+    visited[from] = 1;
+
+    for (uint64_t i = 0; i < total; ++i) {
+        for (uint64_t j = 0; j < total; ++j) {
+            uint64_t idx = i * total + j;
+            if (!visited[idx] && matrix[idx]) {
+                /// Pre-order traversal.
+                printf("\nDFS at %ld:%ld", i, j);
+
+                __ir_graph_dfs(graph, visited, idx);
+
+                /// Post-order traversal.
+                /// ...
+            }
+        }
+    }
+}
+
+/*
+Steck' ein Messer in mein Bein und es kommt Blut raus
+Doch die Schmerzen gehen vorbei
+Meine Schwestern schreiben: „Bro, du siehst nicht gut aus“
+Kann schon sein, weil ich bin high
+*/
