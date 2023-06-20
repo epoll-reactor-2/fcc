@@ -170,17 +170,17 @@ struct ir_node ir_array_access_init(int32_t idx, struct ir_node op)
 
 struct ir_node ir_type_decl_init(const char *name, uint64_t decls_size, struct ir_node *decls)
 {
-#ifndef NDEBUG
-    for (uint64_t i = 0; i < decls_size; ++i) {
-        enum ir_type t = decls[i].type;
-        assert((
-            t == IR_ALLOCA ||
-            t == IR_TYPE_DECL
-        ) && (
-            "Primitive or compound type as type field expected"
-        ));
-    }
-#endif // NDEBUG
+    __weak_debug({
+        for (uint64_t i = 0; i < decls_size; ++i) {
+            enum ir_type t = decls[i].type;
+            assert((
+                t == IR_ALLOCA ||
+                t == IR_TYPE_DECL
+            ) && (
+                "Primitive or compound type as type field expected"
+            ));
+        }
+    })
     struct ir_type_decl *ir = weak_calloc(1, sizeof (struct ir_type_decl));
     ir->name = name;
     ir->decls_size = decls_size;
@@ -195,14 +195,14 @@ struct ir_node ir_func_decl_init(
     uint64_t          body_size,
     struct ir_node   *body
 ) {
-#ifndef NDEBUG
-    for (uint64_t i = 0; i < args_size; ++i) {
-        enum ir_type t = args[i].type;
-        assert((t == IR_ALLOCA) && (
-            "Function expects alloca instruction as parameter"
-        ));
-    }
-#endif // NDEBUG
+    __weak_debug({
+        for (uint64_t i = 0; i < args_size; ++i) {
+            enum ir_type t = args[i].type;
+            assert((t == IR_ALLOCA) && (
+                "Function expects alloca instruction as parameter"
+            ));
+        }
+    })
     struct ir_func_decl *ir = weak_calloc(1, sizeof (struct ir_func_decl));
     ir->name = name;
     ir->args_size = args_size;
@@ -214,17 +214,17 @@ struct ir_node ir_func_decl_init(
 
 struct ir_node ir_func_call_init(const char *name, uint64_t args_size, struct ir_node  *args)
 {
-#ifndef NDEBUG
-    for (uint64_t i = 0; i < args_size; ++i) {
-        enum ir_type t = args[i].type;
-        assert((
-            t == IR_SYM ||
-            t == IR_IMM
-        ) && (
-            "Function call expression expects immediate value or variable"
-        ));
-    }
-#endif // NDEBUG
+    __weak_debug({
+        for (uint64_t i = 0; i < args_size; ++i) {
+            enum ir_type t = args[i].type;
+            assert((
+                t == IR_SYM ||
+                t == IR_IMM
+            ) && (
+                "Function call expression expects immediate value or variable"
+            ));
+        }
+    })
     struct ir_func_call *ir = weak_calloc(1, sizeof (struct ir_func_call));
     ir->name = name;
     ir->args_size = args_size;
