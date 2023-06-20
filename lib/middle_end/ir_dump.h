@@ -20,4 +20,20 @@
 ///           - ir is NULL
 int32_t ir_dump(FILE *mem, struct ir_func_decl *ir);
 
+/// Print IR as dot graph. May be used to generate images.
+///
+/// $ dot -Tpng graph.dot -o graph.png
+///
+/// \param adj_matrix  Square adjacency matrix.
+/// \param matrix_size Matrix columns or rows size.
+///                    Equals in case of square matrix.
+/// \param ir_stmts    IR nodes. Used to dump textual
+///                    representation.
+void ir_dump_graph_dot(
+    FILE           *out_stream,
+    bool           *adj_matrix,
+    uint64_t        matrix_size,
+    struct ir_node *ir_stmts
+);
+
 #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H

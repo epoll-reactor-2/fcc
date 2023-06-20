@@ -92,6 +92,7 @@ bool ir_graph_test(const char *filename)
         struct ir_func_decl *func = (struct ir_func_decl *) ir.decls[0].ir;
 
         graph_print(graph.adj_matrix, func->body_size);
+        ir_dump_graph_dot(stdout, graph.adj_matrix, func->body_size, func->body);
 
         ast_node_cleanup(ast);
         ir_cleanup(&ir);
