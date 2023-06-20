@@ -6,8 +6,8 @@
 
 #include "middle_end/ir_dump.h"
 #include "front_end/lex/data_type.h"
-#include "utility/diagnostic.h"
-#include "utility/unreachable.h"
+#include "util/diagnostic.h"
+#include "util/unreachable.h"
 #include <assert.h>
 
 static void ir_dump_node(FILE *mem, struct ir_node ir);

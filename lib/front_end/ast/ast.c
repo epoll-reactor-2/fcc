@@ -5,8 +5,8 @@
  */
 
 #include "front_end/ast/ast.h"
-#include "utility/alloc.h"
-#include "utility/unreachable.h"
+#include "util/alloc.h"
+#include "util/unreachable.h"
 
 
 ///////////////////////////////////////////////

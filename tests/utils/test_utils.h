@@ -14,8 +14,8 @@
 #include <stdint.h>
 #include <string.h>
 #include "front_end/lex/lex.h"
-#include "utility/diagnostic.h"
-#include "utility/compiler.h"
+#include "util/diagnostic.h"
+#include "util/compiler.h"
 
 #define ASSERT_TRUE(expr)   assert((expr));
 #define ASSERT_FALSE(expr)  assert(!(expr));

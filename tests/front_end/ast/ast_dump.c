@@ -6,7 +6,7 @@
 
 #include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
-#include "utility/alloc.h"
+#include "util/alloc.h"
 #include "utils/test_utils.h"
 #include <stdlib.h>
 #include <string.h>

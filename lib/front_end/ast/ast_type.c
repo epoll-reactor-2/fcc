@@ -5,7 +5,7 @@
  */
 
 #include "front_end/ast/ast_type.h"
-#include "utility/unreachable.h"
+#include "util/unreachable.h"
 
 const char *ast_type_to_string(enum ast_type t) {
     switch (t) {

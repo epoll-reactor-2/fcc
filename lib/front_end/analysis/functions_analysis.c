@@ -7,8 +7,8 @@
 #include "front_end/analysis/analysis.h"
 #include "front_end/analysis/ast_storage.h"
 #include "front_end/ast/ast.h"
-#include "utility/diagnostic.h"
-#include "utility/unreachable.h"
+#include "util/diagnostic.h"
+#include "util/unreachable.h"
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>

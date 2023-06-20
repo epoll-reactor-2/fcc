@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "utility/lexical.h"
+#include "util/lexical.h"
 #include <assert.h>
 #include <stdio.h>
 

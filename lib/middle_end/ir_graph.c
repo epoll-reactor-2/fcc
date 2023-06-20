@@ -6,8 +6,8 @@
 
 #include "middle_end/ir_graph.h"
 #include "middle_end/ir.h"
-#include "utility/alloc.h"
-#include "utility/compiler.h"
+#include "util/alloc.h"
+#include "util/compiler.h"
 
 static __weak_unused inline void ir_graph_set_at(
     struct ir_graph *graph,

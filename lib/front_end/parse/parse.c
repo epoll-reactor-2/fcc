@@ -7,10 +7,10 @@
 #include "front_end/ast/ast.h"
 #include "front_end/lex/data_type.h"
 #include "front_end/parse/parse.h"
-#include "utility/alloc.h"
-#include "utility/diagnostic.h"
-#include "utility/unreachable.h"
-#include "utility/vector.h"
+#include "util/alloc.h"
+#include "util/diagnostic.h"
+#include "util/unreachable.h"
+#include "util/vector.h"
 #include <assert.h>
 #include <string.h>
 

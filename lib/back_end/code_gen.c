@@ -6,10 +6,10 @@
 
 #include "back_end/code_gen.h"
 #include "middle_end/ir.h"
-#include "utility/alloc.h"
-#include "utility/crc32.h"
-#include "utility/hashmap.h"
-#include "utility/unreachable.h"
+#include "util/alloc.h"
+#include "util/crc32.h"
+#include "util/hashmap.h"
+#include "util/unreachable.h"
 #include <assert.h>
 
 void visit_ir_alloca(struct ir_alloca *ir)

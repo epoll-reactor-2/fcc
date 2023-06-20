@@ -5,8 +5,8 @@
  */
 
 #include "middle_end/ir_dump.h"
-#include "utility/vector.h"
-#include "utility/unreachable.h"
+#include "util/vector.h"
+#include "util/unreachable.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
 

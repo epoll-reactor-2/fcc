@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define WEAK_COMPILER_UTILITY_VECTOR_H
 
 #include <stdlib.h>
-#include "utility/alloc.h"
+#include "util/alloc.h"
 
 #define vector_t(type) struct {type* data; size_t size; size_t count;}
 

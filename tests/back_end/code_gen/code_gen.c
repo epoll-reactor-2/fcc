@@ -11,7 +11,7 @@
 #include "middle_end/ir_gen.h"
 #include "middle_end/ir_dump.h"
 #include "back_end/code_gen.h"
-#include "utility/diagnostic.h"
+#include "util/diagnostic.h"
 #include "utils/test_utils.h"
 
 extern FILE *yyin;

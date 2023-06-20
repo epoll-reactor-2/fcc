@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_UTILITY_UNREACHABLE_H
 #define WEAK_COMPILER_UTILITY_UNREACHABLE_H
 
-#include "utility/compiler.h"
+#include "util/compiler.h"
 #include <stdio.h>
 
 #define weak_fatal_error(msg) do {                                        \

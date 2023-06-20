@@ -9,7 +9,7 @@
 
 #include "front_end/ast/ast.h"
 #include "front_end/lex/data_type.h"
-#include "utility/vector.h"
+#include "util/vector.h"
 
 struct ast_storage_decl {
     struct ast_node *ast;
