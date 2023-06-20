@@ -38,12 +38,15 @@ struct ir_graph {
     bool *adj_matrix;
 };
 
-struct ir_node;
+struct ir;
 
 /// Build directed graph from IR statements list.
 ///
+/// \todo For now in debug purpose, graph only for first
+///       given IR function is built and returned.
+///
 /// \note User should cleanup returnd graph with ir_graph_cleanup().
-struct ir_graph ir_graph_init(struct ir_node *ir, uint64_t ir_size);
+struct ir_graph ir_graph_init(struct ir *ir);
 
 void ir_graph_cleanup(struct ir_graph *g);
 
