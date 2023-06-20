@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "utility/crc32.h"
+#include "util/crc32.h"
 
 /*
  * Name  : CRC-32

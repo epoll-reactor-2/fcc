@@ -5,9 +5,9 @@
  */
 
 #include "front_end/analysis/ast_storage.h"
-#include "utility/alloc.h"
-#include "utility/crc32.h"
-#include "utility/hashmap.h"
+#include "util/alloc.h"
+#include "util/crc32.h"
+#include "util/hashmap.h"
 #include <assert.h>
 #include <string.h>
 

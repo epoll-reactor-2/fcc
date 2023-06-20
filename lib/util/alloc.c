@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "utility/alloc.h"
-#include "utility/unreachable.h"
+#include "util/alloc.h"
+#include "util/unreachable.h"
 #include <stdlib.h>
 
 __weak_malloc__ void *weak_malloc(size_t size)

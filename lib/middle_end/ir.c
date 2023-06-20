@@ -5,8 +5,8 @@
  */
 
 #include "middle_end/ir.h"
-#include "utility/alloc.h"
-#include "utility/unreachable.h"
+#include "util/alloc.h"
+#include "util/unreachable.h"
 #include <assert.h>
 
 /// Global state. -1 because of semantics of

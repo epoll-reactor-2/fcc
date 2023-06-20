@@ -5,7 +5,7 @@
  */
 
 #include "front_end/lex/tok_type.h"
-#include "utility/unreachable.h"
+#include "util/unreachable.h"
 
 const char *tok_to_string(enum token_type t)
 {

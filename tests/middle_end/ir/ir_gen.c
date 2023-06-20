@@ -10,7 +10,7 @@
 #include "front_end/parse/parse.h"
 #include "middle_end/ir_gen.h"
 #include "middle_end/ir_dump.h"
-#include "utility/diagnostic.h"
+#include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
 

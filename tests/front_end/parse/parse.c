@@ -8,7 +8,7 @@
 #include "front_end/ast/ast_dump.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
-#include "utility/diagnostic.h"
+#include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <dirent.h>
 #include <stdbool.h>

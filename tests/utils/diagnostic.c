@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "utility/diagnostic.h"
+#include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stddef.h>
 #include <stdio.h>

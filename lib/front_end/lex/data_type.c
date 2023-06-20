@@ -5,7 +5,7 @@
  */
 
 #include "front_end/lex/data_type.h"
-#include "utility/unreachable.h"
+#include "util/unreachable.h"
 
 const char *data_type_to_string(enum data_type dt)
 {

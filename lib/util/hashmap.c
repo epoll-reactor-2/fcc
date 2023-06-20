@@ -13,8 +13,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "utility/hashmap.h"
-#include "utility/alloc.h"
+#include "util/hashmap.h"
+#include "util/alloc.h"
 #include <stdbool.h>
 #include <string.h>
 

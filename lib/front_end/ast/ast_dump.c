@@ -6,7 +6,7 @@
 
 #include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
-#include "utility/unreachable.h"
+#include "util/unreachable.h"
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>

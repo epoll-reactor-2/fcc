@@ -5,8 +5,8 @@
  */
 
 #include "middle_end/ir_storage.h"
-#include "utility/hashmap.h"
-#include "utility/crc32.h"
+#include "util/hashmap.h"
+#include "util/crc32.h"
 #include <assert.h>
 
 static hashmap_t storage;
