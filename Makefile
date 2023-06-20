@@ -52,7 +52,6 @@ $(info $(info) $(RED)                                                           
 $(info $(info) $(RED)                                                                                  $(ENDCOLOR) )
 endif
 
-.PHONY: test clean all
 all: build_dir test_files $(LIB) tests
 
 build_dir:
@@ -88,6 +87,7 @@ $(TEST_OBJ): $(TEST_SRC) | $(LIB)
 
 tests: $(TEST_OBJ)
 
+.PHONY: test
 test:
 	@for file in $(shell find build -executable -name '*_test' -printf "./%f\n"); do \
 		 (cd build; LD_LIBRARY_PATH=. $$file && \
@@ -95,6 +95,15 @@ test:
 		 ([[ $$? -ne 0 ]] && echo "Test failed. Interrupt the rest."; kill -KILL $$$$);) \
 	 done
 
+.PHONY: clean
 clean:
 	@rm -rf build
 	@echo "Done"
+
+.PHONY: cppcheck
+cppcheck:
+ifeq ($(CHECK_ALL),1)
+	@cppcheck -f -j$(NR_CPUS) --enable=all --language=c --std=c11 lib
+else
+	@cppcheck -f -j$(NR_CPUS) --enable=warning,performance,portability --language=c --std=c11 lib
+endif
