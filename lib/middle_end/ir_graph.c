@@ -32,7 +32,9 @@ static void ir_graph_build_matrix(
 ) {
     uint64_t ir_size = graph->cols_count;
 
-    for (uint64_t i = 0; i < ir_size; ++i)
+    /// Last instruction in function is always ret,
+    /// so it cannot jump anywhere.
+    for (uint64_t i = 0; i < ir_size - 1; ++i)
         switch (ir[i].type) {
         case IR_COND: {
             struct ir_cond *cond = ir[i].ir;
