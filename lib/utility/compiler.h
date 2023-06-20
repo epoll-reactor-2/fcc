@@ -29,4 +29,10 @@
 
 #define __weak_to_string(x) #x
 
+#ifndef NDEBUG
+# define __weak_debug(stmt) stmt
+#else
+# define __weak_debug(stmt)
+#endif /// NDEBUG
+
 #endif // WEAK_COMPILER_UTILITY_COMPILER_H
