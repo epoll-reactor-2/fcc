@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_UTILITY_CRC32_H
-#define WEAK_COMPILER_UTILITY_CRC32_H
+#ifndef WEAK_COMPILER_UTIL_CRC32_H
+#define WEAK_COMPILER_UTIL_CRC32_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -13,4 +13,4 @@
 uint32_t crc32(const uint8_t *mem, size_t len);
 uint32_t crc32_string(const char *mem);
 
-#endif // WEAK_COMPILER_UTILITY_CRC32_H
+#endif // WEAK_COMPILER_UTIL_CRC32_H

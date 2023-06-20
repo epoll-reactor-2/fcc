@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_UTILITY_ALLOC_H
-#define WEAK_COMPILER_UTILITY_ALLOC_H
+#ifndef WEAK_COMPILER_UTIL_ALLOC_H
+#define WEAK_COMPILER_UTIL_ALLOC_H
 
 #include <stddef.h>
 
@@ -26,4 +26,4 @@ __weak_realloc__ void *weak_realloc(void *addr, size_t size);
 /// Used to reduce #include <stdlib.h> bloat.
 void weak_free(void *addr);
 
-#endif // WEAK_COMPILER_UTILITY_ALLOC_H
+#endif // WEAK_COMPILER_UTIL_ALLOC_H

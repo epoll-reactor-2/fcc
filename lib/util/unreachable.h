@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_UTILITY_UNREACHABLE_H
-#define WEAK_COMPILER_UTILITY_UNREACHABLE_H
+#ifndef WEAK_COMPILER_UTIL_UNREACHABLE_H
+#define WEAK_COMPILER_UTIL_UNREACHABLE_H
 
 #include "util/compiler.h"
 #include <stdio.h>
@@ -22,4 +22,4 @@
     __builtin_trap();                                                     \
 } while (0);
 
-#endif // WEAK_COMPILER_UTILITY_UNREACHABLE_H
+#endif // WEAK_COMPILER_UTIL_UNREACHABLE_H
