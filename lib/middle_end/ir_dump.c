@@ -181,3 +181,32 @@ int32_t ir_dump(FILE *mem, struct ir_func_decl *ir)
 
     return 0;
 }
+
+void ir_dump_graph_dot(
+    FILE           *out_stream,
+    bool           *adj_matrix,
+    uint64_t        matrix_size,
+    struct ir_node *ir_stmts
+) {
+    /// Shorter name to reduce cognitive load while reading
+    /// loop below.
+    uint64_t  siz = matrix_size;
+    FILE     *out = out_stream;
+    fprintf(
+        out_stream,
+        "digraph {\n"
+        "    node [shape=box];\n"
+    );
+
+    for (size_t i = 0; i < siz; ++i)
+        for (size_t j = 0; j < siz; ++j)
+            if (adj_matrix[i * siz + j]) {
+                fprintf(out, "    \"");
+                ir_dump_node(out, ir_stmts[j]);
+                fprintf(out, "\" -> \"");
+                ir_dump_node(out, ir_stmts[i]);
+                fprintf(out, "\"\n");
+            }
+
+    fprintf(out_stream, "}\n");
+}
