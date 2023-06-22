@@ -74,7 +74,6 @@ bool ir_test(const char *filename)
             goto exit;
         }
         printf("Success!\n");
-        fflush(stdout);
     } else {
         /// Error, will be printed in main.
         return false;

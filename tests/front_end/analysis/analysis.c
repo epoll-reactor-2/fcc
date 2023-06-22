@@ -69,7 +69,6 @@ bool analysis_test(const char *filename)
         if (!ignore_warns) {
             if (strcmp(warn_buf, msg) == 0) {
                 printf("Success!\n");
-                fflush(stdout);
             } else {
                 printf("generated warning:\n%s", warn_buf);
                 printf("expected warning:\n%s", msg);
@@ -81,7 +80,6 @@ bool analysis_test(const char *filename)
         /// Code with fatal errors.
         if (strcmp(err_buf, msg) == 0) {
             printf("Success!\n");
-            fflush(stdout);
         } else {
             printf("generated error:\n%s", err_buf);
             printf("expected error:\n%s", msg);
@@ -92,7 +90,6 @@ bool analysis_test(const char *filename)
 
     if (ignore_warns && !err_buf) {
         fprintf(stderr, "Expected compile error\n");
-        fflush(stderr);
         success = false;
     }
 
