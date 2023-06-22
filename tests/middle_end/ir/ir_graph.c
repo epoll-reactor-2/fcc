@@ -99,7 +99,6 @@ bool ir_graph_test(const char *filename)
         ir_graph_cleanup(&graph);
 
         printf("Success!\n\n");
-        fflush(stdout);
     } else {
         /// Error, will be printed in main.
         return false;

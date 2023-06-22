@@ -68,7 +68,6 @@ bool parse_test(const char *filename)
             goto exit;
         }
         printf("Success!\n");
-        fflush(stdout);
     } else {
         /// Error, will be printed in main.
         success = false;
