@@ -10,6 +10,28 @@
 #include "util/unreachable.h"
 #include <assert.h>
 
+const char *ir_type_to_string(enum ir_type t)
+{
+    switch (t) {
+    case IR_ALLOCA:       return "IR_ALLOCA";
+    case IR_IMM:          return "IR_IMM";
+    case IR_SYM:          return "IR_SYM";
+    case IR_STORE:        return "IR_STORE";
+    case IR_BIN:          return "IR_BIN";
+    case IR_LABEL:        return "IR_LABEL";
+    case IR_JUMP:         return "IR_JUMP";
+    case IR_COND:         return "IR_COND";
+    case IR_RET:          return "IR_RET";
+    case IR_RET_VOID:     return "IR_RET_VOID";
+    case IR_MEMBER:       return "IR_MEMBER";
+    case IR_ARRAY_ACCESS: return "IR_ARRAY_ACCESS";
+    case IR_TYPE_DECL:    return "IR_TYPE_DECL";
+    case IR_FUNC_DECL:    return "IR_FUNC_DECL";
+    case IR_FUNC_CALL:    return "IR_FUNC_CALL";
+    default: weak_unreachable("Should not reach there.");
+    }
+}
+
 static void ir_dump_node(FILE *mem, struct ir_node ir);
 
 static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
