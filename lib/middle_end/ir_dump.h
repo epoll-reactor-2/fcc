@@ -10,6 +10,8 @@
 #include "middle_end/ir.h"
 #include <stdio.h>
 
+const char *ir_type_to_string(enum ir_type t);
+
 /// Print IR to given stream.
 ///
 /// \param ir      Pointer to IR statements array.
