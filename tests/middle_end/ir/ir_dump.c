@@ -35,9 +35,9 @@ void ir_dump_basic(FILE *stream, char **expected)
     vector_push_back(body, ir_alloca_init(D_T_VOID, 0));
     vector_push_back(body, ir_alloca_init(D_T_VOID, 1));
     vector_push_back(body, ir_label_init(0));
-    vector_push_back(body, ir_store_imm_init(0, 123));
+    vector_push_back(body, ir_store_imm_init(0, ir_imm_int_init(123)));
     vector_push_back(body, ir_cond_init(
-        ir_bin_init(TOK_EQ, ir_imm_init(1), ir_sym_init(1)),
+        ir_bin_init(TOK_EQ, ir_imm_int_init(1), ir_sym_init(1)),
         0
     ));
     vector_push_back(body, ir_store_var_init(1, 0));
@@ -83,7 +83,7 @@ void ir_dump_call(FILE *stream, char **expected)
     ir_array_t args = {0};
     vector_push_back(args, ir_sym_init(1));
     vector_push_back(args, ir_sym_init(2));
-    vector_push_back(args, ir_imm_init(3));
+    vector_push_back(args, ir_imm_int_init(3));
 
     ir_reset_internal_state();
     ir_array_t calls = {0};

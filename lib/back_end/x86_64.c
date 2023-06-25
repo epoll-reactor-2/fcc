@@ -18,6 +18,7 @@
 #define x86_total_regs  10
 #define x86_reg_rax     -1
 #define x86_reg_rdx     -2
+#define x86_no_reg      -1
 
 static const char *x86_64_bit_regs[x86_total_regs] = {
     "%r10", "%r11", "%r12",
@@ -169,7 +170,7 @@ static int32_t x86_reg_alloc()
 
 static void x86_reg_free(int32_t reg)
 {
-    if (reg == -1) return;
+    if (reg == x86_no_reg) return;
     if (x86_spilled_reg > 0) {
         x86_spilled_reg--;
         reg = (x86_spilled_reg % x86_total_regs);
@@ -202,87 +203,88 @@ static int32_t visit_ir_node(struct ir_node ir);
 static int32_t visit_ir_alloca(struct ir_alloca *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_imm(struct ir_imm *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_sym(struct ir_imm *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_store(struct ir_store *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_bin(struct ir_bin *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_label(struct ir_label *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_jump(struct ir_jump *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_cond(struct ir_cond *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_ret(struct ir_ret *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_member(struct ir_member *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_array_access(struct ir_node *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 /// Store this in some internal state.
 static int32_t visit_ir_type_decl(struct ir_type_decl *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_func_decl(struct ir_func_decl *ir)
 {
 	for (uint64_t i = 0; i < ir->body_size; ++i)
 	    visit_ir_node(ir->body[i]);
-    return -1;
+
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_func_call(struct ir_func_call *ir)
 {
 	(void) ir;
-	return -1;
+	return x86_no_reg;
 }
 
 static int32_t visit_ir_node(struct ir_node ir)

@@ -28,7 +28,8 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_TYPE_DECL:    return "IR_TYPE_DECL";
     case IR_FUNC_DECL:    return "IR_FUNC_DECL";
     case IR_FUNC_CALL:    return "IR_FUNC_CALL";
-    default: weak_unreachable("Should not reach there.");
+    default:
+        weak_unreachable("Should not reach there.");
     }
 }
 
@@ -41,12 +42,19 @@ static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 
 static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
 {
-    fprintf(mem, "$%d", ir->imm);
+    switch (ir->type) {
+    case IMM_BOOL:  fprintf(mem, "$%d", ir->imm_bool); break;
+    case IMM_CHAR:  fprintf(mem, "$%d", ir->imm_char); break;
+    case IMM_FLOAT: fprintf(mem, "$%f", ir->imm_float); break;
+    case IMM_INT:   fprintf(mem, "$%d", ir->imm_int); break;
+    default:
+        weak_unreachable("Should not reach there.");
+    }
 }
 
-static void ir_dump_sym(FILE *mem, struct ir_imm *ir)
+static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 {
-    fprintf(mem, "%%%d", ir->imm);
+    fprintf(mem, "%%%d", ir->idx);
 }
 
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
@@ -75,7 +83,8 @@ static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
     case TOK_STAR:    op = "mul"; break;
     case TOK_SLASH:   op = "div"; break;
     case TOK_MOD:     op = "mod"; break;
-    default: weak_unreachable("Unknown operation");
+    default:
+        weak_unreachable("Unknown operation");
     }
 
     ir_dump_node(mem, ir->lhs);
@@ -190,7 +199,8 @@ static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
     case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir.ir); break;
     case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir.ir); break;
     case IR_FUNC_CALL:    ir_dump_func_call(mem, ir.ir); break;
-    default: weak_unreachable("Something went wrong");
+    default:
+        weak_unreachable("Something went wrong");
     }
 }
 
