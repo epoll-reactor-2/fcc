@@ -121,6 +121,8 @@ bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
 
         printf("Testing file %s... ", dir->d_name);
 
+        weak_set_source_filename(filename);
+
         if (!callback(filename)) {
             success = false;
             goto exit;
