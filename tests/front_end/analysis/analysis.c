@@ -32,8 +32,6 @@ bool analysis_test(const char *filename)
     size_t  err_buf_len  = 0;
     size_t  warn_buf_len = 0;
 
-    weak_set_source_filename(filename);
-
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
