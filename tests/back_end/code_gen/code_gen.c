@@ -36,9 +36,6 @@ bool code_gen_test(const char *filename)
     fseek(yyin, 0, SEEK_SET);
 
     tok_array_t *toks = lex_consumed_tokens();
-    char        *generated = NULL;
-    size_t       _ = 0;
-    FILE        *generated_stream = open_memstream(&generated, &_);
 
     if (!setjmp(weak_fatal_error_buf)) {
         printf("\n");
