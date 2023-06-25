@@ -39,12 +39,38 @@ struct ir_node ir_alloca_init(enum data_type dt, int32_t idx)
     return ir_node_init(IR_ALLOCA, ir);
 }
 
-struct ir_node ir_imm_init(int32_t imm)
+struct ir_node ir_imm_bool_init(bool imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
-    ir->imm = imm;
+    ir->imm_bool = imm;
+    ir->type = IMM_BOOL;
     return ir_node_init(IR_IMM, ir);
 }
+
+struct ir_node ir_imm_char_init(char imm)
+{
+    struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
+    ir->imm_char = imm;
+    ir->type = IMM_CHAR;
+    return ir_node_init(IR_IMM, ir);
+}
+
+struct ir_node ir_imm_float_init(float imm)
+{
+    struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
+    ir->imm_float = imm;
+    ir->type = IMM_FLOAT;
+    return ir_node_init(IR_IMM, ir);
+}
+
+struct ir_node ir_imm_int_init(int32_t imm)
+{
+    struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
+    ir->imm_int = imm;
+    ir->type = IMM_INT;
+    return ir_node_init(IR_IMM, ir);
+}
+
 
 struct ir_node ir_sym_init(int32_t idx)
 {
@@ -53,12 +79,12 @@ struct ir_node ir_sym_init(int32_t idx)
     return ir_node_init(IR_SYM, ir);
 }
 
-struct ir_node ir_store_imm_init(int32_t idx, int32_t imm)
+struct ir_node ir_store_imm_init(int32_t idx, struct ir_node imm)
 {
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
     ir->type = IR_STORE_IMM;
     ir->idx = idx;
-    ir->body = ir_imm_init(imm);
+    ir->body = imm;
     ++ir_instr_index;
     return ir_node_init(IR_STORE, ir);
 }

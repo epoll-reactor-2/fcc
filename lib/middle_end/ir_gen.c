@@ -42,22 +42,22 @@ static void visit_ast(struct ast_node *ast);
 /// they are immediate values.
 static void visit_ast_bool(struct ast_bool *ast)
 {
-    ir_last = ir_imm_init(ast->value);
+    ir_last = ir_imm_bool_init(ast->value);
 }
 
 static void visit_ast_char(struct ast_char *ast)
 {
-    ir_last = ir_imm_init(ast->value);
+    ir_last = ir_imm_char_init(ast->value);
 }
 
 static void visit_ast_float(struct ast_float *ast)
 {
-    ir_last = ir_imm_init(ast->value);
+    ir_last = ir_imm_float_init(ast->value);
 }
 
 static void visit_ast_num(struct ast_num *ast)
 {
-    ir_last = ir_imm_init(ast->value);
+    ir_last = ir_imm_int_init(ast->value);
 }
 
 static void visit_ast_string(struct ast_string *ast) { (void) ast; }
@@ -107,7 +107,7 @@ static void visit_ast_for(struct ast_for *ast)
     /// Condition is optional.
     if (ast->condition) {
         visit_ast(ast->condition);
-        struct ir_node  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
+        struct ir_node  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
         struct ir_node  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
         struct ir_cond *cond_ptr = cond.ir;
         struct ir_node  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
@@ -145,7 +145,7 @@ static void visit_ast_while(struct ast_while *ast)
     /// L5: after while instr
 
     visit_ast(ast->condition);
-    struct ir_node  cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
+    struct ir_node  cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
     struct ir_node  cond          = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr      = cond.ir;
     struct ir_node  exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
@@ -187,7 +187,7 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     /// comparison at the end of body.
     visit_ast(ast->condition);
 
-    struct ir_node  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
+    struct ir_node  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
     struct ir_node  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr = cond.ir;
 
@@ -227,7 +227,7 @@ static void visit_ast_if(struct ast_if *ast)
     /// - if (1 + 1) -> if sym neq $0 goto ...
     /// - if (1    ) -> if imm neq $0 goto ...
     /// - if (var  ) -> if sym neq $0 goto ...
-    ir_last = ir_bin_init(TOK_NEQ, ir_last, ir_imm_init(0));
+    ir_last = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
 
     struct ir_node  cond        = ir_cond_init(ir_last, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr    = cond.ir;
@@ -290,8 +290,8 @@ static void visit_ast_unary(struct ast_unary *ast)
     struct ir_sym *sym = ir_last.ir;
 
     switch (ast->operation) {
-    case TOK_INC: ir_last = ir_bin_init(TOK_PLUS,  ir_last, ir_imm_init(1)); break;
-    case TOK_DEC: ir_last = ir_bin_init(TOK_MINUS, ir_last, ir_imm_init(1)); break;
+    case TOK_INC: ir_last = ir_bin_init(TOK_PLUS,  ir_last, ir_imm_int_init(1)); break;
+    case TOK_DEC: ir_last = ir_bin_init(TOK_MINUS, ir_last, ir_imm_int_init(1)); break;
     default: weak_unreachable("Unknown unary operator.");
     }
     ir_last = ir_store_bin_init(sym->idx, ir_last);
@@ -313,8 +313,8 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
 
         switch (ir_last.type) {
         case IR_IMM: {
-            struct ir_imm *imm = ir_last.ir;
-            ir_last = ir_store_imm_init(next_idx, imm->imm);
+            // struct ir_imm *imm = ir_last.ir;
+            ir_last = ir_store_imm_init(next_idx, ir_last);
             break;
         }
         case IR_SYM: {

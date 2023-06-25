@@ -66,10 +66,23 @@ struct ir_alloca {
     int32_t idx;
 };
 
+enum ir_imm_type {
+    IMM_BOOL,
+    IMM_CHAR,
+    IMM_FLOAT,
+    IMM_INT
+};
+
 struct ir_imm {
+    enum ir_imm_type type;
     /// Immediate value. Used as argument of
     /// store or binary instructions.
-    int32_t imm;
+    union {
+        bool         imm_bool;
+        char         imm_char;
+        float        imm_float;
+        int32_t      imm_int;
+    };
 };
 
 struct ir_sym {
@@ -198,10 +211,15 @@ void ir_reset_internal_state();
 
 struct ir_node ir_node_init(enum ir_type type, void *ir);
 struct ir_node ir_alloca_init(enum data_type dt, int32_t idx);
-struct ir_node ir_imm_init(int32_t imm);
+
+struct ir_node ir_imm_bool_init(bool imm);
+struct ir_node ir_imm_char_init(char imm);
+struct ir_node ir_imm_float_init(float imm);
+struct ir_node ir_imm_int_init(int32_t imm);
+
 struct ir_node ir_sym_init(int32_t idx);
 
-struct ir_node ir_store_imm_init(int32_t idx, int32_t imm);
+struct ir_node ir_store_imm_init(int32_t idx, struct ir_node imm);
 struct ir_node ir_store_var_init(int32_t idx, int32_t var_idx);
 struct ir_node ir_store_bin_init(int32_t idx, struct ir_node bin);
 
