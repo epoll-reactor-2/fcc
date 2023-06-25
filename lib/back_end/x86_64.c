@@ -202,89 +202,141 @@ static int32_t visit_ir_node(struct ir_node ir);
 
 static int32_t visit_ir_alloca(struct ir_alloca *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_imm(struct ir_imm *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    int32_t reg = x86_reg_alloc();
+
+    switch (ir->type) {
+    case IMM_BOOL: {
+        printf("\tmovzbq\t$%d, %s\n", ir->imm_bool, x86_64_bit_regs[reg]);
+        break;
+    }
+    case IMM_CHAR: {
+        printf("\tmovzbq\t$%d, %s\n", ir->imm_bool, x86_64_bit_regs[reg]);
+        break;
+    }
+    case IMM_FLOAT: {
+        /// \todo: Move to section like this
+        ///
+        ///        .__float_%d:
+        ///                .long 0x123456789 # double 0.333 (converted to integer)
+        ///
+        ///        movss __float_1(%rip), %xmm0
+        break;
+    }
+    case IMM_INT: {
+        printf("\tmovslq\t$%d, %s\n", ir->imm_int, x86_64_bit_regs[reg]);
+        break;
+    }
+    default:
+        weak_unreachable("Should not reach there.");
+    }
+
+    return reg;
 }
 
 static int32_t visit_ir_sym(struct ir_imm *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_store(struct ir_store *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    visit_ir_node(ir->body);
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_bin(struct ir_bin *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    visit_ir_node(ir->lhs);
+    visit_ir_node(ir->rhs);
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_label(struct ir_label *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_jump(struct ir_jump *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_cond(struct ir_cond *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_ret(struct ir_ret *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_member(struct ir_member *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_array_access(struct ir_node *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 /// Store this in some internal state.
 static int32_t visit_ir_type_decl(struct ir_type_decl *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
+}
+
+
+
+static void x86_fun_prologue()
+{
+    /// \todo: Calculate offsets; it means
+    ///        how much stack memory should be
+    ///        allocated for all variables.
+    ///
+    ///        Maybe additional traverse IR statements
+    ///        list could solve this.
+}
+
+static void x86_fun_epilogue()
+{
+    /// \todo: Free stack memory, that was allocated
+    ///        in prologue.
 }
 
 static int32_t visit_ir_func_decl(struct ir_func_decl *ir)
 {
-	for (uint64_t i = 0; i < ir->body_size; ++i)
-	    visit_ir_node(ir->body[i]);
+    x86_fun_prologue();
+
+    for (uint64_t i = 0; i < ir->body_size; ++i)
+        visit_ir_node(ir->body[i]);
+
+    x86_fun_epilogue();
 
     return x86_no_reg;
 }
 
+
+
 static int32_t visit_ir_func_call(struct ir_func_call *ir)
 {
-	(void) ir;
-	return x86_no_reg;
+    (void) ir;
+    return x86_no_reg;
 }
 
 static int32_t visit_ir_node(struct ir_node ir)
@@ -362,6 +414,6 @@ void code_gen(struct ir *ir)
 {
     x86_gen_preamble();
     x86_gen_global_strings();
-	for (uint64_t i = 0; i < ir->decls_size; ++i)
-		visit_ir_node(ir->decls[i]);
+    for (uint64_t i = 0; i < ir->decls_size; ++i)
+        visit_ir_node(ir->decls[i]);
 }
