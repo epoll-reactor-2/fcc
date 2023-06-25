@@ -167,7 +167,7 @@ struct ir_type_decl {
     uint64_t    decls_size;
     /// Accepted values:
     /// - struct ir_alloca (primitive type),
-    /// - struct irype_decl_t (compound type, nested).
+    /// - struct ir_type_decl_t (compound type, nested).
     struct ir_node  *decls;
 };
 
@@ -178,7 +178,7 @@ struct ir_func_decl {
     uint64_t        args_size;
     /// Accepted values:
     /// - struct ir_alloca (primitive type),
-    /// - struct irype_decl_t (compound type, nested).
+    /// - struct ir_type_decl_t (compound type, nested).
     struct ir_node *args;
     struct ir_node *body;
     uint64_t        body_size;
