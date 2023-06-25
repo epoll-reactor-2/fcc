@@ -49,7 +49,7 @@ bool code_gen_test(const char *filename)
 
         struct ir ir = ir_gen(ast);
         for (uint64_t i = 0; i < ir.decls_size; ++i)
-            ir_dump(generated_stream, ir.decls[i].ir);
+            ir_dump(stdout, ir.decls[i].ir);
 
         code_gen(&ir);
 
