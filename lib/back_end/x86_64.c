@@ -14,6 +14,7 @@
 #include "util/unreachable.h"
 #include <assert.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define x86_total_regs  10
 #define x86_reg_rax     -1
@@ -91,11 +92,12 @@ static const char *x86_store_postfix(enum data_type dt, int32_t idx)
 }
 
 /// \todo: What the fuck is RAX, RDX?
-static const char *x86_get_reg(int32_t reg, enum data_type dt, int32_t idx)
+static const char *x86_get_reg(int32_t reg, enum data_type dt, int32_t indirection_lvl)
 {
     switch (reg) {
     case x86_reg_rax: {
-        if (idx > 0)   return "%rax";
+        if (indirection_lvl > 0)
+            return "%rax";
         switch (dt) {
         case D_T_BOOL:
         case D_T_CHAR: return "%al";
@@ -105,7 +107,8 @@ static const char *x86_get_reg(int32_t reg, enum data_type dt, int32_t idx)
         }
     } /// x86_reg_rax
     case x86_reg_rdx: {
-        if (idx > 0)   return "%rdx";
+        if (indirection_lvl > 0)
+            return "%rdx";
         switch (dt) {
         case D_T_BOOL:
         case D_T_CHAR: return "%dl";
@@ -115,7 +118,8 @@ static const char *x86_get_reg(int32_t reg, enum data_type dt, int32_t idx)
         }
     } /// x86_reg_rdx
     default: {
-        if (idx > 0)   return x86_64_bit_regs[reg];
+        if (indirection_lvl > 0)
+            return x86_64_bit_regs[reg];
         switch (dt) {
         case D_T_BOOL:
         case D_T_CHAR: return x86_8_bit_regs[reg];
@@ -129,12 +133,12 @@ static const char *x86_get_reg(int32_t reg, enum data_type dt, int32_t idx)
 
 static void x86_spill(int32_t reg)
 {
-    printf("\tpushq %s\n", x86_64_bit_regs[reg]);
+    printf("\tpushq\t%s\n", x86_64_bit_regs[reg]);
 }
 
 static void x86_unspill(int32_t reg)
 {
-    printf("\tpushq %s\n", x86_64_bit_regs[reg]);
+    printf("\tpopq\t%s\n", x86_64_bit_regs[reg]);
 }
 
 static void x86_spill_regs()
@@ -196,14 +200,38 @@ static void x86_gen_load(const char *name, int32_t off, bool local)
         printf("%s(%%rip)", name);
 }
 
+static void x86_gen_jump(int32_t label)
+{
+    printf("\tjmp\tL%d\n", label);
+}
+
+
+static uint64_t x86_sizeof(enum data_type dt)
+{
+    switch (dt) {
+    case D_T_CHAR:
+    case D_T_BOOL:  return 1;
+    case D_T_INT:   return 4;
+    case D_T_FLOAT: return 4;
+    default:
+        weak_unreachable("Should not reach there.");
+    }
+}
 
 
 static int32_t visit_ir_node(struct ir_node ir);
 
 static int32_t visit_ir_alloca(struct ir_alloca *ir)
 {
-    (void) ir;
-    return x86_no_reg;
+    int32_t reg = x86_reg_alloc();
+    uint64_t size = x86_sizeof(ir->dt);
+
+    if (size < 1) size = 1;
+    if (size > 8) size = 8;
+
+    printf("\tsubq\t$%ld, %%rsp\n", size);
+    printf("\tlea\t(%%rsp), %s\n", x86_get_reg(reg, ir->dt, 0));
+    return reg;
 }
 
 static int32_t visit_ir_imm(struct ir_imm *ir)
@@ -229,7 +257,7 @@ static int32_t visit_ir_imm(struct ir_imm *ir)
         break;
     }
     case IMM_INT: {
-        printf("\tmovslq\t$%d, %s\n", ir->imm_int, x86_64_bit_regs[reg]);
+        printf("\tmovabsq\t$%d, %s\n", ir->imm_int, x86_64_bit_regs[reg]);
         break;
     }
     default:
@@ -278,6 +306,8 @@ static int32_t visit_ir_cond(struct ir_cond *ir)
 
 static int32_t visit_ir_ret(struct ir_ret *ir)
 {
+    /// \todo: Jump to some label with final return of register
+    ///        value. For that we need to create and store some labels?...
     (void) ir;
     return x86_no_reg;
 }
@@ -303,7 +333,7 @@ static int32_t visit_ir_type_decl(struct ir_type_decl *ir)
 
 
 
-static void x86_fun_prologue()
+static void x86_fun_prologue(const char *name)
 {
     /// \todo: Calculate offsets; it means
     ///        how much stack memory should be
@@ -311,20 +341,33 @@ static void x86_fun_prologue()
     ///
     ///        Maybe additional traverse IR statements
     ///        list could solve this.
+    printf("\t.global %s\n", name);
+    printf("%s:\n", name);
+    printf("\tpushq\t%%rbp\n");
+    printf("\tmovq\t%%rsp, %%rbp\n");
+    /// \todo: Stack offset...
+    printf("\tsubq\t$16, %%rsp\n");
 }
 
 static void x86_fun_epilogue()
 {
     /// \todo: Free stack memory, that was allocated
     ///        in prologue.
+    printf("\taddq\t$16, %%rsp\n");
+    printf("\tpopq\t%%rbp\n");
+    printf("\tret\n");
 }
 
 static int32_t visit_ir_func_decl(struct ir_func_decl *ir)
 {
-    x86_fun_prologue();
+    x86_fun_prologue(ir->name);
 
     for (uint64_t i = 0; i < ir->body_size; ++i)
         visit_ir_node(ir->body[i]);
+
+    /// Temporary fun. Should be removed.
+    if (!strcmp(ir->name, "main"))
+        printf("\txorq\t%%rax, %%rax\n");
 
     x86_fun_epilogue();
 
@@ -386,28 +429,6 @@ static void x86_gen_global_strings()
 static void x86_gen_preamble()
 {
     x86_gen_text();
-    puts(
-        "switch:\n"
-        "\tpushq\t%rsi\n"
-        "\tmovq\t%rdx,%rsi\n"
-        "\tmovq\t%rax,%rbx\n"
-        "\tcld\n"
-        "\tlodsq\n"
-        "\tmovq\t%rax,%rcx\n"
-        "next:\n"
-        "\tlodsq\n"
-        "\tmovq\t%rax,%rdx\n"
-        "\tlodsq\n"
-        "\tcmpq\t%rdx,%rbx\n"
-        "\tjnz\tno\n"
-        "\tpopq\t%rsi\n"
-        "\tjmp\t*%rax\n"
-        "no:\n"
-        "\tloop\tnext\n"
-        "\tlodsq\n"
-        "\tpopq\t%rsi\n"
-        "\tjmp\t*%rax"
-    );
 }
 
 void code_gen(struct ir *ir)
