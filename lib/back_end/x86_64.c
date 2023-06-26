@@ -49,8 +49,8 @@ static const char *x86_8_bit_regs[x86_total_regs] = {
     "%di"
 };
 
-static bool x86_regs_status[x86_total_regs] = {1};
-
+static bool        x86_regs_status[x86_total_regs] = {1};
+static const char *x86_last_reg;
 
 static const char *x86_alloc_type(enum data_type dt, int32_t idx)
 {
@@ -219,32 +219,35 @@ static uint64_t x86_sizeof(enum data_type dt)
 }
 
 
-static int32_t visit_ir_node(struct ir_node ir);
+static void visit_ir_node(struct ir_node ir);
 
-static int32_t visit_ir_alloca(struct ir_alloca *ir)
+static void visit_ir_alloca(struct ir_alloca *ir)
 {
-    int32_t reg = x86_reg_alloc();
+    int32_t reg_idx = x86_reg_alloc();
     uint64_t size = x86_sizeof(ir->dt);
+    const char *reg = x86_get_reg(reg_idx, ir->dt, 0);
 
     if (size < 1) size = 1;
     if (size > 8) size = 8;
 
     printf("\tsubq\t$%ld, %%rsp\n", size);
-    printf("\tlea\t(%%rsp), %s\n", x86_get_reg(reg, ir->dt, 0));
-    return reg;
+    printf("\tlea\t(%%rsp), %s\n", reg);
+
+    x86_last_reg = reg;
 }
 
-static int32_t visit_ir_imm(struct ir_imm *ir)
+static void visit_ir_imm(struct ir_imm *ir)
 {
-    int32_t reg = x86_reg_alloc();
+    int32_t reg_idx = x86_reg_alloc();
+    const char *reg = x86_64_bit_regs[reg_idx];
 
     switch (ir->type) {
     case IMM_BOOL: {
-        printf("\tmovzbq\t$%d, %s\n", ir->imm_bool, x86_64_bit_regs[reg]);
+        printf("\tmovzbq\t$%d, %s\n", ir->imm_bool, reg);
         break;
     }
     case IMM_CHAR: {
-        printf("\tmovzbq\t$%d, %s\n", ir->imm_bool, x86_64_bit_regs[reg]);
+        printf("\tmovzbq\t$%d, %s\n", ir->imm_char, reg);
         break;
     }
     case IMM_FLOAT: {
@@ -257,78 +260,75 @@ static int32_t visit_ir_imm(struct ir_imm *ir)
         break;
     }
     case IMM_INT: {
-        printf("\tmovabsq\t$%d, %s\n", ir->imm_int, x86_64_bit_regs[reg]);
+        printf("\tmovabsq\t$%d, %s\n", ir->imm_int, reg);
         break;
     }
     default:
         weak_unreachable("Should not reach there.");
     }
 
-    return reg;
+    x86_last_reg = reg;
 }
 
-static int32_t visit_ir_sym(struct ir_imm *ir)
+static void visit_ir_sym(struct ir_imm *ir)
 {
     (void) ir;
-    return x86_no_reg;
 }
 
-static int32_t visit_ir_store(struct ir_store *ir)
+static void visit_ir_store(struct ir_store *ir)
 {
     visit_ir_node(ir->body);
-    return x86_no_reg;
 }
 
-static int32_t visit_ir_bin(struct ir_bin *ir)
+static void visit_ir_bin(struct ir_bin *ir)
 {
     visit_ir_node(ir->lhs);
     visit_ir_node(ir->rhs);
-    return x86_no_reg;
 }
 
-static int32_t visit_ir_label(struct ir_label *ir)
+static void visit_ir_label(struct ir_label *ir)
 {
     (void) ir;
-    return x86_no_reg;
 }
 
-static int32_t visit_ir_jump(struct ir_jump *ir)
+static void visit_ir_jump(struct ir_jump *ir)
 {
     (void) ir;
-    return x86_no_reg;
 }
 
-static int32_t visit_ir_cond(struct ir_cond *ir)
+static void visit_ir_cond(struct ir_cond *ir)
 {
     (void) ir;
-    return x86_no_reg;
 }
 
-static int32_t visit_ir_ret(struct ir_ret *ir)
+static void visit_ir_ret(struct ir_ret *ir)
 {
     /// \todo: Jump to some label with final return of register
     ///        value. For that we need to create and store some labels?...
-    (void) ir;
-    return x86_no_reg;
+    ///
+    /// \note: %rax register is used for storing return values.
+    if (ir->is_void) return;
+    /// \todo: FUUUUUUUUUUCK
+    if (x86_last_reg)
+        printf("\tmovq\t%s, %%rax\n", x86_last_reg);
+    else
+        printf("\tmovq\t$0, %%rax\n");
 }
 
-static int32_t visit_ir_member(struct ir_member *ir)
+static void visit_ir_member(struct ir_member *ir)
 {
     (void) ir;
-    return x86_no_reg;
 }
 
-static int32_t visit_ir_array_access(struct ir_node *ir)
+static void visit_ir_array_access(struct ir_node *ir)
 {
     (void) ir;
-    return x86_no_reg;
 }
 
 /// Store this in some internal state.
-static int32_t visit_ir_type_decl(struct ir_type_decl *ir)
+static void visit_ir_type_decl(struct ir_type_decl *ir)
 {
     (void) ir;
-    return x86_no_reg;
 }
 
 
@@ -349,57 +349,56 @@ static void x86_fun_prologue(const char *name)
     printf("\tsubq\t$16, %%rsp\n");
 }
 
-static void x86_fun_epilogue()
+static void x86_fun_epilogue(const char *name)
 {
     /// \todo: Free stack memory, that was allocated
     ///        in prologue.
-    printf("\taddq\t$16, %%rsp\n");
-    printf("\tpopq\t%%rbp\n");
-    printf("\tret\n");
+
+    if (!strcmp(name, "main")) {
+        printf("\tmovq\t$60, %rax\n");
+        printf("\txor\t%rdi, %rdi\n");
+        printf("\tsyscall\n");
+    } else {
+        printf("\taddq\t$16, %%rsp\n");
+        printf("\tpopq\t%%rbp\n");
+        printf("\tret\n");
+    }
 }
 
-static int32_t visit_ir_func_decl(struct ir_func_decl *ir)
+static void visit_ir_func_decl(struct ir_func_decl *ir)
 {
     x86_fun_prologue(ir->name);
 
     for (uint64_t i = 0; i < ir->body_size; ++i)
         visit_ir_node(ir->body[i]);
 
-    /// Temporary fun. Should be removed.
-    if (!strcmp(ir->name, "main"))
-        printf("\txorq\t%%rax, %%rax\n");
-
-    x86_fun_epilogue();
-
-    return x86_no_reg;
+    x86_fun_epilogue(ir->name);
 }
 
 
-
-static int32_t visit_ir_func_call(struct ir_func_call *ir)
+static void visit_ir_func_call(struct ir_func_call *ir)
 {
     (void) ir;
-    return x86_no_reg;
 }
 
-static int32_t visit_ir_node(struct ir_node ir)
+static void visit_ir_node(struct ir_node ir)
 {
     switch (ir.type) {
-    case IR_ALLOCA:       return visit_ir_alloca(ir.ir);
-    case IR_IMM:          return visit_ir_imm(ir.ir);
-    case IR_SYM:          return visit_ir_sym(ir.ir);
-    case IR_STORE:        return visit_ir_store(ir.ir);
-    case IR_BIN:          return visit_ir_bin(ir.ir);
-    case IR_LABEL:        return visit_ir_label(ir.ir);
-    case IR_JUMP:         return visit_ir_jump(ir.ir);
-    case IR_COND:         return visit_ir_cond(ir.ir);
-    case IR_RET:          return visit_ir_ret(ir.ir);
-    case IR_RET_VOID:     return visit_ir_ret(ir.ir);
-    case IR_MEMBER:       return visit_ir_member(ir.ir);
-    case IR_ARRAY_ACCESS: return visit_ir_array_access(ir.ir);
-    case IR_TYPE_DECL:    return visit_ir_type_decl(ir.ir);
-    case IR_FUNC_DECL:    return visit_ir_func_decl(ir.ir);
-    case IR_FUNC_CALL:    return visit_ir_func_call(ir.ir);
+    case IR_ALLOCA:       visit_ir_alloca(ir.ir); break;
+    case IR_IMM:          visit_ir_imm(ir.ir); break;
+    case IR_SYM:          visit_ir_sym(ir.ir); break;
+    case IR_STORE:        visit_ir_store(ir.ir); break;
+    case IR_BIN:          visit_ir_bin(ir.ir); break;
+    case IR_LABEL:        visit_ir_label(ir.ir); break;
+    case IR_JUMP:         visit_ir_jump(ir.ir); break;
+    case IR_COND:         visit_ir_cond(ir.ir); break;
+    case IR_RET:          visit_ir_ret(ir.ir); break;
+    case IR_RET_VOID:     visit_ir_ret(ir.ir); break;
+    case IR_MEMBER:       visit_ir_member(ir.ir); break;
+    case IR_ARRAY_ACCESS: visit_ir_array_access(ir.ir); break;
+    case IR_TYPE_DECL:    visit_ir_type_decl(ir.ir); break;
+    case IR_FUNC_DECL:    visit_ir_func_decl(ir.ir); break;
+    case IR_FUNC_CALL:    visit_ir_func_call(ir.ir); break;
     default:
         weak_unreachable("Something went wrong");
     }
