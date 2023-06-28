@@ -61,8 +61,12 @@ bool ir_test(const char *filename)
         analysis_type_analysis(ast);
 
         struct ir ir = ir_gen(ast);
-        for (uint64_t i = 0; i < ir.decls_size; ++i)
+        for (uint64_t i = 0; i < ir.decls_size; ++i) {
             ir_dump(generated_stream, ir.decls[i].ir);
+
+            struct ir_func_decl *decl = ir.decls[0].ir;
+            ir_dump_graph_dot(stdout, &decl->body[0]);
+        }
 
         fflush(generated_stream);
         ast_node_cleanup(ast);

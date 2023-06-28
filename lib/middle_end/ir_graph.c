@@ -73,13 +73,31 @@ void ir_link(struct ir *ir)
             }
         }
     }
-
-    struct ir_func_decl *decl = ir->decls[0].ir;
-
-    ir_traverse(&decl->body[0]);
 }
 
-void ir_traverse(struct ir_node *ir)
+void ir_graph_make_unvisited(struct ir *ir)
+{
+    for (uint64_t j = 0; j < ir->decls_size; ++j) {
+        struct ir_func_decl *decl = ir->decls[j].ir;
+
+        for (uint64_t i = 0; i < decl->body_size - 1; ++i) {
+            struct ir_node *stmt = &decl->body[i];
+
+            stmt->visited = 0;
+        }
+    }
+}
+
+/// Traverse IR graph.
+///
+/// Reminder:
+///     struct ir_func_decl *decl = ir->decls[0].ir;
+///     ir_graph_traverse(&decl->body[0]);
+///
+/// \todo Make this function do anything useful.
+///
+/// \param stmt First statement in a function.
+void ir_graph_traverse(struct ir_node *ir)
 {
     if (ir->visited) return;
 
@@ -97,51 +115,51 @@ void ir_traverse(struct ir_node *ir)
     case IR_STORE: {
         struct ir_store *store = ir->ir;
         ir->visited = 1;
-        ir_traverse(store->next);
+        ir_graph_traverse(store->next);
         break;
     }
     case IR_LABEL: {
         struct ir_label *label = ir->ir;
         ir->visited = 1;
-        ir_traverse(label->next);
+        ir_graph_traverse(label->next);
         break;
     }
     case IR_JUMP: {
         struct ir_jump *jump = ir->ir;
-        ir_traverse(jump->next);
+        ir_graph_traverse(jump->next);
         break;
     }
     case IR_COND: {
         struct ir_cond *cond = ir->ir;
         ir->visited = 1;
-        ir_traverse(cond->next_true);
-        ir_traverse(cond->next_false);
+        ir_graph_traverse(cond->next_true);
+        ir_graph_traverse(cond->next_false);
         break;
     }
     case IR_RET: {
         struct ir_ret *ret = ir->ir;
         ir->visited = 1;
         if (ret->next)
-            ir_traverse(ret->next);
+            ir_graph_traverse(ret->next);
         break;
     }
     case IR_RET_VOID: {
         struct ir_ret *ret = ir->ir;
         ir->visited = 1;
         if (ret->next)
-            ir_traverse(ret->next);
+            ir_graph_traverse(ret->next);
         break;
     }
     case IR_ALLOCA: {
         struct ir_alloca *alloca = ir->ir;
         ir->visited = 1;
-        ir_traverse(alloca->next);
+        ir_graph_traverse(alloca->next);
         break;
     }
     case IR_FUNC_CALL: {
         struct ir_func_call *call = ir->ir;
         ir->visited = 1;
-        ir_traverse(call->next);
+        ir_graph_traverse(call->next);
         break;
     }
     default:

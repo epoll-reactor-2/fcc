@@ -27,6 +27,8 @@ struct ir_node;
 ///               function.
 void ir_link(struct ir *ir);
 
+void ir_graph_make_unvisited(struct ir *ir);
+
 /// Traverse IR graph.
 ///
 /// Reminder:
@@ -36,6 +38,6 @@ void ir_link(struct ir *ir);
 /// \todo Make this function do anything useful.
 ///
 /// \param stmt First statement in a function.
-void ir_traverse(struct ir_node *ir);
+void ir_graph_traverse(struct ir_node *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H

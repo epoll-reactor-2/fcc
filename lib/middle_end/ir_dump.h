@@ -26,16 +26,7 @@ void ir_dump_node(FILE *mem, struct ir_node ir);
 ///
 /// $ dot -Tpng graph.dot -o graph.png
 ///
-/// \param adj_matrix  Square adjacency matrix.
-/// \param matrix_size Matrix columns or rows size.
-///                    Equals in case of square matrix.
-/// \param ir_stmts    IR nodes. Used to dump textual
-///                    representation.
-void ir_dump_graph_dot(
-    FILE           *out_stream,
-    bool           *adj_matrix,
-    uint64_t        matrix_size,
-    struct ir_node *ir_stmts
-);
+/// \param ir      First statement in a function.
+void ir_dump_graph_dot(FILE *mem, struct ir_node *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H

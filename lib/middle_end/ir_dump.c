@@ -208,31 +208,115 @@ void ir_dump(FILE *mem, struct ir_func_decl *ir)
     fprintf(mem, "\n");
 }
 
-void ir_dump_graph_dot(
-    FILE           *out_stream,
-    bool           *adj_matrix,
-    uint64_t        matrix_size,
-    struct ir_node *ir_stmts
-) {
-    /// Shorter name to reduce cognitive load while reading
-    /// loop below.
-    uint64_t  siz = matrix_size;
-    FILE     *out = out_stream;
+static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *next)
+{
+    fprintf(mem, "    \"");
+    ir_dump_node(mem, *curr);
+    fprintf(mem, "\" -> \"");
+    ir_dump_node(mem, *next);
+    fprintf(mem, "\"\n");
+}
+
+static void ir_dump_traverse(FILE *mem, struct ir_node *ir)
+{
+    if (ir->visited) return;
+
+    switch (ir->type) {
+    case IR_IMM:
+    case IR_SYM:
+    case IR_BIN:
+    case IR_MEMBER:
+    case IR_ARRAY_ACCESS:
+        break;
+    case IR_STORE: {
+        struct ir_store *store = ir->ir;
+        ir->visited = 1;
+
+        ir_dump_node_dot(mem, ir, store->next);
+        ir_dump_traverse(mem, store->next);
+        break;
+    }
+    case IR_LABEL: {
+        struct ir_label *label = ir->ir;
+        ir->visited = 1;
+
+        ir_dump_node_dot(mem, ir, label->next);
+
+        ir_dump_traverse(mem, label->next);
+        break;
+    }
+    case IR_JUMP: {
+        struct ir_jump *jump = ir->ir;
+        ir->visited = 1;
+
+        ir_dump_node_dot(mem, ir, jump->next);
+
+        ir_dump_traverse(mem, jump->next);
+        break;
+    }
+    case IR_COND: {
+        struct ir_cond *cond = ir->ir;
+        ir->visited = 1;
+
+        ir_dump_node_dot(mem, ir, cond->next_true);
+        ir_dump_node_dot(mem, ir, cond->next_false);
+
+        ir_dump_traverse(mem, cond->next_true);
+        ir_dump_traverse(mem, cond->next_false);
+        break;
+    }
+    case IR_RET: {
+        struct ir_ret *ret = ir->ir;
+        ir->visited = 1;
+
+        if (ret->next) {
+            ir_dump_node_dot(mem, ir, ret->next);
+            ir_dump_traverse(mem, ret->next);
+        }
+        break;
+    }
+    case IR_RET_VOID: {
+        struct ir_ret *ret = ir->ir;
+        ir->visited = 1;
+
+        if (ret->next) {
+            ir_dump_node_dot(mem, ir, ret->next);
+            ir_dump_traverse(mem, ret->next);
+        }
+        break;
+    }
+    case IR_ALLOCA: {
+        struct ir_alloca *alloca = ir->ir;
+        ir->visited = 1;
+
+        ir_dump_node_dot(mem, ir, alloca->next);
+
+        ir_dump_traverse(mem, alloca->next);
+        break;
+    }
+    case IR_FUNC_CALL: {
+        struct ir_func_call *call = ir->ir;
+        ir->visited = 1;
+
+        ir_dump_node_dot(mem, ir, call->next);
+
+        ir_dump_traverse(mem, call->next);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void ir_dump_graph_dot(FILE *mem, struct ir_node *ir)
+{
     fprintf(
-        out_stream,
+        mem,
         "digraph {\n"
         "    node [shape=box];\n"
     );
 
-    for (size_t i = 0; i < siz; ++i)
-        for (size_t j = 0; j < siz; ++j)
-            if (adj_matrix[i * siz + j]) {
-                fprintf(out, "    \"");
-                ir_dump_node(out, ir_stmts[j]);
-                fprintf(out, "\" -> \"");
-                ir_dump_node(out, ir_stmts[i]);
-                fprintf(out, "\"\n");
-            }
+    ir_dump_traverse(mem, ir);
 
-    fprintf(out_stream, "}\n");
+    fprintf(mem, "}\n");
 }
