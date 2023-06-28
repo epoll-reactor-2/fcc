@@ -5,6 +5,7 @@
  */
 
 #include "middle_end/ir_gen.h"
+#include "middle_end/ir_graph.h"
 #include "middle_end/ir_storage.h"
 #include "middle_end/ir.h"
 #include "front_end/ast/ast.h"
@@ -423,6 +424,9 @@ struct ir ir_gen(struct ast_node *ast)
         .decls      = ir_func_decls.data,
         .decls_size = ir_func_decls.count
     };
+
+    ir_link(&ir);
+
     return ir;
 }
 

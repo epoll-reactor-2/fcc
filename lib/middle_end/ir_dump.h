@@ -14,13 +14,13 @@ const char *ir_type_to_string(enum ir_type t);
 
 /// Print IR to given stream.
 ///
-/// \param ir      Pointer to IR statements array.
-/// \param ir_size Array size.
-/// \return 0 on success
-///         1 on following errors:
-///           - memory stream is NULL
-///           - ir is NULL
-int32_t ir_dump(FILE *mem, struct ir_func_decl *ir);
+/// \param ir      Pointer to the function IR.
+void ir_dump(FILE *mem, struct ir_func_decl *ir);
+
+/// Print IR node to given stream.
+///
+/// \param ir      Pointer to IR the statement.
+void ir_dump_node(FILE *mem, struct ir_node ir);
 
 /// Print IR as dot graph. May be used to generate images.
 ///

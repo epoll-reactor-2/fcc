@@ -33,8 +33,6 @@ const char *ir_type_to_string(enum ir_type t)
     }
 }
 
-static void ir_dump_node(FILE *mem, struct ir_node ir);
-
 static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 {
     fprintf(mem, "alloca %s %%%d", data_type_to_string(ir->dt), ir->idx);
@@ -181,7 +179,7 @@ static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
     fprintf(mem, ")");
 }
 
-/* static */ void ir_dump_node(FILE *mem, struct ir_node ir)
+void ir_dump_node(FILE *mem, struct ir_node ir)
 {
     switch (ir.type) {
     case IR_ALLOCA:       ir_dump_alloca(mem, ir.ir); break;
@@ -204,14 +202,10 @@ static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
     }
 }
 
-int32_t ir_dump(FILE *mem, struct ir_func_decl *ir)
+void ir_dump(FILE *mem, struct ir_func_decl *ir)
 {
-    if (mem == NULL || ir == NULL) return -1;
-
     ir_dump_func_decl(mem, ir);
     fprintf(mem, "\n");
-
-    return 0;
 }
 
 void ir_dump_graph_dot(

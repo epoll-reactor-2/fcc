@@ -9,6 +9,7 @@
 #include "back_end/x86_64.h"
 #include "middle_end/ir.h"
 #include "util/alloc.h"
+#include "util/compiler.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"
 #include "util/unreachable.h"
@@ -21,6 +22,7 @@
 #define x86_reg_rdx     -2
 #define x86_no_reg      -1
 
+__weak_unused
 static const char *x86_64_bit_regs[x86_total_regs] = {
     "%r10", "%r11", "%r12",
     "%r13", "%r9",  "%r8",
@@ -28,6 +30,7 @@ static const char *x86_64_bit_regs[x86_total_regs] = {
     "%rdi"
 };
 
+__weak_unused
 static const char *x86_32_bit_regs[x86_total_regs] = {
     "%r10d", "%r11d", "%r12d",
     "%r13d", "%r9d",  "%r8d",
@@ -35,6 +38,7 @@ static const char *x86_32_bit_regs[x86_total_regs] = {
     "%edi"
 };
 
+__weak_unused
 static const char *x86_16_bit_regs[x86_total_regs] = {
     "%r10b", "%r11b", "%r12b",
     "%r13b", "%r9b",  "%r8b",
@@ -52,7 +56,7 @@ static const char *x86_8_bit_regs[x86_total_regs] = {
 static bool        x86_regs_status[x86_total_regs] = {1};
 static const char *x86_last_reg;
 
-static const char *x86_alloc_type(enum data_type dt, int32_t idx)
+__weak_unused static const char *x86_alloc_type(enum data_type dt, int32_t idx)
 {
     if (idx > 0) return "quad";
     switch (dt) {
@@ -67,7 +71,7 @@ static const char *x86_alloc_type(enum data_type dt, int32_t idx)
 /// Move everything to 64-bit register.
 ///
 /// \todo: What is idx?
-static const char *x86_load_postfix(enum data_type dt, int32_t idx)
+__weak_unused static const char *x86_load_postfix(enum data_type dt, int32_t idx)
 {
     if (idx > 0) return "q";
     switch (dt) {
@@ -79,7 +83,7 @@ static const char *x86_load_postfix(enum data_type dt, int32_t idx)
     }
 }
 
-static const char *x86_store_postfix(enum data_type dt, int32_t idx)
+__weak_unused static const char *x86_store_postfix(enum data_type dt, int32_t idx)
 {
     if (idx > 0) return "q";
     switch (dt) {
@@ -141,13 +145,13 @@ static void x86_unspill(int32_t reg)
     printf("\tpopq\t%s\n", x86_64_bit_regs[reg]);
 }
 
-static void x86_spill_regs()
+__weak_unused static void x86_spill_regs()
 {
     for (uint64_t i = 0; i < x86_total_regs; ++i)
         x86_spill(i);
 }
 
-static void x86_unspill_regs()
+__weak_unused static void x86_unspill_regs()
 {
     for (uint64_t i = 0; i < x86_total_regs; ++i)
         x86_unspill(i);
@@ -172,7 +176,7 @@ static int32_t x86_reg_alloc()
     return reg;
 }
 
-static void x86_reg_free(int32_t reg)
+__weak_unused static void x86_reg_free(int32_t reg)
 {
     if (reg == x86_no_reg) return;
     if (x86_spilled_reg > 0) {
@@ -186,13 +190,13 @@ static void x86_reg_free(int32_t reg)
 
 
 
-static void x86_gen_label(int32_t idx)
+__weak_unused static void x86_gen_label(int32_t idx)
 {
     printf("L%d:\n", idx);
 }
 
 
-static void x86_gen_load(const char *name, int32_t off, bool local)
+__weak_unused static void x86_gen_load(const char *name, int32_t off, bool local)
 {
     if (local)
         printf("%d(%%rbp)", off);
@@ -200,7 +204,7 @@ static void x86_gen_load(const char *name, int32_t off, bool local)
         printf("%s(%%rip)", name);
 }
 
-static void x86_gen_jump(int32_t label)
+__weak_unused static void x86_gen_jump(int32_t label)
 {
     printf("\tjmp\tL%d\n", label);
 }
@@ -355,8 +359,8 @@ static void x86_fun_epilogue(const char *name)
     ///        in prologue.
 
     if (!strcmp(name, "main")) {
-        printf("\tmovq\t$60, %rax\n");
-        printf("\txor\t%rdi, %rdi\n");
+        printf("\tmovq\t$60, %%rax\n");
+        printf("\txor\t%%rdi, %%rdi\n");
         printf("\tsyscall\n");
     } else {
         printf("\taddq\t$16, %%rsp\n");
@@ -404,12 +408,12 @@ static void visit_ir_node(struct ir_node ir)
     }
 }
 
-static void x86_gen_text()
+__weak_unused static void x86_gen_text()
 {
     printf("\t.text\n");
 }
 
-static void x86_gen_data()
+__weak_unused static void x86_gen_data()
 {
     printf("\t.data\n");
 }

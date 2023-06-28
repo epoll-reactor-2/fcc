@@ -38,12 +38,17 @@ enum ir_type {
 
 struct ir {
     uint64_t        decls_size;
-    /// This is allocated dynamically.
     /// Accepted values: struct ir_func_decl.
     struct ir_node *decls;
 };
 
-/// Typed pointer to the IR node of any type.
+/// This IR node designed to be able to represent
+/// Control Flow Graph (CFG), so each node has `visited`
+/// flag for convenience. Each concrete IR node has
+/// pointer to the next statement in execution flow,
+/// if such needed. Thus, statements, contained only
+/// inside other statements cannot have such link
+/// (immediate, symbol, binary operation).
 ///
 /// Each implemented IR node must have methods
 /// - ir_%name%_init(...)
@@ -56,14 +61,16 @@ struct ir_node {
     /// to do graph-bases analysis.
     int32_t      instr_idx;
     void        *ir;
+    bool         visited;
 };
 
 struct ir_alloca {
-    enum data_type dt;
+    enum data_type  dt;
     /// This is index of an variable. Like
     /// D_T_INT %1.
     /// Alternatively, string names can be stored.
-    int32_t idx;
+    int32_t         idx;
+    struct ir_node *next;
 };
 
 enum ir_imm_type {
@@ -103,8 +110,9 @@ struct ir_store {
     /// - immediate value,
     /// - binary operation,
     /// - variable (var).
-    enum ir_store_type type;
-    struct ir_node     body;
+    enum ir_store_type  type;
+    struct ir_node      body;
+    struct ir_node     *next;
 };
 
 struct ir_bin {
@@ -123,12 +131,14 @@ struct ir_bin {
 
 struct ir_label {
     /// Label used to jump to.
-    int32_t idx;
+    int32_t         idx;
+    struct ir_node *next;
 };
 
 struct ir_jump {
     /// Unconditonal jump.
-    int32_t idx;
+    int32_t         idx;
+    struct ir_node *next;
 };
 
 struct ir_cond {
@@ -138,9 +148,10 @@ struct ir_cond {
     /// it should looks like
     ///   if cmpneq x, 0.
     /// Requires only binary IR instruction.
-    struct ir_node cond;
-    /// Where to jump if condition passes.
-    int32_t goto_label;
+    struct           ir_node cond;
+    int32_t          goto_label;
+    struct ir_node  *next_true;
+    struct ir_node  *next_false;
 };
 
 struct ir_ret {
@@ -150,7 +161,8 @@ struct ir_ret {
     /// Accepted values:
     /// - symbol (variable index),
     /// - immediate value.
-    struct ir_node op;
+    struct ir_node  op;
+    struct ir_node *next;
 };
 
 struct ir_member {
@@ -205,6 +217,7 @@ struct ir_func_call {
     /// - struct ir_imm.
     /// Correct argument types is code generator responsibility.
     struct ir_node *args;
+    struct ir_node *next;
 };
 
 void ir_reset_internal_state();
