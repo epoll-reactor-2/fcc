@@ -10,44 +10,32 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/// \todo: How to represent graph?
-///     form:  Adjacency matrix
-///     usage: SSA form computing using this algorithm:
-///            https://www.sciencedirect.com/science/article/pii/S1571066107005324
-
-/// Graph represented as adjacency matrix.
-struct ir_graph {
-    /// Tells size N x N of the adjacency matrix.
-    uint64_t bytes_size;
-    /// Always equal sqrt(bytes_size) since
-    /// adjacency matrix is square by definition.
-    uint64_t cols_count;
-
-    /// Example:
-    ///          C0   C1    C2
-    ///
-    /// L0    [   0    1    0   ]
-    /// L1    [   0    1    0   ]
-    /// L1    [   0    0    1   ]
-    ///
-    /// Row is vertex.
-    /// Column is edge between vertices.
-    ///
-    /// 1 indicates edge from graph node (L%) to graph node (C%)
-    /// 0 indicates edge disconnection
-    bool *adj_matrix;
-};
-
 struct ir;
+struct ir_node;
 
-/// Build directed graph from IR statements list.
+/// Build directed graph from the IR list.
 ///
-/// \todo For now in debug purpose, graph only for first
-///       given IR function is built and returned.
+/// There is no output since all what this function does
+/// is setting up pointers named `next` on each IR statement.
+/// So the result of such linking is adjacency list, which
+/// is implicitly contained in IR nodes.
 ///
-/// \note User should cleanup returnd graph with ir_graph_cleanup().
-struct ir_graph ir_graph_init(struct ir *ir);
+/// \note Done by default in ir_gen().
+///
+/// \param ir     List of function declarations.
+///               Linking is performed separately for each
+///               function.
+void ir_link(struct ir *ir);
 
-void ir_graph_cleanup(struct ir_graph *g);
+/// Traverse IR graph.
+///
+/// Reminder:
+///     struct ir_func_decl *decl = ir->decls[0].ir;
+///     ir_traverse(&decl->body[0]);
+///
+/// \todo Make this function do anything useful.
+///
+/// \param stmt First statement in a function.
+void ir_traverse(struct ir_node *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H
