@@ -10,7 +10,6 @@
 #include "util/diagnostic.h"
 #include "util/unreachable.h"
 #include <assert.h>
-#include <string.h>
 
 const char *ir_type_to_string(enum ir_type t)
 {
@@ -317,14 +316,15 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
 
 void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *ir)
 {
+    assert(ir->body_size <= 8192 && "Cannot dump such large function.");
+
     fprintf(
         mem,
         "digraph {\n"
         "    node [shape=box];\n"
     );
 
-    bool *visited = weak_alloca(ir->body_size);
-    memset(visited, 0, ir->body_size);
+    bool visited[8192] = {0};
 
     ir_dump_traverse(mem, visited, &ir->body[0]);
 
