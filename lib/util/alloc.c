@@ -39,16 +39,6 @@ void *weak_realloc(void *addr, size_t size)
     return addr;
 }
 
-void *weak_alloca(size_t size)
-{
-    void *addr = alloca(size);
-    if (addr == NULL) {
-        weak_fatal_error("alloca() failed");
-    }
-
-    return addr;
-}
-
 void weak_free(void *addr)
 {
     free(addr);

@@ -16,7 +16,8 @@
 # define __weak_unlikely(x)     __builtin_expect(!!(x), 0)
 # define __weak_wur             __attribute__ ((warn_unused_result))
 # define __weak_noinline        __attribute__ ((noinline))
-# define __weak_really_inline  inline __attribute__ ((always_inline))
+# define __weak_really_inline  inline \
+                                __attribute__ ((always_inline))
 # define __weak_unused          __attribute__ ((unused))
 #else
 # define __weak_likely(x)
