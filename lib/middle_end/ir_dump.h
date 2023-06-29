@@ -27,6 +27,11 @@ void ir_dump_node(FILE *mem, struct ir_node *ir);
 /// $ dot -Tpng graph.dot -o graph.png
 ///
 /// \param ir      Pointer to the function IR.
+///
+/// \note  In purpose of optimization and getting rid of
+///        dynamic allocation, limit of dumped function is
+///        set to 8192. Anyway, after that value generated
+///        graph image will be completely messy.
 void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
