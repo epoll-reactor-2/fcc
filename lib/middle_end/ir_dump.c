@@ -60,7 +60,7 @@ static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
 {
     fprintf(mem, "store %%%d ", ir->idx);
-    ir_dump_node(mem, ir->body);
+    ir_dump_node(mem, &ir->body);
 }
 
 static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
@@ -87,9 +87,9 @@ static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
         weak_unreachable("Unknown operation");
     }
 
-    ir_dump_node(mem, ir->lhs);
+    ir_dump_node(mem, &ir->lhs);
     fprintf(mem, " %s ", op);
-    ir_dump_node(mem, ir->rhs);
+    ir_dump_node(mem, &ir->rhs);
 }
 
 static void ir_dump_label(FILE *mem, struct ir_label *ir)
@@ -105,14 +105,14 @@ static void ir_dump_jump(FILE *mem, struct ir_jump *ir)
 static void ir_dump_cond(FILE *mem, struct ir_cond *ir)
 {
     fprintf(mem, "if ");
-    ir_dump_node(mem, ir->cond);
+    ir_dump_node(mem, &ir->cond);
     fprintf(mem, " goto L%d", ir->goto_label);
 }
 
 static void ir_dump_ret(FILE *mem, struct ir_ret *ir)
 {
     fprintf(mem, "ret ");
-    ir_dump_node(mem, ir->op);
+    ir_dump_node(mem, &ir->op);
 }
 
 static void ir_dump_ret_void(FILE *mem)
@@ -140,7 +140,7 @@ static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
     fprintf(mem, "%%%s = {", ir->name);
     for (uint64_t i = 0; i < ir->decls_size; ++i) {
         fprintf(mem, "\n    ");
-        ir_dump_node(mem, *(ir->decls + i));
+        ir_dump_node(mem, ir->decls + i);
     }
     fprintf(mem, "\n}");
 }
@@ -159,10 +159,10 @@ static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
 
     size = ir->body_size;
     for (uint64_t i = 0; i < size; ++i) {
-        struct ir_node node = *(ir->body + i);
+        struct ir_node *node = ir->body + i;
 
-        if (node.type != IR_LABEL)
-            fprintf(mem, "\n% 8d:   ", node.instr_idx);
+        if (node->type != IR_LABEL)
+            fprintf(mem, "\n% 8d:   ", node->instr_idx);
         ir_dump_node(mem, node);
     }
 }
@@ -172,7 +172,7 @@ static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
     fprintf(mem, "call %s(", ir->name);
     uint64_t size = ir->args_size;
     for (uint64_t i = 0; i < size; ++i) {
-        struct ir_node node = *(ir->args + i);
+        struct ir_node *node = ir->args + i;
         ir_dump_node(mem, node);
         if (i < size -1) {
             fprintf(mem, ", ");
@@ -181,24 +181,24 @@ static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
     fprintf(mem, ")");
 }
 
-void ir_dump_node(FILE *mem, struct ir_node ir)
+void ir_dump_node(FILE *mem, struct ir_node *ir)
 {
-    switch (ir.type) {
-    case IR_ALLOCA:       ir_dump_alloca(mem, ir.ir); break;
-    case IR_IMM:          ir_dump_imm(mem, ir.ir); break;
-    case IR_SYM:          ir_dump_sym(mem, ir.ir); break;
-    case IR_STORE:        ir_dump_store(mem, ir.ir); break;
-    case IR_BIN:          ir_dump_bin(mem, ir.ir); break;
-    case IR_LABEL:        ir_dump_label(mem, ir.ir); break;
-    case IR_JUMP:         ir_dump_jump(mem, ir.ir); break;
-    case IR_COND:         ir_dump_cond(mem, ir.ir); break;
-    case IR_RET:          ir_dump_ret(mem, ir.ir); break;
+    switch (ir->type) {
+    case IR_ALLOCA:       ir_dump_alloca(mem, ir->ir); break;
+    case IR_IMM:          ir_dump_imm(mem, ir->ir); break;
+    case IR_SYM:          ir_dump_sym(mem, ir->ir); break;
+    case IR_STORE:        ir_dump_store(mem, ir->ir); break;
+    case IR_BIN:          ir_dump_bin(mem, ir->ir); break;
+    case IR_LABEL:        ir_dump_label(mem, ir->ir); break;
+    case IR_JUMP:         ir_dump_jump(mem, ir->ir); break;
+    case IR_COND:         ir_dump_cond(mem, ir->ir); break;
+    case IR_RET:          ir_dump_ret(mem, ir->ir); break;
     case IR_RET_VOID:     ir_dump_ret_void(mem); break;
-    case IR_MEMBER:       ir_dump_member(mem, ir.ir); break;
-    case IR_ARRAY_ACCESS: ir_dump_array_access(mem, ir.ir); break;
-    case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir.ir); break;
-    case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir.ir); break;
-    case IR_FUNC_CALL:    ir_dump_func_call(mem, ir.ir); break;
+    case IR_MEMBER:       ir_dump_member(mem, ir->ir); break;
+    case IR_ARRAY_ACCESS: ir_dump_array_access(mem, ir->ir); break;
+    case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir->ir); break;
+    case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir->ir); break;
+    case IR_FUNC_CALL:    ir_dump_func_call(mem, ir->ir); break;
     default:
         weak_unreachable("Something went wrong");
     }
@@ -213,9 +213,9 @@ void ir_dump(FILE *mem, struct ir_func_decl *ir)
 static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *next)
 {
     fprintf(mem, "    \"");
-    ir_dump_node(mem, *curr);
+    ir_dump_node(mem, curr);
     fprintf(mem, "\" -> \"");
-    ir_dump_node(mem, *next);
+    ir_dump_node(mem, next);
     fprintf(mem, "\"\n");
 }
 

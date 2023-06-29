@@ -20,13 +20,13 @@ void ir_dump(FILE *mem, struct ir_func_decl *ir);
 /// Print IR node to given stream.
 ///
 /// \param ir      Pointer to IR the statement.
-void ir_dump_node(FILE *mem, struct ir_node ir);
+void ir_dump_node(FILE *mem, struct ir_node *ir);
 
 /// Print IR as dot graph. May be used to generate images.
 ///
 /// $ dot -Tpng graph.dot -o graph.png
 ///
-/// \param ir      First statement in a function.
+/// \param ir      Pointer to the function IR.
 void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
