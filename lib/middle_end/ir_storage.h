@@ -7,6 +7,7 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_IR_STORAGE_H
 #define WEAK_COMPILER_MIDDLE_END_IR_STORAGE_H
 
+#include "util/compiler.h"
 #include <stdint.h>
 
 /// This IR storage mapping variable name to its IR index.
@@ -26,6 +27,7 @@ void ir_storage_init();
 void ir_storage_reset();
 
 void    ir_storage_push(const char *name, int32_t ir_idx);
+__weak_wur
 int32_t ir_storage_get (const char *name);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_STORAGE_H

@@ -9,6 +9,7 @@
 
 #include "front_end/ast/ast.h"
 #include "front_end/lex/data_type.h"
+#include "util/compiler.h"
 #include "util/vector.h"
 
 struct ast_storage_decl {
@@ -44,7 +45,7 @@ void ast_storage_push_typed(const char *var_name, enum data_type dt, struct ast_
 /// Find storage by name.
 ///
 /// \return Corresponding record if found, NULL otherwise.
-struct ast_storage_decl *ast_storage_lookup(const char *var_name);
+__weak_wur struct ast_storage_decl *ast_storage_lookup(const char *var_name);
 
 /// Add read use.
 ///

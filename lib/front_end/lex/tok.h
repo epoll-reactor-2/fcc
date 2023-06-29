@@ -8,6 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_LEX_TOK_H
 
 #include "front_end/lex/tok_type.h"
+#include "util/compiler.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -18,6 +19,6 @@ struct token {
     uint16_t         col_no;
 };
 
-bool tok_is(const struct token *tok, char symbol);
+__weak_wur bool tok_is(const struct token *tok, char symbol);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOK_H

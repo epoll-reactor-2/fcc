@@ -11,19 +11,19 @@
 # define __weak_gnu_exts 1
 #endif
 
-#if defined(__weak_gnu_exts) && defined(__has_attribute)
+#if defined(__weak_gnu_exts)
 # define __weak_likely(x)       __builtin_expect(!!(x), 1)
 # define __weak_unlikely(x)     __builtin_expect(!!(x), 0)
-# define __weak_wur__           __attribute__ ((warn_unused_result))
-# define __weak_noinline__      __attribute__ ((noinline))
-# define __weak_really_inline__ inline __attribute__ ((always_inline))
+# define __weak_wur             __attribute__ ((warn_unused_result))
+# define __weak_noinline        __attribute__ ((noinline))
+# define __weak_really_inline  inline __attribute__ ((always_inline))
 # define __weak_unused          __attribute__ ((unused))
 #else
 # define __weak_likely(x)
 # define __weak_unlikely(x)
-# define __weak_wur__
-# define __weak_noinline__
-# define __weak_really_inline__
+# define __weak_wur
+# define __weak_noinline
+# define __weak_really_inline
 # define __weak_unused
 #endif
 
