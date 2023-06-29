@@ -7,8 +7,10 @@
 #ifndef WEAK_COMPILER_UTIL_ALLOC_H
 #define WEAK_COMPILER_UTIL_ALLOC_H
 
+#include <alloca.h>
 #include <stddef.h>
 #include "util/compiler.h"
+#include "util/unreachable.h"
 
 #if __has_attribute(returns_nonnull) && __has_attribute(warn_unused_result) && __has_attribute(alloc_size)
 #define __weak_malloc  __attribute__((returns_nonnull, warn_unused_result, malloc, alloc_size(1)))
@@ -23,7 +25,16 @@
 __weak_malloc  __weak_wur void *weak_malloc(size_t size);
 __weak_calloc  __weak_wur void *weak_calloc(size_t nmemb, size_t size);
 __weak_realloc __weak_wur void *weak_realloc(void *addr, size_t size);
-               __weak_wur void *weak_alloca(size_t size);
+
+__weak_really_inline __weak_wur void *weak_alloca(size_t size)
+{
+    void *addr = alloca(size);
+    if (addr == NULL) {
+        weak_fatal_error("alloca() failed");
+    }
+
+    return addr;
+}
 
 /// Used to reduce #include <stdlib.h> bloat.
 void weak_free(void *addr);
