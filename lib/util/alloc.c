@@ -8,7 +8,7 @@
 #include "util/unreachable.h"
 #include <stdlib.h>
 
-__weak_malloc__ void *weak_malloc(size_t size)
+void *weak_malloc(size_t size)
 {
     void *addr = malloc(size);
     if (addr == NULL) {
@@ -18,7 +18,7 @@ __weak_malloc__ void *weak_malloc(size_t size)
     return addr;
 }
 
-__weak_calloc__ void *weak_calloc(size_t nmemb, size_t size)
+void *weak_calloc(size_t nmemb, size_t size)
 {
     void *addr = calloc(nmemb, size);
     if (addr == NULL) {
@@ -28,7 +28,7 @@ __weak_calloc__ void *weak_calloc(size_t nmemb, size_t size)
     return addr;
 }
 
-__weak_realloc__ void *weak_realloc(void *addr, size_t size)
+void *weak_realloc(void *addr, size_t size)
 {
     addr = realloc(addr, size);
     if (addr == NULL) {

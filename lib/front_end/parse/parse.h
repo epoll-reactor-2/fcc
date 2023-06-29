@@ -8,8 +8,11 @@
 #define WEAK_COMPILER_FRONTEND_PARSE_PARSE_H
 
 #include "front_end/lex/tok.h"
+#include "util/compiler.h"
 
 struct ast_node;
+
+__weak_wur
 struct ast_node *parse(const struct token *begin, const struct token *end);
 
 #endif // WEAK_COMPILER_FRONTEND_PARSE_PARSE_H

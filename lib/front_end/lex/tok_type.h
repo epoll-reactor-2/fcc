@@ -7,6 +7,8 @@
 #ifndef WEAK_COMPILER_FRONTEND_LEX_TOK_TYPE_H
 #define WEAK_COMPILER_FRONTEND_LEX_TOK_TYPE_H
 
+#include "util/compiler.h"
+
 enum token_type {
     /// Keywords.
     TOK_BOOL,
@@ -81,11 +83,11 @@ enum token_type {
 ///         apply free() to the result.
 ///
 /// \note   weak_unreachable() called on unknown integer value of t.
-const char *tok_to_string(enum token_type t);
+__weak_wur const char *tok_to_string(enum token_type t);
 
 /// \return Token type based on its character value.
 ///
 /// \note   weak_unreachable() called on unknown char.
-enum token_type tok_char_to_tok(char c);
+__weak_wur enum token_type tok_char_to_tok(char c);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOK_TYPE_H

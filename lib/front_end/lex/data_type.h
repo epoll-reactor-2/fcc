@@ -7,6 +7,8 @@
 #ifndef WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H
 #define WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H
 
+#include "util/compiler.h"
+
 enum data_type {
     D_T_UNKNOWN,
     D_T_FUNC,
@@ -23,6 +25,6 @@ enum data_type {
 ///         apply free() to the result.
 ///
 /// \note   weak_unreachable() called on unknown integer value of dt.
-const char *data_type_to_string(enum data_type dt);
+__weak_wur const char *data_type_to_string(enum data_type dt);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H
