@@ -1,5 +1,6 @@
 NR_CPUS     = $(shell nproc 2> /dev/null)
 override MAKEFLAGS += -j $(NR_CPUS)
+
 NULL_STDERR := 2> /dev/null
 
 DEBUG_BUILD := 1
@@ -20,36 +21,36 @@ endif
 
 \t         := $(info)	$(info)
 
-ENDCOLOR   := $(shell tput sgr0 $(NULL_STDERR);              $(NULL_STDERR))
-RED        := $(shell tput bold $(NULL_STDERR); tput setaf 1 $(NULL_STDERR))
-GREEN      := $(shell tput bold $(NULL_STDERR); tput setaf 2 $(NULL_STDERR))
-YELLOW     := $(shell tput bold $(NULL_STDERR); tput setaf 3 $(NULL_STDERR))
-BLUE       := $(shell tput bold $(NULL_STDERR); tput setaf 6 $(NULL_STDERR))
+BOLD    := $(shell printf "\033[1m"  $(NULL_STDERR))
+RESET   := $(shell printf "\033[0m"  $(NULL_STDERR))$(BOLD)
+RED     := $(shell printf "\033[31m" $(NULL_STDERR))$(BOLD)
+GREEN   := $(shell printf "\033[32m" $(NULL_STDERR))$(BOLD)
+YELLOW  := $(shell printf "\033[33m" $(NULL_STDERR))$(BOLD)
 
-CC_COLORED := "$(YELLOW)CC$(ENDCOLOR)"
-LD_COLORED :=  "$(GREEN)LD$(ENDCOLOR)"
+CC_COLORED := "$(YELLOW)CC$(RESET)"
+LD_COLORED :=  "$(GREEN)LD$(RESET)"
 
 ifneq (,$(findstring UTF, $(LANG)))
-$(info $(info) $(RED)                                                                                  $(ENDCOLOR) )
-$(info $(info) $(RED)                                                                                  $(ENDCOLOR) )
-$(info $(info) $(RED)                   ▄▀▀▄    ▄▀▀▄  ▄▀▀█▄▄▄▄  ▄▀▀█▄   ▄▀▀▄ █                         $(ENDCOLOR) )
-$(info $(info) $(RED)                  █   █    ▐  █ ▐  ▄▀   ▐ ▐ ▄▀ ▀▄ █  █ ▄▀                         $(ENDCOLOR) )
-$(info $(info) $(RED)                  ▐  █        █   █▄▄▄▄▄    █▄▄▄█ ▐  █▀▄                          $(ENDCOLOR) )
-$(info $(info) $(RED)                    █   ▄    █    █    ▌   ▄▀   █   █   █                         $(ENDCOLOR) )
-$(info $(info) $(RED)                     ▀▄▀ ▀▄ ▄▀   ▄▀▄▄▄▄   █   ▄▀  ▄▀   █                          $(ENDCOLOR) )
-$(info $(info) $(RED)                           ▀     █    ▐   ▐   ▐   █    ▐                          $(ENDCOLOR) )
-$(info $(info) $(RED)                                 ▐                ▐                               $(ENDCOLOR) )
-$(info $(info) $(RED)                                 ▐                ▐                               $(ENDCOLOR) )
-$(info $(info) $(RED)                                 ▐                ▐                               $(ENDCOLOR) )
-$(info $(info) $(RED)     ▄▀▄▄▄▄   ▄▀▀▀▀▄   ▄▀▀▄ ▄▀▄  ▄▀▀▄▀▀▀▄  ▄▀▀█▀▄   ▄▀▀▀▀▄     ▄▀▀█▄▄▄▄  ▄▀▀▄▀▀▀▄ $(ENDCOLOR) )
-$(info $(info) $(RED)    █ █    ▌ █      █ █  █ ▀  █ █   █   █ █   █  █ █    █     ▐  ▄▀   ▐ █   █   █ $(ENDCOLOR) )
-$(info $(info) $(RED)    ▐ █      █      █ ▐  █    █ ▐  █▀▀▀▀  ▐   █  ▐ ▐    █       █▄▄▄▄▄  ▐  █▀▀█▀  $(ENDCOLOR) )
-$(info $(info) $(RED)      █      ▀▄    ▄▀   █    █     █          █        █        █    ▌   ▄▀    █  $(ENDCOLOR) )
-$(info $(info) $(RED)     ▄▀▄▄▄▄▀   ▀▀▀▀   ▄▀   ▄▀    ▄▀        ▄▀▀▀▀▀▄   ▄▀▄▄▄▄▄▄▀ ▄▀▄▄▄▄   █     █   $(ENDCOLOR) )
-$(info $(info) $(RED)    █     ▐           █    █    █         █       █  █         █    ▐   ▐     ▐   $(ENDCOLOR) )
-$(info $(info) $(RED)    ▐                 ▐    ▐    ▐         ▐       ▐  ▐         ▐                  $(ENDCOLOR) )
-$(info $(info) $(RED)                                                                                  $(ENDCOLOR) )
-$(info $(info) $(RED)                                                                                  $(ENDCOLOR) )
+$(info $(info) $(RED)                                                                                  $(RESET) )
+$(info $(info) $(RED)                                                                                  $(RESET) )
+$(info $(info) $(RED)                   ▄▀▀▄    ▄▀▀▄  ▄▀▀█▄▄▄▄  ▄▀▀█▄   ▄▀▀▄ █                         $(RESET) )
+$(info $(info) $(RED)                  █   █    ▐  █ ▐  ▄▀   ▐ ▐ ▄▀ ▀▄ █  █ ▄▀                         $(RESET) )
+$(info $(info) $(RED)                  ▐  █        █   █▄▄▄▄▄    █▄▄▄█ ▐  █▀▄                          $(RESET) )
+$(info $(info) $(RED)                    █   ▄    █    █    ▌   ▄▀   █   █   █                         $(RESET) )
+$(info $(info) $(RED)                     ▀▄▀ ▀▄ ▄▀   ▄▀▄▄▄▄   █   ▄▀  ▄▀   █                          $(RESET) )
+$(info $(info) $(RED)                           ▀     █    ▐   ▐   ▐   █    ▐                          $(RESET) )
+$(info $(info) $(RED)                                 ▐                ▐                               $(RESET) )
+$(info $(info) $(RED)                                 ▐                ▐                               $(RESET) )
+$(info $(info) $(RED)                                 ▐                ▐                               $(RESET) )
+$(info $(info) $(RED)     ▄▀▄▄▄▄   ▄▀▀▀▀▄   ▄▀▀▄ ▄▀▄  ▄▀▀▄▀▀▀▄  ▄▀▀█▀▄   ▄▀▀▀▀▄     ▄▀▀█▄▄▄▄  ▄▀▀▄▀▀▀▄ $(RESET) )
+$(info $(info) $(RED)    █ █    ▌ █      █ █  █ ▀  █ █   █   █ █   █  █ █    █     ▐  ▄▀   ▐ █   █   █ $(RESET) )
+$(info $(info) $(RED)    ▐ █      █      █ ▐  █    █ ▐  █▀▀▀▀  ▐   █  ▐ ▐    █       █▄▄▄▄▄  ▐  █▀▀█▀  $(RESET) )
+$(info $(info) $(RED)      █      ▀▄    ▄▀   █    █     █          █        █        █    ▌   ▄▀    █  $(RESET) )
+$(info $(info) $(RED)     ▄▀▄▄▄▄▀   ▀▀▀▀   ▄▀   ▄▀    ▄▀        ▄▀▀▀▀▀▄   ▄▀▄▄▄▄▄▄▀ ▄▀▄▄▄▄   █     █   $(RESET) )
+$(info $(info) $(RED)    █     ▐           █    █    █         █       █  █         █    ▐   ▐     ▐   $(RESET) )
+$(info $(info) $(RED)    ▐                 ▐    ▐    ▐         ▐       ▐  ▐         ▐                  $(RESET) )
+$(info $(info) $(RED)                                                                                  $(RESET) )
+$(info $(info) $(RED)                                                                                  $(RESET) )
 endif
 
 all: build_dir test_files $(LIB) tests
