@@ -44,8 +44,7 @@ struct ir {
 };
 
 /// This IR node designed to be able to represent
-/// Control Flow Graph (CFG), so each node has `visited`
-/// flag for convenience. Each concrete IR node has
+/// Control Flow Graph (CFG). Each concrete IR node has
 /// pointer to the next statement in execution flow,
 /// if such needed. Thus, statements, contained only
 /// inside other statements cannot have such link
