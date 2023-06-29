@@ -65,7 +65,7 @@ bool ir_test(const char *filename)
             ir_dump(generated_stream, ir.decls[i].ir);
 
             struct ir_func_decl *decl = ir.decls[0].ir;
-            ir_dump_graph_dot(stdout, &decl->body[0]);
+            ir_dump_graph_dot(stdout, decl);
         }
 
         fflush(generated_stream);

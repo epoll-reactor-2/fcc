@@ -62,7 +62,6 @@ struct ir_node {
     /// to do graph-bases analysis.
     int32_t      instr_idx;
     void        *ir;
-    bool         visited;
 };
 
 struct ir_alloca {

@@ -23,6 +23,7 @@
 __weak_malloc  __weak_wur void *weak_malloc(size_t size);
 __weak_calloc  __weak_wur void *weak_calloc(size_t nmemb, size_t size);
 __weak_realloc __weak_wur void *weak_realloc(void *addr, size_t size);
+               __weak_wur void *weak_alloca(size_t size);
 
 /// Used to reduce #include <stdlib.h> bloat.
 void weak_free(void *addr);
