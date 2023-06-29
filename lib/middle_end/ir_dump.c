@@ -6,9 +6,11 @@
 
 #include "middle_end/ir_dump.h"
 #include "front_end/lex/data_type.h"
+#include "util/alloc.h"
 #include "util/diagnostic.h"
 #include "util/unreachable.h"
 #include <assert.h>
+#include <string.h>
 
 const char *ir_type_to_string(enum ir_type t)
 {
@@ -217,9 +219,9 @@ static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *ne
     fprintf(mem, "\"\n");
 }
 
-static void ir_dump_traverse(FILE *mem, struct ir_node *ir)
+static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
 {
-    if (ir->visited) return;
+    if (visited[ir->instr_idx]) return;
 
     switch (ir->type) {
     case IR_IMM:
@@ -230,77 +232,77 @@ static void ir_dump_traverse(FILE *mem, struct ir_node *ir)
         break;
     case IR_STORE: {
         struct ir_store *store = ir->ir;
-        ir->visited = 1;
+        visited[ir->instr_idx] = 1;
 
         ir_dump_node_dot(mem, ir, store->next);
-        ir_dump_traverse(mem, store->next);
+        ir_dump_traverse(mem, visited, store->next);
         break;
     }
     case IR_LABEL: {
         struct ir_label *label = ir->ir;
-        ir->visited = 1;
+        visited[ir->instr_idx] = 1;
 
         ir_dump_node_dot(mem, ir, label->next);
 
-        ir_dump_traverse(mem, label->next);
+        ir_dump_traverse(mem, visited, label->next);
         break;
     }
     case IR_JUMP: {
         struct ir_jump *jump = ir->ir;
-        ir->visited = 1;
+        visited[ir->instr_idx] = 1;
 
         ir_dump_node_dot(mem, ir, jump->next);
 
-        ir_dump_traverse(mem, jump->next);
+        ir_dump_traverse(mem, visited, jump->next);
         break;
     }
     case IR_COND: {
         struct ir_cond *cond = ir->ir;
-        ir->visited = 1;
+        visited[ir->instr_idx] = 1;
 
         ir_dump_node_dot(mem, ir, cond->next_true);
         ir_dump_node_dot(mem, ir, cond->next_false);
 
-        ir_dump_traverse(mem, cond->next_true);
-        ir_dump_traverse(mem, cond->next_false);
+        ir_dump_traverse(mem, visited, cond->next_true);
+        ir_dump_traverse(mem, visited, cond->next_false);
         break;
     }
     case IR_RET: {
         struct ir_ret *ret = ir->ir;
-        ir->visited = 1;
+        visited[ir->instr_idx] = 1;
 
         if (ret->next) {
             ir_dump_node_dot(mem, ir, ret->next);
-            ir_dump_traverse(mem, ret->next);
+            ir_dump_traverse(mem, visited, ret->next);
         }
         break;
     }
     case IR_RET_VOID: {
         struct ir_ret *ret = ir->ir;
-        ir->visited = 1;
+        visited[ir->instr_idx] = 1;
 
         if (ret->next) {
             ir_dump_node_dot(mem, ir, ret->next);
-            ir_dump_traverse(mem, ret->next);
+            ir_dump_traverse(mem, visited, ret->next);
         }
         break;
     }
     case IR_ALLOCA: {
         struct ir_alloca *alloca = ir->ir;
-        ir->visited = 1;
+        visited[ir->instr_idx] = 1;
 
         ir_dump_node_dot(mem, ir, alloca->next);
 
-        ir_dump_traverse(mem, alloca->next);
+        ir_dump_traverse(mem, visited, alloca->next);
         break;
     }
     case IR_FUNC_CALL: {
         struct ir_func_call *call = ir->ir;
-        ir->visited = 1;
+        visited[ir->instr_idx] = 1;
 
         ir_dump_node_dot(mem, ir, call->next);
 
-        ir_dump_traverse(mem, call->next);
+        ir_dump_traverse(mem, visited, call->next);
         break;
     }
     default:
@@ -308,7 +310,7 @@ static void ir_dump_traverse(FILE *mem, struct ir_node *ir)
     }
 }
 
-void ir_dump_graph_dot(FILE *mem, struct ir_node *ir)
+void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *ir)
 {
     fprintf(
         mem,
@@ -316,7 +318,10 @@ void ir_dump_graph_dot(FILE *mem, struct ir_node *ir)
         "    node [shape=box];\n"
     );
 
-    ir_dump_traverse(mem, ir);
+    bool *visited = weak_alloca(ir->body_size);
+    memset(visited, 0, ir->body_size);
+
+    ir_dump_traverse(mem, visited, &ir->body[0]);
 
     fprintf(mem, "}\n");
 }

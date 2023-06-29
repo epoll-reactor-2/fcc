@@ -27,6 +27,6 @@ void ir_dump_node(FILE *mem, struct ir_node ir);
 /// $ dot -Tpng graph.dot -o graph.png
 ///
 /// \param ir      First statement in a function.
-void ir_dump_graph_dot(FILE *mem, struct ir_node *ir);
+void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
