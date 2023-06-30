@@ -22,10 +22,10 @@ endif
 \t         := $(info)	$(info)
 
 BOLD    := $(shell printf "\033[1m"  $(NULL_STDERR))
-RESET   := $(shell printf "\033[0m"  $(NULL_STDERR))$(BOLD)
-RED     := $(shell printf "\033[31m" $(NULL_STDERR))$(BOLD)
-GREEN   := $(shell printf "\033[32m" $(NULL_STDERR))$(BOLD)
-YELLOW  := $(shell printf "\033[33m" $(NULL_STDERR))$(BOLD)
+RESET   := $(shell printf $(BOLD)"\033[0m"  $(NULL_STDERR))
+RED     := $(shell printf $(BOLD)"\033[31m" $(NULL_STDERR))
+GREEN   := $(shell printf $(BOLD)"\033[32m" $(NULL_STDERR))
+YELLOW  := $(shell printf $(BOLD)"\033[33m" $(NULL_STDERR))
 
 CC_COLORED := "$(YELLOW)CC$(RESET)"
 LD_COLORED :=  "$(GREEN)LD$(RESET)"
