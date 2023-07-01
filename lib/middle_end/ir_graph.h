@@ -12,6 +12,7 @@
 
 struct ir;
 struct ir_node;
+struct ir_func_decl;
 
 /// Build directed graph from the IR list.
 ///
@@ -26,5 +27,14 @@ struct ir_node;
 ///               Linking is performed separately for each
 ///               function.
 void ir_link(struct ir *ir);
+
+/// Set a dominator tree of each given function in IR.
+///
+/// This function traverse function statements and set
+/// struct ir_node->idom pointer. It is pointing to immediate
+/// dominator, through which we can achieve dominator tree.
+///
+/// To view dominator tree, ir_dump_dom_tree() should be used.
+void ir_compute_dom_tree(struct ir *decl);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H
