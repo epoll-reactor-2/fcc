@@ -7,7 +7,7 @@
  */
 
 #include "back_end/x86_64.h"
-#include "middle_end/ir.h"
+#include "middle_end/ir/ir.h"
 #include "util/alloc.h"
 #include "util/compiler.h"
 #include "util/crc32.h"

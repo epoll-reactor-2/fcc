@@ -1,4 +1,4 @@
-/* ir_gen.h - IR generator.
+/* gen.h - IR generator.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

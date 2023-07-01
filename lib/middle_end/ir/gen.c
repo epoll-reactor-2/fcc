@@ -1,13 +1,13 @@
-/* ir_gen.c - IR generator.
+/* gen.c - IR generator.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "middle_end/ir_gen.h"
-#include "middle_end/ir_graph.h"
-#include "middle_end/ir_storage.h"
-#include "middle_end/ir.h"
+#include "middle_end/ir/gen.h"
+#include "middle_end/ir/graph.h"
+#include "middle_end/ir/storage.h"
+#include "middle_end//ir/ir.h"
 #include "front_end/ast/ast.h"
 #include "util/vector.h"
 #include "util/unreachable.h"

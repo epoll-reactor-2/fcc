@@ -1,4 +1,4 @@
-/* ir_dump.h - IR stringify function.
+/* dump.h - IR stringify function.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -7,7 +7,7 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
 #define WEAK_COMPILER_MIDDLE_END_IR_DUMP_H
 
-#include "middle_end/ir.h"
+#include "middle_end/ir/ir.h"
 #include <stdio.h>
 
 const char *ir_type_to_string(enum ir_type t);

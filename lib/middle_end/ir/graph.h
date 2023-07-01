@@ -1,4 +1,4 @@
-/* ir_graph.h - Functions to build graph from IR.
+/* graph.h - Functions to build graph from IR.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

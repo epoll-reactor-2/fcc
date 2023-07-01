@@ -1,4 +1,4 @@
-/* ast_storage.с - Test case for code generator.
+/* code_gen.с - Test case for code generator.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -8,8 +8,8 @@
 #include "front_end/ast/ast.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
-#include "middle_end/ir_gen.h"
-#include "middle_end/ir_dump.h"
+#include "middle_end/ir/gen.h"
+#include "middle_end/ir/dump.h"
 #include "back_end/x86_64.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
