@@ -1,14 +1,12 @@
-/* ir_graph.c - Functions to build graph from IR.
+/* graph.c - Functions to build graph from IR.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "middle_end/ir_graph.h"
-#include "middle_end/ir_dump.h"
-#include "middle_end/ir.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "middle_end/ir/graph.h"
+#include "middle_end/ir/dump.h"
+#include "middle_end/ir/ir.h"
 
 void ir_link(struct ir *ir)
 {

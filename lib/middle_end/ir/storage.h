@@ -1,4 +1,4 @@
-/* ir_storage.h - Storage for intermediate code variables.
+/* storage.h - Storage for intermediate code variables.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

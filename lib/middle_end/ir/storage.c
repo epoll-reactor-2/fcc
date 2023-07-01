@@ -1,10 +1,10 @@
-/* ir_storage.c - Storage for intermediate code variables.
+/* storage.c - Storage for intermediate code variables.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "middle_end/ir_storage.h"
+#include "middle_end/ir/storage.h"
 #include "util/hashmap.h"
 #include "util/crc32.h"
 #include <assert.h>

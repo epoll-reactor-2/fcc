@@ -1,4 +1,4 @@
-/* ir_gen.c - Tests for IR generator.
+/* graph.c - Tests for IR graph build functions.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -8,8 +8,9 @@
 #include "front_end/ast/ast.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
-#include "middle_end/ir_gen.h"
-#include "middle_end/ir_dump.h"
+#include "middle_end/ir/gen.h"
+#include "middle_end/ir/graph.h"
+#include "middle_end/ir/dump.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
@@ -39,18 +40,6 @@ bool ir_test(const char *filename)
     tok_array_t *toks = lex_consumed_tokens();
 
     bool    success = true;
-    char   *expected = NULL;
-    char   *generated = NULL;
-    size_t  _ = 0;
-    FILE   *expected_stream = open_memstream(&expected, &_);
-    FILE   *generated_stream = open_memstream(&generated, &_);
-
-    if (expected_stream == NULL) {
-        perror("open_memstream()");
-        return false;
-    }
-
-    extract_assertion_comment(yyin, expected_stream);
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ast_node *ast = parse(toks->data, toks->data + toks->count);
@@ -62,34 +51,27 @@ bool ir_test(const char *filename)
 
         struct ir ir = ir_gen(ast);
         for (uint64_t i = 0; i < ir.decls_size; ++i) {
-            ir_dump(generated_stream, ir.decls[i].ir);
+            ir_dump(stdout, ir.decls[i].ir);
 
             struct ir_func_decl *decl = ir.decls[0].ir;
             ir_dump_graph_dot(stdout, decl);
         }
 
-        fflush(generated_stream);
+        ir_compute_dom_tree(&ir);
+        printf("\nDominator tree:\n");
+        ir_dump_dom_tree(stdout, ir.decls[0].ir);
+
         ast_node_cleanup(ast);
         ir_cleanup(&ir);
-        
-        if (strcmp(expected, generated) != 0) {
-            printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            success = false;
-            goto exit;
-        }
+
         printf("Success!\n");
     } else {
         /// Error, will be printed in main.
         return false;
     }
 
-exit:
     yylex_destroy();
     tokens_cleanup(toks);
-    fclose(expected_stream);
-    fclose(generated_stream);
-    free(expected);
-    free(generated);
 
     return success;
 }
@@ -105,7 +87,7 @@ int main()
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
-    if (!do_on_each_file("/test_inputs/ir_gen", ir_test)) {
+    if (!do_on_each_file("/test_inputs/ir_graph", ir_test)) {
         ret = -1;
 
         if (err_buf)

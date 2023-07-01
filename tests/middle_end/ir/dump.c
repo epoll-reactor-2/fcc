@@ -1,10 +1,10 @@
-/* ir_dump.c - Tests for IR dump function.
+/* dump.c - Tests for IR dump function.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "middle_end/ir_dump.h"
+#include "middle_end/ir/dump.h"
 #include "util/vector.h"
 #include "util/unreachable.h"
 #include "utils/test_utils.h"

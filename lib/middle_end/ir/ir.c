@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "middle_end/ir.h"
+#include "middle_end/ir/ir.h"
 #include "util/alloc.h"
 #include "util/unreachable.h"
 #include <assert.h>
