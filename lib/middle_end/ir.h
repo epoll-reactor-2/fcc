@@ -55,12 +55,11 @@ struct ir {
 /// - ir_%name%_cleanup(...)
 /// .
 struct ir_node {
-    enum ir_type type;
-    /// Instruction index. Needed to build
-    /// Control Flow Graph from this IR in order
-    /// to do graph-bases analysis.
-    int32_t      instr_idx;
-    void        *ir;
+    enum ir_type    type;
+    int32_t         instr_idx;
+    void           *ir;
+    /// Immediate dominator. Used to compute dominator tree.
+    struct ir_node *idom;
 };
 
 struct ir_alloca {
@@ -102,7 +101,7 @@ enum ir_store_type {
 };
 
 struct ir_store {
-    /// Variable name, or index.
+    /// Variable name, or index, where to store.
     /// %1 = ...
     int32_t idx;
     /// Allowed body for store instruction:

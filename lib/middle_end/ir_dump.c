@@ -65,6 +65,7 @@ static void ir_dump_store(FILE *mem, struct ir_store *ir)
 static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
 {
     const char *op = NULL;
+    /// \todo: %OP%_ASSIGN instructions...
     switch (ir->op) {
     case TOK_XOR:     op = "xor"; break;
     case TOK_BIT_AND: op = "and"; break;
@@ -203,9 +204,9 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     }
 }
 
-void ir_dump(FILE *mem, struct ir_func_decl *ir)
+void ir_dump(FILE *mem, struct ir_func_decl *decl)
 {
-    ir_dump_func_decl(mem, ir);
+    ir_dump_func_decl(mem, decl);
     fprintf(mem, "\n");
 }
 
@@ -247,7 +248,6 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
         ir_mark(visited, ir);
 
         ir_dump_node_dot(mem, ir, label->next);
-
         ir_dump_traverse(mem, visited, label->next);
         break;
     }
@@ -256,7 +256,6 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
         ir_mark(visited, ir);
 
         ir_dump_node_dot(mem, ir, jump->next);
-
         ir_dump_traverse(mem, visited, jump->next);
         break;
     }
@@ -296,7 +295,6 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
         ir_mark(visited, ir);
 
         ir_dump_node_dot(mem, ir, alloca->next);
-
         ir_dump_traverse(mem, visited, alloca->next);
         break;
     }
@@ -305,7 +303,6 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
         ir_mark(visited, ir);
 
         ir_dump_node_dot(mem, ir, call->next);
-
         ir_dump_traverse(mem, visited, call->next);
         break;
     }
@@ -314,9 +311,9 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     }
 }
 
-void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *ir)
+void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl)
 {
-    assert(ir->body_size <= 8192 && "Cannot dump such large function.");
+    assert(decl->body_size <= 8192 && "Cannot dump such large function.");
 
     fprintf(
         mem,
@@ -326,7 +323,23 @@ void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *ir)
 
     bool visited[8192] = {0};
 
-    ir_dump_traverse(mem, visited, &ir->body[0]);
+    ir_dump_traverse(mem, visited, &decl->body[0]);
+
+    fprintf(mem, "}\n");
+}
+
+void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
+{
+    fprintf(
+        mem,
+        "digraph {\n"
+        "    node [shape=box];\n"
+    );
+
+    for (uint64_t i = 0; i < decl->body_size - 1; ++i) {
+        struct ir_node *ir = &decl->body[i];
+        ir_dump_node_dot(mem, ir->idom, ir);
+    }
 
     fprintf(mem, "}\n");
 }
