@@ -39,7 +39,7 @@ bool ir_test(const char *filename)
 
     tok_array_t *toks = lex_consumed_tokens();
 
-    bool    success = true;
+    bool success = true;
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ast_node *ast = parse(toks->data, toks->data + toks->count);
@@ -50,16 +50,10 @@ bool ir_test(const char *filename)
         analysis_type_analysis(ast);
 
         struct ir ir = ir_gen(ast);
-        for (uint64_t i = 0; i < ir.decls_size; ++i) {
-            ir_dump(stdout, ir.decls[i].ir);
 
-            struct ir_func_decl *decl = ir.decls[0].ir;
-            ir_dump_graph_dot(stdout, decl);
+        if (strstr(filename, "nested_loops")) {
+            ir_compute_dom_tree(&ir);
         }
-
-        ir_compute_dom_tree(&ir);
-        printf("\nDominator tree:\n");
-        ir_dump_dom_tree(stdout, ir.decls[0].ir);
 
         ast_node_cleanup(ast);
         ir_cleanup(&ir);

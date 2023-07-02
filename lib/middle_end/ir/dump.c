@@ -264,7 +264,10 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
         ir_mark(visited, ir);
 
         ir_dump_node_dot(mem, ir, cond->next_true);
+        fprintf(mem, " [ label = \"  true\"]\n");
+
         ir_dump_node_dot(mem, ir, cond->next_false);
+        fprintf(mem, " [ label = \"  false\"]\n");
 
         ir_dump_traverse(mem, visited, cond->next_true);
         ir_dump_traverse(mem, visited, cond->next_false);
@@ -338,7 +341,8 @@ void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
 
     for (uint64_t i = 0; i < decl->body_size - 1; ++i) {
         struct ir_node *ir = &decl->body[i];
-        ir_dump_node_dot(mem, ir->idom, ir);
+        if (ir->idom)
+            ir_dump_node_dot(mem, ir->idom, ir);
     }
 
     fprintf(mem, "}\n");
