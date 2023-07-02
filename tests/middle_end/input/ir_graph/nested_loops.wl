@@ -21,6 +21,7 @@ int main() {
                 --c;
                 while (d) {
                     --d;
+                    a + b - c + b + a + a - b + a;
                 }
             }
         }

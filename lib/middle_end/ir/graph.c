@@ -7,6 +7,11 @@
 #include "middle_end/ir/graph.h"
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
+#include "util/compiler.h"
+#include "util/unreachable.h"
+// #include <stdio.h>
+
+static void ir_graph_eliminate_jmp(struct ir_func_decl *decl);
 
 void ir_link(struct ir *ir)
 {
@@ -70,6 +75,84 @@ void ir_link(struct ir *ir)
                 break;
             }
         }
+
+        ir_graph_eliminate_jmp(decl);
+    }
+}
+
+__weak_really_inline static void ir_graph_eliminate_jmp_chain(struct ir_node **ir)
+{
+    while (*ir && (*ir)->type == IR_JUMP) {
+        struct ir_jump *jump = (*ir)->ir;
+        *ir = jump->next;
+    }
+}
+
+/// Check all statements, that can possibly have jumps as
+/// successors. If so, follow the jump chain and omit it by making
+/// edge
+///
+///       <source stmt> -> <jmp> -> <jmp> -> <target stmt>
+///
+/// is converted to
+///
+///       <source stmt> -> <target stmt>
+///
+/// \note Used to simplify CFG.
+static void ir_graph_eliminate_jmp(struct ir_func_decl *decl)
+{
+    for (uint64_t i = 0; i < decl->body_size - 1; ++i) {
+        struct ir_node *stmt = &decl->body[i    ];
+
+        switch (stmt->type) {
+        case IR_IMM:
+        case IR_SYM:
+        case IR_BIN:
+        case IR_MEMBER:
+        case IR_ARRAY_ACCESS:
+        case IR_JUMP: /// Jump is unused there.
+            break;
+        case IR_STORE: {
+            struct ir_store *store = stmt->ir;
+            ir_graph_eliminate_jmp_chain(&store->next);
+            break;
+        }
+        case IR_LABEL: {
+            struct ir_label *label = stmt->ir;
+            ir_graph_eliminate_jmp_chain(&label->next);
+            break;
+        }
+        case IR_COND: {
+            struct ir_cond *cond = stmt->ir;
+            ir_graph_eliminate_jmp_chain(&cond->next_true);
+            ir_graph_eliminate_jmp_chain(&cond->next_false);
+            break;
+        }
+        case IR_RET: {
+            struct ir_ret *ret = stmt->ir;
+            if (i <= decl->body_size)
+                ir_graph_eliminate_jmp_chain(&ret->next);
+            break;
+        }
+        case IR_RET_VOID: {
+            struct ir_ret *ret = stmt->ir;
+            if (i <= decl->body_size)
+                ir_graph_eliminate_jmp_chain(&ret->next);
+            break;
+        }
+        case IR_ALLOCA: {
+            struct ir_alloca *alloca = stmt->ir;
+            ir_graph_eliminate_jmp_chain(&alloca->next);
+            break;
+        }
+        case IR_FUNC_CALL: {
+            struct ir_func_call *call = stmt->ir;
+            ir_graph_eliminate_jmp_chain(&call->next);
+            break;
+        }
+        default:
+            break;
+        }
     }
 }
 
@@ -83,6 +166,10 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
 
     worklist[siz++] = root;
 
+    /// \todo: Dominance by in-statement variable indices.
+    ///        Now immediate dominators are attached to
+    ///        the wrong nodes. I guess, correct dom tree
+    ///        in general should be "wider" than "taller".
     while (siz > 0) {
         struct ir_node *cur = worklist[--siz];
 
@@ -191,10 +278,20 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
 
 void ir_compute_dom_tree(struct ir *ir)
 {
+    // FILE *cfg = fopen("/tmp/graph_cfg.dot", "w");
+    // FILE *dom = fopen("/tmp/graph_dom.dot", "w");
+    // if (!cfg) weak_unreachable("Open failed");
+    // if (!cfg) weak_unreachable("Open failed");
+
     for (uint64_t j = 0; j < ir->decls_size; ++j) {
         struct ir_func_decl *decl = ir->decls[j].ir;
         ir_dom_tree_func_decl(decl);
+        // ir_dump_graph_dot(cfg, decl);
+        // ir_dump_dom_tree(dom, decl);
     }
+
+    // fclose(dom);
+    // fclose(cfg);
 }
 
 /*
