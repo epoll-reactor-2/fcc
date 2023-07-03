@@ -8,8 +8,6 @@
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 #include "util/compiler.h"
-#include "util/unreachable.h"
-// #include <stdio.h>
 
 static void ir_graph_eliminate_jmp(struct ir_func_decl *decl);
 
@@ -51,13 +49,13 @@ void ir_link(struct ir *ir)
             }
             case IR_RET: {
                 struct ir_ret *ret = stmt->ir;
-                if (i <= decl->body_size - 1)
+                if (i <= decl->body_size)
                     ret->next = next;
                 break;
             }
             case IR_RET_VOID: {
                 struct ir_ret *ret = stmt->ir;
-                if (i <= decl->body_size - 1)
+                if (i <= decl->body_size)
                     ret->next = next;
                 break;
             }
@@ -102,7 +100,7 @@ __weak_really_inline static void ir_graph_eliminate_jmp_chain(struct ir_node **i
 static void ir_graph_eliminate_jmp(struct ir_func_decl *decl)
 {
     for (uint64_t i = 0; i < decl->body_size - 1; ++i) {
-        struct ir_node *stmt = &decl->body[i    ];
+        struct ir_node *stmt = &decl->body[i];
 
         switch (stmt->type) {
         case IR_IMM:
@@ -156,6 +154,18 @@ static void ir_graph_eliminate_jmp(struct ir_func_decl *decl)
     }
 }
 
+__weak_really_inline static void ir_set_idom(
+    struct ir_node  *node,
+    struct ir_node  *idom,
+    struct ir_node **worklist,
+    uint64_t        *siz
+) {
+    if (node->idom == NULL) {
+        node->idom = idom;
+        worklist[(*siz)++] = node;
+    }
+}
+
 static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
 {
     struct ir_node *root           = &decl->body[0];
@@ -192,82 +202,48 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
             /// store %1 %N
             struct ir_store *store = cur->ir;
             struct ir_node  *succ  = store->next;
-            if (succ->idom == NULL) {
-                succ->idom = cur;
-                worklist[siz++] = succ;
-            }
+            ir_set_idom(succ, cur, worklist, &siz);
             break;
         }
         case IR_LABEL: {
             struct ir_label *label = cur->ir;
             struct ir_node  *succ  = label->next;
-            if (succ->idom == NULL) {
-                succ->idom = cur;
-                worklist[siz++] = succ;
-            }
+            ir_set_idom(succ, cur, worklist, &siz);
             break;
         }
         case IR_JUMP: {
             struct ir_jump *jump = cur->ir;
             struct ir_node *succ = jump->next;
-            if (succ->idom == NULL) {
-                succ->idom = cur;
-                worklist[siz++] = succ;
-            }
+            ir_set_idom(succ, cur, worklist, &siz);
+
             break;
         }
         case IR_COND: {
             struct ir_cond *cond  = cur->ir;
             struct ir_node *succ1 = cond->next_true;
             struct ir_node *succ2 = cond->next_false;
-            if (succ1->idom == NULL) {
-                succ1->idom = cur;
-                worklist[siz++] = succ1;
-            }
-            if (succ2->idom == NULL) {
-                succ2->idom = cur;
-                worklist[siz++] = succ2;
-            }
+            ir_set_idom(succ1, cur, worklist, &siz);
+            ir_set_idom(succ2, cur, worklist, &siz);
             break;
         }
-        case IR_RET: {
-            struct ir_ret  *ret  = cur->ir;
-            struct ir_node *succ = ret->next;
-            if (ret->next) {
-                if (succ->idom == NULL) {
-                    succ->idom = cur;
-                    worklist[siz++] = succ;
-                }
-            }
-            break;
-        }
+        case IR_RET:
         case IR_RET_VOID: {
             struct ir_ret  *ret  = cur->ir;
             struct ir_node *succ = ret->next;
-            if (ret->next) {
-                if (succ->idom == NULL) {
-                    succ->idom = cur;
-                    worklist[siz++] = succ;
-                }
-            }
+            if (succ)
+                ir_set_idom(succ, cur, worklist, &siz);
             break;
         }
         case IR_ALLOCA: {
             struct ir_alloca *alloca = cur->ir;
             struct ir_node   *succ   = alloca->next;
-            if (succ->idom == NULL) {
-                succ->idom = cur;
-                worklist[siz++] = succ;
-            }
+            ir_set_idom(succ, cur, worklist, &siz);
             break;
         }
         case IR_FUNC_CALL: {
             struct ir_func_call *call = cur->ir;
             struct ir_node      *succ = call->next;
-            if (succ->idom == NULL) {
-                succ->idom = cur;
-                worklist[siz++] = succ;
-            }
+            ir_set_idom(succ, cur, worklist, &siz);
             break;
         }
         default:
@@ -276,23 +252,39 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
     }
 }
 
+
+#define WEAK_DEBUG_DOMINATOR_TREE 0
+
+#if WEAK_DEBUG_DOMINATOR_TREE == 1
+# include <stdio.h>
+# include "util/unreachable.h"
+
 void ir_compute_dom_tree(struct ir *ir)
 {
-    // FILE *cfg = fopen("/tmp/graph_cfg.dot", "w");
-    // FILE *dom = fopen("/tmp/graph_dom.dot", "w");
-    // if (!cfg) weak_unreachable("Open failed");
-    // if (!cfg) weak_unreachable("Open failed");
+    FILE *cfg = fopen("/tmp/graph_cfg.dot", "w");
+    FILE *dom = fopen("/tmp/graph_dom.dot", "w");
+    if (!cfg) weak_unreachable("Open failed");
+    if (!cfg) weak_unreachable("Open failed");
 
     for (uint64_t j = 0; j < ir->decls_size; ++j) {
         struct ir_func_decl *decl = ir->decls[j].ir;
         ir_dom_tree_func_decl(decl);
-        // ir_dump_graph_dot(cfg, decl);
-        // ir_dump_dom_tree(dom, decl);
+        ir_dump_graph_dot(cfg, decl);
+        ir_dump_dom_tree(dom, decl);
     }
 
-    // fclose(dom);
-    // fclose(cfg);
+    fclose(dom);
+    fclose(cfg);
 }
+#else /// !WEAK_DEBUG_DOMINATOR_TREE
+void ir_compute_dom_tree(struct ir *ir)
+{
+    for (uint64_t j = 0; j < ir->decls_size; ++j) {
+        struct ir_func_decl *decl = ir->decls[j].ir;
+        ir_dom_tree_func_decl(decl);
+    }
+}
+#endif /// !WEAK_DEBUG_DOMINATOR_TREE
 
 /*
 Steck' ein Messer in mein Bein und es kommt Blut raus
