@@ -112,7 +112,7 @@ static void visit_ast_for(struct ast_for *ast)
         struct ir_node  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
         struct ir_cond *cond_ptr = cond.ir;
         struct ir_node  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
-        next_iter_jump_idx       = ir_last.instr_idx;
+        next_iter_jump_idx       = ir_last.instr_idx + 1;
         exit_jmp_ptr             = exit_jmp.ir;
 
         vector_push_back(ir_stmts, cond);
@@ -160,7 +160,7 @@ static void visit_ast_while(struct ast_while *ast)
 
     visit_ast(ast->body);
 
-    struct ir_node next_iter_jmp = ir_jump_init(next_iter_idx);
+    struct ir_node next_iter_jmp = ir_jump_init(next_iter_idx + 1);
     vector_push_back(ir_stmts, next_iter_jmp);
 
     exit_jmp_ptr->idx = next_iter_jmp.instr_idx + 1;
