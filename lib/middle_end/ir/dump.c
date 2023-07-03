@@ -339,7 +339,7 @@ void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
         "    node [shape=box];\n"
     );
 
-    for (uint64_t i = 0; i < decl->body_size - 1; ++i) {
+    for (uint64_t i = 0; i < decl->body_size; ++i) {
         struct ir_node *ir = &decl->body[i];
         if (ir->idom)
             ir_dump_node_dot(mem, ir->idom, ir);
