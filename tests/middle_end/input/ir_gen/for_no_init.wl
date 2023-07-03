@@ -11,7 +11,7 @@
 //       9:   store %3 %0
 //      10:   store %3 %3 add $1
 //      11:   store %0 %0 add $1
-//      12:   jmp L5
+//      12:   jmp L6
 //      13:   ret $0
 int main() {
     int i = 0;

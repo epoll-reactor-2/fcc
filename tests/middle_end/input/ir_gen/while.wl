@@ -9,7 +9,7 @@
 //       7:   store %2 %0
 //       8:   store %2 %2 add $1
 //       9:   store %0 %0 add $1
-//      10:   jmp L3
+//      10:   jmp L4
 //      11:   ret $0
 int main() {
     int i = 0;
