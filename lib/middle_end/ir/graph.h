@@ -37,4 +37,10 @@ void ir_link(struct ir *ir);
 /// To view dominator tree, ir_dump_dom_tree() should be used.
 void ir_compute_dom_tree(struct ir *decl);
 
+/// Judge of \p node is dominated by \p dom.
+bool ir_dominated_by(struct ir_node *node, struct ir_node *dom);
+
+/// Judge if \p dom is dominator of \p node.
+bool ir_dominates(struct ir_node *dom, struct ir_node *node);
+
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H
