@@ -286,6 +286,31 @@ void ir_compute_dom_tree(struct ir *ir)
 }
 #endif /// !WEAK_DEBUG_DOMINATOR_TREE
 
+bool ir_dominated_by(struct ir_node *node, struct ir_node *dom)
+{
+    if (node == dom) return 1;
+
+    while (node) {
+        node = node->idom;
+        if (node == dom) return 1;
+    }
+    return 0;
+}
+
+bool ir_dominates(struct ir_node *dom, struct ir_node *node)
+{
+    /// Note:
+    /// It is possible to call there ir_is_dominated_by(),
+    /// but this function is never inlineable in this context.
+    if (dom == node) return 1;
+
+    while (node) {
+        node = node->idom;
+        if (node == dom) return 1;
+    }
+    return 0;
+}
+
 /*
 Steck' ein Messer in mein Bein und es kommt Blut raus
 Doch die Schmerzen gehen vorbei
