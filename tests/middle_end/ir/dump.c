@@ -10,9 +10,6 @@
 #include "utils/test_utils.h"
 #include <stdio.h>
 
-#define TEST_START_INFO { printf("Testing %s()... ", __FUNCTION__); fflush(stdout); }
-#define TEST_END_INFO   { printf(" Success!\n"); fflush(stdout); }
-
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 

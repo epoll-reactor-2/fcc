@@ -21,6 +21,9 @@
 #define ASSERT_FALSE(expr)  assert(!(expr));
 #define ASSERT_EQ(lhs, rhs) assert((lhs) == (rhs));
 
+#define TEST_START_INFO { printf("Testing %s()... ", __FUNCTION__); fflush(stdout); }
+#define TEST_END_INFO   { printf(" Success!\n"); fflush(stdout); }
+
 #define ASSERT_STREQ(lhs, rhs) do {   \
   int32_t rc = strcmp((lhs), (rhs));  \
   if (rc != 0) {                      \
