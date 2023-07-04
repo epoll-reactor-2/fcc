@@ -13,6 +13,8 @@ void *diag_warn_memstream = NULL;
 
 void dominates()
 {
+    TEST_START_INFO
+
     struct ir_node node1 = ir_jump_init(0);
     struct ir_node node2 = ir_jump_init(1);
 
@@ -38,6 +40,8 @@ void dominates()
 
     ir_node_cleanup(node1);
     ir_node_cleanup(node2);
+
+    TEST_END_INFO
 }
 
 int main()
