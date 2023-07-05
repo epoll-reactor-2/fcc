@@ -16,4 +16,7 @@ struct ir;
 /// \pre Computed dominator tree.
 void ir_opt_motion(struct ir *ir);
 
+/// Constant and expressions folding.
+void ir_opt_fold(struct ir *ir);
+
 #endif // WEAK_COMPILER_MIDDLE_END_OPT_H

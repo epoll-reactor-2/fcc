@@ -7,7 +7,7 @@
 #include "middle_end/ir/ir.h"
 #include "middle_end/opt/opt.h"
 
-static void ir_opt_motion_func(struct ir_func_decl *decl)
+static void motion(struct ir_func_decl *decl)
 {
     /// \todo
     ///
@@ -24,8 +24,8 @@ static void ir_opt_motion_func(struct ir_func_decl *decl)
 
 void ir_opt_motion(struct ir *ir)
 {
-    for (uint64_t j = 0; j < ir->decls_size; ++j) {
-        struct ir_func_decl *decl = ir->decls[j].ir;
-        ir_opt_motion_func(decl);
+    for (uint64_t i = 0; i < ir->decls_size; ++i) {
+        struct ir_func_decl *decl = ir->decls[i].ir;
+        motion(decl);
     }
 }

@@ -11,7 +11,7 @@ LIB         = libweak_compiler.so
 LDFLAGS     = -lfl
 CFLAGS      = -std=gnu99 -fPIC -Ilib
 
-CFLAGS     += -Wall -Wextra -Wshadow -Wvla -Wpointer-arith -Wframe-larger-than=32768
+CFLAGS     += -Wall -Wextra -Werror -Wshadow -Wvla -Wpointer-arith -Wframe-larger-than=32768
 
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb
