@@ -119,7 +119,7 @@ void ir_cmp(
 ) {
     if (converted_siz != assert_siz)
         ASSERT_TRUE(0 && "Size mismatch");
-    
+
     for (uint64_t i = 0; i < assert_siz; ++i) {
         struct ir_node *lhs = &converted[i];
         struct ir_node *rhs = &assert[i];
@@ -141,9 +141,18 @@ void test_fold(
         /*body=*/      src
     );
 
+    struct ir_node assert_decl = ir_func_decl_init(
+        /*name=*/      "f",
+        /*args_size=*/ 0,
+        /*args=*/      NULL,
+        /*body_size=*/ assert_siz,
+        /*body=*/      assert
+    );
+
     (void) assert;
     (void) assert_siz;
 
+    puts("\nSource:");
     ir_dump_node(stdout, &decl);
     puts("");
 
@@ -154,29 +163,36 @@ void test_fold(
 
     ir_opt_fold(&ir);
 
+    puts("\nGot:");
     ir_dump_node(stdout, &decl);
+    puts("");
+
+    puts("\nExpected:");
+    ir_dump_node(stdout, &assert_decl);
     puts("");
 
     ir_cmp(src, src_siz, assert, assert_siz);
 }
 
-#define _ALLOCA(type, ir) ir_alloca_init(type, ir)
-#define _IMM_B(x)         ir_imm_bool_init(x)
-#define _IMM_C(x)         ir_imm_char_init(x)
-#define _IMM_F(x)         ir_imm_float_init(x)
-#define _IMM_I(x)         ir_imm_int_init(x)
-#define _SYM(x)           ir_sym_init(x)
-#define _STORE_I(idx, x)  ir_store_imm_init(idx, x)
-#define _STORE_V(idx, x)  ir_store_var_init(idx, x)
-#define _STORE_B(idx, x)  ir_store_bin_init(idx, x)
-#define _BIN(op, l, r)    ir_bin_init(op, l, r)
-#define _LBL(idx)         ir_label_init(idx)
-#define _JMP(idx)         ir_jump_init(idx)
-#define _COND(body, jmp)  ir_cond_init(body, jmp)
-#define _RET(is_void, op) ir_ret_init(is_void, op)
+#define _ALLOCA(type, idx) ir_alloca_init(type, idx)
+#define _IMM_B(x)          ir_imm_bool_init(x)
+#define _IMM_C(x)          ir_imm_char_init(x)
+#define _IMM_F(x)          ir_imm_float_init(x)
+#define _IMM_I(x)          ir_imm_int_init(x)
+#define _SYM(x)            ir_sym_init(x)
+#define _STORE_I(idx, x)   ir_store_imm_init(idx, x)
+#define _STORE_V(idx, x)   ir_store_var_init(idx, x)
+#define _STORE_B(idx, x)   ir_store_bin_init(idx, x)
+#define _BIN(op, l, r)     ir_bin_init(op, l, r)
+#define _LBL(idx)          ir_label_init(idx)
+#define _JMP(idx)          ir_jump_init(idx)
+#define _COND(body, jmp)   ir_cond_init(body, jmp)
+#define _RET(is_void, op)  ir_ret_init(is_void, op)
 
-int main()
+void fold_basic()
 {
+    TEST_START_INFO
+
     struct ir_node ir[] = {
         _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
     };
@@ -189,4 +205,98 @@ int main()
         ir,     __weak_array_size(ir),
         assert, __weak_array_size(assert)
     );
+
+    TEST_END_INFO
+}
+
+void fold_alloca()
+{
+    TEST_START_INFO
+
+    struct ir_node ir[] = {
+        _ALLOCA(D_T_INT, 0),
+        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
+        _ALLOCA(D_T_INT, 1),
+        _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(2))),
+    };
+
+    struct ir_node assert[] = {
+        _ALLOCA(D_T_INT, 0),
+        _STORE_I(0, _IMM_I(5)),
+    };
+
+    test_fold(
+        ir,     __weak_array_size(ir),
+        assert, __weak_array_size(assert)
+    );
+
+
+    TEST_END_INFO
+}
+
+void fold_alloca_chain()
+{
+    TEST_START_INFO
+
+    struct ir_node ir[] = {
+        _ALLOCA(D_T_INT, 0),
+        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
+        _ALLOCA(D_T_INT, 1),
+        _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(2))),
+        _ALLOCA(D_T_INT, 2),
+        _STORE_B(2, _BIN(TOK_PLUS, _SYM(0), _SYM(1))),
+        _ALLOCA(D_T_INT, 3),
+        _STORE_B(3, _BIN(TOK_PLUS, _SYM(1), _SYM(2))),
+        _RET(false, _SYM(3))
+    };
+
+    struct ir_node assert[] = {
+        _RET(false, _IMM_I(13))
+    };
+
+    test_fold(
+        ir,     __weak_array_size(ir),
+        assert, __weak_array_size(assert)
+    );
+
+
+    TEST_END_INFO
+}
+
+void fold_sym()
+{
+    TEST_START_INFO
+
+    struct ir_node ir[] = {
+        _ALLOCA(D_T_INT, 0),
+        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
+        _ALLOCA(D_T_INT, 1),
+        _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(2))),
+        _ALLOCA(D_T_INT, 2),
+        _STORE_V(2, 1),
+        _ALLOCA(D_T_INT, 3),
+        _STORE_V(3, 2),
+        _STORE_I(3, _IMM_I(10)),
+        _RET(false, _SYM(3))
+    };
+
+    struct ir_node assert[] = {
+        _RET(false, _IMM_I(5))
+    };
+
+    test_fold(
+        ir,     __weak_array_size(ir),
+        assert, __weak_array_size(assert)
+    );
+
+
+    TEST_END_INFO
+}
+
+int main()
+{
+    fold_basic();
+    // fold_alloca();
+    // fold_alloca_chain();
+    fold_sym();
 }
