@@ -35,16 +35,16 @@ void ir_cmp_nodes(struct ir_node *lhs, struct ir_node *rhs)
         ASSERT_TRUE(l->type == r->type);
         switch (l->type) {
         case IMM_BOOL:
-            ASSERT_TRUE(l->imm_bool == r->imm_bool);
+            ASSERT_TRUE(l->imm.__bool == r->imm.__bool);
             break;
         case IMM_CHAR:
-            ASSERT_TRUE(l->imm_char == r->imm_char);
+            ASSERT_TRUE(l->imm.__char == r->imm.__char);
             break;
         case IMM_FLOAT:
-            ASSERT_TRUE(l->imm_float == r->imm_float);
+            ASSERT_TRUE(l->imm.__float == r->imm.__float);
             break;
         case IMM_INT:
-            ASSERT_TRUE(l->imm_int == r->imm_int);
+            ASSERT_TRUE(l->imm.__int == r->imm.__int);
             break;
         default:
             break;
@@ -213,6 +213,7 @@ void fold_alloca()
 {
     TEST_START_INFO
 
+    ir_reset_internal_state();
     struct ir_node ir[] = {
         _ALLOCA(D_T_INT, 0),
         _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
@@ -220,6 +221,7 @@ void fold_alloca()
         _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(2))),
     };
 
+    ir_reset_internal_state();
     struct ir_node assert[] = {
         _ALLOCA(D_T_INT, 0),
         _STORE_I(0, _IMM_I(5)),
@@ -238,6 +240,7 @@ void fold_alloca_chain()
 {
     TEST_START_INFO
 
+    ir_reset_internal_state();
     struct ir_node ir[] = {
         _ALLOCA(D_T_INT, 0),
         _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
@@ -250,6 +253,7 @@ void fold_alloca_chain()
         _RET(false, _SYM(3))
     };
 
+    ir_reset_internal_state();
     struct ir_node assert[] = {
         _RET(false, _IMM_I(13))
     };
@@ -267,21 +271,22 @@ void fold_sym()
 {
     TEST_START_INFO
 
+    ir_reset_internal_state();
     struct ir_node ir[] = {
         _ALLOCA(D_T_INT, 0),
-        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
+        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(2), _IMM_I(4))),
         _ALLOCA(D_T_INT, 1),
-        _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(2))),
+        _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(6))),
         _ALLOCA(D_T_INT, 2),
         _STORE_V(2, 1),
         _ALLOCA(D_T_INT, 3),
         _STORE_V(3, 2),
-        _STORE_I(3, _IMM_I(10)),
         _RET(false, _SYM(3))
     };
 
+    ir_reset_internal_state();
     struct ir_node assert[] = {
-        _RET(false, _IMM_I(5))
+        _RET(false, _IMM_I(12))
     };
 
     test_fold(

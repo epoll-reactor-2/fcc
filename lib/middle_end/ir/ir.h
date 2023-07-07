@@ -78,16 +78,18 @@ enum ir_imm_type {
     IMM_INT
 };
 
+union ir_imm_val {
+    bool    __bool;
+    char    __char;
+    float   __float;
+    int32_t __int;
+};
+
 struct ir_imm {
     enum ir_imm_type type;
     /// Immediate value. Used as argument of
     /// store or binary instructions.
-    union {
-        bool         imm_bool;
-        char         imm_char;
-        float        imm_float;
-        int32_t      imm_int;
-    };
+    union ir_imm_val imm;
 };
 
 struct ir_sym {
