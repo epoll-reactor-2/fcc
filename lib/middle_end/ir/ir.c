@@ -42,7 +42,7 @@ struct ir_node ir_alloca_init(enum data_type dt, int32_t idx)
 struct ir_node ir_imm_bool_init(bool imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
-    ir->imm_bool = imm;
+    ir->imm.__bool = imm;
     ir->type = IMM_BOOL;
     return ir_node_init(IR_IMM, ir);
 }
@@ -50,7 +50,7 @@ struct ir_node ir_imm_bool_init(bool imm)
 struct ir_node ir_imm_char_init(char imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
-    ir->imm_char = imm;
+    ir->imm.__char = imm;
     ir->type = IMM_CHAR;
     return ir_node_init(IR_IMM, ir);
 }
@@ -58,7 +58,7 @@ struct ir_node ir_imm_char_init(char imm)
 struct ir_node ir_imm_float_init(float imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
-    ir->imm_float = imm;
+    ir->imm.__float = imm;
     ir->type = IMM_FLOAT;
     return ir_node_init(IR_IMM, ir);
 }
@@ -66,7 +66,7 @@ struct ir_node ir_imm_float_init(float imm)
 struct ir_node ir_imm_int_init(int32_t imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
-    ir->imm_int = imm;
+    ir->imm.__int = imm;
     ir->type = IMM_INT;
     return ir_node_init(IR_IMM, ir);
 }

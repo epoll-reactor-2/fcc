@@ -247,11 +247,11 @@ static void visit_ir_imm(struct ir_imm *ir)
 
     switch (ir->type) {
     case IMM_BOOL: {
-        printf("\tmovzbq\t$%d, %s\n", ir->imm_bool, reg);
+        printf("\tmovzbq\t$%d, %s\n", ir->imm.__bool, reg);
         break;
     }
     case IMM_CHAR: {
-        printf("\tmovzbq\t$%d, %s\n", ir->imm_char, reg);
+        printf("\tmovzbq\t$%d, %s\n", ir->imm.__char, reg);
         break;
     }
     case IMM_FLOAT: {
@@ -264,7 +264,7 @@ static void visit_ir_imm(struct ir_imm *ir)
         break;
     }
     case IMM_INT: {
-        printf("\tmovabsq\t$%d, %s\n", ir->imm_int, reg);
+        printf("\tmovabsq\t$%d, %s\n", ir->imm.__int, reg);
         break;
     }
     default:
