@@ -41,7 +41,7 @@ __weak_really_inline static void consts_mapping_remove(uint64_t idx)
 __weak_really_inline static union ir_imm_val consts_mapping_get(uint64_t idx)
 {
     uint64_t got = hashmap_get(&consts_mapping, idx);
-    printf("Consts mapping: get value of idx:%ld -> %ld\n", idx, got);
+    // printf("Consts mapping: get value of idx:%ld -> %ld\n", idx, got);
     return (union ir_imm_val) (int32_t) got;
 }
 
@@ -65,6 +65,7 @@ __weak_really_inline static bool fold_booleans(enum token_type op, bool l, bool 
     case TOK_BIT_AND: return l & r;
     case TOK_BIT_OR:  return l | r;
     case TOK_XOR:     return l ^ r;
+    case TOK_ASSIGN:  return 0;
     default:
         weak_unreachable("Something went wrong.");
     }
@@ -91,6 +92,7 @@ __weak_really_inline static int32_t fold_ints(enum token_type op, int32_t l, int
     case TOK_STAR:    return l  * r;
     case TOK_SLASH:   return l  / r;
     case TOK_MOD:     return l  % r;
+    case TOK_ASSIGN:  return -1;
     default:
         weak_unreachable("Something went wrong.");
     }
@@ -109,12 +111,13 @@ __weak_really_inline static float fold_floats(enum token_type op, float l, float
     case TOK_MINUS:   return l  - r;
     case TOK_STAR:    return l  * r;
     case TOK_SLASH:   return l  / r;
+    case TOK_ASSIGN:  return -1.0;
     default:
         weak_unreachable("Something went wrong.");
     }
 }
 
-__weak_wur __weak_really_inline static struct ir_node fold_imm(
+__weak_wur __weak_really_inline static struct ir_node compute_imm(
     enum  token_type  op,
     enum  ir_imm_type type,
     union ir_imm_val  lhs,
@@ -132,6 +135,19 @@ __weak_wur __weak_really_inline static struct ir_node fold_imm(
 
 static void fold_node(struct ir_node *ir);
 
+__weak_really_inline static void fold_sym(struct ir_sym *ir)
+{
+    if (consts_mapping_is_const(ir->idx)) {
+        last_folded = ir_imm_int_init(consts_mapping_get(ir->idx).__int);
+    }
+}
+
+__weak_really_inline static void fold_imm(struct ir_imm *ir)
+{
+    last_folded = ir_imm_int_init(ir->imm.__int);
+}
+
+/// \todo: Proper remove non-const stores from const mapping.
 __weak_really_inline static void fold_store(struct ir_store *ir)
 {
     switch (ir->type) {
@@ -169,6 +185,20 @@ __weak_really_inline static void fold_store(struct ir_store *ir)
             }
         }
 
+        if (bin->lhs.type == IR_IMM &&
+            bin->rhs.type == IR_SYM) {
+            struct ir_sym *sym = bin->rhs.ir;
+
+            if (consts_mapping_is_const(sym->idx)) {
+                fold_node(&ir->body);
+                ir_node_cleanup(ir->body);
+                ir->body = last_folded;
+                ir->type = IR_STORE_IMM;
+
+                struct ir_imm *imm = ir->body.ir;
+                consts_mapping_update(ir->idx, imm->imm.__int);
+            }
+        }
         break;
     }
     case IR_STORE_VAR: {
@@ -191,53 +221,35 @@ __weak_really_inline static void fold_store(struct ir_store *ir)
     case IR_STORE_IMM: {
         struct ir_imm *imm = ir->body.ir;
 
+        printf("Store immediate\n");
+
         if (consts_mapping_is_const(ir->idx)) {
             consts_mapping_update(ir->idx, imm->imm.__int);
+        } else {
+            consts_mapping_add(ir->idx, imm->imm.__int);
         }
+        break;
     }
     default:
         break;
     }
 }
 
+/// If there we cannot get two immediate values, we need to
+/// get at least one immediate values from variable index.
+/// If neither LHS nor RHS are unknown values, do nothing.
 __weak_really_inline static void fold_bin(struct ir_bin *ir)
 {
-    if (ir->lhs.type == IR_IMM &&
-        ir->rhs.type == IR_IMM) {
-        struct ir_imm *l_imm = ir->lhs.ir;
-        struct ir_imm *r_imm = ir->rhs.ir;
-        assert(l_imm->type == r_imm->type);
+    fold_node(&ir->lhs);
+    struct ir_node lhs = last_folded;
 
-        last_folded = fold_imm(ir->op, l_imm->type, l_imm->imm, r_imm->imm);
-    }
+    fold_node(&ir->rhs);
+    struct ir_node rhs = last_folded;
 
-    if (ir->lhs.type == IR_SYM &&
-        ir->rhs.type == IR_IMM) {
-        struct ir_sym *sym = ir->lhs.ir;
-        struct ir_imm *imm = ir->rhs.ir;
+    struct ir_imm *lhs_imm = lhs.ir;
+    struct ir_imm *rhs_imm = rhs.ir;
 
-        if (consts_mapping_is_const(sym->idx)) {
-            union ir_imm_val imm_val = consts_mapping_get(sym->idx);
-
-            last_folded = fold_imm(ir->op, imm->type, imm_val, imm->imm);
-        }
-    }
-
-    if (ir->lhs.type == IR_SYM &&
-        ir->rhs.type == IR_SYM) {
-        struct ir_sym *lhs_sym = ir->lhs.ir;
-        struct ir_sym *rhs_sym = ir->rhs.ir;
-
-        bool lhs_const = consts_mapping_is_const(lhs_sym->idx);
-        bool rhs_const = consts_mapping_is_const(rhs_sym->idx);
-
-        if (lhs_const && rhs_const) {
-            union ir_imm_val lhs_imm = consts_mapping_get(lhs_sym->idx);
-            union ir_imm_val rhs_imm = consts_mapping_get(rhs_sym->idx);
-
-            last_folded = fold_imm(ir->op, IMM_INT, lhs_imm, rhs_imm);
-        }
-    }
+    last_folded = compute_imm(ir->op, lhs_imm->type, lhs_imm->imm, rhs_imm->imm);
 }
 
 __weak_really_inline static void fold_ret(struct ir_ret *ir)
@@ -255,15 +267,23 @@ __weak_really_inline static void fold_ret(struct ir_ret *ir)
     }
 }
 
+__weak_really_inline static void fold_cond(struct ir_cond *ir)
+{
+    fold_node(&ir->cond);
+}
+
 static void fold_node(struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_ALLOCA:
     case IR_IMM:
+        fold_imm(ir->ir);
+        break;
     case IR_SYM:
+        fold_sym(ir->ir);
+        break;
     case IR_LABEL:
     case IR_JUMP:
-    case IR_COND:
     case IR_MEMBER:
     case IR_ARRAY_ACCESS:
     case IR_TYPE_DECL:
@@ -283,11 +303,17 @@ static void fold_node(struct ir_node *ir)
         fold_ret(ir->ir);
         break;
     }
+    case IR_COND: {
+        fold_cond(ir->ir);
+        break;
+    }
     default:
         weak_unreachable("Something went wrong.");
     }
 }
 
+
+__weak_unused
 static void fold_remove_unused_stmts(struct ir_func_decl *decl)
 {
     /// Vector used for convenient API.
@@ -306,6 +332,7 @@ static void fold_remove_unused_stmts(struct ir_func_decl *decl)
             struct ir_alloca *alloca = node->ir;
 
             if (consts_mapping_is_const(alloca->idx)) {
+                printf("Remove alloca of %d\n", alloca->idx);
                 vector_erase(stmts, (size_t) node->instr_idx);
             }
             break;
@@ -315,6 +342,7 @@ static void fold_remove_unused_stmts(struct ir_func_decl *decl)
             struct ir_store *store = node->ir;
 
             if (consts_mapping_is_const(store->idx)) {
+                printf("Remove store to %d\n", store->idx);
                 vector_erase(stmts, (size_t) node->instr_idx);
             }
             break;
