@@ -14,8 +14,7 @@
 #include <string.h>
 #include <assert.h>
 
-static struct ir_node last_folded;
-static hashmap_t      consts_mapping;
+static hashmap_t consts_mapping;
 
 static void consts_mapping_init()
 {
@@ -25,41 +24,40 @@ static void consts_mapping_init()
     hashmap_init(&consts_mapping, 512);
 }
 
-
-__weak_really_inline static void consts_mapping_add(uint64_t idx, uint64_t value)
+static void consts_mapping_add(uint64_t idx, uint64_t value)
 {
     hashmap_put(&consts_mapping, idx, value);
     printf("Consts mapping: add idx:%ld, value:%ld\n", idx, value);
 }
 
-__weak_really_inline static void consts_mapping_remove(uint64_t idx)
+static void consts_mapping_remove(uint64_t idx)
 {
     printf("Consts mapping: remove idx:%ld\n", idx);
     hashmap_remove(&consts_mapping, idx);
 }
 
-__weak_really_inline static union ir_imm_val consts_mapping_get(uint64_t idx)
+static union ir_imm_val consts_mapping_get(uint64_t idx)
 {
     uint64_t got = hashmap_get(&consts_mapping, idx);
     // printf("Consts mapping: get value of idx:%ld -> %ld\n", idx, got);
     return (union ir_imm_val) (int32_t) got;
 }
 
-__weak_really_inline static void consts_mapping_update(uint64_t idx, uint64_t value)
+static void consts_mapping_update(uint64_t idx, uint64_t value)
 {   
     hashmap_remove(&consts_mapping, idx);
     hashmap_put(&consts_mapping, idx, value);
     printf("Consts mapping: update idx:%ld, value:%ld\n", idx, value);
 }
 
-__weak_really_inline static bool consts_mapping_is_const(uint64_t idx)
+static bool consts_mapping_is_const(uint64_t idx)
 {
     uint64_t got = hashmap_get(&consts_mapping, idx);
     printf("Consts mapping: is_const? idx:%ld -> %s\n", idx, (got != 0) ? "yes" : "no");
     return got != 0;
 }
 
-__weak_really_inline static bool fold_booleans(enum token_type op, bool l, bool r)
+static bool fold_booleans(enum token_type op, bool l, bool r)
 {
     switch (op) {
     case TOK_BIT_AND: return l & r;
@@ -71,7 +69,7 @@ __weak_really_inline static bool fold_booleans(enum token_type op, bool l, bool 
     }
 }
 
-__weak_really_inline static int32_t fold_ints(enum token_type op, int32_t l, int32_t r)
+static int32_t fold_ints(enum token_type op, int32_t l, int32_t r)
 {
     switch (op) {
     case TOK_AND:     return l && r;
@@ -98,7 +96,7 @@ __weak_really_inline static int32_t fold_ints(enum token_type op, int32_t l, int
     }
 }
 
-__weak_really_inline static float fold_floats(enum token_type op, float l, float r)
+static float fold_floats(enum token_type op, float l, float r)
 {
     switch (op) {
     case TOK_EQ:      return l == r;
@@ -117,7 +115,7 @@ __weak_really_inline static float fold_floats(enum token_type op, float l, float
     }
 }
 
-__weak_wur __weak_really_inline static struct ir_node compute_imm(
+__weak_wur static struct ir_node compute_imm(
     enum  token_type  op,
     enum  ir_imm_type type,
     union ir_imm_val  lhs,
@@ -133,30 +131,51 @@ __weak_wur __weak_really_inline static struct ir_node compute_imm(
     }
 }
 
-static void fold_node(struct ir_node *ir);
+static struct ir_node fold_node(struct ir_node *ir);
 
-__weak_really_inline static void fold_sym(struct ir_sym *ir)
+static struct ir_node no_result()
 {
-    if (consts_mapping_is_const(ir->idx)) {
-        last_folded = ir_imm_int_init(consts_mapping_get(ir->idx).__int);
-    }
+    struct ir_node node = {
+        .instr_idx = -1,
+        .ir        = NULL,
+        .idom      = NULL
+    };
+
+    return node;
 }
 
-__weak_really_inline static void fold_imm(struct ir_imm *ir)
+__weak_unused static bool is_no_result(struct ir_node *ir)
 {
-    last_folded = ir_imm_int_init(ir->imm.__int);
+    return
+        ir->instr_idx ==   -1 &&
+        ir->ir        == NULL &&
+        ir->idom      == NULL;
+}
+
+static struct ir_node fold_sym(struct ir_sym *ir)
+{
+    if (consts_mapping_is_const(ir->idx)) {
+        return ir_imm_int_init(consts_mapping_get(ir->idx).__int);
+    }
+
+    return no_result();
+}
+
+static struct ir_node fold_imm(struct ir_imm *ir)
+{
+    return ir_imm_int_init(ir->imm.__int);
 }
 
 /// I don't like this.
-__weak_really_inline static void fold_store_bin(struct ir_store *ir)
+static void fold_store_bin(struct ir_store *ir)
 {
     struct ir_bin *bin = ir->body.ir;
 
     if (bin->lhs.type == IR_IMM &&
         bin->rhs.type == IR_IMM) {
-        fold_node(&ir->body);
+        struct ir_node tmp = fold_node(&ir->body);
         ir_node_cleanup(ir->body);
-        ir->body = last_folded;
+        ir->body = tmp;
         ir->type = IR_STORE_IMM;
 
         struct ir_imm *imm = ir->body.ir;
@@ -170,16 +189,18 @@ __weak_really_inline static void fold_store_bin(struct ir_store *ir)
          bin->rhs.type == IR_SYM
         )
     ) {
-        struct ir_sym *sym = bin->lhs.ir;
+        struct ir_sym *sym_lhs = bin->lhs.ir;
 
-        if (consts_mapping_is_const(sym->idx)) {
-            fold_node(&ir->body);
+        if (consts_mapping_is_const(sym_lhs->idx)) {
+            struct ir_node tmp = fold_node(&ir->body);
             ir_node_cleanup(ir->body);
-            ir->body = last_folded;
+            ir->body = tmp;
             ir->type = IR_STORE_IMM;
 
             struct ir_imm *imm = ir->body.ir;
             consts_mapping_update(ir->idx, imm->imm.__int);
+        } else {
+            consts_mapping_remove(ir->idx);
         }
     }
 
@@ -188,18 +209,20 @@ __weak_really_inline static void fold_store_bin(struct ir_store *ir)
         struct ir_sym *sym = bin->rhs.ir;
 
         if (consts_mapping_is_const(sym->idx)) {
-            fold_node(&ir->body);
+            struct ir_node tmp = fold_node(&ir->body);
             ir_node_cleanup(ir->body);
-            ir->body = last_folded;
+            ir->body = tmp;
             ir->type = IR_STORE_IMM;
 
             struct ir_imm *imm = ir->body.ir;
             consts_mapping_update(ir->idx, imm->imm.__int);
+        } else {
+            consts_mapping_remove(ir->idx);
         }
     }
 }
 
-__weak_really_inline static void fold_store_sym(struct ir_store *ir)
+static void fold_store_sym(struct ir_store *ir)
 {
     struct ir_sym *sym = ir->body.ir;
 
@@ -217,7 +240,7 @@ __weak_really_inline static void fold_store_sym(struct ir_store *ir)
     }
 }
 
-__weak_really_inline static void fold_store_imm(struct ir_store *ir)
+static void fold_store_imm(struct ir_store *ir)
 {
     struct ir_imm *imm = ir->body.ir;
 
@@ -231,7 +254,7 @@ __weak_really_inline static void fold_store_imm(struct ir_store *ir)
 }
 
 /// \todo: Proper remove non-const stores from const mapping.
-__weak_really_inline static void fold_store(struct ir_store *ir)
+static void fold_store(struct ir_store *ir)
 {
     switch (ir->type) {
     case IR_STORE_BIN: {
@@ -254,21 +277,18 @@ __weak_really_inline static void fold_store(struct ir_store *ir)
 /// If there we cannot get two immediate values, we need to
 /// get at least one immediate values from variable index.
 /// If neither LHS nor RHS are unknown values, do nothing.
-__weak_really_inline static void fold_bin(struct ir_bin *ir)
+static struct ir_node fold_bin(struct ir_bin *ir)
 {
-    fold_node(&ir->lhs);
-    struct ir_node lhs = last_folded;
-
-    fold_node(&ir->rhs);
-    struct ir_node rhs = last_folded;
+    struct ir_node lhs = fold_node(&ir->lhs);
+    struct ir_node rhs = fold_node(&ir->rhs);
 
     struct ir_imm *lhs_imm = lhs.ir;
     struct ir_imm *rhs_imm = rhs.ir;
 
-    last_folded = compute_imm(ir->op, lhs_imm->type, lhs_imm->imm, rhs_imm->imm);
+    return compute_imm(ir->op, lhs_imm->type, lhs_imm->imm, rhs_imm->imm);
 }
 
-__weak_really_inline static void fold_ret(struct ir_ret *ir)
+static void fold_ret(struct ir_ret *ir)
 {
     if (ir->is_void) return;
 
@@ -283,21 +303,19 @@ __weak_really_inline static void fold_ret(struct ir_ret *ir)
     }
 }
 
-__weak_really_inline static void fold_cond(struct ir_cond *ir)
+static void fold_cond(struct ir_cond *ir)
 {
     fold_node(&ir->cond);
 }
 
-static void fold_node(struct ir_node *ir)
+static struct ir_node fold_node(struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_ALLOCA:
     case IR_IMM:
-        fold_imm(ir->ir);
-        break;
+        return fold_imm(ir->ir);
     case IR_SYM:
-        fold_sym(ir->ir);
-        break;
+        return fold_sym(ir->ir);
     case IR_LABEL:
     case IR_JUMP:
     case IR_MEMBER:
@@ -306,26 +324,23 @@ static void fold_node(struct ir_node *ir)
     case IR_FUNC_DECL:
     case IR_FUNC_CALL:
         break;
-    case IR_STORE: {
+    case IR_STORE:
         fold_store(ir->ir);
         break;
-    }
-    case IR_BIN: {
-        fold_bin(ir->ir);
-        break;
-    }
+    case IR_BIN:
+        return fold_bin(ir->ir);
     case IR_RET:
-    case IR_RET_VOID: {
+    case IR_RET_VOID:
         fold_ret(ir->ir);
         break;
-    }
-    case IR_COND: {
+    case IR_COND:
         fold_cond(ir->ir);
         break;
-    }
     default:
         weak_unreachable("Something went wrong.");
     }
+
+    return no_result();
 }
 
 
