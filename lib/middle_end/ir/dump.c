@@ -83,6 +83,8 @@ static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
     case TOK_STAR:    op = "mul"; break;
     case TOK_SLASH:   op = "div"; break;
     case TOK_MOD:     op = "mod"; break;
+
+    case TOK_ASSIGN:  op = "???"; break;
     default:
         weak_unreachable("Unknown operation");
     }

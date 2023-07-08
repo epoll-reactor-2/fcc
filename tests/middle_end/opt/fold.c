@@ -4,304 +4,131 @@
  * This file is distributed under the MIT license.
  */
 
-#include "middle_end/ir/ir.h"
-#include "middle_end/ir/dump.h"
+#include "front_end/analysis/analysis.h"
+#include "front_end/ast/ast.h"
+#include "front_end/lex/lex.h"
+#include "front_end/parse/parse.h"
 #include "middle_end/ir/gen.h"
 #include "middle_end/opt/opt.h"
-#include "util/compiler.h"
+#include "middle_end/ir/dump.h"
+#include "util/diagnostic.h"
 #include "utils/test_utils.h"
+#include <stdio.h>
+
+extern FILE *yyin;
+extern int yylex();
+extern int yylex_destroy();
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void ir_cmp_nodes(struct ir_node *lhs, struct ir_node *rhs)
+bool ir_test(const char *filename)
 {
-    if (lhs->type != rhs->type)
-        ASSERT_TRUE(0 && "Type mismatch");
+    if (strstr(filename, "disabled_") != NULL)
+        return 1;
 
-    switch (lhs->type) {
-    case IR_ALLOCA: {
-        struct ir_alloca *l = lhs->ir;
-        struct ir_alloca *r = rhs->ir;
-        ASSERT_TRUE(
-            l->dt == r->dt &&
-            l->idx == r->idx
-        );
-        break;
+    lex_reset_state();
+    lex_init_state();
+    ir_reset_internal_state();
+
+    if (!yyin) yyin = fopen(filename, "r");
+    else yyin = freopen(filename, "r", yyin);
+    if (yyin == NULL) {
+        perror("fopen()");
+        return false;
     }
-    case IR_IMM: {
-        struct ir_imm *l = lhs->ir;
-        struct ir_imm *r = rhs->ir;
-        ASSERT_TRUE(l->type == r->type);
-        switch (l->type) {
-        case IMM_BOOL:
-            ASSERT_TRUE(l->imm.__bool == r->imm.__bool);
-            break;
-        case IMM_CHAR:
-            ASSERT_TRUE(l->imm.__char == r->imm.__char);
-            break;
-        case IMM_FLOAT:
-            ASSERT_TRUE(l->imm.__float == r->imm.__float);
-            break;
-        case IMM_INT:
-            ASSERT_TRUE(l->imm.__int == r->imm.__int);
-            break;
-        default:
-            break;
+    yylex();
+    fseek(yyin, 0, SEEK_SET);
+
+    tok_array_t *toks = lex_consumed_tokens();
+
+    bool    success = true;
+    char   *expected = NULL;
+    char   *generated = NULL;
+    size_t  _ = 0;
+    FILE   *expected_stream = open_memstream(&expected, &_);
+    FILE   *generated_stream = open_memstream(&generated, &_);
+
+    if (expected_stream == NULL) {
+        perror("open_memstream()");
+        return false;
+    }
+
+    extract_assertion_comment(yyin, expected_stream);
+
+    if (!setjmp(weak_fatal_error_buf)) {
+        struct ast_node *ast = parse(toks->data, toks->data + toks->count);
+
+        /// Preconditions for IR generator.
+        analysis_variable_use_analysis(ast);
+        analysis_functions_analysis(ast);
+        analysis_type_analysis(ast);
+
+        struct ir ir = ir_gen(ast);
+
+        puts("Source:");
+        for (uint64_t i = 0; i < ir.decls_size; ++i) {
+            ir_dump(stdout, ir.decls[i].ir);
         }
-        break;
+
+        ir_opt_fold(&ir);
+
+        puts("Optimized:");
+        for (uint64_t i = 0; i < ir.decls_size; ++i) {
+            ir_dump(stdout, ir.decls[i].ir);
+            ir_dump(generated_stream, ir.decls[i].ir);
+        }
+
+        fflush(generated_stream);
+        ast_node_cleanup(ast);
+        ir_cleanup(&ir);
+        
+        if (strcmp(expected, generated) != 0) {
+            printf("IR mismatch:\n%s\nexpected\n", expected);
+            success = false;
+            goto exit;
+        }
+        printf("Success!\n");
+    } else {
+        /// Error, will be printed in main.
+        return false;
     }
-    case IR_SYM: {
-        struct ir_sym *l = lhs->ir;
-        struct ir_sym *r = rhs->ir;
-        ASSERT_TRUE(l->idx == r->idx);
-        break;
-    }
-    case IR_LABEL: {
-        struct ir_label *l = lhs->ir;
-        struct ir_label *r = rhs->ir;
-        ASSERT_TRUE(l->idx == r->idx);
-        break;
-    }
-    case IR_JUMP: {
-        struct ir_jump *l = lhs->ir;
-        struct ir_jump *r = rhs->ir;
-        ASSERT_TRUE(l->idx == r->idx);
-        break;
-    }
-    case IR_STORE: {
-        struct ir_store *l = lhs->ir;
-        struct ir_store *r = rhs->ir;
-        ASSERT_TRUE(l->type == r->type);
-        ir_cmp_nodes(&l->body, &r->body);
-        break;
-    }
-    case IR_BIN: {
-        struct ir_bin *l = lhs->ir;
-        struct ir_bin *r = rhs->ir;
-        ASSERT_TRUE(l->op == r->op);
-        ir_cmp_nodes(&l->lhs, &r->lhs);
-        ir_cmp_nodes(&l->rhs, &r->rhs);
-        break;
-    }
-    case IR_COND: {
-        struct ir_cond *l = lhs->ir;
-        struct ir_cond *r = rhs->ir;
-        ASSERT_TRUE(l->goto_label == r->goto_label);
-        ir_cmp_nodes(&l->cond, &r->cond);
-        break;
-    }
-    case IR_RET:
-    case IR_RET_VOID: {
-        struct ir_ret *l = lhs->ir;
-        struct ir_ret *r = rhs->ir;
-        ASSERT_TRUE(l->is_void == r->is_void);
-        ir_cmp_nodes(&l->op, &r->op);
-        break;
-    }
-    case IR_MEMBER:
-    case IR_ARRAY_ACCESS:
-    case IR_TYPE_DECL:
-    case IR_FUNC_DECL:
-    case IR_FUNC_CALL: {
-        break;
-    }
-    default:
-        weak_unreachable("Something went wrong.");
-    }
-}
+exit:
 
-void ir_cmp(
-    struct ir_node *converted,
-    uint64_t        converted_siz,
-    struct ir_node *assert,
-    uint64_t        assert_siz
-) {
-    if (converted_siz != assert_siz)
-        ASSERT_TRUE(0 && "Size mismatch");
+    yylex_destroy();
+    tokens_cleanup(toks);
+    fclose(expected_stream);
+    fclose(generated_stream);
+    free(expected);
+    free(generated);
 
-    for (uint64_t i = 0; i < assert_siz; ++i) {
-        struct ir_node *lhs = &converted[i];
-        struct ir_node *rhs = &assert[i];
-        ir_cmp_nodes(lhs, rhs);
-    }
-}
-
-void test_fold(
-    struct ir_node *src,
-    uint64_t        src_siz,
-    struct ir_node *assert,
-    uint64_t        assert_siz
-) {
-    struct ir_node decl = ir_func_decl_init(
-        /*name=*/      "f",
-        /*args_size=*/ 0,
-        /*args=*/      NULL,
-        /*body_size=*/ src_siz,
-        /*body=*/      src
-    );
-
-    struct ir_node assert_decl = ir_func_decl_init(
-        /*name=*/      "f",
-        /*args_size=*/ 0,
-        /*args=*/      NULL,
-        /*body_size=*/ assert_siz,
-        /*body=*/      assert
-    );
-
-    (void) assert;
-    (void) assert_siz;
-
-    puts("\nSource:");
-    ir_dump_node(stdout, &decl);
-    puts("");
-
-    struct ir ir = {
-        .decls      = &decl,
-        .decls_size = 1
-    };
-
-    ir_opt_fold(&ir);
-
-    puts("\nGot:");
-    ir_dump_node(stdout, &decl);
-    puts("");
-
-    puts("\nExpected:");
-    ir_dump_node(stdout, &assert_decl);
-    puts("");
-
-    ir_cmp(src, src_siz, assert, assert_siz);
-}
-
-#define _ALLOCA(type, idx) ir_alloca_init(type, idx)
-#define _IMM_B(x)          ir_imm_bool_init(x)
-#define _IMM_C(x)          ir_imm_char_init(x)
-#define _IMM_F(x)          ir_imm_float_init(x)
-#define _IMM_I(x)          ir_imm_int_init(x)
-#define _SYM(x)            ir_sym_init(x)
-#define _STORE_I(idx, x)   ir_store_imm_init(idx, x)
-#define _STORE_V(idx, x)   ir_store_var_init(idx, x)
-#define _STORE_B(idx, x)   ir_store_bin_init(idx, x)
-#define _BIN(op, l, r)     ir_bin_init(op, l, r)
-#define _LBL(idx)          ir_label_init(idx)
-#define _JMP(idx)          ir_jump_init(idx)
-#define _COND(body, jmp)   ir_cond_init(body, jmp)
-#define _RET(is_void, op)  ir_ret_init(is_void, op)
-
-void fold_basic()
-{
-    TEST_START_INFO
-
-    struct ir_node ir[] = {
-        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
-    };
-
-    struct ir_node assert[] = {
-        _STORE_I(0, _IMM_I(3)),
-    };
-
-    test_fold(
-        ir,     __weak_array_size(ir),
-        assert, __weak_array_size(assert)
-    );
-
-    TEST_END_INFO
-}
-
-void fold_alloca()
-{
-    TEST_START_INFO
-
-    ir_reset_internal_state();
-    struct ir_node ir[] = {
-        _ALLOCA(D_T_INT, 0),
-        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
-        _ALLOCA(D_T_INT, 1),
-        _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(2))),
-    };
-
-    ir_reset_internal_state();
-    struct ir_node assert[] = {
-        _ALLOCA(D_T_INT, 0),
-        _STORE_I(0, _IMM_I(5)),
-    };
-
-    test_fold(
-        ir,     __weak_array_size(ir),
-        assert, __weak_array_size(assert)
-    );
-
-
-    TEST_END_INFO
-}
-
-void fold_alloca_chain()
-{
-    TEST_START_INFO
-
-    ir_reset_internal_state();
-    struct ir_node ir[] = {
-        _ALLOCA(D_T_INT, 0),
-        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(1), _IMM_I(2))),
-        _ALLOCA(D_T_INT, 1),
-        _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(2))),
-        _ALLOCA(D_T_INT, 2),
-        _STORE_B(2, _BIN(TOK_PLUS, _SYM(0), _SYM(1))),
-        _ALLOCA(D_T_INT, 3),
-        _STORE_B(3, _BIN(TOK_PLUS, _SYM(1), _SYM(2))),
-        _RET(false, _SYM(3))
-    };
-
-    ir_reset_internal_state();
-    struct ir_node assert[] = {
-        _RET(false, _IMM_I(13))
-    };
-
-    test_fold(
-        ir,     __weak_array_size(ir),
-        assert, __weak_array_size(assert)
-    );
-
-
-    TEST_END_INFO
-}
-
-void fold_sym()
-{
-    TEST_START_INFO
-
-    ir_reset_internal_state();
-    struct ir_node ir[] = {
-        _ALLOCA(D_T_INT, 0),
-        _STORE_B(0, _BIN(TOK_PLUS, _IMM_I(2), _IMM_I(4))),
-        _ALLOCA(D_T_INT, 1),
-        _STORE_B(1, _BIN(TOK_PLUS, _SYM(0), _IMM_I(6))),
-        _ALLOCA(D_T_INT, 2),
-        _STORE_V(2, 1),
-        _ALLOCA(D_T_INT, 3),
-        _STORE_V(3, 2),
-        _RET(false, _SYM(3))
-    };
-
-    ir_reset_internal_state();
-    struct ir_node assert[] = {
-        _RET(false, _IMM_I(12))
-    };
-
-    test_fold(
-        ir,     __weak_array_size(ir),
-        assert, __weak_array_size(assert)
-    );
-
-
-    TEST_END_INFO
+    return success;
 }
 
 int main()
 {
-    fold_basic();
-    // fold_alloca();
-    // fold_alloca_chain();
-    fold_sym();
+    int ret = 0;
+    static char *err_buf = NULL;
+    static char *warn_buf = NULL;
+    static size_t err_buf_len = 0;
+    static size_t warn_buf_len = 0;
+
+    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
+    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+
+    if (!do_on_each_file("/test_inputs/fold", ir_test)) {
+        ret = -1;
+
+        if (err_buf)
+            fputs(err_buf, stderr);
+
+        if (warn_buf)
+            fputs(warn_buf, stderr);
+    }
+
+    fclose(diag_error_memstream);
+    fclose(diag_warn_memstream);
+    free(err_buf);
+    free(warn_buf);
+    return ret;
 }
