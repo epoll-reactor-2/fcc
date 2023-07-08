@@ -44,7 +44,7 @@ static union ir_imm_val consts_mapping_get(uint64_t idx)
 }
 
 static void consts_mapping_update(uint64_t idx, uint64_t value)
-{   
+{
     hashmap_remove(&consts_mapping, idx);
     hashmap_put(&consts_mapping, idx, value);
     printf("Consts mapping: update idx:%ld, value:%ld\n", idx, value);
@@ -115,7 +115,7 @@ static float fold_floats(enum token_type op, float l, float r)
     }
 }
 
-__weak_wur static struct ir_node compute_imm(
+__weak_wur __weak_unused static struct ir_node compute_imm(
     enum  token_type  op,
     enum  ir_imm_type type,
     union ir_imm_val  lhs,
@@ -166,59 +166,30 @@ static struct ir_node fold_imm(struct ir_imm *ir)
     return ir_imm_int_init(ir->imm.__int);
 }
 
-/// I don't like this.
 static void fold_store_bin(struct ir_store *ir)
 {
-    struct ir_bin *bin = ir->body.ir;
+    struct ir_node folded = fold_node(&ir->body);
 
-    if (bin->lhs.type == IR_IMM &&
-        bin->rhs.type == IR_IMM) {
-        struct ir_node tmp = fold_node(&ir->body);
+    if (is_no_result(&folded)) {
+        consts_mapping_remove(ir->idx);
+    }
+
+    /// The value returned from store argument fold is
+    /// binary or immediate values. No symbols returned.
+    if (folded.type == IR_BIN) {
         ir_node_cleanup(ir->body);
-        ir->body = tmp;
+        ir->body = folded;
+        ir->type = IR_STORE_BIN;
+        consts_mapping_remove(ir->idx);
+    }
+
+    if (folded.type == IR_IMM) {
+        struct ir_imm *imm = folded.ir;
+
+        ir_node_cleanup(ir->body);
+        ir->body = folded;
         ir->type = IR_STORE_IMM;
-
-        struct ir_imm *imm = ir->body.ir;
-        consts_mapping_add(ir->idx, imm->imm.__int);
-    }
-
-    if ((bin->lhs.type == IR_SYM &&
-         bin->rhs.type == IR_IMM
-        ) || (
-         bin->lhs.type == IR_SYM &&
-         bin->rhs.type == IR_SYM
-        )
-    ) {
-        struct ir_sym *sym_lhs = bin->lhs.ir;
-
-        if (consts_mapping_is_const(sym_lhs->idx)) {
-            struct ir_node tmp = fold_node(&ir->body);
-            ir_node_cleanup(ir->body);
-            ir->body = tmp;
-            ir->type = IR_STORE_IMM;
-
-            struct ir_imm *imm = ir->body.ir;
-            consts_mapping_update(ir->idx, imm->imm.__int);
-        } else {
-            consts_mapping_remove(ir->idx);
-        }
-    }
-
-    if (bin->lhs.type == IR_IMM &&
-        bin->rhs.type == IR_SYM) {
-        struct ir_sym *sym = bin->rhs.ir;
-
-        if (consts_mapping_is_const(sym->idx)) {
-            struct ir_node tmp = fold_node(&ir->body);
-            ir_node_cleanup(ir->body);
-            ir->body = tmp;
-            ir->type = IR_STORE_IMM;
-
-            struct ir_imm *imm = ir->body.ir;
-            consts_mapping_update(ir->idx, imm->imm.__int);
-        } else {
-            consts_mapping_remove(ir->idx);
-        }
+        consts_mapping_update(ir->idx, imm->imm.__int);
     }
 }
 
@@ -253,7 +224,6 @@ static void fold_store_imm(struct ir_store *ir)
     }
 }
 
-/// \todo: Proper remove non-const stores from const mapping.
 static void fold_store(struct ir_store *ir)
 {
     switch (ir->type) {
@@ -274,18 +244,23 @@ static void fold_store(struct ir_store *ir)
     }
 }
 
-/// If there we cannot get two immediate values, we need to
-/// get at least one immediate values from variable index.
-/// If neither LHS nor RHS are unknown values, do nothing.
 static struct ir_node fold_bin(struct ir_bin *ir)
 {
-    struct ir_node lhs = fold_node(&ir->lhs);
-    struct ir_node rhs = fold_node(&ir->rhs);
+    struct ir_node l = fold_node(&ir->lhs);
+    struct ir_node r = fold_node(&ir->rhs);
 
-    struct ir_imm *lhs_imm = lhs.ir;
-    struct ir_imm *rhs_imm = rhs.ir;
+    if (l.type == IR_IMM && r.type == IR_IMM) {
+        struct ir_imm *l_imm = l.ir;
+        struct ir_imm *r_imm = r.ir;
 
-    return compute_imm(ir->op, lhs_imm->type, lhs_imm->imm, rhs_imm->imm);
+        return compute_imm(ir->op, l_imm->type, l_imm->imm, r_imm->imm);
+    }
+
+    return ir_bin_init(
+        ir->op,
+        is_no_result(&l) ? ir_sym_init( ((struct ir_sym *) ir->lhs.ir)->idx) : l,
+        is_no_result(&r) ? ir_sym_init( ((struct ir_sym *) ir->rhs.ir)->idx) : r
+    );
 }
 
 static void fold_ret(struct ir_ret *ir)
@@ -344,6 +319,8 @@ static struct ir_node fold_node(struct ir_node *ir)
 }
 
 
+/// This is totally incorrect. Rather we should collect instruction
+/// indices and then just pop out nodes by these indices.
 __weak_unused
 static void fold_remove_unused_stmts(struct ir_func_decl *decl)
 {
@@ -394,7 +371,7 @@ static void fold(struct ir_func_decl *decl)
         fold_node(node);
     }
 
-    fold_remove_unused_stmts(decl);
+    // fold_remove_unused_stmts(decl);
 }
 
 void ir_opt_fold(struct ir *ir)
