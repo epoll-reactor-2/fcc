@@ -92,7 +92,7 @@ struct ir_node ir_store_imm_init(int32_t idx, struct ir_node imm)
 struct ir_node ir_store_var_init(int32_t idx, int32_t var_idx)
 {
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
-    ir->type = IR_STORE_VAR;
+    ir->type = IR_STORE_SYM;
     ir->idx = idx;
     ir->body = ir_sym_init(var_idx);
     ++ir_instr_index;

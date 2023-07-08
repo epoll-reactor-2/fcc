@@ -147,87 +147,103 @@ __weak_really_inline static void fold_imm(struct ir_imm *ir)
     last_folded = ir_imm_int_init(ir->imm.__int);
 }
 
-/// \todo: Proper remove non-const stores from const mapping.
-__weak_really_inline static void fold_store(struct ir_store *ir)
+/// I don't like this.
+__weak_really_inline static void fold_store_bin(struct ir_store *ir)
 {
-    switch (ir->type) {
-    case IR_STORE_BIN: {
-        struct ir_bin *bin = ir->body.ir;
+    struct ir_bin *bin = ir->body.ir;
 
-        if (bin->lhs.type == IR_IMM &&
-            bin->rhs.type == IR_IMM) {
+    if (bin->lhs.type == IR_IMM &&
+        bin->rhs.type == IR_IMM) {
+        fold_node(&ir->body);
+        ir_node_cleanup(ir->body);
+        ir->body = last_folded;
+        ir->type = IR_STORE_IMM;
+
+        struct ir_imm *imm = ir->body.ir;
+        consts_mapping_add(ir->idx, imm->imm.__int);
+    }
+
+    if ((bin->lhs.type == IR_SYM &&
+         bin->rhs.type == IR_IMM
+        ) || (
+         bin->lhs.type == IR_SYM &&
+         bin->rhs.type == IR_SYM
+        )
+    ) {
+        struct ir_sym *sym = bin->lhs.ir;
+
+        if (consts_mapping_is_const(sym->idx)) {
             fold_node(&ir->body);
             ir_node_cleanup(ir->body);
             ir->body = last_folded;
             ir->type = IR_STORE_IMM;
 
             struct ir_imm *imm = ir->body.ir;
-            consts_mapping_add(ir->idx, imm->imm.__int);
+            consts_mapping_update(ir->idx, imm->imm.__int);
         }
-
-        if ((bin->lhs.type == IR_SYM &&
-             bin->rhs.type == IR_IMM
-            ) || (
-             bin->lhs.type == IR_SYM &&
-             bin->rhs.type == IR_SYM
-            )
-        ) {
-            struct ir_sym *sym = bin->lhs.ir;
-
-            if (consts_mapping_is_const(sym->idx)) {
-                fold_node(&ir->body);
-                ir_node_cleanup(ir->body);
-                ir->body = last_folded;
-                ir->type = IR_STORE_IMM;
-
-                struct ir_imm *imm = ir->body.ir;
-                consts_mapping_update(ir->idx, imm->imm.__int);
-            }
-        }
-
-        if (bin->lhs.type == IR_IMM &&
-            bin->rhs.type == IR_SYM) {
-            struct ir_sym *sym = bin->rhs.ir;
-
-            if (consts_mapping_is_const(sym->idx)) {
-                fold_node(&ir->body);
-                ir_node_cleanup(ir->body);
-                ir->body = last_folded;
-                ir->type = IR_STORE_IMM;
-
-                struct ir_imm *imm = ir->body.ir;
-                consts_mapping_update(ir->idx, imm->imm.__int);
-            }
-        }
-        break;
     }
-    case IR_STORE_VAR: {
-        struct ir_sym *sym = ir->body.ir;
+
+    if (bin->lhs.type == IR_IMM &&
+        bin->rhs.type == IR_SYM) {
+        struct ir_sym *sym = bin->rhs.ir;
 
         if (consts_mapping_is_const(sym->idx)) {
-            union ir_imm_val imm = consts_mapping_get(sym->idx);
-
+            fold_node(&ir->body);
             ir_node_cleanup(ir->body);
-            /// \todo: Any type
-            ir->body = ir_imm_int_init(imm.__int);
+            ir->body = last_folded;
             ir->type = IR_STORE_IMM;
 
-            consts_mapping_update(ir->idx, imm.__int);
-        } else {
-            consts_mapping_remove(ir->idx);
+            struct ir_imm *imm = ir->body.ir;
+            consts_mapping_update(ir->idx, imm->imm.__int);
         }
+    }
+}
+
+__weak_really_inline static void fold_store_sym(struct ir_store *ir)
+{
+    struct ir_sym *sym = ir->body.ir;
+
+    if (consts_mapping_is_const(sym->idx)) {
+        union ir_imm_val imm = consts_mapping_get(sym->idx);
+
+        ir_node_cleanup(ir->body);
+        /// \todo: Any type
+        ir->body = ir_imm_int_init(imm.__int);
+        ir->type = IR_STORE_IMM;
+
+        consts_mapping_update(ir->idx, imm.__int);
+    } else {
+        consts_mapping_remove(ir->idx);
+    }
+}
+
+__weak_really_inline static void fold_store_imm(struct ir_store *ir)
+{
+    struct ir_imm *imm = ir->body.ir;
+
+    printf("Store immediate\n");
+
+    if (consts_mapping_is_const(ir->idx)) {
+        consts_mapping_update(ir->idx, imm->imm.__int);
+    } else {
+        consts_mapping_add(ir->idx, imm->imm.__int);
+    }
+}
+
+/// \todo: Proper remove non-const stores from const mapping.
+__weak_really_inline static void fold_store(struct ir_store *ir)
+{
+    switch (ir->type) {
+    case IR_STORE_BIN: {
+        fold_store_bin(ir);
+        break;
+    }
+    case IR_STORE_SYM: {
+        fold_store_sym(ir);
         break;
     }
     case IR_STORE_IMM: {
-        struct ir_imm *imm = ir->body.ir;
-
-        printf("Store immediate\n");
-
-        if (consts_mapping_is_const(ir->idx)) {
-            consts_mapping_update(ir->idx, imm->imm.__int);
-        } else {
-            consts_mapping_add(ir->idx, imm->imm.__int);
-        }
+        fold_store_imm(ir);
         break;
     }
     default:
