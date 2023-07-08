@@ -98,7 +98,7 @@ struct ir_sym {
 
 enum ir_store_type {
     IR_STORE_IMM,
-    IR_STORE_VAR,
+    IR_STORE_SYM,
     IR_STORE_BIN,
 };
 
