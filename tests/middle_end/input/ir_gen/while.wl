@@ -13,7 +13,7 @@
 //      11:   store %4 %0
 //      12:   store %4 %4 add $1
 //      13:   store %0 %0 add $1
-//      14:   jmp L7
+//      14:   jmp L2
 //      15:   ret $0
 int main() {
     int i = 1;

@@ -11,7 +11,7 @@
 //      26:   store %8 %4 add %9
 //      27:   store %7 %4 ??? %8
 //      28:   store %5 %5 add $1
-//      29:   jmp L14
+//      29:   jmp L12
 //      30:   ret %4
 int complex() {
     int a = 10000;

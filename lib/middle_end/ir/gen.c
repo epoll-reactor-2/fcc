@@ -107,12 +107,12 @@ static void visit_ast_for(struct ast_for *ast)
 
     /// Condition is optional.
     if (ast->condition) {
+        next_iter_jump_idx       = ir_last.instr_idx + 1;
         visit_ast(ast->condition);
         struct ir_node  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
         struct ir_node  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
         struct ir_cond *cond_ptr = cond.ir;
         struct ir_node  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
-        next_iter_jump_idx       = ir_last.instr_idx;
         exit_jmp_ptr             = exit_jmp.ir;
 
         vector_push_back(ir_stmts, cond);
@@ -145,13 +145,13 @@ static void visit_ast_while(struct ast_while *ast)
     /// L4: jump to L0 (condition)
     /// L5: after while instr
 
+    int32_t         next_iter_idx = ir_last.instr_idx + 1;
     visit_ast(ast->condition);
     struct ir_node  cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
     struct ir_node  cond          = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr      = cond.ir;
     struct ir_node  exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *exit_jmp_ptr  = exit_jmp.ir;
-    int32_t         next_iter_idx = ir_last.instr_idx;
 
     vector_push_back(ir_stmts, cond);
     vector_push_back(ir_stmts, exit_jmp);
