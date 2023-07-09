@@ -14,7 +14,11 @@
 #include <string.h>
 #include <assert.h>
 
+/// Hashmap to refer by instruction index.
+static hashmap_t alloca_stmts;
 static hashmap_t consts_mapping;
+
+static vector_t(uint64_t) redundant_stmts;
 
 static void consts_mapping_init()
 {
@@ -22,17 +26,24 @@ static void consts_mapping_init()
         hashmap_destroy(&consts_mapping);
     }
     hashmap_init(&consts_mapping, 512);
+
+    if (alloca_stmts.buckets) {
+        hashmap_destroy(&alloca_stmts);
+    }
+    hashmap_init(&alloca_stmts, 512);
+
+    vector_clear(redundant_stmts);
 }
 
 static void consts_mapping_add(uint64_t idx, uint64_t value)
 {
     hashmap_put(&consts_mapping, idx, value);
-    printf("Consts mapping: add idx:%ld, value:%ld\n", idx, value);
+    // printf("Consts mapping: add idx:%ld, value:%ld\n", idx, value);
 }
 
 static void consts_mapping_remove(uint64_t idx)
 {
-    printf("Consts mapping: remove idx:%ld\n", idx);
+    // printf("Consts mapping: remove idx:%ld\n", idx);
     hashmap_remove(&consts_mapping, idx);
 }
 
@@ -47,14 +58,26 @@ static void consts_mapping_update(uint64_t idx, uint64_t value)
 {
     hashmap_remove(&consts_mapping, idx);
     hashmap_put(&consts_mapping, idx, value);
-    printf("Consts mapping: update idx:%ld, value:%ld\n", idx, value);
+    // printf("Consts mapping: update idx:%ld, value:%ld\n", idx, value);
 }
 
 static bool consts_mapping_is_const(uint64_t idx)
 {
     uint64_t got = hashmap_get(&consts_mapping, idx);
-    printf("Consts mapping: is_const? idx:%ld -> %s\n", idx, (got != 0) ? "yes" : "no");
+    // printf("Consts mapping: is_const? idx:%ld -> %s\n", idx, (got != 0) ? "yes" : "no");
     return got != 0;
+}
+
+static void alloca_stmts_put(uint64_t sym_idx, uint64_t instr_idx)
+{
+    // printf("Alloca mapping: put variable %%%ld, idx %ld\n", sym_idx, instr_idx);
+    hashmap_put(&alloca_stmts, sym_idx, instr_idx);
+}
+
+static void alloca_stmts_remove(uint64_t sym_idx)
+{
+    // printf("Alloca mapping: remove variable %%%ld\n", sym_idx);
+    hashmap_remove(&alloca_stmts, sym_idx);
 }
 
 static bool fold_booleans(enum token_type op, bool l, bool r)
@@ -166,67 +189,76 @@ static struct ir_node fold_imm(struct ir_imm *ir)
     return ir_imm_int_init(ir->imm.__int);
 }
 
-static void fold_store_bin(struct ir_store *ir)
+static void fold_store_bin(struct ir_node *ir)
 {
-    struct ir_node folded = fold_node(&ir->body);
+    struct ir_store *store = ir->ir;
+    struct ir_node folded = fold_node(&store->body);
 
     if (is_no_result(&folded)) {
-        consts_mapping_remove(ir->idx);
+        consts_mapping_remove(store->idx);
+        alloca_stmts_remove(store->idx);
     }
 
     /// The value returned from store argument fold is
     /// binary or immediate values. No symbols returned.
     if (folded.type == IR_BIN) {
-        ir_node_cleanup(ir->body);
-        ir->body = folded;
-        ir->type = IR_STORE_BIN;
-        consts_mapping_remove(ir->idx);
+        ir_node_cleanup(store->body);
+        store->body = folded;
+        store->type = IR_STORE_BIN;
+        consts_mapping_remove(store->idx);
+        alloca_stmts_remove(store->idx);
     }
 
     if (folded.type == IR_IMM) {
         struct ir_imm *imm = folded.ir;
 
-        ir_node_cleanup(ir->body);
-        ir->body = folded;
-        ir->type = IR_STORE_IMM;
-        consts_mapping_update(ir->idx, imm->imm.__int);
+        ir_node_cleanup(store->body);
+        store->body = folded;
+        store->type = IR_STORE_IMM;
+        consts_mapping_update(store->idx, imm->imm.__int);
+        vector_push_back(redundant_stmts, ir->instr_idx);
     }
 }
 
-static void fold_store_sym(struct ir_store *ir)
+static void fold_store_sym(struct ir_node *ir)
 {
-    struct ir_sym *sym = ir->body.ir;
+    struct ir_store *store = ir->ir;
+    struct ir_sym *sym = store->body.ir;
 
     if (consts_mapping_is_const(sym->idx)) {
         union ir_imm_val imm = consts_mapping_get(sym->idx);
 
-        ir_node_cleanup(ir->body);
+        ir_node_cleanup(store->body);
         /// \todo: Any type
-        ir->body = ir_imm_int_init(imm.__int);
-        ir->type = IR_STORE_IMM;
+        store->body = ir_imm_int_init(imm.__int);
+        store->type = IR_STORE_IMM;
 
-        consts_mapping_update(ir->idx, imm.__int);
+        consts_mapping_update(store->idx, imm.__int);
+        vector_push_back(redundant_stmts, ir->instr_idx);
     } else {
-        consts_mapping_remove(ir->idx);
+        consts_mapping_remove(store->idx);
+        alloca_stmts_remove(store->idx);
     }
 }
 
-static void fold_store_imm(struct ir_store *ir)
+static void fold_store_imm(struct ir_node *ir)
 {
-    struct ir_imm *imm = ir->body.ir;
+    struct ir_store *store = ir->ir;
+    struct ir_imm *imm = store->body.ir;
 
-    printf("Store immediate\n");
-
-    if (consts_mapping_is_const(ir->idx)) {
-        consts_mapping_update(ir->idx, imm->imm.__int);
+    if (consts_mapping_is_const(store->idx)) {
+        consts_mapping_update(store->idx, imm->imm.__int);
     } else {
-        consts_mapping_add(ir->idx, imm->imm.__int);
+        consts_mapping_add(store->idx, imm->imm.__int);
     }
+
+    vector_push_back(redundant_stmts, ir->instr_idx);
 }
 
-static void fold_store(struct ir_store *ir)
+static void fold_store(struct ir_node *ir)
 {
-    switch (ir->type) {
+    struct ir_store *store = ir->ir;
+    switch (store->type) {
     case IR_STORE_BIN: {
         fold_store_bin(ir);
         break;
@@ -283,10 +315,19 @@ static void fold_cond(struct ir_cond *ir)
     fold_node(&ir->cond);
 }
 
+static void fold_alloca(struct ir_node *ir)
+{
+    struct ir_alloca *alloca = ir->ir;
+
+    alloca_stmts_put(alloca->idx, ir->instr_idx);
+}
+
 static struct ir_node fold_node(struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_ALLOCA:
+        fold_alloca(ir);
+        break;
     case IR_IMM:
         return fold_imm(ir->ir);
     case IR_SYM:
@@ -300,7 +341,7 @@ static struct ir_node fold_node(struct ir_node *ir)
     case IR_FUNC_CALL:
         break;
     case IR_STORE:
-        fold_store(ir->ir);
+        fold_store(ir);
         break;
     case IR_BIN:
         return fold_bin(ir->ir);
@@ -318,46 +359,28 @@ static struct ir_node fold_node(struct ir_node *ir)
     return no_result();
 }
 
-
-/// This is totally incorrect. Rather we should collect instruction
-/// indices and then just pop out nodes by these indices.
-__weak_unused
-static void fold_remove_unused_stmts(struct ir_func_decl *decl)
+static void fold_remove_redundant_stmts(struct ir_func_decl *decl)
 {
-    /// Vector used for convenient API.
+    /// Vector is used for convenient erasure.
     vector_t(struct ir_node) stmts;
 
     stmts.data  = decl->body;
     stmts.count = decl->body_size;
     stmts.size  = stmts.count * sizeof (struct ir_node *);
 
-    vector_foreach_back(stmts, i) {
-        struct ir_node *node = &vector_at(stmts, i);
+    vector_foreach_back(redundant_stmts, i) {
+        uint64_t idx = vector_at(redundant_stmts, i);
+        // printf("Redundant stmt instr_idx: %ld\n", idx);
+        vector_erase(stmts, idx);
+    }
 
-        switch (node->type) {
-
-        case IR_ALLOCA: {
-            struct ir_alloca *alloca = node->ir;
-
-            if (consts_mapping_is_const(alloca->idx)) {
-                printf("Remove alloca of %d\n", alloca->idx);
-                vector_erase(stmts, (size_t) node->instr_idx);
+    hashmap_foreach(&alloca_stmts, k, v) {
+        (void) k;
+        // printf("Redundant alloca for symbol %%%ld, instr_idx: %ld\n", k, v);
+        vector_foreach_back(stmts, i) {
+            if (vector_at(stmts, i).instr_idx == (int32_t) v) {
+                vector_erase(stmts, i);
             }
-            break;
-        }
-
-        case IR_STORE: {
-            struct ir_store *store = node->ir;
-
-            if (consts_mapping_is_const(store->idx)) {
-                printf("Remove store to %d\n", store->idx);
-                vector_erase(stmts, (size_t) node->instr_idx);
-            }
-            break;
-        }
-
-        default:
-            break;
         }
     }
 
@@ -371,7 +394,7 @@ static void fold(struct ir_func_decl *decl)
         fold_node(node);
     }
 
-    // fold_remove_unused_stmts(decl);
+    fold_remove_redundant_stmts(decl);
 }
 
 void ir_opt_fold(struct ir *ir)
