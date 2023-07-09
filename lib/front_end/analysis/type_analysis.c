@@ -337,7 +337,7 @@ static char *decl_name(struct ast_node *decl)
     if (decl->type == AST_ARRAY_DECL)
         return ( (struct ast_array_decl *) decl->ast )->name;
 
-    weak_unreachable("Declaration expected");
+    weak_unreachable("Declaration expected.");
 }
 
 static void visit_ast_function_call(struct ast_node *ast)
@@ -478,7 +478,7 @@ void visit_ast_node(struct ast_node *ast)
         visit_ast_function_call(ast);
         break;
     default:
-        weak_unreachable("Wrong AST type");
+        weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
     }
 }
 

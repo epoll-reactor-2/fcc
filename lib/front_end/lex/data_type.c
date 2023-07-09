@@ -18,6 +18,7 @@ const char *data_type_to_string(enum data_type dt)
     case D_T_BOOL:    return "boolean";
     case D_T_STRING:  return "string";
     case D_T_STRUCT:  return "struct";
-    default:         weak_unreachable("Should not reach there.");
+    default:
+        weak_unreachable("Unknown data type (numeric: %d).", dt);
     }
 }

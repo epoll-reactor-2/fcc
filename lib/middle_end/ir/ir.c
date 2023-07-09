@@ -325,7 +325,8 @@ void ir_node_cleanup(struct ir_node ir)
     case IR_TYPE_DECL:    ir_type_decl_cleanup(ir.ir); break;
     case IR_FUNC_DECL:    ir_func_decl_cleanup(ir.ir); break;
     case IR_FUNC_CALL:    ir_func_call_cleanup(ir.ir); break;
-    default: weak_unreachable("Something went wrong.");
+    default:
+        weak_unreachable("Unknown IR type (numeric: %d).", ir.type);
     }
 
     weak_free(ir.ir);

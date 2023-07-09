@@ -8,7 +8,7 @@
 //       6:   alloca int %2
 //       7:   store %2 %0
 //       8:   store %2 %2 add $1
-//       9:   jmp L4
+//       9:   jmp L3
 //      10:   ret $0
 int main() {
     for (int i = 0; i < 10;) {

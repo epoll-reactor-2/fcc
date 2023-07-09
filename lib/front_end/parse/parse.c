@@ -25,7 +25,11 @@ static enum data_type tok_to_data_type(enum token_type t)
     case TOK_CHAR:   return D_T_CHAR;
     case TOK_BOOL:   return D_T_BOOL;
     case TOK_SYMBOL: return D_T_STRUCT;
-    default:         weak_unreachable("Cannot convert token to data type");
+    default:
+        weak_unreachable(
+            "Cannot convert token `%s` to the data type",
+            tok_to_string(t)
+        );
     }
 }
 
@@ -288,7 +292,10 @@ static struct ast_node *parse_decl_without_initializer()
         else
             return parse_var_decl_without_initializer();
     default:
-      weak_unreachable("Data type expected");
+        weak_unreachable(
+            "Data type expected, got `%s`.",
+            tok_to_string(ptr->type)
+        );
     }
 }
 
@@ -645,7 +652,7 @@ static struct ast_node *parse_iteration_stmt()
     case TOK_WHILE:
         return parse_while();
     default:
-        weak_unreachable("Loop types are checked in function above");
+        weak_unreachable("Loop types are checked in the function above.");
     }
 }
 

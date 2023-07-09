@@ -171,7 +171,7 @@ void visit_ast_node(struct ast_node *ast)
         visit_ast_function_call(ast);
         break;
     default:
-        weak_unreachable("Wrong AST type");
+        weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
     }
 }
 

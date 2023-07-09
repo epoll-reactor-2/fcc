@@ -64,7 +64,7 @@ __weak_unused static const char *x86_alloc_type(enum data_type dt, int32_t idx)
     case D_T_CHAR: return "byte";
     case D_T_INT:  return "word";
     default:
-        weak_unreachable("Should not reach there.");
+        weak_unreachable("Unknown data type (numeric: %d).", dt);
     }    
 }
 
@@ -79,7 +79,7 @@ __weak_unused static const char *x86_load_postfix(enum data_type dt, int32_t idx
     case D_T_CHAR: return "zbq";
     case D_T_INT:  return "slq";
     default:
-        weak_unreachable("Should not reach there.");
+        weak_unreachable("Unknown data type (numeric: %d).", dt);
     }
 }
 
@@ -91,7 +91,7 @@ __weak_unused static const char *x86_store_postfix(enum data_type dt, int32_t id
     case D_T_CHAR: return "b";
     case D_T_INT:  return "l";
     default:
-        weak_unreachable("Should not reach there.");
+        weak_unreachable("Unknown data type (numeric: %d).", dt);
     }
 }
 
@@ -107,7 +107,7 @@ static const char *x86_get_reg(int32_t reg, enum data_type dt, int32_t indirecti
         case D_T_CHAR: return "%al";
         case D_T_INT:  return "%eax";
         default:
-            weak_unreachable("Should not reach there.");
+            weak_unreachable("Unknown data type (numeric: %d).", dt);
         }
     } /// x86_reg_rax
     case x86_reg_rdx: {
@@ -118,7 +118,7 @@ static const char *x86_get_reg(int32_t reg, enum data_type dt, int32_t indirecti
         case D_T_CHAR: return "%dl";
         case D_T_INT:  return "%edx";
         default:
-            weak_unreachable("Should not reach there.");
+            weak_unreachable("Unknown data type (numeric: %d).", dt);
         }
     } /// x86_reg_rdx
     default: {
@@ -129,7 +129,7 @@ static const char *x86_get_reg(int32_t reg, enum data_type dt, int32_t indirecti
         case D_T_CHAR: return x86_8_bit_regs[reg];
         case D_T_INT:  return x86_32_bit_regs[reg];
         default:
-            weak_unreachable("Should not reach there.");
+            weak_unreachable("Unknown data type (numeric: %d).", dt);
         }
     } /// default
     }
@@ -218,7 +218,7 @@ static uint64_t x86_sizeof(enum data_type dt)
     case D_T_INT:   return 4;
     case D_T_FLOAT: return 4;
     default:
-        weak_unreachable("Should not reach there.");
+        weak_unreachable("Unknown data type (numeric: %d).", dt);
     }
 }
 
@@ -268,7 +268,7 @@ static void visit_ir_imm(struct ir_imm *ir)
         break;
     }
     default:
-        weak_unreachable("Should not reach there.");
+        weak_unreachable("Unknown immediate IR type (numeric: %d).", ir->type);
     }
 
     x86_last_reg = reg;
@@ -404,7 +404,7 @@ static void visit_ir_node(struct ir_node ir)
     case IR_FUNC_DECL:    visit_ir_func_decl(ir.ir); break;
     case IR_FUNC_CALL:    visit_ir_func_call(ir.ir); break;
     default:
-        weak_unreachable("Something went wrong");
+        weak_unreachable("Unknown IR type (numeric: %d)", ir.type);
     }
 }
 

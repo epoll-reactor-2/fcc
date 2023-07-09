@@ -507,7 +507,7 @@ int32_t visit_node(FILE *mem, struct ast_node *ast)
         visit_ast_function_call(mem, ast);
         break;
     default:
-        weak_unreachable("Wrong AST type");
+        weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
     }
 
     return 0;

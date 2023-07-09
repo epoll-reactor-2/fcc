@@ -112,7 +112,7 @@ static void visit_ast_for(struct ast_for *ast)
         struct ir_node  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
         struct ir_cond *cond_ptr = cond.ir;
         struct ir_node  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
-        next_iter_jump_idx       = ir_last.instr_idx + 1;
+        next_iter_jump_idx       = ir_last.instr_idx;
         exit_jmp_ptr             = exit_jmp.ir;
 
         vector_push_back(ir_stmts, cond);
@@ -160,7 +160,7 @@ static void visit_ast_while(struct ast_while *ast)
 
     visit_ast(ast->body);
 
-    struct ir_node next_iter_jmp = ir_jump_init(next_iter_idx + 1);
+    struct ir_node next_iter_jmp = ir_jump_init(next_iter_idx);
     vector_push_back(ir_stmts, next_iter_jmp);
 
     exit_jmp_ptr->idx = next_iter_jmp.instr_idx + 1;
@@ -291,9 +291,14 @@ static void visit_ast_unary(struct ast_unary *ast)
     struct ir_sym *sym = ir_last.ir;
 
     switch (ast->operation) {
-    case TOK_INC: ir_last = ir_bin_init(TOK_PLUS,  ir_last, ir_imm_int_init(1)); break;
-    case TOK_DEC: ir_last = ir_bin_init(TOK_MINUS, ir_last, ir_imm_int_init(1)); break;
-    default: weak_unreachable("Unknown unary operator.");
+    case TOK_INC:
+        ir_last = ir_bin_init(TOK_PLUS,  ir_last, ir_imm_int_init(1));
+        break;
+    case TOK_DEC:
+        ir_last = ir_bin_init(TOK_MINUS, ir_last, ir_imm_int_init(1));
+        break;
+    default:
+        weak_unreachable("Unknown unary operator (numeric: %d).", ast->operation);
     }
     ir_last = ir_store_bin_init(sym->idx, ir_last);
     vector_push_back(ir_stmts, ir_last);
@@ -314,7 +319,6 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
 
         switch (ir_last.type) {
         case IR_IMM: {
-            // struct ir_imm *imm = ir_last.ir;
             ir_last = ir_store_imm_init(next_idx, ir_last);
             break;
         }
@@ -325,8 +329,9 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
         }
         default:
             weak_unreachable(
-                "Expected symbol or immediate value as variable initializer."
-	    );
+                "Expected symbol or immediate value as variable initializer, "
+                "got (numeric: %d).", ir_last.type
+            );
         }
         vector_push_back(ir_stmts, ir_last);
     }
@@ -411,7 +416,7 @@ static void visit_ast_function_call(struct ast_function_call *ast) { (void) ast;
     case AST_FUNCTION_DECL:   visit_ast_function_decl(ptr); break;
     case AST_FUNCTION_CALL:   visit_ast_function_call(ptr); break;
     default:
-        weak_unreachable("Wrong AST type");
+        weak_unreachable("Wrong AST type (numeric: %d).", ast->type);
     }
 }
 

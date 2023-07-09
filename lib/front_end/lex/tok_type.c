@@ -1,4 +1,4 @@
-/* struct tokenype.c - String conversion function for the token enum.
+/* tok_type.c - String conversion function for the token enum.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -72,7 +72,8 @@ const char *tok_to_string(enum token_type t)
     case TOK_CLOSE_CURLY_BRACKET:    return "}";
     case TOK_OPEN_PAREN:             return "(";
     case TOK_CLOSE_PAREN:            return ")";
-    default:                         weak_unreachable("Should not reach there.");
+    default:
+        weak_unreachable("Unknown token type (numeric: %d).", t);
     }
 }
 
@@ -100,6 +101,7 @@ enum token_type tok_char_to_tok(char c)
     case '}': return TOK_CLOSE_CURLY_BRACKET;
     case '(': return TOK_OPEN_PAREN;
     case ')': return TOK_CLOSE_PAREN;
-    default:  weak_unreachable("Should not reach there.");
+    default:
+        weak_unreachable("Unknown character operation (char: `%c`).", c);
     }
 }

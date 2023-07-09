@@ -9,7 +9,7 @@
 //       7:   store %2 %0
 //       8:   store %2 %2 add $1
 //       9:   store %0 %0 add $1
-//      10:   jmp L4
+//      10:   jmp L3
 //      11:   ret $0
 int main() {
     for (int i = 0; i < 10; ++i) {
