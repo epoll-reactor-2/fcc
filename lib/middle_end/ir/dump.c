@@ -30,7 +30,7 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_FUNC_DECL:    return "IR_FUNC_DECL";
     case IR_FUNC_CALL:    return "IR_FUNC_CALL";
     default:
-        weak_unreachable("Should not reach there.");
+        weak_unreachable("Unknown IR type (numeric: %d).", t);
     }
 }
 
@@ -47,7 +47,7 @@ static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
     case IMM_FLOAT: fprintf(mem, "$%f", ir->imm.__float); break;
     case IMM_INT:   fprintf(mem, "$%d", ir->imm.__int); break;
     default:
-        weak_unreachable("Should not reach there.");
+        weak_unreachable("Unknown immediate IR type (numeric: %d).", ir->type);
     }
 }
 
@@ -65,28 +65,29 @@ static void ir_dump_store(FILE *mem, struct ir_store *ir)
 static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
 {
     const char *op = NULL;
-    /// \todo: %OP%_ASSIGN instructions...
     switch (ir->op) {
-    case TOK_XOR:     op = "xor"; break;
-    case TOK_BIT_AND: op = "and"; break;
-    case TOK_BIT_OR:  op = "or";  break;
-    case TOK_EQ:      op = "eq";  break;
-    case TOK_NEQ:     op = "neq"; break;
-    case TOK_GT:      op = "gt";  break;
-    case TOK_LT:      op = "lt";  break;
-    case TOK_GE:      op = "ge";  break;
-    case TOK_LE:      op = "le";  break;
-    case TOK_SHL:     op = "shl"; break;
-    case TOK_SHR:     op = "shr"; break;
-    case TOK_PLUS:    op = "add"; break;
-    case TOK_MINUS:   op = "sub"; break;
-    case TOK_STAR:    op = "mul"; break;
-    case TOK_SLASH:   op = "div"; break;
-    case TOK_MOD:     op = "mod"; break;
-
-    case TOK_ASSIGN:  op = "???"; break;
+    case TOK_XOR:     op = "xor";     break;
+    case TOK_BIT_AND: op = "bit_and"; break;
+    case TOK_BIT_OR:  op = "bit_or";  break;
+    case TOK_AND:     op = "and";     break;
+    case TOK_OR:      op = "or";      break;
+    case TOK_EQ:      op = "eq";      break;
+    case TOK_NEQ:     op = "neq";     break;
+    case TOK_GT:      op = "gt";      break;
+    case TOK_LT:      op = "lt";      break;
+    case TOK_GE:      op = "ge";      break;
+    case TOK_LE:      op = "le";      break;
+    case TOK_SHL:     op = "shl";     break;
+    case TOK_SHR:     op = "shr";     break;
+    case TOK_PLUS:    op = "add";     break;
+    case TOK_MINUS:   op = "sub";     break;
+    case TOK_STAR:    op = "mul";     break;
+    case TOK_SLASH:   op = "div";     break;
+    case TOK_MOD:     op = "mod";     break;
+    /// \todo: %OP%_ASSIGN instructions...
+    case TOK_ASSIGN:  op = "???";     break;
     default:
-        weak_unreachable("Unknown operation");
+        weak_unreachable("Unknown operation: `%s`.", tok_to_string(ir->op));
     }
 
     ir_dump_node(mem, &ir->lhs);
@@ -202,7 +203,7 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir->ir); break;
     case IR_FUNC_CALL:    ir_dump_func_call(mem, ir->ir); break;
     default:
-        weak_unreachable("Something went wrong");
+        weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 }
 

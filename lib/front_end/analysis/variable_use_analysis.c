@@ -85,7 +85,10 @@ static const char *ast_decl_or_expr_to_string(struct ast_node *ast)
     case AST_SYMBOL:
         return "Variable";
     default:
-        weak_unreachable("Expected variable or function AST");
+        weak_unreachable(
+            "Expected variable or function AST, got `%s`.",
+            ast_type_to_string(ast->type)
+        );
     }
 }
 
@@ -273,7 +276,7 @@ static void visit_ast_unary(struct ast_node *ast)
         add_read_use(op);
         break;
     default:
-        weak_unreachable("Wrong unary operator");
+        weak_unreachable("Unknown unary operator `%s`.", tok_to_string(stmt->operation));
     }
     visit_ast_node(op);
 }
@@ -453,7 +456,7 @@ void visit_ast_node(struct ast_node *ast)
         visit_ast_function_call(ast);
         break;
     default:
-        weak_unreachable("Wrong AST type");
+        weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
     }
 }
 

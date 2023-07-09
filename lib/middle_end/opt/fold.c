@@ -92,7 +92,7 @@ static bool fold_booleans(enum token_type op, bool l, bool r)
     case TOK_XOR:     return l ^ r;
     case TOK_ASSIGN:  return 0;
     default:
-        weak_unreachable("Something went wrong.");
+        weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
 }
 
@@ -119,7 +119,7 @@ static int32_t fold_ints(enum token_type op, int32_t l, int32_t r)
     case TOK_MOD:     return l  % r;
     case TOK_ASSIGN:  return -1;
     default:
-        weak_unreachable("Something went wrong.");
+        weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
 }
 
@@ -138,7 +138,7 @@ static float fold_floats(enum token_type op, float l, float r)
     case TOK_SLASH:   return l  / r;
     case TOK_ASSIGN:  return -1.0;
     default:
-        weak_unreachable("Something went wrong.");
+        weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
 }
 
@@ -154,7 +154,7 @@ __weak_wur __weak_unused static struct ir_node compute_imm(
     case IMM_FLOAT: return ir_imm_float_init(fold_floats  (op, lhs.__float, rhs.__float));
     case IMM_INT:   return ir_imm_int_init  (fold_ints    (op, lhs.__int,   rhs.__int));
     default:
-        weak_unreachable("Something went wrong.");
+        weak_unreachable("Unknown immediate IR type (numeric: %d).", type);
     }
 }
 
@@ -357,7 +357,7 @@ static struct ir_node fold_node(struct ir_node *ir)
         fold_cond(ir->ir);
         break;
     default:
-        weak_unreachable("Something went wrong.");
+        weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 
     return no_result();
