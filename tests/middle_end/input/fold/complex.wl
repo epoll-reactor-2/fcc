@@ -1,5 +1,4 @@
 //fun complex():
-//       0:   alloca int %0
 //      10:   alloca int %5
 //      12:   alloca int %6
 //      13:   store %6 %5 lt $100
