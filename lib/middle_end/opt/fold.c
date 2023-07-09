@@ -64,7 +64,19 @@ static bool consts_mapping_is_const(uint64_t idx)
 
 static void alloca_stmts_put(uint64_t sym_idx, uint64_t instr_idx)
 {
-    hashmap_put(&alloca_stmts, sym_idx, instr_idx);
+    /// Note: this hashmap does not allow to have key 0, so there
+    ///       is hack with INT64_MAX.
+    uint64_t key =
+        sym_idx == 0
+            ? INT64_MAX
+            : sym_idx;
+
+    uint64_t val =
+        instr_idx == 0
+            ? INT64_MAX
+            : instr_idx;
+
+    hashmap_put(&alloca_stmts, key, val);
 }
 
 static void alloca_stmts_remove(uint64_t sym_idx)
@@ -363,7 +375,6 @@ static void fold_remove_redundant_stmts(struct ir_func_decl *decl)
 
     vector_foreach_back(redundant_stmts, i) {
         uint64_t idx = vector_at(redundant_stmts, i);
-        // printf("Redundant stmt instr_idx: %ld\n", idx);
         vector_foreach_back(stmts, j) {
             if (vector_at(stmts, j).instr_idx == (int32_t) idx) {
                 vector_erase(stmts, j);
@@ -373,9 +384,11 @@ static void fold_remove_redundant_stmts(struct ir_func_decl *decl)
 
     hashmap_foreach(&alloca_stmts, k, v) {
         (void) k;
-        // printf("Redundant alloca for symbol %%%ld, instr_idx: %ld\n", k, v);
+        /// Note: this hashmap does not allow to have key 0, so there
+        ///       is hack with INT64_MAX.
+        uint64_t instr_idx = v == INT64_MAX ? 0 : v;
         vector_foreach_back(stmts, i) {
-            if (vector_at(stmts, i).instr_idx == (int32_t) v) {
+            if (vector_at(stmts, i).instr_idx == (int32_t) instr_idx) {
                 vector_erase(stmts, i);
             }
         }
