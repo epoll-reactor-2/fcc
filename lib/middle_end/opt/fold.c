@@ -14,7 +14,7 @@
 #include <string.h>
 #include <assert.h>
 
-/// Hashmap to refer by instruction index.
+/// Hashmap to refer by variable index.
 static hashmap_t alloca_stmts;
 static hashmap_t consts_mapping;
 
@@ -38,19 +38,16 @@ static void consts_mapping_init()
 static void consts_mapping_add(uint64_t idx, uint64_t value)
 {
     hashmap_put(&consts_mapping, idx, value);
-    // printf("Consts mapping: add idx:%ld, value:%ld\n", idx, value);
 }
 
 static void consts_mapping_remove(uint64_t idx)
 {
-    // printf("Consts mapping: remove idx:%ld\n", idx);
     hashmap_remove(&consts_mapping, idx);
 }
 
 static union ir_imm_val consts_mapping_get(uint64_t idx)
 {
     uint64_t got = hashmap_get(&consts_mapping, idx);
-    // printf("Consts mapping: get value of idx:%ld -> %ld\n", idx, got);
     return (union ir_imm_val) (int32_t) got;
 }
 
@@ -58,25 +55,20 @@ static void consts_mapping_update(uint64_t idx, uint64_t value)
 {
     hashmap_remove(&consts_mapping, idx);
     hashmap_put(&consts_mapping, idx, value);
-    // printf("Consts mapping: update idx:%ld, value:%ld\n", idx, value);
 }
 
 static bool consts_mapping_is_const(uint64_t idx)
 {
-    uint64_t got = hashmap_get(&consts_mapping, idx);
-    // printf("Consts mapping: is_const? idx:%ld -> %s\n", idx, (got != 0) ? "yes" : "no");
-    return got != 0;
+    return hashmap_get(&consts_mapping, idx) != 0;
 }
 
 static void alloca_stmts_put(uint64_t sym_idx, uint64_t instr_idx)
 {
-    // printf("Alloca mapping: put variable %%%ld, idx %ld\n", sym_idx, instr_idx);
     hashmap_put(&alloca_stmts, sym_idx, instr_idx);
 }
 
 static void alloca_stmts_remove(uint64_t sym_idx)
 {
-    // printf("Alloca mapping: remove variable %%%ld\n", sym_idx);
     hashmap_remove(&alloca_stmts, sym_idx);
 }
 
@@ -359,6 +351,7 @@ static struct ir_node fold_node(struct ir_node *ir)
     return no_result();
 }
 
+/// \todo: Complexity optimization.
 static void fold_remove_redundant_stmts(struct ir_func_decl *decl)
 {
     /// Vector is used for convenient erasure.
@@ -371,7 +364,11 @@ static void fold_remove_redundant_stmts(struct ir_func_decl *decl)
     vector_foreach_back(redundant_stmts, i) {
         uint64_t idx = vector_at(redundant_stmts, i);
         // printf("Redundant stmt instr_idx: %ld\n", idx);
-        vector_erase(stmts, idx);
+        vector_foreach_back(stmts, j) {
+            if (vector_at(stmts, j).instr_idx == (int32_t) idx) {
+                vector_erase(stmts, j);
+            }
+        }
     }
 
     hashmap_foreach(&alloca_stmts, k, v) {
