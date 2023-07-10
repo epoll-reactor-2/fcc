@@ -123,6 +123,7 @@ bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
         sprintf(filename, "%s/%s", cwd, dir->d_name);
 
         printf("Testing file %s... ", dir->d_name);
+        fflush(stdout);
 
         weak_set_source_filename(filename);
 

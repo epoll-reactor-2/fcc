@@ -10,6 +10,7 @@
 #include "util/hashmap.h"
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 static uint16_t scope_depth;
 static hashmap_t scopes;
@@ -66,9 +67,9 @@ void ast_storage_push_typed(const char *var_name, enum data_type dt, struct ast_
 struct ast_storage_decl *ast_storage_lookup(const char *var_name)
 {
     uint64_t hash = crc32_string(var_name);
-    uint64_t addr = hashmap_get(&scopes, hash);
+    int64_t addr = hashmap_get(&scopes, hash);
 
-    if (addr == 0)
+    if (addr == -1 || addr == 0)
         return NULL;
 
     struct ast_storage_decl *decl = (struct ast_storage_decl *) addr;
