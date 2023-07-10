@@ -14,7 +14,7 @@ CFLAGS      = -std=gnu99 -fPIC -Ilib
 CFLAGS     += -Wall -Wextra -Werror -Wshadow -Wvla -Wpointer-arith -Wframe-larger-than=32768
 
 ifeq ($(DEBUG_BUILD), 1)
-CFLAGS     += -O0 -ggdb
+CFLAGS     += -O0 -ggdb -D NDEBUG
 else
 CFLAGS     += -O3 -D NDEBUG
 endif

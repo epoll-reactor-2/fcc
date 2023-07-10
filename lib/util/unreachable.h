@@ -10,14 +10,14 @@
 #include "util/compiler.h"
 #include <stdio.h>
 
-#define weak_fatal_error(msg, ...) do {       \
-    printf("Fatal error ocurred at %s@%d: " msg "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+#define weak_fatal_error(fmt, ...) do {       \
+    printf("Fatal error ocurred at %s@%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
     fflush(stdout);                           \
     __builtin_trap();                         \
 } while (0);
 
-#define weak_unreachable(msg, ...) do {       \
-    printf("Unreachable point reached at %s@%d: " msg "\n", __FILE__, __LINE__, ##__VA_ARGS__);  \
+#define weak_unreachable(fmt, ...) do {       \
+    printf("Unreachable point reached at %s@%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__);  \
     fflush(stdout);                           \
     __builtin_trap();                         \
 } while (0);

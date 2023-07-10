@@ -67,9 +67,10 @@ void ast_storage_push_typed(const char *var_name, enum data_type dt, struct ast_
 struct ast_storage_decl *ast_storage_lookup(const char *var_name)
 {
     uint64_t hash = crc32_string(var_name);
-    int64_t addr = hashmap_get(&scopes, hash);
+    bool ok = 0;
+    int64_t addr = hashmap_get(&scopes, hash, &ok);
 
-    if (addr == -1 || addr == 0)
+    if (!ok || addr == 0)
         return NULL;
 
     struct ast_storage_decl *decl = (struct ast_storage_decl *) addr;
