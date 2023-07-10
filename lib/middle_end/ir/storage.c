@@ -28,5 +28,8 @@ void ir_storage_push(const char *name, int32_t ir_idx)
 
 int32_t ir_storage_get(const char *name)
 {
-    return (int32_t) hashmap_get(&storage, crc32_string(name));
+    bool ok = 0;
+    int32_t got = (int32_t) hashmap_get(&storage, crc32_string(name), &ok);
+
+    return ok ? got : -1;
 }

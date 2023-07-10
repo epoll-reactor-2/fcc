@@ -76,7 +76,6 @@ bool ir_test(const char *filename)
         puts("After arithmetic optimization:");
         for (uint64_t i = 0; i < ir.decls_size; ++i) {
             ir_dump(stdout, ir.decls[i].ir);
-            ir_dump(generated_stream, ir.decls[i].ir);
         }
 
         ir_opt_fold(&ir);
@@ -90,7 +89,7 @@ bool ir_test(const char *filename)
         fflush(generated_stream);
         ast_node_cleanup(ast);
         ir_cleanup(&ir);
-        
+
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\nexpected\n", expected);
             success = false;

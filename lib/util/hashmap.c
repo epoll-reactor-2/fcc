@@ -88,19 +88,22 @@ void hashmap_put(hashmap_t *map, uint64_t key, uint64_t val)
     map->size++;
 }
 
-int64_t hashmap_get(hashmap_t *map, uint64_t key)
+uint64_t hashmap_get(hashmap_t *map, uint64_t key, bool *success)
 {
     uint64_t index = hash(key, map->capacity);
 
     while (map->buckets[index].is_occupied) {
         if (!map->buckets[index].is_deleted && map->buckets[index].key == key) {
+            *success = 1;
             return map->buckets[index].val;
         }
 
         index = (index + 1) % map->capacity;
     }
 
-    return -1;  // Key not found
+    *success = 0;
+
+    return (uint64_t) -1;
 }
 
 bool hashmap_remove(hashmap_t *map, uint64_t key)
