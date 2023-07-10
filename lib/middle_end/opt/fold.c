@@ -37,29 +37,33 @@ static void consts_mapping_init()
 
 static void consts_mapping_add(uint64_t idx, uint64_t value)
 {
+    printf("Consts mapping: put %ld:%ld\n", idx, value);
     hashmap_put(&consts_mapping, idx, value);
 }
 
 static void consts_mapping_remove(uint64_t idx)
 {
+    printf("Consts mapping: remove %ld\n", idx);
     hashmap_remove(&consts_mapping, idx);
 }
 
 static union ir_imm_val consts_mapping_get(uint64_t idx)
 {
-    uint64_t got = hashmap_get(&consts_mapping, idx);
+    int64_t got = hashmap_get(&consts_mapping, idx);
+    printf("Consts mapping: get %ld:%ld\n", idx, got);
     return (union ir_imm_val) (int32_t) got;
 }
 
 static void consts_mapping_update(uint64_t idx, uint64_t value)
 {
     hashmap_remove(&consts_mapping, idx);
+    printf("Consts mapping: update %ld:%ld\n", idx, value);
     hashmap_put(&consts_mapping, idx, value);
 }
 
 static bool consts_mapping_is_const(uint64_t idx)
 {
-    return hashmap_get(&consts_mapping, idx) != 0;
+    return hashmap_get(&consts_mapping, idx) != -1;
 }
 
 static void alloca_stmts_put(uint64_t sym_idx, uint64_t instr_idx)
@@ -384,11 +388,11 @@ static void fold_remove_redundant_stmts(struct ir_func_decl *decl)
 
     hashmap_foreach(&alloca_stmts, k, v) {
         (void) k;
-        /// Note: this hashmap does not allow to have key 0, so there
-        ///       is hack with INT64_MAX.
-        uint64_t instr_idx = v == INT64_MAX ? 0 : v;
+        /// \todo: Properly remove.
+        printf("Key: %ld, value: %ld\n", k, v);
+        int32_t instr_idx = v == INT64_MAX ? 0 : v;
         vector_foreach_back(stmts, i) {
-            if (vector_at(stmts, i).instr_idx == (int32_t) instr_idx) {
+            if (vector_at(stmts, i).instr_idx == instr_idx) {
                 vector_erase(stmts, i);
             }
         }

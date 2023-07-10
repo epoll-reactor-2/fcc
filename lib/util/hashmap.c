@@ -1,83 +1,121 @@
-/*
-hashmap.c - Open-addressing hashmap implementation
-Copyright (C) 2021  LekKit <github.com/LekKit>
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+/* hashmap.c - Hashmap.
+ * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
+ *
+ * This file is distributed under the MIT license.
+ */
 
 #include "util/hashmap.h"
 #include "util/alloc.h"
 #include <stdbool.h>
 #include <string.h>
 
-void hashmap_init(hashmap_t* map, size_t size)
+#define LOAD_FACTOR 0.75
+
+static inline uint64_t hash(uint64_t key, uint64_t capacity)
 {
-    if (!size) size = 16;
+    return key % capacity;
+}
+
+void hashmap_init(hashmap_t *map, uint64_t size)
+{
+    map->buckets = (hashmap_bucket_t *) weak_calloc(sizeof (hashmap_bucket_t), size);
+    map->capacity = size;
     map->size = 0;
-    map->entries = 0;
-    while (map->size < size)
-        map->size = (map->size << 1) | 0x1;
-    map->buckets = (hashmap_bucket_t*)weak_calloc(sizeof(hashmap_bucket_t), map->size+1);
-}
 
-void hashmap_destroy(hashmap_t* map)
-{
-    free(map->buckets);
-    memset(map, 0, sizeof(hashmap_t));
-}
-
-void hashmap_resize(hashmap_t* map, size_t size)
-{
-    hashmap_t tmp;
-    hashmap_init(&tmp, size);
-    hashmap_foreach(map, k, v)
-        hashmap_put(&tmp, k, v);
-    free(map->buckets);
-    map->buckets = tmp.buckets;
-    map->size = tmp.size;
-}
-
-void hashmap_grow(hashmap_t* map, size_t key, size_t val)
-{
-    hashmap_resize(map, map->size << 1);
-    hashmap_put(map, key, val);
-}
-
-void hashmap_shrink(hashmap_t* map)
-{
-    hashmap_resize(map, map->size >> 2);
-}
-
-void hashmap_clear(hashmap_t* map)
-{
-    if (map->entries < (map->size >> 2)) {
-        map->size >>= 1;
-        map->buckets = weak_realloc(map->buckets, (map->size + 1) * sizeof(hashmap_bucket_t));
+    for (uint64_t i = 0; i < map->capacity; i++) {
+        map->buckets[i].key = 0;
+        map->buckets[i].is_occupied = 0;
+        map->buckets[i].is_deleted  = 0;
     }
-    memset(map->buckets, 0, (map->size + 1) * sizeof(hashmap_bucket_t));
-    map->entries = 0;
 }
 
-void hashmap_rebalance(hashmap_t* map, size_t index)
+void hashmap_destroy(hashmap_t *map)
 {
-    size_t j = index;
-    size_t k;
-    while (true) {
-        map->buckets[index].val = 0;
-        do {
-            j = (j + 1) & map->size;
-            if (!map->buckets[j].val) return;
-            k = hashmap_hash(map->buckets[j].key) & map->size;
-        } while ((index <= j) ? (index < k && k <= j) : (index < k || k <= j));
-        map->buckets[index] = map->buckets[j];
-        index = j;
+    weak_free(map->buckets);
+    map->size = 0;
+    map->capacity = 0;
+    memset(map, 0, sizeof (*map));
+}
+
+static void hashmap_resize(hashmap_t *map)
+{
+    uint64_t old_capacity = map->capacity;
+    hashmap_bucket_t *old_buckets = map->buckets;
+
+    map->capacity *= 2;
+    map->buckets = (hashmap_bucket_t *) weak_calloc(sizeof (hashmap_bucket_t), map->capacity);
+
+    for (uint64_t i = 0; i < map->capacity; i++) {
+        map->buckets[i].key = 0;
+        map->buckets[i].is_occupied = false;
+        map->buckets[i].is_deleted = false;
     }
+
+    map->size = 0;
+
+    for (uint64_t i = 0; i < old_capacity; i++) {
+        if (old_buckets[i].is_occupied && !old_buckets[i].is_deleted) {
+            hashmap_bucket_t *entry = &old_buckets[i];
+            hashmap_put(map, entry->key, entry->val);
+        }
+    }
+
+    free(old_buckets);
+}
+
+void hashmap_put(hashmap_t *map, uint64_t key, uint64_t val)
+{
+    if (map->size >= map->capacity * LOAD_FACTOR) {
+        hashmap_resize(map);
+    }
+
+    unsigned long index = hash(key, map->capacity);
+
+    while (map->buckets[index].is_occupied) {
+        if (!map->buckets[index].is_deleted && map->buckets[index].key == key) {
+            map->buckets[index].val = val;
+            map->size++;
+            return;
+        }
+
+        index = (index + 1) % map->capacity;
+    }
+
+    map->buckets[index].key = key;
+    map->buckets[index].val = val;
+    map->buckets[index].is_occupied = true;
+    map->buckets[index].is_deleted = false;
+    map->size++;
+}
+
+int64_t hashmap_get(hashmap_t *map, uint64_t key)
+{
+    uint64_t index = hash(key, map->capacity);
+
+    while (map->buckets[index].is_occupied) {
+        if (!map->buckets[index].is_deleted && map->buckets[index].key == key) {
+            return map->buckets[index].val;
+        }
+
+        index = (index + 1) % map->capacity;
+    }
+
+    return -1;  // Key not found
+}
+
+bool hashmap_remove(hashmap_t *map, uint64_t key)
+{
+    uint64_t index = hash(key, map->capacity);
+
+    while (map->buckets[index].is_occupied) {
+        if (!map->buckets[index].is_deleted && map->buckets[index].key == key) {
+            map->buckets[index].is_deleted = true;
+            map->size--;
+            return 1;
+        }
+
+        index = (index + 1) % map->capacity;
+    }
+
+    return 0;  // Key not found
 }
