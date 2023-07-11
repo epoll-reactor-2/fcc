@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct ir;
 struct ir_node;
 struct ir_func_decl;
 
@@ -26,7 +25,7 @@ struct ir_func_decl;
 /// \param ir     List of function declarations.
 ///               Linking is performed separately for each
 ///               function.
-void ir_link(struct ir *ir);
+// void ir_link(struct ir_node *ir);
 
 /// Set a dominator tree of each given function in IR.
 ///
@@ -35,7 +34,7 @@ void ir_link(struct ir *ir);
 /// dominator, through which we can achieve dominator tree.
 ///
 /// To view dominator tree, ir_dump_dom_tree() should be used.
-void ir_compute_dom_tree(struct ir *decl);
+void ir_compute_dom_tree(struct ir_node *decl);
 
 /// Judge of \p node is dominated by \p dom.
 bool ir_dominated_by(struct ir_node *node, struct ir_node *dom);

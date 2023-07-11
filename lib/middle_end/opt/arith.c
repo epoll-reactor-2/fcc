@@ -9,17 +9,15 @@
 #include "middle_end/ir/ir.h"
 #include "util/unreachable.h"
 
-static struct ir_node opt_arith_node(struct ir_node *ir);
+static struct ir_node *opt_arith_node(struct ir_node *ir);
 
-static struct ir_node no_result()
+static struct ir_node *no_result()
 {
-    struct ir_node node = {
-        .instr_idx = -1,
-        .ir        = NULL,
-        .idom      = NULL
-    };
-
-    return node;
+    struct ir_node * ir = ir_node_init(-1, NULL);
+    ir->instr_idx = -1;
+    ir->ir = NULL;
+    ir->idom = NULL;
+    return ir;
 }
 
 __weak_unused static bool is_no_result(struct ir_node *ir)
@@ -30,10 +28,10 @@ __weak_unused static bool is_no_result(struct ir_node *ir)
         ir->idom      == NULL;
 }
 
-static struct ir_node opt_arith_bin(struct ir_bin *bin)
+static struct ir_node *opt_arith_bin(struct ir_bin *bin)
 {
-    struct ir_node *lhs = &bin->lhs;
-    struct ir_node *rhs = &bin->rhs;
+    struct ir_node *lhs = bin->lhs;
+    struct ir_node *rhs = bin->rhs;
 
     printf("\nLHS type: %d, RHS type: %d\n", lhs->type, rhs->type);
     printf("Type: %s\n", tok_to_string(bin->op));
@@ -59,11 +57,11 @@ static void opt_arith_store(struct ir_store *store)
     if (store->type != IR_STORE_BIN) return;
 
     puts("Store arg");
-    ir_dump_node(stdout, &store->body);
+    ir_dump_node(stdout, store->body);
 
-    struct ir_node node = opt_arith_node(&store->body);
+    struct ir_node *node = opt_arith_node(store->body);
 
-    if (!is_no_result(&node)) {
+    if (!is_no_result(node)) {
         ir_node_cleanup(store->body);
         store->body = node;
         store->type = IR_STORE_IMM;
@@ -75,15 +73,15 @@ static void opt_arith_ret(struct ir_ret *ret)
     if (ret->is_void)
         return;
 
-    struct ir_node body = opt_arith_node(&ret->op);
+    struct ir_node *body = opt_arith_node(ret->body);
 
-    if (!is_no_result(&body)) {
-        ir_node_cleanup(ret->op);
-        ret->op = body;
+    if (!is_no_result(body)) {
+        ir_node_cleanup(ret->body);
+        ret->body = body;
     }
 }
 
-static struct ir_node opt_arith_node(struct ir_node *ir)
+static struct ir_node *opt_arith_node(struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_LABEL:
@@ -116,9 +114,10 @@ static struct ir_node opt_arith_node(struct ir_node *ir)
 
 static void opt_arith(struct ir_func_decl *decl)
 {
-    for (uint64_t i = 0; i < decl->body_size; ++i) {
-        struct ir_node *node = &decl->body[i];
-        opt_arith_node(node);
+    struct ir_node *it = decl->body;
+    while (it) {
+        opt_arith_node(it);
+        it = it->next;
     }
 }
 
@@ -166,10 +165,11 @@ static void opt_arith(struct ir_func_decl *decl)
 ///        - A * B = B * A
 ///        - A & B = B & A
 ///        - A | B = B | A
-void ir_opt_arith(struct ir *ir)
+void ir_opt_arith(struct ir_node *ir)
 {
-    for (uint64_t i = 0; i < ir->decls_size; ++i) {
-        struct ir_func_decl *decl = ir->decls[i].ir;
-        opt_arith(decl);
+    struct ir_node *it = ir;
+    while (it) {
+        opt_arith(it->ir);
+        it = it->next;
     }
 }

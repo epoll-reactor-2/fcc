@@ -26,7 +26,6 @@ bool ir_test(const char *filename)
 {
     lex_reset_state();
     lex_init_state();
-    ir_reset_internal_state();
 
     if (!yyin) yyin = fopen(filename, "r");
     else yyin = freopen(filename, "r", yyin);
@@ -49,14 +48,16 @@ bool ir_test(const char *filename)
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
 
-        struct ir ir = ir_gen(ast);
+        struct ir_node *ir = ir_gen(ast);
 
         if (strstr(filename, "nested_loops")) {
-            ir_compute_dom_tree(&ir);
+            ir_compute_dom_tree(ir);
         }
 
+        ir_dump_dom_tree(stdout, ir->ir);
+
         ast_node_cleanup(ast);
-        ir_cleanup(&ir);
+        ir_node_cleanup(ir);
 
         printf("Success!\n");
     } else {

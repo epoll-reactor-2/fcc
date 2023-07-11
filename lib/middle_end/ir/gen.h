@@ -21,8 +21,6 @@ struct ir;
 ///   - variable_use_analysis
 ///   - functions_analysis
 ///   - type_analysis 
-__weak_wur
-struct ir ir_gen(struct ast_node *ast);
-void      ir_cleanup(struct ir *ir);
+__weak_wur struct ir_node *ir_gen(struct ast_node *ast);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GEN_H

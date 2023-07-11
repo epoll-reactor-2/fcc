@@ -22,10 +22,11 @@ static void motion(struct ir_func_decl *decl)
     (void) decl;
 }
 
-void ir_opt_motion(struct ir *ir)
+void ir_opt_motion(struct ir_node *ir)
 {
-    for (uint64_t i = 0; i < ir->decls_size; ++i) {
-        struct ir_func_decl *decl = ir->decls[i].ir;
-        motion(decl);
+    struct ir_node *it = ir;
+    while (it) {
+        motion(it->ir);
+        it = it->next;
     }
 }

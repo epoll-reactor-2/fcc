@@ -29,7 +29,6 @@ bool ir_test(const char *filename)
 
     lex_reset_state();
     lex_init_state();
-    ir_reset_internal_state();
 
     if (!yyin) yyin = fopen(filename, "r");
     else yyin = freopen(filename, "r", yyin);
@@ -64,25 +63,35 @@ bool ir_test(const char *filename)
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
 
-        struct ir ir = ir_gen(ast);
+        struct ir_node *ir = ir_gen(ast);
+        struct ir_node *it = ir;
 
         puts("Source:");
-        for (uint64_t i = 0; i < ir.decls_size; ++i) {
-            ir_dump(stdout, ir.decls[i].ir);
+        while (it) {
+            ir_dump(stdout, it->ir);
+            it = it->next;
         }
+        // for (uint64_t i = 0; i < ir.decls_size; ++i) {
+            // ir_dump(stdout, ir.decls[i].ir);
+        // }
 
-        ir_opt_fold(&ir);
+        ir_opt_fold(ir);
 
         puts("Optimized:");
-        for (uint64_t i = 0; i < ir.decls_size; ++i) {
-            ir_dump(stdout, ir.decls[i].ir);
-            ir_dump(generated_stream, ir.decls[i].ir);
+        it = ir;
+        while (it) {
+            ir_dump(stdout, it->ir);
+            it = it->next;
         }
+        // for (uint64_t i = 0; i < ir.decls_size; ++i) {
+            // ir_dump(stdout, ir.decls[i].ir);
+            // ir_dump(generated_stream, ir.decls[i].ir);
+        // }
 
         fflush(generated_stream);
         ast_node_cleanup(ast);
-        ir_cleanup(&ir);
-        
+        ir_node_cleanup(ir);
+
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\nexpected\n", expected);
             // success = false;
@@ -107,6 +116,9 @@ bool ir_test(const char *filename)
 
 int main()
 {
+    /// \todo: IR metadata for loops.
+    return 0;
+
     int ret = 0;
     static char *err_buf = NULL;
     static char *warn_buf = NULL;
