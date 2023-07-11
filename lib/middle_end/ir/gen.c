@@ -6,35 +6,63 @@
 
 #include "middle_end/ir/gen.h"
 #include "middle_end/ir/graph.h"
+#include "middle_end/ir/dump.h"
 #include "middle_end/ir/storage.h"
-#include "middle_end//ir/ir.h"
+#include "middle_end/ir/ir.h"
 #include "front_end/ast/ast.h"
 #include "util/vector.h"
 #include "util/unreachable.h"
 #include <assert.h>
 #include <string.h>
 
-typedef vector_t(struct ir_node) ir_array_t;
+typedef vector_t(struct ir_node *) ir_array_t;
 
-/// Statements of current function. Every function
-/// start to fill this array from scratch.
-static ir_array_t      ir_stmts;
 /// Total list of functions.
 static ir_array_t      ir_func_decls;
-/// Last generated opcode.
-static struct ir_node  ir_last;
+static struct ir_node *ir_first;
+static struct ir_node *ir_last;
+static struct ir_node *ir_prev;
 /// Used to count alloca instructions.
 /// Conditions:
-/// - reset at the start of each function declaration,
+/// - reset at the start of each function declaration,;15
 /// - increments with every created alloca instruction.
 static int32_t         ir_var_idx;
 
+static bool            ir_save_first;
+
+static void ir_insert(struct ir_node *new_node)
+{
+    __weak_debug({
+        __weak_debug_msg("Insert IR :");
+        ir_dump_node(stdout, new_node);
+        puts("");
+    });
+
+    if (ir_save_first) {
+        ir_first = new_node;
+        ir_save_first = 0;
+    }
+    ir_last = new_node;
+
+    if (ir_prev == NULL) {
+        ir_prev = new_node;
+        return;
+    }
+
+    ir_prev->next = new_node;
+    ir_prev = new_node;
+
+    new_node->prev = ir_prev;
+    new_node->prev_else = NULL;
+}
+
 static void invalidate()
 {
-    vector_free(ir_stmts);
     vector_free(ir_func_decls);
-    memset(&ir_last, 0, sizeof (ir_last));
     ir_var_idx = 0;
+    ir_first = NULL;
+    ir_last = NULL;
+    ir_prev = NULL;
 }
 
 static void visit_ast(struct ast_node *ast);
@@ -65,19 +93,19 @@ static void visit_ast_string(struct ast_string *ast) { (void) ast; }
 
 static void visit_ast_binary(struct ast_binary *ast)
 {
-    struct ir_node alloca = ir_alloca_init(D_T_INT, ir_var_idx++);
-    int32_t   alloca_idx = ((struct ir_alloca *) alloca.ir)->idx;
+    struct ir_node *alloca = ir_alloca_init(D_T_INT, ir_var_idx++);
+    int32_t         alloca_idx = ((struct ir_alloca *) alloca->ir)->idx;
 
-    vector_push_back(ir_stmts, alloca);
+    ir_insert(alloca);
 
     visit_ast(ast->lhs);
-    struct ir_node lhs = ir_last;
+    struct ir_node *lhs = ir_last;
     visit_ast(ast->rhs);
-    struct ir_node rhs = ir_last;
+    struct ir_node *rhs = ir_last;
 
-    struct ir_node bin = ir_bin_init(ast->operation, lhs, rhs);
+    struct ir_node *bin = ir_bin_init(ast->operation, lhs, rhs);
     ir_last = ir_store_bin_init(alloca_idx, bin);
-    vector_push_back(ir_stmts, ir_last);
+    ir_insert(ir_last);
     ir_last = ir_sym_init(alloca_idx);
 }
 
@@ -102,25 +130,27 @@ static void visit_ast_for(struct ast_for *ast)
 
     /// Body starts with condition that is checked on each
     /// iteration.
-    int32_t    next_iter_jump_idx = 0;
-    struct ir_jump *exit_jmp_ptr = NULL;
+    int32_t         next_iter_jump_idx = 0;
+    struct ir_node *cond               = NULL;
+    struct ir_node *exit_jmp           = NULL;
+    struct ir_jump *exit_jmp_ptr       = NULL;
 
     /// Condition is optional.
     if (ast->condition) {
-        next_iter_jump_idx       = ir_last.instr_idx + 1;
+        next_iter_jump_idx       = ir_last->instr_idx + 1;
         visit_ast(ast->condition);
-        struct ir_node  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
-        struct ir_node  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
-        struct ir_cond *cond_ptr = cond.ir;
-        struct ir_node  exit_jmp = ir_jump_init(/*Not used for now.*/-1);
-        exit_jmp_ptr             = exit_jmp.ir;
+        struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
+        cond                     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
+        exit_jmp                 = ir_jump_init(/*Not used for now.*/-1);
+        exit_jmp_ptr             = exit_jmp->ir;
+        struct ir_cond *cond_ptr = cond->ir;
 
-        vector_push_back(ir_stmts, cond);
-        vector_push_back(ir_stmts, exit_jmp);
+        ir_insert(cond);
+        ir_insert(exit_jmp);
 
-        cond_ptr->goto_label = vector_back(ir_stmts).instr_idx + 1;
+        cond_ptr->goto_label = ir_last->instr_idx + 1;
     } else {
-        next_iter_jump_idx = ir_last.instr_idx + 1;
+        next_iter_jump_idx = ir_last->instr_idx + 1;
     }
 
     visit_ast(ast->body);
@@ -128,10 +158,13 @@ static void visit_ast_for(struct ast_for *ast)
     if (ast->increment) visit_ast(ast->increment);
     ir_last = ir_jump_init(next_iter_jump_idx);
 
-    if (ast->condition)
-        exit_jmp_ptr->idx = ir_last.instr_idx + 1;
+    if (ast->condition) {
+        cond->next_else = exit_jmp;
+        exit_jmp->prev = cond;
+        exit_jmp_ptr->idx = ir_last->instr_idx + 1;
+    }
 
-    vector_push_back(ir_stmts, ir_last);
+    ir_insert(ir_last);
 }
 
 static void visit_ast_while(struct ast_while *ast)
@@ -145,25 +178,28 @@ static void visit_ast_while(struct ast_while *ast)
     /// L4: jump to L0 (condition)
     /// L5: after while instr
 
-    int32_t         next_iter_idx = ir_last.instr_idx + 1;
+    int32_t         next_iter_idx = ir_last->instr_idx + 1;
     visit_ast(ast->condition);
-    struct ir_node  cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
-    struct ir_node  cond          = ir_cond_init(cond_bin, /*Not used for now.*/-1);
-    struct ir_cond *cond_ptr      = cond.ir;
-    struct ir_node  exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
-    struct ir_jump *exit_jmp_ptr  = exit_jmp.ir;
+    struct ir_node *cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
+    struct ir_node *cond          = ir_cond_init(cond_bin, /*Not used for now.*/-1);
+    struct ir_cond *cond_ptr      = cond->ir;
+    struct ir_node *exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
+    struct ir_jump *exit_jmp_ptr  = exit_jmp->ir;
 
-    vector_push_back(ir_stmts, cond);
-    vector_push_back(ir_stmts, exit_jmp);
+    ir_insert(cond);
+    ir_insert(exit_jmp);
 
-    cond_ptr->goto_label = vector_back(ir_stmts).instr_idx + 1;
+    cond_ptr->goto_label = exit_jmp->instr_idx + 1;
 
     visit_ast(ast->body);
 
-    struct ir_node next_iter_jmp = ir_jump_init(next_iter_idx);
-    vector_push_back(ir_stmts, next_iter_jmp);
+    struct ir_node *next_iter_jmp = ir_jump_init(next_iter_idx);
+    ir_insert(next_iter_jmp);
 
-    exit_jmp_ptr->idx = next_iter_jmp.instr_idx + 1;
+    cond->next_else = exit_jmp;
+    exit_jmp->prev = cond;
+
+    exit_jmp_ptr->idx = next_iter_jmp->instr_idx + 1;
 }
 
 static void visit_ast_do_while(struct ast_do_while *ast)
@@ -178,21 +214,24 @@ static void visit_ast_do_while(struct ast_do_while *ast)
 
     int32_t stmt_begin;
 
-    if (vector_size(ir_stmts) == 0)
+    if (ir_last == NULL)
         stmt_begin = 0;
     else
-        stmt_begin = vector_back(ir_stmts).instr_idx;
+        stmt_begin = ir_last->instr_idx;
 
     visit_ast(ast->body);
     /// There we allocate temporary variable for
     /// comparison at the end of body.
     visit_ast(ast->condition);
 
-    struct ir_node  cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
-    struct ir_node  cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
-    struct ir_cond *cond_ptr = cond.ir;
+    struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
+    struct ir_node *cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
+    struct ir_cond *cond_ptr = cond->ir;
 
-    vector_push_back(ir_stmts, cond);
+    ir_insert(cond);
+
+    /// \todo: next_else pointer should lead to statement
+    ///        out of do-while (next one after it).
 
     cond_ptr->goto_label = stmt_begin + 1;
 }
@@ -218,8 +257,8 @@ static void visit_ast_if(struct ast_if *ast)
     /// L6:  after if
     visit_ast(ast->condition);
     assert((
-        ir_last.type == IR_IMM ||
-        ir_last.type == IR_SYM
+        ir_last->type == IR_IMM ||
+        ir_last->type == IR_SYM
     ) && ("Immediate value or symbol required."));
     /// Condition always looks like comparison with 0.
     ///
@@ -230,15 +269,15 @@ static void visit_ast_if(struct ast_if *ast)
     /// - if (var  ) -> if sym neq $0 goto ...
     ir_last = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
 
-    struct ir_node  cond        = ir_cond_init(ir_last, /*Not used for now.*/-1);
-    struct ir_cond *cond_ptr    = cond.ir;
-    struct ir_node  end_jmp     = ir_jump_init(/*Not used for now.*/-1);
-    struct ir_jump *end_jmp_ptr = end_jmp.ir;
+    struct ir_node *cond        = ir_cond_init(ir_last, /*Not used for now.*/-1);
+    struct ir_cond *cond_ptr    = cond->ir;
+    struct ir_node *end_jmp     = ir_jump_init(/*Not used for now.*/-1);
+    struct ir_jump *end_jmp_ptr = end_jmp->ir;
 
     /// Body starts after exit jump.
-    cond_ptr->goto_label = end_jmp.instr_idx + 1;
-    vector_push_back(ir_stmts, cond);
-    vector_push_back(ir_stmts, end_jmp);
+    cond_ptr->goto_label = end_jmp->instr_idx + 1;
+    ir_insert(cond);
+    ir_insert(end_jmp);
 
     visit_ast(ast->body);
     /// Even with code like
@@ -246,21 +285,24 @@ static void visit_ast_if(struct ast_if *ast)
     /// this will make us to jump to the `ret`
     /// instruction, which terminates each (regardless
     /// on the return type) function.
-    end_jmp_ptr->idx = ir_last.instr_idx + 1;
+    end_jmp_ptr->idx = ir_last->instr_idx + 1;
+
+    cond->next_else = end_jmp;
+    end_jmp->prev = cond;
 
     if (!ast->else_body) return;
-    struct ir_node  else_jmp = ir_jump_init(/*Not used for now.*/-1);
-    struct ir_jump *else_jmp_ptr = else_jmp.ir;
+    struct ir_node *else_jmp = ir_jump_init(/*Not used for now.*/-1);
+    struct ir_jump *else_jmp_ptr = else_jmp->ir;
     /// Index of this jump will be changed through pointer.
-    vector_push_back(ir_stmts, else_jmp);
+    ir_insert(else_jmp);
 
     /// Jump over the `then` statement to `else`.
-    end_jmp_ptr->idx = ir_last.instr_idx
-        + 1  /// Jump statement.
+    end_jmp_ptr->idx = ir_last->instr_idx
+        // + 1  /// Jump statement.
         + 1; /// The next one (first in `else` part).
     visit_ast(ast->else_body);
     /// `then` part ends with jump over `else` part.
-    else_jmp_ptr->idx = ir_last.instr_idx + 1;
+    else_jmp_ptr->idx = ir_last->instr_idx + 1;
 }
 
 static void visit_ast_return(struct ast_return *ast)
@@ -273,7 +315,7 @@ static void visit_ast_return(struct ast_return *ast)
         /*is_void=*/!ast->operand,
         /*op=*/ir_last
     );
-    vector_push_back(ir_stmts, ir_last);
+    ir_insert(ir_last);
 }
 
 static void visit_ast_symbol(struct ast_symbol *ast)
@@ -286,9 +328,9 @@ static void visit_ast_unary(struct ast_unary *ast)
 {
     visit_ast(ast->operand);
     assert((
-        ir_last.type == IR_SYM
+        ir_last->type == IR_SYM
     ) && ("Unary operator expects variable argument."));
-    struct ir_sym *sym = ir_last.ir;
+    struct ir_sym *sym = ir_last->ir;
 
     switch (ast->operation) {
     case TOK_INC:
@@ -301,7 +343,7 @@ static void visit_ast_unary(struct ast_unary *ast)
         weak_unreachable("Unknown unary operator (numeric: %d).", ast->operation);
     }
     ir_last = ir_store_bin_init(sym->idx, ir_last);
-    vector_push_back(ir_stmts, ir_last);
+    ir_insert(ir_last);
 }
 
 static void visit_ast_struct_decl(struct ast_struct_decl *ast) { (void) ast; }
@@ -311,29 +353,29 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
     int32_t next_idx = ir_var_idx++;
     ir_last = ir_alloca_init(ast->dt, next_idx);
     /// Used as function argument or as function body statement.
-    vector_push_back(ir_stmts, ir_last);
+    ir_insert(ir_last);
     ir_storage_push(ast->name, next_idx);
 
     if (ast->body) {
         visit_ast(ast->body);
 
-        switch (ir_last.type) {
+        switch (ir_last->type) {
         case IR_IMM: {
             ir_last = ir_store_imm_init(next_idx, ir_last);
             break;
         }
         case IR_SYM: {
-            struct ir_sym *sym = ir_last.ir;
+            struct ir_sym *sym = ir_last->ir;
             ir_last = ir_store_var_init(next_idx, sym->idx);
             break;
         }
         default:
             weak_unreachable(
                 "Expected symbol or immediate value as variable initializer, "
-                "got (numeric: %d).", ir_last.type
+                "got (numeric: %d).", ir_last->type
             );
         }
-        vector_push_back(ir_stmts, ir_last);
+        ir_insert(ir_last);
     }
 }
 
@@ -351,31 +393,35 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
 {
     ir_storage_init();
 
-    /// 1: Store function statements in ir_stmts
-    /// 2: Save pointer to ir_stmts on end
-    /// 3: ir_stmts = {0} (dispose allocated data)
     ir_var_idx = 0;
-    memset(&ir_stmts, 0, sizeof (ir_stmts));
-    visit_ast(decl->args);
-    uint64_t args_size = ir_stmts.count;
-    struct ir_node *args = ir_stmts.data;
+    ir_first = NULL;
+    ir_last = NULL;
+    ir_prev = NULL;
+    ir_save_first = 1;
+    ir_reset_internal_state();
 
-    memset(&ir_stmts, 0, sizeof (ir_stmts));
+    visit_ast(decl->args);
+    struct ir_node *args = ir_first;
+
+    ir_var_idx = 0;
+    ir_first = NULL;
+    ir_last = NULL;
+    ir_prev = NULL;
+    ir_save_first = 1;
+    ir_reset_internal_state();
+
     visit_ast(decl->body);
     if (decl->data_type == D_T_VOID) {
-        struct ir_node op = ir_node_init(IR_RET_VOID, NULL);
-        vector_push_back(ir_stmts, ir_ret_init(true, op));
+        struct ir_node *ret_body = ir_node_init(IR_RET_VOID, NULL);
+        ir_insert(ir_ret_init(true, ret_body));
     }
-    uint64_t body_size = ir_stmts.count;
-    struct ir_node *body = ir_stmts.data;
+    struct ir_node *body = ir_first;
 
     vector_push_back(
         ir_func_decls,
         ir_func_decl_init(
             decl->name,
-            args_size,
             args,
-            body_size,
             body
         )
     );
@@ -420,23 +466,24 @@ static void visit_ast_function_call(struct ast_function_call *ast) { (void) ast;
     }
 }
 
-struct ir ir_gen(struct ast_node *ast)
+struct ir_node *ir_gen(struct ast_node *ast)
 {
     invalidate();
+
     visit_ast(ast);
 
-    struct ir ir = {
-        .decls      = ir_func_decls.data,
-        .decls_size = ir_func_decls.count
-    };
+    vector_foreach(ir_func_decls, i) {
+        if (i >= ir_func_decls.count - 1)
+            break;
+        vector_at(ir_func_decls, i)->next =
+        vector_at(ir_func_decls, i + 1);
 
-    ir_link(&ir);
+        vector_at(ir_func_decls, i + 1)->prev =
+        vector_at(ir_func_decls, i);
+    }
 
-    return ir;
-}
+    // ir_link(&ir);
 
-void ir_cleanup(struct ir *ir)
-{
-    for (uint64_t i = 0; i < ir->decls_size; ++i)
-        ir_node_cleanup(ir->decls[i]);
+    /// TODO: Collect first statement.
+    return vector_at(ir_func_decls, 0);
 }

@@ -59,7 +59,7 @@ static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
 {
     fprintf(mem, "store %%%d ", ir->idx);
-    ir_dump_node(mem, &ir->body);
+    ir_dump_node(mem, ir->body);
 }
 
 static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
@@ -90,9 +90,9 @@ static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
         weak_unreachable("Unknown operation: `%s`.", tok_to_string(ir->op));
     }
 
-    ir_dump_node(mem, &ir->lhs);
+    ir_dump_node(mem, ir->lhs);
     fprintf(mem, " %s ", op);
-    ir_dump_node(mem, &ir->rhs);
+    ir_dump_node(mem, ir->rhs);
 }
 
 static void ir_dump_label(FILE *mem, struct ir_label *ir)
@@ -108,14 +108,14 @@ static void ir_dump_jump(FILE *mem, struct ir_jump *ir)
 static void ir_dump_cond(FILE *mem, struct ir_cond *ir)
 {
     fprintf(mem, "if ");
-    ir_dump_node(mem, &ir->cond);
+    ir_dump_node(mem, ir->cond);
     fprintf(mem, " goto L%d", ir->goto_label);
 }
 
 static void ir_dump_ret(FILE *mem, struct ir_ret *ir)
 {
     fprintf(mem, "ret ");
-    ir_dump_node(mem, &ir->op);
+    ir_dump_node(mem, ir->body);
 }
 
 static void ir_dump_ret_void(FILE *mem)
@@ -141,9 +141,11 @@ static void ir_dump_array_access(FILE *mem, struct ir_array_access *ir)
 static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
 {
     fprintf(mem, "%%%s = {", ir->name);
-    for (uint64_t i = 0; i < ir->decls_size; ++i) {
+    struct ir_node *it = ir->decls;
+    while (it) {
         fprintf(mem, "\n    ");
-        ir_dump_node(mem, ir->decls + i);
+        ir_dump_node(mem, it);
+        it = it->next;
     }
     fprintf(mem, "\n}");
 }
@@ -151,35 +153,33 @@ static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
 static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
 {
     fprintf(mem, "fun %s(", ir->name);
-    uint64_t size = ir->args_size;
-    for (uint64_t i = 0; i < size; ++i) {
-        ir_dump_alloca(mem, (ir->args + i)->ir);
-        if (i < size - 1) {
+    struct ir_node *it = ir->args;
+    while (it) {
+        ir_dump_alloca(mem, it->ir);
+        if (it->next != NULL)
             fprintf(mem, ", ");
-        }
+        it = it->next;
     }
     fprintf(mem, "):");
 
-    size = ir->body_size;
-    for (uint64_t i = 0; i < size; ++i) {
-        struct ir_node *node = ir->body + i;
-
-        if (node->type != IR_LABEL)
-            fprintf(mem, "\n% 8d:   ", node->instr_idx);
-        ir_dump_node(mem, node);
+    it = ir->body;
+    while (it) {
+        if (it->type != IR_LABEL)
+            fprintf(mem, "\n% 8d:   ", it->instr_idx);
+        ir_dump_node(mem, it);
+        it = it->next;
     }
 }
 
 static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
 {
     fprintf(mem, "call %s(", ir->name);
-    uint64_t size = ir->args_size;
-    for (uint64_t i = 0; i < size; ++i) {
-        struct ir_node *node = ir->args + i;
-        ir_dump_node(mem, node);
-        if (i < size -1) {
+    struct ir_node *it = ir->args;
+    while (it) {
+        ir_dump_alloca(mem, it->ir);
+        if (it->next != NULL)
             fprintf(mem, ", ");
-        }
+        it = it->next;
     }
     fprintf(mem, ")");
 }
@@ -238,78 +238,38 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     case IR_MEMBER:
     case IR_ARRAY_ACCESS:
         break;
-    case IR_STORE: {
-        struct ir_store *store = ir->ir;
-        ir_mark(visited, ir);
-
-        ir_dump_node_dot(mem, ir, store->next);
-        ir_dump_traverse(mem, visited, store->next);
-        break;
-    }
-    case IR_LABEL: {
-        struct ir_label *label = ir->ir;
-        ir_mark(visited, ir);
-
-        ir_dump_node_dot(mem, ir, label->next);
-        ir_dump_traverse(mem, visited, label->next);
-        break;
-    }
+    case IR_STORE:
+    case IR_LABEL:
+    case IR_ALLOCA:
+    case IR_FUNC_CALL:
     case IR_JUMP: {
-        struct ir_jump *jump = ir->ir;
         ir_mark(visited, ir);
 
-        ir_dump_node_dot(mem, ir, jump->next);
-        ir_dump_traverse(mem, visited, jump->next);
+        ir_dump_node_dot(mem, ir, ir->next);
+        ir_dump_traverse(mem, visited, ir->next);
         break;
     }
     case IR_COND: {
-        struct ir_cond *cond = ir->ir;
         ir_mark(visited, ir);
 
-        ir_dump_node_dot(mem, ir, cond->next_true);
+        ir_dump_node_dot(mem, ir, ir->next);
         fprintf(mem, " [ label = \"  true\"]\n");
 
-        ir_dump_node_dot(mem, ir, cond->next_false);
+        ir_dump_node_dot(mem, ir, ir->next_else);
         fprintf(mem, " [ label = \"  false\"]\n");
 
-        ir_dump_traverse(mem, visited, cond->next_true);
-        ir_dump_traverse(mem, visited, cond->next_false);
+        ir_dump_traverse(mem, visited, ir->next);
+        ir_dump_traverse(mem, visited, ir->next_else);
         break;
     }
-    case IR_RET: {
-        struct ir_ret *ret = ir->ir;
-        ir_mark(visited, ir);
-
-        if (ret->next) {
-            ir_dump_node_dot(mem, ir, ret->next);
-            ir_dump_traverse(mem, visited, ret->next);
-        }
-        break;
-    }
+    case IR_RET:
     case IR_RET_VOID: {
-        struct ir_ret *ret = ir->ir;
         ir_mark(visited, ir);
 
-        if (ret->next) {
-            ir_dump_node_dot(mem, ir, ret->next);
-            ir_dump_traverse(mem, visited, ret->next);
+        if (ir->next) {
+            ir_dump_node_dot(mem, ir, ir->next);
+            ir_dump_traverse(mem, visited, ir->next);
         }
-        break;
-    }
-    case IR_ALLOCA: {
-        struct ir_alloca *alloca = ir->ir;
-        ir_mark(visited, ir);
-
-        ir_dump_node_dot(mem, ir, alloca->next);
-        ir_dump_traverse(mem, visited, alloca->next);
-        break;
-    }
-    case IR_FUNC_CALL: {
-        struct ir_func_call *call = ir->ir;
-        ir_mark(visited, ir);
-
-        ir_dump_node_dot(mem, ir, call->next);
-        ir_dump_traverse(mem, visited, call->next);
         break;
     }
     default:
@@ -329,7 +289,7 @@ void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl)
 
     bool visited[8192] = {0};
 
-    ir_dump_traverse(mem, visited, &decl->body[0]);
+    ir_dump_traverse(mem, visited, decl->body);
 
     fprintf(mem, "}\n");
 }
@@ -342,10 +302,11 @@ void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
         "    node [shape=box];\n"
     );
 
-    for (uint64_t i = 0; i < decl->body_size; ++i) {
-        struct ir_node *ir = &decl->body[i];
-        if (ir->idom)
-            ir_dump_node_dot(mem, ir->idom, ir);
+    struct ir_node *it = decl->body;
+    while (it) {
+        if (it->idom != NULL)
+            ir_dump_node_dot(mem, it->idom, it);
+        it = it->next;
     }
 
     fprintf(mem, "}\n");

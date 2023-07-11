@@ -7,17 +7,17 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_OPT_H
 #define WEAK_COMPILER_MIDDLE_END_OPT_H
 
-struct ir;
+struct ir_node;
 
 /// Invariant code motion.
 ///
 /// This is based on dominator tree analyis (probably).
 ///
 /// \pre Computed dominator tree.
-void ir_opt_motion(struct ir *ir);
+void ir_opt_motion(struct ir_node *ir);
 
 /// Constant and expressions folding.
-void ir_opt_fold(struct ir *ir);
+void ir_opt_fold(struct ir_node *ir);
 
 /// Transform arithmetic operations.
 ///
@@ -63,6 +63,6 @@ void ir_opt_fold(struct ir *ir);
 ///        - A * B = B * A
 ///        - A & B = B & A
 ///        - A | B = B | A
-void ir_opt_arith(struct ir *ir);
+void ir_opt_arith(struct ir_node *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_OPT_H

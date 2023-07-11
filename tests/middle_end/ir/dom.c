@@ -15,8 +15,8 @@ void dominates()
 {
     TEST_START_INFO
 
-    struct ir_node node1 = ir_jump_init(0);
-    struct ir_node node2 = ir_jump_init(1);
+    struct ir_node *node1 = ir_jump_init(0);
+    struct ir_node *node2 = ir_jump_init(1);
 
     /// Dominator tree:
     ///
@@ -29,14 +29,14 @@ void dominates()
     ///     +-------+
     ///     |   2   |
     ///     +-------+
-    node1.idom = NULL;
-    node2.idom = &node1;
+    node1->idom = NULL;
+    node2->idom = node1;
 
-    ASSERT_TRUE( ir_dominates   (&node1, &node2));
-    ASSERT_TRUE(!ir_dominated_by(&node1, &node2));
+    ASSERT_TRUE( ir_dominates   (node1, node2));
+    ASSERT_TRUE(!ir_dominated_by(node1, node2));
 
-    ASSERT_TRUE(!ir_dominates   (&node2, &node1));
-    ASSERT_TRUE( ir_dominated_by(&node2, &node1));
+    ASSERT_TRUE(!ir_dominates   (node2, node1));
+    ASSERT_TRUE( ir_dominated_by(node2, node1));
 
     ir_node_cleanup(node1);
     ir_node_cleanup(node2);

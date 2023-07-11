@@ -7,8 +7,8 @@
 #ifndef WEAK_COMPILER_BACKEND_X86_64_H
 #define WEAK_COMPILER_BACKEND_X86_64_H
 
-struct ir;
+// struct ir;
 
-void code_gen(struct ir *ir);
+// void code_gen(struct ir *ir);
 
 #endif // WEAK_COMPILER_BACKEND_X86_64_H

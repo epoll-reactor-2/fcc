@@ -37,38 +37,35 @@ enum ir_type {
     IR_FUNC_CALL,
 };
 
-struct ir {
-    uint64_t        decls_size;
-    /// Accepted values: struct ir_func_decl.
-    struct ir_node *decls;
-};
-
 /// This IR node designed to be able to represent
 /// Control Flow Graph (CFG). Each concrete IR node has
 /// pointer to the next statement in execution flow,
-/// if such needed. Thus, statements, contained only
-/// inside other statements cannot have such link
-/// (immediate, symbol, binary operation).
+/// if such needed.
 ///
 /// Each implemented IR node must have methods
 /// - ir_%name%_init(...)
 /// - ir_%name%_cleanup(...)
 /// .
 struct ir_node {
-    enum ir_type    type;
-    int32_t         instr_idx;
-    void           *ir;
+    enum ir_type     type;
+    int32_t          instr_idx;
+    void            *ir;
     /// Immediate dominator. Used to compute dominator tree.
-    struct ir_node *idom;
+    struct ir_node  *idom;
+
+    struct ir_node  *next;
+    struct ir_node  *next_else;
+
+    struct ir_node  *prev;
+    struct ir_node  *prev_else;
 };
 
 struct ir_alloca {
-    enum data_type  dt;
+    enum data_type   dt;
     /// This is index of an variable. Like
     /// D_T_INT %1.
     /// Alternatively, string names can be stored.
-    int32_t         idx;
-    struct ir_node *next;
+    int32_t          idx;
 };
 
 enum ir_imm_type {
@@ -110,9 +107,8 @@ struct ir_store {
     /// - immediate value,
     /// - binary operation,
     /// - variable (var).
-    enum ir_store_type  type;
-    struct ir_node      body;
-    struct ir_node     *next;
+    enum ir_store_type   type;
+    struct ir_node      *body;
 };
 
 struct ir_bin {
@@ -124,21 +120,19 @@ struct ir_bin {
     ///
     /// \note: There is no unary operators.
     ///        They can be expressed through binary ones.
-    enum token_type op;
-    struct ir_node  lhs;
-    struct ir_node  rhs;
+    enum token_type  op;
+    struct ir_node  *lhs;
+    struct ir_node  *rhs;
 };
 
 struct ir_label {
     /// Label used to jump to.
     int32_t         idx;
-    struct ir_node *next;
 };
 
 struct ir_jump {
     /// Unconditonal jump.
     int32_t         idx;
-    struct ir_node *next;
 };
 
 struct ir_cond {
@@ -148,10 +142,8 @@ struct ir_cond {
     /// it should looks like
     ///   if cmpneq x, 0.
     /// Requires only binary IR instruction.
-    struct           ir_node cond;
+    struct ir_node  *cond;
     int32_t          goto_label;
-    struct ir_node  *next_true;
-    struct ir_node  *next_false;
 };
 
 struct ir_ret {
@@ -161,8 +153,7 @@ struct ir_ret {
     /// Accepted values:
     /// - symbol (variable index),
     /// - immediate value.
-    struct ir_node  op;
-    struct ir_node *next;
+    struct ir_node *body;
 };
 
 struct ir_member {
@@ -184,69 +175,64 @@ struct ir_array_access {
     /// Accepted values:
     /// - symbol (variable index),
     /// - immediate value.
-    struct ir_node op;
+    struct ir_node *body;
 };
 
 struct ir_type_decl {
     const char *name;
-    uint64_t    decls_size;
     /// Accepted values:
     /// - struct ir_alloca (primitive type),
     /// - struct ir_type_decl_t (compound type, nested).
-    struct ir_node  *decls;
+    struct ir_node *decls;
 };
 
 struct ir_func_decl {
     /// Name instead of index required though
     /// (to be able to view something at all in assembly file).
-    const char     *name;
-    uint64_t        args_size;
+    const char      *name;
     /// Accepted values:
     /// - struct ir_alloca (primitive type),
     /// - struct ir_type_decl_t (compound type, nested).
-    struct ir_node *args;
-    struct ir_node *body;
-    uint64_t        body_size;
+    struct ir_node  *args;
+    struct ir_node  *body;
 };
 
 struct ir_func_call {
-    const char     *name;
-    uint64_t        args_size;
+    const char      *name;
     /// Accepted values:
     /// - struct ir_sym,
     /// - struct ir_imm.
     /// Correct argument types is code generator responsibility.
-    struct ir_node *args;
-    struct ir_node *next;
+    struct ir_node  *args;
 };
 
 void ir_reset_internal_state();
 
-__weak_wur struct ir_node ir_node_init(enum ir_type type, void *ir);
-__weak_wur struct ir_node ir_alloca_init(enum data_type dt, int32_t idx);
+__weak_wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
+__weak_wur struct ir_node *ir_alloca_init(enum data_type dt, int32_t idx);
 
-__weak_wur struct ir_node ir_imm_bool_init(bool imm);
-__weak_wur struct ir_node ir_imm_char_init(char imm);
-__weak_wur struct ir_node ir_imm_float_init(float imm);
-__weak_wur struct ir_node ir_imm_int_init(int32_t imm);
+__weak_wur struct ir_node *ir_imm_bool_init(bool imm);
+__weak_wur struct ir_node *ir_imm_char_init(char imm);
+__weak_wur struct ir_node *ir_imm_float_init(float imm);
+__weak_wur struct ir_node *ir_imm_int_init(int32_t imm);
 
-__weak_wur struct ir_node ir_sym_init(int32_t idx);
+__weak_wur struct ir_node *ir_sym_init(int32_t idx);
 
-__weak_wur struct ir_node ir_store_imm_init(int32_t idx, struct ir_node imm);
-__weak_wur struct ir_node ir_store_var_init(int32_t idx, int32_t var_idx);
-__weak_wur struct ir_node ir_store_bin_init(int32_t idx, struct ir_node bin);
+__weak_wur struct ir_node *ir_store_imm_init(int32_t idx, struct ir_node *imm);
+__weak_wur struct ir_node *ir_store_var_init(int32_t idx, int32_t var_idx);
+__weak_wur struct ir_node *ir_store_bin_init(int32_t idx, struct ir_node *bin);
 
-__weak_wur struct ir_node ir_bin_init(enum token_type op, struct ir_node lhs, struct ir_node rhs);
-__weak_wur struct ir_node ir_label_init(int32_t idx);
-__weak_wur struct ir_node ir_jump_init(int32_t idx);
-__weak_wur struct ir_node ir_cond_init(struct ir_node cond, int32_t goto_label);
-__weak_wur struct ir_node ir_ret_init(bool is_void, struct ir_node op);
-__weak_wur struct ir_node ir_member_init(int32_t idx, int32_t field_idx);
-__weak_wur struct ir_node ir_array_access_init(int32_t idx, struct ir_node op);
-__weak_wur struct ir_node ir_type_decl_init(const char *name, uint64_t decls_size, struct ir_node *decls);
-__weak_wur struct ir_node ir_func_decl_init(const char *name, uint64_t args_size, struct ir_node *args, uint64_t body_size, struct ir_node *body);
-__weak_wur struct ir_node ir_func_call_init(const char *name, uint64_t args_size, struct ir_node *args);
+__weak_wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
+__weak_wur struct ir_node *ir_label_init(int32_t idx);
+__weak_wur struct ir_node *ir_jump_init(int32_t idx);
+__weak_wur struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label);
+__weak_wur struct ir_node *ir_ret_init(bool is_void, struct ir_node *body);
+__weak_wur struct ir_node *ir_member_init(int32_t idx, int32_t field_idx);
+__weak_wur struct ir_node *ir_array_access_init(int32_t idx, struct ir_node *body);
+__weak_wur struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls);
+__weak_wur struct ir_node *ir_func_decl_init(const char *name, struct ir_node *args, struct ir_node *body);
+__weak_wur struct ir_node *ir_func_call_init(const char *name, struct ir_node *args);
 
-void ir_node_cleanup(struct ir_node ir);
+void ir_node_cleanup(struct ir_node *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_H

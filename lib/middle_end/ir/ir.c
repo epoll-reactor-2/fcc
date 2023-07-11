@@ -20,17 +20,16 @@ void ir_reset_internal_state()
     ir_instr_index = -1;
 }
 
-struct ir_node ir_node_init(enum ir_type type, void *ir)
+struct ir_node *ir_node_init(enum ir_type type, void *ir)
 {
-    struct ir_node node = {
-        .type      = type,
-        .instr_idx = ir_instr_index,
-        .ir        = ir
-    };
+    struct ir_node *node = weak_calloc(1, sizeof (struct ir_node));
+    node->type = type;
+    node->instr_idx = ir_instr_index;
+    node->ir = ir;
     return node;
 }
 
-struct ir_node ir_alloca_init(enum data_type dt, int32_t idx)
+struct ir_node *ir_alloca_init(enum data_type dt, int32_t idx)
 {
     struct ir_alloca *ir = weak_calloc(1, sizeof (struct ir_alloca));
     ir->dt = dt;
@@ -39,7 +38,7 @@ struct ir_node ir_alloca_init(enum data_type dt, int32_t idx)
     return ir_node_init(IR_ALLOCA, ir);
 }
 
-struct ir_node ir_imm_bool_init(bool imm)
+struct ir_node *ir_imm_bool_init(bool imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
     ir->imm.__bool = imm;
@@ -47,7 +46,7 @@ struct ir_node ir_imm_bool_init(bool imm)
     return ir_node_init(IR_IMM, ir);
 }
 
-struct ir_node ir_imm_char_init(char imm)
+struct ir_node *ir_imm_char_init(char imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
     ir->imm.__char = imm;
@@ -55,7 +54,7 @@ struct ir_node ir_imm_char_init(char imm)
     return ir_node_init(IR_IMM, ir);
 }
 
-struct ir_node ir_imm_float_init(float imm)
+struct ir_node *ir_imm_float_init(float imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
     ir->imm.__float = imm;
@@ -63,7 +62,7 @@ struct ir_node ir_imm_float_init(float imm)
     return ir_node_init(IR_IMM, ir);
 }
 
-struct ir_node ir_imm_int_init(int32_t imm)
+struct ir_node *ir_imm_int_init(int32_t imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
     ir->imm.__int = imm;
@@ -72,14 +71,14 @@ struct ir_node ir_imm_int_init(int32_t imm)
 }
 
 
-struct ir_node ir_sym_init(int32_t idx)
+struct ir_node *ir_sym_init(int32_t idx)
 {
     struct ir_sym *ir = weak_calloc(1, sizeof (struct ir_sym));
     ir->idx = idx;
     return ir_node_init(IR_SYM, ir);
 }
 
-struct ir_node ir_store_imm_init(int32_t idx, struct ir_node imm)
+struct ir_node *ir_store_imm_init(int32_t idx, struct ir_node *imm)
 {
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
     ir->type = IR_STORE_IMM;
@@ -89,7 +88,7 @@ struct ir_node ir_store_imm_init(int32_t idx, struct ir_node imm)
     return ir_node_init(IR_STORE, ir);
 }
 
-struct ir_node ir_store_var_init(int32_t idx, int32_t var_idx)
+struct ir_node *ir_store_var_init(int32_t idx, int32_t var_idx)
 {
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
     ir->type = IR_STORE_SYM;
@@ -99,9 +98,9 @@ struct ir_node ir_store_var_init(int32_t idx, int32_t var_idx)
     return ir_node_init(IR_STORE, ir);
 }
 
-struct ir_node ir_store_bin_init(int32_t idx, struct ir_node bin)
+struct ir_node *ir_store_bin_init(int32_t idx, struct ir_node *bin)
 {
-    assert(bin.type == IR_BIN && "Store expects binary expression in this context");
+    assert(bin->type == IR_BIN && "Store expects binary expression in this context");
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
     ir->type = IR_STORE_BIN;
     ir->idx = idx;
@@ -110,14 +109,14 @@ struct ir_node ir_store_bin_init(int32_t idx, struct ir_node bin)
     return ir_node_init(IR_STORE, ir);
 }
 
-struct ir_node ir_bin_init(enum token_type op, struct ir_node lhs, struct ir_node rhs)
+struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs)
 {
     assert(((
-        lhs.type == IR_SYM ||
-        lhs.type == IR_IMM
+        lhs->type == IR_SYM ||
+        lhs->type == IR_IMM
      ) && (
-        rhs.type == IR_SYM ||
-        rhs.type == IR_IMM
+        rhs->type == IR_SYM ||
+        rhs->type == IR_IMM
     )) && (
         "Binary operation expects variable or immediate value"
     ));
@@ -128,15 +127,14 @@ struct ir_node ir_bin_init(enum token_type op, struct ir_node lhs, struct ir_nod
     return ir_node_init(IR_BIN, ir);
 }
 
-struct ir_node ir_label_init(int32_t idx)
+struct ir_node *ir_label_init(int32_t idx)
 {
     struct ir_label *ir = weak_calloc(1, sizeof (struct ir_label));
     ir->idx = idx;
-    struct ir_node node = ir_node_init(IR_LABEL, ir);
-    return node;
+    return ir_node_init(IR_LABEL, ir);
 }
 
-struct ir_node ir_jump_init(int32_t idx)
+struct ir_node *ir_jump_init(int32_t idx)
 {
     struct ir_jump *ir = weak_calloc(1, sizeof (struct ir_jump));
     ir->idx = idx;
@@ -144,9 +142,9 @@ struct ir_node ir_jump_init(int32_t idx)
     return ir_node_init(IR_JUMP, ir);    
 }
 
-struct ir_node ir_cond_init(struct ir_node cond, int32_t goto_label)
+struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label)
 {
-    assert(cond.type == IR_BIN && "Only binary instruction supported as condition body");
+    assert(cond->type == IR_BIN && "Only binary instruction supported as condition body");
     struct ir_cond *ir = weak_calloc(1, sizeof (struct ir_cond));
     ir->cond = cond;
     ir->goto_label = goto_label;
@@ -154,25 +152,24 @@ struct ir_node ir_cond_init(struct ir_node cond, int32_t goto_label)
     return ir_node_init(IR_COND, ir);    
 }
 
-struct ir_node ir_ret_init(bool is_void, struct ir_node op)
+struct ir_node *ir_ret_init(bool is_void, struct ir_node *body)
 {
     assert((
         op.type == IR_SYM ||
         op.type == IR_IMM ||
-        (is_void && op.type == IR_RET_VOID)
+        (is_void && body->type == IR_RET_VOID)
     ) && (
         "Ret expects immediate value or variable"
     ));
     struct ir_ret *ir = weak_calloc(1, sizeof (struct ir_ret));
     ir->is_void = is_void;
-    ir->op = op;
+    ir->body = body;
     /// Return operand is inline instruction.
-    // if (!is_void) --ir_instr_index;
     ++ir_instr_index;
     return ir_node_init(is_void ? IR_RET_VOID : IR_RET, ir);    
 }
 
-struct ir_node ir_member_init(int32_t idx, int32_t field_idx)
+struct ir_node *ir_member_init(int32_t idx, int32_t field_idx)
 {
     struct ir_member *ir = weak_calloc(1, sizeof (struct ir_member));
     ir->idx = idx;
@@ -180,80 +177,77 @@ struct ir_node ir_member_init(int32_t idx, int32_t field_idx)
     return ir_node_init(IR_MEMBER, ir);
 }
 
-struct ir_node ir_array_access_init(int32_t idx, struct ir_node op)
+struct ir_node *ir_array_access_init(int32_t idx, struct ir_node *body)
 {
     assert((
-        op.type == IR_SYM ||
-        op.type == IR_IMM
+        body->type == IR_SYM ||
+        body->type == IR_IMM
     ) && (
         "Array access expects immediate value or variable"
     ));
     struct ir_array_access *ir = weak_calloc(1, sizeof (struct ir_array_access));
     ir->idx = idx;
-    ir->op = op;
+    ir->body = body;
     return ir_node_init(IR_ARRAY_ACCESS, ir);    
 }
 
-struct ir_node ir_type_decl_init(const char *name, uint64_t decls_size, struct ir_node *decls)
+struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls)
 {
     __weak_debug({
-        for (uint64_t i = 0; i < decls_size; ++i) {
-            enum ir_type t = decls[i].type;
+        struct ir_node *it = decls;
+        while (it) {
+            enum ir_type t = it->type;
             assert((
                 t == IR_ALLOCA ||
                 t == IR_TYPE_DECL
             ) && (
                 "Primitive or compound type as type field expected"
             ));
+            it = it->next;
         }
     })
     struct ir_type_decl *ir = weak_calloc(1, sizeof (struct ir_type_decl));
     ir->name = name;
-    ir->decls_size = decls_size;
     ir->decls = decls;
     return ir_node_init(IR_TYPE_DECL, ir);    
 }
 
-struct ir_node ir_func_decl_init(
-    const char       *name,
-    uint64_t          args_size,
-    struct ir_node   *args,
-    uint64_t          body_size,
-    struct ir_node   *body
+struct ir_node *ir_func_decl_init(
+    const char     *name,
+    struct ir_node *args,
+    struct ir_node *body
 ) {
     __weak_debug({
-        for (uint64_t i = 0; i < args_size; ++i) {
-            enum ir_type t = args[i].type;
+        struct ir_node *it = args;
+        while (it) {
+            enum ir_type t = it->type;
             assert((t == IR_ALLOCA) && (
                 "Function expects alloca instruction as parameter"
             ));
+            it = it->next;
         }
     })
     struct ir_func_decl *ir = weak_calloc(1, sizeof (struct ir_func_decl));
     ir->name = name;
-    ir->args_size = args_size;
     ir->args = args;
-    ir->body_size = body_size;
     ir->body = body;
     return ir_node_init(IR_FUNC_DECL, ir);    
 }
 
-struct ir_node ir_func_call_init(const char *name, uint64_t args_size, struct ir_node  *args)
+struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
 {
     __weak_debug({
-        for (uint64_t i = 0; i < args_size; ++i) {
-            enum ir_type t = args[i].type;
-            assert((
-                t == IR_SYM ||
-                t == IR_IMM
-            ) && (
-                "Function call expression expects immediate value or variable"
+        struct ir_node *it = args;
+        while (it) {
+            enum ir_type t = it->type;
+            assert((t == IR_ALLOCA) && (
+                "Function expects alloca instruction as parameter"
             ));
+            it = it->next;
         }
     })
     struct ir_func_call *ir = weak_calloc(1, sizeof (struct ir_func_call));
     ir->name = name;
-    ir->args_size = args_size;
     ir->args = args;
     ++ir_instr_index;
     return ir_node_init(IR_FUNC_CALL, ir);    
@@ -277,57 +271,70 @@ static void ir_cond_cleanup(struct ir_cond *ir)
 
 static void ir_ret_cleanup(struct ir_ret *ir)
 {
-    if (!ir->is_void) ir_node_cleanup(ir->op);
+    if (!ir->is_void) ir_node_cleanup(ir->body);
 }
 
 static void ir_array_access_cleanup(struct ir_array_access *ir)
 {
-    ir_node_cleanup(ir->op);
+    ir_node_cleanup(ir->body);
 }
 
 static void ir_type_decl_cleanup(struct ir_type_decl *ir)
 {
-    for (uint64_t i = 0; i < ir->decls_size; ++i)
-        ir_node_cleanup(ir->decls[i]);
+    struct ir_node *it = ir->decls;
+    while (it) {
+        ir_node_cleanup(it);
+        it = it->next;
+    }
 }
 
 static void ir_func_decl_cleanup(struct ir_func_decl *ir)
 {
-    for (uint64_t i = 0; i < ir->args_size; ++i)
-        ir_node_cleanup(ir->args[i]);
+    struct ir_node *it = ir->args;
+    while (it) {
+        ir_node_cleanup(it);
+        it = it->next;
+    }
 
-    for (uint64_t i = 0; i < ir->body_size; ++i)
-        ir_node_cleanup(ir->body[i]);
+    it = ir->body;
+    while (it) {
+        ir_node_cleanup(it);
+        it = it->next;
+    }
 }
 static void ir_func_call_cleanup(struct ir_func_call *ir)
 {
-    for (uint64_t i = 0; i < ir->args_size; ++i)
-        ir_node_cleanup(ir->args[i]);
+    struct ir_node *it = ir->args;
+    while (it) {
+        ir_node_cleanup(it);
+        it = it->next;
+    }
 }
 
-void ir_node_cleanup(struct ir_node ir)
+void ir_node_cleanup(struct ir_node *ir)
 {
-    switch (ir.type) {
+    switch (ir->type) {
     case IR_ALLOCA:
     case IR_IMM:
     case IR_SYM:
     case IR_LABEL:
     case IR_JUMP:
     case IR_MEMBER: /// Fall through.
-        /// Nothing to clean except ir.ir itself.
+        /// Nothing to clean except ir->ir itself.
         break;
-    case IR_STORE:        ir_store_cleanup(ir.ir); break;
-    case IR_BIN:          ir_bin_cleanup(ir.ir); break;
-    case IR_COND:         ir_cond_cleanup(ir.ir); break;
-    case IR_RET:          ir_ret_cleanup(ir.ir); break;
-    case IR_RET_VOID:     ir_ret_cleanup(ir.ir); break;
-    case IR_ARRAY_ACCESS: ir_array_access_cleanup(ir.ir); break;
-    case IR_TYPE_DECL:    ir_type_decl_cleanup(ir.ir); break;
-    case IR_FUNC_DECL:    ir_func_decl_cleanup(ir.ir); break;
-    case IR_FUNC_CALL:    ir_func_call_cleanup(ir.ir); break;
+    case IR_STORE:        ir_store_cleanup(ir->ir); break;
+    case IR_BIN:          ir_bin_cleanup(ir->ir); break;
+    case IR_COND:         ir_cond_cleanup(ir->ir); break;
+    case IR_RET:          ir_ret_cleanup(ir->ir); break;
+    case IR_RET_VOID:     ir_ret_cleanup(ir->ir); break;
+    case IR_ARRAY_ACCESS: ir_array_access_cleanup(ir->ir); break;
+    case IR_TYPE_DECL:    ir_type_decl_cleanup(ir->ir); break;
+    case IR_FUNC_DECL:    ir_func_decl_cleanup(ir->ir); break;
+    case IR_FUNC_CALL:    ir_func_call_cleanup(ir->ir); break;
     default:
-        weak_unreachable("Unknown IR type (numeric: %d).", ir.type);
+        weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 
-    weak_free(ir.ir);
+    weak_free(ir->ir);
+    weak_free(ir);
 }
