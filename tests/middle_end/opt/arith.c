@@ -88,8 +88,8 @@ bool ir_test(const char *filename)
 
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\nexpected\n", expected);
-            // success = false;
-            // goto exit;
+            success = false;
+            goto exit;
         }
         printf("Success!\n");
     } else {
@@ -97,7 +97,7 @@ bool ir_test(const char *filename)
         return false;
     }
 
-// exit:
+exit:
     yylex_destroy();
     tokens_cleanup(toks);
     fclose(expected_stream);
