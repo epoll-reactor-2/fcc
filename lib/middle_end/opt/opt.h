@@ -19,7 +19,7 @@ void ir_opt_motion(struct ir_node *ir);
 /// Constant and expressions folding.
 void ir_opt_fold(struct ir_node *ir);
 
-/// Transform arithmetic operations.
+/// Arithmetic optimizations.
 ///
 ///     1. Negation laws:
 ///        - A - (-B) = A + B
