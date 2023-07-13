@@ -218,6 +218,7 @@ void ir_reset_internal_state();
 __weak_wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
 __weak_wur struct ir_node *ir_alloca_init(enum data_type dt, int32_t idx);
 
+__weak_wur struct ir_node *ir_imm_init(enum ir_imm_type t, union ir_imm_val imm);
 __weak_wur struct ir_node *ir_imm_bool_init(bool imm);
 __weak_wur struct ir_node *ir_imm_char_init(char imm);
 __weak_wur struct ir_node *ir_imm_float_init(float imm);
@@ -226,7 +227,7 @@ __weak_wur struct ir_node *ir_imm_int_init(int32_t imm);
 __weak_wur struct ir_node *ir_sym_init(int32_t idx);
 
 __weak_wur struct ir_node *ir_store_imm_init(int32_t idx, struct ir_node *imm);
-__weak_wur struct ir_node *ir_store_var_init(int32_t idx, int32_t var_idx);
+__weak_wur struct ir_node *ir_store_sym_init(int32_t idx, int32_t var_idx);
 __weak_wur struct ir_node *ir_store_bin_init(int32_t idx, struct ir_node *bin);
 
 __weak_wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);

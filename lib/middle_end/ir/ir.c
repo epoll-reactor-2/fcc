@@ -38,6 +38,14 @@ struct ir_node *ir_alloca_init(enum data_type dt, int32_t idx)
     return ir_node_init(IR_ALLOCA, ir);
 }
 
+struct ir_node *ir_imm_init(enum ir_imm_type t, union ir_imm_val imm)
+{
+    struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
+    ir->imm = imm;
+    ir->type = t;
+    return ir_node_init(IR_IMM, ir);
+}
+
 struct ir_node *ir_imm_bool_init(bool imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
@@ -88,7 +96,7 @@ struct ir_node *ir_store_imm_init(int32_t idx, struct ir_node *imm)
     return ir_node_init(IR_STORE, ir);
 }
 
-struct ir_node *ir_store_var_init(int32_t idx, int32_t var_idx)
+struct ir_node *ir_store_sym_init(int32_t idx, int32_t var_idx)
 {
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
     ir->type = IR_STORE_SYM;
