@@ -6,6 +6,7 @@
 
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/dump.h"
+#include "middle_end/ir/meta.h"
 #include "middle_end/opt/opt.h"
 #include "util/compiler.h"
 #include "util/hashmap.h"
@@ -18,7 +19,7 @@
 static hashmap_t alloca_stmts;
 static hashmap_t consts_mapping;
 
-static vector_t(uint64_t) redundant_stmts;
+static vector_t(struct ir_node *) redundant_stmts;
 
 static void consts_mapping_init()
 {
@@ -73,10 +74,10 @@ static bool consts_mapping_is_const(uint64_t idx)
     return ok;
 }
 
-static void alloca_stmts_put(uint64_t sym_idx, uint64_t instr_idx)
+static void alloca_stmts_put(uint64_t sym_idx, void *ir)
 {
-    __weak_debug_msg("Alloca stmts: add sym_idx:%ld, instr_idx:%ld\n", sym_idx, instr_idx);
-    hashmap_put(&alloca_stmts, sym_idx, instr_idx);
+    __weak_debug_msg("Alloca stmts: add sym_idx:%ld, ir:%p\n", sym_idx, ir);
+    hashmap_put(&alloca_stmts, sym_idx, (uint64_t) ir);
 }
 
 static void alloca_stmts_remove(uint64_t sym_idx)
@@ -197,6 +198,13 @@ static void fold_store_bin(struct ir_node *ir)
     struct ir_store *store  = ir->ir;
     struct ir_node  *folded = fold_node(store->body);
 
+    if (ir->meta) {
+        struct meta *meta = ir->meta;
+        if (meta->loop_meta.loop_head ||
+            meta->loop_meta.loop_inc)
+            return;
+    }
+
     /// The value returned from store argument fold is
     /// binary or immediate values. No symbols returned.
     if (folded->type == IR_BIN) {
@@ -214,7 +222,7 @@ static void fold_store_bin(struct ir_node *ir)
         store->body = folded;
         store->type = IR_STORE_IMM;
         consts_mapping_update(store->idx, imm->imm.__int);
-        vector_push_back(redundant_stmts, ir->instr_idx);
+        vector_push_back(redundant_stmts, ir);
     }
 }
 
@@ -222,6 +230,13 @@ static void fold_store_sym(struct ir_node *ir)
 {
     struct ir_store *store = ir->ir;
     struct ir_sym *sym = store->body->ir;
+
+    if (ir->meta) {
+        struct meta *meta = ir->meta;
+        if (meta->loop_meta.loop_head ||
+            meta->loop_meta.loop_inc)
+            return;
+    }
 
     if (consts_mapping_is_const(sym->idx)) {
         union ir_imm_val imm = consts_mapping_get(sym->idx);
@@ -232,7 +247,7 @@ static void fold_store_sym(struct ir_node *ir)
         store->type = IR_STORE_IMM;
 
         consts_mapping_update(store->idx, imm.__int);
-        vector_push_back(redundant_stmts, ir->instr_idx);
+        vector_push_back(redundant_stmts, ir);
     } else {
         consts_mapping_remove(store->idx);
         alloca_stmts_remove(store->idx);
@@ -244,13 +259,20 @@ static void fold_store_imm(struct ir_node *ir)
     struct ir_store *store = ir->ir;
     struct ir_imm   *imm = store->body->ir;
 
+    if (ir->meta) {
+        struct meta *meta = ir->meta;
+        if (meta->loop_meta.loop_head ||
+            meta->loop_meta.loop_inc)
+            return;
+    }
+
     if (consts_mapping_is_const(store->idx)) {
         consts_mapping_update(store->idx, imm->imm.__int);
     } else {
         consts_mapping_add(store->idx, imm->imm.__int);
     }
 
-    vector_push_back(redundant_stmts, ir->instr_idx);
+    vector_push_back(redundant_stmts, ir);
 }
 
 static void fold_store(struct ir_node *ir)
@@ -337,7 +359,14 @@ static void fold_alloca(struct ir_node *ir)
 {
     struct ir_alloca *alloca = ir->ir;
 
-    alloca_stmts_put(alloca->idx, ir->instr_idx);
+    if (ir->meta) {
+        struct meta *meta = ir->meta;
+        if (meta->loop_meta.loop_head ||
+            meta->loop_meta.loop_inc)
+            return;
+    }
+
+    alloca_stmts_put(alloca->idx, ir);
 }
 
 static struct ir_node *fold_node(struct ir_node *ir)
@@ -377,39 +406,35 @@ static struct ir_node *fold_node(struct ir_node *ir)
     return no_result();
 }
 
-/// \todo: Complexity optimization.
-// __weak_unused static void fold_remove_redundant_stmts(struct ir_func_decl *decl)
-// {
-    // /// Vector is used for convenient erasure.
-    // vector_t(struct ir_node) stmts;
-// 
-    // stmts.data  = decl->body;
-    // stmts.count = decl->body_size;
-    // stmts.size  = stmts.count * sizeof (struct ir_node *);
-// 
-    // vector_foreach_back(redundant_stmts, i) {
-        // uint64_t idx = vector_at(redundant_stmts, i);
-        // vector_foreach_back(stmts, j) {
-            // if (vector_at(stmts, j).instr_idx == (int32_t) idx) {
-                // __weak_debug_msg("Erase instr %ld\n", idx);
-                // vector_erase(stmts, j);
-            // }
-        // }
-    // }
-// 
-    // hashmap_foreach(&alloca_stmts, k, v) {
-        // (void) k;
-        // // int32_t instr_idx = v == INT64_MAX ? 0 : v;
-        // vector_foreach_back(stmts, i) {
-            // if (vector_at(stmts, i).instr_idx == (int32_t) v) {
-                // __weak_debug_msg("Erase alloca %ld\n", v);
-                // vector_erase(stmts, i);
-            // }
-        // }
-    // }
-// 
-    // decl->body_size = stmts.count;
-// }
+static void remove_node(struct ir_node **ir, struct ir_node **head)
+{
+    /// Note: conditional statements is never removed, so
+    ///       *next_else and *prev_else are unused.
+    if ((*ir)->next) {
+        (*ir)->next->prev = (*ir)->prev;
+    }
+
+    if ((*ir)->prev) {
+        (*ir)->prev->next = (*ir)->next;
+    } else {
+        (*ir) = (*ir)->next;
+        (*head) = (*ir);
+    }
+}
+
+static void fold_remove_redundant_stmts(struct ir_node **head)
+{
+    vector_foreach_back(redundant_stmts, i) {
+        struct ir_node *ir = vector_at(redundant_stmts, i);
+        remove_node(&ir, head);
+    }
+
+    hashmap_foreach(&alloca_stmts, sym_idx, addr) {
+        (void) sym_idx;
+        struct ir_node *ir = (void *) addr;
+        remove_node(&ir, head);
+    }
+}
 
 static void fold(struct ir_func_decl *decl)
 {
@@ -419,7 +444,7 @@ static void fold(struct ir_func_decl *decl)
         it = it->next;
     }
 
-    // fold_remove_redundant_stmts(decl);
+    fold_remove_redundant_stmts(&decl->body);
 }
 
 void ir_opt_fold(struct ir_node *ir)
@@ -431,8 +456,4 @@ void ir_opt_fold(struct ir_node *ir)
         fold(it->ir);
         it = it->next;
     }
-    // for (uint64_t i = 0; i < ir->decls_size; ++i) {
-        // struct ir_func_decl *decl = ir->decls[i].ir;
-        // fold(decl);
-    // }
 }

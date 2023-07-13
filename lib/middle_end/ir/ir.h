@@ -58,6 +58,13 @@ struct ir_node {
 
     struct ir_node  *prev;
     struct ir_node  *prev_else;
+
+    /// Meta information. Used for analysis
+    /// and optimizations.
+    ///
+    /// If NULL, there is no metadata for given
+    /// node.
+    void            *meta;
 };
 
 struct ir_alloca {
