@@ -117,7 +117,31 @@ static void visit_ast_num(struct ast_num *ast)
 
 static void visit_ast_string(struct ast_string *ast) { (void) ast; }
 
-static void visit_ast_binary(struct ast_binary *ast)
+static void emit_bin(struct ast_binary *ast)
+{
+    visit_ast(ast->lhs);
+    struct ir_node *lhs = ir_last;
+    visit_ast(ast->rhs);
+    struct ir_node *rhs = ir_last;
+
+    struct ir_node *store = NULL;
+
+    if (rhs->type == IR_IMM) {
+        struct ir_sym *l_sym = lhs->ir;
+
+        store = ir_store_imm_init(l_sym->idx, rhs);
+    } else if (rhs->type == IR_SYM) {
+        struct ir_sym *l_sym = lhs->ir;
+        struct ir_sym *r_sym = rhs->ir;
+        store = ir_store_sym_init(l_sym->idx, r_sym->idx);
+    } else {
+        weak_unreachable("Unexpected store type (numeric: %d).", rhs->type);
+    }
+
+    ir_insert(store);
+}
+
+static void emit_assign(struct ast_binary *ast)
 {
     struct ir_node *alloca = ir_alloca_init(D_T_INT, ir_var_idx++);
     int32_t         alloca_idx = ((struct ir_alloca *) alloca->ir)->idx;
@@ -133,6 +157,14 @@ static void visit_ast_binary(struct ast_binary *ast)
     ir_last = ir_store_bin_init(alloca_idx, bin);
     ir_insert(ir_last);
     ir_last = ir_sym_init(alloca_idx);
+}
+
+static void visit_ast_binary(struct ast_binary *ast)
+{
+    if (ast->operation == TOK_ASSIGN)
+        emit_bin(ast);
+    else
+        emit_assign(ast);
 }
 
 static void visit_ast_break(struct ast_break *ast) { (void) ast; }
@@ -403,7 +435,7 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
         }
         case IR_SYM: {
             struct ir_sym *sym = ir_last->ir;
-            ir_last = ir_store_var_init(next_idx, sym->idx);
+            ir_last = ir_store_sym_init(next_idx, sym->idx);
             break;
         }
         default:
