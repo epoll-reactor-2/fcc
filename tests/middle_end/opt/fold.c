@@ -71,22 +71,16 @@ bool ir_test(const char *filename)
             ir_dump(stdout, it->ir);
             it = it->next;
         }
-        // for (uint64_t i = 0; i < ir.decls_size; ++i) {
-            // ir_dump(stdout, ir.decls[i].ir);
-        // }
 
         ir_opt_fold(ir);
 
         puts("Optimized:");
         it = ir;
         while (it) {
+            ir_dump(generated_stream, it->ir);
             ir_dump(stdout, it->ir);
             it = it->next;
         }
-        // for (uint64_t i = 0; i < ir.decls_size; ++i) {
-            // ir_dump(stdout, ir.decls[i].ir);
-            // ir_dump(generated_stream, ir.decls[i].ir);
-        // }
 
         fflush(generated_stream);
         ast_node_cleanup(ast);
@@ -102,8 +96,8 @@ bool ir_test(const char *filename)
         /// Error, will be printed in main.
         return false;
     }
-// exit:
 
+// exit:
     yylex_destroy();
     tokens_cleanup(toks);
     fclose(expected_stream);
@@ -116,9 +110,6 @@ bool ir_test(const char *filename)
 
 int main()
 {
-    /// \todo: IR metadata for loops.
-    return 0;
-
     int ret = 0;
     static char *err_buf = NULL;
     static char *warn_buf = NULL;

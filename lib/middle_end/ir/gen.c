@@ -5,6 +5,7 @@
  */
 
 #include "middle_end/ir/gen.h"
+#include "middle_end/ir/meta.h"
 #include "middle_end/ir/graph.h"
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/storage.h"
@@ -24,11 +25,33 @@ static struct ir_node *ir_last;
 static struct ir_node *ir_prev;
 /// Used to count alloca instructions.
 /// Conditions:
-/// - reset at the start of each function declaration,;15
+/// - reset at the start of each function declaration,
 /// - increments with every created alloca instruction.
 static int32_t         ir_var_idx;
 
 static bool            ir_save_first;
+
+static bool            ir_meta_loop_head;
+static bool            ir_meta_loop_inc;
+
+static void ir_try_add_meta(struct ir_node *ir)
+{
+    bool need_meta =
+        ir_meta_loop_head ||
+        ir_meta_loop_inc;
+
+    if (!need_meta) return;
+
+    struct meta *meta = meta_init(IR_META_VAR);
+
+    if (ir_meta_loop_head)
+        meta->loop_meta.loop_head = 1;
+
+    if (ir_meta_loop_inc)
+        meta->loop_meta.loop_inc = 1;
+
+    ir->meta = meta;
+}
 
 static void ir_insert(struct ir_node *new_node)
 {
@@ -46,14 +69,17 @@ static void ir_insert(struct ir_node *new_node)
 
     if (ir_prev == NULL) {
         ir_prev = new_node;
+        new_node->prev = NULL;  // Set prev to NULL for the first node
+        new_node->prev_else = NULL;
         return;
     }
 
     ir_prev->next = new_node;
-    ir_prev = new_node;
-
     new_node->prev = ir_prev;
     new_node->prev_else = NULL;
+    ir_prev = new_node;
+
+    ir_try_add_meta(new_node);
 }
 
 static void invalidate()
@@ -126,7 +152,9 @@ static void visit_ast_for(struct ast_for *ast)
     /// L7:  after for instr
 
     /// Initial part is optional.
+    ir_meta_loop_head = 1;
     if (ast->init) visit_ast(ast->init);
+    ir_meta_loop_head = 0;
 
     /// Body starts with condition that is checked on each
     /// iteration.
@@ -155,7 +183,11 @@ static void visit_ast_for(struct ast_for *ast)
 
     visit_ast(ast->body);
     /// Increment is optional.
+
+    ir_meta_loop_inc = 1;
     if (ast->increment) visit_ast(ast->increment);
+    ir_meta_loop_inc = 0;
+
     ir_last = ir_jump_init(next_iter_jump_idx);
 
     if (ast->condition) {
@@ -179,7 +211,11 @@ static void visit_ast_while(struct ast_while *ast)
     /// L5: after while instr
 
     int32_t         next_iter_idx = ir_last->instr_idx + 1;
+
+    ir_meta_loop_head = 1;
     visit_ast(ast->condition);
+    ir_meta_loop_head = 0;
+
     struct ir_node *cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
     struct ir_node *cond          = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr      = cond->ir;
@@ -220,9 +256,10 @@ static void visit_ast_do_while(struct ast_do_while *ast)
         stmt_begin = ir_last->instr_idx;
 
     visit_ast(ast->body);
-    /// There we allocate temporary variable for
-    /// comparison at the end of body.
+
+    ir_meta_loop_head = 1;
     visit_ast(ast->condition);
+    ir_meta_loop_head = 0;
 
     struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
     struct ir_node *cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
@@ -403,12 +440,10 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     visit_ast(decl->args);
     struct ir_node *args = ir_first;
 
-    ir_var_idx = 0;
     ir_first = NULL;
     ir_last = NULL;
     ir_prev = NULL;
     ir_save_first = 1;
-    ir_reset_internal_state();
 
     visit_ast(decl->body);
     if (decl->data_type == D_T_VOID) {

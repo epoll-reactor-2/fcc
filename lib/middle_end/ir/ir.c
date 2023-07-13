@@ -335,6 +335,8 @@ void ir_node_cleanup(struct ir_node *ir)
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 
+    if (ir->meta)
+        weak_free(ir->meta);
     weak_free(ir->ir);
     weak_free(ir);
 }

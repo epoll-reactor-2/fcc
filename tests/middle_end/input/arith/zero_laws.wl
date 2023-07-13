@@ -1,57 +1,57 @@
 //fun f(alloca int %0):
-//       0:   alloca int %0
 //       1:   alloca int %1
-//       2:   store %1 %0
-//       3:   store %0 %1
-//       4:   alloca int %2
+//       2:   alloca int %2
+//       3:   store %2 %0
+//       4:   store %1 %2
 //       5:   alloca int %3
-//       6:   store %3 %0
-//       7:   store %2 %3
-//       8:   alloca int %4
+//       6:   alloca int %4
+//       7:   store %4 %1
+//       8:   store %3 %4
 //       9:   alloca int %5
-//      10:   store %5 $0
-//      11:   store %4 %5
-//      12:   alloca int %6
+//      10:   alloca int %6
+//      11:   store %6 $0
+//      12:   store %5 %6
 //      13:   alloca int %7
-//      14:   store %7 $0
-//      15:   store %6 %7
-//      16:   alloca int %8
+//      14:   alloca int %8
+//      15:   store %8 $0
+//      16:   store %7 %8
 //      17:   alloca int %9
-//      18:   store %9 %6
-//      19:   store %8 %9
-//      20:   alloca int %10
+//      18:   alloca int %10
+//      19:   store %10 %7
+//      20:   store %9 %10
 //      21:   alloca int %11
-//      22:   store %11 $0
-//      23:   store %10 %11
-//      24:   alloca int %12
+//      22:   alloca int %12
+//      23:   store %12 $0
+//      24:   store %11 %12
 //      25:   alloca int %13
-//      26:   store %13 %10 shl $1
-//      27:   store %12 %13
-//      28:   alloca int %14
+//      26:   alloca int %14
+//      27:   store %14 %11 shl $1
+//      28:   store %13 %14
 //      29:   alloca int %15
-//      30:   store %15 %10 shl $2
-//      31:   store %14 %15
-//      32:   alloca int %16
+//      30:   alloca int %16
+//      31:   store %16 %11 shl $2
+//      32:   store %15 %16
 //      33:   alloca int %17
-//      34:   store %17 %10 shl $3
-//      35:   store %16 %17
-//      36:   alloca int %18
+//      34:   alloca int %18
+//      35:   store %18 %11 shl $3
+//      36:   store %17 %18
 //      37:   alloca int %19
-//      38:   store %19 %10 shl $4
-//      39:   store %18 %19
-//      40:   alloca int %20
+//      38:   alloca int %20
+//      39:   store %20 %11 shl $4
+//      40:   store %19 %20
 //      41:   alloca int %21
-//      42:   store %21 %10 mul $17
-//      43:   store %20 %21
-//      44:   alloca int %22
+//      42:   alloca int %22
+//      43:   store %22 %11 mul $17
+//      44:   store %21 %22
 //      45:   alloca int %23
-//      46:   store %23 %10 shl $5
-//      47:   store %22 %23
-//      48:   alloca int %24
+//      46:   alloca int %24
+//      47:   store %24 %11 shl $5
+//      48:   store %23 %24
 //      49:   alloca int %25
-//      50:   store %25 %10 mul $33
-//      51:   store %24 %25
-//      52:   ret $0
+//      50:   alloca int %26
+//      51:   store %26 %11 mul $33
+//      52:   store %25 %26
+//      53:   ret $0
 int f(int arg) {
     int i1  = arg +  0;
     int i2  = i1  -  0;

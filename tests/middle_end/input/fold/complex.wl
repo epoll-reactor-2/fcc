@@ -1,5 +1,6 @@
 //fun complex():
 //      10:   alloca int %5
+//      11:   store %5 $0
 //      12:   alloca int %6
 //      13:   store %6 %5 lt $100
 //      14:   if %6 neq $0 goto L16
