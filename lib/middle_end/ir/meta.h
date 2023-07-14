@@ -18,8 +18,8 @@ struct meta {
 
     union {
         struct {
-            bool loop_head;
-            bool loop_inc;
+            bool    loop;
+            int32_t loop_idx;
         } loop_meta;
 
         struct {

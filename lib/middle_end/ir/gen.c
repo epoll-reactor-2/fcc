@@ -31,24 +31,18 @@ static int32_t         ir_var_idx;
 
 static bool            ir_save_first;
 
-static bool            ir_meta_loop_head;
-static bool            ir_meta_loop_inc;
+static bool            ir_meta_is_loop;
+
+static int32_t         ir_meta_loop_idx;
 
 static void ir_try_add_meta(struct ir_node *ir)
 {
-    bool need_meta =
-        ir_meta_loop_head ||
-        ir_meta_loop_inc;
-
-    if (!need_meta) return;
+    if (!ir_meta_is_loop) return;
 
     struct meta *meta = meta_init(IR_META_VAR);
 
-    if (ir_meta_loop_head)
-        meta->loop_meta.loop_head = 1;
-
-    if (ir_meta_loop_inc)
-        meta->loop_meta.loop_inc = 1;
+    meta->loop_meta.loop = 1;
+    meta->loop_meta.loop_idx = ir_meta_loop_idx++;
 
     ir->meta = meta;
 }
@@ -184,9 +178,9 @@ static void visit_ast_for(struct ast_for *ast)
     /// L7:  after for instr
 
     /// Initial part is optional.
-    ir_meta_loop_head = 1;
+    ir_meta_is_loop = 1;
     if (ast->init) visit_ast(ast->init);
-    ir_meta_loop_head = 0;
+    ir_meta_is_loop = 0;
 
     /// Body starts with condition that is checked on each
     /// iteration.
@@ -216,9 +210,9 @@ static void visit_ast_for(struct ast_for *ast)
     visit_ast(ast->body);
     /// Increment is optional.
 
-    ir_meta_loop_inc = 1;
+    ir_meta_is_loop = 1;
     if (ast->increment) visit_ast(ast->increment);
-    ir_meta_loop_inc = 0;
+    ir_meta_is_loop = 0;
 
     ir_last = ir_jump_init(next_iter_jump_idx);
 
@@ -244,9 +238,9 @@ static void visit_ast_while(struct ast_while *ast)
 
     int32_t         next_iter_idx = ir_last->instr_idx + 1;
 
-    ir_meta_loop_head = 1;
+    ir_meta_is_loop = 1;
     visit_ast(ast->condition);
-    ir_meta_loop_head = 0;
+    ir_meta_is_loop = 0;
 
     struct ir_node *cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
     struct ir_node *cond          = ir_cond_init(cond_bin, /*Not used for now.*/-1);
@@ -289,9 +283,9 @@ static void visit_ast_do_while(struct ast_do_while *ast)
 
     visit_ast(ast->body);
 
-    ir_meta_loop_head = 1;
+    ir_meta_is_loop = 1;
     visit_ast(ast->condition);
-    ir_meta_loop_head = 0;
+    ir_meta_is_loop = 0;
 
     struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
     struct ir_node *cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
