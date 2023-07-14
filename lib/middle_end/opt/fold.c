@@ -18,20 +18,23 @@
 /// Hashmap to refer by variable index.
 static hashmap_t alloca_stmts;
 static hashmap_t consts_mapping;
+static hashmap_t loop_dependent_stmts;
 
 static vector_t(struct ir_node *) redundant_stmts;
 
-static void consts_mapping_init()
+static void reset_hashmap(hashmap_t *map)
 {
-    if (consts_mapping.buckets) {
-        hashmap_destroy(&consts_mapping);
+    if (map->buckets) {
+        hashmap_destroy(map);
     }
-    hashmap_init(&consts_mapping, 512);
+    hashmap_init(map, 512);
+}
 
-    if (alloca_stmts.buckets) {
-        hashmap_destroy(&alloca_stmts);
-    }
-    hashmap_init(&alloca_stmts, 512);
+static void fold_opt_reset()
+{
+    reset_hashmap(&alloca_stmts);
+    reset_hashmap(&consts_mapping);
+    reset_hashmap(&loop_dependent_stmts);
 
     vector_clear(redundant_stmts);
 }
@@ -84,6 +87,20 @@ static void alloca_stmts_remove(uint64_t sym_idx)
 {
     __weak_debug_msg("Alloca stmts: remove %ld\n", sym_idx);
     hashmap_remove(&alloca_stmts, sym_idx);
+}
+
+static void loop_dependent_put(uint64_t sym_idx, uint64_t loop_idx)
+{
+    __weak_debug_msg("Loop dependence mapping: add idx:%ld, loop_idx:%ld\n", sym_idx, loop_idx);
+    hashmap_put(&loop_dependent_stmts, sym_idx, loop_idx);
+}
+
+static bool loop_dependent(uint64_t sym_idx)
+{
+    bool ok = 0;
+    hashmap_get(&loop_dependent_stmts, sym_idx, &ok);
+    __weak_debug_msg("Loop dependence mapping: is depends on loop conditions? idx:%ld -> %d\n", sym_idx, ok);
+    return ok;
 }
 
 static bool fold_booleans(enum token_type op, bool l, bool r)
@@ -193,17 +210,34 @@ static struct ir_node *fold_imm(struct ir_imm *ir)
     return ir_imm_int_init(ir->imm.__int);
 }
 
+static bool fold_store_mark_loop_dependent(struct ir_node *ir)
+{
+    struct ir_store *store = ir->ir;
+
+    struct meta *meta = ir->meta;
+    if (meta->loop_meta.loop) {
+        loop_dependent_put(store->idx, meta->loop_meta.loop_idx);
+        __weak_debug_msg("Added loop-dependent variable %%%d. Return\n", store->idx);
+        return 1;
+    }
+    return 0;
+}
+
 static void fold_store_bin(struct ir_node *ir)
 {
-    struct ir_store *store  = ir->ir;
-    struct ir_node  *folded = fold_node(store->body);
+    struct ir_store *store = ir->ir;
 
-    if (ir->meta) {
-        struct meta *meta = ir->meta;
-        if (meta->loop_meta.loop_head ||
-            meta->loop_meta.loop_inc)
+    if (ir->meta)
+        if (fold_store_mark_loop_dependent(ir))
             return;
-    }
+
+    if (loop_dependent(store->idx))
+        return;
+
+    struct ir_node *folded = fold_node(store->body);
+
+    if (is_no_result(folded))
+        return;
 
     /// The value returned from store argument fold is
     /// binary or immediate values. No symbols returned.
@@ -231,12 +265,9 @@ static void fold_store_sym(struct ir_node *ir)
     struct ir_store *store = ir->ir;
     struct ir_sym *sym = store->body->ir;
 
-    if (ir->meta) {
-        struct meta *meta = ir->meta;
-        if (meta->loop_meta.loop_head ||
-            meta->loop_meta.loop_inc)
+    if (ir->meta)
+        if (fold_store_mark_loop_dependent(ir))
             return;
-    }
 
     if (consts_mapping_is_const(sym->idx)) {
         union ir_imm_val imm = consts_mapping_get(sym->idx);
@@ -259,12 +290,9 @@ static void fold_store_imm(struct ir_node *ir)
     struct ir_store *store = ir->ir;
     struct ir_imm   *imm = store->body->ir;
 
-    if (ir->meta) {
-        struct meta *meta = ir->meta;
-        if (meta->loop_meta.loop_head ||
-            meta->loop_meta.loop_inc)
+    if (ir->meta)
+        if (fold_store_mark_loop_dependent(ir))
             return;
-    }
 
     if (consts_mapping_is_const(store->idx)) {
         consts_mapping_update(store->idx, imm->imm.__int);
@@ -313,7 +341,7 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
 
     __weak_debug_msg("Bin: folded RHS -> ");
     __weak_debug({
-        if (!is_no_result(l)) {
+        if (!is_no_result(r)) {
             ir_dump_node(stdout, r);
         } else {
             printf(" <NO RESULT>");
@@ -326,6 +354,20 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
         struct ir_imm *r_imm = r->ir;
 
         return compute_imm(ir->op, l_imm->type, l_imm->imm, r_imm->imm);
+    }
+
+    if (l->type == IR_SYM) {
+        struct ir_sym *sym = l->ir;
+
+        if (loop_dependent(sym->idx))
+            return no_result();
+    }
+
+    if (r->type == IR_SYM) {
+        struct ir_sym *sym = r->ir;
+
+        if (loop_dependent(sym->idx))
+            return no_result();
     }
 
     return ir_bin_init(
@@ -361,8 +403,7 @@ static void fold_alloca(struct ir_node *ir)
 
     if (ir->meta) {
         struct meta *meta = ir->meta;
-        if (meta->loop_meta.loop_head ||
-            meta->loop_meta.loop_inc)
+        if (meta->loop_meta.loop)
             return;
     }
 
@@ -449,7 +490,7 @@ static void fold(struct ir_func_decl *decl)
 
 void ir_opt_fold(struct ir_node *ir)
 {
-    consts_mapping_init();
+    fold_opt_reset();
 
     struct ir_node *it = ir;
     while (it) {

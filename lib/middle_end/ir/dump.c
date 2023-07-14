@@ -279,8 +279,6 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
 
 void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl)
 {
-    assert(decl->body_size <= 8192 && "Cannot dump such large function.");
-
     fprintf(
         mem,
         "digraph {\n"

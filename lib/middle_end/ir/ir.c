@@ -163,8 +163,8 @@ struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label)
 struct ir_node *ir_ret_init(bool is_void, struct ir_node *body)
 {
     assert((
-        op.type == IR_SYM ||
-        op.type == IR_IMM ||
+        body->type == IR_SYM ||
+        body->type == IR_IMM ||
         (is_void && body->type == IR_RET_VOID)
     ) && (
         "Ret expects immediate value or variable"
