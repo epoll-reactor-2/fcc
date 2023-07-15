@@ -21,12 +21,6 @@ void hashmap_init(hashmap_t *map, uint64_t size)
     map->buckets = (hashmap_bucket_t *) weak_calloc(sizeof (hashmap_bucket_t), size);
     map->capacity = size;
     map->size = 0;
-
-    for (uint64_t i = 0; i < map->capacity; i++) {
-        map->buckets[i].key = 0;
-        map->buckets[i].is_occupied = 0;
-        map->buckets[i].is_deleted  = 0;
-    }
 }
 
 void hashmap_destroy(hashmap_t *map)
