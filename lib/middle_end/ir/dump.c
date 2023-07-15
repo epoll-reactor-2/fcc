@@ -5,6 +5,7 @@
  */
 
 #include "middle_end/ir/dump.h"
+#include "middle_end/ir/meta.h"
 #include "front_end/lex/data_type.h"
 #include "util/alloc.h"
 #include "util/diagnostic.h"
@@ -204,6 +205,16 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_FUNC_CALL:    ir_dump_func_call(mem, ir->ir); break;
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
+    }
+
+    if (ir->meta) {
+        struct meta *meta = ir->meta;
+
+        if (meta->sym_meta.loop)
+            fprintf(mem, "(@loop)");
+
+        if (meta->sym_meta.noalias)
+            fprintf(mem, "(@noalias)");
     }
 }
 
