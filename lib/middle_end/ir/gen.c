@@ -41,8 +41,10 @@ static void ir_try_add_meta(struct ir_node *ir)
 
     struct meta *meta = meta_init(IR_META_VAR);
 
-    meta->loop_meta.loop = 1;
-    meta->loop_meta.loop_idx = ir_meta_loop_idx++;
+    if (ir_meta_is_loop) {
+        meta->sym_meta.loop = 1;
+        meta->sym_meta.loop_idx = ir_meta_loop_idx++;
+    }
 
     ir->meta = meta;
 }
@@ -111,31 +113,40 @@ static void visit_ast_num(struct ast_num *ast)
 
 static void visit_ast_string(struct ast_string *ast) { (void) ast; }
 
-static void emit_bin(struct ast_binary *ast)
+static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
 {
     visit_ast(ast->lhs);
     struct ir_node *lhs = ir_last;
+
+    struct ir_sym *l_sym = lhs->ir;
+    *last_assign = ir_last;
+
+    __weak_debug_msg("-- IR meta save index %%%d\n", l_sym->idx);
+    fflush(stdout);
+
     visit_ast(ast->rhs);
     struct ir_node *rhs = ir_last;
 
     struct ir_node *store = NULL;
 
-    if (rhs->type == IR_IMM) {
-        struct ir_sym *l_sym = lhs->ir;
-
+    switch (rhs->type) {
+    case IR_IMM: {
         store = ir_store_imm_init(l_sym->idx, rhs);
-    } else if (rhs->type == IR_SYM) {
-        struct ir_sym *l_sym = lhs->ir;
-        struct ir_sym *r_sym = rhs->ir;
+        break;
+    }
+    case IR_SYM: {
+        struct ir_sym *r_sym  = rhs->ir;
         store = ir_store_sym_init(l_sym->idx, r_sym->idx);
-    } else {
+        break;
+    }
+    default:
         weak_unreachable("Unexpected store type (numeric: %d).", rhs->type);
     }
 
     ir_insert(store);
 }
 
-static void emit_assign(struct ast_binary *ast)
+static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
 {
     struct ir_node *alloca = ir_alloca_init(D_T_INT, ir_var_idx++);
     int32_t         alloca_idx = ((struct ir_alloca *) alloca->ir)->idx;
@@ -149,16 +160,61 @@ static void emit_assign(struct ast_binary *ast)
 
     struct ir_node *bin = ir_bin_init(ast->operation, lhs, rhs);
     ir_last = ir_store_bin_init(alloca_idx, bin);
+
+    if (last_assign != NULL) {
+        struct ir_sym  *assign = last_assign->ir;
+
+        if (lhs->type == IR_SYM) {
+            struct ir_sym *sym = lhs->ir;
+
+            if (sym->idx == assign->idx) {
+                struct meta *meta = meta_init(IR_META_VAR);
+                meta->sym_meta.noalias = 1;
+                lhs->meta = meta;
+            }
+        }
+
+        if (rhs->type == IR_SYM) {
+            struct ir_sym *sym = rhs->ir;
+
+            if (sym->idx == assign->idx) {
+                struct meta *meta = meta_init(IR_META_VAR);
+                meta->sym_meta.noalias = 1;
+                rhs->meta = meta;
+            }
+        }
+    }
+
     ir_insert(ir_last);
     ir_last = ir_sym_init(alloca_idx);
 }
 
 static void visit_ast_binary(struct ast_binary *ast)
 {
-    if (ast->operation == TOK_ASSIGN)
-        emit_bin(ast);
-    else
-        emit_assign(ast);
+    /// Symbol.
+    static struct ir_node *last_assign = NULL;
+    static int32_t depth = 0;
+
+    if (ast->operation == TOK_ASSIGN) {
+        ++depth;
+        emit_assign(ast, &last_assign);
+        --depth;
+    } else {
+        ++depth;
+        emit_bin(ast, last_assign);
+        --depth;
+    }
+
+    if (depth == 0) {
+        /// Depth is 0 means end of the binary expression
+        /// at the program syntax level.
+        ///
+        /// int a = /// Depth is 0.
+        ///       b + c /// Depth is 1, then 2.
+        ///         d + e; /// Depth is 3, then 4.
+        /// /// Depth is again 0.
+        last_assign = NULL;
+    }
 }
 
 static void visit_ast_break(struct ast_break *ast) { (void) ast; }
@@ -387,6 +443,7 @@ static void visit_ast_symbol(struct ast_symbol *ast)
     ir_last = ir_sym_init(idx);
 }
 
+/// Note: unary statements always have @noalias attribute.
 static void visit_ast_unary(struct ast_unary *ast)
 {
     visit_ast(ast->operand);
@@ -394,6 +451,7 @@ static void visit_ast_unary(struct ast_unary *ast)
         ir_last->type == IR_SYM
     ) && ("Unary operator expects variable argument."));
     struct ir_sym *sym = ir_last->ir;
+    struct ir_node *sym_node = ir_last;
 
     switch (ast->operation) {
     case TOK_INC:
@@ -406,6 +464,11 @@ static void visit_ast_unary(struct ast_unary *ast)
         weak_unreachable("Unknown unary operator (numeric: %d).", ast->operation);
     }
     ir_last = ir_store_bin_init(sym->idx, ir_last);
+
+    struct meta *meta = meta_init(IR_META_VAR);
+    meta->sym_meta.noalias = 1;
+    sym_node->meta = meta;
+
     ir_insert(ir_last);
 }
 

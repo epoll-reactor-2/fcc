@@ -17,11 +17,14 @@ struct meta {
     } type;
 
     union {
+        /// Variable information.
         struct {
             bool    loop;
+            bool    noalias;
             int32_t loop_idx;
-        } loop_meta;
+        } sym_meta;
 
+        /// Function information.
         struct {
             bool is_const;
         } fun_meta;

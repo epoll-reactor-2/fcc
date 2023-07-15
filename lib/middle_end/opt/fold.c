@@ -161,7 +161,7 @@ static float fold_floats(enum token_type op, float l, float r)
     }
 }
 
-__weak_wur __weak_unused static struct ir_node *compute_imm(
+__weak_wur static struct ir_node *compute_imm(
     enum  token_type  op,
     enum  ir_imm_type type,
     union ir_imm_val  lhs,
@@ -179,28 +179,29 @@ __weak_wur __weak_unused static struct ir_node *compute_imm(
 
 static struct ir_node *fold_node(struct ir_node *ir);
 
-static struct ir_node *no_result()
+__weak_wur static struct ir_node *no_result()
 {
-    struct ir_node * ir = ir_node_init(-1, NULL);
-    ir->instr_idx = -1;
-    ir->ir = NULL;
-    ir->idom = NULL;
-    return ir;
+    static struct ir_node ir = {0};
+    ir.instr_idx = -1;
+    ir.ir = NULL;
+    ir.idom = NULL;
+    return &ir;
 }
 
-__weak_unused static bool is_no_result(struct ir_node *ir)
+__weak_wur static bool is_no_result(struct ir_node *ir)
 {
-    return
-        ir->instr_idx ==   -1 &&
+    if (!ir) return 1;
+    if (ir->instr_idx ==   -1 &&
         ir->ir        == NULL &&
-        ir->idom      == NULL ;
+        ir->idom      == NULL)
+        return 1;
+    return 0;
 }
 
 static struct ir_node *fold_sym(struct ir_sym *ir)
 {
-    if (consts_mapping_is_const(ir->idx)) {
+    if (consts_mapping_is_const(ir->idx))
         return ir_imm_int_init(consts_mapping_get(ir->idx).__int);
-    }
 
     return no_result();
 }
@@ -215,9 +216,9 @@ static bool fold_store_mark_loop_dependent(struct ir_node *ir)
     struct ir_store *store = ir->ir;
 
     struct meta *meta = ir->meta;
-    if (meta->loop_meta.loop) {
-        loop_dependent_put(store->idx, meta->loop_meta.loop_idx);
-        __weak_debug_msg("Added loop-dependent variable %%%d. Return\n", store->idx);
+    if (meta->sym_meta.loop) {
+        loop_dependent_put(store->idx, meta->sym_meta.loop_idx);
+        __weak_debug_msg("Added loop-dependent variable (loop attr) %%%d. Return\n", store->idx);
         return 1;
     }
     return 0;
@@ -324,52 +325,78 @@ static void fold_store(struct ir_node *ir)
     }
 }
 
+/// This function tries to reduce binary statement
+/// with respect to @noalias attribute. Symbols marked
+/// with @noalias are always left as is.
 static struct ir_node *fold_bin(struct ir_bin *ir)
 {
-    struct ir_node *l = fold_node(ir->lhs);
-    struct ir_node *r = fold_node(ir->rhs);
+    struct ir_node *l = NULL;
+    struct ir_node *r = NULL;
 
-    __weak_debug_msg("Bin: folded LHS -> ");
-    __weak_debug({
-        if (!is_no_result(l)) {
-            ir_dump_node(stdout, l);
-        } else {
-            printf(" <NO RESULT>");
-        }
-        puts("");
-    });
+    if (ir->lhs->meta) {
+        __weak_debug_msg("Found noalias attribute for %%%d\n", ir->lhs->instr_idx);
+        struct meta *meta = ir->lhs->meta;
+        if (!meta->sym_meta.noalias)
+            l = fold_node(ir->lhs);
+    } else {
+        l = fold_node(ir->lhs);
+    }
 
-    __weak_debug_msg("Bin: folded RHS -> ");
-    __weak_debug({
-        if (!is_no_result(r)) {
-            ir_dump_node(stdout, r);
-        } else {
-            printf(" <NO RESULT>");
-        }
-        puts("");
-    });
+    if (l) {
+        __weak_debug_msg("Bin: folded LHS -> ");
+        __weak_debug({
+            if (!is_no_result(l)) {
+                ir_dump_node(stdout, l);
+            } else {
+                printf(" <NO RESULT>");
+            }
+            puts("");
+        });
+    }
 
-    if (l->type == IR_IMM && r->type == IR_IMM) {
+    if (ir->rhs->meta) {
+        __weak_debug_msg("Found noalias attribute for %%%d\n", ir->rhs->instr_idx);
+        struct meta *meta = ir->rhs->meta;
+        if (!meta->sym_meta.noalias)
+            r = fold_node(ir->rhs);
+    } else {
+        r = fold_node(ir->rhs);
+    }
+
+    if (r) {
+        __weak_debug_msg("Bin: folded RHS -> ");
+        __weak_debug({
+            if (!is_no_result(r)) {
+                ir_dump_node(stdout, r);
+            } else {
+                printf(" <NO RESULT>");
+            }
+            puts("");
+        });
+    }
+
+    if (l && r && l->type == IR_IMM && r->type == IR_IMM) {
         struct ir_imm *l_imm = l->ir;
         struct ir_imm *r_imm = r->ir;
 
         return compute_imm(ir->op, l_imm->type, l_imm->imm, r_imm->imm);
     }
 
-    if (l->type == IR_SYM) {
+    if (l && l->type == IR_SYM) {
         struct ir_sym *sym = l->ir;
 
         if (loop_dependent(sym->idx))
             return no_result();
     }
 
-    if (r->type == IR_SYM) {
+    if (r && r->type == IR_SYM) {
         struct ir_sym *sym = r->ir;
 
         if (loop_dependent(sym->idx))
             return no_result();
     }
 
+    /// Attributes are lost, but this is not much important.
     return ir_bin_init(
         ir->op,
         is_no_result(l) ? ir_sym_init( ((struct ir_sym *) ir->lhs->ir)->idx) : l,
@@ -403,7 +430,7 @@ static void fold_alloca(struct ir_node *ir)
 
     if (ir->meta) {
         struct meta *meta = ir->meta;
-        if (meta->loop_meta.loop)
+        if (meta->sym_meta.loop)
             return;
     }
 
