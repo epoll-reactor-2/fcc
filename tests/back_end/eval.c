@@ -74,7 +74,7 @@ bool ir_test(const char *filename)
         }
 
         ir_opt_arith(ir);
-        ir_opt_fold(ir);
+        // ir_opt_fold(ir);
 
         it = ir;
         puts("Optimized:");
