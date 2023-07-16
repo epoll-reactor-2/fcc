@@ -9,8 +9,8 @@
 //       7:   jmp L13
 //       8:   alloca int %3
 //       9:   store %3 %0
-//      10:   store %3 %3 add $1
-//      11:   store %0 %0 add $1
+//      10:   store %3 %3(@noalias) add $1
+//      11:   store %0 %0(@noalias) add $1(@loop)
 //      12:   jmp L4
 //      13:   ret $0
 int main() {
