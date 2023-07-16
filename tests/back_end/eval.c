@@ -66,12 +66,12 @@ bool ir_test(const char *filename)
 
         struct ir_node *ir = ir_gen(ast);
 
-        struct ir_node *it = ir;
-        puts("Source:");
-        while (it) {
-            ir_dump(stdout, it->ir);
-            it = it->next;
-        }
+        // struct ir_node *it = ir;
+        // puts("Source:");
+        // while (it) {
+            // ir_dump(stdout, it->ir);
+            // it = it->next;
+        // }
 
         // ir_opt_arith(ir);
         // ir_opt_fold(ir);
@@ -88,12 +88,10 @@ bool ir_test(const char *filename)
 
         fscanf(expected_stream, "%d", &expected_code);
 
-        printf("Got exit code: %d\n", exit_code);
-
         if (exit_code != expected_code) {
             printf("Return value mismatch: got %d, expected %d\n", exit_code, expected_code);
-            // success = false;
-            // goto exit;
+            success = false;
+            goto exit;
         }
         puts("Success!");
     } else {
@@ -101,7 +99,7 @@ bool ir_test(const char *filename)
         return false;
     }
 
-// exit:
+exit:
     yylex_destroy();
     tokens_cleanup(toks);
     fclose(expected_stream);
