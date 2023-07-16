@@ -195,6 +195,7 @@ struct ir_type_decl {
 };
 
 struct ir_func_decl {
+    enum data_type   ret_type;
     /// Name instead of index required though
     /// (to be able to view something at all in assembly file).
     const char      *name;
@@ -240,7 +241,7 @@ __weak_wur struct ir_node *ir_ret_init(bool is_void, struct ir_node *body);
 __weak_wur struct ir_node *ir_member_init(int32_t idx, int32_t field_idx);
 __weak_wur struct ir_node *ir_array_access_init(int32_t idx, struct ir_node *body);
 __weak_wur struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls);
-__weak_wur struct ir_node *ir_func_decl_init(const char *name, struct ir_node *args, struct ir_node *body);
+__weak_wur struct ir_node *ir_func_decl_init(enum data_type ret_type, const char *name, struct ir_node *args, struct ir_node *body);
 __weak_wur struct ir_node *ir_func_call_init(const char *name, struct ir_node *args);
 
 void ir_node_cleanup(struct ir_node *ir);
