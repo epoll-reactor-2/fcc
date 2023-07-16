@@ -8,25 +8,47 @@
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/dump.h"
 #include "util/hashmap.h"
+#include "util/vector.h"
 #include "util/unreachable.h"
 #include <assert.h>
 #include <string.h>
 
+/// List of storages, for each function in call stack.
 /// Key:   variable index
 /// Value: its value
-static hashmap_t stack;
+static vector_t(hashmap_t *) storages;
 static struct ir_imm last;
 static int32_t exit_code;
 
 static struct ir_node *jmp_target;
 static hashmap_t jmp_table;
 
+static void reset_hashmap(hashmap_t *map)
+{
+    if (map->buckets) {
+        hashmap_destroy(map);
+    }
+    hashmap_init(map, 512);
+}
+
+static hashmap_t *storage_top()
+{
+    return vector_back(storages);
+}
+
+static void storage_put()
+{
+    hashmap_t *map = weak_calloc(1, sizeof (hashmap_t));
+    hashmap_init(map, 512);
+    vector_push_back(storages, map);
+}
+
 static struct ir_node *jmp_table_get(int32_t instr_idx)
 {
     bool ok = 0;
     uint64_t got = hashmap_get(&jmp_table, instr_idx, &ok);
     if (!ok)
-        weak_unreachable("Cannot get %%%d from jump table", instr_idx);    
+        weak_unreachable("Cannot get %%%d from jump table", instr_idx);
 
     return (struct ir_node *) got;
 }
@@ -40,17 +62,12 @@ static void jmp_table_init(struct ir_node *ir)
     }
 }
 
-static void reset_hashmap(hashmap_t *map)
+static void reset_func_data()
 {
-    if (map->buckets) {
-        hashmap_destroy(map);
+    if (vector_capacity(storages) > 0) {
+        hashmap_destroy(vector_back(storages));
+        vector_erase(storages, storages.count - 1);
     }
-    hashmap_init(map, 512);
-}
-
-static void reset()
-{
-    reset_hashmap(&stack);
     reset_hashmap(&jmp_table);
 
     memset(&last, 0, sizeof last);
@@ -58,30 +75,24 @@ static void reset()
     jmp_target = NULL;
 }
 
-static void stack_push(int32_t idx)
+static void reset()
 {
-    /// Even if after optimization some
-    /// variables will have no store instruction,
-    /// (be uninitialized), they will be set to 0.
-    hashmap_put(&stack, idx, (uint64_t) 0);
+    reset_func_data();
+    vector_free(storages);
 }
 
-static void stack_set(int32_t idx, union ir_imm_val imm)
+static void storage_set(int32_t idx, union ir_imm_val imm)
 {
-    __weak_debug({
-        bool ok = 0;
-        hashmap_get(&stack, idx, &ok);
-        if (!ok)
-            weak_unreachable("Cannot get stack entry %%%d", idx);        
-    });
-    hashmap_put(&stack, idx, (uint64_t) imm.__int);
+    /// If variable exists, update (hashmap property).
+    hashmap_put(storage_top(), idx, (uint64_t) imm.__int);
 }
 
-static union ir_imm_val stack_get(int32_t idx)
+static union ir_imm_val storage_get(int32_t idx)
 {
     bool ok = 0;
-    uint64_t got = hashmap_get(&stack, idx, &ok);
-    assert(ok && "Stack have no requested entry.");
+    uint64_t got = hashmap_get(storage_top(), idx, &ok);
+    if (!ok)
+        weak_unreachable("Cannot get stack entry %%%d", idx);
     return (union ir_imm_val) (int32_t) got;
 }
 
@@ -90,7 +101,8 @@ static void eval_instr(struct ir_node *ir);
 
 static void eval_alloca(struct ir_alloca *alloca)
 {
-    stack_push(alloca->idx);
+    // storage_set(alloca->idx);
+    (void) alloca;
 }
 
 static void eval_imm(struct ir_imm *imm)
@@ -100,7 +112,7 @@ static void eval_imm(struct ir_imm *imm)
 
 static void eval_sym(struct ir_sym *sym)
 {
-    union ir_imm_val imm_val = stack_get(sym->idx);
+    union ir_imm_val imm_val = storage_get(sym->idx);
 
     struct ir_imm imm = {
         .type = IMM_INT,
@@ -113,20 +125,20 @@ static void eval_sym(struct ir_sym *sym)
 static void eval_store_bin(struct ir_store *ir)
 {
     eval_instr(ir->body);
-    stack_set(ir->idx, last.imm);
+    storage_set(ir->idx, last.imm);
 }
 
 static void eval_store_imm(struct ir_store *ir)
 {
     struct ir_imm *imm = ir->body->ir;
-    stack_set(ir->idx, imm->imm);
+    storage_set(ir->idx, imm->imm);
 }
 
 static void eval_store_sym(struct ir_store *ir)
 {
     struct ir_sym *sym = ir->body->ir;
-    union ir_imm_val imm = stack_get(sym->idx);
-    stack_set(ir->idx, imm);
+    union ir_imm_val imm = storage_get(sym->idx);
+    storage_set(ir->idx, imm);
 }
 
 static void eval_store(struct ir_store *ir)
@@ -237,7 +249,7 @@ static struct ir_imm eval_imm_imm(
     case IMM_FLOAT: return eval_imm_imm_float(op, l.imm.__float, r.imm.__float);
     case IMM_INT:   return eval_imm_imm_int  (op, l.imm.__int,   r.imm.__int);
     default:
-        weak_unreachable("Unknown immediate type (numeric: %d).", l.type);        
+        weak_unreachable("Unknown immediate type (numeric: %d).", l.type);
     }
 }
 
@@ -268,7 +280,7 @@ static void eval_cond(struct ir_cond *cond)
     bool should_jump = 0;
     switch (last.type) {
     case IMM_BOOL:  should_jump = last.imm.__bool; break;
-    case IMM_CHAR:  should_jump = last.imm.__char != 0.0; break;  
+    case IMM_CHAR:  should_jump = last.imm.__char != 0.0; break;
     case IMM_FLOAT: should_jump = last.imm.__float != 0.0; break;
     case IMM_INT:   should_jump = last.imm.__int != 0; break;
     default:
@@ -331,7 +343,8 @@ static void eval_instr(struct ir_node *ir)
 
 static void eval_fun(struct ir_func_decl *decl)
 {
-    reset();
+    reset_func_data();
+    storage_put();
 
     struct ir_node *it = decl->body;
     jmp_table_init(it);
@@ -346,6 +359,8 @@ static void eval_fun(struct ir_func_decl *decl)
 
 int32_t eval(struct ir_node *ir)
 {
+    reset();
+
     struct ir_node *it = ir;
     while (it) {
         eval_fun(it->ir);
