@@ -88,6 +88,8 @@ bool ir_test(const char *filename)
 
         fscanf(expected_stream, "%d", &expected_code);
 
+        printf("Got exit code: %d\n", exit_code);
+
         if (exit_code != expected_code) {
             printf("Return value mismatch: got %d, expected %d\n", exit_code, expected_code);
             success = false;
