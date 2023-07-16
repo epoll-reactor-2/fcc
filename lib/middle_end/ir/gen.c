@@ -570,6 +570,7 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     vector_push_back(
         ir_func_decls,
         ir_func_decl_init(
+            decl->data_type,
             decl->name,
             args,
             body
