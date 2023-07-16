@@ -1,6 +1,10 @@
 //fun complex():
 //       0:   alloca int %0
+//       1:   store %0 $10000
+//       6:   alloca int %3
+//       7:   store %3 $25000
 //       8:   alloca int %4
+//       9:   store %4 $0
 //      10:   alloca int %5(@loop)
 //      11:   store %5 $0(@loop)
 //      12:   alloca int %6
@@ -12,6 +16,8 @@
 //      18:   alloca int %9
 //      19:   store %9 $10000 mul %5
 //      20:   alloca int %10
+//      21:   alloca int %11
+//      26:   store %11 $70000
 //      27:   alloca int %14
 //      28:   store %14 %5 add $25000
 //      29:   store %10 $70000 sub %14

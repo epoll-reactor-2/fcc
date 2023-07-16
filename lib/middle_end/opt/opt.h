@@ -17,6 +17,11 @@ struct ir_node;
 void ir_opt_motion(struct ir_node *ir);
 
 /// Constant and expressions folding.
+///
+/// \todo Dead code elimination. This will make
+///       fold optimization much easier to understand
+///       and will separate folding from unused instructions
+///       analysis.
 void ir_opt_fold(struct ir_node *ir);
 
 /// Arithmetic optimizations.

@@ -77,6 +77,14 @@ static bool consts_mapping_is_const(uint64_t idx)
     return ok;
 }
 
+__weak_unused static bool alloca_stmts_exists(uint64_t sym_idx)
+{
+    bool ok = 0;
+    hashmap_get(&consts_mapping, sym_idx, &ok);
+    __weak_debug_msg("Alloca stmts: exists? idx:%ld -> %d\n", sym_idx, ok);
+    return ok;
+}
+
 static void alloca_stmts_put(uint64_t sym_idx, void *ir)
 {
     __weak_debug_msg("Alloca stmts: add sym_idx:%ld, ir:%p\n", sym_idx, ir);
@@ -224,6 +232,37 @@ static bool fold_store_mark_loop_dependent(struct ir_node *ir)
     return 0;
 }
 
+/// Remove variable declaration (store and alloca) from
+/// list of redundant statements. Due to this, optimizations are
+/// not so aggressive, but correct.
+static void fold_keep_mutable_decl(struct ir_node *ir)
+{
+    if (ir->type != IR_SYM) return;
+
+    struct ir_sym *sym = ir->ir;
+
+    vector_foreach_back(redundant_stmts, i) {
+        struct ir_node *to_remove = vector_at(redundant_stmts, i);
+        if (to_remove->type != IR_STORE)
+            continue;
+
+        struct ir_store *store = to_remove->ir;
+
+        if (store->idx != sym->idx)
+            continue;
+
+        if (!consts_mapping_is_const(store->idx))
+            continue;
+
+        __weak_debug_msg("------ Erase instr %%%d\n", to_remove->instr_idx);
+
+        vector_erase(redundant_stmts, i);
+
+        if (alloca_stmts_exists(store->idx))
+            alloca_stmts_remove(store->idx);
+    }
+}
+
 static void fold_store_bin(struct ir_node *ir)
 {
     struct ir_store *store = ir->ir;
@@ -240,24 +279,31 @@ static void fold_store_bin(struct ir_node *ir)
     if (is_no_result(folded))
         return;
 
-    /// The value returned from store argument fold is
-    /// binary or immediate values. No symbols returned.
-    if (folded->type == IR_BIN) {
+    switch (folded->type) {
+    case IR_BIN: {
+        struct ir_bin *bin = store->body->ir;
+
+        fold_keep_mutable_decl(bin->lhs);
+        fold_keep_mutable_decl(bin->rhs);
+
         ir_node_cleanup(store->body);
         store->body = folded;
         store->type = IR_STORE_BIN;
         consts_mapping_remove(store->idx);
         alloca_stmts_remove(store->idx);
+        break;
     }
-
-    if (folded->type == IR_IMM) {
+    case IR_IMM: {
         struct ir_imm *imm = folded->ir;
-
         ir_node_cleanup(store->body);
         store->body = folded;
         store->type = IR_STORE_IMM;
         consts_mapping_update(store->idx, imm->imm.__int);
         vector_push_back(redundant_stmts, ir);
+        break;
+    }
+    default:
+        break;
     }
 }
 
