@@ -177,7 +177,7 @@ static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
     fprintf(mem, "call %s(", ir->name);
     struct ir_node *it = ir->args;
     while (it) {
-        ir_dump_alloca(mem, it->ir);
+        ir_dump_node(mem, it);
         if (it->next != NULL)
             fprintf(mem, ", ");
         it = it->next;

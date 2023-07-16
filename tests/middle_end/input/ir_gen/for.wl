@@ -1,6 +1,6 @@
 //fun main():
 //       0:   alloca int %0
-//       1:   store %0 $0
+//       1:   store %0 $0(@loop)
 //       2:   alloca int %1
 //       3:   alloca int %2
 //       4:   store %2 %0 lt $10
@@ -11,8 +11,8 @@
 //       9:   jmp L15
 //      10:   alloca int %4
 //      11:   store %4 %0
-//      12:   store %4 %4 add $1
-//      13:   store %0 %0 add $1
+//      12:   store %4 %4(@noalias) add $1
+//      13:   store %0 %0(@noalias) add $1(@loop)
 //      14:   jmp L2
 //      15:   ret $0
 int main() {

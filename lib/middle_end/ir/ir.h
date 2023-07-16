@@ -104,6 +104,7 @@ enum ir_store_type {
     IR_STORE_IMM,
     IR_STORE_SYM,
     IR_STORE_BIN,
+    IR_STORE_CALL
 };
 
 struct ir_store {
@@ -229,6 +230,7 @@ __weak_wur struct ir_node *ir_sym_init(int32_t idx);
 __weak_wur struct ir_node *ir_store_imm_init(int32_t idx, struct ir_node *imm);
 __weak_wur struct ir_node *ir_store_sym_init(int32_t idx, int32_t var_idx);
 __weak_wur struct ir_node *ir_store_bin_init(int32_t idx, struct ir_node *bin);
+__weak_wur struct ir_node *ir_store_call_init(int32_t idx, struct ir_node *call);
 
 __weak_wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
 __weak_wur struct ir_node *ir_label_init(int32_t idx);

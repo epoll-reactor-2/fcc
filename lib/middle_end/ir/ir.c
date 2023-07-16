@@ -117,6 +117,18 @@ struct ir_node *ir_store_bin_init(int32_t idx, struct ir_node *bin)
     return ir_node_init(IR_STORE, ir);
 }
 
+struct ir_node *ir_store_call_init(int32_t idx, struct ir_node *call)
+{
+    assert(call->type == IR_FUNC_CALL && "Store expects function call in this context");
+    struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
+    ir->type = IR_STORE_CALL;
+    ir->idx = idx;
+    ir->body = call;
+    /// Instruction index was already incremented in
+    /// the call instruction itself.
+    return ir_node_init(IR_STORE, ir);   
+}
+
 struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs)
 {
     assert(((
@@ -147,7 +159,7 @@ struct ir_node *ir_jump_init(int32_t idx)
     struct ir_jump *ir = weak_calloc(1, sizeof (struct ir_jump));
     ir->idx = idx;
     ++ir_instr_index;
-    return ir_node_init(IR_JUMP, ir);    
+    return ir_node_init(IR_JUMP, ir);
 }
 
 struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label)
@@ -248,8 +260,11 @@ struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
         struct ir_node *it = args;
         while (it) {
             enum ir_type t = it->type;
-            assert((t == IR_ALLOCA) && (
-                "Function expects alloca instruction as parameter"
+            assert((
+                t == IR_IMM ||
+                t == IR_SYM
+            ) && (
+                "Function expects symbol or immediate as parameter"
             ));
             it = it->next;
         }

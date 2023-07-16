@@ -11,8 +11,10 @@
 #include "middle_end/ir/storage.h"
 #include "middle_end/ir/ir.h"
 #include "front_end/ast/ast.h"
+#include "util/crc32.h"
 #include "util/vector.h"
 #include "util/unreachable.h"
+#include "util/hashmap.h"
 #include <assert.h>
 #include <string.h>
 
@@ -35,6 +37,24 @@ static bool            ir_meta_is_loop;
 
 static int32_t         ir_meta_loop_idx;
 
+static hashmap_t       ir_func_return_types;
+
+static void ir_func_add_return_type(const char *name, enum data_type dt)
+{
+    hashmap_put(&ir_func_return_types, crc32_string(name), (uint64_t) dt);
+}
+
+static enum data_type ir_func_return_type(const char *name)
+{
+    bool ok = 0;
+    uint64_t name_hash = crc32_string(name);
+    uint64_t got = hashmap_get(&ir_func_return_types, name_hash, &ok);
+    if (!ok)
+        weak_unreachable("Cannot get return type for function `%s`", name);
+
+    return (enum data_type) got;
+}
+
 static void ir_try_add_meta(struct ir_node *ir)
 {
     if (!ir_meta_is_loop) return;
@@ -52,7 +72,7 @@ static void ir_try_add_meta(struct ir_node *ir)
 static void ir_insert(struct ir_node *new_node)
 {
     __weak_debug({
-        __weak_debug_msg("Insert IR :");
+        __weak_debug_msg("Insert IR (instr_idx: %d) :", new_node->instr_idx);
         ir_dump_node(stdout, new_node);
         puts("");
     });
@@ -85,6 +105,11 @@ static void invalidate()
     ir_first = NULL;
     ir_last = NULL;
     ir_prev = NULL;
+
+    if (ir_func_return_types.buckets) {
+        hashmap_destroy(&ir_func_return_types);
+    }
+    hashmap_init(&ir_func_return_types, 32);
 }
 
 static void visit_ast(struct ast_node *ast);
@@ -524,7 +549,6 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     ir_last = NULL;
     ir_prev = NULL;
     ir_save_first = 1;
-    ir_reset_internal_state();
 
     visit_ast(decl->args);
     struct ir_node *args = ir_first;
@@ -533,6 +557,8 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     ir_last = NULL;
     ir_prev = NULL;
     ir_save_first = 1;
+
+    ir_reset_internal_state();
 
     visit_ast(decl->body);
     if (decl->data_type == D_T_VOID) {
@@ -550,10 +576,54 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
         )
     );
 
+    ir_func_add_return_type(decl->name, decl->data_type);
+
     ir_storage_reset();
 }
 
-static void visit_ast_function_call(struct ast_function_call *ast) { (void) ast; }
+static void visit_ast_function_call(struct ast_function_call *ast)
+{
+    /// Save and restore IR-related data to use
+    /// ir_insert().
+    struct ir_node *saved_ir_first = ir_first;
+    struct ir_node *saved_ir_last = ir_last;
+    struct ir_node *saved_ir_prev = ir_prev;
+    bool            saved_ir_save_first = ir_save_first;
+
+    ir_first = NULL;
+    ir_last = NULL;
+    ir_prev = NULL;
+    ir_save_first = 1;
+
+    struct ast_compound *args_ast = ast->args->ast;
+    for (uint64_t i = 0; i < args_ast->size; ++i) {
+        visit_ast(args_ast->stmts[i]);
+        ir_insert(ir_last);
+    }
+    struct ir_node *args = ir_first;
+
+    /// todo: Check if void return type.
+
+    ir_first = saved_ir_first;
+    ir_last = saved_ir_last;
+    ir_prev = saved_ir_prev;
+    ir_save_first = saved_ir_save_first;
+
+    enum data_type ret_dt = ir_func_return_type(ast->name);
+
+    if (ret_dt == D_T_VOID) {
+        struct ir_node *call = ir_func_call_init(ast->name, args);
+        ir_insert(call);
+    } else {
+        int32_t next_idx = ir_var_idx++;
+        ir_last = ir_alloca_init(ret_dt, next_idx);
+        ir_insert(ir_last);
+        struct ir_node *call = ir_func_call_init(ast->name, args);
+        ir_last = ir_store_call_init(next_idx, call);
+        ir_insert(ir_last);
+        ir_last = ir_sym_init(next_idx);
+    }
+}
 
 /* static */ void visit_ast(struct ast_node *ast)
 {
