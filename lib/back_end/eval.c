@@ -69,7 +69,9 @@ static void storage_set_callee_active()
 
     __weak_debug({
         hashmap_foreach(storage_act, k, v) {
-            __weak_debug_msg("  \\ Callee storage: sym %%%ld: $%ld\n", k, v);
+            struct ir_imm imm = {0};
+            memcpy(&imm, &v, sizeof (uint64_t));
+            __weak_debug_msg("  \\ Callee storage: sym %%%ld: $%d\n", k, imm.imm.__int);
         }
     });
 }
@@ -82,7 +84,6 @@ static void storage_set_caller_active()
     __weak_debug({
         hashmap_foreach(storage_act, k, v) {
             struct ir_imm imm = {0};
-            /// Temporarily hack to easily handle hashmap.
             memcpy(&imm, &v, sizeof (uint64_t));
             __weak_debug_msg("  \\ Caller storage: sym %%%ld: $%d\n", k, imm.imm.__int);
         }
@@ -99,7 +100,6 @@ static struct ir_imm storage_get(int32_t sym_idx)
         weak_unreachable("Cannot get symbol %%%d from storage", sym_idx);
 
     struct ir_imm imm = {0};
-    /// Temporarily hack to easily handle hashmap.
     memcpy(&imm, &got, sizeof (uint64_t));
     return imm;
 }
@@ -116,7 +116,7 @@ static void storage_set(int32_t sym_idx, struct ir_imm imm)
 
 
 
-static struct ir_node *jmp_target;
+static struct ir_node *instr_pointer;
 static hashmap_t jmp_table;
 
 static void jmp_table_init(struct ir_node *ir)
@@ -322,7 +322,7 @@ static void eval_cond(struct ir_cond *cond)
     bool should_jump = 0;
     switch (last_imm.type) {
     case IMM_BOOL:  should_jump = last_imm.imm.__bool; break;
-    case IMM_CHAR:  should_jump = last_imm.imm.__char != 0.0; break;
+    case IMM_CHAR:  should_jump = last_imm.imm.__char != '\0'; break;
     case IMM_FLOAT: should_jump = last_imm.imm.__float != 0.0; break;
     case IMM_INT:   should_jump = last_imm.imm.__int != 0; break;
     default:
@@ -330,13 +330,13 @@ static void eval_cond(struct ir_cond *cond)
     }
 
     if (should_jump)
-        jmp_target = jmp_table_get(cond->goto_label)->prev;
+        instr_pointer = jmp_table_get(cond->goto_label)->prev;
 }
 
 static void eval_jmp(struct ir_jump *jmp)
 {
     /// Prev is due eval_fun() execution loop specific algorithm.
-    jmp_target = jmp_table_get(jmp->idx)->prev;
+    instr_pointer = jmp_table_get(jmp->idx)->prev;
 }
 
 static void eval_ret(struct ir_ret *ret)
@@ -415,13 +415,12 @@ static void eval_func_decl(struct ir_func_decl *func)
     struct ir_node *it = func->body;
     jmp_table_init(it);
 
-    jmp_target = it;
+    instr_pointer = it;
 
-    while (jmp_target) {
-        eval_instr(jmp_target);
-        jmp_target = jmp_target->next;
+    while (instr_pointer) {
+        eval_instr(instr_pointer);
+        instr_pointer = instr_pointer->next;
     }
-
 }
 
 /// Preconditions:
@@ -431,12 +430,12 @@ static void call(const char *name)
 {
     __weak_debug_msg("Calling `%s`\n", name);
 
-    struct ir_node *saved = jmp_target;
+    struct ir_node *saved = instr_pointer;
 
     struct ir_func_decl *func = function_list_lookup(name);
     eval_func_decl(func);
 
-    jmp_target = saved;
+    instr_pointer = saved;
 
     __weak_debug_msg("Exiting `%s`\n", name);
 }
@@ -475,7 +474,7 @@ static void reset_all()
 
     reset_hashmap(&function_list);
     reset_hashmap(&jmp_table);
-    jmp_target = NULL;
+    instr_pointer = NULL;
 }
 
 int32_t eval(struct ir_node *ir)

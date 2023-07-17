@@ -66,12 +66,12 @@ bool ir_test(const char *filename)
 
         struct ir_node *ir = ir_gen(ast);
 
-        // struct ir_node *it = ir;
-        // puts("Source:");
-        // while (it) {
-            // ir_dump(stdout, it->ir);
-            // it = it->next;
-        // }
+        struct ir_node *it = ir;
+        puts("Source:");
+        while (it) {
+            ir_dump(stdout, it->ir);
+            it = it->next;
+        }
 
         // ir_opt_arith(ir);
         // ir_opt_fold(ir);

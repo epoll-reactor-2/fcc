@@ -85,7 +85,7 @@ static void ir_insert(struct ir_node *new_node)
 
     if (ir_prev == NULL) {
         ir_prev = new_node;
-        new_node->prev = NULL;  // Set prev to NULL for the first node
+        new_node->prev = NULL;
         new_node->prev_else = NULL;
         return;
     }
@@ -560,6 +560,8 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
 
     ir_reset_internal_state();
 
+    ir_func_add_return_type(decl->name, decl->data_type);
+
     visit_ast(decl->body);
     if (decl->data_type == D_T_VOID) {
         struct ir_node *ret_body = ir_node_init(IR_RET_VOID, NULL);
@@ -576,8 +578,6 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
             body
         )
     );
-
-    ir_func_add_return_type(decl->name, decl->data_type);
 
     ir_storage_reset();
 }
@@ -596,6 +596,15 @@ static void visit_ast_function_call(struct ast_function_call *ast)
     ir_prev = NULL;
     ir_save_first = 1;
 
+    /// \todo: Collect only symbols to argument list. Not
+    ///        everything that is generated inside function
+    ///        parameter.
+    ///        Example:
+    ///
+    ///            f(1 + 2, 3 + 4)
+    ///
+    ///        As arguments should be putted only symbols,
+    ///        exempli gratia %1, %2.
     struct ast_compound *args_ast = ast->args->ast;
     for (uint64_t i = 0; i < args_ast->size; ++i) {
         visit_ast(args_ast->stmts[i]);
@@ -603,7 +612,11 @@ static void visit_ast_function_call(struct ast_function_call *ast)
     }
     struct ir_node *args = ir_first;
 
-    /// todo: Check if void return type.
+    __weak_debug({
+        __weak_debug_msg("Args: ");
+        ir_dump_node(stdout, args);
+        puts("");
+    });
 
     ir_first = saved_ir_first;
     ir_last = saved_ir_last;
