@@ -266,7 +266,7 @@ struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
                 t == IR_IMM ||
                 t == IR_SYM
             ) && (
-                "Function expects symbol or immediate as parameter"
+                "Function call expects symbol or immediate as parameter"
             ));
             it = it->next;
         }
