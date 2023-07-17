@@ -54,7 +54,7 @@ bool ir_test(const char *filename)
             ir_compute_dom_tree(ir);
         }
 
-        ir_dump_dom_tree(stdout, ir->ir);
+        // ir_dump_dom_tree(stdout, ir->ir);
 
         ast_node_cleanup(ast);
         ir_node_cleanup(ir);

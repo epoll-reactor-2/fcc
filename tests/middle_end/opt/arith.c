@@ -64,20 +64,11 @@ bool ir_test(const char *filename)
         analysis_type_analysis(ast);
 
         struct ir_node *ir = ir_gen(ast);
-        struct ir_node *it = ir;
-
-        puts("Source:");
-        while (it) {
-            ir_dump(stdout, it->ir);
-            it = it->next;
-        }
 
         ir_opt_arith(ir);
 
-        puts("After arithmetic optimization:");
-        it = ir;
+        struct ir_node *it = ir;
         while (it) {
-            ir_dump(stdout, it->ir);
             ir_dump(generated_stream, it->ir);
             it = it->next;
         }

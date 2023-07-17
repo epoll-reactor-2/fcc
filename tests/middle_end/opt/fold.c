@@ -64,21 +64,12 @@ bool ir_test(const char *filename)
         analysis_type_analysis(ast);
 
         struct ir_node *ir = ir_gen(ast);
-        struct ir_node *it = ir;
-
-        puts("Source:");
-        while (it) {
-            ir_dump(stdout, it->ir);
-            it = it->next;
-        }
 
         ir_opt_fold(ir);
 
-        puts("Optimized:");
-        it = ir;
+        struct ir_node *it = ir;
         while (it) {
             ir_dump(generated_stream, it->ir);
-            ir_dump(stdout, it->ir);
             it = it->next;
         }
 
@@ -87,7 +78,7 @@ bool ir_test(const char *filename)
         ir_node_cleanup(ir);
 
         if (strcmp(expected, generated) != 0) {
-            printf("IR mismatch:\n%s\nexpected\n", expected);
+            printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
             success = false;
             goto exit;
         }
