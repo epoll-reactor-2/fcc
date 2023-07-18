@@ -135,7 +135,7 @@ static struct ir_node *jmp_table_get(int32_t instr_idx)
     bool ok = 0;
     uint64_t got = hashmap_get(&jmp_table, instr_idx, &ok);
     if (!ok)
-        weak_unreachable("Cannot get %%%d from jump table", instr_idx);
+        weak_unreachable("Jump table lookup failed: no instruction at index %d", instr_idx);
 
     return (struct ir_node *) got;
 }
@@ -345,6 +345,8 @@ static void eval_ret(struct ir_ret *ret)
         return;
 
     eval_instr(ret->body);
+
+    instr_pointer = NULL;
 }
 
 
@@ -419,7 +421,12 @@ static void eval_func_decl(struct ir_func_decl *func)
 
     while (instr_pointer) {
         eval_instr(instr_pointer);
-        instr_pointer = instr_pointer->next;
+
+        /// If instruction pointer was set to NULL,
+        /// then `ret` instruction was interpreted,
+        /// code should exit now.
+        if (instr_pointer)
+            instr_pointer = instr_pointer->next;
     }
 }
 
