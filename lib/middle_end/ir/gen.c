@@ -584,55 +584,36 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
 
 static void visit_ast_function_call(struct ast_function_call *ast)
 {
-    /// Save and restore IR-related data to use
-    /// ir_insert().
-    struct ir_node *saved_ir_first = ir_first;
-    struct ir_node *saved_ir_last = ir_last;
-    struct ir_node *saved_ir_prev = ir_prev;
-    bool            saved_ir_save_first = ir_save_first;
-
-    ir_first = NULL;
-    ir_last = NULL;
-    ir_prev = NULL;
-    ir_save_first = 1;
-
-    /// \todo: Collect only symbols to argument list. Not
-    ///        everything that is generated inside function
-    ///        parameter.
-    ///        Example:
-    ///
-    ///            f(1 + 2, 3 + 4)
-    ///
-    ///        As arguments should be putted only symbols,
-    ///        exempli gratia %1, %2.
     struct ast_compound *args_ast = ast->args->ast;
+    struct ir_node *args = NULL;
+    struct ir_node *args_start = NULL;
+
+    /// Todo: lost immediate instructions (needed for
+    ///       get result symbol)
+    ///
+    ///       store %4 call fact(%3) /// All stuff for %3 is lost.
     for (uint64_t i = 0; i < args_ast->size; ++i) {
         visit_ast(args_ast->stmts[i]);
-        ir_insert(ir_last);
+
+        if (args == NULL) {
+            args = ir_last;
+            args_start = args;
+        } else {
+            args->next = ir_last;
+            args = args->next;
+        }
     }
-    struct ir_node *args = ir_first;
-
-    __weak_debug({
-        __weak_debug_msg("Args: ");
-        ir_dump_node(stdout, args);
-        puts("");
-    });
-
-    ir_first = saved_ir_first;
-    ir_last = saved_ir_last;
-    ir_prev = saved_ir_prev;
-    ir_save_first = saved_ir_save_first;
 
     enum data_type ret_dt = ir_func_return_type(ast->name);
 
     if (ret_dt == D_T_VOID) {
-        struct ir_node *call = ir_func_call_init(ast->name, args);
+        struct ir_node *call = ir_func_call_init(ast->name, args_start);
         ir_insert(call);
     } else {
         int32_t next_idx = ir_var_idx++;
         ir_last = ir_alloca_init(ret_dt, next_idx);
         ir_insert(ir_last);
-        struct ir_node *call = ir_func_call_init(ast->name, args);
+        struct ir_node *call = ir_func_call_init(ast->name, args_start);
         ir_last = ir_store_call_init(next_idx, call);
         ir_insert(ir_last);
         ir_last = ir_sym_init(next_idx);
