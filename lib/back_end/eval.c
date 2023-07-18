@@ -202,11 +202,15 @@ static struct ir_imm eval_imm_imm_float(enum token_type op, float l, float r)
     return imm;
 }
 
-static struct ir_imm eval_imm_imm_int(enum token_type op, int32_t l, int32_t r)
-{
-    /// \todo: Char.
+/// Integer and char supports same binary operations.
+static struct ir_imm eval_imm_imm_integral(
+    enum token_type  op,
+    int32_t          l,
+    int32_t          r,
+    enum ir_imm_type t
+) {
     struct ir_imm imm = {
-        .type = IMM_INT,
+        .type = t,
         .imm  = (union ir_imm_val) 0
     };
 
@@ -242,10 +246,10 @@ static struct ir_imm eval_imm_imm(
     struct ir_imm     r
 ) {
     switch (l.type) {
-    case IMM_BOOL:  return eval_imm_imm_bool (op, l.imm.__bool,  r.imm.__bool);
-    case IMM_CHAR:  return eval_imm_imm_int  (op, l.imm.__char,  r.imm.__char);
-    case IMM_FLOAT: return eval_imm_imm_float(op, l.imm.__float, r.imm.__float);
-    case IMM_INT:   return eval_imm_imm_int  (op, l.imm.__int,   r.imm.__int);
+    case IMM_BOOL:  return eval_imm_imm_bool    (op, l.imm.__bool,  r.imm.__bool);
+    case IMM_CHAR:  return eval_imm_imm_integral(op, l.imm.__char,  r.imm.__char, IMM_CHAR);
+    case IMM_FLOAT: return eval_imm_imm_float   (op, l.imm.__float, r.imm.__float);
+    case IMM_INT:   return eval_imm_imm_integral(op, l.imm.__int,   r.imm.__int, IMM_INT);
     default:
         weak_unreachable("Unknown immediate type (numeric: %d).", l.type);
     }
