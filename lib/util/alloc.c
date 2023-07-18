@@ -33,7 +33,7 @@ void *weak_realloc(void *addr, size_t size)
 {
     addr = realloc(addr, size);
     if (addr == NULL) {
-        weak_fatal_error("calloc() failed");
+        weak_fatal_error("realloc() failed");
     }
 
     return addr;
