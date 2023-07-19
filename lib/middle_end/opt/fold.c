@@ -493,7 +493,6 @@ static struct ir_node *fold_node(struct ir_node *ir)
         return fold_imm(ir->ir);
     case IR_SYM:
         return fold_sym(ir->ir);
-    case IR_LABEL:
     case IR_JUMP:
     case IR_MEMBER:
     case IR_ARRAY_ACCESS:

@@ -366,8 +366,6 @@ static void eval_instr(struct ir_node *ir)
     case IR_SYM:
         eval_sym(ir->ir);
         break;
-    case IR_LABEL:
-        break;
     case IR_JUMP:
         eval_jmp(ir->ir);
         break;

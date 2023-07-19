@@ -169,7 +169,6 @@ static void opt_arith_ret(struct ir_ret *ret)
 static struct ir_node *opt_arith_node(struct ir_node *ir)
 {
     switch (ir->type) {
-    case IR_LABEL:
     case IR_JUMP:
     case IR_MEMBER:
     case IR_ARRAY_ACCESS:
