@@ -147,13 +147,6 @@ struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_n
     return ir_node_init(IR_BIN, ir);
 }
 
-struct ir_node *ir_label_init(int32_t idx)
-{
-    struct ir_label *ir = weak_calloc(1, sizeof (struct ir_label));
-    ir->idx = idx;
-    return ir_node_init(IR_LABEL, ir);
-}
-
 struct ir_node *ir_jump_init(int32_t idx)
 {
     struct ir_jump *ir = weak_calloc(1, sizeof (struct ir_jump));
@@ -342,7 +335,6 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_ALLOCA:
     case IR_IMM:
     case IR_SYM:
-    case IR_LABEL:
     case IR_JUMP:
     case IR_MEMBER: /// Fall through.
         /// Nothing to clean except ir->ir itself.

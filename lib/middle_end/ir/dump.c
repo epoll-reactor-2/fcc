@@ -20,7 +20,6 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_SYM:          return "IR_SYM";
     case IR_STORE:        return "IR_STORE";
     case IR_BIN:          return "IR_BIN";
-    case IR_LABEL:        return "IR_LABEL";
     case IR_JUMP:         return "IR_JUMP";
     case IR_COND:         return "IR_COND";
     case IR_RET:          return "IR_RET";
@@ -96,11 +95,6 @@ static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
     ir_dump_node(mem, ir->rhs);
 }
 
-static void ir_dump_label(FILE *mem, struct ir_label *ir)
-{
-    fprintf(mem, "\nL%d:", ir->idx);
-}
-
 static void ir_dump_jump(FILE *mem, struct ir_jump *ir)
 {
     fprintf(mem, "jmp L%d", ir->idx);
@@ -165,8 +159,7 @@ static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
 
     it = ir->body;
     while (it) {
-        if (it->type != IR_LABEL)
-            fprintf(mem, "\n% 8d:   ", it->instr_idx);
+        fprintf(mem, "\n% 8d:   ", it->instr_idx);
         ir_dump_node(mem, it);
         it = it->next;
     }
@@ -193,7 +186,6 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_SYM:          ir_dump_sym(mem, ir->ir); break;
     case IR_STORE:        ir_dump_store(mem, ir->ir); break;
     case IR_BIN:          ir_dump_bin(mem, ir->ir); break;
-    case IR_LABEL:        ir_dump_label(mem, ir->ir); break;
     case IR_JUMP:         ir_dump_jump(mem, ir->ir); break;
     case IR_COND:         ir_dump_cond(mem, ir->ir); break;
     case IR_RET:          ir_dump_ret(mem, ir->ir); break;
@@ -250,7 +242,6 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     case IR_ARRAY_ACCESS:
         break;
     case IR_STORE:
-    case IR_LABEL:
     case IR_ALLOCA:
     case IR_FUNC_CALL:
     case IR_JUMP: {

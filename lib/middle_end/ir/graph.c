@@ -91,11 +91,6 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
             ir_set_idom(succ, cur, worklist, &siz);
             break;
         }
-        case IR_LABEL: {
-            struct ir_node *succ = cur->next;
-            ir_set_idom(succ, cur, worklist, &siz);
-            break;
-        }
         case IR_JUMP: {
             struct ir_node *succ = cur->next;
             ir_set_idom(succ, cur, worklist, &siz);
