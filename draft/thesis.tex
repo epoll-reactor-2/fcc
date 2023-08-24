@@ -1,0 +1,506 @@
+\documentclass[a4paper, 12pt]{extarticle}
+
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{polski}
+\usepackage[fleqn]{amsmath}  % Aligned to left equations.
+\usepackage[a4paper, total={7.5in, 9.5in}]{geometry}
+\usepackage{indentfirst}
+\usepackage{amsfonts}
+
+\usepackage{caption}
+\usepackage{chngcntr}
+\usepackage{cleveref}
+
+\usepackage{geometry}
+
+\usepackage{syntax}
+\usepackage{fancyhdr}
+\usepackage{mathpartir}
+
+\usepackage{array}
+\usepackage{listings}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{tikz}
+
+\usetikzlibrary{automata, positioning, arrows}
+
+\algnewcommand\algorithmicswitch{\textbf{switch}}
+\algnewcommand\algorithmiccase{\textbf{case}}
+\algnewcommand\algorithmicassert{\texttt{assert}}
+\algnewcommand\Assert[1]{\State \algorithmicassert(#1)}%
+% New "environments"
+\algdef{SE}[SWITCH]{Switch}{EndSwitch}[1]{\algorithmicswitch\ #1\ \algorithmicdo}{\algorithmicend\ \algorithmicswitch}%
+\algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
+\algtext*{EndSwitch}%
+\algtext*{EndCase}%
+
+\lstset{
+    xleftmargin    = .2\textwidth,
+    xrightmargin   = .2\textwidth,
+    basicstyle     = \footnotesize\ttfamily,
+    breaklines     = true,
+    linewidth      = 16cm
+}
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering  \let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft \let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\newcommand{\spacing}{\vskip 0.5cm}
+
+\let\titleoriginal\title           % save original \title macro
+\renewcommand{\title}[1]{          % substitute for a new \title
+    \titleoriginal{#1}%            % define the real title
+    \newcommand{\thetitle}{#1}     % define \thetitle
+}
+
+\lstset{
+	firstnumber = 0,
+	tabsize     = 4,
+	frame       = single,
+	linewidth   = 1.2\textwidth,
+	xleftmargin = .5cm
+}
+
+\captionsetup{
+    format=plain,
+    singlelinecheck=false,
+    justification=raggedright,
+    margin={.5cm, 0cm}
+}
+
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+
+\title{Kompilator języka strukturalnego}
+\author{David Korenchuk}
+\date{August, 23, 2023}
+
+\begin{document}
+    \pagestyle{fancy}
+    \lhead{\leftmark}
+    \rhead{\thetitle}
+
+    \maketitle
+    
+    \newpage
+    
+    \tableofcontents
+
+    \newpage
+	
+	%% 1.   Wprowadzenie
+	%% 2.   Teoria
+	%% ...  Opis lex
+	%% ...  Opis parse
+	%% ...  Opis codegen
+	%% ...  Opis interpreter
+	%% N.   Podsumowanie. Co było zrobione
+	
+	\section{Wprowadzenie}
+	
+		W dniu dzisiejszym istnieje wiele języków programowania. Przyczyna na istnienie narzędzia takiego
+		rodzaju jest taka, że człowiek myśli i mówi zdaniami. Aby móc przeprowadzić ludzkie zdania do
+		formy, zrozumiałej do komputera, niezbędnie te zdania muszą być przeprowadzone do zestawu dużo
+		prostszych zdań, niż w ludzkich językach.
+		\\
+
+		...
+
+		%% - Historia idei kompilatorów, języków programowania
+		%% - Pierwsze z nich
+		%% - Sposoby, przez które były zaimplementowane
+		%% - Powstanie nowych \ użycie starych narzędzi matematycznych
+		%% - Dzisiejsza teoria języków regularnych
+
+		\newpage
+		
+	\section{Teoria}
+
+		\subsection{Języki formalne}
+
+			Według teorii automatów, automat -- jest to jednostka wykonawcza. Jednostki te, zależnie od swojej
+			struktury i tego, jaki \textbf{język formalny} oni mogą obrobić, dzielą się na klasy.
+			\\
+			
+			Klasy te opisane są \textbf{hierarchią Chomsky’ego}. Mówi ona o tym, że języki formalne dzielą się na
+			4 typy:
+			\begin{itemize}
+				\item Typ 3 -- języki regularne
+				\item Typ 2 -- języki bezkontekstowe
+				\item Typ 1 -- języki kontekstowe
+				\item Typ 0 -- języki rekurencyjnie przeliczalne
+			\end{itemize}
+			
+			\spacing
+
+			Jako przykład języka typu 3 według hierarchii Chomsky'ego można podać wyrażenia regularne. Język ten
+			opisuje się automatem skończonym deterministycznym (DFA). Bardziej szczegółowo wyrażenia regularne będą
+			rozpatrzone w opisaniu analizy leksykalnej.
+			
+		\subsection{Klasyfikacja gramatyczna}
+
+			Niniejszy język nie może być odniesiony do żadnej z klas hierarchii Chomsky'ego, chociaż jest on
+			językiem regularnym. Tak jest dlatego, że można napisać gramatycznie poprawny kod, który jednak prowadzi
+			do błędów kontekstowych i logicznych. Naprzykład 
+			
+			\spacing
+			
+			\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
+	void f() {
+		 return argument + 1;
+	}
+			\end{lstlisting}
+
+			\spacing
+			
+			Kolejną z przyczyn niemożliwości odniesienia naszego języka do jednej z klas hierarchii Chomsky'ego
+			jest niejednoznaczność konstrukcji językowych. Przykład niżej pokazuje, że nie można jednoznacznie
+			stwierdzić, czy \texttt{data * d} jest deklaracją zmiennej albo operatorem mnożenia dwóch zmiennych.
+			Aby móc poprawnie prowadzić analizę syntaksyczną, musimy zadbać o rozróżnienie kontekstu.
+
+			\spacing
+			
+			\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
+	void f() {
+		 data *d;
+	}
+			\end{lstlisting}
+
+			\newpage
+
+	\section{Analiza leksykalna}
+
+		Jednym ze sposobów na sprowadzanie kodu źródłowego do postaći listy tokenów jest
+		UNIX'owe narzędzie lex. Przyjmuje ono zestaw reguł w postaći wyrażeń regularnych, według których
+		działa rozbicie tekstu wejściowego. Można jednak ominąć lex i zaimplemenetować lexer ręcznie, ale
+		ta praca nie skupia się na tym.
+
+		\subsection{Wyrażenia regularne}
+
+			Wyrażenie regularne -- łańcuch znaków, zawierający pewne polecenia do wyszukiwania tekstu.
+			\\
+
+			Mówimy, że wyrażenie regularne określone nad alfabetem $\Sigma$, jeżeli zachodzą następujące
+			warunki:
+
+			\begin{itemize}
+				\item $\quad \emptyset$ -- wyrażenie regularne, reprezentujące pusty zbiór.
+				\item $\quad \epsilon$ -- wyrażenie regularne, reprezentujące pusty łańcuch.
+				\item $\quad \forall_{a \in \Sigma}$, $a$ reprezentuje jeden znak.
+				\item Warunek indukcyjny: jeżeli $R_1, R_2$ -- wyrażenia regularne, $(R_1 R_2)$
+				      stanowi konkatenację $R_1$ i $R_2$.
+		      	\item Warunek indukcyjny: jeżeli $R$ -- wyrażenie regularne, $R*$ stanowi domknięcie Kleene'ego. 
+			\end{itemize}
+
+			\spacing
+
+			W rzeczywistości, takich zasad może być więcej.
+			\\
+
+			Zazwyczaj wyrażenie regularne jest realizowane za pomocą DFA (Deterministic finite automaton,
+			Deterministyczny automat skończony).
+			Lex sprowadza podany zbiór zasad do takiego automatu.
+			\\
+
+			Podamy przykład automatu dla wyrażenia \texttt{-?[0-9]+}
+			
+			\spacing
+			\spacing
+
+			\begin{center}
+			\begin{tikzpicture}[node distance=4cm]
+				\node[state, initial, accepting] (0) {0};
+				\node[state, right of=0]         (1) {1};
+				\node[state, right of=1]         (2) {2};
+				\draw
+				(0) edge[       bend left ]             (1)
+				(0) edge[below, bend right] node{$-$}   (1)
+				(1) edge[below            ] node{$0-9$} (2)
+				(2) edge[loop below       ] node{$0-9$} (2)
+				;
+			\end{tikzpicture}
+			\end{center}
+			
+			Aby odśledzić wykonane kroki, można wypełnić tabelę przejść pomiędzy stanami. Podamy przykład dla
+			łańcucha \texttt{-22}
+
+			\spacing
+			\spacing
+
+		\begin{center}
+			\setlength{\tabcolsep}{0.5em}
+			\renewcommand{\arraystretch}{1.2}
+			\begin{tabular}{ | L{3cm} | L{4cm} | }
+				\hline
+				Biężący stan        & Akcja \\
+				\hline
+				\textbf{0}          & zaakceptować - \\
+				\hline
+				0, \textbf{1}       & zaakceptować 2 \\
+				\hline
+				0, 1, \textbf{2}    & zaakceptować 2 \\
+				\hline
+			\end{tabular}
+		\end{center}
+		
+		\newpage
+
+		\subsection{Lex}
+
+		\newpage
+
+	\section{Analiza syntaksyczna}
+		
+		\subsection{Definicja}
+
+			Mając listę składników elementarnych wejściowego programu, jesteśmy w stanie przejść do
+			następnego etapu kompilacji -- analizy syntaksycznej. Jest to proces generacji struktury
+			drzewiastej, a mianowicie AST (Abstract Syntax Tree).
+			\\
+
+			AST może być stworzony po zdefiniowaniu gramatyki regularnej danego języka. Stosuje się
+			do tego notacja Backus–Naur form (BNF). Pełny opis gramatyki pokazany jest w końcu pracy. Pokażemy
+			tylko kilka przykładów:
+			
+			\spacing
+
+		    \setlength{\grammarindent}{12em}
+
+		    \begin{grammar}
+		        <program> ::= ( <function-decl> | <structure-decl> )*
+
+		        <var-decl> ::= <type> ( \tt{*} )* <id> \tt{=} <logical-or-stmt> \tt{;}
+
+		        <stmt> ::= <block-stmt>
+		        \alt <selection-stmt>
+		        \alt <iteration-stmt>
+		        \alt <jump-stmt>
+		        \alt <decl>
+		        \alt <expr>
+		        \alt <assignment-stmt>
+		        \alt <primary-stmt>
+			\end{grammar}
+			
+			\spacing
+			
+		\subsection{Znane problemy}
+
+			Projektując gramatykę, należy wziąć pod uwagę problem rekurencji lewej (Left recursion).
+			Są produkcje gramatyczne, nie pozwalające kodu, które je implementuje przejść do następnego
+			terminalu, stosując tą samą produkcję, co prowadzi do rekurencji nieskończonej.
+			\\
+			
+			Rekuręcja lewa może wyglądać następująco:
+
+		    \begin{grammar}
+		    	<factor> ::= <factor> '+' <term>
+			\end{grammar}
+
+			\spacing
+
+			Kod, wykonujący tą regułe będzie miał postać:
+			
+			\begin{lstlisting}[caption={Rekurencja lewa}, label={lst:left-recursion}]
+	void factor() {
+		factor(); // Rekurencja bez zadnego warunku wyjscia
+		consume('+');
+		term();
+	}
+			\end{lstlisting}
+
+			\newpage
+	
+	\section{Analiza semantyczna}
+		
+		Aby zapewnić poprawność napisanego kodu, stosuje się wiele rodzajów analiz. Niniejszy kompilator
+		dysponuje trzema z analiz:
+		
+		\begin{itemize}
+			\item Analiza nieużytych zmiennych, oraz zmiennych, które są zdefiniowane, ale nie zostały użyte
+			\item Analiza poprawności typów
+			\item Analiza prawidłowego użycia funkcji
+		\end{itemize}
+		
+		\subsection{Analiza nieużywanych zmiennych}
+			
+			Podamy przykłady kodu prowadzącego do odpowiednich ostrzeżeń
+			
+			\spacing
+
+			\begin{lstlisting}[caption={Nieużywana zmienna}, label={lst:warn-unused-var}]
+void f() {
+	int argument = 0; // Warning: unused variable `argument`
+}
+			\end{lstlisting}
+
+			\begin{lstlisting}[caption={Nieużywany parametr}, label={lst:warn-unused-var}]
+void f(int argument) {} // Warning: unused variable `argument`
+			\end{lstlisting}
+			
+			\begin{lstlisting}[caption={Nieodczytana zmienna}, label={lst:warn-unused-var}]
+void f() {
+	int argument = 0;
+	++argument; // Warning: variable `argument` written, but never read
+}
+			\end{lstlisting}
+
+			%% (\ref{lst:warn-unused-var})
+			
+			\spacing
+			
+			Rzecz polega na przejściu drzewa syntaksycznego i zwiększania liczników
+			\textbf{read_uses} i \textbf{write_uses} dla każdego węzła typu
+			\textbf{ast_sym}.
+			\\
+			
+			Algorytm operuje na blokach kodu, zawartego w \textbf{\{ ... \}}. Po przejściu każdego bloku
+			(w tym rekurencyjnie), analiza jest wykonana w następujący sposób:
+
+			\begin{algorithm}
+				\caption{Wyszukiwanie nieużywanych zmiennych}
+				\begin{algorithmic}[1]
+
+				\Procedure{Analyze}{AST}
+					\State Set $\gets$ all declarations at current scope depth
+
+					\For{each collected declaration Use in Set}
+						\If{Use is not a function \& Use.ReadUses is 0}
+							\State Emit warning
+						\EndIf
+					\EndFor
+				\EndProcedure
+
+				\end{algorithmic}
+			\end{algorithm}
+			
+			Do analizy nieużywanych funkcji stosuje się tem sam algorytm. Jedyne, co jest wtedy zmienione --
+			sprawdzenie, czy nazwa rozpatrywanej funkcji nie jest \textbf{main}. Funkcja \textbf{main} jest
+			wywołana automatycznie.
+		
+		\subsection{Analiza typów}
+		
+			Podczas analizy typów należy sprawdzić, czy:
+
+			\begin{itemize}
+				\item Oba operandy wyrażenia binarnego mają ten sam typ
+				\item Faktycznie zwracana z funkcji wartość zgadza się z jej
+				      deklaracją
+		      	\item Prawidłowa ilość i typy argumentów byli przekazane do wyrażenia
+		      	      wywołania funkcji
+      	      	\item Rozmiar zadeklarowanej tablicy jest dopuszczalny
+      	      	\item Indeks tablicy nie wykracza poza jej rozmiar (w przypadku stałego indeksu)
+			\end{itemize}
+		
+		\spacing
+
+		Analiza typów w naszym przypadku jest dość prosta i tak samo polega na przejściu drzewa
+		syntaksycznego.
+		
+		\subsubsection{Matematyczny opis systemu typów}
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash \text{true} : bool}
+		\quad
+
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash \text{false} : bool}
+		\end{mathpar}
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash n : int}
+		\end{mathpar}
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash c : char}
+		\end{mathpar}
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash x : float}
+		\end{mathpar}
+
+		\spacing
+
+Oznaczmy tutaj dla $\mathbb{N, R}: \oplus \in \{ +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
+
+		\spacing
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash e_1 : float \\ \Gamma \vdash e_2 : float}
+		  {\Gamma \vdash e_1 \oplus e_2 : float}
+		\end{mathpar}
+
+		\spacing
+
+Dodamy do $\oplus$ operacje tylko dla $\mathbb{N}: \oplus \ \cup \ \{ |, \&, \string^, <<, >>, \% \}$, wtedy
+
+		\spacing
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash e_1 : int \\ \Gamma \vdash e_2 : int}
+		  {\Gamma \vdash e_1 \oplus e_2 : int}
+		\end{mathpar}
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e_1 : \tau \\ \Gamma \vdash e_2 : \tau}
+		  {\Gamma \vdash \text{if (condition) } \{ \ e_1 \ \}  \text{ else }  \{ \ e_2 \ \} : \tau}
+		\end{mathpar}
+
+		\begin{mathpar}
+		\inferrule
+			{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
+			{\Gamma \vdash \text{while (condition) } \{ \ e \ \} : \tau}
+		\end{mathpar}
+
+		\begin{mathpar}
+		\inferrule
+			{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
+			{\Gamma \vdash \text{do } \{ \ e \ \} \text{ while (condition)} : \tau}
+		\end{mathpar}
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma(x) = \tau}
+		  {\Gamma \vdash x : \tau}
+		\end{mathpar}
+
+		\newpage
+
+
+	\section{Generacja warstwy pośredniej}
+		
+		
+		
+		\newpage
+
+	\section{Interpreter}
+		
+		
+		
+		\newpage
+
+	\begin{thebibliography}{9}
+		\bibitem{texbook}
+			https://www.bates.edu/biology/files/2010/06/How-to-Write-Guide-v10-2014.pdf
+		
+		\bibitem{texbook}
+			http://lucacardelli.name/papers/typesystems.pdf
+	\end{thebibliography}
+
+\end{document}
