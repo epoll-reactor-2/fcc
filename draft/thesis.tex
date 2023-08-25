@@ -161,7 +161,7 @@
 			Kolejną z przyczyn niemożliwości odniesienia naszego języka do jednej z klas hierarchii Chomsky'ego
 			jest niejednoznaczność konstrukcji językowych. Przykład niżej pokazuje, że nie można jednoznacznie
 			stwierdzić, czy \texttt{data * d} jest deklaracją zmiennej albo operatorem mnożenia dwóch zmiennych.
-			Aby móc poprawnie prowadzić analizę syntaksyczną, musimy zadbać o rozróżnienie kontekstu.
+			Aby móc poprawnie prowadzić analizę składniową, musimy zadbać o rozróżnienie kontekstu.
 
 			\spacing
 			
@@ -301,7 +301,7 @@
 		\subsection{Definicja}
 
 			Mając listę składników elementarnych wejściowego programu, jesteśmy w stanie przejść do
-			następnego etapu kompilacji -- analizy syntaksycznej. Jest to proces generacji struktury
+			następnego etapu kompilacji -- analizy składniowej. Jest to proces generacji struktury
 			drzewiastej, a mianowicie AST (Abstract Syntax Tree).
 			\\
 
@@ -354,6 +354,70 @@ void factor() {
 	term();
 }
 			\end{lstlisting}
+			
+			\newpage
+
+		\subsection{Implementacja AST}
+
+			Zaimplementowany AST składa się ze struktury \texttt{ast_node}. Jest to główny typ
+			węzła, zawierający niektóre zbędne informacje dla każdego typu węzła AST, i przechowujący
+			konkretny węzęł jako wskaźnik.
+
+			\spacing
+
+			\begin{lstlisting}[caption={Główny węzęł AST}, label={lst:ast-node}]
+struct ast_node {
+    enum ast_type  type;    /* Rozrozniamy typ wedlug tej flagi */
+    void          *ast;     /* ast_num, ast_for, ast_while, et cetera */
+    uint16_t       line_no;
+    uint16_t       col_no;
+};
+			\end{lstlisting}
+			
+			\spacing
+			
+			Konkretne węzły definiujemy w następujący sposób:
+
+			\spacing
+
+			\begin{lstlisting}[caption={Konkretny węzęł AST}, label={lst:ast-concrete-node}]
+struct ast_num {
+    int32_t value;
+};
+			\end{lstlisting}
+			
+			\spacing
+			
+			Taki AST stanowi strukturę drzewiastą, mającą wszystkie zalety i wady drzew jako struktur
+			danych. Mając takie drzewo, jesteśmy w stanie prowadzić zwykłe przeszukiwanie w głąb
+			i wszerz. Dokładnie w ten sposób działa każda z przedstawionych niżej analiz semantycznych
+			oraz generacja kodu pośredniego.
+
+			\spacing
+
+			\begin{algorithm}
+				\caption{Przeszukiwanie AST}
+				\begin{algorithmic}[1]
+
+				\Procedure{DFS}{AST}
+					\For{each child node Child of AST}
+						\State DFS(Child)
+					\EndFor
+				\EndProcedure
+
+				\end{algorithmic}
+			\end{algorithm}
+
+		\subsection{Implementacja analizatora składniowego}
+			
+			W danym przypadku, analizator składniowy jest napisany ręcznie, chociaż są narzędzia od
+			projektu GNU, takie jak GNU Bison i UNIX'owe, takie jak YACC. Niniejszy analizator
+		  	jest napisany bez pomocy tych programów, aby jawnie pokazać, jak się przekładają
+		  	produkcje BNF na język C.
+		  	\\
+		  	
+		  	Aby poradzić sobie z zadaniem pisania takiego analizatora, możemy zauważyć, że
+		  	zadanie to sprowadza się do implementacji każdej produkcji gramatycznej osobno.
 
 			\newpage
 	
@@ -535,6 +599,195 @@ Dodamy do $\oplus$ operacje tylko dla $\mathbb{N}: \oplus \ \cup \ \{ |, \&, \st
 		
 		
 		
+		\newpage
+	
+	\section{Annex: Gramatyka w BNF}
+
+        \setlength{\grammarindent}{12em}
+
+        \begin{grammar}
+            <program> ::= ( <function-decl> | <structure-decl> )*
+
+            <structure-decl> ::= \tt{struct} \tt{\{} <structure-decl-list> \tt{\}}
+
+            <structure-decl-list> ::= (
+            <decl-without-initialiser> \tt{;}
+            \alt <structure-decl> \tt{;}
+            )*
+
+            <function-decl> ::= <ret-type> <id> \tt{(} <parameter-list-opt> \tt{)} \tt{\{} <stmt>* \tt{\}}
+
+            <ret-type> ::= <type>
+            \alt <void-type>
+
+            <type> ::= \tt{int}
+            \alt \tt{float}
+            \alt \tt{char}
+            \alt \tt{string}
+            \alt \tt{boolean}
+
+            <void-type> ::= \tt{void}
+
+            <constant> ::= <integral-literal>
+            \alt <floating-literal>
+            \alt <string-literal>
+            \alt <char-literal>
+            \alt <boolean-literal>
+
+            <integral-literal> ::= <digit>*
+            
+            <floating-literal> ::= <digit>* \tt{.} <digit>*
+
+            <string-literal> ::= ''\tt{( "x00000000-x0010FFFF" )*}''
+
+            <char-literal> ::= '\tt{ASCII(0)}-\tt{ASCII(127)}'
+
+            <boolean-literal> ::= \tt{true}
+            \alt \tt{false}
+
+            <alpha> ::= \tt{a} | \tt{b} | ... | \tt{z} | \tt{_}
+
+            <digit> ::= \tt{0} | \tt{1} | ... | \tt{9}
+
+            <id> ::= <alpha> ( <alpha> | <digit> )*
+
+            <array-decl> ::= <type> ( \tt{*} )* <id> \tt{[} <integral-literal> \tt{]}
+
+            <var-decl> ::= <type> ( \tt{*} )* <id> \tt{=} <logical-or-stmt> \tt{;}
+            
+            <structure-var-decl> ::= <id> ( \tt{*} )* <id>
+
+            <decl> ::= <var-decl>
+            \alt <array-decl>
+            \alt <structure-var-decl>
+
+            <decl-without-initialiser> ::= <type> ( \tt{*} )* <id>
+            \alt <array-decl>
+            \alt <structure-var-decl>
+
+            <parameter-list> ::= <decl-without-initialiser> \tt{,} <parameter-list>
+            \alt <decl-without-initialiser>
+
+            <parameter-list-opt> ::= <parameter-list> | $\epsilon$
+
+            <stmt> ::= <block-stmt>
+            \alt <selection-stmt>
+            \alt <iteration-stmt>
+            \alt <jump-stmt>
+            \alt <decl>
+            \alt <expr>
+            \alt <assignment-stmt>
+            \alt <primary-stmt>
+            
+            <member-access-stmt> ::= <id> \tt{.} <member-access-stmt>
+            \alt <id> \tt{.} <id>
+
+            <iteration-stmt> ::= <stmt>
+            \alt \tt{break};
+            \alt \tt{continue};
+            
+            <block-stmt> ::= \tt{\{} <stmt>* \tt{\}}
+            
+            <iteration-block-stmt> ::= \tt{\{} <iteration-stmt>* \tt{\}}
+
+            <selection-stmt> ::= \tt{if} \tt{(} <expr> \tt{)} <block-stmt>
+            \alt \tt{if} \tt{(} <expr> \tt{)} <block-stmt> \tt{else} <block-stmt>
+
+            <iteration-stmt> ::= \tt{for} \tt{(} <expr-opt> \tt{;} <expr-opt> \tt{;} <expr-opt> \tt{)} <iteration-block-stmt>
+            \alt \tt{while} \tt{(} <expr> \tt{)} <iteration-block-stmt>
+            \alt \tt{do} <iteration-block-stmt> \tt{while} \tt{(} <expr> \tt{)} \tt{;}
+
+            <jump-stmt> ::= \tt{return} <expr> ? \tt{;}
+
+            <assignment-op> ::= \tt{=}
+            \alt \tt{*=}
+            \alt \tt{/=}
+            \alt \tt{\%=}
+            \alt \tt{+=}
+            \alt \tt{-=}
+            \alt \tt{"<<="}
+            \alt \tt{">>="}
+            \alt \tt{\&=}
+            \alt \tt{|=}
+            \alt \tt{"^="}
+
+            <expr> ::= <assignment-stmt>
+            \alt <var-decl>
+
+            <expr-opt> ::= <expr> | $\epsilon$
+
+            <assignment-stmt> ::= <logical-or-stmt>
+            \alt <logical-or-stmt> <assignment-op> <assignment-stmt>
+
+            <logical-or-stmt> ::= <logical-and-stmt>
+            \alt <logical-and-stmt> \tt{||} <logical-or-stmt>
+
+            <logical-and-stmt> ::= <inclusive-or-stmt>
+            \alt <inclusive-or-stmt> \tt{\&\&} <logical-and-stmt>
+
+            <inclusive-or-stmt> ::= <exclusive-or-stmt>
+            \alt <exclusive-or-stmt> \tt{|} <inclusive-or-stmt>
+
+            <exclusive-or-stmt> ::= <and-stmt>
+            \alt <and-stmt> \tt{"^"} <exclusive-or-stmt>
+
+            <and-stmt> ::= <equality-stmt>
+            \alt <equality-stmt> \tt{\&} <and-stmt>
+
+            <equality-stmt> ::= <relational-stmt>
+            \alt <relational-stmt> \tt{==} <equality-stmt>
+            \alt <relational-stmt> \tt{!=} <equality-stmt>
+
+            <relational-stmt> ::= <shift-stmt>
+            \alt <shift-stmt> \tt{">"} <relational-stmt>
+            \alt <shift-stmt> \tt{"<"} <relational-stmt>
+            \alt <shift-stmt> \tt{">="} <relational-stmt>
+            \alt <shift-stmt> \tt{"<="} <relational-stmt>
+
+            <shift-stmt> ::= <additive-stmt>
+            \alt <additive-stmt> \tt{"<<"} <shift-stmt>
+            \alt <additive-stmt> \tt{">>"} <shift-stmt>
+
+            <additive-stmt> ::= <multiplicative-stmt>
+            \alt <multiplicative-stmt> \tt{"+"} <additive-stmt>
+            \alt <multiplicative-stmt> \tt{"-"} <additive-stmt>
+
+            <multiplicative-stmt> ::= <prefix-unary-stmt>
+            \alt <prefix-unary-stmt> \tt{"*"} <multiplicative-stmt>
+            \alt <prefix-unary-stmt> \tt{"/"} <multiplicative-stmt>
+            \alt <prefix-unary-stmt> \tt{"%"} <multiplicative-stmt>
+
+            <prefix-unary-stmt> ::= <postfix-unary-stmt>
+            \alt \tt{++} <postfix-unary-stmt>
+            \alt \tt{--} <postfix-unary-stmt>
+            \alt \tt{*} <postfix-unary-stmt>
+            \alt \tt{\&} <postfix-unary-stmt>
+            \alt \tt{!} <postfix-unary-stmt>
+
+            <postfix-unary-stmt> ::= <primary-stmt>
+            \alt <primary-stmt> \tt{++}
+            \alt <primary-stmt> \tt{--}
+
+            <primary-stmt> ::= <constant>
+            \alt <symbol-stmt>
+            \alt \tt{(} <logical-or-stmt> \tt{)}
+            
+            <symbol-stmt> ::= <function-call-stmt>
+            \alt <array-access-stmt>
+            \alt <member-access-stmt>
+            \alt <id>
+            
+            <array-access-stmt> ::= <id> ( \tt{[} <expr> ] )*
+            
+            <function-call-arg-list> ::= <logical-or-stmt> \tt{,} <function-call-arg-list>
+            \alt <logical-or-stmt>
+            
+            <function-call-arg-list-opt> ::= <function-call-arg-list> | $\epsilon$
+
+            <function-call-expr> ::= <id> \tt{(} <function-call-arg-list-opt> \tt{)}
+
+        \end{grammar}
+
 		\newpage
 
 	\begin{thebibliography}{9}
