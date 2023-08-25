@@ -175,8 +175,8 @@
 
 	\section{Analiza leksykalna}
 
-		Jednym ze sposobów na sprowadzanie kodu źródłowego do postaći listy tokenów jest
-		UNIX'owe narzędzie lex. Przyjmuje ono zestaw reguł w postaći wyrażeń regularnych, według których
+		Jednym ze sposobów na sprowadzanie kodu źródłowego do postaći listy tokenów jest narzędzie flex.
+		Przyjmuje ono zestaw reguł w postaći wyrażeń regularnych, według których
 		działa rozbicie tekstu wejściowego. Można jednak ominąć lex i zaimplemenetować lexer ręcznie, ale
 		ta praca nie skupia się na tym.
 
@@ -250,7 +250,49 @@
 		
 		\newpage
 
-		\subsection{Lex}
+	\subsection{Flex}
+
+		Flex jest narzędziem projektu GNU. Pozwala ono w wygodny sposób podać listę reguł dla analizy
+		leksykalnej (ang. Scanning). Flex jest mocno powiązany z językiem C, dlatego program w flex'u
+		korzysta z konstrukcji języka C. Pokażemy przykład użycia flex'u
+		
+		\spacing
+		
+		\begin{lstlisting}[caption={Przykład użycia flex}, label={lst:flex-example}]
+%{
+#include "portrzebny-do-analizy-plik.h"
+
+/* Kod w jezyku C. */
+%}
+
+/* Opcje flex */
+%option noyywrap nounput noinput
+%option yylineno
+
+%% /* Reguly w postaci wyrazen regularnych. */
+
+/*********************************************************************/
+/* Wzorzec                   | Akcja przy znalezieniu takiego wzorcu */
+/*********************************************************************/
+-?[0-9]+                       LEX_CONSUME_WORD(TOK_INTEGRAL_LITERAL)
+-?[0-9]+\.[0-9]+               LEX_CONSUME_WORD(TOK_FLOATING_POINT_LITERAL)
+\"([^\"\\]*(\\.[^\"\\]*)*)\"   LEX_CONSUME_WORD(TOK_STRING_LITERAL)
+\'.\'                          LEX_CONSUME_WORD(TOK_CHAR_LITERAL)
+
+.                              { /* Znaleziony niewiadomy znak.
+                                    Zglosic blad.
+                                  */ }
+%%
+		\end{lstlisting}
+
+		\spacing
+		
+		Zauważmy, że flex próbuje szukać wzorców w tekscie dokładnie w takiej kolejności, która jest podana w
+		jego kodzie. Dlatego często robią ostatnią regułe z wyrażeniem regularnym ".", który akceptuje
+		dowolny znak, i umieszczają tam komunikat o błędzie.
+		\\
+
+		W naszym przypadku, lex generuje kod, który gromadzi wszystkie znalezione lexemy do tablicy.
 
 		\newpage
 
@@ -264,7 +306,7 @@
 			\\
 
 			AST może być stworzony po zdefiniowaniu gramatyki regularnej danego języka. Stosuje się
-			do tego notacja Backus–Naur form (BNF). Pełny opis gramatyki pokazany jest w końcu pracy. Pokażemy
+			do tego notacja BNF (Backus–Naur form). Pełny opis gramatyki pokazany jest w końcu pracy. Pokażemy
 			tylko kilka przykładów:
 			
 			\spacing
@@ -306,19 +348,19 @@
 			Kod, wykonujący tą regułe będzie miał postać:
 			
 			\begin{lstlisting}[caption={Rekurencja lewa}, label={lst:left-recursion}]
-	void factor() {
-		factor(); // Rekurencja bez zadnego warunku wyjscia
-		consume('+');
-		term();
-	}
+void factor() {
+	factor(); // Rekurencja bez zadnego warunku wyjscia
+	consume('+');
+	term();
+}
 			\end{lstlisting}
 
 			\newpage
 	
 	\section{Analiza semantyczna}
-		
+
 		Aby zapewnić poprawność napisanego kodu, stosuje się wiele rodzajów analiz. Niniejszy kompilator
-		dysponuje trzema z analiz:
+		dysponuje trzema:
 		
 		\begin{itemize}
 			\item Analiza nieużytych zmiennych, oraz zmiennych, które są zdefiniowane, ale nie zostały użyte
