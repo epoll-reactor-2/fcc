@@ -296,7 +296,7 @@
 
 		\newpage
 
-	\section{Analiza syntaksyczna}
+	\section{Analiza składniowa}
 		
 		\subsection{Definicja}
 
@@ -390,7 +390,8 @@ struct ast_num {
 			
 			Taki AST stanowi strukturę drzewiastą, mającą wszystkie zalety i wady drzew jako struktur
 			danych. Mając takie drzewo, jesteśmy w stanie prowadzić zwykłe przeszukiwanie w głąb
-			i wszerz. Dokładnie w ten sposób działa każda z przedstawionych niżej analiz semantycznych
+			i wszerz. W danym przypadku taki algorytm się nazywa \textbf{AST visitor}. Dokładnie w ten
+			sposób działa każda z przedstawionych niżej analiz semantycznych
 			oraz generacja kodu pośredniego.
 
 			\spacing
@@ -418,6 +419,27 @@ struct ast_num {
 		  	
 		  	Aby poradzić sobie z zadaniem pisania takiego analizatora, możemy zauważyć, że
 		  	zadanie to sprowadza się do implementacji każdej produkcji gramatycznej osobno.
+	  	
+	  	\subsection{Reprezentacja wizualna AST}
+	  		
+	  		Jest pokazana też implementacja \textbf{visitor}'u, pozwalającego na przeprowadzenie AST
+			do formy tekstowej. Do tego służy funkcja \textbf{ast_dump()}. Przyjmuje ona wskaźnik do
+			węzła drewa i działa według algorytmu DFS, opisanego wyżej, przy tym pisząc tekstową formę
+			węzłów do pliku (ewentualnie, do \texttt{stdout}). Funkcjonalność ta jest bardzo ważna do
+			prowadzenia testów jednostkowych samego AST oraz analizatoru składniowego.
+			Niżej pokazany jest przykładowy wynik działania tej funkcji.
+			\\
+	
+			\begin{lstlisting}[caption={Tekstowa reprezentacja AST}, label={lst:ast-text}]
+CompoundStmt <line:0, col:0>
+  StructDecl <line:9, col:1> `custom`
+    CompoundStmt <line:9, col:1>
+      VarDecl <line:10, col:5> int `a`
+      VarDecl <line:11, col:5> int `b`
+      VarDecl <line:12, col:5> int `c`
+      ArrayDecl <line:13, col:5> char [1000] `mem`
+      VarDecl <line:14, col:5> struct string `description`
+			\end{lstlisting}
 
 			\newpage
 	
@@ -570,7 +592,7 @@ void f() {
 
 				\newpage
 
-			Oznaczmy tutaj dla $\mathbb{N, R}: \oplus \in \{ +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
+			Oznaczmy tutaj dla $\mathbb{N, R}: \oplus \in \{ =, +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
 
 				\spacing
 
@@ -590,6 +612,10 @@ void f() {
 				\inferrule
 				  {\Gamma \vdash e_1 : int \\ \Gamma \vdash e_2 : int}
 				  {\Gamma \vdash e_1 \oplus e_2 : int}
+
+				\inferrule
+				  {\Gamma \vdash e_1 : int \\ \Gamma \vdash e_2 : char}
+				  {\Gamma \vdash e_1 \oplus e_2 : char}
 				\end{mathpar}
 				
 				\spacing
@@ -644,12 +670,6 @@ void f() {
 					 \Gamma \vdash \text{condition} : bool \\
 					 \Gamma \vdash \text{increment} : \tau_2 \\ \Gamma \vdash e : \tau_3}
 					{\Gamma \vdash \text{for (init; condition; increment) } \{ \ e \ \} : \tau_3}
-				\end{mathpar}
-
-				\begin{mathpar}
-				\inferrule
-				  {\Gamma(x) = \tau}
-				  {\Gamma \vdash x : \tau}
 				\end{mathpar}
 
 				\newpage
