@@ -29,13 +29,13 @@ __weak_unused static bool is_no_result(struct ir_node *ir)
         ir->idom      == NULL;
 }
 
-static bool is_power_of_two(int32_t x)
+static inline bool is_power_of_two(int32_t x)
 {
     if (x <= 0) return 0;
     return (x & (x - 1)) == 0;
 }
 
-static int32_t nth_bit(int32_t x)
+static inline int32_t nth_bit(int32_t x)
 {
     assert(is_power_of_two(x));
 
@@ -130,26 +130,26 @@ static struct ir_node *opt_arith_bin(struct ir_bin *bin)
 static void opt_arith_store(struct ir_store *store)
 {
     if (store->type != IR_STORE_BIN) return;
-    if (store->body == NULL) return;
 
     struct ir_node *node = opt_arith_node(store->body);
 
-    if (!is_no_result(node)) {
-        ir_node_cleanup(store->body);
-        store->body = node;
-        switch (node->type) {
-        case IR_BIN:
-            store->type = IR_STORE_BIN;
-            break;
-        case IR_IMM:
-            store->type = IR_STORE_IMM;
-            break;
-        case IR_SYM:
-            store->type = IR_STORE_SYM;
-            break;
-        default:
-            break;
-        }
+    if (is_no_result(node)) return;
+
+    ir_node_cleanup(store->body);
+    store->body = node;
+
+    switch (node->type) {
+    case IR_BIN:
+        store->type = IR_STORE_BIN;
+        break;
+    case IR_IMM:
+        store->type = IR_STORE_IMM;
+        break;
+    case IR_SYM:
+        store->type = IR_STORE_SYM;
+        break;
+    default:
+        break;
     }
 }
 
@@ -178,6 +178,7 @@ static struct ir_node *opt_arith_node(struct ir_node *ir)
     case IR_ALLOCA:
     case IR_IMM:
     case IR_SYM:
+        break;
     case IR_STORE:
         opt_arith_store(ir->ir);
         break;
