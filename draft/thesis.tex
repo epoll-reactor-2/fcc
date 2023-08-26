@@ -488,106 +488,171 @@ void f() {
 			sprawdzenie, czy nazwa rozpatrywanej funkcji nie jest \textbf{main}. Funkcja \textbf{main} jest
 			wywołana automatycznie.
 		
-		\subsection{Analiza typów}
+%		\subsection{Analiza typów}
 		
-			Podczas analizy typów należy sprawdzić, czy:
-
-			\begin{itemize}
-				\item Oba operandy wyrażenia binarnego mają ten sam typ
-				\item Faktycznie zwracana z funkcji wartość zgadza się z jej
-				      deklaracją
-		      	\item Prawidłowa ilość i typy argumentów byli przekazane do wyrażenia
-		      	      wywołania funkcji
-      	      	\item Rozmiar zadeklarowanej tablicy jest dopuszczalny
-      	      	\item Indeks tablicy nie wykracza poza jej rozmiar (w przypadku stałego indeksu)
-			\end{itemize}
+%			Podczas analizy typów należy sprawdzić, czy:
+%
+%			\begin{itemize}
+%				\item Oba operandy wyrażenia binarnego mają ten sam typ
+%				\item Faktycznie zwracana z funkcji wartość zgadza się z jej
+%				      deklaracją
+%		      	\item Prawidłowa ilość i typy argumentów byli przekazane do wyrażenia
+%		      	      wywołania funkcji
+%      	      	\item Rozmiar zadeklarowanej tablicy jest dopuszczalny
+%      	      	\item Indeks tablicy nie wykracza poza jej rozmiar (w przypadku stałego indeksu)
+%			\end{itemize}
 		
-		\spacing
+%			\spacing
 
-		Analiza typów w naszym przypadku jest dość prosta i tak samo polega na przejściu drzewa
-		syntaksycznego.
+%			Analiza typów w naszym przypadku jest dość prosta i tak samo polega na przejściu drzewa
+%			syntaksycznego.
 		
-		\subsubsection{Matematyczny opis systemu typów}
+		\section{System typów}
+		
+			\subsection{Opis}
 
-		\begin{mathpar}
-		\inferrule
-		  {\Gamma \vdash \diamond}
-		  {\Gamma \vdash \text{true} : bool}
-		\quad
+				Wiele zasad, dotyczących pracy z typami mogą być precyzyjnie opisane zasadami typów
+				(\textbf{Typing rules}). Jest to notacja matematyczna, znaczenie której niżej wyjaśnimy.
+				\\
+				
+				Kluczowym pojęciem w tej notacji jest \textbf{statyczne środowisko typów}
+				(\textbf{static typing environment}). Oznacza się ono symbolem $\Gamma$. Mówimy, że to
+				środowisko jest skonstruowane poprawnie pisząc $$\Gamma \vdash \diamond$$
+				
+				Mówimy, że zmienna \textbf{V} ma typ \textbf{T} w środowisku $\Gamma$ pisząc
+				$$\Gamma \vdash \text{V} : T$$
+				
+				Kreska pozioma mówi o tym, że zdanie wyżej jest konieczne, aby zaszło zdanie niżej
 
-		\inferrule
-		  {\Gamma \vdash \diamond}
-		  {\Gamma \vdash \text{false} : bool}
-		\end{mathpar}
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma \vdash \diamond}
+				  {\Gamma \vdash \text{V} : T}
+				\end{mathpar}
+				
+				\spacing
+				
+				Zauważmy, że notacja ta jest mocnyn narzędziem, pozwalającym opisać dość złożone systemy typów
+				dla takich języków jak \textbf{C++} i \textbf{Haskell}.
+			
+			\subsection{Definicja systemu}
 
-		\begin{mathpar}
-		\inferrule
-		  {\Gamma \vdash \diamond}
-		  {\Gamma \vdash n : int}
-		\end{mathpar}
+				Opiszmy teraz system typów w naszym języku
 
-		\begin{mathpar}
-		\inferrule
-		  {\Gamma \vdash \diamond}
-		  {\Gamma \vdash c : char}
-		\end{mathpar}
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma \vdash \diamond}
+				  {\Gamma \vdash \text{true} : bool}
+				\quad
 
-		\begin{mathpar}
-		\inferrule
-		  {\Gamma \vdash \diamond}
-		  {\Gamma \vdash x : float}
-		\end{mathpar}
+				\inferrule
+				  {\Gamma \vdash \diamond}
+				  {\Gamma \vdash \text{false} : bool}
+				\end{mathpar}
 
-		\spacing
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma \vdash \diamond}
+				  {\Gamma \vdash \text{n} : int}
+				\end{mathpar}
 
-Oznaczmy tutaj dla $\mathbb{N, R}: \oplus \in \{ +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma \vdash \diamond}
+				  {\Gamma \vdash \text{c} : char}
+				\end{mathpar}
 
-		\spacing
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma \vdash \diamond}
+				  {\Gamma \vdash \text{x} : float}
+				\end{mathpar}
 
-		\begin{mathpar}
-		\inferrule
-		  {\Gamma \vdash e_1 : float \\ \Gamma \vdash e_2 : float}
-		  {\Gamma \vdash e_1 \oplus e_2 : float}
-		\end{mathpar}
+				\newpage
 
-		\spacing
+			Oznaczmy tutaj dla $\mathbb{N, R}: \oplus \in \{ +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
 
-Dodamy do $\oplus$ operacje tylko dla $\mathbb{N}: \oplus \ \cup \ \{ |, \&, \string^, <<, >>, \% \}$, wtedy
+				\spacing
 
-		\spacing
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma \vdash e_1 : float \\ \Gamma \vdash e_2 : float}
+				  {\Gamma \vdash e_1 \oplus e_2 : float}
+				\end{mathpar}
 
-		\begin{mathpar}
-		\inferrule
-		  {\Gamma \vdash e_1 : int \\ \Gamma \vdash e_2 : int}
-		  {\Gamma \vdash e_1 \oplus e_2 : int}
-		\end{mathpar}
+				\spacing
 
-		\begin{mathpar}
-		\inferrule
-		  {\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e_1 : \tau \\ \Gamma \vdash e_2 : \tau}
-		  {\Gamma \vdash \text{if (condition) } \{ \ e_1 \ \}  \text{ else }  \{ \ e_2 \ \} : \tau}
-		\end{mathpar}
+			Dodamy do $\oplus$ operacje tylko dla $\mathbb{N}: \oplus \ \cup \ \{ |, \&, \string^, <<, >>, \% \}$, wtedy
 
-		\begin{mathpar}
-		\inferrule
-			{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
-			{\Gamma \vdash \text{while (condition) } \{ \ e \ \} : \tau}
-		\end{mathpar}
+				\spacing
 
-		\begin{mathpar}
-		\inferrule
-			{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
-			{\Gamma \vdash \text{do } \{ \ e \ \} \text{ while (condition)} : \tau}
-		\end{mathpar}
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma \vdash e_1 : int \\ \Gamma \vdash e_2 : int}
+				  {\Gamma \vdash e_1 \oplus e_2 : int}
+				\end{mathpar}
+				
+				\spacing
+				
+				Wprowadzimy reguły niejawnej konwersji, które są niezbędne przy sprawdzaniu w warunku
+				logicznym wyniku operacji arytmetycznej, zwracającej typ różny od
+				\texttt{bool}. Oznaczmy reguły dla typów \texttt{int}, \texttt{char} i \texttt{float}.
 
-		\begin{mathpar}
-		\inferrule
-		  {\Gamma(x) = \tau}
-		  {\Gamma \vdash x : \tau}
-		\end{mathpar}
+				\spacing
+				
+				\begin{mathpar}
+				\inferrule
+					{\Gamma \vdash \text{e} : int}
+					{\Gamma \vdash \text{e} : bool}
 
-		\newpage
+				\inferrule
+					{\Gamma \vdash \text{e} : char}
+					{\Gamma \vdash \text{e} : bool}
 
+				\inferrule
+					{\Gamma \vdash \text{e} : float}
+					{\Gamma \vdash \text{e} : bool}
+				\end{mathpar}
+
+				\spacing
+
+				Mając taką konwersję, możemy wprowadzić reguły do konstrukcji warunkowych: 
+
+				\spacing
+
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e_1 : \tau \\ \Gamma \vdash e_2 : \tau}
+				  {\Gamma \vdash \text{if (condition) } \{ \ e_1 \ \}  \text{ else }  \{ \ e_2 \ \} : \tau}
+				\end{mathpar}
+
+				\begin{mathpar}
+				\inferrule
+					{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
+					{\Gamma \vdash \text{while (condition) } \{ \ e \ \} : \tau}
+				\end{mathpar}
+
+				\begin{mathpar}
+				\inferrule
+					{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
+					{\Gamma \vdash \text{do } \{ \ e \ \} \text{ while (condition)} : \tau}
+				\end{mathpar}
+
+				\begin{mathpar}
+				\inferrule
+					{\Gamma \vdash \text{init} : \tau_1 \\
+					 \Gamma \vdash \text{condition} : bool \\
+					 \Gamma \vdash \text{increment} : \tau_2 \\ \Gamma \vdash e : \tau_3}
+					{\Gamma \vdash \text{for (init; condition; increment) } \{ \ e \ \} : \tau_3}
+				\end{mathpar}
+
+				\begin{mathpar}
+				\inferrule
+				  {\Gamma(x) = \tau}
+				  {\Gamma \vdash x : \tau}
+				\end{mathpar}
+
+				\newpage
 
 	\section{Generacja warstwy pośredniej}
 		
