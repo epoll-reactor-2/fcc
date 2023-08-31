@@ -5,6 +5,48 @@
  */
 
 %{
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
+#pragma GCC diagnostic ignored "-Wanalyzer-deref-before-check"
+#pragma GCC diagnostic ignored "-Wanalyzer-double-fclose"
+#pragma GCC diagnostic ignored "-Wanalyzer-double-free"
+#pragma GCC diagnostic ignored "-Wanalyzer-exposure-through-output-file"
+#pragma GCC diagnostic ignored "-Wanalyzer-exposure-through-uninit-copy"
+#pragma GCC diagnostic ignored "-Wanalyzer-fd-access-mode-mismatch"
+#pragma GCC diagnostic ignored "-Wanalyzer-fd-double-close"
+#pragma GCC diagnostic ignored "-Wanalyzer-fd-leak"
+#pragma GCC diagnostic ignored "-Wanalyzer-fd-phase-mismatch"
+#pragma GCC diagnostic ignored "-Wanalyzer-fd-type-mismatch"
+#pragma GCC diagnostic ignored "-Wanalyzer-fd-use-after-close"
+#pragma GCC diagnostic ignored "-Wanalyzer-fd-use-without-check"
+#pragma GCC diagnostic ignored "-Wanalyzer-file-leak"
+#pragma GCC diagnostic ignored "-Wanalyzer-free-of-non-heap"
+#pragma GCC diagnostic ignored "-Wanalyzer-imprecise-fp-arithmetic"
+#pragma GCC diagnostic ignored "-Wanalyzer-infinite-recursion"
+#pragma GCC diagnostic ignored "-Wanalyzer-jump-through-null"
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
+#pragma GCC diagnostic ignored "-Wanalyzer-mismatching-deallocation"
+#pragma GCC diagnostic ignored "-Wanalyzer-null-argument"
+#pragma GCC diagnostic ignored "-Wanalyzer-null-dereference"
+#pragma GCC diagnostic ignored "-Wanalyzer-out-of-bounds"
+#pragma GCC diagnostic ignored "-Wanalyzer-possible-null-argument"
+#pragma GCC diagnostic ignored "-Wanalyzer-possible-null-dereference"
+#pragma GCC diagnostic ignored "-Wanalyzer-putenv-of-auto-var"
+#pragma GCC diagnostic ignored "-Wanalyzer-shift-count-negative"
+#pragma GCC diagnostic ignored "-Wanalyzer-shift-count-overflow"
+#pragma GCC diagnostic ignored "-Wanalyzer-stale-setjmp-buffer"
+#pragma GCC diagnostic ignored "-Wanalyzer-unsafe-call-within-signal-handler"
+#pragma GCC diagnostic ignored "-Wanalyzer-use-after-free"
+#pragma GCC diagnostic ignored "-Wanalyzer-use-of-pointer-in-stale-stack-frame"
+#pragma GCC diagnostic ignored "-Wanalyzer-use-of-uninitialized-value"
+#pragma GCC diagnostic ignored "-Wanalyzer-va-arg-type-mismatch"
+#pragma GCC diagnostic ignored "-Wanalyzer-va-list-exhausted"
+#pragma GCC diagnostic ignored "-Wanalyzer-va-list-leak"
+#pragma GCC diagnostic ignored "-Wanalyzer-va-list-use-after-va-end"
+#pragma GCC diagnostic ignored "-Wanalyzer-write-to-const"
+#pragma GCC diagnostic ignored "-Wanalyzer-write-to-string-literal"
+
 #include "front_end/lex/tok.h"
 
 int yycolumn = 1;
@@ -126,3 +168,5 @@ extern void lex_consume_token(struct token *tok);
                              }
 
 %%
+
+#pragma GCC diagnostic pop
