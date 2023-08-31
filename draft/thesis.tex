@@ -779,6 +779,7 @@ void f() {
             \alt \tt{if} \tt{(} <expr> \tt{)} <block-stmt> \tt{else} <block-stmt>
 
             <iteration-stmt> ::= \tt{for} \tt{(} <expr-opt> \tt{;} <expr-opt> \tt{;} <expr-opt> \tt{)} <iteration-block-stmt>
+            \alt \tt{for} \tt{(} <decl> \tt{:} <symbol-stmt> \tt{)} <iteration-block-stmt>
             \alt \tt{while} \tt{(} <expr> \tt{)} <iteration-block-stmt>
             \alt \tt{do} <iteration-block-stmt> \tt{while} \tt{(} <expr> \tt{)} \tt{;}
 
