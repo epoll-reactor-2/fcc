@@ -70,4 +70,6 @@ void ir_opt_fold(struct ir_node *ir);
 ///        - A | B = B | A
 void ir_opt_arith(struct ir_node *ir);
 
+void ir_opt_dead_code_elimination(struct ir_node *ir);
+
 #endif // WEAK_COMPILER_MIDDLE_END_OPT_H
