@@ -82,6 +82,8 @@ struct ast_array_decl {
     /// This stores information about array arity (dimension)
     /// and size for each dimension, e.g.,
     /// for array[1][2][3], ArityList equal to { 1, 2, 3 }.
+    ///
+    /// Represented as ast_compound of ast_num's.
     struct ast_node *arity_list;
 
     /// Depth of pointer, like for
@@ -480,5 +482,10 @@ __weak_wur struct ast_node *ast_while_init(
     uint16_t         col_no
 );
 void ast_while_cleanup(struct ast_while *ast);
+
+/// Decrease abstraction level of AST.
+///
+/// 1. Replace range-based for loop with usual.
+void ast_lower(struct ast_node **ast);
 
 #endif // WEAK_COMPILER_FRONTEND_AST_H

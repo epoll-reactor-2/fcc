@@ -85,7 +85,7 @@ void ast_storage_add_read_use(const char *var_name)
 {
     struct ast_storage_decl *decl = ast_storage_lookup(var_name);
     assert(decl && "Variable expected to be declared before");
-    assert(decl->depth <= scope_depth && "Impossible case: variable depth >= current depth");
+    assert(decl->depth <= scope_depth && "Impossible case: variable depth > current depth");
     decl->read_uses++;
 }
 
@@ -93,7 +93,7 @@ void ast_storage_add_write_use(const char *var_name)
 {
     struct ast_storage_decl *decl = ast_storage_lookup(var_name);
     assert(decl && "Variable expected to be declared before");
-    assert(decl->depth <= scope_depth && "Impossible case: variable depth >= current depth");
+    assert(decl->depth <= scope_depth && "Impossible case: variable depth > current depth");
     decl->write_uses++;
 }
 
