@@ -69,6 +69,7 @@ enum token_type {
     TOK_DEC,                 // --
     TOK_DOT,                 // .
     TOK_COMMA,               // ,
+    TOK_COLON,               // :
     TOK_SEMICOLON,           // ;
     TOK_NOT,                 // !
     TOK_OPEN_BOX_BRACKET,    // [

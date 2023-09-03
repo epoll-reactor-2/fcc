@@ -39,6 +39,7 @@ enum ast_type {
 
   /// Loops.
   AST_FOR_STMT,
+  AST_FOR_RANGE_STMT,
   AST_WHILE_STMT,
   AST_DO_WHILE_STMT,
 

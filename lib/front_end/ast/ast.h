@@ -239,6 +239,25 @@ void ast_for_cleanup(struct ast_for *ast);
 
 
 ///////////////////////////////////////////////
+///           Range for statement           ///
+///////////////////////////////////////////////
+struct ast_for_range {
+    struct ast_node *iter; /// Variable or array declarator.
+    struct ast_node *range_target; /// Expression.
+    struct ast_node *body;
+};
+
+__weak_wur struct ast_node *ast_for_range_init(
+    struct ast_node *iter,
+    struct ast_node *range_target,
+    struct ast_node *body,
+    uint16_t         line_no,
+    uint16_t         col_no
+);
+void ast_for_range_cleanup(struct ast_for_range *ast);
+
+
+///////////////////////////////////////////////
 ///              Function call              ///
 ///////////////////////////////////////////////
 struct ast_function_call {
