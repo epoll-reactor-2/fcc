@@ -667,6 +667,28 @@ static struct ast_node *parse_jump_stmt()
     return ast_return_init(body, start->line_no, start->col_no);
 }
 
+static struct ast_node *parse_for_range(
+    uint16_t start_line_no,
+    uint16_t start_col_no
+) {
+    struct ast_node *iter = parse_var_decl_without_initializer();
+    require_char(':');
+    struct ast_node *range_target = parse_expr();
+    require_char(')');
+
+    ++loops_depth;
+    struct ast_node *body = parse_block();
+    --loops_depth;
+
+    return ast_for_range_init(
+        iter,
+        range_target,
+        body,
+        start_line_no,
+        start_col_no
+    );
+}
+
 static struct ast_node *parse_for()
 {
     const struct token *start = require_token(TOK_FOR);
@@ -677,9 +699,21 @@ static struct ast_node *parse_for()
     struct ast_node *increment = NULL;
 
     if (!tok_is(peek_next(), ';')) {
-        --tok_begin;
-        init = parse_expr();
-        require_char(';');
+        peek_next();
+
+        if (tok_is(peek_current(), ':')) {
+            --tok_begin;
+            --tok_begin;
+            return parse_for_range(
+                start->line_no,
+                start->col_no
+            );
+        } else {
+            --tok_begin;
+            --tok_begin;
+            init = parse_expr();
+            require_char(';');
+        }
     }
 
     if (!tok_is(peek_next(), ';')) {

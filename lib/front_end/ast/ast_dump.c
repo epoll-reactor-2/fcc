@@ -166,6 +166,30 @@ static void visit_ast_for(FILE *mem, struct ast_node *ast)
     ast_indent -= 2;
 }
 
+static void visit_ast_for_range(FILE *mem, struct ast_node *ast)
+{
+    struct ast_for_range *for_stmt = ast->ast;
+
+    ast_print_line(mem, ast, "ForRangeStmt");
+    ast_indent += 2;
+
+    ast_print_line(mem, for_stmt->iter, "ForRangeIterStmt");
+    ast_indent += 2;
+    visit_node(mem, for_stmt->iter);
+    ast_indent -= 2;
+
+    ast_print_line(mem, for_stmt->range_target, "ForRangeTargetStmt");
+    ast_indent += 2;
+    visit_node(mem, for_stmt->range_target);
+    ast_indent -= 2;
+
+    ast_print_line(mem, for_stmt->body, "ForRangeStmtBody");
+    ast_indent += 2;
+    visit_node(mem, for_stmt->body);
+    ast_indent -= 2;
+    ast_indent -= 2;
+}
+
 static void visit_ast_if(FILE *mem, struct ast_node *ast)
 {
     struct ast_if *if_stmt = ast->ast;
@@ -487,6 +511,9 @@ int32_t visit_node(FILE *mem, struct ast_node *ast)
         break;
     case AST_FOR_STMT:
         visit_ast_for(mem, ast);
+        break;
+    case AST_FOR_RANGE_STMT:
+        visit_ast_for_range(mem, ast);
         break;
     case AST_WHILE_STMT:
         visit_ast_while(mem, ast);

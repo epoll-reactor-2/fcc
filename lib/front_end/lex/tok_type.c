@@ -64,6 +64,7 @@ const char *tok_to_string(enum token_type t)
     case TOK_DEC:                    return "--";
     case TOK_DOT:                    return ".";
     case TOK_COMMA:                  return ",";
+    case TOK_COLON:                  return ":";
     case TOK_SEMICOLON:              return ";";
     case TOK_NOT:                    return "!";
     case TOK_OPEN_BOX_BRACKET:       return "[";
@@ -93,6 +94,7 @@ enum token_type tok_char_to_tok(char c)
     case '%': return TOK_MOD;
     case '.': return TOK_DOT;
     case ',': return TOK_COMMA;
+    case ':': return TOK_COLON;
     case ';': return TOK_SEMICOLON;
     case '!': return TOK_NOT;
     case '[': return TOK_OPEN_BOX_BRACKET;

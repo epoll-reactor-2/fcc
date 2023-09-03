@@ -150,6 +150,7 @@ extern void lex_consume_token(struct token *tok);
 "--"                         LEX_CONSUME_OPERATOR(TOK_DEC)
 "."                          LEX_CONSUME_OPERATOR(TOK_DOT)
 ","                          LEX_CONSUME_OPERATOR(TOK_COMMA)
+":"                          LEX_CONSUME_OPERATOR(TOK_COLON)
 ";"                          LEX_CONSUME_OPERATOR(TOK_SEMICOLON)
 "!"                          LEX_CONSUME_OPERATOR(TOK_NOT)
 "^"                          LEX_CONSUME_OPERATOR(TOK_XOR)

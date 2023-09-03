@@ -101,7 +101,7 @@ void ast_bool_cleanup(struct ast_bool *ast)
 
 
 ///////////////////////////////////////////////
-///              Break statemen             ///
+///              Break statement            ///
 ///////////////////////////////////////////////
 struct ast_node *ast_break_init(uint16_t line_no, uint16_t col_no)
 {
@@ -241,6 +241,32 @@ void ast_for_cleanup(struct ast_for *ast)
     if (ast->increment)
         ast_node_cleanup(ast->increment);
 
+    ast_node_cleanup(ast->body);
+    weak_free(ast);
+}
+
+
+///////////////////////////////////////////////
+///          Range for statement            ///
+///////////////////////////////////////////////
+struct ast_node *ast_for_range_init(
+    struct ast_node *iter,
+    struct ast_node *range_target,
+    struct ast_node *body,
+    uint16_t         line_no,
+    uint16_t         col_no
+) {
+    struct ast_for_range *ast = weak_calloc(1, sizeof (struct ast_for_range));
+    ast->iter = iter;
+    ast->range_target = range_target;
+    ast->body = body;
+    return ast_node_init(AST_FOR_RANGE_STMT, ast, line_no, col_no);
+}
+
+void ast_for_range_cleanup(struct ast_for_range *ast)
+{
+    ast_node_cleanup(ast->iter);
+    ast_node_cleanup(ast->range_target);
     ast_node_cleanup(ast->body);
     weak_free(ast);
 }
@@ -592,6 +618,9 @@ void ast_node_cleanup(struct ast_node *ast)
         break;
     case AST_FOR_STMT:
         ast_for_cleanup(ast->ast);
+        break;
+    case AST_FOR_RANGE_STMT:
+        ast_for_range_cleanup(ast->ast);
         break;
     case AST_WHILE_STMT:
         ast_while_cleanup(ast->ast);
