@@ -15,11 +15,14 @@
 
 #define DECL_NAME_MAX_LEN 256
 
+/// \note: Functions cannot return array.
+///        Function takes array as parameter via pointer.
+///        Array can be declared as variable.
 struct array_decl_info {
-    char           name[DECL_NAME_MAX_LEN];
-    enum data_type dt;
-    uint64_t       size;
-    uint64_t       depth;
+    char                 name[DECL_NAME_MAX_LEN];
+    enum data_type       dt;
+    struct ast_compound *arity;
+    uint64_t             depth;
 };
 
 static uint64_t  scope_depth;
@@ -59,15 +62,15 @@ static void storage_end_scope()
 
 /// \todo: Put information about each level of array arity.
 static void storage_put(
-    const char     *name,
-    enum data_type  dt,
-    uint64_t        size
+    const char          *name,
+    enum data_type       dt,
+    struct ast_compound *arity
 ) {
     struct array_decl_info *decl = weak_calloc(1, sizeof (struct array_decl_info));
 
     strncpy(decl->name, name, DECL_NAME_MAX_LEN);
     decl->dt = dt;
-    decl->size = size;
+    decl->arity = arity;
     decl->depth = scope_depth;
     hashmap_put(&storage, crc32_string(name), (uint64_t) decl);
 }
@@ -93,13 +96,11 @@ static struct array_decl_info *storage_lookup(const char *name)
 
 static void visit_node(struct ast_node **ast);
 
-static void visit_ast_array_decl(struct ast_array_decl *decl)
+static void visit_ast_array_decl(struct ast_node *ast)
 {
-    struct ast_compound *arity_list = decl->arity_list->ast;
-    struct ast_num      *last_
-    uint64_t size = 0;
+    struct ast_array_decl *decl = ast->ast;
 
-    storage_put(decl->name, decl->dt, decl->size);
+    storage_put(decl->name, decl->dt, decl->arity_list->ast);
 }
 
 static void visit_ast_compound(struct ast_node *ast)
@@ -114,11 +115,50 @@ static void visit_ast_function_decl(struct ast_node *ast)
 {
     struct ast_function_decl *decl = ast->ast;
 
+    storage_start_scope();
+
     struct ast_compound *args = decl->args->ast;
     if (args && args->size > 0)
         visit_node(&decl->args);
 
+    storage_end_scope();
+
     visit_node(&decl->body);
+}
+
+/// Check if iterated array declaration "drops"
+/// last arity level. For example:
+///
+///    int array[1][2][3];
+///
+///    for (int it[1][2] : array) {} /* Correct. */
+///    for (int it[1] : array) {} /* Incorrect. */
+///    for (int it[2][2] : array) {} /* Incorrect. */
+static bool verify_iterated_array(
+    struct ast_array_decl *iterated,
+    struct ast_array_decl *target
+) {
+    struct ast_compound *iterated_list = iterated->arity_list->ast;
+    struct ast_compound   *target_list =   target->arity_list->ast;
+
+    if (iterated_list->size != target_list->size - 1)
+        return 0;
+
+    for (uint64_t i = 0; i < iterated_list->size; ++i) {
+        assert(iterated_list->stmts[i]->type == AST_NUM);
+        assert(  target_list->stmts[i]->type == AST_NUM);
+
+        struct ast_num *iterated_idx = iterated_list->stmts[i]->ast;
+        struct ast_num   *target_idx =   target_list->stmts[i]->ast;
+
+        int32_t it_v = iterated_idx->value;
+        int32_t ta_v =   target_idx->value;
+
+        if (it_v != ta_v)
+            return 0;
+    }
+
+    return 1;
 }
 
 /// 1. Determine size of array
@@ -175,14 +215,17 @@ static void visit_ast_function_decl(struct ast_node *ast)
 ///         }
 ///       }
 ///     }
-}
-
 static void visit_ast_for_range(struct ast_node **ast)
 {
     struct ast_for_range *for_range = (*ast)->ast;
     struct ast_node      *iter      = for_range->iter;
     struct ast_node      *target    = for_range->range_target;
     struct ast_node      *body      = for_range->body;
+
+    (void) for_range;
+    (void) iter;
+    (void) target;
+    (void) body;
 
     weak_free((*ast)->ast);
 }
@@ -200,6 +243,9 @@ static void visit_node(struct ast_node **ast)
         visit_ast_function_decl(*ast);
         break;
     /// Stuff.
+    case AST_ARRAY_DECL:
+        visit_ast_array_decl(*ast);
+        break;
     case AST_FOR_RANGE_STMT:
         visit_ast_for_range(ast);
         break;
@@ -211,5 +257,7 @@ static void visit_node(struct ast_node **ast)
 
 void ast_lower(struct ast_node **ast)
 {
+    storage_init();
     visit_node(ast);
+    storage_reset();
 }
