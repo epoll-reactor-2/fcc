@@ -220,14 +220,100 @@ static void visit_ast_for_range(struct ast_node **ast)
     struct ast_for_range *for_range = (*ast)->ast;
     struct ast_node      *iter      = for_range->iter;
     struct ast_node      *target    = for_range->range_target;
-    struct ast_node      *body      = for_range->body;
+    struct ast_compound  *body      = for_range->body->ast;
 
     (void) for_range;
     (void) iter;
     (void) target;
     (void) body;
 
-    weak_free((*ast)->ast);
+    struct ast_symbol *target_sym = target->ast;
+
+    uint16_t iter_indirection_lvl =
+        iter->type == AST_VAR_DECL
+            ? ((struct ast_var_decl   *) iter->ast)->indirection_lvl
+            : ((struct ast_array_decl *) iter->ast)->indirection_lvl;
+
+    struct array_decl_info *target_decl = storage_lookup(target_sym->value);
+
+    if (iter->type == AST_ARRAY_DECL && !verify_iterated_array(iter->ast, target->ast))
+        weak_unreachable("Iterated array declaration does not match the target declaration.");
+
+    struct ast_node *iterator = ast_var_decl_init(
+        D_T_INT,
+        "__i",
+        /*type_name*/NULL,
+        iter_indirection_lvl,
+        ast_num_init(
+            0,
+            iter->line_no,
+            iter->col_no
+        ),
+        iter->line_no,
+        iter->col_no
+    );
+
+    struct ast_node *element_ptr = ast_var_decl_init(
+        D_T_INT,
+        "i",
+        /*type_name*/NULL,
+        /*indirection_lvl*/0,
+        ast_num_init(
+            0,
+            iter->line_no,
+            iter->col_no
+        ),
+        iter->line_no,
+        iter->col_no        
+    );
+
+    (void) element_ptr;
+
+    struct ast_node *assignment = ast_var_decl_init(
+        D_T_INT,
+        "element",
+        /*type_name*/NULL,
+        /*indirection_lvl*/1,
+        ast_unary_init(
+            AST_PREFIX_UNARY,
+            TOK_BIT_AND,
+            ast_symbol_init(strdup(target_decl->name), 0, 0),
+            0, 0
+        ),
+        0, 0
+    );
+
+    uint64_t new_body_size = body->size + 1;
+
+    struct ast_node **new_stmts = weak_calloc(new_body_size, sizeof (struct ast_node *));
+
+    for (uint64_t i = 1; i < body->size; ++i)
+        new_stmts[i] = body->stmts[i];
+    new_stmts[0] = assignment;
+
+    struct ast_node *for_loop = ast_for_init(
+        iterator,
+        ast_binary_init(
+            TOK_LT,
+            ast_symbol_init("__i", 0, 0),
+            ast_num_init(123, 0, 0),
+            0, 0
+        ),
+        ast_unary_init(
+            AST_PREFIX_UNARY,
+            TOK_INC,
+            ast_symbol_init("__i", 0, 0),
+            0, 0
+        ),
+        ast_compound_init(
+            new_body_size,
+            new_stmts,
+            0, 0
+        ),
+        0, 0
+    );
+
+    *ast = for_loop;
 }
 
 static void visit_node(struct ast_node **ast)

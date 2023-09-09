@@ -24,7 +24,7 @@ void weak_set_source_filename(const char *filename)
 
 static noreturn void weak_terminate_compilation()
 {
-    longjmp(weak_fatal_error_buf, 1);
+    // longjmp(weak_fatal_error_buf, 1);
     __builtin_trap(); /// Just to be sure that we will never get there.
 }
 
