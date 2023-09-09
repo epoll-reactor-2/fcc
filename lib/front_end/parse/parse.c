@@ -671,7 +671,7 @@ static struct ast_node *parse_for_range(
     uint16_t start_line_no,
     uint16_t start_col_no
 ) {
-    struct ast_node *iter = parse_var_decl_without_initializer();
+    struct ast_node *iter = parse_decl_without_initializer();
     require_char(':');
     struct ast_node *range_target = parse_expr();
     require_char(')');
@@ -689,6 +689,7 @@ static struct ast_node *parse_for_range(
     );
 }
 
+/// TODO: Wrong parsing of arrays, pointers.
 static struct ast_node *parse_for()
 {
     const struct token *start = require_token(TOK_FOR);

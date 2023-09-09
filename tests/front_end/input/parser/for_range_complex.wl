@@ -35,7 +35,9 @@
 void f() {
   for (structure_type i : f(g(h()))) {
     for (another_type j : this + is * any << operator) {
-      /* Code. */
+      for (int ***ptr : y()) {
+        /* Code. */
+      }
     }
   }
 }
