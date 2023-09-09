@@ -44,6 +44,12 @@ static const struct token *peek_current()
 
 static const struct token *peek_next()
 {
+    // printf(
+        // "Peek next: %s\n",
+        // tok_begin->data
+            // ? tok_begin->data
+            // : tok_to_string(tok_begin->type)
+    // );
     return tok_begin++;
 }
 
@@ -667,6 +673,9 @@ static struct ast_node *parse_jump_stmt()
     return ast_return_init(body, start->line_no, start->col_no);
 }
 
+// for (decl : expr) {}
+///     ^
+///     Starting from here
 static struct ast_node *parse_for_range(
     uint16_t start_line_no,
     uint16_t start_col_no
@@ -689,7 +698,26 @@ static struct ast_node *parse_for_range(
     );
 }
 
-/// TODO: Wrong parsing of arrays, pointers.
+/// What is going on is not much obvious.
+///
+/// This function handles both `regular` and `range`
+/// for loops.
+///
+///   1) for (init; cond; inc) { /* ... */ }
+///
+///   2) for (iter : expr) { /* ... */ }
+///
+/// First it gets the type declarator and checks
+/// if '=' or ':' follows this declarator. If '='
+/// then we assume regular for; if ':', we assume
+/// range-based for. Hence, the following construction
+/// is forbidden:
+///
+///      for (int i; i < 1; ++i) { /* ... */ }
+///               ^ Then expects ':'.
+///
+/// However, this loop without initialized variable is
+/// absurd.
 static struct ast_node *parse_for()
 {
     const struct token *start = require_token(TOK_FOR);
@@ -700,20 +728,25 @@ static struct ast_node *parse_for()
     struct ast_node *increment = NULL;
 
     if (!tok_is(peek_next(), ';')) {
-        peek_next();
+        --tok_begin;
 
-        if (tok_is(peek_current(), ':')) {
-            --tok_begin;
-            --tok_begin;
+        const struct token *curr = peek_current();
+        struct localized_data_type dt = parse_type();
+
+        (void) dt;
+
+        if (tok_is(peek_current() + 1, '=')) {
+            /// Regular for.
+            tok_begin = curr;
+            init = parse_expr();
+            require_char(';');
+        } else {
+            /// Range for.
+            tok_begin = curr;
             return parse_for_range(
                 start->line_no,
                 start->col_no
             );
-        } else {
-            --tok_begin;
-            --tok_begin;
-            init = parse_expr();
-            require_char(';');
         }
     }
 
