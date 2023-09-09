@@ -19,5 +19,5 @@ void f(int *bc) {
   //  }
 
   int array[2];
-  for (int i : array) {}
+  for (int *i : array) {}
 }
