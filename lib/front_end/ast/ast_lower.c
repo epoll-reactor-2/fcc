@@ -19,6 +19,7 @@
 ///        Function takes array as parameter via pointer.
 ///        Array can be declared as variable.
 struct array_decl_info {
+    struct ast_node     *ast;
     char                 name[DECL_NAME_MAX_LEN];
     enum data_type       dt;
     /// If the array is
@@ -70,13 +71,15 @@ static void storage_end_scope()
 
 /// \todo: Put information about each level of array arity.
 static void storage_put(
-    const char     *name,
-    enum data_type  dt,
-    int32_t         top_arity_size
+    struct ast_node *ast,
+    const char      *name,
+    enum data_type   dt,
+    int32_t          top_arity_size
 ) {
     struct array_decl_info *decl = weak_calloc(1, sizeof (struct array_decl_info));
 
     strncpy(decl->name, name, DECL_NAME_MAX_LEN);
+    decl->ast = ast;
     decl->dt = dt;
     decl->top_arity_size = top_arity_size;
     hashmap_put(&storage, crc32_string(name), (uint64_t) decl);
@@ -99,21 +102,25 @@ static struct array_decl_info *storage_lookup(const char *name)
     return decl;
 }
 
-
-
-static void visit_node(struct ast_node **ast);
-
-static void visit_ast_array_decl(struct ast_node *ast)
+static void storage_put_array_decl(struct ast_node *ast)
 {
     struct ast_array_decl *decl = ast->ast;
     struct ast_compound   *list = decl->arity_list->ast;
 
     storage_put(
+        ast,
         decl->name,
         decl->dt,
         ((struct ast_num *) list->stmts[list->size - 1]->ast)
             ->value
     );
+}
+
+static void visit_node(struct ast_node **ast);
+
+static void visit_ast_array_decl(struct ast_node *ast)
+{
+    storage_put_array_decl(ast);
 }
 
 static void visit_ast_compound(struct ast_node *ast)
@@ -174,6 +181,30 @@ static bool verify_iterated_array(
     return 1;
 }
 
+static struct ast_node *arity_cut_last(struct ast_node *list)
+{
+    assert((
+        list->type == AST_COMPOUND_STMT
+    ) && (
+        "Expected compound statement as arity list."
+    ));
+
+    struct ast_compound  *old      = list->ast;
+    uint64_t              cut_size = old->size - 1;
+    struct ast_node     **stmts    = weak_calloc(cut_size, sizeof (struct ast_node *));
+
+    for (uint64_t i = 0; i < cut_size; ++i) {
+        stmts[i] = old->stmts[i];
+    }
+
+    return ast_compound_init(
+        cut_size,
+        stmts,
+        0,
+        0
+    );
+}
+
 /// 1. Determine size of array
 /// 2. Make usual for header
 /// 3. Make iterator being pointer
@@ -228,6 +259,8 @@ static bool verify_iterated_array(
 ///         }
 ///       }
 ///     }
+
+/// TODO: This hell should be split into a dozen of smaller things.
 static void visit_ast_for_range(struct ast_node **ast)
 {
     struct ast_for_range *for_range = (*ast)->ast;
@@ -256,12 +289,17 @@ static void visit_ast_for_range(struct ast_node **ast)
 
     struct array_decl_info *target_decl = storage_lookup(target_sym->value);
 
-    if (iter->type == AST_ARRAY_DECL && !verify_iterated_array(iter->ast, target->ast))
+    if (iter->type == AST_ARRAY_DECL && !verify_iterated_array(iter->ast, target_decl->ast->ast))
         weak_unreachable("Iterated array declaration does not match the target declaration.");
 
+    static int32_t iterator_idx = 0;
+    char iterator_name[256] = {0};
+    snprintf(iterator_name, 256, "__i%d", ++iterator_idx);
+
+    /// TODO: Enumerate `__i%d` iterator to omit name collisions.
     struct ast_node *iterator = ast_var_decl_init(
         D_T_INT,
-        "__i",
+        strdup(iterator_name),
         /*type_name*/NULL,
         0,
         ast_num_init(
@@ -273,43 +311,55 @@ static void visit_ast_for_range(struct ast_node **ast)
         iter->col_no
     );
 
-    struct ast_node *idx = ast_symbol_init("__i", 0, 0);
+    struct ast_node *idx = ast_symbol_init(strdup(iterator_name), 0, 0);
     struct ast_node **idxs = weak_calloc(1, sizeof (struct ast_node *));
     idxs[0] = idx;
 
-    struct ast_node *assignment = ast_var_decl_init(
-        is_array_iter
-            ? arr->dt
-            : var->dt,
-        is_array_iter
-            ? arr->name
-            : var->name,
-        is_array_iter
-            ? arr->type_name
-            : var->type_name,
-        is_array_iter
-            ? arr->indirection_lvl
-            : var->indirection_lvl,
-        ast_unary_init(
-            AST_PREFIX_UNARY,
-            TOK_BIT_AND,
-            ast_array_access_init(
-                strdup(target_decl->name),
-                ast_compound_init(
-                    1,
-                    idxs,
-                    0, 0
-                ),
-                0, 0
-            ),
-            0, 0
-        ),
-        0, 0
-    );
+    /// TODO: Compiler can derive all type information manually.
+    ///       Then verify_iterated_array() can be thrown out.
+    ///       Will `auto` keyword as in C++ make sence?
+    struct ast_node *assignment = is_array_iter
+        ? ast_array_decl_init(
+              arr->dt,
+              arr->name,
+              arr->type_name,
+              arity_cut_last(
+                  ((struct ast_array_decl *) target_decl->ast->ast)
+                    ->arity_list
+              ),
+              arr->indirection_lvl,
+              0, 0
+          )
+        : ast_var_decl_init(
+              var->dt,
+              var->name,
+              var->type_name,
+              var->indirection_lvl,
+              ast_unary_init(
+                  AST_PREFIX_UNARY,
+                  TOK_BIT_AND,
+                  ast_array_access_init(
+                      strdup(target_decl->name),
+                      ast_compound_init(
+                          1,
+                          idxs,
+                          0, 0
+                      ),
+                      0, 0
+                  ),
+                  0, 0
+              ),
+              0, 0
+          );
+
+    if (is_array_iter)
+        storage_put_array_decl(assignment);
 
     uint64_t new_body_size = body->size + 1;
 
     struct ast_node **new_stmts = weak_calloc(new_body_size, sizeof (struct ast_node *));
+
+    visit_node(&for_range->body);
 
     /// Copy all statements from old body to the new
     /// and left space for first assignment.
@@ -321,14 +371,14 @@ static void visit_ast_for_range(struct ast_node **ast)
         iterator,
         ast_binary_init(
             TOK_LT,
-            ast_symbol_init("__i", 0, 0),
+            ast_symbol_init(strdup(iterator_name), 0, 0),
             ast_num_init(target_decl->top_arity_size, 0, 0),
             0, 0
         ),
         ast_unary_init(
             AST_PREFIX_UNARY,
             TOK_INC,
-            ast_symbol_init("__i", 0, 0),
+            ast_symbol_init(strdup(iterator_name), 0, 0),
             0, 0
         ),
         ast_compound_init(
