@@ -21,7 +21,15 @@
 struct array_decl_info {
     char                 name[DECL_NAME_MAX_LEN];
     enum data_type       dt;
-    struct ast_compound *arity;
+    /// If the array is
+    ///
+    ///     int mem[1][2][3],
+    /// `3` is stored. Used as is because
+    /// we can iterate only by last
+    /// level of array. To iterate over
+    /// next ones, we should push new record
+    /// to the storage with lower arity.
+    int32_t              top_arity_size;
     uint64_t             depth;
 };
 
@@ -62,16 +70,15 @@ static void storage_end_scope()
 
 /// \todo: Put information about each level of array arity.
 static void storage_put(
-    const char          *name,
-    enum data_type       dt,
-    struct ast_compound *arity
+    const char     *name,
+    enum data_type  dt,
+    int32_t         top_arity_size
 ) {
     struct array_decl_info *decl = weak_calloc(1, sizeof (struct array_decl_info));
 
     strncpy(decl->name, name, DECL_NAME_MAX_LEN);
     decl->dt = dt;
-    decl->arity = arity;
-    decl->depth = scope_depth;
+    decl->top_arity_size = top_arity_size;
     hashmap_put(&storage, crc32_string(name), (uint64_t) decl);
 }
 
@@ -99,8 +106,14 @@ static void visit_node(struct ast_node **ast);
 static void visit_ast_array_decl(struct ast_node *ast)
 {
     struct ast_array_decl *decl = ast->ast;
+    struct ast_compound   *list = decl->arity_list->ast;
 
-    storage_put(decl->name, decl->dt, decl->arity_list->ast);
+    storage_put(
+        decl->name,
+        decl->dt,
+        ((struct ast_num *) list->stmts[list->size - 1]->ast)
+            ->value
+    );
 }
 
 static void visit_ast_compound(struct ast_node *ast)
@@ -222,17 +235,24 @@ static void visit_ast_for_range(struct ast_node **ast)
     struct ast_node      *target    = for_range->range_target;
     struct ast_compound  *body      = for_range->body->ast;
 
-    (void) for_range;
-    (void) iter;
-    (void) target;
-    (void) body;
-
     struct ast_symbol *target_sym = target->ast;
 
-    uint16_t iter_indirection_lvl =
-        iter->type == AST_VAR_DECL
-            ? ((struct ast_var_decl   *) iter->ast)->indirection_lvl
-            : ((struct ast_array_decl *) iter->ast)->indirection_lvl;
+    assert((
+         iter->type == AST_ARRAY_DECL
+      || iter->type == AST_VAR_DECL
+    ) && (
+        "Expected variable or array declaration."
+    ));
+    assert((
+        target->type == AST_SYMBOL
+    ) && (
+        "Expected symbol as array."
+    ));
+
+    bool is_array_iter = iter->type == AST_ARRAY_DECL;
+
+    struct ast_var_decl   *var = is_array_iter ? NULL : iter->ast;
+    struct ast_array_decl *arr = is_array_iter ? iter->ast : NULL;
 
     struct array_decl_info *target_decl = storage_lookup(target_sym->value);
 
@@ -243,7 +263,7 @@ static void visit_ast_for_range(struct ast_node **ast)
         D_T_INT,
         "__i",
         /*type_name*/NULL,
-        iter_indirection_lvl,
+        0,
         ast_num_init(
             0,
             iter->line_no,
@@ -253,31 +273,35 @@ static void visit_ast_for_range(struct ast_node **ast)
         iter->col_no
     );
 
-    struct ast_node *element_ptr = ast_var_decl_init(
-        D_T_INT,
-        "i",
-        /*type_name*/NULL,
-        /*indirection_lvl*/0,
-        ast_num_init(
-            0,
-            iter->line_no,
-            iter->col_no
-        ),
-        iter->line_no,
-        iter->col_no        
-    );
-
-    (void) element_ptr;
+    struct ast_node *idx = ast_symbol_init("__i", 0, 0);
+    struct ast_node **idxs = weak_calloc(1, sizeof (struct ast_node *));
+    idxs[0] = idx;
 
     struct ast_node *assignment = ast_var_decl_init(
-        D_T_INT,
-        "element",
-        /*type_name*/NULL,
-        /*indirection_lvl*/1,
+        is_array_iter
+            ? arr->dt
+            : var->dt,
+        is_array_iter
+            ? arr->name
+            : var->name,
+        is_array_iter
+            ? arr->type_name
+            : var->type_name,
+        is_array_iter
+            ? arr->indirection_lvl
+            : var->indirection_lvl,
         ast_unary_init(
             AST_PREFIX_UNARY,
             TOK_BIT_AND,
-            ast_symbol_init(strdup(target_decl->name), 0, 0),
+            ast_array_access_init(
+                strdup(target_decl->name),
+                ast_compound_init(
+                    1,
+                    idxs,
+                    0, 0
+                ),
+                0, 0
+            ),
             0, 0
         ),
         0, 0
@@ -287,8 +311,10 @@ static void visit_ast_for_range(struct ast_node **ast)
 
     struct ast_node **new_stmts = weak_calloc(new_body_size, sizeof (struct ast_node *));
 
-    for (uint64_t i = 1; i < body->size; ++i)
-        new_stmts[i] = body->stmts[i];
+    /// Copy all statements from old body to the new
+    /// and left space for first assignment.
+    for (uint64_t i = 1; i < body->size + 1; ++i)
+        new_stmts[i] = body->stmts[i - 1];
     new_stmts[0] = assignment;
 
     struct ast_node *for_loop = ast_for_init(
@@ -296,7 +322,7 @@ static void visit_ast_for_range(struct ast_node **ast)
         ast_binary_init(
             TOK_LT,
             ast_symbol_init("__i", 0, 0),
-            ast_num_init(123, 0, 0),
+            ast_num_init(target_decl->top_arity_size, 0, 0),
             0, 0
         ),
         ast_unary_init(
