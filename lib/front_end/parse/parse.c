@@ -229,7 +229,7 @@ static struct ast_node *parse_array_decl()
             "Variable name expected"
         );
 
-    ast_array_t arity_list = {0};
+    ast_array_t enclosure_list = {0};
 
     if (!tok_is(peek_current(), '['))
         weak_compile_error(
@@ -248,13 +248,13 @@ static struct ast_node *parse_array_decl()
                 "Integer size declarator expected"
             );
 
-        vector_push_back(arity_list, constant);
+        vector_push_back(enclosure_list, constant);
         require_char(']');
     }
 
-    struct ast_node *arity_list_compound = ast_compound_init(
-        arity_list.count,
-        arity_list.data,
+    struct ast_node *enclosure_list_compound = ast_compound_init(
+        enclosure_list.count,
+        enclosure_list.data,
         dt.line_no,
         dt.col_no
     );
@@ -263,7 +263,7 @@ static struct ast_node *parse_array_decl()
         dt.data_type,
         strdup(var_name->data),
         dt.type_name,
-        arity_list_compound,
+        enclosure_list_compound,
         dt.indirection_lvl,
         dt.line_no,
         dt.col_no
@@ -1115,7 +1115,7 @@ static struct ast_node *parse_struct_var_decl()
 {
     struct localized_data_type dt = parse_type();
     const struct token *name = require_token(TOK_SYMBOL);
-    ast_array_t arity_list = {0};
+    ast_array_t enclosure_list = {0};
 
     assert(dt.data_type == D_T_STRUCT);
 
@@ -1131,14 +1131,14 @@ static struct ast_node *parse_struct_var_decl()
                 "Integer size declarator expected"
             );
 
-        vector_push_back(arity_list, constant);
+        vector_push_back(enclosure_list, constant);
         require_char(']');
     }
 
-    if (arity_list.count > 0) {
-        struct ast_node *arity_list_ast = ast_compound_init(
-            arity_list.count,
-            arity_list.data,
+    if (enclosure_list.count > 0) {
+        struct ast_node *enclosure_list_ast = ast_compound_init(
+            enclosure_list.count,
+            enclosure_list.data,
             dt.line_no,
             dt.col_no
         );
@@ -1146,7 +1146,7 @@ static struct ast_node *parse_struct_var_decl()
             D_T_STRUCT,
             strdup(name->data),
             dt.type_name, /// Already strdup()'ed.
-            arity_list_ast,
+            enclosure_list_ast,
             dt.indirection_lvl,
             dt.line_no,
             dt.col_no
