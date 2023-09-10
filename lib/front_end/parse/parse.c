@@ -1131,7 +1131,7 @@ static struct ast_node *parse_struct_var_decl()
                 "Integer size declarator expected"
             );
 
-        vector_push_back(arity_list, constant->ast);
+        vector_push_back(arity_list, constant);
         require_char(']');
     }
 
