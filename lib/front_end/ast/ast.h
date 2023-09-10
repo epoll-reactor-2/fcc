@@ -79,12 +79,12 @@ struct ast_array_decl {
     /// \note If present, must be dynamically allocated.
     char *type_name;
 
-    /// This stores information about array arity (dimension)
+    /// This stores information about array enclosure (dimension)
     /// and size for each dimension, e.g.,
-    /// for array[1][2][3], ArityList equal to { 1, 2, 3 }.
+    /// for array[1][2][3], EnclosureList equal to { 1, 2, 3 }.
     ///
     /// Represented as ast_compound of ast_num's.
-    struct ast_node *arity_list;
+    struct ast_node *enclosure_list;
 
     /// Depth of pointer, like for
     /// int ***ptr[2] indirection level = 3, for
@@ -98,7 +98,7 @@ __weak_wur struct ast_node *ast_array_decl_init(
     enum data_type   dt,
     char            *name,
     char            *type_name,
-    struct ast_node *arity_list,
+    struct ast_node *enclosure_list,
     uint16_t         indirection_lvl,
     uint16_t         line_no,
     uint16_t         col_no

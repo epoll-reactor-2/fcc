@@ -323,7 +323,7 @@ static void visit_ast_array_decl(FILE *mem, struct ast_node *ast)
         fprintf(mem, " ");
     }
 
-    struct ast_compound *dimensions = decl->arity_list->ast;
+    struct ast_compound *dimensions = decl->enclosure_list->ast;
 
     for (uint64_t i = 0; i < dimensions->size; ++i)
         fprintf(mem, "[%d]", ( (struct ast_num *)(dimensions->stmts[i]->ast) )->value);

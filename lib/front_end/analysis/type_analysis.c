@@ -166,7 +166,7 @@ static void visit_ast_array_decl(struct ast_node *ast)
 {
     struct ast_array_decl *decl = ast->ast;
     /// Required to be compound.
-    struct ast_compound *dimensions = decl->arity_list->ast;
+    struct ast_compound *dimensions = decl->enclosure_list->ast;
     for (uint64_t i = 0; i < dimensions->size; ++i) {
         int32_t num = ( (struct ast_num *) (dimensions->stmts[i]->ast) )->value;
         if (num == 0)
@@ -244,15 +244,15 @@ static void visit_ast_array_access(struct ast_node *ast)
         last_dt = decl->dt;
     } else {
         struct ast_array_decl *decl = record->ast;
-        out_of_range_analysis(decl->arity_list, stmt->indices);
+        out_of_range_analysis(decl->enclosure_list, stmt->indices);
     }
-    struct ast_compound *arity = stmt->indices->ast;
-    for (uint64_t i = 0; i < arity->size; ++i) {
-        visit_ast_node(arity->stmts[i]);
+    struct ast_compound *enclosure = stmt->indices->ast;
+    for (uint64_t i = 0; i < enclosure->size; ++i) {
+        visit_ast_node(enclosure->stmts[i]);
         if (last_dt != D_T_INT)
             weak_compile_error(
-                arity->stmts[i]->line_no,
-                arity->stmts[i]->col_no,
+                enclosure->stmts[i]->line_no,
+                enclosure->stmts[i]->col_no,
                 "Expected integer as array index, got %s",
                 data_type_to_string(last_dt)
             );

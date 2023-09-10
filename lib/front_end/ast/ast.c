@@ -35,7 +35,7 @@ struct ast_node *ast_array_decl_init(
     enum data_type   dt,
     char            *name,
     char            *type_name,
-    struct ast_node *arity_list,
+    struct ast_node *enclosure_list,
     uint16_t         indirection_lvl,
     uint16_t         line_no,
     uint16_t         col_no
@@ -44,14 +44,14 @@ struct ast_node *ast_array_decl_init(
     ast->dt = dt;
     ast->name = name;
     ast->type_name = type_name;
-    ast->arity_list = arity_list;
+    ast->enclosure_list = enclosure_list;
     ast->indirection_lvl = indirection_lvl;
     return ast_node_init(AST_ARRAY_DECL, ast, line_no, col_no);
 }
 
 void ast_array_decl_cleanup(struct ast_array_decl *ast)
 {
-    ast_node_cleanup(ast->arity_list);
+    ast_node_cleanup(ast->enclosure_list);
     if (ast->type_name)
         weak_free(ast->type_name);
     weak_free(ast->name);

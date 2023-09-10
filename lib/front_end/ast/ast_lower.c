@@ -29,8 +29,8 @@ struct array_decl_info {
     /// we can iterate only by last
     /// level of array. To iterate over
     /// next ones, we should push new record
-    /// to the storage with lower arity.
-    int32_t              top_arity_size;
+    /// to the storage with lower enclosure.
+    int32_t              top_enclosure_size;
     uint64_t             depth;
 };
 
@@ -69,19 +69,19 @@ static void storage_end_scope()
     --scope_depth;
 }
 
-/// \todo: Put information about each level of array arity.
+/// \todo: Put information about each level of array enclosure.
 static void storage_put(
     struct ast_node *ast,
     const char      *name,
     enum data_type   dt,
-    int32_t          top_arity_size
+    int32_t          top_enclosure_size
 ) {
     struct array_decl_info *decl = weak_calloc(1, sizeof (struct array_decl_info));
 
     strncpy(decl->name, name, DECL_NAME_MAX_LEN);
     decl->ast = ast;
     decl->dt = dt;
-    decl->top_arity_size = top_arity_size;
+    decl->top_enclosure_size = top_enclosure_size;
     hashmap_put(&storage, crc32_string(name), (uint64_t) decl);
 }
 
@@ -105,7 +105,7 @@ static struct array_decl_info *storage_lookup(const char *name)
 static void storage_put_array_decl(struct ast_node *ast)
 {
     struct ast_array_decl *decl = ast->ast;
-    struct ast_compound   *list = decl->arity_list->ast;
+    struct ast_compound   *list = decl->enclosure_list->ast;
 
     storage_put(
         ast,
@@ -147,7 +147,7 @@ static void visit_ast_function_decl(struct ast_node *ast)
 }
 
 /// Check if iterated array declaration "drops"
-/// last arity level. For example:
+/// last enclosure level. For example:
 ///
 ///    int array[1][2][3];
 ///
@@ -158,8 +158,8 @@ static bool verify_iterated_array(
     struct ast_array_decl *iterated,
     struct ast_array_decl *target
 ) {
-    struct ast_compound *iterated_list = iterated->arity_list->ast;
-    struct ast_compound   *target_list =   target->arity_list->ast;
+    struct ast_compound *iterated_list = iterated->enclosure_list->ast;
+    struct ast_compound   *target_list =   target->enclosure_list->ast;
 
     if (iterated_list->size != target_list->size - 1)
         return 0;
@@ -181,12 +181,12 @@ static bool verify_iterated_array(
     return 1;
 }
 
-static struct ast_node *arity_cut_last(struct ast_node *list)
+static struct ast_node *enclosure_cut_last(struct ast_node *list)
 {
     assert((
         list->type == AST_COMPOUND_STMT
     ) && (
-        "Expected compound statement as arity list."
+        "Expected compound statement as enclosure list."
     ));
 
     struct ast_compound  *old      = list->ast;
@@ -323,9 +323,9 @@ static void visit_ast_for_range(struct ast_node **ast)
               arr->dt,
               arr->name,
               arr->type_name,
-              arity_cut_last(
+              enclosure_cut_last(
                   ((struct ast_array_decl *) target_decl->ast->ast)
-                    ->arity_list
+                    ->enclosure_list
               ),
               arr->indirection_lvl,
               0, 0
@@ -372,7 +372,7 @@ static void visit_ast_for_range(struct ast_node **ast)
         ast_binary_init(
             TOK_LT,
             ast_symbol_init(strdup(iterator_name), 0, 0),
-            ast_num_init(target_decl->top_arity_size, 0, 0),
+            ast_num_init(target_decl->top_enclosure_size, 0, 0),
             0, 0
         ),
         ast_unary_init(
