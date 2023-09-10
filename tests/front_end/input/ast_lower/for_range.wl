@@ -1,23 +1,43 @@
 //CompoundStmt <line:0, col:0>
-//  FunctionDecl <line:15, col:1>
-//    FunctionDeclRetType <line:15, col:1> void
-//    FunctionDeclName <line:15, col:1> `f`
-//    FunctionDeclArgs <line:15, col:1>
-//    FunctionDeclBody <line:15, col:1>
-//      CompoundStmt <line:15, col:10>
-//        ForRangeStmt <line:16, col:3>
-//          ForRangeIterStmt <line:16, col:8>
-//            VarDecl <line:16, col:8> int `i`
-//          ForRangeTargetStmt <line:16, col:16>
-//            Symbol <line:16, col:16> `array`
-//          ForRangeStmtBody <line:16, col:23>
-//            CompoundStmt <line:16, col:23>
+//  FunctionDecl <line:32, col:1>
+//    FunctionDeclRetType <line:32, col:1> void
+//    FunctionDeclName <line:32, col:1> `f`
+//    FunctionDeclArgs <line:32, col:1>
+//      CompoundStmt <line:32, col:15>
+//        VarDecl <line:32, col:8> int * `bc`
+//    FunctionDeclBody <line:32, col:1>
+//      CompoundStmt <line:32, col:17>
+//        ArrayDecl <line:39, col:3> int [2] `array`
+//        ForStmt <line:0, col:0>
+//          ForStmtInit <line:40, col:8>
+//            VarDecl <line:40, col:8> int `__i`
+//              Number <line:40, col:8> 0
+//          ForStmtCondition <line:0, col:0>
+//            BinaryOperator <line:0, col:0> <
+//              Symbol <line:0, col:0> `__i`
+//              Number <line:0, col:0> 2
+//          ForStmtIncrement <line:0, col:0>
+//            Prefix UnaryOperator <line:0, col:0> ++
+//              Symbol <line:0, col:0> `__i`
+//          ForStmtBody <line:0, col:0>
+//            CompoundStmt <line:0, col:0>
+//              VarDecl <line:0, col:0> int * `i`
+//                Prefix UnaryOperator <line:0, col:0> &
+//                  ArrayAccess <line:0, col:0> `array`
+//                    Symbol <line:0, col:0> `__i`
+//              BinaryOperator <line:41, col:8> =
+//                Prefix UnaryOperator <line:41, col:5> *
+//                  Symbol <line:41, col:6> `i`
+//                Number <line:41, col:10> 666
 void f(int *bc) {
   //  int array[2];
   //  for (int __i = 0; __i < __2; ++__i) {
   //    int *i = &array[__i];
+  //    *i = 666;
   //  }
 
   int array[2];
-  for (int *i : array) {}
+  for (int *i : array) {
+    *i = 666;
+  }
 }

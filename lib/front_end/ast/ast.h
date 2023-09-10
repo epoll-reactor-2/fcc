@@ -50,7 +50,7 @@ void ast_node_cleanup(struct ast_node *ast);
 ///////////////////////////////////////////////
 struct ast_array_access {
     char            *name; /// \note Must be dynamically allocated.
-    struct ast_node *indices;
+    struct ast_node *indices; /// \note Must be of type ast_compound
 };
 
 __weak_wur struct ast_node *ast_array_access_init(
