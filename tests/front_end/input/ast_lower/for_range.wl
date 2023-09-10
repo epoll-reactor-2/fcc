@@ -10,21 +10,21 @@
 //        ArrayDecl <line:39, col:3> int [2] `array`
 //        ForStmt <line:0, col:0>
 //          ForStmtInit <line:40, col:8>
-//            VarDecl <line:40, col:8> int `__i`
+//            VarDecl <line:40, col:8> int `__i1`
 //              Number <line:40, col:8> 0
 //          ForStmtCondition <line:0, col:0>
 //            BinaryOperator <line:0, col:0> <
-//              Symbol <line:0, col:0> `__i`
+//              Symbol <line:0, col:0> `__i1`
 //              Number <line:0, col:0> 2
 //          ForStmtIncrement <line:0, col:0>
 //            Prefix UnaryOperator <line:0, col:0> ++
-//              Symbol <line:0, col:0> `__i`
+//              Symbol <line:0, col:0> `__i1`
 //          ForStmtBody <line:0, col:0>
 //            CompoundStmt <line:0, col:0>
 //              VarDecl <line:0, col:0> int * `i`
 //                Prefix UnaryOperator <line:0, col:0> &
 //                  ArrayAccess <line:0, col:0> `array`
-//                    Symbol <line:0, col:0> `__i`
+//                    Symbol <line:0, col:0> `__i1`
 //              BinaryOperator <line:41, col:8> =
 //                Prefix UnaryOperator <line:41, col:5> *
 //                  Symbol <line:41, col:6> `i`
