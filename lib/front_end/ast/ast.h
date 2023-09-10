@@ -138,7 +138,7 @@ void             ast_bool_cleanup(struct ast_bool *ast);
 
 
 ///////////////////////////////////////////////
-///              Break statemen             ///
+///              Break statement            ///
 ///////////////////////////////////////////////
 struct ast_break {
     /// Empty.
