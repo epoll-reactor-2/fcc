@@ -260,15 +260,15 @@ static struct ast_node *enclosure_cut_last(struct ast_node *list)
 ///       }
 ///     }
 
-/// TODO: This hell should be split into a dozen of smaller things.
-static void visit_ast_for_range(struct ast_node **ast)
-{
-    struct ast_for_range *for_range = (*ast)->ast;
-    struct ast_node      *iter      = for_range->iter;
-    struct ast_node      *target    = for_range->range_target;
-    struct ast_compound  *body      = for_range->body->ast;
+__weak_really_inline static void transform_range_for_assertion(
+    struct ast_for_range   *range,
+    struct array_decl_info *decl
+) {
+    struct ast_node *iter   = range->iter;
+    struct ast_node *target = range->range_target;
 
-    struct ast_symbol *target_sym = target->ast;
+    (void) iter;
+    (void) target;
 
     assert((
          iter->type == AST_ARRAY_DECL
@@ -282,49 +282,55 @@ static void visit_ast_for_range(struct ast_node **ast)
         "Expected symbol as array."
     ));
 
-    bool is_array_iter = iter->type == AST_ARRAY_DECL;
+    if (iter->type == AST_ARRAY_DECL)
+        if (!verify_iterated_array(iter->ast, decl->ast->ast))
+            weak_unreachable(
+                "Iterated array declaration does not "
+                "match the target declaration."
+            );
+}
 
-    struct ast_var_decl   *var = is_array_iter ? NULL : iter->ast;
-    struct ast_array_decl *arr = is_array_iter ? iter->ast : NULL;
-
-    struct array_decl_info *target_decl = storage_lookup(target_sym->value);
-
-    if (iter->type == AST_ARRAY_DECL && !verify_iterated_array(iter->ast, target_decl->ast->ast))
-        weak_unreachable("Iterated array declaration does not match the target declaration.");
-
-    static int32_t iterator_idx = 0;
-    char iterator_name[256] = {0};
-    snprintf(iterator_name, 256, "__i%d", ++iterator_idx);
-
-    /// TODO: Enumerate `__i%d` iterator to omit name collisions.
-    struct ast_node *iterator = ast_var_decl_init(
-        D_T_INT,
-        strdup(iterator_name),
-        /*type_name*/NULL,
-        0,
-        ast_num_init(
-            0,
-            iter->line_no,
-            iter->col_no
-        ),
-        iter->line_no,
-        iter->col_no
-    );
-
-    struct ast_node *idx = ast_symbol_init(strdup(iterator_name), 0, 0);
+__weak_really_inline static struct ast_node **transform_range_index(const char *name)
+{
+    struct ast_node *idx = ast_symbol_init(strdup(name), 0, 0);
     struct ast_node **idxs = weak_calloc(1, sizeof (struct ast_node *));
     idxs[0] = idx;
 
-    /// TODO: Compiler can derive all type information manually.
-    ///       Then verify_iterated_array() can be thrown out.
-    ///       Will `auto` keyword as in C++ make sence?
-    struct ast_node *assignment = is_array_iter
+    return idxs;
+}
+
+__weak_really_inline static struct ast_node *transform_range_iterator(
+    const char *__i,
+    uint16_t    line_no,
+    uint16_t    col_no
+) {
+    return ast_var_decl_init(
+        D_T_INT,
+        strdup(__i),
+        /*type_name*/NULL,
+        /*indirection_lvl*/0,
+        ast_num_init(0, line_no, col_no),
+        line_no, col_no
+    );
+}
+
+__weak_really_inline static struct ast_node *transform_range_assignment(
+    struct ast_node         *iter,
+    struct array_decl_info  *decl,
+    struct ast_node        **idxs
+) {
+    bool array = iter->type == AST_ARRAY_DECL;
+
+    struct ast_var_decl   *var = array ? NULL : iter->ast;
+    struct ast_array_decl *arr = array ? iter->ast : NULL;
+
+    return array
         ? ast_array_decl_init(
               arr->dt,
               arr->name,
               arr->type_name,
               enclosure_cut_last(
-                  ((struct ast_array_decl *) target_decl->ast->ast)
+                  ((struct ast_array_decl *) decl->ast->ast)
                     ->enclosure_list
               ),
               arr->indirection_lvl,
@@ -339,7 +345,7 @@ static void visit_ast_for_range(struct ast_node **ast)
                   AST_PREFIX_UNARY,
                   TOK_BIT_AND,
                   ast_array_access_init(
-                      strdup(target_decl->name),
+                      strdup(decl->name),
                       ast_compound_init(
                           1,
                           idxs,
@@ -351,45 +357,80 @@ static void visit_ast_for_range(struct ast_node **ast)
               ),
               0, 0
           );
+}
+
+__weak_really_inline static struct ast_node *transform_range_enlarge_body(struct ast_compound *body)
+{
+    uint64_t          new_size  = body->size + 1;
+    struct ast_node **new_stmts = weak_calloc(new_size, sizeof (struct ast_node *));
+
+    /// Copy all statements from old body to the new
+    /// and left space for first assignment.
+    memcpy(&new_stmts[1], &body->stmts[0], new_size * sizeof (struct ast_node *));
+
+    return ast_compound_init(
+        new_size,
+        new_stmts,
+        0, 0
+    );
+}
+
+static void visit_ast_for_range(struct ast_node **ast)
+{
+    struct ast_for_range   *range      = (*ast)->ast;
+    struct ast_node        *iter       = range->iter;
+    struct ast_node        *target     = range->range_target;
+    struct ast_compound    *body       = range->body->ast;
+    struct ast_symbol      *target_sym = target->ast;
+    struct array_decl_info *decl       = storage_lookup(target_sym->value);
+    bool                    is_array_iter
+                                       = iter->type == AST_ARRAY_DECL;
+
+    transform_range_for_assertion(range, decl);
+
+    static int32_t i = 0;
+    char __i[256] = {0};
+    snprintf(__i, sizeof (__i), "__i%d", ++i);
+
+    /// TODO: Compiler can derive all type information manually.
+    ///       Then verify_iterated_array() can be thrown out.
+    ///       Will `auto` keyword as in C++ make sence?
+    struct ast_node *assignment = transform_range_assignment(iter, decl, transform_range_index(__i));
+    struct ast_node *iterator   = transform_range_iterator(__i, iter->line_no, iter->col_no);
 
     if (is_array_iter)
         storage_put_array_decl(assignment);
 
-    uint64_t new_body_size = body->size + 1;
+    visit_node(&range->body);
 
-    struct ast_node **new_stmts = weak_calloc(new_body_size, sizeof (struct ast_node *));
+    struct ast_node     *enlarged_body     = transform_range_enlarge_body(body);
+    struct ast_compound *enlarged_compound = enlarged_body->ast;
 
-    visit_node(&for_range->body);
+    enlarged_compound->stmts[0] = assignment;
 
-    /// Copy all statements from old body to the new
-    /// and left space for first assignment.
-    for (uint64_t i = 1; i < body->size + 1; ++i)
-        new_stmts[i] = body->stmts[i - 1];
-    new_stmts[0] = assignment;
+    weak_free(body->stmts);
+    weak_free(iter);
+    weak_free(target);
+    weak_free((*ast)->ast);
+    weak_free((*ast));
 
-    struct ast_node *for_loop = ast_for_init(
+    *ast = ast_for_init(
         iterator,
         ast_binary_init(
             TOK_LT,
-            ast_symbol_init(strdup(iterator_name), 0, 0),
-            ast_num_init(target_decl->top_enclosure_size, 0, 0),
+            ast_symbol_init(strdup(__i), 0, 0),
+            ast_num_init(decl->top_enclosure_size, 0, 0),
             0, 0
         ),
         ast_unary_init(
             AST_PREFIX_UNARY,
             TOK_INC,
-            ast_symbol_init(strdup(iterator_name), 0, 0),
+            ast_symbol_init(strdup(__i), 0, 0),
             0, 0
         ),
-        ast_compound_init(
-            new_body_size,
-            new_stmts,
-            0, 0
-        ),
+        enlarged_body,
         0, 0
     );
-
-    *ast = for_loop;
 }
 
 static void visit_node(struct ast_node **ast)
