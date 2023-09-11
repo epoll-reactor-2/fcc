@@ -314,6 +314,16 @@ __weak_really_inline static struct ast_node *transform_range_iterator(
     );
 }
 
+/// TODO: Now array declaration looks like
+///
+///           ArrayDecl <line:0, col:0> int * [1][2] `arr1`
+///
+///       which is pointer of array type. But now it
+///       points to nothing. Add optional body for pointer
+///       array declaration. Then,
+///
+///           int *mem[1][2][3];
+///           int *arr[1][2] = &mem[0];
 __weak_really_inline static struct ast_node *transform_range_assignment(
     struct ast_node         *iter,
     struct array_decl_info  *decl,
