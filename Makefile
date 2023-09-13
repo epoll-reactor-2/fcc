@@ -1,12 +1,18 @@
 NR_CPUS     = $(shell nproc 2> /dev/null)
 override MAKEFLAGS += -j $(NR_CPUS)
 
-NULL_STDERR := 2> /dev/null
+REDIRECT_STDERR := 2> /dev/null
+
+BOLD    := $(shell printf "\033[1m"  $(REDIRECT_STDERR))
+RESET   := $(shell printf $(BOLD)"\033[0m"  $(REDIRECT_STDERR))
+RED     := $(shell printf $(BOLD)"\033[31m" $(REDIRECT_STDERR))
+GREEN   := $(shell printf $(BOLD)"\033[32m" $(REDIRECT_STDERR))
+YELLOW  := $(shell printf $(BOLD)"\033[33m" $(REDIRECT_STDERR))
 
 DEBUG_BUILD := 1
 
+CC          = clang
 LD          = ld
-CC          = gcc
 LIB         = libweak_compiler.so
 LDFLAGS     = -lfl
 CFLAGS      = -std=gnu99 -fPIC -Ilib
@@ -15,17 +21,20 @@ CFLAGS     += -Wall -Wextra -Werror -Wshadow -Wvla -Wpointer-arith -Wframe-large
 
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb -D NDEBUG
+
+CFLAGS     +=                                                       \
+              -fsanitize=address -fno-omit-frame-pointer            \
+              -fsanitize=undefined -fno-sanitize-recover=all        \
+              -fsanitize-address-use-after-scope
+
+# ifeq ($(CC),clang)
+# CFLAGS     += -fsanitize=cfi -fvisibility=default -flto
+# endif
 else
-CFLAGS     += -O3 -D NDEBUG
+CFLAGS     += -march=native -mtune=generic -O3 -D NDEBUG
 endif
 
 \t         := $(info)	$(info)
-
-BOLD    := $(shell printf "\033[1m"  $(NULL_STDERR))
-RESET   := $(shell printf $(BOLD)"\033[0m"  $(NULL_STDERR))
-RED     := $(shell printf $(BOLD)"\033[31m" $(NULL_STDERR))
-GREEN   := $(shell printf $(BOLD)"\033[32m" $(NULL_STDERR))
-YELLOW  := $(shell printf $(BOLD)"\033[33m" $(NULL_STDERR))
 
 CC_COLORED := "$(YELLOW)CC$(RESET)"
 LD_COLORED :=  "$(GREEN)LD$(RESET)"
@@ -68,7 +77,7 @@ SRC += build/lex.yy.c
 
 %.o: %.c
 	@echo [$(CC_COLORED)] $@
-	@$(CC) -c $(CFLAGS) $^ -o build/$(notdir $@)
+	$(CC) -c $(CFLAGS) $^ -o build/$(notdir $@)
 
 OBJ = $(SRC:.c=.o)
 
@@ -79,12 +88,11 @@ $(LIB): $(OBJ) | build_dir
 TEST_SRC = $(shell find tests -name '*.c')
 TEST_OBJ = $(TEST_SRC:.c=.o)
 
-CFLAGS  += -Lbuild
 LDFLAGS += -lweak_compiler
 
 $(TEST_OBJ): $(TEST_SRC) | $(LIB)
 	@echo [$(CC_COLORED)] $@
-	@$(CC) -Itests $(CFLAGS) $(@:.o=.c) -o build/$(notdir $(@:.o=))_test $(LDFLAGS)
+	@$(CC) -Itests -Lbuild $(CFLAGS) $(@:.o=.c) -o build/$(notdir $(@:.o=))_test $(LDFLAGS)
 
 tests: $(TEST_OBJ)
 

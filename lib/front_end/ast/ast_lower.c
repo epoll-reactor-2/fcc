@@ -78,7 +78,7 @@ static void storage_put(
 ) {
     struct array_decl_info *decl = weak_calloc(1, sizeof (struct array_decl_info));
 
-    strncpy(decl->name, name, DECL_NAME_MAX_LEN);
+    strncpy(decl->name, name, DECL_NAME_MAX_LEN - 1);
     decl->ast = ast;
     decl->dt = dt;
     decl->top_enclosure_size = top_enclosure_size;
@@ -165,8 +165,8 @@ static bool verify_iterated_array(
         return 0;
 
     for (uint64_t i = 0; i < iterated_list->size; ++i) {
-        assert(iterated_list->stmts[i]->type == AST_NUM);
-        assert(  target_list->stmts[i]->type == AST_NUM);
+        assert(iterated_list->stmts[i]->type == AST_INTEGER_LITERAL);
+        assert(  target_list->stmts[i]->type == AST_INTEGER_LITERAL);
 
         struct ast_num *iterated_idx = iterated_list->stmts[i]->ast;
         struct ast_num   *target_idx =   target_list->stmts[i]->ast;

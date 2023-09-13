@@ -17,7 +17,7 @@ static void ir_graph_eliminate_jmp(struct ir_func_decl *decl);
     // (void) ir;
 // }
 
-__weak_really_inline static void ir_graph_eliminate_jmp_chain(struct ir_node **ir)
+__weak_unused static void ir_graph_eliminate_jmp_chain(struct ir_node **ir)
 {
     while (*ir && (*ir)->type == IR_JUMP) {
         *ir = (*ir)->next;
