@@ -11,7 +11,7 @@ YELLOW  := $(shell printf $(BOLD)"\033[33m" $(REDIRECT_STDERR))
 
 DEBUG_BUILD := 1
 
-CC          = clang
+CC          = gcc
 LD          = ld
 LIB         = libweak_compiler.so
 LDFLAGS     = -lfl
@@ -22,14 +22,15 @@ CFLAGS     += -Wall -Wextra -Werror -Wshadow -Wvla -Wpointer-arith -Wframe-large
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb -D NDEBUG
 
-CFLAGS     +=                                                       \
-              -fsanitize=address -fno-omit-frame-pointer            \
-              -fsanitize=undefined -fno-sanitize-recover=all        \
-              -fsanitize-address-use-after-scope
 
-# ifeq ($(CC),clang)
-# CFLAGS     += -fsanitize=cfi -fvisibility=default -flto
-# endif
+# CFLAGS     +=                                                       \
+#               -fsanitize=address -fno-omit-frame-pointer            \
+#               -fsanitize=undefined -fno-sanitize-recover=all        \
+#               -fsanitize-address-use-after-scope
+
+ifeq ($(CC),clang)
+CFLAGS     += -fsanitize=cfi -fvisibility=default -flto
+endif
 else
 CFLAGS     += -march=native -mtune=generic -O3 -D NDEBUG
 endif
@@ -77,7 +78,7 @@ SRC += build/lex.yy.c
 
 %.o: %.c
 	@echo [$(CC_COLORED)] $@
-	$(CC) -c $(CFLAGS) $^ -o build/$(notdir $@)
+	@$(CC) -c $(CFLAGS) $^ -o build/$(notdir $@)
 
 OBJ = $(SRC:.c=.o)
 

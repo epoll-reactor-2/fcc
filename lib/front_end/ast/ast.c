@@ -148,9 +148,8 @@ struct ast_node *ast_compound_init(
 
 void ast_compound_cleanup(struct ast_compound *ast)
 {
-    for (uint64_t i = 0; i < ast->size; ++i) {
+    for (uint64_t i = 0; i < ast->size; ++i)
         ast_node_cleanup(ast->stmts[i]);
-    }
 
     weak_free(ast->stmts);
     weak_free(ast);
@@ -641,7 +640,7 @@ void ast_node_cleanup(struct ast_node *ast)
         ast_function_call_cleanup(ast->ast);
         break;
     default:
-        weak_unreachable("Should not reach here.");
+        weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
     }
     weak_free(ast);
 }

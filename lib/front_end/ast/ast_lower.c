@@ -1,4 +1,4 @@
-/* ast_lower.h - Remove of some abstractions on AST.
+/* ast_lower.c - Remove of some abstractions on AST.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -97,7 +97,7 @@ static struct array_decl_info *storage_lookup(const char *name)
     struct array_decl_info *decl = (struct array_decl_info *) addr;
 
     if (decl->depth > scope_depth)
-        return NULL;
+        weak_unreachable("Impossible case: variable depth > current depth");
 
     return decl;
 }
@@ -371,15 +371,15 @@ __weak_really_inline static struct ast_node *transform_range_assignment(
 
 __weak_really_inline static struct ast_node *transform_range_enlarge_body(struct ast_compound *body)
 {
-    uint64_t          new_size  = body->size + 1;
-    struct ast_node **new_stmts = weak_calloc(new_size, sizeof (struct ast_node *));
+    struct ast_node **new_stmts = weak_calloc(body->size + 1, sizeof (struct ast_node *));
 
     /// Copy all statements from old body to the new
     /// and left space for first assignment.
-    memcpy(&new_stmts[1], &body->stmts[0], new_size * sizeof (struct ast_node *));
+    for (uint64_t i = 1; i < body->size + 1; ++i)
+        new_stmts[i] = body->stmts[i - 1];
 
     return ast_compound_init(
-        new_size,
+        body->size + 1,
         new_stmts,
         0, 0
     );
@@ -416,13 +416,15 @@ static void visit_ast_for_range(struct ast_node **ast)
     struct ast_node     *enlarged_body     = transform_range_enlarge_body(body);
     struct ast_compound *enlarged_compound = enlarged_body->ast;
 
+    (void) enlarged_compound;
+    (void) iterator;
+
     enlarged_compound->stmts[0] = assignment;
 
-    weak_free(body->stmts);
-    weak_free(iter);
-    weak_free(target);
-    weak_free((*ast)->ast);
-    weak_free((*ast));
+    // weak_free(body->stmts);
+    // ast_node_cleanup(target);
+    // weak_free((*ast)->ast);
+    // weak_free((*ast));
 
     *ast = ast_for_init(
         iterator,
