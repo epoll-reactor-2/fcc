@@ -138,7 +138,7 @@ void ir_compute_dom_tree(struct ir_node *ir)
     FILE *cfg = fopen("/tmp/graph_cfg.dot", "w");
     FILE *dom = fopen("/tmp/graph_dom.dot", "w");
     if (!cfg) weak_unreachable("Open failed");
-    if (!cfg) weak_unreachable("Open failed");
+    if (!dom) weak_unreachable("Open failed");
 
     struct ir_node *it = ir;
     while (it) {

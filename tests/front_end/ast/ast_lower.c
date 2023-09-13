@@ -61,11 +61,15 @@ bool parse_test(const char *filename)
         struct ast_node *ast = parse(toks->data, toks->data + toks->count);
         ast_lower(&ast);
         ast_dump(dump_stream, ast);
-        // ast_node_cleanup(ast);
+
+        /// There is some memory corruption in AST transform
+        /// algorithm.
+        ///
+        /// ast_node_cleanup(ast);
 
         if (strcmp(expected, generated) != 0) {
             printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            // success = false;
+            success = false;
             goto exit;
         }
         printf("Success!\n");
@@ -116,3 +120,4 @@ int main()
 
     return ret;
 }
+    

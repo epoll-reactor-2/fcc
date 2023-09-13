@@ -34,6 +34,11 @@ bool     hashmap_remove (hashmap_t *map, uint64_t key);
     for (uint64_t _i = 0, k, v;  k = (map)->buckets[_i].key, \
                                  v = (map)->buckets[_i].val, \
                                 _i < (map)->capacity; ++_i)  \
+                                /*
+                                            ^^^^^^^^
+                                     Must be comparison with count of
+                                     occupied entries, not with capacity.
+                                 */                          \
         if ((map)->buckets[_i].is_occupied && !(map)->buckets[_i].is_deleted)
 
 #endif // WEAK_COMPILER_UTIL_HASHMAP_H

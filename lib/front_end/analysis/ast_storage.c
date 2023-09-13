@@ -8,6 +8,7 @@
 #include "util/alloc.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"
+#include "util/unreachable.h"
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
