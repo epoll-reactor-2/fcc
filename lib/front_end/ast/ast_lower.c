@@ -282,12 +282,12 @@ __weak_really_inline static void transform_range_for_assertion(
         "Expected symbol as array."
     ));
 
-    if (iter->type == AST_ARRAY_DECL)
-        if (!verify_iterated_array(iter->ast, decl->ast->ast))
-            weak_unreachable(
-                "Iterated array declaration does not "
-                "match the target declaration."
-            );
+    // if (iter->type == AST_ARRAY_DECL)
+    //     if (!verify_iterated_array(iter->ast, decl->ast->ast))
+    //         weak_unreachable(
+    //             "Iterated array declaration does not "
+    //             "match the target declaration."
+    //         );
 }
 
 __weak_really_inline static struct ast_node **transform_range_index(const char *name)
@@ -344,6 +344,7 @@ __weak_really_inline static struct ast_node *transform_range_assignment(
                     ->enclosure_list
               ),
               arr->indirection_lvl,
+              /*body=*/NULL,
               0, 0
           )
         : ast_var_decl_init(
@@ -419,12 +420,37 @@ static void visit_ast_for_range(struct ast_node **ast)
     (void) enlarged_compound;
     (void) iterator;
 
-    enlarged_compound->stmts[0] = assignment;
+    bool array = iter->type == AST_ARRAY_DECL;
 
-    // weak_free(body->stmts);
-    // ast_node_cleanup(target);
-    // weak_free((*ast)->ast);
-    // weak_free((*ast));
+    if (array) {
+        struct ast_array_decl *arr = iter->ast;
+
+        
+    } else {
+        struct ast_var_decl *var = iter->ast;
+
+        var->body = ast_unary_init(
+            AST_PREFIX_UNARY,
+            TOK_BIT_AND,
+            ast_array_access_init(
+                strdup(decl->name),
+                ast_compound_init(
+                    1,
+                    transform_range_index(__i),
+                    0, 0
+                ),
+                0, 0
+            ),
+            0, 0
+        );
+    }
+
+    enlarged_compound->stmts[0] = iter;
+
+    weak_free(body->stmts);
+    ast_node_cleanup(target);
+    weak_free((*ast)->ast);
+    weak_free((*ast));
 
     *ast = ast_for_init(
         iterator,

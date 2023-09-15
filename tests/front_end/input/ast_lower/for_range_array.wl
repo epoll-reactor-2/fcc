@@ -19,7 +19,7 @@
 //              Symbol <line:0, col:0> `__i2`
 //          ForStmtBody <line:0, col:0>
 //            CompoundStmt <line:0, col:0>
-//              ArrayDecl <line:0, col:0> int * [1][2] `arr1`
+//              ArrayDecl <line:60, col:8> int * [1][2] `arr1`
 //              ForStmt <line:0, col:0>
 //                ForStmtInit <line:61, col:10>
 //                  VarDecl <line:61, col:10> int `__i3`
@@ -33,7 +33,7 @@
 //                    Symbol <line:0, col:0> `__i3`
 //                ForStmtBody <line:0, col:0>
 //                  CompoundStmt <line:0, col:0>
-//                    ArrayDecl <line:0, col:0> int * [1] `arr2`
+//                    ArrayDecl <line:61, col:10> int * [1] `arr2`
 //                    ForStmt <line:0, col:0>
 //                      ForStmtInit <line:62, col:12>
 //                        VarDecl <line:62, col:12> int `__i4`
@@ -47,7 +47,7 @@
 //                          Symbol <line:0, col:0> `__i4`
 //                      ForStmtBody <line:0, col:0>
 //                        CompoundStmt <line:0, col:0>
-//                          VarDecl <line:0, col:0> int * `i`
+//                          VarDecl <line:62, col:12> int * `i`
 //                            Prefix UnaryOperator <line:0, col:0> &
 //                              ArrayAccess <line:0, col:0> `arr2`
 //                                Symbol <line:0, col:0> `__i4`

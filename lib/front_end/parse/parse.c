@@ -74,41 +74,43 @@ struct token *require_char(char c)
     return require_token(tok_char_to_tok(c));
 }
 
+static struct ast_node *parse_additive();
+static struct ast_node *parse_and();
+static struct ast_node *parse_array_access();
+static struct ast_node *parse_array_decl();
+static struct ast_node *parse_array_decl_without_initializer();
+static struct ast_node *parse_assignment();
+static struct ast_node *parse_block();
+static struct ast_node *parse_constant();
 static struct ast_node *parse_decl();
-static struct ast_node *parse_struct_decl();
+static struct ast_node *parse_decl_without_initializer();
+static struct ast_node *parse_do_while();
+static struct ast_node *parse_equality();
+static struct ast_node *parse_exclusive_or();
+static struct ast_node *parse_expr();
+static struct ast_node *parse_for();
+static struct ast_node *parse_function_call();
 static struct ast_node *parse_function_decl();
-static struct ast_node *parse_stmt();
-static struct ast_node *parse_selection_stmt();
+static struct ast_node *parse_inclusive_or();
+static struct ast_node *parse_iteration_block();
 static struct ast_node *parse_iteration_stmt();
 static struct ast_node *parse_jump_stmt();
-static struct ast_node *parse_for();
-static struct ast_node *parse_do_while();
-static struct ast_node *parse_while();
-static struct ast_node *parse_block();
-static struct ast_node *parse_iteration_block();
-static struct ast_node *parse_constant();
-static struct ast_node *parse_logical_or();
 static struct ast_node *parse_logical_and();
-static struct ast_node *parse_inclusive_or();
-static struct ast_node *parse_exclusive_or();
-static struct ast_node *parse_and();
-static struct ast_node *parse_equality();
-static struct ast_node *parse_relational();
-static struct ast_node *parse_shift();
-static struct ast_node *parse_additive();
+static struct ast_node *parse_logical_or();
 static struct ast_node *parse_multiplicative();
-static struct ast_node *parse_prefix_unary();
 static struct ast_node *parse_postfix_unary();
-static struct ast_node *parse_symbol();
+static struct ast_node *parse_prefix_unary();
 static struct ast_node *parse_primary();
-static struct ast_node *parse_decl_without_initializer();
-static struct ast_node *parse_var_decl_without_initializer();
-static struct ast_node *parse_struct_var_decl();
+static struct ast_node *parse_relational();
+static struct ast_node *parse_selection_stmt();
+static struct ast_node *parse_shift();
+static struct ast_node *parse_stmt();
+static struct ast_node *parse_struct_decl();
 static struct ast_node *parse_struct_field_access();
-static struct ast_node *parse_array_access();
-static struct ast_node *parse_expr();
-static struct ast_node *parse_assignment();
-static struct ast_node *parse_function_call();
+static struct ast_node *parse_struct_var_decl();
+static struct ast_node *parse_symbol();
+static struct ast_node *parse_var_decl_without_initializer();
+static struct ast_node *parse_while();
 
 struct ast_node *parse(const struct token *begin, const struct token *end)
 {
@@ -217,7 +219,7 @@ static struct localized_data_type parse_return_type()
     return dt;
 }
 
-static struct ast_node *parse_array_decl()
+static struct ast_node *parse_array_decl_without_initializer()
 {
     struct localized_data_type dt = parse_type();
     struct token *var_name = peek_next();
@@ -265,9 +267,31 @@ static struct ast_node *parse_array_decl()
         dt.type_name,
         enclosure_list_compound,
         dt.indirection_lvl,
+        /*body=*/NULL,
         dt.line_no,
         dt.col_no
     );
+}
+
+static struct ast_node *parse_array_decl()
+{
+    struct ast_node *ast = parse_array_decl_without_initializer();
+    struct ast_array_decl *decl = ast->ast;
+
+    if (decl->indirection_lvl > 0 && !tok_is(peek_current(), '='))
+        weak_compile_error(
+            ast->line_no,
+            ast->col_no,
+            "Pointer array declaration expects body"
+        );
+
+    if (decl->indirection_lvl == 0)
+        return ast;
+
+    require_char('=');
+    decl->body = parse_logical_or();
+
+    return ast;
 }
 
 static struct ast_node *parse_decl_without_initializer()
@@ -295,7 +319,9 @@ static struct ast_node *parse_decl_without_initializer()
     case TOK_CHAR:
     case TOK_BOOL: /// Fall through.
         if (is_array)
-            return parse_array_decl();
+            /// TODO: parse_array_decl_without_initializer().
+            ///       parse_array_decl() can have initializer now.
+            return parse_array_decl_without_initializer();
         else
             return parse_var_decl_without_initializer();
     default:
@@ -1144,12 +1170,20 @@ static struct ast_node *parse_struct_var_decl()
             dt.line_no,
             dt.col_no
         );
+        struct ast_node *ptr_decl_body = NULL;
+
+        if (dt.indirection_lvl > 0) {
+            require_char('=');
+            ptr_decl_body = parse_logical_or();
+        }
+
         return ast_array_decl_init(
             D_T_STRUCT,
             strdup(name->data),
             dt.type_name, /// Already strdup()'ed.
             enclosure_list_ast,
             dt.indirection_lvl,
+            ptr_decl_body,
             dt.line_no,
             dt.col_no
         );

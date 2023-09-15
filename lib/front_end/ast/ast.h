@@ -91,6 +91,16 @@ struct ast_array_decl {
     /// int *ptr[2] = 1, for
     /// int var[2] = 0.
     uint16_t indirection_lvl;
+
+    /// Declaration body (expression after `=`).
+    ///
+    /// \note Must be initialized only if indirection_lvl >= 1.
+    ///       1) int  mem[1]; // OK
+    ///       2) int *mem[1] = &other_mem[0];
+    ///                       // OK
+    ///       3) int *mem[1]; // Error: pointer declaration
+    ///                       //        points to nothing.
+    struct ast_node *body;
 };
 
 /// \note type_name may be NULL.
@@ -100,6 +110,7 @@ __weak_wur struct ast_node *ast_array_decl_init(
     char            *type_name,
     struct ast_node *enclosure_list,
     uint16_t         indirection_lvl,
+    struct ast_node *body,
     uint16_t         line_no,
     uint16_t         col_no
 );

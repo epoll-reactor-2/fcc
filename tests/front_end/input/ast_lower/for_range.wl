@@ -21,7 +21,7 @@
 //              Symbol <line:0, col:0> `__i1`
 //          ForStmtBody <line:0, col:0>
 //            CompoundStmt <line:0, col:0>
-//              VarDecl <line:0, col:0> int * `i`
+//              VarDecl <line:40, col:8> int * `i`
 //                Prefix UnaryOperator <line:0, col:0> &
 //                  ArrayAccess <line:0, col:0> `array`
 //                    Symbol <line:0, col:0> `__i1`
