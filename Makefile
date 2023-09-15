@@ -10,6 +10,7 @@ GREEN   := $(shell printf $(BOLD)"\033[32m" $(REDIRECT_STDERR))
 YELLOW  := $(shell printf $(BOLD)"\033[33m" $(REDIRECT_STDERR))
 
 DEBUG_BUILD := 1
+SANITIZE    := 0
 
 CC          = gcc
 LD          = ld
@@ -23,17 +24,19 @@ ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb -D NDEBUG
 
 
-# CFLAGS     +=                                                       \
-#               -fsanitize=address -fno-omit-frame-pointer            \
-#               -fsanitize=undefined -fno-sanitize-recover=all        \
-#               -fsanitize-address-use-after-scope
+ifeq ($(SANITIZE), 1)
+CFLAGS     +=                                                       \
+              -fsanitize=address -fno-omit-frame-pointer            \
+              -fsanitize=undefined -fno-sanitize-recover=all        \
+              -fsanitize-address-use-after-scope
 
 ifeq ($(CC),clang)
 CFLAGS     += -fsanitize=cfi -fvisibility=default -flto
-endif
-else
+endif # clang
+endif # SANITIZE
+else  # !DEBUG_BUILD
 CFLAGS     += -march=native -mtune=generic -O3 -D NDEBUG
-endif
+endif # !DEBUG_BUILD
 
 \t         := $(info)	$(info)
 
