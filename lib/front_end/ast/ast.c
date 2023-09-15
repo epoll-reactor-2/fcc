@@ -58,6 +58,7 @@ struct ast_node *ast_array_decl_init(
 void ast_array_decl_cleanup(struct ast_array_decl *ast)
 {
     ast_node_cleanup(ast->enclosure_list);
+    ast_node_cleanup(ast->body);
     if (ast->type_name)
         weak_free(ast->type_name);
     weak_free(ast->name);
@@ -237,15 +238,9 @@ struct ast_node *ast_for_init(
 
 void ast_for_cleanup(struct ast_for *ast)
 {
-    if (ast->init)
-        ast_node_cleanup(ast->init);
-
-    if (ast->condition)
-        ast_node_cleanup(ast->condition);
-
-    if (ast->increment)
-        ast_node_cleanup(ast->increment);
-
+    ast_node_cleanup(ast->init);
+    ast_node_cleanup(ast->condition);
+    ast_node_cleanup(ast->increment);
     ast_node_cleanup(ast->body);
     weak_free(ast);
 }
@@ -322,8 +317,7 @@ struct ast_node *ast_function_decl_init(
 void ast_function_decl_cleanup(struct ast_function_decl *ast)
 {
     ast_node_cleanup(ast->args);
-    if (ast->body)
-        ast_node_cleanup(ast->body);
+    ast_node_cleanup(ast->body);
     weak_free(ast->name);
     weak_free(ast);
 }
@@ -350,9 +344,7 @@ void ast_if_cleanup(struct ast_if *ast)
 {
     ast_node_cleanup(ast->condition);
     ast_node_cleanup(ast->body);
-
-    if (ast->else_body)
-        ast_node_cleanup(ast->else_body);
+    ast_node_cleanup(ast->else_body);
 
     weak_free(ast);
 }
@@ -408,8 +400,7 @@ struct ast_node *ast_return_init(struct ast_node *operand, uint16_t line_no, uin
 
 void ast_return_cleanup(struct ast_return *ast)
 {
-    if (ast->operand)
-        ast_node_cleanup(ast->operand);
+    ast_node_cleanup(ast->operand);
 
     weak_free(ast);
 }
@@ -523,9 +514,7 @@ void ast_var_decl_cleanup(struct ast_var_decl *ast)
     if (ast->type_name)
         weak_free(ast->type_name);
 
-    if (ast->body)
-        ast_node_cleanup(ast->body);
-
+    ast_node_cleanup(ast->body);
     weak_free(ast);
 }
 
