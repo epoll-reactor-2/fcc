@@ -65,7 +65,7 @@ bool parse_test(const char *filename)
         /// There is some memory corruption in AST transform
         /// algorithm.
         ///
-        /// ast_node_cleanup(ast);
+        ast_node_cleanup(ast);
 
         if (strcmp(expected, generated) != 0) {
             printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);

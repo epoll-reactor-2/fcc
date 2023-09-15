@@ -329,6 +329,12 @@ static void visit_ast_array_decl(FILE *mem, struct ast_node *ast)
         fprintf(mem, "[%d]", ( (struct ast_num *)(dimensions->stmts[i]->ast) )->value);
 
     fprintf(mem, " `%s`\n", decl->name);
+
+    if (decl->body) {
+        ast_indent += 2;
+        visit_node(mem, decl->body);
+        ast_indent -= 2;
+    }
 }
 
 static void visit_ast_array_access(FILE *mem, struct ast_node *ast)
