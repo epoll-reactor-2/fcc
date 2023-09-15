@@ -759,8 +759,7 @@ static struct ast_node *parse_for()
 
         struct token *curr = peek_current();
         struct localized_data_type dt = parse_type();
-
-        (void) dt;
+        weak_free(dt.type_name);
 
         if (tok_is(peek_current() + 1, '=')) {
             /// Regular for.
