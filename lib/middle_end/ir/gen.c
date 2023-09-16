@@ -530,7 +530,62 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
     }
 }
 
-static void visit_ast_array_decl(struct ast_array_decl *ast) { (void) ast; }
+static void visit_ast_array_decl(struct ast_array_decl *ast)
+{
+    /*
+        Example. Decide, how to store indices list.
+
+        int mem[1][2][3];
+        mem[0][0][1] = 6;
+        mem[0][1][2] = 9;
+
+        alloca [1 * 2 * 3] %0
+        %1 = load %0 [0 * 1 + 0 * 2 + 1]
+            /// Stride = 1
+            ///
+            /// [ ][ ][ ][ ][ ][ ]
+            ///     ^
+            ///     Store there
+        store %1 6
+        %2 = load %0 [0 * 1 + 1 * 2 + 2]
+            /// Stride = 4
+            ///
+            /// [ ][ ][ ][ ][ ][ ]
+            ///              ^
+            ///              Store there
+        store %2 9
+    */
+
+    int32_t next_idx = ir_var_idx++;
+
+
+    assert((
+        ast->enclosure_list->type == AST_COMPOUND_STMT
+    ) && (
+        "Array declarator expectes compound ast enclosure list."
+    ));
+
+    struct ast_compound *enclosure = ast->enclosure_list->ast;
+
+    assert((
+        enclosure->size <= 16
+    ) && (
+        "Maximum array depth limited to 16."
+    ));
+
+    uint64_t *lvls = alloca(enclosure->size * sizeof (uint64_t));
+    if (!lvls)
+        weak_unreachable("Something funny happened.");
+
+    for (uint64_t i = 0; i < enclosure->size; ++i) {
+        struct ast_num *num = enclosure->stmts[i]->ast;
+        lvls[i] = num->value;
+    }
+
+    ir_last = ir_alloca_array_init(ast->dt, lvls, enclosure->size, next_idx);
+    ir_insert(ir_last);
+}
+
 static void visit_ast_array_access(struct ast_array_access *ast) { (void) ast; }
 static void visit_ast_member(struct ast_member *ast) { (void) ast; }
 
