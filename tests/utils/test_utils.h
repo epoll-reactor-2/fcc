@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -24,15 +25,16 @@
 #define TEST_START_INFO { printf("Testing %s()... ", __FUNCTION__); fflush(stdout); }
 #define TEST_END_INFO   { printf(" Success!\n"); fflush(stdout); }
 
-#define ASSERT_STREQ(lhs, rhs) do {   \
-  int32_t rc = strcmp((lhs), (rhs));  \
-  if (rc != 0) {                      \
-    fprintf(stderr, "%s@%d: Strings mismatch:\n\t`%s` and\n\t`%s`\n", __FILE__, __LINE__, (lhs), (rhs)); \
-    return rc;                        \
-  }                                   \
+#define ASSERT_STREQ(lhs, rhs) do {     \
+    int32_t rc = strcmp((lhs), (rhs));  \
+    if (rc != 0) {                      \
+        fprintf(stderr, "%s@%d: Strings mismatch:\n\t`%s` and\n\t`%s`\n", __FILE__, __LINE__, (lhs), (rhs)); \
+        return rc;                      \
+    }                                   \
 } while(0);
 
-void tokens_cleanup(tok_array_t *toks) {
+__weak_really_inline void tokens_cleanup(tok_array_t *toks)
+{
     for (uint64_t i = 0; i < toks->count; ++i) {
         struct token *t = &toks->data[i];
         if (t->data)
@@ -47,93 +49,105 @@ void tokens_cleanup(tok_array_t *toks) {
 /// // b,
 /// // c.
 /// String "A,\nb,\nc." will be issued in output stream.
-void extract_assertion_comment(FILE *in, FILE *out)
+__weak_really_inline void extract_assertion_comment(FILE *in, FILE *out)
 {
     char   *line = NULL;
-    size_t  len = 0;
+    size_t  len  = 0;
     ssize_t read = 0;
 
     while ((read = getline(&line, &len, in)) != -1) {
-        if (read <= 3) {
+        if (read <= 3)
             continue;
-        }
+
         if (strncmp(line, "//", 2) == 0) {
             char *ptr = line + 2;
             while (*ptr != '\n' && *ptr != '\0') {
-                fputc_unlocked(*ptr++, out);
+                fputc(*ptr++, out);
             }
-            fputc_unlocked('\n', out);
+            fputc('\n', out);
         }
     }
     free(line);
     fflush(out);
 }
 
-void extract_compiler_messages(const char *filename, FILE *in, FILE *out)
+__weak_really_inline void extract_compiler_messages(const char *filename, FILE *in, FILE *out)
 {
     char   *line = NULL;
-    size_t  len = 0;
+    size_t  len  = 0;
     ssize_t read = 0;
 
     while ((read = getline(&line, &len, in)) != -1) {
-        if (read <= 3) {
+        if (read <= 3)
             continue;
-        }
+
         if (strncmp(line, "//", 2) == 0) {
             fprintf(out, "%s: ", filename);
 
             char *ptr = line + 2;
             while (*ptr != '\n' && *ptr != '\0') {
-                fputc_unlocked(*ptr++, out);
+                fputc(*ptr++, out);
             }
-            fputc_unlocked('\n', out);
+            fputc('\n', out);
         }
     }
     free(line);
     fflush(out);
 }
 
-bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
+__weak_really_inline void set_cwd(char cwd[static 512], const char *tests_dir)
 {
-    char cwd[512];
-    bool success = true;
+    if (!getcwd(cwd, 512))
+        weak_unreachable("Cannot get current dir: %s", strerror(errno));
 
-    if (getcwd(cwd, sizeof(cwd)) == NULL) {
-        perror("getcwd()");
-        return false;
-    }
+    size_t cwd_len = strlen(cwd);
 
-    sprintf(cwd + strlen(cwd), "%s", tests_dir);
+    snprintf(cwd + cwd_len, 512 - cwd_len, "%s", tests_dir);
+}
+
+__weak_really_inline bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
+{
+    char    cwd  [ 512] = {0};
+    char    fname[1024] = {0};
+    bool    success     =  1 ;
+    DIR    *it          = NULL;
+    struct  dirent *dir = NULL;
+
+    set_cwd(cwd, tests_dir);
 
     printf("Opening working directory: %s\n", cwd);
 
-    DIR *dir_iterator = opendir(cwd);
-    struct dirent *dir;
+    it = opendir(cwd);
+    if (!it)
+        weak_unreachable("Cannot open current dir: %s", strerror(errno));
 
-    if (!dir_iterator) {
-        perror("opendir()");
-        return false;
-    }
-
-    while ((dir = readdir(dir_iterator)) != NULL) {
-        if (dir->d_type == DT_DIR)
-            continue;
-
-        char filename[1024];
-        sprintf(filename, "%s/%s", cwd, dir->d_name);
+    while ((dir = readdir(it))) {
+        switch (dir->d_type) {
+        case DT_DIR:
+            continue; /// Skip.
+        case DT_REG:
+        case DT_LNK:
+            break; /// Ok.
+        default:
+            weak_unreachable("File or symlink expected as test input.");
+        }
 
         printf("Testing file %s... ", dir->d_name);
         fflush(stdout);
 
-        weak_set_source_filename(filename);
+        snprintf(fname, sizeof (fname), "%s/%s", cwd, dir->d_name);
 
-        if (!callback(filename)) {
-            success = false;
+        weak_set_source_filename(fname);
+
+        if (!callback(fname)) {
+            success = 0;
             goto exit;
         }
+
+        memset(fname, 0, sizeof (fname));
     }
 
 exit:
-    closedir(dir_iterator);
+    closedir(it);
     return success;
 }

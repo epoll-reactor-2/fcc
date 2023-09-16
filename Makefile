@@ -21,11 +21,12 @@ CFLAGS      = -std=gnu99 -fPIC -Ilib
 CFLAGS     += -Wall -Wextra -Wshadow -Wvla -Wpointer-arith -Wframe-larger-than=32768
 
 ifeq ($(DEBUG_BUILD), 1)
-CFLAGS     += -O0 -ggdb -D NDEBUG
+CFLAGS     += -O0 -ggdb
 
 
 ifeq ($(SANITIZE), 1)
 CFLAGS     +=                                                       \
+              -fanalyzer                                            \
               -fsanitize=address -fno-omit-frame-pointer            \
               -fsanitize=undefined -fno-sanitize-recover=all        \
               -fsanitize-address-use-after-scope
