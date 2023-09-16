@@ -15,6 +15,7 @@
 
 enum ir_type {
     IR_ALLOCA,
+    IR_ALLOCA_ARRAY,
     /// Immediate value.
     IR_IMM,
     IR_SYM,
@@ -71,6 +72,14 @@ struct ir_alloca {
     /// This is index of an variable. Like
     /// D_T_INT %1.
     /// Alternatively, string names can be stored.
+    int32_t          idx;
+};
+
+struct ir_alloca_array {
+    enum data_type   dt;
+    /// Possible multiple dimensions.
+    uint64_t         enclosure_lvls[16];
+    uint64_t         enclosure_lvls_size;
     int32_t          idx;
 };
 
@@ -213,6 +222,12 @@ void ir_reset_internal_state();
 
 __weak_wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
 __weak_wur struct ir_node *ir_alloca_init(enum data_type dt, int32_t idx);
+__weak_wur struct ir_node *ir_alloca_array_init(
+    enum data_type  dt,
+    uint64_t       *enclosure_lvls,
+    uint64_t        enclosure_lvls_size,
+    int32_t         idx
+);
 
 __weak_wur struct ir_node *ir_imm_init(enum ir_imm_type t, union ir_imm_val imm);
 __weak_wur struct ir_node *ir_imm_bool_init(bool imm);

@@ -8,6 +8,7 @@
 #include "util/alloc.h"
 #include "util/unreachable.h"
 #include <assert.h>
+#include <string.h>
 
 /// Global state. -1 because of semantics of
 /// index incrementing. This should be done before
@@ -36,6 +37,21 @@ struct ir_node *ir_alloca_init(enum data_type dt, int32_t idx)
     ir->idx = idx;
     ++ir_instr_index;
     return ir_node_init(IR_ALLOCA, ir);
+}
+
+struct ir_node *ir_alloca_array_init(
+    enum data_type  dt,
+    uint64_t       *enclosure_lvls,
+    uint64_t        enclosure_lvls_size,
+    int32_t         idx
+) {
+    struct ir_alloca_array *ir = weak_calloc(1, sizeof (struct ir_alloca_array));
+    ir->dt = dt;
+    ir->enclosure_lvls_size = enclosure_lvls_size;
+    ir->idx = idx;
+    memcpy(ir->enclosure_lvls, enclosure_lvls, enclosure_lvls_size * sizeof (uint64_t));
+    ++ir_instr_index;
+    return ir_node_init(IR_ALLOCA_ARRAY, ir);
 }
 
 struct ir_node *ir_imm_init(enum ir_imm_type t, union ir_imm_val imm)
@@ -333,6 +349,7 @@ void ir_node_cleanup(struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_ALLOCA:
+    case IR_ALLOCA_ARRAY:
     case IR_IMM:
     case IR_SYM:
     case IR_JUMP:

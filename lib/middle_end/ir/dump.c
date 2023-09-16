@@ -16,6 +16,7 @@ const char *ir_type_to_string(enum ir_type t)
 {
     switch (t) {
     case IR_ALLOCA:       return "IR_ALLOCA";
+    case IR_ALLOCA_ARRAY: return "IR_ALLOCA_ARRAY";
     case IR_IMM:          return "IR_IMM";
     case IR_SYM:          return "IR_SYM";
     case IR_STORE:        return "IR_STORE";
@@ -34,9 +35,30 @@ const char *ir_type_to_string(enum ir_type t)
     }
 }
 
+static void fprintf_n(FILE *mem, uint32_t count, char c)
+{
+    for (uint32_t i = 0; i < count; ++i)
+        fputc(c, mem);
+}
+
 static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 {
     fprintf(mem, "alloca %s %%%d", data_type_to_string(ir->dt), ir->idx);
+}
+
+static void ir_dump_alloca_array(FILE *mem, struct ir_alloca_array *ir)
+{
+    // fprintf(mem, "alloca [%ld x %s] %%%d", ir->size, data_type_to_string(ir->dt), ir->idx);
+    uint64_t total = ir->enclosure_lvls_size;
+
+    fprintf(mem, "alloca ");
+    for (uint64_t i = 0; i < total; ++i) {
+        uint64_t e = ir->enclosure_lvls[i];
+        fprintf(mem, "[%ld x ", e);
+    }
+    fprintf(mem, "%s", data_type_to_string(ir->dt));
+    fprintf_n(mem, total, ']');
+    fprintf(mem, " %%%d", ir->idx);
 }
 
 static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
@@ -182,6 +204,7 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_ALLOCA:       ir_dump_alloca(mem, ir->ir); break;
+    case IR_ALLOCA_ARRAY: ir_dump_alloca_array(mem, ir->ir); break;
     case IR_IMM:          ir_dump_imm(mem, ir->ir); break;
     case IR_SYM:          ir_dump_sym(mem, ir->ir); break;
     case IR_STORE:        ir_dump_store(mem, ir->ir); break;
@@ -243,6 +266,7 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
         break;
     case IR_STORE:
     case IR_ALLOCA:
+    case IR_ALLOCA_ARRAY:
     case IR_FUNC_CALL:
     case IR_JUMP: {
         ir_mark(visited, ir);
