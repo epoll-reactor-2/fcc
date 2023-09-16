@@ -7,7 +7,6 @@
 #include "front_end/ast/ast.h"
 #include "util/alloc.h"
 #include "util/unreachable.h"
-#include <assert.h>
 
 
 ///////////////////////////////////////////////
@@ -42,9 +41,6 @@ struct ast_node *ast_array_decl_init(
     uint16_t         line_no,
     uint16_t         col_no
 ) {
-    if (indirection_lvl > 0)
-        assert(body && "Pointer to array must point to something.");
-
     struct ast_array_decl *ast = weak_calloc(1, sizeof (struct ast_array_decl));
     ast->dt = dt;
     ast->name = name;
