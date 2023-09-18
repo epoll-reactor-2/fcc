@@ -30,10 +30,11 @@ struct ir_node *ir_node_init(enum ir_type type, void *ir)
     return node;
 }
 
-struct ir_node *ir_alloca_init(enum data_type dt, int32_t idx)
+struct ir_node *ir_alloca_init(enum data_type dt, bool ptr, int32_t idx)
 {
     struct ir_alloca *ir = weak_calloc(1, sizeof (struct ir_alloca));
     ir->dt = dt;
+    ir->ptr = ptr;
     ir->idx = idx;
     ++ir_instr_index;
     return ir_node_init(IR_ALLOCA, ir);
@@ -102,47 +103,22 @@ struct ir_node *ir_sym_init(int32_t idx)
     return ir_node_init(IR_SYM, ir);
 }
 
-struct ir_node *ir_store_imm_init(int32_t idx, struct ir_node *imm)
+struct ir_node *ir_store_init(int32_t idx, struct ir_node *body)
 {
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
-    ir->type = IR_STORE_IMM;
     ir->idx = idx;
-    ir->body = imm;
-    ++ir_instr_index;
-    return ir_node_init(IR_STORE, ir);
+    ir->body = body;
+    if (body->type != IR_FUNC_CALL)
+        ++ir_instr_index;
+    return ir_node_init(IR_STORE, ir);    
 }
 
-struct ir_node *ir_store_sym_init(int32_t idx, int32_t var_idx)
+struct ir_node *ir_store_ptr_init(int32_t idx, struct ir_node *body)
 {
-    struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
-    ir->type = IR_STORE_SYM;
+    struct ir_store_ptr *ir = weak_calloc(1, sizeof (struct ir_store_ptr));
     ir->idx = idx;
-    ir->body = ir_sym_init(var_idx);
-    ++ir_instr_index;
-    return ir_node_init(IR_STORE, ir);
-}
-
-struct ir_node *ir_store_bin_init(int32_t idx, struct ir_node *bin)
-{
-    assert(bin->type == IR_BIN && "Store expects binary expression in this context");
-    struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
-    ir->type = IR_STORE_BIN;
-    ir->idx = idx;
-    ir->body = bin;
-    ++ir_instr_index;
-    return ir_node_init(IR_STORE, ir);
-}
-
-struct ir_node *ir_store_call_init(int32_t idx, struct ir_node *call)
-{
-    assert(call->type == IR_FUNC_CALL && "Store expects function call in this context");
-    struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
-    ir->type = IR_STORE_CALL;
-    ir->idx = idx;
-    ir->body = call;
-    /// Instruction index was already incremented in
-    /// the call instruction itself.
-    return ir_node_init(IR_STORE, ir);   
+    ir->body = body;
+    return ir_node_init(IR_STORE_PTR, ir);
 }
 
 struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs)
@@ -178,7 +154,7 @@ struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label)
     ir->cond = cond;
     ir->goto_label = goto_label;
     ++ir_instr_index;
-    return ir_node_init(IR_COND, ir);    
+    return ir_node_init(IR_COND, ir);
 }
 
 struct ir_node *ir_ret_init(bool is_void, struct ir_node *body)
@@ -195,7 +171,7 @@ struct ir_node *ir_ret_init(bool is_void, struct ir_node *body)
     ir->body = body;
     /// Return operand is inline instruction.
     ++ir_instr_index;
-    return ir_node_init(is_void ? IR_RET_VOID : IR_RET, ir);    
+    return ir_node_init(is_void ? IR_RET_VOID : IR_RET, ir);
 }
 
 struct ir_node *ir_member_init(int32_t idx, int32_t field_idx)
@@ -217,7 +193,7 @@ struct ir_node *ir_array_access_init(int32_t idx, struct ir_node *body)
     struct ir_array_access *ir = weak_calloc(1, sizeof (struct ir_array_access));
     ir->idx = idx;
     ir->body = body;
-    return ir_node_init(IR_ARRAY_ACCESS, ir);    
+    return ir_node_init(IR_ARRAY_ACCESS, ir);
 }
 
 struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls)
@@ -238,7 +214,7 @@ struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls)
     struct ir_type_decl *ir = weak_calloc(1, sizeof (struct ir_type_decl));
     ir->name = name;
     ir->decls = decls;
-    return ir_node_init(IR_TYPE_DECL, ir);    
+    return ir_node_init(IR_TYPE_DECL, ir);
 }
 
 struct ir_node *ir_func_decl_init(
@@ -262,7 +238,7 @@ struct ir_node *ir_func_decl_init(
     ir->name = name;
     ir->args = args;
     ir->body = body;
-    return ir_node_init(IR_FUNC_DECL, ir);    
+    return ir_node_init(IR_FUNC_DECL, ir);
 }
 
 struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
@@ -284,10 +260,15 @@ struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
     ir->name = name;
     ir->args = args;
     ++ir_instr_index;
-    return ir_node_init(IR_FUNC_CALL, ir);    
+    return ir_node_init(IR_FUNC_CALL, ir);
 }
 
 static void ir_store_cleanup(struct ir_store *ir)
+{
+    ir_node_cleanup(ir->body);
+}
+
+static void ir_store_ptr_cleanup(struct ir_store_ptr *ir)
 {
     ir_node_cleanup(ir->body);
 }
@@ -357,6 +338,7 @@ void ir_node_cleanup(struct ir_node *ir)
         /// Nothing to clean except ir->ir itself.
         break;
     case IR_STORE:        ir_store_cleanup(ir->ir); break;
+    case IR_STORE_PTR:    ir_store_ptr_cleanup(ir->ir); break;
     case IR_BIN:          ir_bin_cleanup(ir->ir); break;
     case IR_COND:         ir_cond_cleanup(ir->ir); break;
     case IR_RET:          ir_ret_cleanup(ir->ir); break;

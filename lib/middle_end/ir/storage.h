@@ -26,8 +26,17 @@
 void ir_storage_init();
 void ir_storage_reset();
 
-void    ir_storage_push(const char *name, int32_t ir_idx);
-__weak_wur
-int32_t ir_storage_get (const char *name);
+struct ir_storage_record {
+    int32_t         sym_idx;
+    /// Allocated inside internal hashmap.
+    /// Not needed to free.
+    struct ir_node *ir;
+};
+
+void
+ir_storage_push(const char *name, int32_t ir_idx, struct ir_node *ir);
+
+__weak_wur struct ir_storage_record *
+ir_storage_get (const char *name);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_STORAGE_H

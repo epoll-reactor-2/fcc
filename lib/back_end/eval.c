@@ -26,6 +26,8 @@ static void reset_hashmap(hashmap_t *map)
 
 
 
+/// key:   symbol index
+/// value: immediate
 static vector_t(hashmap_t *) storages;
 static hashmap_t *storage_act;
 
@@ -296,21 +298,21 @@ static void eval_store_call(struct ir_store *ir)
 
 static void eval_store(struct ir_store *store)
 {
-    switch (store->type) {
-    case IR_STORE_IMM: {
+    switch (store->body->type) {
+    case IR_IMM: {
         eval_store_imm(store);
         break;
     }
-    case IR_STORE_SYM: {
+    case IR_SYM: {
         eval_store_sym(store);
         break;
     }
-    case IR_STORE_BIN: {
+    case IR_BIN: {
         // Some error there.
         eval_store_bin(store);
         break;
     }
-    case IR_STORE_CALL: {
+    case IR_FUNC_CALL: {
         eval_store_call(store);
         break;
     }

@@ -20,6 +20,7 @@ enum ir_type {
     IR_IMM,
     IR_SYM,
     IR_STORE,
+    IR_STORE_PTR,
     IR_BIN,
     IR_JUMP,
     IR_COND,
@@ -69,6 +70,7 @@ struct ir_node {
 
 struct ir_alloca {
     enum data_type   dt;
+    bool             ptr;
     /// This is index of an variable. Like
     /// D_T_INT %1.
     /// Alternatively, string names can be stored.
@@ -108,23 +110,16 @@ struct ir_sym {
     int32_t idx;
 };
 
-enum ir_store_type {
-    IR_STORE_IMM,
-    IR_STORE_SYM,
-    IR_STORE_BIN,
-    IR_STORE_CALL
-};
-
 struct ir_store {
     /// Variable name, or index, where to store.
     /// %1 = ...
-    int32_t idx;
-    /// Allowed body for store instruction:
-    /// - immediate value,
-    /// - binary operation,
-    /// - variable (var).
-    enum ir_store_type   type;
-    struct ir_node      *body;
+    int32_t         idx;
+    struct ir_node *body;
+};
+
+struct ir_store_ptr {
+    int32_t         idx;
+    struct ir_node *body;
 };
 
 struct ir_bin {
@@ -221,7 +216,7 @@ struct ir_func_call {
 void ir_reset_internal_state();
 
 __weak_wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
-__weak_wur struct ir_node *ir_alloca_init(enum data_type dt, int32_t idx);
+__weak_wur struct ir_node *ir_alloca_init(enum data_type dt, bool ptr, int32_t idx);
 __weak_wur struct ir_node *ir_alloca_array_init(
     enum data_type  dt,
     uint64_t       *enclosure_lvls,
@@ -237,10 +232,8 @@ __weak_wur struct ir_node *ir_imm_int_init(int32_t imm);
 
 __weak_wur struct ir_node *ir_sym_init(int32_t idx);
 
-__weak_wur struct ir_node *ir_store_imm_init(int32_t idx, struct ir_node *imm);
-__weak_wur struct ir_node *ir_store_sym_init(int32_t idx, int32_t var_idx);
-__weak_wur struct ir_node *ir_store_bin_init(int32_t idx, struct ir_node *bin);
-__weak_wur struct ir_node *ir_store_call_init(int32_t idx, struct ir_node *call);
+__weak_wur struct ir_node *ir_store_init(int32_t idx, struct ir_node *body);
+__weak_wur struct ir_node *ir_store_ptr_init(int32_t idx, struct ir_node *body);
 
 __weak_wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
 __weak_wur struct ir_node *ir_jump_init(int32_t idx);

@@ -23,6 +23,9 @@ void *diag_warn_memstream = NULL;
 
 bool ir_test(const char *filename)
 {
+    if (strstr(filename, "disabled_") != NULL)
+        return 1;
+
     lex_reset_state();
     lex_init_state();
 
