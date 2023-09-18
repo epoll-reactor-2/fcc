@@ -92,7 +92,9 @@ static void ir_dump_store(FILE *mem, struct ir_store *ir)
 
 static void ir_dump_store_ptr(FILE *mem, struct ir_store_ptr *ir)
 {
-    fprintf(mem, "store *%%%d ", ir->idx);
+    fprintf(mem, "store ");
+    ir_dump_node(mem, ir->idx);
+    fprintf(mem, " ");
     ir_dump_node(mem, ir->body);
 }
 

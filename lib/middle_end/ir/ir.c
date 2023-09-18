@@ -113,11 +113,12 @@ struct ir_node *ir_store_init(int32_t idx, struct ir_node *body)
     return ir_node_init(IR_STORE, ir);    
 }
 
-struct ir_node *ir_store_ptr_init(int32_t idx, struct ir_node *body)
+struct ir_node *ir_store_ptr_init(struct ir_node *idx, struct ir_node *body)
 {
     struct ir_store_ptr *ir = weak_calloc(1, sizeof (struct ir_store_ptr));
     ir->idx = idx;
     ir->body = body;
+    ++ir_instr_index;
     return ir_node_init(IR_STORE_PTR, ir);
 }
 
@@ -270,6 +271,7 @@ static void ir_store_cleanup(struct ir_store *ir)
 
 static void ir_store_ptr_cleanup(struct ir_store_ptr *ir)
 {
+    ir_node_cleanup(ir->idx);
     ir_node_cleanup(ir->body);
 }
 

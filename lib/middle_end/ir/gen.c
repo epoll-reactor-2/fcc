@@ -144,9 +144,11 @@ static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
     ir_last_ptr = NULL;
 
     visit_ast(ast->lhs);
-    struct ir_node *lhs = ir_last;
-    // struct ir_node *l_ptr = ir_last_ptr;
-    // struct ir_node *l_ptr_sym = l_ptr->ir;
+    struct ir_node *lhs     = ir_last;
+    struct ir_node *lhs_ptr = ir_last_ptr;
+
+    if (lhs_ptr)
+        printf("Type from emit_assign: %s\n", ir_type_to_string(lhs_ptr->type));
 
     struct ir_sym *l_sym = lhs->ir;
     *last_assign = ir_last;
@@ -154,7 +156,12 @@ static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
     visit_ast(ast->rhs);
     struct ir_node *rhs = ir_last;
 
-    ir_last = ir_store_init(l_sym->idx, rhs);
+    if (lhs_ptr) {
+        ir_last = ir_store_ptr_init(lhs_ptr, rhs);
+    } else {
+        ir_last = ir_store_init(l_sym->idx, rhs);
+    }
+
     ir_insert(ir_last);
 }
 
@@ -602,7 +609,6 @@ static void visit_ast_array_access(struct ast_array_access *ast)
     /// First just assume one-dimensional array.
     /// Next extend to multi-dimensional.
 
-#if 0
     struct ir_storage_record *record = ir_storage_get(ast->name);
     struct ir_alloca_array   *alloca = record->ir->ir;
 
@@ -614,23 +620,11 @@ static void visit_ast_array_access(struct ast_array_access *ast)
         visit_ast(indices->stmts[0]);
         struct ir_node *idx = ir_last;
 
-        ir_last = ir_alloca_init(D_T_INT, /*ptr=*/1, next_idx);
-        ir_insert(ir_last);
+        ir_last_ptr = ir_array_access_init(record->sym_idx, ir_last);
+        ir_last = ir_last_ptr;
 
-        ir_last_ptr = ir_sym_init(next_idx);
-
-        ir_last = ir_store_init(
-            next_idx,
-            ir_array_access_init(record->sym_idx, ir_sym_init(next_idx))
-        );
-        ir_insert(ir_last);
-        
-
-        // ++next_idx;
+        assert(ir_last->type == IR_ARRAY_ACCESS);
     }
-
-    ir_last = ir_sym_init(next_idx);
-#endif
 }
 
 static void visit_ast_member(struct ast_member *ast) { (void) ast; }
