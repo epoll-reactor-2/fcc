@@ -157,9 +157,9 @@ static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
     struct ir_node *rhs = ir_last;
 
     if (lhs_ptr) {
-        ir_last = ir_store_ptr_init(lhs_ptr, rhs);
+        ir_last = ir_store_init(lhs_ptr, rhs);
     } else {
-        ir_last = ir_store_init(l_sym->idx, rhs);
+        ir_last = ir_store_sym_init(l_sym->idx, rhs);
     }
 
     ir_insert(ir_last);
@@ -191,7 +191,7 @@ static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
     struct ir_node *rhs = ir_last;
 
     struct ir_node *bin = ir_bin_init(ast->operation, lhs, rhs);
-    ir_last = ir_store_init(alloca_idx, bin);
+    ir_last = ir_store_sym_init(alloca_idx, bin);
 
     if (last_assign != NULL) {
         struct ir_sym *assign = last_assign->ir;
@@ -482,7 +482,7 @@ static void visit_ast_unary(struct ast_unary *ast)
         ir_imm_int_init(1)
     );
 
-    ir_last = ir_store_init(sym->idx, ir_last);
+    ir_last = ir_store_sym_init(sym->idx, ir_last);
 
     struct meta *meta = meta_init(IR_META_VAR);
     meta->sym_meta.noalias = 1;
@@ -503,7 +503,7 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
 
     if (ast->body) {
         visit_ast(ast->body);
-        ir_last = ir_store_init(next_idx, ir_last);
+        ir_last = ir_store_sym_init(next_idx, ir_last);
         ir_insert(ir_last);
     }
 }
@@ -566,59 +566,15 @@ static void visit_ast_array_decl(struct ast_array_decl *ast)
 
 static void visit_ast_array_access(struct ast_array_access *ast)
 {
-    (void) ast;
-/*
-    int mem[1][2][3];
-    mem[0][0][1] = 6;
-
-    alloca [1 x [2 x [ 3 x int]]] %array
-    alloca int %i1
-    store %i1 0 * 1
-    alloca int %i2
-    store %i2 0 * 2
-    alloca int %i3
-    store %i3 1 * 3
-    alloca int %idx1
-    store %idx1 %i1 + %i2
-    alloca int %idx2
-    store %idx2 %idx1 + %i3
-    alloca int* %ptr
-    store %ptr[%idx2] 6
-*/
-
-/*
-    int mem[2];
-    mem[0] = 1;
-    mem[1] = 0;
-    return mem[0] + mem[1];
-
-    alloca [2 x int] %mem
-
-    store %mem[$0] 1
-    alloca int %2
-    store %2 1
-    store %mem[%2] 0
-    alloca int %3
-    store %3 *%mem[$0]
-    alloca int %4
-    store %4 *%mem[$1]
-    alloca int %5
-    store %5 %3 + %4
-    ret %5
-*/
     /// First just assume one-dimensional array.
     /// Next extend to multi-dimensional.
 
     struct ir_storage_record *record = ir_storage_get(ast->name);
-    struct ir_alloca_array   *alloca = record->ir->ir;
 
     struct ast_compound *indices = ast->indices->ast;
     
-    int32_t next_idx = ir_var_idx++;
-
     if (indices->size == 1) {
         visit_ast(indices->stmts[0]);
-        struct ir_node *idx = ir_last;
 
         ir_last_ptr = ir_array_access_init(record->sym_idx, ir_last);
         ir_last = ir_last_ptr;
@@ -709,7 +665,7 @@ static void visit_ast_function_call(struct ast_function_call *ast)
         ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
         ir_insert(ir_last);
         struct ir_node *call = ir_func_call_init(ast->name, args_start);
-        ir_last = ir_store_init(next_idx, call);
+        ir_last = ir_store_sym_init(next_idx, call);
         ir_insert(ir_last);
         ir_last = ir_sym_init(next_idx);
     }

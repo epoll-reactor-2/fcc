@@ -3,6 +3,7 @@
  *
  * This file is distributed under the MIT license.
  */
+#if 0
 
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/dump.h"
@@ -206,6 +207,12 @@ __weak_wur static bool is_no_result(struct ir_node *ir)
     return 0;
 }
 
+static int32_t get_store_idx(struct ir_node *ir)
+{
+    struct ir_sym *store = ir->ir;
+    return store->idx;
+}
+
 static struct ir_node *fold_sym(struct ir_sym *ir)
 {
     if (consts_mapping_is_const(ir->idx))
@@ -225,7 +232,7 @@ static bool fold_store_mark_loop_dependent(struct ir_node *ir)
 
     struct meta *meta = ir->meta;
     if (meta->sym_meta.loop) {
-        loop_dependent_put(store->idx, meta->sym_meta.loop_idx);
+        loop_dependent_put(get_store_idx(store->idx), meta->sym_meta.loop_idx);
         __weak_debug_msg("Added loop-dependent variable (loop attr) %%%d. Return\n", store->idx);
         return 1;
     }
@@ -570,3 +577,5 @@ void ir_opt_fold(struct ir_node *ir)
         it = it->next;
     }
 }
+
+#endif /// 0

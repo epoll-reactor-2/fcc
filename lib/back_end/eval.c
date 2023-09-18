@@ -273,27 +273,35 @@ static void eval_bin(struct ir_bin *bin)
 static void eval_store_bin(struct ir_store *ir)
 {
     eval_instr(ir->body);
-    storage_set(ir->idx, last_imm);
+    assert(ir->idx->type == IR_SYM && "TODO: Implement arrays");
+    struct ir_sym *to_sym = ir->idx->ir;
+    storage_set(to_sym->idx, last_imm);
 }
 
 static void eval_store_imm(struct ir_store *ir)
 {
+    assert(ir->idx->type == IR_SYM && "TODO: Implement arrays");
+    struct ir_sym *to_sym = ir->idx->ir;
     struct ir_imm *imm = ir->body->ir;
-    storage_set(ir->idx, *imm);
+    storage_set(to_sym->idx, *imm);
 }
 
 static void eval_store_sym(struct ir_store *ir)
 {
-    struct ir_sym *sym = ir->body->ir;
-    struct ir_imm imm = storage_get(sym->idx);
-    storage_set(ir->idx, imm);
+    assert(ir->idx->type == IR_SYM && "TODO: Implement arrays");
+    struct ir_sym *to_sym = ir->idx->ir;
+    struct ir_sym *from_sym = ir->body->ir;
+    struct ir_imm imm = storage_get(from_sym->idx);
+    storage_set(to_sym->idx, imm);
 }
 
 static void eval_store_call(struct ir_store *ir)
 {
     struct ir_func_call *fcall = ir->body->ir;
+    assert(ir->idx->type == IR_SYM && "TODO: Implement arrays");
+    struct ir_sym *to_sym = ir->idx->ir;
     eval_func_call(fcall);
-    storage_set(ir->idx, last_imm);
+    storage_set(to_sym->idx, last_imm);
 }
 
 static void eval_store(struct ir_store *store)
