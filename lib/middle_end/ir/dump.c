@@ -20,6 +20,7 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_IMM:          return "IR_IMM";
     case IR_SYM:          return "IR_SYM";
     case IR_STORE:        return "IR_STORE";
+    case IR_STORE_PTR:    return "IR_STORE_PTR";
     case IR_BIN:          return "IR_BIN";
     case IR_JUMP:         return "IR_JUMP";
     case IR_COND:         return "IR_COND";
@@ -43,12 +44,17 @@ static void fprintf_n(FILE *mem, uint32_t count, char c)
 
 static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 {
-    fprintf(mem, "alloca %s %%%d", data_type_to_string(ir->dt), ir->idx);
+    fprintf(
+        mem,
+        "alloca %s%s %%%d",
+        data_type_to_string(ir->dt),
+        ir->ptr ? "*" : "",
+        ir->idx
+    );
 }
 
 static void ir_dump_alloca_array(FILE *mem, struct ir_alloca_array *ir)
 {
-    // fprintf(mem, "alloca [%ld x %s] %%%d", ir->size, data_type_to_string(ir->dt), ir->idx);
     uint64_t total = ir->enclosure_lvls_size;
 
     fprintf(mem, "alloca ");
@@ -81,6 +87,12 @@ static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
 {
     fprintf(mem, "store %%%d ", ir->idx);
+    ir_dump_node(mem, ir->body);
+}
+
+static void ir_dump_store_ptr(FILE *mem, struct ir_store_ptr *ir)
+{
+    fprintf(mem, "store *%%%d ", ir->idx);
     ir_dump_node(mem, ir->body);
 }
 
@@ -148,11 +160,9 @@ static void ir_dump_member(FILE *mem, struct ir_member *ir)
 
 static void ir_dump_array_access(FILE *mem, struct ir_array_access *ir)
 {
-    /// %1[%2]
-    /// %1[$123]
-    (void) mem;
-    (void) ir;
-    weak_unreachable("todo: implement");
+    fprintf(mem, "%%%d[", ir->idx);
+    ir_dump_node(mem, ir->body);
+    fprintf(mem, "]");
 }
 
 static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
@@ -208,6 +218,7 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_IMM:          ir_dump_imm(mem, ir->ir); break;
     case IR_SYM:          ir_dump_sym(mem, ir->ir); break;
     case IR_STORE:        ir_dump_store(mem, ir->ir); break;
+    case IR_STORE_PTR:    ir_dump_store_ptr(mem, ir->ir); break;
     case IR_BIN:          ir_dump_bin(mem, ir->ir); break;
     case IR_JUMP:         ir_dump_jump(mem, ir->ir); break;
     case IR_COND:         ir_dump_cond(mem, ir->ir); break;

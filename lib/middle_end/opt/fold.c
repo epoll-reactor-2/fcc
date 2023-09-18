@@ -288,7 +288,7 @@ static void fold_store_bin(struct ir_node *ir)
 
         ir_node_cleanup(store->body);
         store->body = folded;
-        store->type = IR_STORE_BIN;
+        // store->type = IR_STORE_BIN;
         consts_mapping_remove(store->idx);
         alloca_stmts_remove(store->idx);
         break;
@@ -297,7 +297,7 @@ static void fold_store_bin(struct ir_node *ir)
         struct ir_imm *imm = folded->ir;
         ir_node_cleanup(store->body);
         store->body = folded;
-        store->type = IR_STORE_IMM;
+        // store->type = IR_STORE_IMM;
         consts_mapping_update(store->idx, imm->imm.__int);
         vector_push_back(redundant_stmts, ir);
         break;
@@ -322,7 +322,7 @@ static void fold_store_sym(struct ir_node *ir)
         ir_node_cleanup(store->body);
         /// \todo: Any type
         store->body = ir_imm_int_init(imm.__int);
-        store->type = IR_STORE_IMM;
+        // store->type = IR_STORE_IMM;
 
         consts_mapping_update(store->idx, imm.__int);
         vector_push_back(redundant_stmts, ir);
@@ -353,16 +353,16 @@ static void fold_store_imm(struct ir_node *ir)
 static void fold_store(struct ir_node *ir)
 {
     struct ir_store *store = ir->ir;
-    switch (store->type) {
-    case IR_STORE_BIN: {
+    switch (store->body->type) {
+    case IR_BIN: {
         fold_store_bin(ir);
         break;
     }
-    case IR_STORE_SYM: {
+    case IR_SYM: {
         fold_store_sym(ir);
         break;
     }
-    case IR_STORE_IMM: {
+    case IR_IMM: {
         fold_store_imm(ir);
         break;
     }

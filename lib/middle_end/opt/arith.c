@@ -129,7 +129,8 @@ static struct ir_node *opt_arith_bin(struct ir_bin *bin)
 
 static void opt_arith_store(struct ir_store *store)
 {
-    if (store->type != IR_STORE_BIN) return;
+    if (store->body->type != IR_BIN) return;
+    // if (store->type != IR_STORE_BIN) return;
 
     struct ir_node *node = opt_arith_node(store->body);
 
@@ -138,19 +139,19 @@ static void opt_arith_store(struct ir_store *store)
     ir_node_cleanup(store->body);
     store->body = node;
 
-    switch (node->type) {
-    case IR_BIN:
-        store->type = IR_STORE_BIN;
-        break;
-    case IR_IMM:
-        store->type = IR_STORE_IMM;
-        break;
-    case IR_SYM:
-        store->type = IR_STORE_SYM;
-        break;
-    default:
-        break;
-    }
+    // switch (node->type) {
+    // case IR_BIN:
+    //     store->type = IR_STORE_BIN;
+    //     break;
+    // case IR_IMM:
+    //     store->type = IR_STORE_IMM;
+    //     break;
+    // case IR_SYM:
+    //     store->type = IR_STORE_SYM;
+    //     break;
+    // default:
+    //     break;
+    // }
 }
 
 static void opt_arith_ret(struct ir_ret *ret)

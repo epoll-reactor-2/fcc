@@ -24,6 +24,7 @@ typedef vector_t(struct ir_node *) ir_array_t;
 static ir_array_t      ir_func_decls;
 static struct ir_node *ir_first;
 static struct ir_node *ir_last;
+static struct ir_node *ir_last_ptr;
 static struct ir_node *ir_prev;
 /// Used to count alloca instructions.
 /// Conditions:
@@ -140,41 +141,40 @@ static void visit_ast_string(struct ast_string *ast) { (void) ast; }
 
 static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
 {
+    ir_last_ptr = NULL;
+
     visit_ast(ast->lhs);
     struct ir_node *lhs = ir_last;
+    // struct ir_node *l_ptr = ir_last_ptr;
+    // struct ir_node *l_ptr_sym = l_ptr->ir;
 
     struct ir_sym *l_sym = lhs->ir;
     *last_assign = ir_last;
 
-    __weak_debug_msg("-- IR meta save index %%%d\n", l_sym->idx);
-    fflush(stdout);
-
     visit_ast(ast->rhs);
     struct ir_node *rhs = ir_last;
 
-    struct ir_node *store = NULL;
+    ir_last = ir_store_init(l_sym->idx, rhs);
+    ir_insert(ir_last);
+}
 
-    switch (rhs->type) {
-    case IR_IMM: {
-        store = ir_store_imm_init(l_sym->idx, rhs);
-        break;
-    }
-    case IR_SYM: {
-        struct ir_sym *r_sym  = rhs->ir;
-        store = ir_store_sym_init(l_sym->idx, r_sym->idx);
-        break;
-    }
-    default:
-        weak_unreachable("Unexpected store type (numeric: %d).", rhs->type);
-    }
+__weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym *assign)
+{
+    if (ir->type != IR_SYM) return;
 
-    ir_insert(store);
+    struct ir_sym *sym = ir->ir;
+
+    if (sym->idx == assign->idx) {
+        struct meta *meta = meta_init(IR_META_VAR);
+        meta->sym_meta.noalias = 1;
+        ir->meta = meta;
+    }
 }
 
 static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
 {
-    struct ir_node *alloca = ir_alloca_init(D_T_INT, ir_var_idx++);
-    int32_t         alloca_idx = ((struct ir_alloca *) alloca->ir)->idx;
+    struct ir_node *alloca = ir_alloca_init(D_T_INT, /*ptr=*/0, ir_var_idx++);
+    int32_t alloca_idx = ((struct ir_alloca *) alloca->ir)->idx;
 
     ir_insert(alloca);
 
@@ -184,30 +184,13 @@ static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
     struct ir_node *rhs = ir_last;
 
     struct ir_node *bin = ir_bin_init(ast->operation, lhs, rhs);
-    ir_last = ir_store_bin_init(alloca_idx, bin);
+    ir_last = ir_store_init(alloca_idx, bin);
 
     if (last_assign != NULL) {
-        struct ir_sym  *assign = last_assign->ir;
+        struct ir_sym *assign = last_assign->ir;
 
-        if (lhs->type == IR_SYM) {
-            struct ir_sym *sym = lhs->ir;
-
-            if (sym->idx == assign->idx) {
-                struct meta *meta = meta_init(IR_META_VAR);
-                meta->sym_meta.noalias = 1;
-                lhs->meta = meta;
-            }
-        }
-
-        if (rhs->type == IR_SYM) {
-            struct ir_sym *sym = rhs->ir;
-
-            if (sym->idx == assign->idx) {
-                struct meta *meta = meta_init(IR_META_VAR);
-                meta->sym_meta.noalias = 1;
-                rhs->meta = meta;
-            }
-        }
+        mark_noalias(lhs, assign);
+        mark_noalias(rhs, assign);
     }
 
     ir_insert(ir_last);
@@ -464,7 +447,7 @@ static void visit_ast_return(struct ast_return *ast)
 
 static void visit_ast_symbol(struct ast_symbol *ast)
 {
-    int32_t idx = ir_storage_get(ast->value);
+    int32_t idx = ir_storage_get(ast->value)->sym_idx;
     ir_last = ir_sym_init(idx);
 }
 
@@ -474,21 +457,25 @@ static void visit_ast_unary(struct ast_unary *ast)
     visit_ast(ast->operand);
     assert((
         ir_last->type == IR_SYM
-    ) && ("Unary operator expects variable argument."));
+    ) && (
+        "Unary operator expects variable argument."
+    ));
     struct ir_sym *sym = ir_last->ir;
     struct ir_node *sym_node = ir_last;
 
-    switch (ast->operation) {
-    case TOK_INC:
-        ir_last = ir_bin_init(TOK_PLUS,  ir_last, ir_imm_int_init(1));
-        break;
-    case TOK_DEC:
-        ir_last = ir_bin_init(TOK_MINUS, ir_last, ir_imm_int_init(1));
-        break;
-    default:
-        weak_unreachable("Unknown unary operator (numeric: %d).", ast->operation);
-    }
-    ir_last = ir_store_bin_init(sym->idx, ir_last);
+    enum token_type op = ast->operation;
+    /// Checked by parser.
+    assert(op == TOK_INC || op == TOK_DEC);
+
+    ir_last = ir_bin_init(
+        op == TOK_INC
+            ? TOK_PLUS
+            : TOK_MINUS,
+        ir_last,
+        ir_imm_int_init(1)
+    );
+
+    ir_last = ir_store_init(sym->idx, ir_last);
 
     struct meta *meta = meta_init(IR_META_VAR);
     meta->sym_meta.noalias = 1;
@@ -502,68 +489,50 @@ static void visit_ast_struct_decl(struct ast_struct_decl *ast) { (void) ast; }
 static void visit_ast_var_decl(struct ast_var_decl *ast)
 {
     int32_t next_idx = ir_var_idx++;
-    ir_last = ir_alloca_init(ast->dt, next_idx);
+    ir_last = ir_alloca_init(ast->dt, /*ptr=*/0, next_idx);
     /// Used as function argument or as function body statement.
     ir_insert(ir_last);
-    ir_storage_push(ast->name, next_idx);
+    ir_storage_push(ast->name, next_idx, ir_last);
 
     if (ast->body) {
         visit_ast(ast->body);
-
-        switch (ir_last->type) {
-        case IR_IMM: {
-            ir_last = ir_store_imm_init(next_idx, ir_last);
-            break;
-        }
-        case IR_SYM: {
-            struct ir_sym *sym = ir_last->ir;
-            ir_last = ir_store_sym_init(next_idx, sym->idx);
-            break;
-        }
-        default:
-            weak_unreachable(
-                "Expected symbol or immediate value as variable initializer, "
-                "got (numeric: %d).", ir_last->type
-            );
-        }
+        ir_last = ir_store_init(next_idx, ir_last);
         ir_insert(ir_last);
     }
 }
 
+/*
+    Example. Decide, how to store indices list.
+
+    int mem[1][2][3];
+    mem[0][0][1] = 6;
+    mem[0][1][2] = 9;
+
+    alloca [1 * 2 * 3] %0
+    %1 = load %0 [0 * 1 + 0 * 2 + 1]
+        /// Stride = 1
+        ///
+        /// [ ][ ][ ][ ][ ][ ]
+        ///     ^
+        ///     Store there
+    store %1 6
+    %2 = load %0 [0 * 1 + 1 * 2 + 2]
+        /// Stride = 4
+        ///
+        /// [ ][ ][ ][ ][ ][ ]
+        ///              ^
+        ///              Store there
+    store %2 9
+*/
 static void visit_ast_array_decl(struct ast_array_decl *ast)
 {
-    /*
-        Example. Decide, how to store indices list.
-
-        int mem[1][2][3];
-        mem[0][0][1] = 6;
-        mem[0][1][2] = 9;
-
-        alloca [1 * 2 * 3] %0
-        %1 = load %0 [0 * 1 + 0 * 2 + 1]
-            /// Stride = 1
-            ///
-            /// [ ][ ][ ][ ][ ][ ]
-            ///     ^
-            ///     Store there
-        store %1 6
-        %2 = load %0 [0 * 1 + 1 * 2 + 2]
-            /// Stride = 4
-            ///
-            /// [ ][ ][ ][ ][ ][ ]
-            ///              ^
-            ///              Store there
-        store %2 9
-    */
-
-    int32_t next_idx = ir_var_idx++;
-
-
     assert((
         ast->enclosure_list->type == AST_COMPOUND_STMT
     ) && (
         "Array declarator expectes compound ast enclosure list."
     ));
+
+    int32_t next_idx = ir_var_idx++;
 
     struct ast_compound *enclosure = ast->enclosure_list->ast;
 
@@ -584,9 +553,86 @@ static void visit_ast_array_decl(struct ast_array_decl *ast)
 
     ir_last = ir_alloca_array_init(ast->dt, lvls, enclosure->size, next_idx);
     ir_insert(ir_last);
+
+    ir_storage_push(ast->name, next_idx, ir_last);
 }
 
-static void visit_ast_array_access(struct ast_array_access *ast) { (void) ast; }
+static void visit_ast_array_access(struct ast_array_access *ast)
+{
+    (void) ast;
+/*
+    int mem[1][2][3];
+    mem[0][0][1] = 6;
+
+    alloca [1 x [2 x [ 3 x int]]] %array
+    alloca int %i1
+    store %i1 0 * 1
+    alloca int %i2
+    store %i2 0 * 2
+    alloca int %i3
+    store %i3 1 * 3
+    alloca int %idx1
+    store %idx1 %i1 + %i2
+    alloca int %idx2
+    store %idx2 %idx1 + %i3
+    alloca int* %ptr
+    store %ptr[%idx2] 6
+*/
+
+/*
+    int mem[2];
+    mem[0] = 1;
+    mem[1] = 0;
+    return mem[0] + mem[1];
+
+    alloca [2 x int] %mem
+
+    store %mem[$0] 1
+    alloca int %2
+    store %2 1
+    store %mem[%2] 0
+    alloca int %3
+    store %3 *%mem[$0]
+    alloca int %4
+    store %4 *%mem[$1]
+    alloca int %5
+    store %5 %3 + %4
+    ret %5
+*/
+    /// First just assume one-dimensional array.
+    /// Next extend to multi-dimensional.
+
+#if 0
+    struct ir_storage_record *record = ir_storage_get(ast->name);
+    struct ir_alloca_array   *alloca = record->ir->ir;
+
+    struct ast_compound *indices = ast->indices->ast;
+    
+    int32_t next_idx = ir_var_idx++;
+
+    if (indices->size == 1) {
+        visit_ast(indices->stmts[0]);
+        struct ir_node *idx = ir_last;
+
+        ir_last = ir_alloca_init(D_T_INT, /*ptr=*/1, next_idx);
+        ir_insert(ir_last);
+
+        ir_last_ptr = ir_sym_init(next_idx);
+
+        ir_last = ir_store_init(
+            next_idx,
+            ir_array_access_init(record->sym_idx, ir_sym_init(next_idx))
+        );
+        ir_insert(ir_last);
+        
+
+        // ++next_idx;
+    }
+
+    ir_last = ir_sym_init(next_idx);
+#endif
+}
+
 static void visit_ast_member(struct ast_member *ast) { (void) ast; }
 
 static void visit_ast_compound(struct ast_compound *ast)
@@ -666,10 +712,10 @@ static void visit_ast_function_call(struct ast_function_call *ast)
         ir_insert(call);
     } else {
         int32_t next_idx = ir_var_idx++;
-        ir_last = ir_alloca_init(ret_dt, next_idx);
+        ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
         ir_insert(ir_last);
         struct ir_node *call = ir_func_call_init(ast->name, args_start);
-        ir_last = ir_store_call_init(next_idx, call);
+        ir_last = ir_store_init(next_idx, call);
         ir_insert(ir_last);
         ir_last = ir_sym_init(next_idx);
     }
