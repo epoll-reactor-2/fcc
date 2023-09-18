@@ -118,7 +118,8 @@ struct ir_store {
 };
 
 struct ir_store_ptr {
-    int32_t         idx;
+    /// Accepted types: ir_array_access
+    struct ir_node *idx;
     struct ir_node *body;
 };
 
@@ -233,7 +234,7 @@ __weak_wur struct ir_node *ir_imm_int_init(int32_t imm);
 __weak_wur struct ir_node *ir_sym_init(int32_t idx);
 
 __weak_wur struct ir_node *ir_store_init(int32_t idx, struct ir_node *body);
-__weak_wur struct ir_node *ir_store_ptr_init(int32_t idx, struct ir_node *body);
+__weak_wur struct ir_node *ir_store_ptr_init(struct ir_node *idx, struct ir_node *body);
 
 __weak_wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
 __weak_wur struct ir_node *ir_jump_init(int32_t idx);
