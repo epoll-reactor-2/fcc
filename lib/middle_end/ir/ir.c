@@ -103,35 +103,39 @@ struct ir_node *ir_sym_init(int32_t idx)
     return ir_node_init(IR_SYM, ir);
 }
 
-struct ir_node *ir_store_init(int32_t idx, struct ir_node *body)
+struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body)
 {
+    assert((
+        idx->type == IR_SYM ||
+        idx->type == IR_ARRAY_ACCESS
+    ) && (
+        "Store instruction expects symbol or array access operator as target"
+    ));
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
     ir->idx = idx;
     ir->body = body;
     if (body->type != IR_FUNC_CALL)
         ++ir_instr_index;
-    return ir_node_init(IR_STORE, ir);    
+    return ir_node_init(IR_STORE, ir);
 }
 
-struct ir_node *ir_store_ptr_init(struct ir_node *idx, struct ir_node *body)
+struct ir_node *ir_store_sym_init(int32_t idx, struct ir_node *body)
 {
-    struct ir_store_ptr *ir = weak_calloc(1, sizeof (struct ir_store_ptr));
-    ir->idx = idx;
-    ir->body = body;
-    ++ir_instr_index;
-    return ir_node_init(IR_STORE_PTR, ir);
+    return ir_store_init(ir_sym_init(idx), body);
 }
 
 struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs)
 {
     assert(((
         lhs->type == IR_SYM ||
-        lhs->type == IR_IMM
+        lhs->type == IR_IMM ||
+        lhs->type == IR_ARRAY_ACCESS
      ) && (
         rhs->type == IR_SYM ||
-        rhs->type == IR_IMM
+        rhs->type == IR_IMM ||
+        rhs->type == IR_ARRAY_ACCESS
     )) && (
-        "Binary operation expects variable or immediate value"
+        "Binary operation expects variable, immediate value or array access operator"
     ));
     struct ir_bin *ir = weak_calloc(1, sizeof (struct ir_bin));
     ir->op = op;
@@ -266,11 +270,6 @@ struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
 
 static void ir_store_cleanup(struct ir_store *ir)
 {
-    ir_node_cleanup(ir->body);
-}
-
-static void ir_store_ptr_cleanup(struct ir_store_ptr *ir)
-{
     ir_node_cleanup(ir->idx);
     ir_node_cleanup(ir->body);
 }
@@ -340,7 +339,6 @@ void ir_node_cleanup(struct ir_node *ir)
         /// Nothing to clean except ir->ir itself.
         break;
     case IR_STORE:        ir_store_cleanup(ir->ir); break;
-    case IR_STORE_PTR:    ir_store_ptr_cleanup(ir->ir); break;
     case IR_BIN:          ir_bin_cleanup(ir->ir); break;
     case IR_COND:         ir_cond_cleanup(ir->ir); break;
     case IR_RET:          ir_ret_cleanup(ir->ir); break;

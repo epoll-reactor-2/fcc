@@ -20,7 +20,6 @@ enum ir_type {
     IR_IMM,
     IR_SYM,
     IR_STORE,
-    IR_STORE_PTR,
     IR_BIN,
     IR_JUMP,
     IR_COND,
@@ -111,15 +110,15 @@ struct ir_sym {
 };
 
 struct ir_store {
-    /// Variable name, or index, where to store.
-    /// %1 = ...
-    int32_t         idx;
-    struct ir_node *body;
-};
-
-struct ir_store_ptr {
-    /// Accepted types: ir_array_access
+    /// Accepted types:
+    /// - ir_array_access
+    /// - ir_sym
     struct ir_node *idx;
+    /// Accepted types:
+    /// - ir_array_access
+    /// - ir_imm
+    /// - ir_sym
+    /// - ir_bin
     struct ir_node *body;
 };
 
@@ -233,8 +232,8 @@ __weak_wur struct ir_node *ir_imm_int_init(int32_t imm);
 
 __weak_wur struct ir_node *ir_sym_init(int32_t idx);
 
-__weak_wur struct ir_node *ir_store_init(int32_t idx, struct ir_node *body);
-__weak_wur struct ir_node *ir_store_ptr_init(struct ir_node *idx, struct ir_node *body);
+__weak_wur struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body);
+__weak_wur struct ir_node *ir_store_sym_init(int32_t idx, struct ir_node *body);
 
 __weak_wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
 __weak_wur struct ir_node *ir_jump_init(int32_t idx);
