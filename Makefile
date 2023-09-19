@@ -9,6 +9,7 @@ RED     := $(shell printf $(BOLD)"\033[31m" $(REDIRECT_STDERR))
 GREEN   := $(shell printf $(BOLD)"\033[32m" $(REDIRECT_STDERR))
 YELLOW  := $(shell printf $(BOLD)"\033[33m" $(REDIRECT_STDERR))
 
+LOG         := 0
 DEBUG_BUILD := 1
 SANITIZE    := 0
 
@@ -19,6 +20,10 @@ LDFLAGS     = -lfl
 CFLAGS      = -std=gnu99 -fPIC -Ilib
 
 CFLAGS     += -Wall -Wextra -Wshadow -Wvla -Wpointer-arith -Wframe-larger-than=32768
+
+ifeq ($(LOG), 1)
+CFLAGS     += -D USE_LOG
+endif # LOG
 
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb

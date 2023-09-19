@@ -30,19 +30,19 @@
 
 #define __weak_to_string(x) #x
 
-#ifndef NDEBUG
+#ifdef USE_LOG
 # define __weak_debug(block) block
 #else
 # define __weak_debug(block)
-#endif /// NDEBUG
+#endif /// USE_LOG
 
-#ifndef NDEBUG
+#ifdef USE_LOG
 # define __weak_debug_msg(fmt, ...) do { \
     printf("%s@%d:    " fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
  } while (0);
 #else
 # define __weak_debug_msg(fmt, ...)
-#endif /// NDEBUG
+#endif /// USE_LOG
 
 
 #define __weak_array_size(x) (sizeof (x) / sizeof (*x))
