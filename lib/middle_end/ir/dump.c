@@ -34,19 +34,13 @@ const char *ir_type_to_string(enum ir_type t)
     }
 }
 
-static void fprintf_n(FILE *mem, uint32_t count, char c)
-{
-    for (uint32_t i = 0; i < count; ++i)
-        fputc(c, mem);
-}
-
 static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 {
     fprintf(
         mem,
-        "alloca %s%s %%%d",
+        "%s %st%d",
         data_type_to_string(ir->dt),
-        ir->ptr ? "*" : "",
+        ir->ptr ? "* " : "",
         ir->idx
     );
 }
@@ -55,23 +49,24 @@ static void ir_dump_alloca_array(FILE *mem, struct ir_alloca_array *ir)
 {
     uint64_t total = ir->enclosure_lvls_size;
 
-    fprintf(mem, "alloca ");
+    fprintf(mem, "%s t%d[", data_type_to_string(ir->dt), ir->idx);
     for (uint64_t i = 0; i < total; ++i) {
         uint64_t e = ir->enclosure_lvls[i];
-        fprintf(mem, "[%ld x ", e);
+        fprintf(mem, "%ld", e);
+        if (i < total - 1) {
+            fprintf(mem, " x ");
+        }
     }
-    fprintf(mem, "%s", data_type_to_string(ir->dt));
-    fprintf_n(mem, total, ']');
-    fprintf(mem, " %%%d", ir->idx);
+    fprintf(mem, "]");
 }
 
 static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
 {
     switch (ir->type) {
-    case IMM_BOOL:  fprintf(mem, "$%d", ir->imm.__bool); break;
-    case IMM_CHAR:  fprintf(mem, "$%d", ir->imm.__char); break;
-    case IMM_FLOAT: fprintf(mem, "$%f", ir->imm.__float); break;
-    case IMM_INT:   fprintf(mem, "$%d", ir->imm.__int); break;
+    case IMM_BOOL:  fprintf(mem, "%d", ir->imm.__bool); break;
+    case IMM_CHAR:  fprintf(mem, "%d", ir->imm.__char); break;
+    case IMM_FLOAT: fprintf(mem, "%f", ir->imm.__float); break;
+    case IMM_INT:   fprintf(mem, "%d", ir->imm.__int); break;
     default:
         weak_unreachable("Unknown immediate IR type (numeric: %d).", ir->type);
     }
@@ -79,44 +74,19 @@ static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
 
 static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 {
-    fprintf(mem, "%s%%%d", ir->deref ? "*" : "", ir->idx);
+    fprintf(mem, "%st%d", ir->deref ? "*" : "", ir->idx);
 }
 
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
 {
-    fprintf(mem, "store ");
     ir_dump_node(mem, ir->idx);
-    fprintf(mem, " ");
+    fprintf(mem, " = ");
     ir_dump_node(mem, ir->body);
 }
 
 static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
 {
-    const char *op = NULL;
-    switch (ir->op) {
-    case TOK_XOR:     op = "xor";     break;
-    case TOK_BIT_AND: op = "bit_and"; break;
-    case TOK_BIT_OR:  op = "bit_or";  break;
-    case TOK_AND:     op = "and";     break;
-    case TOK_OR:      op = "or";      break;
-    case TOK_EQ:      op = "eq";      break;
-    case TOK_NEQ:     op = "neq";     break;
-    case TOK_GT:      op = "gt";      break;
-    case TOK_LT:      op = "lt";      break;
-    case TOK_GE:      op = "ge";      break;
-    case TOK_LE:      op = "le";      break;
-    case TOK_SHL:     op = "shl";     break;
-    case TOK_SHR:     op = "shr";     break;
-    case TOK_PLUS:    op = "add";     break;
-    case TOK_MINUS:   op = "sub";     break;
-    case TOK_STAR:    op = "mul";     break;
-    case TOK_SLASH:   op = "div";     break;
-    case TOK_MOD:     op = "mod";     break;
-    /// \todo: %OP%_ASSIGN instructions...
-    case TOK_ASSIGN:  op = "???";     break;
-    default:
-        weak_unreachable("Unknown operation: `%s`.", tok_to_string(ir->op));
-    }
+    const char *op = tok_to_string(ir->op);
 
     ir_dump_node(mem, ir->lhs);
     fprintf(mem, " %s ", op);

@@ -78,7 +78,7 @@ bool ir_test(const char *filename)
         ir_node_cleanup(ir);
 
         if (strcmp(expected, generated) != 0) {
-            printf("IR mismatch:\n%s\nexpected\n", expected);
+            printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
             success = false;
             goto exit;
         }

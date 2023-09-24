@@ -1,57 +1,57 @@
-//fun f(alloca int %0):
-//       0:   alloca int %1
-//       1:   alloca int %2
-//       2:   store %2 %0
-//       3:   store %1 %2
-//       4:   alloca int %3
-//       5:   alloca int %4
-//       6:   store %4 %1
-//       7:   store %3 %4
-//       8:   alloca int %5
-//       9:   alloca int %6
-//      10:   store %6 $0
-//      11:   store %5 %6
-//      12:   alloca int %7
-//      13:   alloca int %8
-//      14:   store %8 $0
-//      15:   store %7 %8
-//      16:   alloca int %9
-//      17:   alloca int %10
-//      18:   store %10 %7
-//      19:   store %9 %10
-//      20:   alloca int %11
-//      21:   alloca int %12
-//      22:   store %12 $0
-//      23:   store %11 %12
-//      24:   alloca int %13
-//      25:   alloca int %14
-//      26:   store %14 %11 shl $1
-//      27:   store %13 %14
-//      28:   alloca int %15
-//      29:   alloca int %16
-//      30:   store %16 %11 shl $2
-//      31:   store %15 %16
-//      32:   alloca int %17
-//      33:   alloca int %18
-//      34:   store %18 %11 shl $3
-//      35:   store %17 %18
-//      36:   alloca int %19
-//      37:   alloca int %20
-//      38:   store %20 %11 shl $4
-//      39:   store %19 %20
-//      40:   alloca int %21
-//      41:   alloca int %22
-//      42:   store %22 %11 mul $17
-//      43:   store %21 %22
-//      44:   alloca int %23
-//      45:   alloca int %24
-//      46:   store %24 %11 shl $5
-//      47:   store %23 %24
-//      48:   alloca int %25
-//      49:   alloca int %26
-//      50:   store %26 %11 mul $33
-//      51:   store %25 %26
-//      52:   ret $0
+//fun f(int t0):
+//       0:   int t1
+//       1:   int t2
+//       2:   t2 = t0
+//       3:   t1 = t2
+//       4:   int t3
+//       5:   int t4
+//       6:   t4 = t1
+//       7:   t3 = t4
+//       8:   int t5
+//       9:   int t6
+//      10:   t6 = 0
+//      11:   t5 = t6
+//      12:   int t7
+//      13:   int t8
+//      14:   t8 = 0
+//      15:   t7 = t8
+//      16:   int t9
+//      17:   int t10
+//      18:   t10 = t7
+//      19:   t9 = t10
+//      20:   int t11
+//      21:   int t12
+//      22:   t12 = 0
+//      23:   t11 = t12
+//      24:   int t13
+//      25:   int t14
+//      26:   t14 = t11 << 1
+//      27:   t13 = t14
+//      28:   int t15
+//      29:   int t16
+//      30:   t16 = t11 << 2
+//      31:   t15 = t16
+//      32:   int t17
+//      33:   int t18
+//      34:   t18 = t11 << 3
+//      35:   t17 = t18
+//      36:   int t19
+//      37:   int t20
+//      38:   t20 = t11 << 4
+//      39:   t19 = t20
+//      40:   int t21
+//      41:   int t22
+//      42:   t22 = t11 * 17
+//      43:   t21 = t22
+//      44:   int t23
+//      45:   int t24
+//      46:   t24 = t11 << 5
+//      47:   t23 = t24
+//      48:   int t25
+//      49:   int t26
+//      50:   t26 = t11 * 33
+//      51:   t25 = t26
+//      52:   ret 0
 int f(int arg) {
     int i1  = arg +  0;
     int i2  = i1  -  0;
