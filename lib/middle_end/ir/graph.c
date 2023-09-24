@@ -75,7 +75,6 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
         case IR_SYM:
         case IR_BIN:
         case IR_MEMBER:
-        case IR_ARRAY_ACCESS:
             break;
         case IR_STORE: {
             /// Note:

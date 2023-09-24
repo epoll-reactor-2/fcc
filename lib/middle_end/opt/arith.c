@@ -172,7 +172,6 @@ static struct ir_node *opt_arith_node(struct ir_node *ir)
     switch (ir->type) {
     case IR_JUMP:
     case IR_MEMBER:
-    case IR_ARRAY_ACCESS:
     case IR_TYPE_DECL:
     case IR_FUNC_DECL:
     case IR_FUNC_CALL:
