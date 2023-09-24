@@ -28,7 +28,6 @@ enum ir_type {
     /// `return;` from void functions.
     IR_RET_VOID,
     IR_MEMBER,
-    IR_ARRAY_ACCESS,
     /// Code generator should store type declarations
     /// and refer to it in order to compute type
     /// size and member offsets.
@@ -106,16 +105,17 @@ struct ir_imm {
 };
 
 struct ir_sym {
+    /// Are we dereferencing pointer or not?
+    /// Like *ptr.
+    bool    deref;
     int32_t idx;
 };
 
 struct ir_store {
     /// Accepted types:
-    /// - ir_array_access
     /// - ir_sym
     struct ir_node *idx;
     /// Accepted types:
-    /// - ir_array_access
     /// - ir_imm
     /// - ir_sym
     /// - ir_bin
@@ -176,14 +176,6 @@ struct ir_member {
     int32_t field_idx;
 };
 
-struct ir_array_access {
-    int32_t idx;
-    /// Accepted values:
-    /// - symbol (variable index),
-    /// - immediate value.
-    struct ir_node *body;
-};
-
 struct ir_type_decl {
     const char *name;
     /// Accepted values:
@@ -231,6 +223,7 @@ __weak_wur struct ir_node *ir_imm_float_init(float imm);
 __weak_wur struct ir_node *ir_imm_int_init(int32_t imm);
 
 __weak_wur struct ir_node *ir_sym_init(int32_t idx);
+__weak_wur struct ir_node *ir_sym_ptr_init(int32_t idx);
 
 __weak_wur struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body);
 __weak_wur struct ir_node *ir_store_sym_init(int32_t idx, struct ir_node *body);
@@ -240,7 +233,6 @@ __weak_wur struct ir_node *ir_jump_init(int32_t idx);
 __weak_wur struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label);
 __weak_wur struct ir_node *ir_ret_init(bool is_void, struct ir_node *body);
 __weak_wur struct ir_node *ir_member_init(int32_t idx, int32_t field_idx);
-__weak_wur struct ir_node *ir_array_access_init(int32_t idx, struct ir_node *body);
 __weak_wur struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls);
 __weak_wur struct ir_node *ir_func_decl_init(enum data_type ret_type, const char *name, struct ir_node *args, struct ir_node *body);
 __weak_wur struct ir_node *ir_func_call_init(const char *name, struct ir_node *args);

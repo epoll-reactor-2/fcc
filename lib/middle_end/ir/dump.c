@@ -26,7 +26,6 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_RET:          return "IR_RET";
     case IR_RET_VOID:     return "IR_RET_VOID";
     case IR_MEMBER:       return "IR_MEMBER";
-    case IR_ARRAY_ACCESS: return "IR_ARRAY_ACCESS";
     case IR_TYPE_DECL:    return "IR_TYPE_DECL";
     case IR_FUNC_DECL:    return "IR_FUNC_DECL";
     case IR_FUNC_CALL:    return "IR_FUNC_CALL";
@@ -80,7 +79,7 @@ static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
 
 static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 {
-    fprintf(mem, "%%%d", ir->idx);
+    fprintf(mem, "%s%%%d", ir->deref ? "*" : "", ir->idx);
 }
 
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
@@ -153,13 +152,6 @@ static void ir_dump_member(FILE *mem, struct ir_member *ir)
     fprintf(mem, "%%%d.%d", ir->idx, ir->field_idx);
 }
 
-static void ir_dump_array_access(FILE *mem, struct ir_array_access *ir)
-{
-    fprintf(mem, "%%%d[", ir->idx);
-    ir_dump_node(mem, ir->body);
-    fprintf(mem, "]");
-}
-
 static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
 {
     fprintf(mem, "%%%s = {", ir->name);
@@ -219,7 +211,6 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_RET:          ir_dump_ret(mem, ir->ir); break;
     case IR_RET_VOID:     ir_dump_ret_void(mem); break;
     case IR_MEMBER:       ir_dump_member(mem, ir->ir); break;
-    case IR_ARRAY_ACCESS: ir_dump_array_access(mem, ir->ir); break;
     case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir->ir); break;
     case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir->ir); break;
     case IR_FUNC_CALL:    ir_dump_func_call(mem, ir->ir); break;
@@ -267,7 +258,6 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     case IR_SYM:
     case IR_BIN:
     case IR_MEMBER:
-    case IR_ARRAY_ACCESS:
         break;
     case IR_STORE:
     case IR_ALLOCA:

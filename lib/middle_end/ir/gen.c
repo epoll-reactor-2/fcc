@@ -24,7 +24,6 @@ typedef vector_t(struct ir_node *) ir_array_t;
 static ir_array_t      ir_func_decls;
 static struct ir_node *ir_first;
 static struct ir_node *ir_last;
-static struct ir_node *ir_last_ptr;
 static struct ir_node *ir_prev;
 /// Used to count alloca instructions.
 /// Conditions:
@@ -141,34 +140,20 @@ static void visit_ast_string(struct ast_string *ast) { (void) ast; }
 
 static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
 {
-    ir_last_ptr = NULL;
-
     visit_ast(ast->lhs);
-    struct ir_node *lhs     = ir_last;
-    struct ir_node *lhs_ptr = ir_last_ptr;
-
-    if (lhs_ptr)
-        printf("Type from emit_assign: %s\n", ir_type_to_string(lhs_ptr->type));
-
-    struct ir_sym *l_sym = lhs->ir;
+    struct ir_node *lhs = ir_last;
     *last_assign = ir_last;
 
     visit_ast(ast->rhs);
     struct ir_node *rhs = ir_last;
 
-    if (lhs_ptr) {
-        ir_last = ir_store_init(lhs_ptr, rhs);
-    } else {
-        ir_last = ir_store_sym_init(l_sym->idx, rhs);
-    }
-
+    ir_last = ir_store_init(lhs, rhs);
     ir_insert(ir_last);
 }
 
 __weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym *assign)
 {
-    if (ir->type != IR_SYM) return;
-
+    assert(ir->type == IR_SYM);
     struct ir_sym *sym = ir->ir;
 
     if (sym->idx == assign->idx) {
@@ -575,11 +560,22 @@ static void visit_ast_array_access(struct ast_array_access *ast)
     
     if (indices->size == 1) {
         visit_ast(indices->stmts[0]);
+        struct ir_node *idx = ir_last;
 
-        ir_last_ptr = ir_array_access_init(record->sym_idx, ir_last);
-        ir_last = ir_last_ptr;
+        int32_t next_idx = ir_var_idx++;
 
-        assert(ir_last->type == IR_ARRAY_ACCESS);
+        ir_last = ir_alloca_init(D_T_INT, /*ptr=*/1, next_idx);
+        ir_insert(ir_last);
+        ir_last = ir_store_init(
+            ir_sym_init(next_idx),
+            ir_bin_init(
+                TOK_PLUS,
+                ir_sym_init(record->sym_idx),
+                idx
+            )
+        );
+        ir_insert(ir_last);
+        ir_last = ir_sym_ptr_init(next_idx);
     }
 }
 

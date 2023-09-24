@@ -380,7 +380,6 @@ static void eval_instr(struct ir_node *ir)
         eval_jmp(ir->ir);
         break;
     case IR_MEMBER:
-    case IR_ARRAY_ACCESS:
     case IR_TYPE_DECL:
         break;
     case IR_FUNC_DECL:

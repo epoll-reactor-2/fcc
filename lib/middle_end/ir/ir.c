@@ -99,6 +99,15 @@ struct ir_node *ir_imm_int_init(int32_t imm)
 struct ir_node *ir_sym_init(int32_t idx)
 {
     struct ir_sym *ir = weak_calloc(1, sizeof (struct ir_sym));
+    ir->deref = 0;
+    ir->idx = idx;
+    return ir_node_init(IR_SYM, ir);
+}
+
+struct ir_node *ir_sym_ptr_init(int32_t idx)
+{
+    struct ir_sym *ir = weak_calloc(1, sizeof (struct ir_sym));
+    ir->deref = 1;
     ir->idx = idx;
     return ir_node_init(IR_SYM, ir);
 }
@@ -106,8 +115,7 @@ struct ir_node *ir_sym_init(int32_t idx)
 struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body)
 {
     assert((
-        idx->type == IR_SYM ||
-        idx->type == IR_ARRAY_ACCESS
+        idx->type == IR_SYM
     ) && (
         "Store instruction expects symbol or array access operator as target"
     ));
@@ -128,12 +136,10 @@ struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_n
 {
     assert(((
         lhs->type == IR_SYM ||
-        lhs->type == IR_IMM ||
-        lhs->type == IR_ARRAY_ACCESS
-     ) && (
+        lhs->type == IR_IMM
+    ) && (
         rhs->type == IR_SYM ||
-        rhs->type == IR_IMM ||
-        rhs->type == IR_ARRAY_ACCESS
+        rhs->type == IR_IMM
     )) && (
         "Binary operation expects variable, immediate value or array access operator"
     ));
@@ -185,20 +191,6 @@ struct ir_node *ir_member_init(int32_t idx, int32_t field_idx)
     ir->idx = idx;
     ir->field_idx = field_idx;
     return ir_node_init(IR_MEMBER, ir);
-}
-
-struct ir_node *ir_array_access_init(int32_t idx, struct ir_node *body)
-{
-    assert((
-        body->type == IR_SYM ||
-        body->type == IR_IMM
-    ) && (
-        "Array access expects immediate value or variable"
-    ));
-    struct ir_array_access *ir = weak_calloc(1, sizeof (struct ir_array_access));
-    ir->idx = idx;
-    ir->body = body;
-    return ir_node_init(IR_ARRAY_ACCESS, ir);
 }
 
 struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls)
@@ -290,11 +282,6 @@ static void ir_ret_cleanup(struct ir_ret *ir)
     if (!ir->is_void) ir_node_cleanup(ir->body);
 }
 
-static void ir_array_access_cleanup(struct ir_array_access *ir)
-{
-    ir_node_cleanup(ir->body);
-}
-
 static void ir_type_decl_cleanup(struct ir_type_decl *ir)
 {
     struct ir_node *it = ir->decls;
@@ -343,7 +330,6 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_COND:         ir_cond_cleanup(ir->ir); break;
     case IR_RET:          ir_ret_cleanup(ir->ir); break;
     case IR_RET_VOID:     ir_ret_cleanup(ir->ir); break;
-    case IR_ARRAY_ACCESS: ir_array_access_cleanup(ir->ir); break;
     case IR_TYPE_DECL:    ir_type_decl_cleanup(ir->ir); break;
     case IR_FUNC_DECL:    ir_func_decl_cleanup(ir->ir); break;
     case IR_FUNC_CALL:    ir_func_call_cleanup(ir->ir); break;
