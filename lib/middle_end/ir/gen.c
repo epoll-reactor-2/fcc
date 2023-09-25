@@ -15,6 +15,7 @@
 #include "util/vector.h"
 #include "util/unreachable.h"
 #include "util/hashmap.h"
+#include "util/vector.h"
 #include <assert.h>
 #include <string.h>
 
@@ -264,8 +265,8 @@ static void visit_ast_for(struct ast_for *ast)
     }
 
     visit_ast(ast->body);
-    /// Increment is optional.
 
+    /// Increment is optional.
     ir_meta_is_loop = 1;
     if (ast->increment) visit_ast(ast->increment);
     ir_meta_is_loop = 0;
@@ -292,7 +293,7 @@ static void visit_ast_while(struct ast_while *ast)
     /// L4: jump to L0 (condition)
     /// L5: after while instr
 
-    int32_t         next_iter_idx = ir_last->instr_idx + 1;
+    int32_t next_iter_idx = ir_last->instr_idx + 1;
 
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
@@ -351,7 +352,7 @@ static void visit_ast_do_while(struct ast_do_while *ast)
 
     /// \todo: next_else pointer should lead to statement
     ///        out of do-while (next one after it).
-
+    cond->next_else = ir_last;
     cond_ptr->goto_label = stmt_begin + 1;
 }
 
@@ -702,6 +703,64 @@ static void visit_ast_function_call(struct ast_function_call *ast)
     }
 }
 
+
+
+void ir_link(struct ir_func_decl *decl)
+{
+    struct ir_node *it = decl->body;
+    vector_t(struct ir_node *) stmts = {0};
+
+    while (it) {
+        vector_push_back(stmts, it);
+        it = it->next;
+    }
+
+    for (uint64_t i = 0; i < stmts.count - 1; ++i) {
+        struct ir_node *stmt = stmts.data[i    ];
+        struct ir_node *next = stmts.data[i + 1];
+        switch (stmt->type) {
+        case IR_JUMP: {
+            struct ir_jump *jump = stmt->ir;
+            stmt->next = stmts.data[jump->idx];
+            break;
+        }
+        case IR_COND: {
+            struct ir_cond *cond = stmt->ir;
+            stmt->next = stmts.data[cond->goto_label];
+            stmt->next_else = next;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+
+static void ir_build_cfg(struct ir_func_decl *decl)
+{
+    struct ir_node *it = decl->body;
+
+    bool started = 1;
+    uint64_t cfg_no = 0;
+
+    while (it) {
+        if (!it->prev || it->prev_else || it->prev->type == IR_JUMP || it->prev->type == IR_COND) {
+            started = 1;
+            // printf("\nBlock from %d", it->instr_idx);
+        }
+        if (started && (it->type == IR_JUMP || it->type == IR_COND)) {
+            started = 0;
+            ++cfg_no;
+            it->cfg_block_no = cfg_no;
+            // printf(" to %d", it->instr_idx);
+        }
+        it = it->next;
+    }
+    // printf("\n");
+}
+
+
+
 struct ir_node *ir_gen(struct ast_node *ast)
 {
     invalidate();
@@ -711,15 +770,25 @@ struct ir_node *ir_gen(struct ast_node *ast)
     vector_foreach(ir_func_decls, i) {
         if (i >= ir_func_decls.count - 1)
             break;
-        vector_at(ir_func_decls, i)->next =
-        vector_at(ir_func_decls, i + 1);
 
-        vector_at(ir_func_decls, i + 1)->prev =
-        vector_at(ir_func_decls, i);
+        struct ir_node *decl      = vector_at(ir_func_decls, i);
+        struct ir_node *decl_next = vector_at(ir_func_decls, i + 1);
+
+        decl->next = decl_next;
+        decl_next->prev = decl;
     }
 
-    // ir_link(&ir);
+    vector_foreach(ir_func_decls, i) {
+        struct ir_node *decl = vector_at(ir_func_decls, i);
 
-    /// TODO: Collect first statement.
-    return vector_at(ir_func_decls, 0);
+        /// TODO: Link is wrong. Misuse of next pointers
+        ///       for printing and CFG construction.
+        ir_link(decl->ir);
+        ir_build_cfg(decl->ir);
+        ir_dump_cfg(stdout, decl->ir);
+    }
+
+    struct ir_node *decls = vector_at(ir_func_decls, 0);
+
+    return decls;
 }

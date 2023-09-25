@@ -268,6 +268,76 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     }
 }
 
+static void ir_dump_cfg_traverse(FILE *mem, bool *visited, uint64_t cfg_no, struct ir_node *ir)
+{
+    if (visited[ir->instr_idx]) return;
+
+    if (!ir->prev ||
+        ir->prev_else ||
+        ir->type == IR_JUMP ||
+        ir->type == IR_COND) {
+      if (ir->prev) {
+        fprintf(mem, "} ");
+      }
+        fprintf(
+            mem,
+            "subgraph cluster%ld {\n"
+            "    color=lightgrey;\n",
+            cfg_no++
+        );
+    }
+
+    switch (ir->type) {
+    case IR_IMM:
+    case IR_SYM:
+    case IR_BIN:
+    case IR_MEMBER:
+        break;
+    case IR_STORE:
+    case IR_ALLOCA:
+    case IR_ALLOCA_ARRAY:
+    case IR_FUNC_CALL: {
+        ir_mark(visited, ir);
+
+        ir_dump_node_dot(mem, ir, ir->next);
+        ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next);
+        break;
+    }
+    case IR_JUMP: {
+        ir_mark(visited, ir);
+
+        ir_dump_node_dot(mem, ir, ir->next);
+        ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next);
+        break;
+    }
+    case IR_COND: {
+        ir_mark(visited, ir);
+
+        ir_dump_node_dot(mem, ir, ir->next);
+        fprintf(mem, " [ label = \"  true\"]\n");
+
+        ir_dump_node_dot(mem, ir, ir->next_else);
+        fprintf(mem, " [ label = \"  false\"]\n");
+
+        ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next);
+        ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next_else);
+        break;
+    }
+    case IR_RET:
+    case IR_RET_VOID: {
+        ir_mark(visited, ir);
+
+        if (ir->next) {
+            ir_dump_node_dot(mem, ir, ir->next);
+            ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl)
 {
     fprintf(
@@ -281,6 +351,26 @@ void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl)
     ir_dump_traverse(mem, visited, decl->body);
 
     fprintf(mem, "}\n");
+}
+
+void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl)
+{
+    fprintf(
+        mem,
+        "digraph {\n"
+        "    compound=true;\n"
+        "    node [shape=box,color=black];\n"
+        "    graph [shape=box,style=filled,color=lightgrey];\n"
+    );
+
+    bool visited[8192] = {0};
+
+    ir_dump_cfg_traverse(mem, visited, /*cfg_no=*/0, decl->body);
+
+    /// Wierd specific of algorithm above forces
+    /// us to paste extra `}`, but this makes code much
+    /// simpler.
+    fprintf(mem, "}}\n");
 }
 
 void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
