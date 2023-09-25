@@ -39,4 +39,6 @@ void ir_dump_node(FILE *mem, struct ir_node *ir);
 ///        graph image will be completely messy.
 void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl);
 
+void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl);
+
 #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H

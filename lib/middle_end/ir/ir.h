@@ -51,6 +51,8 @@ struct ir_node {
     void            *ir;
     /// Immediate dominator. Used to compute dominator tree.
     struct ir_node  *idom;
+    /// Number of basic block in CFG to which current node is associated.
+    uint64_t         cfg_block_no;
 
     struct ir_node  *next;
     struct ir_node  *next_else;

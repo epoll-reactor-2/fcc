@@ -27,6 +27,8 @@ struct ir_node *ir_node_init(enum ir_type type, void *ir)
     node->type = type;
     node->instr_idx = ir_instr_index;
     node->ir = ir;
+    /// Is not set for now.
+    node->cfg_block_no = 0;
     return node;
 }
 
