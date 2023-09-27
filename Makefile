@@ -75,12 +75,15 @@ endif
 all: build_dir test_files $(LIB) tests
 
 build_dir:
-	@! [[ -d build ]] \
-	    && mkdir -p build/test_inputs; \
-	flex --outfile=build/lex.yy.c lex/grammar.lex
+	@if ! [[ -d build ]]; then \
+	    mkdir -p build/test_inputs; \
+		flex --outfile=build/lex.yy.c lex/grammar.lex; \
+	fi
 
 test_files: | build_dir
-	@cp -r tests/{front,middle,back}_end/input/* build/test_inputs
+	@cp -r tests/front_end/input/*  build/test_inputs; \
+	 cp -r tests/middle_end/input/* build/test_inputs; \
+	 cp -r tests/back_end/input/*   build/test_inputs
 
 SRC  = $(shell find lib -name '*.c')
 SRC += build/lex.yy.c
