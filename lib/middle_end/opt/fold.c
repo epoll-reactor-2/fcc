@@ -3,7 +3,6 @@
  *
  * This file is distributed under the MIT license.
  */
-#if 0
 
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/dump.h"
@@ -255,18 +254,18 @@ static void fold_keep_mutable_decl(struct ir_node *ir)
 
         struct ir_store *store = to_remove->ir;
 
-        if (store->idx != sym->idx)
+        if (get_store_idx(store->idx) != sym->idx)
             continue;
 
-        if (!consts_mapping_is_const(store->idx))
+        if (!consts_mapping_is_const(get_store_idx(store->idx)))
             continue;
 
         __weak_debug_msg("------ Erase instr %%%d\n", to_remove->instr_idx);
 
         vector_erase(redundant_stmts, i);
 
-        if (alloca_stmts_exists(store->idx))
-            alloca_stmts_remove(store->idx);
+        if (alloca_stmts_exists(get_store_idx(store->idx)))
+            alloca_stmts_remove(get_store_idx(store->idx));
     }
 }
 
@@ -278,7 +277,7 @@ static void fold_store_bin(struct ir_node *ir)
         if (fold_store_mark_loop_dependent(ir))
             return;
 
-    if (loop_dependent(store->idx))
+    if (loop_dependent(get_store_idx(store->idx)))
         return;
 
     struct ir_node *folded = fold_node(store->body);
@@ -296,8 +295,8 @@ static void fold_store_bin(struct ir_node *ir)
         ir_node_cleanup(store->body);
         store->body = folded;
         // store->type = IR_STORE_BIN;
-        consts_mapping_remove(store->idx);
-        alloca_stmts_remove(store->idx);
+        consts_mapping_remove(get_store_idx(store->idx));
+        alloca_stmts_remove(get_store_idx(store->idx));
         break;
     }
     case IR_IMM: {
@@ -305,7 +304,7 @@ static void fold_store_bin(struct ir_node *ir)
         ir_node_cleanup(store->body);
         store->body = folded;
         // store->type = IR_STORE_IMM;
-        consts_mapping_update(store->idx, imm->imm.__int);
+        consts_mapping_update(get_store_idx(store->idx), imm->imm.__int);
         vector_push_back(redundant_stmts, ir);
         break;
     }
@@ -331,11 +330,11 @@ static void fold_store_sym(struct ir_node *ir)
         store->body = ir_imm_int_init(imm.__int);
         // store->type = IR_STORE_IMM;
 
-        consts_mapping_update(store->idx, imm.__int);
+        consts_mapping_update(get_store_idx(store->idx), imm.__int);
         vector_push_back(redundant_stmts, ir);
     } else {
-        consts_mapping_remove(store->idx);
-        alloca_stmts_remove(store->idx);
+        consts_mapping_remove(get_store_idx(store->idx));
+        alloca_stmts_remove(get_store_idx(store->idx));
     }
 }
 
@@ -348,10 +347,10 @@ static void fold_store_imm(struct ir_node *ir)
         if (fold_store_mark_loop_dependent(ir))
             return;
 
-    if (consts_mapping_is_const(store->idx)) {
-        consts_mapping_update(store->idx, imm->imm.__int);
+    if (consts_mapping_is_const(get_store_idx(store->idx))) {
+        consts_mapping_update(get_store_idx(store->idx), imm->imm.__int);
     } else {
-        consts_mapping_add(store->idx, imm->imm.__int);
+        consts_mapping_add(get_store_idx(store->idx), imm->imm.__int);
     }
 
     vector_push_back(redundant_stmts, ir);
@@ -502,7 +501,6 @@ static struct ir_node *fold_node(struct ir_node *ir)
         return fold_sym(ir->ir);
     case IR_JUMP:
     case IR_MEMBER:
-    case IR_ARRAY_ACCESS:
     case IR_TYPE_DECL:
     case IR_FUNC_DECL:
     case IR_FUNC_CALL:
@@ -577,5 +575,3 @@ void ir_opt_fold(struct ir_node *ir)
         it = it->next;
     }
 }
-
-#endif /// 0

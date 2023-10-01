@@ -1,5 +1,5 @@
 //fun main():
-//      32:   ret $720
+//      32:   ret 720
 int main() {
     int a = 1;
     int b = a + 1;

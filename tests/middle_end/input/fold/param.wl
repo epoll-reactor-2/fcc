@@ -1,15 +1,15 @@
-//fun f(alloca int %0, alloca int %1):
-//       0:   alloca int %2
-//       1:   store %2 $10
-//       2:   alloca int %3
-//       3:   alloca int %4
-//       4:   alloca int %5
-//       5:   alloca int %6
-//       6:   store %6 $12
-//       7:   store %5 %0 mul $12
-//       8:   store %4 %5 add %1
-//       9:   store %3 %4 shl $10
-//      10:   ret %3
+//fun f(int t0, int t1):
+//       0:   int t2
+//       1:   t2 = 10
+//       2:   int t3
+//       3:   int t4
+//       4:   int t5
+//       5:   int t6
+//       6:   t6 = 12
+//       7:   t5 = t0 * 12
+//       8:   t4 = t5 + t1
+//       9:   t3 = t4 << 10
+//      10:   ret t3
 int f(int a, int b)
 {
     int const = 10;

@@ -1,36 +1,36 @@
 //fun complex():
-//       0:   alloca int %0
-//       1:   store %0 $10000
-//       6:   alloca int %3
-//       7:   store %3 $25000
-//       8:   alloca int %4
-//       9:   store %4 $0
-//      10:   alloca int %5(@loop)
-//      11:   store %5 $0(@loop)
-//      12:   alloca int %6
-//      13:   store %6 %5 lt $100
-//      14:   if %6 neq $0 goto L16
+//       0:   int t0
+//       1:   t0 = 10000
+//       6:   int t3
+//       7:   t3 = 25000
+//       8:   int t4
+//       9:   t4 = 0
+//      10:   int t5(@loop)
+//      11:   t5 = 0(@loop)
+//      12:   int t6
+//      13:   t6 = t5 < 100
+//      14:   if t6 != 0 goto L16
 //      15:   jmp L39
-//      16:   alloca int %7
-//      17:   alloca int %8
-//      18:   alloca int %9
-//      19:   store %9 $10000 mul %5
-//      20:   alloca int %10
-//      21:   alloca int %11
-//      26:   store %11 $70000
-//      27:   alloca int %14
-//      28:   store %14 %5 add $25000
-//      29:   store %10 $70000 sub %14
-//      30:   store %8 %9 add %10
-//      31:   store %7 %4 add %8
-//      32:   store %4 %7
-//      33:   if %0 neq $0 goto L35
+//      16:   int t7
+//      17:   int t8
+//      18:   int t9
+//      19:   t9 = 10000 * t5
+//      20:   int t10
+//      21:   int t11
+//      26:   t11 = 70000
+//      27:   int t14
+//      28:   t14 = t5 + 25000
+//      29:   t10 = 70000 - t14
+//      30:   t8 = t9 + t10
+//      31:   t7 = t4 + t8
+//      32:   t4 = t7
+//      33:   if t0 != 0 goto L35
 //      34:   jmp L37
-//      35:   store %0 %0 sub $1
+//      35:   t0 = t0 - 1
 //      36:   jmp L33
-//      37:   store %5 %5(@noalias) add $1(@loop)
+//      37:   t5 = t5(@noalias) + 1(@loop)
 //      38:   jmp L12
-//      39:   ret %4
+//      39:   ret t4
 int complex() {
     int a = 10000;
     int b = 15000;
