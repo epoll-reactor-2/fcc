@@ -716,18 +716,18 @@ void ir_link(struct ir_func_decl *decl)
     }
 
     for (uint64_t i = 0; i < stmts.count - 1; ++i) {
-        struct ir_node *stmt = stmts.data[i    ];
-        struct ir_node *next = stmts.data[i + 1];
+        struct ir_node *stmt = stmts.data[i];
         switch (stmt->type) {
         case IR_JUMP: {
             struct ir_jump *jump = stmt->ir;
-            stmt->next = stmts.data[jump->idx];
+            jump->target = stmts.data[jump->idx];
+            stmts.data[jump->idx]->prev_else = stmt;
             break;
         }
         case IR_COND: {
             struct ir_cond *cond = stmt->ir;
-            stmt->next = stmts.data[cond->goto_label];
-            stmt->next_else = next;
+            cond->target = stmts.data[cond->goto_label];
+            stmts.data[cond->goto_label]->prev_else = stmt;
             break;
         }
         default:
@@ -746,13 +746,13 @@ static void ir_build_cfg(struct ir_func_decl *decl)
     while (it) {
         if (!it->prev || it->prev_else || it->prev->type == IR_JUMP || it->prev->type == IR_COND) {
             started = 1;
-            // printf("\nBlock from %d", it->instr_idx);
+            // printf("\nBlock %ld from instr %d", cfg_no, it->instr_idx);
         }
         if (started && (it->type == IR_JUMP || it->type == IR_COND)) {
             started = 0;
             ++cfg_no;
             it->cfg_block_no = cfg_no;
-            // printf(" to %d", it->instr_idx);
+            // printf(" to instr %d", it->instr_idx);
         }
         it = it->next;
     }
@@ -781,11 +781,9 @@ struct ir_node *ir_gen(struct ast_node *ast)
     vector_foreach(ir_func_decls, i) {
         struct ir_node *decl = vector_at(ir_func_decls, i);
 
-        /// TODO: Link is wrong. Misuse of next pointers
-        ///       for printing and CFG construction.
         ir_link(decl->ir);
         ir_build_cfg(decl->ir);
-        ir_dump_cfg(stdout, decl->ir);
+        // ir_dump_cfg(stdout, decl->ir);
     }
 
     struct ir_node *decls = vector_at(ir_func_decls, 0);

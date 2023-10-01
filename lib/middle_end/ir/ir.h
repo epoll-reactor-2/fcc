@@ -141,6 +141,7 @@ struct ir_bin {
 struct ir_jump {
     /// Unconditonal jump.
     int32_t          idx;
+    struct ir_node  *target;
 };
 
 struct ir_cond {
@@ -152,6 +153,7 @@ struct ir_cond {
     /// Requires only binary IR instruction.
     struct ir_node  *cond;
     int32_t          goto_label;
+    struct ir_node  *target;
 };
 
 struct ir_ret {
