@@ -268,73 +268,51 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     }
 }
 
-static void ir_dump_cfg_traverse(FILE *mem, bool *visited, uint64_t cfg_no, struct ir_node *ir)
+static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
 {
-    if (visited[ir->instr_idx]) return;
+    struct ir_node *it = ir;
+    uint64_t cfg_no = 0;
+    uint64_t cluster_no = 0;
 
-    if (!ir->prev ||
-        ir->prev_else ||
-        ir->type == IR_JUMP ||
-        ir->type == IR_COND) {
-      if (ir->prev) {
-        fprintf(mem, "} ");
-      }
-        fprintf(
-            mem,
-            "subgraph cluster%ld {\n"
-            "    color=lightgrey;\n",
-            cfg_no++
-        );
-    }
+    while (it) {
+        bool should_split = 0;
+        bool first = it == ir;
+        should_split |= first;
+        should_split |= cfg_no != it->cfg_block_no;
+        should_split |= it->next && it->next->prev_else != NULL;
 
-    switch (ir->type) {
-    case IR_IMM:
-    case IR_SYM:
-    case IR_BIN:
-    case IR_MEMBER:
-        break;
-    case IR_STORE:
-    case IR_ALLOCA:
-    case IR_ALLOCA_ARRAY:
-    case IR_FUNC_CALL: {
-        ir_mark(visited, ir);
-
-        ir_dump_node_dot(mem, ir, ir->next);
-        ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next);
-        break;
-    }
-    case IR_JUMP: {
-        ir_mark(visited, ir);
-
-        ir_dump_node_dot(mem, ir, ir->next);
-        ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next);
-        break;
-    }
-    case IR_COND: {
-        ir_mark(visited, ir);
-
-        ir_dump_node_dot(mem, ir, ir->next);
-        fprintf(mem, " [ label = \"  true\"]\n");
-
-        ir_dump_node_dot(mem, ir, ir->next_else);
-        fprintf(mem, " [ label = \"  false\"]\n");
-
-        ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next);
-        ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next_else);
-        break;
-    }
-    case IR_RET:
-    case IR_RET_VOID: {
-        ir_mark(visited, ir);
-
-        if (ir->next) {
-            ir_dump_node_dot(mem, ir, ir->next);
-            ir_dump_cfg_traverse(mem, visited, cfg_no, ir->next);
+        if (should_split) {
+            if (!first)
+                fprintf(mem, "} ");
+            fprintf(mem, "subgraph cluster%ld {\n", cluster_no++);
         }
-        break;
-    }
-    default:
-        break;
+
+        switch (it->type) {
+        case IR_JUMP: {
+            struct ir_jump *jump = it->ir;
+            ir_dump_node_dot(mem, it, jump->target);
+            break;
+        }
+        case IR_COND: {
+            struct ir_cond *cond = it->ir;
+            ir_dump_node_dot(mem, it, cond->target);
+            fprintf(mem, " [ label = \"  true\"]\n");
+
+            fprintf(mem, "} subgraph cluster%ld {\n", cluster_no++);
+
+            ir_dump_node_dot(mem, it, it->next_else);
+            fprintf(mem, " [ label = \"  false\"]\n");
+            break;
+        }
+        default: {
+            if (it->next)
+                ir_dump_node_dot(mem, it, it->next);
+            break;
+        }
+        }
+
+        cfg_no = it->cfg_block_no;
+        it = it->next;
     }
 }
 
@@ -363,9 +341,7 @@ void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl)
         "    graph [shape=box,style=filled,color=lightgrey];\n"
     );
 
-    bool visited[8192] = {0};
-
-    ir_dump_cfg_traverse(mem, visited, /*cfg_no=*/0, decl->body);
+    ir_dump_cfg_traverse(mem, decl->body);
 
     /// Wierd specific of algorithm above forces
     /// us to paste extra `}`, but this makes code much
