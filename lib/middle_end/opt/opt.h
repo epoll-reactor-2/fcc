@@ -22,10 +22,7 @@ void ir_opt_motion(struct ir_node *ir);
 ///       fold optimization much easier to understand
 ///       and will separate folding from unused instructions
 ///       analysis.
-inline void ir_opt_fold(struct ir_node *ir)
-{
-    (void) ir;
-}
+void ir_opt_fold(struct ir_node *ir);
 
 /// Arithmetic optimizations.
 ///
