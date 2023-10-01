@@ -274,6 +274,10 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
     uint64_t cfg_no = 0;
     uint64_t cluster_no = 0;
 
+    fprintf(mem, "    start -> \"");
+    ir_dump_node(mem, it);
+    fprintf(mem, "\"\n");
+
     while (it) {
         bool should_split = 0;
         bool first = it == ir;
@@ -284,6 +288,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         if (should_split) {
             if (!first)
                 fprintf(mem, "} ");
+
             fprintf(mem, "subgraph cluster%ld {\n", cluster_no++);
         }
 
@@ -304,6 +309,13 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
             fprintf(mem, " [ label = \"  false\"]\n");
             break;
         }
+        case IR_RET:
+        case IR_RET_VOID: {
+            fprintf(mem, "    \"");
+            ir_dump_node(mem, it);
+            fprintf(mem, "\" -> exit\n");
+            break;
+        }
         default: {
             if (it->next)
                 ir_dump_node_dot(mem, it, it->next);
@@ -314,6 +326,13 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         cfg_no = it->cfg_block_no;
         it = it->next;
     }
+
+    fprintf(
+        mem,
+        "}\n"
+        "    start [shape=Mdiamond]\n"
+        "    exit  [shape=Mdiamond]\n"
+    );
 }
 
 void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl)
@@ -346,7 +365,7 @@ void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl)
     /// Wierd specific of algorithm above forces
     /// us to paste extra `}`, but this makes code much
     /// simpler.
-    fprintf(mem, "}}\n");
+    fprintf(mem, "}\n");
 }
 
 void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)

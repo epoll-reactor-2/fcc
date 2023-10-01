@@ -783,7 +783,7 @@ struct ir_node *ir_gen(struct ast_node *ast)
 
         ir_link(decl->ir);
         ir_build_cfg(decl->ir);
-        // ir_dump_cfg(stdout, decl->ir);
+        ir_dump_cfg(stdout, decl->ir);
     }
 
     struct ir_node *decls = vector_at(ir_func_decls, 0);
