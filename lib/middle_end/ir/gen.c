@@ -348,12 +348,13 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     struct ir_node *cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr = cond->ir;
 
-    ir_insert(cond);
-
-    /// \todo: next_else pointer should lead to statement
-    ///        out of do-while (next one after it).
-    cond->next_else = ir_last;
+    /// We will set this pointer in ir_link() because
+    /// we cannot peek next instruction now, since
+    /// it is not generated.
+    cond->next_else = NULL;
     cond_ptr->goto_label = stmt_begin + 1;
+
+    ir_insert(cond);
 }
 
 static void visit_ast_if(struct ast_if *ast)
@@ -727,6 +728,12 @@ void ir_link(struct ir_func_decl *decl)
         case IR_COND: {
             struct ir_cond *cond = stmt->ir;
             cond->target = stmts.data[cond->goto_label];
+            /// If next_else pointer is NULL, we assume,
+            /// that this is do-while condition. We
+            /// have nowhere to jump during do {} while (...)
+            /// statement codegen.
+            if (!stmt->next_else)
+                 stmt->next_else = stmts.data[i + 1];
             stmts.data[cond->goto_label]->prev_else = stmt;
             break;
         }
@@ -734,6 +741,8 @@ void ir_link(struct ir_func_decl *decl)
             break;
         }
     }
+
+    vector_free(stmts);
 }
 
 static void ir_build_cfg(struct ir_func_decl *decl)
