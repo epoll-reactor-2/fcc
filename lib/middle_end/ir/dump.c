@@ -300,13 +300,23 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         }
         case IR_COND: {
             struct ir_cond *cond = it->ir;
-            ir_dump_node_dot(mem, it, cond->target);
-            fprintf(mem, " [ label = \"  true\"]\n");
+            ir_dump_node_dot(mem, it, it->next_else);
+            fprintf(mem, " [ label = \"  false\"]\n");
 
             fprintf(mem, "} subgraph cluster%ld {\n", cluster_no++);
 
-            ir_dump_node_dot(mem, it, it->next_else);
-            fprintf(mem, " [ label = \"  false\"]\n");
+            ir_dump_node_dot(mem, it, cond->target);
+            fprintf(mem, " [ label = \"  true\"]\n");
+
+            /// This is reorder trick for dot language.
+            /// Even though dot specification says, that
+            /// in geenral order of subgraphs and nodes
+            /// must not affect output PNG, this always
+            /// happens. Thanks to this subgraph reindexing,
+            /// condition targets both on true and false
+            /// branches are located in the same subgraph.
+            --cluster_no;
+            --cluster_no;
             break;
         }
         case IR_RET:
