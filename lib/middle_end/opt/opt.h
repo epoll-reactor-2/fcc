@@ -72,4 +72,12 @@ void ir_opt_arith(struct ir_node *ir);
 
 void ir_opt_dead_code_elimination(struct ir_node *ir);
 
+/// Instruction reordering.
+///
+/// This collects all alloca intsructions in function
+/// in one place. Makes no really difference in case
+/// of interpreter, but in a real backend (ARM, x86_64)
+/// we can substract stack pointer once in a function.
+void ir_opt_reorder(struct ir_node *ir);
+
 #endif // WEAK_COMPILER_MIDDLE_END_OPT_H
