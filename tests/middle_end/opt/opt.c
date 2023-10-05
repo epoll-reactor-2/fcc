@@ -1,4 +1,4 @@
-/* arith.c - Test cases for arithmetic operations.
+/* opt.c - Test cases for optimizations.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -21,6 +21,8 @@ extern int yylex_destroy();
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
+
+void (*opt_fn)(struct ir_node *);
 
 bool ir_test(const char *filename)
 {
@@ -65,7 +67,7 @@ bool ir_test(const char *filename)
 
         struct ir_node *ir = ir_gen(ast);
 
-        ir_opt_arith(ir);
+        opt_fn(ir);
 
         struct ir_node *it = ir;
         while (it) {
@@ -99,19 +101,15 @@ exit:
     return success;
 }
 
-int main()
+static char *err_buf = NULL;
+static char *warn_buf = NULL;
+static size_t err_buf_len = 0;
+static size_t warn_buf_len = 0;
+
+int run(const char *tests_dir)
 {
-    int ret = 0;
-    static char *err_buf = NULL;
-    static char *warn_buf = NULL;
-    static size_t err_buf_len = 0;
-    static size_t warn_buf_len = 0;
-
-    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
-
-    if (!do_on_each_file("/test_inputs/arith", ir_test)) {
-        ret = -1;
+    if (!do_on_each_file(tests_dir, ir_test)) {
+        return -1;
 
         if (err_buf)
             fputs(err_buf, stderr);
@@ -120,9 +118,29 @@ int main()
             fputs(warn_buf, stderr);
     }
 
+    return 0;
+}
+
+int main()
+{
+    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
+    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+
+    opt_fn = ir_opt_fold;
+    if (run("/test_inputs/fold") < 0)
+        return -1;
+
+    opt_fn = ir_opt_arith;
+    if (run("/test_inputs/arith") < 0)
+        return -1;
+
+    opt_fn = ir_opt_reorder;
+    if (run("/test_inputs/reorder") < 0)
+        return -1;
+
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);
     free(err_buf);
     free(warn_buf);
-    return ret;
+    return 0;
 }
