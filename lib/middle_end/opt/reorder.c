@@ -6,7 +6,43 @@
 
 #include "middle_end/ir/ir.h"
 #include "middle_end/opt/opt.h"
+#include "util/vector.h"
 #include <stddef.h>
+
+typedef vector_t(struct ir_node *) ir_vector_t;
+
+/// We assume that vector index is match with contained
+/// IR instruction index.
+///
+/// This function follows alloca instructions chain and sets jump
+/// targets to instructions, that placed after alloca's.
+static void reindex(ir_vector_t *stmts)
+{
+    vector_foreach(*stmts, i) {
+        struct ir_node *curr = vector_at(*stmts, i);
+
+        if (curr->type == IR_COND) {
+            struct ir_cond *cond = curr->ir;
+            struct ir_node *jump = vector_at(*stmts, cond->goto_label);
+            while (jump->type == IR_ALLOCA) {
+                ++cond->goto_label;
+                jump = jump->next;
+            }
+            cond->target = jump;
+        }
+
+        if (curr->type == IR_JUMP) {
+            struct ir_jump *jump = curr->ir;
+            uint64_t jump_idx = jump->target->instr_idx;
+
+            while (jump->target->type == IR_ALLOCA) {
+                jump->target = vector_at(*stmts, jump_idx);
+                ++jump->idx;
+                ++jump_idx;
+            }
+        }
+    }
+}
 
 /// +-------+ -- next --> +-------+ -- next --> +-------+ -- next --> +-------+
 /// |   1   |             |   2   |             |  ir   |             |   3   |
@@ -47,6 +83,16 @@ static void reorder(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
 
+    ir_vector_t stmts = {0};
+
+    while (it) {
+        vector_push_back(stmts, it);
+        it = it->next;
+    }
+    reindex(&stmts);
+
+    it = decl->body;
+
     it = it->next;
     it = it->next;
 
@@ -61,7 +107,9 @@ static void reorder(struct ir_func_decl *decl)
 
         while (it && it->prev != IR_ALLOCA)
             swap(it);
-	}
+    }
+
+    vector_free(stmts);
 }
 
 void ir_opt_reorder(struct ir_node *ir)
