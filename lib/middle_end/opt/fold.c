@@ -16,11 +16,8 @@
 #include <assert.h>
 
 /// Hashmap to refer by variable index.
-static hashmap_t alloca_stmts;
 static hashmap_t consts_mapping;
 static hashmap_t loop_dependent_stmts;
-
-static vector_t(struct ir_node *) redundant_stmts;
 
 static void reset_hashmap(hashmap_t *map)
 {
@@ -32,11 +29,8 @@ static void reset_hashmap(hashmap_t *map)
 
 static void fold_opt_reset()
 {
-    reset_hashmap(&alloca_stmts);
     reset_hashmap(&consts_mapping);
     reset_hashmap(&loop_dependent_stmts);
-
-    vector_clear(redundant_stmts);
 }
 
 static void consts_mapping_add(uint64_t idx, uint64_t value)
@@ -75,26 +69,6 @@ static bool consts_mapping_is_const(uint64_t idx)
     hashmap_get(&consts_mapping, idx, &ok);
     __weak_debug_msg("Consts mapping: is const? idx:%ld -> %d\n", idx, ok);
     return ok;
-}
-
-__weak_unused static bool alloca_stmts_exists(uint64_t sym_idx)
-{
-    bool ok = 0;
-    hashmap_get(&consts_mapping, sym_idx, &ok);
-    __weak_debug_msg("Alloca stmts: exists? idx:%ld -> %d\n", sym_idx, ok);
-    return ok;
-}
-
-static void alloca_stmts_put(uint64_t sym_idx, void *ir)
-{
-    __weak_debug_msg("Alloca stmts: add sym_idx:%ld, ir:%p\n", sym_idx, ir);
-    hashmap_put(&alloca_stmts, sym_idx, (uint64_t) ir);
-}
-
-static void alloca_stmts_remove(uint64_t sym_idx)
-{
-    __weak_debug_msg("Alloca stmts: remove %ld\n", sym_idx);
-    hashmap_remove(&alloca_stmts, sym_idx);
 }
 
 static void loop_dependent_put(uint64_t sym_idx, uint64_t loop_idx)
@@ -199,11 +173,7 @@ __weak_wur static struct ir_node *no_result()
 __weak_wur static bool is_no_result(struct ir_node *ir)
 {
     if (!ir) return 1;
-    if (ir->instr_idx ==   -1 &&
-        ir->ir        == NULL &&
-        ir->idom      == NULL)
-        return 1;
-    return 0;
+    return ir == no_result();
 }
 
 static int32_t get_store_idx(struct ir_node *ir)
@@ -238,37 +208,6 @@ static bool fold_store_mark_loop_dependent(struct ir_node *ir)
     return 0;
 }
 
-/// Remove variable declaration (store and alloca) from
-/// list of redundant statements. Due to this, optimizations are
-/// not so aggressive, but correct.
-static void fold_keep_mutable_decl(struct ir_node *ir)
-{
-    if (ir->type != IR_SYM) return;
-
-    struct ir_sym *sym = ir->ir;
-
-    vector_foreach_back(redundant_stmts, i) {
-        struct ir_node *to_remove = vector_at(redundant_stmts, i);
-        if (to_remove->type != IR_STORE)
-            continue;
-
-        struct ir_store *store = to_remove->ir;
-
-        if (get_store_idx(store->idx) != sym->idx)
-            continue;
-
-        if (!consts_mapping_is_const(get_store_idx(store->idx)))
-            continue;
-
-        __weak_debug_msg("------ Erase instr %%%d\n", to_remove->instr_idx);
-
-        vector_erase(redundant_stmts, i);
-
-        if (alloca_stmts_exists(get_store_idx(store->idx)))
-            alloca_stmts_remove(get_store_idx(store->idx));
-    }
-}
-
 static void fold_store_bin(struct ir_node *ir)
 {
     struct ir_store *store = ir->ir;
@@ -287,25 +226,15 @@ static void fold_store_bin(struct ir_node *ir)
 
     switch (folded->type) {
     case IR_BIN: {
-        struct ir_bin *bin = store->body->ir;
-
-        fold_keep_mutable_decl(bin->lhs);
-        fold_keep_mutable_decl(bin->rhs);
-
         ir_node_cleanup(store->body);
         store->body = folded;
-        // store->type = IR_STORE_BIN;
-        consts_mapping_remove(get_store_idx(store->idx));
-        alloca_stmts_remove(get_store_idx(store->idx));
         break;
     }
     case IR_IMM: {
         struct ir_imm *imm = folded->ir;
         ir_node_cleanup(store->body);
         store->body = folded;
-        // store->type = IR_STORE_IMM;
         consts_mapping_update(get_store_idx(store->idx), imm->imm.__int);
-        vector_push_back(redundant_stmts, ir);
         break;
     }
     default:
@@ -331,10 +260,8 @@ static void fold_store_sym(struct ir_node *ir)
         // store->type = IR_STORE_IMM;
 
         consts_mapping_update(get_store_idx(store->idx), imm.__int);
-        vector_push_back(redundant_stmts, ir);
     } else {
         consts_mapping_remove(get_store_idx(store->idx));
-        alloca_stmts_remove(get_store_idx(store->idx));
     }
 }
 
@@ -352,8 +279,6 @@ static void fold_store_imm(struct ir_node *ir)
     } else {
         consts_mapping_add(get_store_idx(store->idx), imm->imm.__int);
     }
-
-    vector_push_back(redundant_stmts, ir);
 }
 
 static void fold_store(struct ir_node *ir)
@@ -386,10 +311,12 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
     struct ir_node *r = NULL;
 
     if (ir->lhs->meta) {
-        __weak_debug_msg("Found noalias attribute for %%%d\n", ir->lhs->instr_idx);
         struct meta *meta = ir->lhs->meta;
-        if (!meta->sym_meta.noalias)
+        if (!meta->sym_meta.noalias) {
             l = fold_node(ir->lhs);
+        } else {
+            __weak_debug_msg("Found noalias attribute for %%%d\n", ir->lhs->instr_idx);
+        }
     } else {
         l = fold_node(ir->lhs);
     }
@@ -407,10 +334,12 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
     }
 
     if (ir->rhs->meta) {
-        __weak_debug_msg("Found noalias attribute for %%%d\n", ir->rhs->instr_idx);
         struct meta *meta = ir->rhs->meta;
-        if (!meta->sym_meta.noalias)
+        if (!meta->sym_meta.noalias) {
             r = fold_node(ir->rhs);
+        } else {
+            __weak_debug_msg("Found noalias attribute for %%%d\n", ir->rhs->instr_idx);
+        }
     } else {
         r = fold_node(ir->rhs);
     }
@@ -476,24 +405,10 @@ static void fold_cond(struct ir_cond *ir)
     fold_node(ir->cond);
 }
 
-static void fold_alloca(struct ir_node *ir)
-{
-    struct ir_alloca *alloca = ir->ir;
-
-    if (ir->meta) {
-        struct meta *meta = ir->meta;
-        if (meta->sym_meta.loop)
-            return;
-    }
-
-    alloca_stmts_put(alloca->idx, ir);
-}
-
 static struct ir_node *fold_node(struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_ALLOCA:
-        fold_alloca(ir);
         break;
     case IR_IMM:
         return fold_imm(ir->ir);
@@ -524,36 +439,6 @@ static struct ir_node *fold_node(struct ir_node *ir)
     return no_result();
 }
 
-static void remove_node(struct ir_node **ir, struct ir_node **head)
-{
-    /// Note: conditional statements is never removed, so
-    ///       *next_else and *prev_else are unused.
-    if ((*ir)->next) {
-        (*ir)->next->prev = (*ir)->prev;
-    }
-
-    if ((*ir)->prev) {
-        (*ir)->prev->next = (*ir)->next;
-    } else {
-        (*ir) = (*ir)->next;
-        (*head) = (*ir);
-    }
-}
-
-static void fold_remove_redundant_stmts(struct ir_node **head)
-{
-    vector_foreach_back(redundant_stmts, i) {
-        struct ir_node *ir = vector_at(redundant_stmts, i);
-        remove_node(&ir, head);
-    }
-
-    hashmap_foreach(&alloca_stmts, sym_idx, addr) {
-        (void) sym_idx;
-        struct ir_node *ir = (void *) addr;
-        remove_node(&ir, head);
-    }
-}
-
 static void fold(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
@@ -561,8 +446,6 @@ static void fold(struct ir_func_decl *decl)
         fold_node(it);
         it = it->next;
     }
-
-    fold_remove_redundant_stmts(&decl->body);
 }
 
 void ir_opt_fold(struct ir_node *ir)
