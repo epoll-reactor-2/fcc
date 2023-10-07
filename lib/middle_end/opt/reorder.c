@@ -16,7 +16,7 @@ typedef vector_t(struct ir_node *) ir_vector_t;
 ///
 /// This function follows alloca instructions chain and sets jump
 /// targets to instructions, that placed after alloca's.
-static void reindex(ir_vector_t *stmts)
+__weak_really_inline static void reindex(ir_vector_t *stmts)
 {
     vector_foreach(*stmts, i) {
         struct ir_node *curr = vector_at(*stmts, i);
@@ -51,7 +51,7 @@ static void reindex(ir_vector_t *stmts)
 /// +-------+ -- next --> +-------+ -- next --> +-------+ -- next --> +-------+
 /// |   1   |             |  ir   |             |   2   |             |   3   |
 /// +-------+ <-- prev -- +-------+ <-- prev -- +-------+ <-- prev -- +-------+
-static void swap(struct ir_node *ir)
+__weak_really_inline static void swap(struct ir_node *ir)
 {
     if (!ir->prev) {
         return;
@@ -75,6 +75,18 @@ static void swap(struct ir_node *ir)
     _3->prev = _2;
 }
 
+/// This generally needed to force reordering algorithm to begin.
+/// If we will start from first alloca statements, wi will fall
+/// into the senseless infinite recursion.
+__weak_really_inline static bool initial_move(struct ir_node **ir)
+{
+    (*ir) = (*ir)->next;
+    if ((*ir))
+        (*ir) = (*ir)->next;
+
+    return (*ir);
+}
+
 /// This function traversing the list and group all
 /// alloca instructions together. This purpose of this
 /// optimization is easily determine, how many stack
@@ -93,8 +105,8 @@ static void reorder(struct ir_func_decl *decl)
 
     it = decl->body;
 
-    it = it->next;
-    it = it->next;
+    if (!initial_move(&it))
+        return;
 
     struct ir_node *_ = it;
     swap(it);
