@@ -54,8 +54,6 @@ bool ir_test(const char *filename)
             ir_compute_dom_tree(ir);
         }
 
-        // ir_dump_dom_tree(stdout, ir->ir);
-
         ast_node_cleanup(ast);
         ir_node_cleanup(ir);
 
@@ -78,8 +76,6 @@ int main()
     static char *warn_buf = NULL;
     static size_t err_buf_len = 0;
     static size_t warn_buf_len = 0;
-
-    return 0;
 
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);

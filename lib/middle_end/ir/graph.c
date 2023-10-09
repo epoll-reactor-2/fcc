@@ -10,36 +10,6 @@
 #include "middle_end/ir/ir.h"
 #include "util/compiler.h"
 
-static void ir_graph_eliminate_jmp(struct ir_func_decl *decl);
-
-// void ir_link(struct ir *ir)
-// {
-    // (void) ir;
-// }
-
-__weak_unused static void ir_graph_eliminate_jmp_chain(struct ir_node **ir)
-{
-    while (*ir && (*ir)->type == IR_JUMP) {
-        *ir = (*ir)->next;
-    }
-}
-
-/// Check all statements, that can possibly have jumps as
-/// successors. If so, follow the jump chain and omit it by making
-/// edge
-///
-///       <source stmt> -> <jmp> -> <jmp> -> <target stmt>
-///
-/// is converted to
-///
-///       <source stmt> -> <target stmt>
-///
-/// \note Used to simplify CFG.
-__weak_unused static void ir_graph_eliminate_jmp(struct ir_func_decl *decl)
-{
-    (void) decl;
-}
-
 __weak_really_inline static void ir_set_idom(
     struct ir_node  *node,
     struct ir_node  *idom,
@@ -77,27 +47,19 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
         case IR_MEMBER:
             break;
         case IR_STORE: {
-            /// Note:
-            /// Each store variable is dominated by their declarations
-            /// in the CFG. However, if there will appear some logical errors,
-            /// this place should be reviewed and verified, if variable indices
-            /// inside the store instructions are properly dominated.
-            ///
-            /// alloca int %1
-            /// ...
-            /// store %1 %N
             struct ir_node *succ = cur->next;
             ir_set_idom(succ, cur, worklist, &siz);
             break;
         }
         case IR_JUMP: {
-            struct ir_node *succ = cur->next;
+            struct ir_jump *jump = cur->ir;
+            struct ir_node *succ = jump->target;
             ir_set_idom(succ, cur, worklist, &siz);
-
             break;
         }
         case IR_COND: {
-            struct ir_node *succ1 = cur->next;
+            struct ir_cond *cond  = cur->ir;
+            struct ir_node *succ1 = cond->target;
             struct ir_node *succ2 = cur->next_else;
             ir_set_idom(succ1, cur, worklist, &siz);
             ir_set_idom(succ2, cur, worklist, &siz);
@@ -142,7 +104,9 @@ void ir_compute_dom_tree(struct ir_node *ir)
     struct ir_node *it = ir;
     while (it) {
         ir_dom_tree_func_decl(it->ir);
-        ir_dump_graph_dot(cfg, it->ir);
+        /// ir_dump(stdout, it->ir);
+        /// ir_dump_graph_dot(cfg, it->ir);
+        ir_dump_cfg(cfg, it->ir);
         ir_dump_dom_tree(dom, it->ir);
         it = it->next;
     }
