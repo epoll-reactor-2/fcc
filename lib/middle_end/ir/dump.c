@@ -214,6 +214,19 @@ static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *ne
     fprintf(mem, "\"\n");
 }
 
+/// Having instruction numbers is necessary to omit graphviz collisions.
+///
+/// \note If you will use `ir_dump_node_dot` in dominator tree, you will achieve
+///       confusing back edges. 
+static void ir_dump_dom_tree_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *next)
+{
+    fprintf(mem, "    \"%d:   ", curr->instr_idx);
+    ir_dump_node(mem, curr);
+    fprintf(mem, "\" -> \"%d:   ", next->instr_idx);
+    ir_dump_node(mem, next);
+    fprintf(mem, "\"\n");
+}
+
 __weak_really_inline static void ir_mark(bool *visited, struct ir_node *ir)
 {
     visited[ir->instr_idx] = 1;
@@ -380,18 +393,43 @@ void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl)
 
 void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
 {
+    struct ir_node *it = decl->body;
+    uint64_t cfg_no = 0;
+    uint64_t cluster_no = 0;
+
     fprintf(
         mem,
         "digraph {\n"
-        "    node [shape=box];\n"
+        "    compound=true;\n"
+        "    node [shape=box,color=black];\n"
+        "    graph [shape=box,style=filled,color=lightgrey];\n"
     );
 
-    struct ir_node *it = decl->body;
     while (it) {
-        if (it->idom != NULL)
-            ir_dump_node_dot(mem, it->idom, it);
+        bool should_split = 0;
+        bool first = it == decl->body;
+        should_split |= first;
+        should_split |= cfg_no != it->cfg_block_no;
+        should_split |= it->next && it->next->prev_else != NULL;
+
+        if (should_split) {
+            if (!first)
+                fprintf(mem, "} ");
+
+            fprintf(mem, "subgraph cluster%ld {\n", cluster_no++);
+        }
+
+        if (it->idom)
+            ir_dump_dom_tree_node_dot(mem, it->idom, it);
+
+        cfg_no = it->cfg_block_no;
         it = it->next;
     }
+
+    fprintf(
+        mem,
+        "}\n"
+    );
 
     fprintf(mem, "}\n");
 }
