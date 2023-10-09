@@ -154,7 +154,10 @@ static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
 
 __weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym *assign)
 {
-    assert(ir->type == IR_SYM);
+    /// We want to mark @noalias only symbols.
+    if (ir->type != IR_SYM)
+        return;
+
     struct ir_sym *sym = ir->ir;
 
     if (sym->idx == assign->idx) {
