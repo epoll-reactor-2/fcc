@@ -7,56 +7,191 @@
 #include "middle_end/opt/opt.h"
 #include "middle_end/ir/ir.h"
 #include "util/unreachable.h"
+#include "util/hashmap.h"
+#include "util/vector.h"
 #include "util/alloc.h"
 #include <assert.h>
 
-/*
-fun main():
-       0:   alloca int %0
-       1:   store %0 $1
-       2:   store %0 $2
-       3:   store %0 $3
-       4:   ret %0
+struct dce_entry {
+    uint64_t instr_idx;
+    uint64_t sym_idx;
+};
 
-    * used = {}
+static vector_t(struct dce_entry) dead_stores;
+static vector_t(uint64_t)         live_stores;
 
-    * Iterate over i0
-    * * put i0 to used
+static void dce_reset()
+{
+    vector_clear(dead_stores);
+    vector_clear(live_stores);
+}
 
-    * Iterate over i1 (store)
-    * * check used array for %0
-    * * put i1 to used
+static void dce_node(struct ir_node *ir);
 
-    * Iterate over i2 (store)
-    * * check used array for %0
-    * * %0 found
-    * * remove %0 (i1) from used array
-    * * put i2 to used
+static void dce_put(uint64_t instr_idx, uint64_t sym_idx)
+{
+    struct dce_entry e = {
+        .instr_idx = instr_idx,
+        .sym_idx   = sym_idx
+    };
 
-    * Iterate over i3 (store)
-    * * check used array for %0
-    * * %0 found
-    * * remove %0 (i2) from used array
-    * * put i2 to used
+    vector_push_back(dead_stores, e);
+}
 
-    * Iterate over i4 (ret)
-    * * check used array for %0
-    * * if %0 found in used
-    * * * do nothing
-    * * else
-    * * * 
+/// This code is totally eliminated, when should not.
+///
+/// int main() {
+///     int a = 1; /// Throwed out (wrong).
+///     int b = 2; /// Throwed out (wrong).
+///     int c = 3;
+/// 
+///     if (a + b) {
+///         c = 4;
+///     } else {
+///         b = 5; // Throwed out (wrong).
+///     }
+/// 
+///     return b;
+/// }
+static void dce_keep_alive_last(uint64_t sym_idx)
+{
+    uint64_t live_idx = 0;
+    bool     found    = 0;
 
-    TODO: dominators?
-*/
+    vector_foreach(dead_stores, i) {
+        struct dce_entry e = vector_at(dead_stores, i);
+
+        if (e.sym_idx == sym_idx) {
+            live_idx = e.instr_idx;
+            found = 1;
+            // printf("Entry (%ld, %ld)\n", e.instr_idx, e.sym_idx);
+        }
+    }
+
+    if (!found) return;
+
+    vector_push_back(live_stores, live_idx);
+}
+
+
+static void dce_store(struct ir_node *ir)
+{
+    struct ir_store *store = ir->ir;
+
+    if (store->idx->type != IR_SYM)
+        return;
+
+    struct ir_sym *sym = store->idx->ir;
+    dce_put(ir->instr_idx, sym->idx);
+
+    switch (store->body->type) {
+    case IR_IMM: {
+        break;
+    }
+    case IR_SYM: {
+        struct ir_sym *body = store->body->ir;
+        dce_keep_alive_last(body->idx);
+        break;
+    }
+    case IR_BIN:
+        dce_node(store->body);
+        break;
+    default:
+        break;
+    }
+}
+
+
+
+static void dce_ret(struct ir_node *ir)
+{
+    struct ir_ret *ret = ir->ir;
+
+    if (ret->is_void)
+        return;
+
+    if (ret->body->type != IR_SYM)
+        return;
+
+    struct ir_sym *sym = ret->body->ir;
+
+    dce_keep_alive_last(sym->idx);
+}
+
+static void dce_bin(struct ir_node *ir)
+{
+    struct ir_bin *bin = ir->ir;
+
+    if (bin->lhs->type == IR_SYM) {
+        struct ir_sym *sym = bin->lhs->ir;
+        dce_keep_alive_last(sym->idx);
+    }
+
+    if (bin->rhs->type == IR_SYM) {
+        struct ir_sym *sym = bin->rhs->ir;
+        dce_keep_alive_last(sym->idx);
+    }
+}
+
+
+
+static void dce_node(struct ir_node *ir)
+{
+    switch (ir->type) {
+    case IR_ALLOCA:
+    case IR_IMM:
+    case IR_SYM:
+    case IR_JUMP:
+    case IR_MEMBER:
+    case IR_TYPE_DECL:
+    case IR_FUNC_DECL:
+    case IR_FUNC_CALL:
+        break;
+    case IR_STORE:
+        dce_store(ir);
+        break;
+    case IR_BIN:
+        dce_bin(ir);
+        break;
+    case IR_RET:
+    case IR_RET_VOID:
+        dce_ret(ir);
+        break;
+    case IR_COND:
+        break;
+    default:
+        weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
+    }
+}
 
 static void opt_dce(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
+    uint64_t cfg_no = 0;
 
     while (it) {
+        bool should_reset = 0;
+        should_reset |= it == decl->body;
+        should_reset |= cfg_no != it->cfg_block_no;
 
+        if (should_reset)
+            dce_reset();
+
+        dce_node(it);
+
+        if (!it->next || it->next->cfg_block_no != cfg_no) {
+            vector_foreach(live_stores, i) {
+                uint64_t instr_idx = vector_at(live_stores, i);
+                printf("Keep alive entry at idx %ld\n", instr_idx);
+            }
+            printf("\n");
+        }
+
+        cfg_no = it->cfg_block_no;
         it = it->next;
     }
+
+    printf("\n");
 }
 
 void ir_opt_dead_code_elimination(struct ir_node *ir)

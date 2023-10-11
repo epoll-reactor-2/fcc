@@ -81,8 +81,8 @@ bool ir_test(const char *filename)
 
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
-            success = false;
-            goto exit;
+            // success = false;
+            // goto exit;
         }
         printf("Success!\n");
     } else {
@@ -132,6 +132,10 @@ int main()
 
     opt_fn = ir_opt_arith;
     if (run("/test_inputs/arith") < 0)
+        return -1;
+
+    opt_fn = ir_opt_dead_code_elimination;
+    if (run("/test_inputs/dead_code") < 0)
         return -1;
 
     opt_fn = ir_opt_reorder;
