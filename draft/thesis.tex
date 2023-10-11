@@ -24,9 +24,10 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
+\usepackage[autosize]{dot2texi}
 \usepackage{tikz}
 
-\usetikzlibrary{automata, positioning, arrows}
+\usetikzlibrary{automata, positioning, shapes, arrows}
 
 \algnewcommand\algorithmicswitch{\textbf{switch}}
 \algnewcommand\algorithmiccase{\textbf{case}}
@@ -333,9 +334,31 @@
 
 			Mając listę składników elementarnych wejściowego programu, jesteśmy w stanie przejść do
 			następnego etapu kompilacji -- analizy składniowej. Jest to proces generacji struktury
-			drzewiastej, a mianowicie AST (Abstract Syntax Tree).
+			drzewiastej, a mianowicie AST (Abstract Syntax Tree). Drzewo syntaksyczne może wyglądać w
+			następujący sposób:
 			\\
 
+			\begin{center}
+			\begin{tikzpicture}
+				[level distance=1.5cm]
+				\node[state] {=}
+				child {
+		  			node[state] {\textbf{var}}
+		  		}
+			  	child {
+			  		node[state] {+}
+			  		child { node[state] {\textbf{1}} }
+			  		child { node[state] {\textbf{2}} }
+		  		};
+			\end{tikzpicture}
+			\end{center}
+
+			\spacing
+			
+			Wynikiem działania analizy składniowej zawsze jest \textbf{jedno} drzewo AST. Może zawieraić ono
+			definicje wszystkich funkcji.
+			\\
+		
 			AST może być stworzony po zdefiniowaniu gramatyki regularnej danego języka. Stosuje się
 			do tego notacja BNF (Backus–Naur form). Pełny opis gramatyki pokazany jest w końcu pracy. Pokażemy
 			tylko kilka przykładów:
@@ -378,6 +401,8 @@
 
 			Kod, wykonujący tą regułe będzie miał postać:
 			
+			\spacing
+
 			\begin{lstlisting}[caption={Rekurencja lewa}, label={lst:left-recursion}]
 void factor() {
 	factor(); // Rekurencja bez zadnego warunku wyjscia
@@ -705,10 +730,27 @@ void f() {
 
 				\newpage
 
-	\section{Generacja warstwy pośredniej}
+	\section{Generacja kodu pośredniego}
 		
+		Kod pośredni -- jest to język, składający się z elementarnych operacji nad danymi, takimi jak
+		arytmetyczne operacje, zapisanie do komórki pamięci.
+		\\
 		
+		Im prostszy ten język jest, tym prostsze
+		są algorytmy do analizy, optymalizacji i generacji dalszych warstw pośrednich.
+		\\
 		
+		Istnieje wiele różnych podobnych do assemblera języków (Intermediate representation, \textbf{IR}), służącego
+		do generacji kodu maszynowego (LLVM IR, GIMPLE, FIRM). Jednak, niniejszy język implementuje własny IR z
+		kilku powodów:
+		
+		\begin{itemize}
+			\item Jest prostszy
+			\item Ma prostszy interfejs programistyczny
+			\item Nie stanowi dodatkowych zależności jako biblioteki
+			\item Ma na celu pokazanie metod na tworzenie takiego języka i operacje nad nimi
+		\end{itemize}
+
 		\newpage
 
 	\section{Interpreter}
@@ -913,6 +955,15 @@ void f() {
 		
 		\bibitem{texbook}
 			http://lucacardelli.name/papers/typesystems.pdf
+	
+		\bibitem{texbook}
+			https://gcc.gnu.org/onlinedocs/gccint/GIMPLE.html
+
+		\bibitem{texbook}
+			https://llvm.org/docs/LangRef.html
+
+		\bibitem{texbook}
+			https://github.com/libfirm/libfirm
 	\end{thebibliography}
 
 \end{document}
