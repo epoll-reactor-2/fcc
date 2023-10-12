@@ -50,8 +50,9 @@ bool ir_test(const char *filename)
 
         struct ir_node *ir = ir_gen(ast);
 
-        if (strstr(filename, "nested_loops")) {
+        if (strstr(filename, "if.wl")) {
             ir_compute_dom_tree(ir);
+            ir_compute_dom_frontier(ir);
         }
 
         ast_node_cleanup(ast);
