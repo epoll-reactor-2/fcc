@@ -207,25 +207,13 @@ void ir_dump(FILE *mem, struct ir_func_decl *decl)
 
 static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *next)
 {
-    fprintf(mem, "    \"");
-    ir_dump_node(mem, curr);
-    fprintf(mem, "\" -> \"");
-    ir_dump_node(mem, next);
-    fprintf(mem, "\"\n");
-}
-
-/// Having instruction numbers is necessary to omit graphviz collisions.
-///
-/// \note If you will use `ir_dump_node_dot` in dominator tree, you will achieve
-///       confusing back edges. 
-static void ir_dump_dom_tree_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *next)
-{
     fprintf(mem, "    \"%d:   ", curr->instr_idx);
     ir_dump_node(mem, curr);
     fprintf(mem, "\" -> \"%d:   ", next->instr_idx);
     ir_dump_node(mem, next);
     fprintf(mem, "\"\n");
 }
+
 
 __weak_really_inline static void ir_mark(bool *visited, struct ir_node *ir)
 {
@@ -287,7 +275,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
     uint64_t cfg_no = 0;
     uint64_t cluster_no = 0;
 
-    fprintf(mem, "    start -> \"");
+    fprintf(mem, "    start -> \"%d:   ", it->instr_idx);
     ir_dump_node(mem, it);
     fprintf(mem, "\"\n");
 
@@ -334,7 +322,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         }
         case IR_RET:
         case IR_RET_VOID: {
-            fprintf(mem, "    \"");
+            fprintf(mem, "    \"%d:   ", it->instr_idx);
             ir_dump_node(mem, it);
             fprintf(mem, "\" -> exit\n");
             break;
@@ -420,7 +408,7 @@ void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
         }
 
         if (it->idom)
-            ir_dump_dom_tree_node_dot(mem, it->idom, it);
+            ir_dump_node_dot(mem, it->idom, it);
 
         cfg_no = it->cfg_block_no;
         it = it->next;

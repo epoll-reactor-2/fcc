@@ -34,7 +34,9 @@ struct ir_func_decl;
 /// dominator, through which we can achieve dominator tree.
 ///
 /// To view dominator tree, ir_dump_dom_tree() should be used.
-void ir_compute_dom_tree(struct ir_node *decl);
+void ir_compute_dom_tree(struct ir_node *decls);
+
+void ir_compute_dom_frontier(struct ir_node *decls);
 
 /// Judge of \p node is dominated by \p dom.
 bool ir_dominated_by(struct ir_node *node, struct ir_node *dom);

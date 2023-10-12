@@ -9,6 +9,7 @@
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 #include "util/compiler.h"
+#include "util/vector.h"
 
 __weak_really_inline static void ir_set_idom(
     struct ir_node  *node,
@@ -25,7 +26,7 @@ __weak_really_inline static void ir_set_idom(
 
 static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
 {
-    struct ir_node *root           = &decl->body[0];
+    struct ir_node *root           = decl->body;
     struct ir_node *worklist[2048] = {0};
     uint64_t        siz            =  0;
 
@@ -46,6 +47,8 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
         case IR_BIN:
         case IR_MEMBER:
             break;
+        case IR_ALLOCA:
+        case IR_FUNC_CALL:
         case IR_STORE: {
             struct ir_node *succ = cur->next;
             ir_set_idom(succ, cur, worklist, &siz);
@@ -72,20 +75,138 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
                 ir_set_idom(succ, cur, worklist, &siz);
             break;
         }
-        case IR_ALLOCA: {
-            struct ir_node *succ = cur->next;
-            ir_set_idom(succ, cur, worklist, &siz);
-            break;
-        }
-        case IR_FUNC_CALL: {
-            struct ir_node *succ = cur->next;
-            ir_set_idom(succ, cur, worklist, &siz);
-            break;
-        }
         default:
             break;
         }
     }
+}
+
+typedef vector_t(struct ir_node *) ir_vector_t;
+
+static void ir_post_dfs(struct ir_node *ir, ir_vector_t *out, bool *visited)
+{
+    visited[ir->instr_idx] = 1;
+
+    switch (ir->type) {
+    case IR_COND: {
+        struct ir_cond *cond = ir->ir;
+        struct ir_node *succ1 = cond->target;
+        struct ir_node *succ2 = ir->next_else;
+        if (succ1)
+            if (!visited[succ1->instr_idx])
+                ir_post_dfs(succ1, out, visited);
+        if (succ2)
+            if (!visited[succ2->instr_idx])
+                ir_post_dfs(succ2, out, visited);
+        break;
+    }
+    case IR_JUMP: {
+        struct ir_jump *jmp = ir->ir;
+        struct ir_node *target = jmp->target;
+        if (target)
+            if (!visited[target->instr_idx])
+                ir_post_dfs(target, out, visited);
+        break;
+    }
+    default: {
+        struct ir_node *succ = ir->next;
+        if (succ)
+            if (!visited[succ->instr_idx])
+                ir_post_dfs(succ, out, visited);
+        break;
+    }
+    }
+
+    vector_push_back(*out, ir);
+}
+
+static void ir_dom_frontier_func_decl(struct ir_func_decl *decl)
+{
+    struct ir_node *it            = decl->body;
+    ir_vector_t     post_dfs      = {0};
+    bool            visited[8192] = {0};
+
+    /// 1: Post order DFS
+    ir_post_dfs(it, &post_dfs, visited);
+
+    vector_foreach(post_dfs, i) {
+        struct ir_node *ir = vector_at(post_dfs, i);
+        printf("post DFS: %d\n", ir->instr_idx);
+    }
+
+    /// 2: Dominance frontier
+    it = decl->body;
+
+    ir_vector_t blocks[512] = {0};
+    uint64_t    blocks_added = 0;
+
+    while (it) {
+        vector_push_back(blocks[it->instr_idx], it);
+        ++blocks_added;
+        it = it->next;
+    }
+
+    vector_foreach(post_dfs, i) {
+        struct ir_node *ir = vector_at(post_dfs, i);
+
+        switch (ir->type) {
+        case IR_COND: {
+            struct ir_cond *cond = ir->ir;
+            struct ir_node *succ1 = cond->target;
+            struct ir_node *succ2 = ir->next_else;
+
+            if (succ1)
+                if (succ1->idom != ir) {
+                    vector_push_back(blocks[ir->instr_idx], succ1);
+                    ++blocks_added;
+                }
+
+            if (succ2)
+                if (succ2->idom != ir) {
+                    vector_push_back(blocks[ir->instr_idx], succ2);
+                    ++blocks_added;
+                }
+
+            break;
+        }
+        case IR_JUMP: {
+            struct ir_jump *jump = ir->ir;
+            struct ir_node *succ = jump->target;
+
+            if (succ)
+                if (succ->idom != ir) {
+                    vector_push_back(blocks[ir->instr_idx], succ);
+                    ++blocks_added;
+                }
+
+            break;
+        }
+        default: {
+            struct ir_node *succ = ir->next;
+
+            if (succ)
+                if (succ->idom != ir) {
+                    vector_push_back(blocks[ir->instr_idx], succ);
+                    ++blocks_added;
+                }
+
+            break;
+        }
+        }
+    }
+
+    for (uint64_t i = 0; i < blocks_added; ++i) {
+        ir_vector_t *vit = &blocks[i];
+
+        printf("For instr %ld DF = ", i);
+        vector_foreach(*vit, j) {
+            struct ir_node *df = vector_at(*vit, j);
+            printf("%d ", df->instr_idx);
+        }
+        printf("\n");
+    }
+
+    vector_free(post_dfs);
 }
 
 #define WEAK_DEBUG_DOMINATOR_TREE 1
@@ -114,12 +235,38 @@ void ir_compute_dom_tree(struct ir_node *ir)
     fclose(dom);
     fclose(cfg);
 }
+
+void ir_compute_dom_frontier(struct ir_node *decls)
+{
+    // FILE *cfg = fopen("/tmp/graph_cfg.dot", "w");
+    // FILE *dom = fopen("/tmp/graph_dom.dot", "w");
+    // if (!cfg) weak_unreachable("Open failed");
+    // if (!dom) weak_unreachable("Open failed");
+
+    struct ir_node *it = decls;
+    while (it) {
+        ir_dom_frontier_func_decl(it->ir);
+        it = it->next;
+    }
+
+    // fclose(dom);
+    // fclose(cfg);
+}
 #else /// !WEAK_DEBUG_DOMINATOR_TREE
-void ir_compute_dom_tree(struct ir_node *ir)
+void ir_compute_dom_tree(struct ir_node *decls)
+{
+    struct ir_node *it = decls;
+    while (it) {
+        ir_dom_tree_func_decl(it->ir);
+        it = it->next;
+    }
+}
+
+void ir_compute_dom_tree(struct ir_node *decls)
 {
     struct ir_node *it = ir;
     while (it) {
-        ir_dom_tree_func_decl(it->ir);
+        ir_dom_frontier_func_decl(it->ir);
         it = it->next;
     }
 }
