@@ -344,3 +344,20 @@ void ir_node_cleanup(struct ir_node *ir)
     weak_free(ir->ir);
     weak_free(ir);
 }
+
+void ir_unit_cleanup(struct ir_unit *ir)
+{
+    struct ir_node *it = ir->literals;
+
+    while (it) {
+        ir_node_cleanup(it);
+        it = it->next;
+    }
+
+    it = ir->func_decls;
+
+    while (it) {
+        ir_node_cleanup(it);
+        it = it->next;
+    }
+}

@@ -771,7 +771,7 @@ static void ir_build_cfg(struct ir_func_decl *decl)
     // printf("\n");
 }
 
-struct ir_node *ir_gen(struct ast_node *ast)
+struct ir_unit *ir_gen(struct ast_node *ast)
 {
     invalidate();
 
@@ -798,5 +798,9 @@ struct ir_node *ir_gen(struct ast_node *ast)
 
     struct ir_node *decls = vector_at(ir_func_decls, 0);
 
-    return decls;
+    struct ir_unit *unit = weak_calloc(1, sizeof (struct ir_unit));
+
+    unit->func_decls = decls;
+
+    return unit;
 }

@@ -76,6 +76,15 @@ struct ir_node {
     void            *meta;
 };
 
+/// All information contained about processed file.
+/// Exists because strings are stored as global objects.
+struct ir_unit {
+    /// Linked list of literals.
+    struct ir_node *literals;
+    /// Linked list of function declarations.
+    struct ir_node *func_decls;
+};
+
 struct ir_alloca {
     enum data_type   dt;
     bool             ptr;
@@ -253,5 +262,6 @@ __weak_wur struct ir_node *ir_func_decl_init(enum data_type ret_type, const char
 __weak_wur struct ir_node *ir_func_call_init(const char *name, struct ir_node *args);
 
 void ir_node_cleanup(struct ir_node *ir);
+void ir_unit_cleanup(struct ir_unit *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_H

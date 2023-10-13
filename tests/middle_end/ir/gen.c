@@ -62,8 +62,8 @@ bool ir_test(const char *filename)
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
 
-        struct ir_node *ir = ir_gen(ast);
-        struct ir_node *it = ir;
+        struct ir_unit *ir = ir_gen(ast);
+        struct ir_node *it = ir->func_decls;
 
         while (it) {
             ir_dump(generated_stream, it->ir);
@@ -78,7 +78,7 @@ bool ir_test(const char *filename)
 
         fflush(generated_stream);
         ast_node_cleanup(ast);
-        ir_node_cleanup(ir);
+        ir_unit_cleanup(ir);
         
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);

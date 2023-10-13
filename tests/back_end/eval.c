@@ -64,7 +64,7 @@ bool ir_test(const char *filename)
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
 
-        struct ir_node *ir = ir_gen(ast);
+        struct ir_unit *ir = ir_gen(ast);
 
         // struct ir_node *it = ir;
         // puts("Source:");
@@ -73,7 +73,7 @@ bool ir_test(const char *filename)
             // it = it->next;
         // }
 
-        ir_opt_arith(ir);
+        ir_opt_arith(ir->func_decls);
         // ir_opt_fold(ir);
 
         // it = ir;
@@ -83,8 +83,10 @@ bool ir_test(const char *filename)
             // it = it->next;
         // }
 
-        int32_t exit_code = eval(ir);
+        int32_t exit_code = eval(ir->func_decls);
         int32_t expected_code = 0;
+
+        ir_unit_cleanup(ir);
 
         fscanf(expected_stream, "%d", &expected_code);
 
