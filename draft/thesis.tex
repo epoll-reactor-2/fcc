@@ -334,25 +334,7 @@
 
 			Mając listę składników elementarnych wejściowego programu, jesteśmy w stanie przejść do
 			następnego etapu kompilacji -- analizy składniowej. Jest to proces generacji struktury
-			drzewiastej, a mianowicie AST (Abstract Syntax Tree). Drzewo syntaksyczne może wyglądać w
-			następujący sposób:
-			\\
-
-			\begin{center}
-			\begin{tikzpicture}
-				[level distance=1.5cm]
-				\node[state] {=}
-				child {
-		  			node[state] {\textbf{var}}
-		  		}
-			  	child {
-			  		node[state] {+}
-			  		child { node[state] {\textbf{1}} }
-			  		child { node[state] {\textbf{2}} }
-		  		};
-			\end{tikzpicture}
-			\end{center}
-
+			drzewiastej, a mianowicie AST (Abstract Syntax Tree).
 			\spacing
 			
 			Wynikiem działania analizy składniowej zawsze jest \textbf{jedno} drzewo AST. Może zawieraić ono
@@ -384,6 +366,46 @@
 			
 			\spacing
 			
+			W przypadku wyrażeń arytmetycznych, AST także jednoznacznie określa za pomocą produkcji
+			gramatyki BNF priorytet operacji
+			arytmetycznych. Naprzykład, mając wyrażenie \ \texttt{1 + 2 * 3 + 4}, drzewo syntaksyczne
+			będzie skonstruowane zgodnie z prawami arytmetyki, co pozwala nie trzymać w AST żadnych
+			informacji o nawiasach. Widać, że aby zastosować produkcję \textit{$<$additive-stmt$>$},
+			najpierw musi być zastosowana następna produkcja \textit{$<$multiplicative-stmt$>$}.
+
+			\spacing
+			\spacing
+
+			\begin{grammar}
+		        <additive-stmt> ::= <multiplicative-stmt>
+		        \alt <multiplicative-stmt> \tt{"+"} <additive-stmt>
+		        \alt <multiplicative-stmt> \tt{"-"} <additive-stmt>
+
+		        <multiplicative-stmt> ::= <prefix-unary-stmt>
+		        \alt <prefix-unary-stmt> \tt{"*"} <multiplicative-stmt>
+		        \alt <prefix-unary-stmt> \tt{"/"} <multiplicative-stmt>
+		        \alt <prefix-unary-stmt> \tt{"%"} <multiplicative-stmt>
+			\end{grammar}
+			
+			\begin{center}
+			\begin{tikzpicture}
+				[level distance=1.5cm]
+				\node[state] {+}
+				child {
+			  		node[state] {+}
+			  		child { node[state] {\textbf{1}} }
+			  		child {
+			  			node[state] {*}
+			  			child { node[state] {\textbf{2}} }
+		  				child {node[state] {\textbf{3}} }
+			  		}
+		  		}
+		  		child {
+		  			node[state] {\textbf{4}}
+		  		};
+			\end{tikzpicture}
+			\end{center}
+
 		\subsection{Znane problemy}
 
 			Projektując gramatykę, należy wziąć pod uwagę problem rekurencji lewej (Left recursion).
@@ -648,14 +670,14 @@ void f() {
 
 				\newpage
 
-			Oznaczmy tutaj dla $\mathbb{N, R}: \oplus \in \{ =, +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
+			Oznaczmy dla $\mathbb{N, R}: \oplus \in \{ =, +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
 
 				\spacing
 
 				\begin{mathpar}
 				\inferrule
-				  {\Gamma \vdash e_1 : float \\ \Gamma \vdash e_2 : float}
-				  {\Gamma \vdash e_1 \oplus e_2 : float}
+				  {\Gamma \vdash e_l : float \\ \Gamma \vdash e_r : float}
+				  {\Gamma \vdash e_l \oplus e_r : float}
 				\end{mathpar}
 
 				\spacing
@@ -666,17 +688,17 @@ void f() {
 
 				\begin{mathpar}
 				\inferrule
-				  {\Gamma \vdash e_1 : int \\ \Gamma \vdash e_2 : int}
-				  {\Gamma \vdash e_1 \oplus e_2 : int}
+				  {\Gamma \vdash e_l : int \\ \Gamma \vdash e_r : int}
+				  {\Gamma \vdash e_l \oplus e_r : int}
 
 				\inferrule
-				  {\Gamma \vdash e_1 : int \\ \Gamma \vdash e_2 : char}
-				  {\Gamma \vdash e_1 \oplus e_2 : char}
+				  {\Gamma \vdash e_l : int \\ \Gamma \vdash e_r : char}
+				  {\Gamma \vdash e_l \oplus e_r : char}
 				\end{mathpar}
-				
+
 				\spacing
-				
-				Wprowadzimy reguły niejawnej konwersji, które są niezbędne przy sprawdzaniu w warunku
+
+				Wprowadźmy reguły niejawnej konwersji, które są niezbędne przy sprawdzaniu w warunku
 				logicznym wyniku operacji arytmetycznej, zwracającej typ różny od
 				\texttt{bool}. Oznaczmy reguły dla typów \texttt{int}, \texttt{char} i \texttt{float}.
 
@@ -694,6 +716,31 @@ void f() {
 				\inferrule
 					{\Gamma \vdash \text{e} : float}
 					{\Gamma \vdash \text{e} : bool}
+				\end{mathpar}
+
+				\spacing
+				
+				Wprowadźmy także reguły do operacji wskaźnikowych. Oznaczmy
+				$\oplus \in \{ =, +, -, \ \le, \ge, ==, \neq \}$, wtedy
+				
+				\spacing
+				
+				\begin{mathpar}
+				\inferrule
+					{\Gamma \vdash e_l : int \ * \\ \Gamma \vdash e_r : int \ *}
+					{\Gamma \vdash e_l \oplus e_r : int \ *}
+
+				\inferrule
+					{\Gamma \vdash e_l : char \ * \\ \Gamma \vdash e_r : char \ *}
+					{\Gamma \vdash e_l \oplus e_r : char \ *}
+
+				\inferrule
+					{\Gamma \vdash e_l : float \ * \\ \Gamma \vdash e_r : float \ *}
+					{\Gamma \vdash e_l \oplus e_r : float \ *}
+	
+				\inferrule
+					{\Gamma \vdash e_l : bool \ * \\ \Gamma \vdash e_r : bool \ *}
+					{\Gamma \vdash e_l \oplus e_r : bool \ *}
 				\end{mathpar}
 
 				\spacing
@@ -751,6 +798,62 @@ void f() {
 			\item Ma na celu pokazanie metod na tworzenie takiego języka i operacje nad nimi
 		\end{itemize}
 
+		\newpage
+	
+	\section{Optymalizacje kodu pośredniego}
+	
+		\subsection{Constant propagation}
+		
+			Został zaimplementowany algorytm przeliczania stałych. Rozpatruje on każdy block CFG osobno,
+			co pozwala na przeprowadzenie lokalnych optymalizacji. Niniejszy algorytm nie usuwa zmiennych,
+			których nie potrzebuje po obliczeniach dlatego, że to jest obowiązek innej optymalizacji
+			(\textbf{dead code elimination}). 
+
+			\spacing
+		
+			\begin{algorithm}
+				\caption{Przeliczenie zmiennych stałych}
+				\begin{algorithmic}[1]
+
+				\Procedure{ConstProp}{AST}
+					\State Consts $\gets$ $\emptyset$
+					
+					\For{each statement S across all CFG blocks}
+						\If{new CFG block is reached}
+							\State Consts $\gets$ $\emptyset$
+							\Comment Reset optimizer state
+						\EndIf
+						\If{S is binary}
+							\State Consts $\gets$ Consts $\cup$ computed value of binary expression
+						\EndIf
+						\If{S is store}
+							\If{S stores immediate}
+								\If{Consts has value for S.Sym}
+									\State Update Consts with new value
+								\Else
+									\State Consts $\gets$ Consts $\cup$ value
+								\EndIf
+							\EndIf
+							\If{S stores symbol}
+								\If{Consts has value for S.Sym}
+									\State Update Consts with new value
+								\Else
+									\State Consts $\gets$ Consts $\backslash$ \{ value \}
+								\EndIf
+							\EndIf
+						\EndIf
+					\EndFor
+
+%					\For{each collected declaration Use in Set}
+%						\If{Use is not a function \& Use.ReadUses is 0}
+%							\State Emit warning
+%						\EndIf
+%					\EndFor
+				\EndProcedure
+
+				\end{algorithmic}
+			\end{algorithm}
+		
 		\newpage
 
 	\section{Interpreter}
