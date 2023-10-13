@@ -496,6 +496,7 @@ static struct ast_node *parse_function_decl()
 
     return ast_function_decl_init(
         dt.data_type,
+        dt.indirection_lvl,
         strdup(name->data),
         param_list,
         block ? block : NULL,

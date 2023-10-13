@@ -39,7 +39,7 @@ void analysis_functions_analysis(struct ast_node *root);
 ///   </tr>
 ///   <tr>
 ///     <th>x + y</th>
-///     <td>Same operand types (int, char, float, bool).</td>
+///     <td>Same integral or pointer types (int, char, float, bool).</td>
 ///   </tr>
 ///   <tr>
 ///     <th>++x</th>
@@ -56,6 +56,10 @@ void analysis_functions_analysis(struct ast_node *root);
 ///   <tr>
 ///     <th>mem[1] | mem[var]</th>
 ///     <td>Integer as array index.</td>
+///   </tr>
+///   <tr>
+///     <th>*x</th>
+///     <td>Pointer type with indirection level >= 1.</td>
 ///   </tr>
 /// </table>
 
