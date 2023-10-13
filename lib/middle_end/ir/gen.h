@@ -12,7 +12,7 @@
 
 struct ast_node;
 struct ir_node;
-struct ir;
+struct ir_unit;
 
 /// Create IR from AST. Implemented as recursive visitor.
 ///
@@ -21,6 +21,6 @@ struct ir;
 ///   - variable_use_analysis
 ///   - functions_analysis
 ///   - type_analysis 
-__weak_wur struct ir_node *ir_gen(struct ast_node *ast);
+__weak_wur struct ir_unit *ir_gen(struct ast_node *ast);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GEN_H

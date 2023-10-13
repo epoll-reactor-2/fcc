@@ -48,15 +48,15 @@ bool ir_test(const char *filename)
         analysis_functions_analysis(ast);
         analysis_type_analysis(ast);
 
-        struct ir_node *ir = ir_gen(ast);
+        struct ir_unit *ir = ir_gen(ast);
 
         if (strstr(filename, "if.wl")) {
-            ir_compute_dom_tree(ir);
-            ir_compute_dom_frontier(ir);
+            ir_compute_dom_tree(ir->func_decls);
+            ir_compute_dom_frontier(ir->func_decls);
         }
 
         ast_node_cleanup(ast);
-        ir_node_cleanup(ir);
+        ir_unit_cleanup(ir);
 
         printf("Success!\n");
     } else {
