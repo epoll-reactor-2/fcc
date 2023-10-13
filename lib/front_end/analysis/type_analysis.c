@@ -13,6 +13,7 @@
 #include <assert.h>
 
 static enum data_type last_dt = D_T_UNKNOWN;
+static uint16_t       last_indir_lvl = 0;
 static enum data_type last_return_dt = D_T_UNKNOWN;
 
 static void reset_internal_state()
@@ -23,13 +24,13 @@ static void reset_internal_state()
 
 static void visit_ast_node(struct ast_node *ast);
 
-static void visit_ast_char  () { last_dt = D_T_CHAR; }
-static void visit_ast_num   () { last_dt = D_T_INT; }
-static void visit_ast_float () { last_dt = D_T_FLOAT; }
-static void visit_ast_string() { last_dt = D_T_STRING; }
-static void visit_ast_bool  () { last_dt = D_T_BOOL; }
+static void visit_ast_char  () { last_indir_lvl = 0; last_dt = D_T_CHAR; }
+static void visit_ast_num   () { last_indir_lvl = 0; last_dt = D_T_INT; }
+static void visit_ast_float () { last_indir_lvl = 0; last_dt = D_T_FLOAT; }
+static void visit_ast_string() { last_indir_lvl = 0; last_dt = D_T_STRING; }
+static void visit_ast_bool  () { last_indir_lvl = 0; last_dt = D_T_BOOL; }
 
-static bool is_correct_bin_op(enum token_type op, enum data_type t)
+static bool correct_bin_ops(enum token_type op, enum data_type t)
 {
     bool are_correct = false;
 
@@ -87,10 +88,14 @@ static bool is_correct_bin_op(enum token_type op, enum data_type t)
 static void visit_ast_binary(struct ast_node *ast)
 {
     struct ast_binary *stmt = ast->ast;
+
     visit_ast_node(stmt->lhs);
     enum data_type l_dt = last_dt;
+    uint16_t l_indir_lvl = last_indir_lvl;
+
     visit_ast_node(stmt->rhs);
     enum data_type r_dt = last_dt;
+    uint16_t r_indir_lvl = last_indir_lvl;
 
     bool are_same = false;
     are_same |= l_dt == D_T_BOOL && r_dt == D_T_BOOL;
@@ -98,16 +103,28 @@ static void visit_ast_binary(struct ast_node *ast)
     are_same |= l_dt == D_T_FLOAT && r_dt == D_T_FLOAT;
     are_same |= l_dt == D_T_INT && r_dt == D_T_INT;
 
-    bool correct_ops = is_correct_bin_op(stmt->operation, l_dt);
-    if (!are_same || !correct_ops)
-        weak_compile_error(
-            ast->line_no,
-            ast->col_no,
-            "Cannot apply `%s` to %s and %s",
-            tok_to_string(stmt->operation),
-            data_type_to_string(l_dt),
-            data_type_to_string(r_dt)
-        );
+    if (l_indir_lvl == 0 && r_indir_lvl == 0) {
+        bool correct_ops = correct_bin_ops(stmt->operation, l_dt);
+        if (!are_same || !correct_ops)
+            weak_compile_error(
+                ast->line_no,
+                ast->col_no,
+                "Cannot apply `%s` to %s and %s",
+                tok_to_string(stmt->operation),
+                data_type_to_string(l_dt),
+                data_type_to_string(r_dt)
+            );
+    } else {
+        bool correct_ops = l_indir_lvl == r_indir_lvl;
+        if (!are_same || !correct_ops)
+            weak_compile_error(
+                ast->line_no,
+                ast->col_no,
+                "Indirection level mismatch (%d vs %d)",
+                l_indir_lvl,
+                r_indir_lvl
+            );
+    }
 }
 
 static void visit_ast_unary(struct ast_node *ast)
@@ -129,9 +146,16 @@ static void visit_ast_unary(struct ast_node *ast)
             );
         break;
     case TOK_BIT_AND: /// Address operator `&`.
+        ++last_indir_lvl;
+        break;
     case TOK_STAR: /// Dereference operator `*`.
-        /// Should not analyze anything because operands
-        /// of unary operator are checked in parser.
+        if (last_indir_lvl == 0)
+            weak_compile_error(
+                ast->line_no,
+                ast->col_no,
+                "Attempt to dereference integral type"
+            );
+        --last_indir_lvl;
         break;
     default:
         weak_unreachable("Invalid unary operand.");
@@ -141,7 +165,10 @@ static void visit_ast_unary(struct ast_node *ast)
 static void visit_ast_symbol(struct ast_node *ast)
 {
     struct ast_symbol *stmt = ast->ast;
-    last_dt = ast_storage_lookup(stmt->value)->data_type;
+    struct ast_storage_decl *record = ast_storage_lookup(stmt->value);
+
+    last_dt = record->data_type;
+    last_indir_lvl = record->indirection_lvl;
 }
 
 static void visit_ast_var_decl(struct ast_node *ast)
@@ -158,8 +185,9 @@ static void visit_ast_var_decl(struct ast_node *ast)
                 data_type_to_string(decl->dt)
             );
     }
-    ast_storage_push_typed(decl->name, decl->dt, ast);
+    ast_storage_push_typed(decl->name, decl->dt, decl->indirection_lvl, ast);
     last_dt = decl->dt;
+    last_indir_lvl = decl->indirection_lvl;
 }
 
 static void visit_ast_array_decl(struct ast_node *ast)
@@ -177,8 +205,9 @@ static void visit_ast_array_decl(struct ast_node *ast)
             );
     }
 
-    ast_storage_push_typed(decl->name, decl->dt, ast);
+    ast_storage_push_typed(decl->name, decl->dt, decl->indirection_lvl, ast);
     last_dt = decl->dt;
+    last_indir_lvl = decl->indirection_lvl;
 }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -363,8 +392,12 @@ static void visit_ast_function_call(struct ast_node *ast)
     for (uint64_t i = 0; i < call_args->size; ++i) {
         visit_ast_node(fun_args->stmts[i]);
         enum data_type l_dt = last_dt;
+        uint64_t l_indir_lvl = last_indir_lvl;
+
         visit_ast_node(call_args->stmts[i]);
         enum data_type r_dt = last_dt;
+        uint64_t r_indir_lvl = last_indir_lvl;
+
         if (l_dt != r_dt)
             weak_compile_error(
                 call_args->stmts[i]->line_no,
@@ -374,8 +407,18 @@ static void visit_ast_function_call(struct ast_node *ast)
                 data_type_to_string(r_dt),
                 data_type_to_string(l_dt)
             );
+
+        if (l_indir_lvl != r_indir_lvl)
+            weak_compile_error(
+                ast->line_no,
+                ast->col_no,
+                "Indirection level mismatch (%d vs %d)",
+                l_indir_lvl,
+                r_indir_lvl
+            );
     }
     last_dt = fun->data_type;
+    last_indir_lvl = fun->indirection_lvl;
 }
 
 static void visit_ast_function_decl(struct ast_node *ast)
@@ -383,12 +426,12 @@ static void visit_ast_function_decl(struct ast_node *ast)
     struct ast_function_decl *decl = ast->ast;
     enum data_type dt = decl->data_type;
     if (decl->body == NULL) { /// Function prototype.
-        ast_storage_push_typed(decl->name, D_T_FUNC, ast);
+        ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
         return;
     }
     ast_storage_start_scope();
     /// This is to have function in recursive calls.
-    ast_storage_push_typed(decl->name, D_T_FUNC, ast);
+    ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
     /// Don't just visit compound AST, which creates and terminates scope.
     struct ast_compound *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
@@ -405,7 +448,7 @@ static void visit_ast_function_decl(struct ast_node *ast)
         );
     ast_storage_end_scope();
     /// This is to have function outside.
-    ast_storage_push_typed(decl->name, D_T_FUNC, ast);
+    ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
 }
 
 void visit_ast_node(struct ast_node *ast)

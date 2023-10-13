@@ -68,7 +68,7 @@ int main() {
 
         ast_storage_start_scope();
         ast_storage_start_scope();
-        ast_storage_push_typed("var", D_T_BOOL, ast);
+        ast_storage_push_typed("var", D_T_BOOL, /*indirection_lvl=*/0, ast);
 
         struct ast_storage_decl *record = ast_storage_lookup("var");
         ASSERT_TRUE(record);
