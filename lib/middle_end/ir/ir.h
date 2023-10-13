@@ -18,19 +18,27 @@ enum ir_type {
     IR_ALLOCA_ARRAY,
     /// Immediate value.
     IR_IMM,
+    /// Symbol. Used to refere to a variable.
     IR_SYM,
+    /// Store to variable or array operator.
     IR_STORE,
+    /// Binary operator.
+    /// \note Unary operators such as ++ and -- are transformed
+    ///       to binary operator.
     IR_BIN,
+    /// Unconditional jump.
     IR_JUMP,
+    /// Conditional jump.
     IR_COND,
+    /// Return with value.
     IR_RET,
-    /// This used in ret instruction to represent
-    /// `return;` from void functions.
+    /// Return without value.
     IR_RET_VOID,
+    /// Structure member access.
     IR_MEMBER,
-    /// Code generator should store type declarations
-    /// and refer to it in order to compute type
-    /// size and member offsets.
+    /// \note Code generator should store type declarations
+    ///       and refer to it in order to compute type
+    ///       size and member offsets.
     IR_TYPE_DECL,
     IR_FUNC_DECL,
     IR_FUNC_CALL,
@@ -86,10 +94,10 @@ struct ir_alloca_array {
 };
 
 enum ir_imm_type {
-    IMM_BOOL,
-    IMM_CHAR,
-    IMM_FLOAT,
-    IMM_INT
+    IMM_BOOL,  ///< Size = 1 byte
+    IMM_CHAR,  ///< Size = 1 byte
+    IMM_FLOAT, ///< Size = 4 bytes
+    IMM_INT    ///< Size = 4 bytes
 };
 
 union ir_imm_val {
@@ -139,8 +147,9 @@ struct ir_bin {
 };
 
 struct ir_jump {
-    /// Unconditonal jump.
+    /// Instruction index where to jump.
     int32_t          idx;
+    /// Pointer to node at given \c idx.
     struct ir_node  *target;
 };
 
@@ -152,7 +161,9 @@ struct ir_cond {
     ///   if cmpneq x, 0.
     /// Requires only binary IR instruction.
     struct ir_node  *cond;
+    /// Instruction index where to jump.
     int32_t          goto_label;
+    /// Pointer to node at given \c goto_label.
     struct ir_node  *target;
 };
 
