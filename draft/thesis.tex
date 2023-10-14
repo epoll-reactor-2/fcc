@@ -1,4 +1,4 @@
-\documentclass[a4paper, 12pt]{extarticle}
+\documentclass[leqno, 12pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[polish]{babel}
@@ -62,9 +62,9 @@
 \lstset{
 	firstnumber = 0,
 	tabsize     = 4,
-	frame       = single,
+	frame       = none,
 	linewidth   = 1.2\textwidth,
-	xleftmargin = .5cm
+	xleftmargin = 0cm
 }
 
 \captionsetup{
@@ -85,6 +85,8 @@
     \pagestyle{fancy}
     \lhead{\leftmark}
     \rhead{\thetitle}
+    
+    \setlength{\parindent}{0pt}
 
     \maketitle
     
@@ -372,9 +374,28 @@
 			będzie skonstruowane zgodnie z prawami arytmetyki, co pozwala nie trzymać w AST żadnych
 			informacji o nawiasach. Widać, że aby zastosować produkcję \textit{$<$additive-stmt$>$},
 			najpierw musi być zastosowana następna produkcja \textit{$<$multiplicative-stmt$>$}.
+			\\
 
-			\spacing
-			\spacing
+			Pomocnicza przy prowadzeniu analizy jest \textbf{tablica parsingu}. Jest to zbiór
+			konkretnych przejść pomiędzy produkcjami. Pomaga ona w zrozumieniu, jaką
+			produkcję zastosować mając dany nieterminal. Zauważmy, że w tabelę są wpisane produkcje bez
+			alternatyw, i każde przejście gramatyczne określone jednoznacznie.
+			\\
+			
+			Aby zbudować tą tablicy, możemy użyć zasady
+			\textbf{First \& Follow}. Tutaj \textbf{First} to zbiór terminalnych symboli, które mogą pojawić
+			się jako
+			pierwsze w ciągu znaków wygenerowanym przez daną nieterminalną symbol w gramatyce,
+			a \textbf{Follow} to
+			zbiór terminalnych symboli, które mogą wystąpić bezpośrednio po danym nieterminalnym symbolu
+			w dowolnym ciągu znaków wygenerowanym przez gramatykę.
+			\\
+			
+			\newpage
+			
+			Podamy gramatykę dla przykładu powyżej (\texttt{1 + 2 * 3 + 4}). Musimy wprowadzić dwa poziomy
+			priorytetów, aby prawidłowo zachować kolejność operacji mnożenia i dodawania.
+			\\
 
 			\begin{grammar}
 		        <additive-stmt> ::= <multiplicative-stmt>
@@ -387,6 +408,46 @@
 		        \alt <prefix-unary-stmt> \tt{"%"} <multiplicative-stmt>
 			\end{grammar}
 			
+			\spacing
+
+			\begin{center}
+				\setlength{\tabcolsep}{0.5em}
+				\renewcommand{\arraystretch}{1.5}
+				\begin{tabular}{ L{5cm} L{3cm} L{4cm} }
+					                          & \textbf{First} & \textbf{Follow} \\
+					$<$additive-stmt$>$       & 0-9            & \textbf{+}, \textbf{-} \\
+					$<$multiplicative-stmt$>$ & 0-9            & \textbf{*}, \textbf{/} \\
+					$<$prefix-unary-stmt$>$   & 0-9            & $\epsilon$ \\
+				\end{tabular}
+			\end{center}
+
+			\spacing
+
+			\begin{center}
+				\setlength{\tabcolsep}{0.5em}
+				\renewcommand{\arraystretch}{1.5}
+				\begin{tabular}{ | L{4.1cm} | L{2cm} | L{2cm} | L{2cm} | L{2cm} | L{2cm} | L{2cm} | }
+                  	\hline
+                  	       & 0-9    & +    & -    & *    & /    & \$ \\
+                  	\hline
+              	 	$<$additive-stmt$>$
+              	 	       &        & $<$mul$>$ + $<$add$>$
+              	 	                & $<$mul$>$ - $<$add$>$
+              	 	                & & & $<$mul$>$ \\
+                  	\hline
+                  	$<$multiplicative-stmt$>$ 
+                  		   &        & & & $<$una$>$ * $<$mul$>$
+                  		                & $<$una$>$ / $<$mul$>$
+                  		                & $<$una$>$ \\
+                  	\hline
+                  	$<$prefix-unary-stmt$>$
+                  	       & 0-9 & & & & & \\
+                  	\hline
+				\end{tabular}
+			\end{center}
+
+			\spacing
+
 			\begin{center}
 			\begin{tikzpicture}
 				[level distance=1.5cm]
@@ -406,7 +467,7 @@
 			\end{tikzpicture}
 			\end{center}
 
-		\subsection{Znane problemy}
+		\subsection{Eliminacja rekurencji lewej}
 
 			Projektując gramatykę, należy wziąć pod uwagę problem rekurencji lewej (Left recursion).
 			Są produkcje gramatyczne, nie pozwalające kodu, które je implementuje przejść do następnego
@@ -425,14 +486,71 @@
 			
 			\spacing
 
-			\begin{lstlisting}[caption={Rekurencja lewa}, label={lst:left-recursion}]
+			\begin{lstlisting}[label={lst:left-recursion}]
 void factor() {
 	factor(); // Rekurencja bez zadnego warunku wyjscia
 	consume('+');
 	term();
 }
 			\end{lstlisting}
+		
+		\subsection{Niejednoznaczność}
+		
+			Projektując język, łatwo trafić na niejednoznaczne produkcje gramatyczne. One są takie, że
+			jednego tekstu wejściowego są one w stanie wyprodukować kilka różnych od siebie drzew. Popularny
+			warunek dla stworzenia niejednoznaczności to taka produkcja
 			
+			\begin{grammar}
+		        <P> ::= <P> + <P>
+				\alt <symbol>
+			\end{grammar}
+			
+			
+			Po zastosowaniu danej produkcji dla \texttt{A + B + C} możliwe jest otrzymanie dwóch drzew
+			
+			\spacing
+			\spacing
+
+			\begin{center}
+				\begin{tabular}{ L{5cm} L{5cm} }
+					\begin{tikzpicture}
+						[level distance=1.5cm]
+						\node[state] {+}
+						child {
+					  		node[state] {+}
+					  		child { node[state] {\textbf{A}} }
+					  		child { node[state] {\textbf{B}} }
+				  		}
+				  		child {
+				  			node[state] {\textbf{C}}
+				  		};
+					\end{tikzpicture}
+					&
+					\begin{tikzpicture}
+						[level distance=1.5cm]
+						\node[state] {+}
+						child {
+				  			node[state] {\textbf{A}}
+				  		}
+				  		child {
+					  		node[state] {+}
+					  		child { node[state] {\textbf{B}} }
+					  		child { node[state] {\textbf{C}} }
+				  		};
+					\end{tikzpicture}
+				\end{tabular}
+			\end{center}
+			
+			Aby rozwiązać ten problem i jednoznacznie wskazać kolejność zastosowania reguł gramatycznych,
+			możemy zamienić prawy operand na symbol, wtedy eliminuje się dwuznaczność. Pierwsza produkcja
+			poniżej jest \textbf{lewostronną}, a druga -- \textbf{prawostronną}.
+
+			\begin{grammar}
+		        <P> ::= <P> + <symbol>
+	
+		        <P> ::= <symbol> + <P>
+			\end{grammar}
+
 			\newpage
 
 		\subsection{Implementacja AST}
@@ -443,7 +561,7 @@ void factor() {
 
 			\spacing
 
-			\begin{lstlisting}[caption={Główny węzęł AST}, label={lst:ast-node}]
+			\begin{lstlisting}[label={lst:ast-node}]
 struct ast_node {
     enum ast_type  type;    /* Rozrozniamy typ wedlug tej flagi */
     void          *ast;     /* ast_num, ast_for, ast_while, et cetera */
@@ -458,7 +576,7 @@ struct ast_node {
 
 			\spacing
 
-			\begin{lstlisting}[caption={Konkretny węzęł AST}, label={lst:ast-concrete-node}]
+			\begin{lstlisting}[label={lst:ast-concrete-node}]
 struct ast_num {
     int32_t value;
 };
@@ -508,7 +626,7 @@ struct ast_num {
 			Niżej pokazany jest przykładowy wynik działania tej funkcji.
 			\\
 	
-			\begin{lstlisting}[caption={Tekstowa reprezentacja AST}, label={lst:ast-text}]
+			\begin{lstlisting}[label={lst:ast-text}]
 CompoundStmt <line:0, col:0>
   StructDecl <line:9, col:1> `custom`
     CompoundStmt <line:9, col:1>
@@ -538,17 +656,19 @@ CompoundStmt <line:0, col:0>
 			
 			\spacing
 
-			\begin{lstlisting}[caption={Nieużywana zmienna}, label={lst:warn-unused-var}]
+			\begin{lstlisting}[label={lst:warn-unused-var}]
 void f() {
 	int argument = 0; // Warning: unused variable `argument`
 }
 			\end{lstlisting}
 
-			\begin{lstlisting}[caption={Nieużywany parametr}, label={lst:warn-unused-var}]
-void f(int argument) {} // Warning: unused variable `argument`
+			\begin{lstlisting}[label={lst:warn-unused-var}]
+void f(int argument) { // Warning: unused variable `argument`
+
+}
 			\end{lstlisting}
 			
-			\begin{lstlisting}[caption={Nieodczytana zmienna}, label={lst:warn-unused-var}]
+			\begin{lstlisting}[label={lst:warn-unused-var}]
 void f() {
 	int argument = 0;
 	++argument; // Warning: variable `argument` written, but never read
@@ -587,25 +707,6 @@ void f() {
 			Do analizy nieużywanych funkcji stosuje się tem sam algorytm. Jedyne, co jest wtedy zmienione --
 			sprawdzenie, czy nazwa rozpatrywanej funkcji nie jest \textbf{main}. Funkcja \textbf{main} jest
 			wywołana automatycznie.
-		
-%		\subsection{Analiza typów}
-		
-%			Podczas analizy typów należy sprawdzić, czy:
-%
-%			\begin{itemize}
-%				\item Oba operandy wyrażenia binarnego mają ten sam typ
-%				\item Faktycznie zwracana z funkcji wartość zgadza się z jej
-%				      deklaracją
-%		      	\item Prawidłowa ilość i typy argumentów byli przekazane do wyrażenia
-%		      	      wywołania funkcji
-%      	      	\item Rozmiar zadeklarowanej tablicy jest dopuszczalny
-%      	      	\item Indeks tablicy nie wykracza poza jej rozmiar (w przypadku stałego indeksu)
-%			\end{itemize}
-		
-%			\spacing
-
-%			Analiza typów w naszym przypadku jest dość prosta i tak samo polega na przejściu drzewa
-%			syntaksycznego.
 		
 		\section{System typów}
 		
@@ -843,12 +944,6 @@ void f() {
 							\EndIf
 						\EndIf
 					\EndFor
-
-%					\For{each collected declaration Use in Set}
-%						\If{Use is not a function \& Use.ReadUses is 0}
-%							\State Emit warning
-%						\EndIf
-%					\EndFor
 				\EndProcedure
 
 				\end{algorithmic}
@@ -1055,6 +1150,12 @@ void f() {
 	\begin{thebibliography}{9}
 		\bibitem{texbook}
 			https://www.bates.edu/biology/files/2010/06/How-to-Write-Guide-v10-2014.pdf
+		
+		\bibitem{texbook}
+			Bauer, Friedrich Ludwig,
+			\emph{Compiler construction},
+			1974, Berlin,
+			ISBN: 3-540-06958-5
 		
 		\bibitem{texbook}
 			http://lucacardelli.name/papers/typesystems.pdf
