@@ -1352,13 +1352,14 @@ static struct ast_node *parse_constant()
 {
     struct token *t = peek_next();
 
+    /// TODO: eliminate quotes
     switch (t->type) {
     case TOK_INTEGRAL_LITERAL:
         return ast_num_init(atoi(t->data), t->line_no, t->col_no);
     case TOK_FLOATING_POINT_LITERAL:
         return ast_float_init(atof(t->data), t->line_no, t->col_no);
     case TOK_STRING_LITERAL:
-        return ast_string_init(t->data, t->line_no, t->col_no);
+        return ast_string_init(strlen(t->data), strdup(t->data), t->line_no, t->col_no);
     case TOK_CHAR_LITERAL:
         return ast_char_init(t->data[0], t->line_no, t->col_no);
     case TOK_TRUE:

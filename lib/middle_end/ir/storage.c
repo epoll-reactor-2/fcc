@@ -22,12 +22,17 @@ void ir_storage_reset()
     hashmap_destroy(&storage);
 }
 
-void ir_storage_push(const char *name, int32_t ir_idx, struct ir_node *ir)
-{
+void ir_storage_push(
+    const char     *name,
+    int32_t         sym_idx,
+    enum data_type  dt,
+    struct ir_node *ir
+) {
     struct ir_storage_record *record =
         weak_calloc(1, sizeof (struct ir_storage_record));
 
-    record->sym_idx = ir_idx;
+    record->sym_idx = sym_idx;
+    record->dt = dt;
     record->ir = ir;
 
     hashmap_put(&storage, crc32_string(name), (uint64_t) record);

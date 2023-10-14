@@ -17,6 +17,11 @@ const char *ir_type_to_string(enum ir_type t);
 /// \param ir      Pointer to the function IR.
 void ir_dump(FILE *mem, struct ir_func_decl *decl);
 
+/// Print whole translation unit to given stream.
+///
+/// \param ir      Pointer to the unit.
+void ir_dump_unit(FILE *mem, struct ir_unit *unit);
+
 /// Print IR dominator tree.
 ///
 /// \param ir      Pointer to the function IR.

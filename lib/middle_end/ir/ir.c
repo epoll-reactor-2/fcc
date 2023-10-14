@@ -32,11 +32,11 @@ struct ir_node *ir_node_init(enum ir_type type, void *ir)
     return node;
 }
 
-struct ir_node *ir_alloca_init(enum data_type dt, bool ptr, int32_t idx)
+struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, int32_t idx)
 {
     struct ir_alloca *ir = weak_calloc(1, sizeof (struct ir_alloca));
     ir->dt = dt;
-    ir->ptr = ptr;
+    ir->indir_lvl = indir_lvl;
     ir->idx = idx;
     ++ir_instr_index;
     return ir_node_init(IR_ALLOCA, ir);
@@ -97,6 +97,14 @@ struct ir_node *ir_imm_int_init(int32_t imm)
     return ir_node_init(IR_IMM, ir);
 }
 
+struct ir_node *ir_string_init(uint64_t len, char *imm)
+{
+    assert(imm);
+    struct ir_string *ir = weak_calloc(1, sizeof (struct ir_string));
+    ir->len = len;
+    ir->imm = imm;
+    return ir_node_init(IR_STRING, ir);
+}
 
 struct ir_node *ir_sym_init(int32_t idx)
 {
@@ -262,6 +270,11 @@ struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
     return ir_node_init(IR_FUNC_CALL, ir);
 }
 
+static void ir_string_cleanup(struct ir_string *ir)
+{
+    weak_free(ir->imm);
+}
+
 static void ir_store_cleanup(struct ir_store *ir)
 {
     ir_node_cleanup(ir->idx);
@@ -327,6 +340,7 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_MEMBER: /// Fall through.
         /// Nothing to clean except ir->ir itself.
         break;
+    case IR_STRING:       ir_string_cleanup(ir->ir); break;
     case IR_STORE:        ir_store_cleanup(ir->ir); break;
     case IR_BIN:          ir_bin_cleanup(ir->ir); break;
     case IR_COND:         ir_cond_cleanup(ir->ir); break;
@@ -347,14 +361,7 @@ void ir_node_cleanup(struct ir_node *ir)
 
 void ir_unit_cleanup(struct ir_unit *ir)
 {
-    struct ir_node *it = ir->literals;
-
-    while (it) {
-        ir_node_cleanup(it);
-        it = it->next;
-    }
-
-    it = ir->func_decls;
+    struct ir_node *it = ir->func_decls;
 
     while (it) {
         ir_node_cleanup(it);

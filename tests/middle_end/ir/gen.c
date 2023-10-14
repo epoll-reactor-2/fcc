@@ -63,18 +63,8 @@ bool ir_test(const char *filename)
         analysis_type_analysis(ast);
 
         struct ir_unit *ir = ir_gen(ast);
-        struct ir_node *it = ir->func_decls;
 
-        while (it) {
-            ir_dump(generated_stream, it->ir);
-            it = it->next;
-        }
-        // for (uint64_t i = 0; i < ir.decls_size; ++i) {
-            // ir_dump(generated_stream, ir.decls[i].ir);
-// 
-            // struct ir_func_decl *decl = ir.decls[0].ir;
-            // ir_dump_graph_dot(stdout, decl);
-        // }
+        ir_dump_unit(generated_stream, ir);
 
         fflush(generated_stream);
         ast_node_cleanup(ast);
@@ -82,7 +72,7 @@ bool ir_test(const char *filename)
         
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            // success = false;
+            success = false;
             goto exit;
         }
         printf("Success!\n");
@@ -116,8 +106,10 @@ int main()
     if (!do_on_each_file("/test_inputs/ir_gen", ir_test)) {
         ret = -1;
 
-        if (err_buf)
+        if (err_buf) {
             fputs(err_buf, stderr);
+            return ret;
+        }
 
         if (warn_buf)
             fputs(warn_buf, stderr);
