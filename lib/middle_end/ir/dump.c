@@ -64,7 +64,7 @@ static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
 {
     switch (ir->type) {
     case IMM_BOOL:  fprintf(mem, "%d", ir->imm.__bool); break;
-    case IMM_CHAR:  fprintf(mem, "%d", ir->imm.__char); break;
+    case IMM_CHAR:  fprintf(mem, "'%c'", ir->imm.__char); break;
     case IMM_FLOAT: fprintf(mem, "%f", ir->imm.__float); break;
     case IMM_INT:   fprintf(mem, "%d", ir->imm.__int); break;
     default:
@@ -74,7 +74,7 @@ static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
 
 static void ir_dump_string(FILE *mem, struct ir_string *ir)
 {
-    fprintf(mem, "'%s'", ir->imm);
+    fprintf(mem, "\"%s\"", ir->imm);
 }
 
 static void ir_dump_sym(FILE *mem, struct ir_sym *ir)

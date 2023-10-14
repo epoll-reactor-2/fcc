@@ -262,8 +262,13 @@ static void visit_ast_array_access(struct ast_node *ast)
 {
     struct ast_array_access *stmt = ast->ast;
     struct ast_node *record = ast_storage_lookup(stmt->name)->ast;
+    enum data_type decl_dt = D_T_UNKNOWN;
 
-    if (record->type != AST_ARRAY_DECL) {
+    if (record->type == AST_ARRAY_DECL) {
+        struct ast_array_decl *decl = record->ast;
+        out_of_range_analysis(decl->enclosure_list, stmt->indices);
+        decl_dt = decl->dt;
+    } else {
         /// If it is not an array, then obviously variable
         /// declaration.
         struct ast_var_decl *decl = record->ast;
@@ -273,10 +278,7 @@ static void visit_ast_array_access(struct ast_node *ast)
                 ast->col_no,
                 "Cannot get index of non-array type"
             );
-        last_dt = decl->dt;
-    } else {
-        struct ast_array_decl *decl = record->ast;
-        out_of_range_analysis(decl->enclosure_list, stmt->indices);
+        decl_dt = decl->dt;
     }
     struct ast_compound *enclosure = stmt->indices->ast;
     for (uint64_t i = 0; i < enclosure->size; ++i) {
@@ -289,6 +291,8 @@ static void visit_ast_array_access(struct ast_node *ast)
                 data_type_to_string(last_dt)
             );
     }
+
+    last_dt = decl_dt;
 }
 
 static void require_last_dt_convertible_to_bool(struct ast_node *location)
