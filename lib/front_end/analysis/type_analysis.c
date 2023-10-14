@@ -176,7 +176,10 @@ static void visit_ast_var_decl(struct ast_node *ast)
     struct ast_var_decl *decl = ast->ast;
     if (decl->body) {
         visit_ast_node(decl->body);
-        if (decl->dt != last_dt)
+        bool are_correct = 0;
+        are_correct |= decl->dt == last_dt;
+        are_correct |= decl->indirection_lvl == 1 && last_dt == D_T_STRING;
+        if (!are_correct)
             weak_compile_error(
                 ast->line_no,
                 ast->col_no,

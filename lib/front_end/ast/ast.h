@@ -379,12 +379,18 @@ void             ast_return_cleanup(struct ast_return *ast);
 ///              String literal             ///
 ///////////////////////////////////////////////
 struct ast_string {
-    char *value; /// \note Must be dynamically allocated.
+    uint64_t  len;
+    char     *value; /// \note Must be dynamically allocated.
 };
 
 __weak_wur
-struct ast_node *ast_string_init(char *value, uint16_t line_no, uint16_t col_no);
-void             ast_string_cleanup(struct ast_string *ast);
+struct ast_node *ast_string_init(
+    uint64_t  len,
+    char     *value,
+    uint16_t  line_no,
+    uint16_t col_no
+);
+void ast_string_cleanup(struct ast_string *ast);
 
 
 ///////////////////////////////////////////////

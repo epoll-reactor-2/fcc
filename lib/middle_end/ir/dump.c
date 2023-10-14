@@ -40,7 +40,7 @@ static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
         mem,
         "%s %st%d",
         data_type_to_string(ir->dt),
-        ir->ptr ? "* " : "",
+        ir->indir_lvl ? "* " : "",
         ir->idx
     );
 }
@@ -70,6 +70,11 @@ static void ir_dump_imm(FILE *mem, struct ir_imm *ir)
     default:
         weak_unreachable("Unknown immediate IR type (numeric: %d).", ir->type);
     }
+}
+
+static void ir_dump_string(FILE *mem, struct ir_string *ir)
+{
+    fprintf(mem, "'%s'", ir->imm);
 }
 
 static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
@@ -173,6 +178,7 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_ALLOCA:       ir_dump_alloca(mem, ir->ir); break;
     case IR_ALLOCA_ARRAY: ir_dump_alloca_array(mem, ir->ir); break;
     case IR_IMM:          ir_dump_imm(mem, ir->ir); break;
+    case IR_STRING:       ir_dump_string(mem, ir->ir); break;
     case IR_SYM:          ir_dump_sym(mem, ir->ir); break;
     case IR_STORE:        ir_dump_store(mem, ir->ir); break;
     case IR_BIN:          ir_dump_bin(mem, ir->ir); break;
@@ -203,6 +209,15 @@ void ir_dump(FILE *mem, struct ir_func_decl *decl)
 {
     ir_dump_func_decl(mem, decl);
     fprintf(mem, "\n");
+}
+
+void ir_dump_unit(FILE *mem, struct ir_unit *unit)
+{
+    struct ir_node *it = unit->func_decls;
+    while (it) {
+        ir_dump(mem, it->ir);
+        it = it->next;
+    }
 }
 
 static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *next)

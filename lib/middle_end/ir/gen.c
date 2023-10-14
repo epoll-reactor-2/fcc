@@ -99,6 +99,11 @@ static void ir_insert(struct ir_node *new_node)
     ir_try_add_meta(new_node);
 }
 
+__weak_really_inline static void ir_insert_last()
+{
+    ir_insert(ir_last);
+}
+
 static void invalidate()
 {
     vector_free(ir_func_decls);
@@ -137,7 +142,12 @@ static void visit_ast_num(struct ast_num *ast)
     ir_last = ir_imm_int_init(ast->value);
 }
 
-static void visit_ast_string(struct ast_string *ast) { (void) ast; }
+static void visit_ast_string(struct ast_string *ast)
+{
+    /// ast->value is allocated in AST also. We duplicate to do not
+    /// be dependent on AST cleanup.
+    ir_last = ir_string_init(ast->len, strdup(ast->value));
+}
 
 static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
 {
@@ -149,7 +159,7 @@ static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
     struct ir_node *rhs = ir_last;
 
     ir_last = ir_store_init(lhs, rhs);
-    ir_insert(ir_last);
+    ir_insert_last();
 }
 
 __weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym *assign)
@@ -189,7 +199,7 @@ static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
         mark_noalias(rhs, assign);
     }
 
-    ir_insert(ir_last);
+    ir_insert_last();
     ir_last = ir_sym_init(alloca_idx);
 }
 
@@ -282,7 +292,7 @@ static void visit_ast_for(struct ast_for *ast)
         exit_jmp_ptr->idx = ir_last->instr_idx + 1;
     }
 
-    ir_insert(ir_last);
+    ir_insert_last();
 }
 
 static void visit_ast_while(struct ast_while *ast)
@@ -439,7 +449,7 @@ static void visit_ast_return(struct ast_return *ast)
         /*is_void=*/!ast->operand,
         /*op=*/ir_last
     );
-    ir_insert(ir_last);
+    ir_insert_last();
 }
 
 static void visit_ast_symbol(struct ast_symbol *ast)
@@ -457,7 +467,7 @@ static void visit_ast_unary(struct ast_unary *ast)
     ) && (
         "Unary operator expects variable argument."
     ));
-    struct ir_sym *sym = ir_last->ir;
+    struct ir_sym  *sym      = ir_last->ir;
     struct ir_node *sym_node = ir_last;
 
     enum token_type op = ast->operation;
@@ -478,24 +488,52 @@ static void visit_ast_unary(struct ast_unary *ast)
     meta->sym_meta.noalias = 1;
     sym_node->meta = meta;
 
-    ir_insert(ir_last);
+    ir_insert_last();
 }
 
 static void visit_ast_struct_decl(struct ast_struct_decl *ast) { (void) ast; }
 
-static void visit_ast_var_decl(struct ast_var_decl *ast)
+static void emit_var(struct ast_var_decl *ast)
 {
     int32_t next_idx = ir_var_idx++;
-    ir_last = ir_alloca_init(ast->dt, /*ptr=*/0, next_idx);
+    ir_last = ir_alloca_init(ast->dt, ast->indirection_lvl, next_idx);
     /// Used as function argument or as function body statement.
-    ir_insert(ir_last);
-    ir_storage_push(ast->name, next_idx, ir_last);
+    ir_insert_last();
+    ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
 
     if (ast->body) {
         visit_ast(ast->body);
         ir_last = ir_store_sym_init(next_idx, ir_last);
-        ir_insert(ir_last);
+        ir_insert_last();
     }
+}
+
+static void emit_var_string(struct ast_var_decl *ast)
+{
+    struct ast_string *string   = ast->body->ast;
+     int32_t           next_idx = ir_var_idx++;
+    uint64_t           mem_siz  = string->len + 1; /// We add '\0'.
+
+    ir_last = ir_alloca_array_init(D_T_CHAR, &mem_siz, 1, next_idx);
+    ir_insert_last();
+    ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
+
+    visit_ast(ast->body);
+    ir_last = ir_store_init(ir_sym_init(next_idx), ir_last);
+    ir_insert_last();
+}
+
+static void visit_ast_var_decl(struct ast_var_decl *ast)
+{
+    bool string = 1;
+    string &= ast->indirection_lvl == 1;
+    string &= ast->dt == D_T_CHAR;
+    string &= ast->body && ast->body->type == AST_STRING_LITERAL;
+
+    if (string)
+        emit_var_string(ast);
+    else
+        emit_var(ast);
 }
 
 /*
@@ -549,9 +587,9 @@ static void visit_ast_array_decl(struct ast_array_decl *ast)
     }
 
     ir_last = ir_alloca_array_init(ast->dt, lvls, enclosure->size, next_idx);
-    ir_insert(ir_last);
+    ir_insert_last();
 
-    ir_storage_push(ast->name, next_idx, ir_last);
+    ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
 }
 
 static void visit_ast_array_access(struct ast_array_access *ast)
@@ -569,8 +607,8 @@ static void visit_ast_array_access(struct ast_array_access *ast)
 
         int32_t next_idx = ir_var_idx++;
 
-        ir_last = ir_alloca_init(D_T_INT, /*ptr=*/1, next_idx);
-        ir_insert(ir_last);
+        ir_last = ir_alloca_init(record->dt, /*ptr=*/1, next_idx);
+        ir_insert_last();
         ir_last = ir_store_init(
             ir_sym_init(next_idx),
             ir_bin_init(
@@ -579,7 +617,7 @@ static void visit_ast_array_access(struct ast_array_access *ast)
                 idx
             )
         );
-        ir_insert(ir_last);
+        ir_insert_last();
         ir_last = ir_sym_ptr_init(next_idx);
     }
 }
@@ -664,10 +702,12 @@ static void visit_ast_function_call(struct ast_function_call *ast)
     } else {
         int32_t next_idx = ir_var_idx++;
         ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
-        ir_insert(ir_last);
+        ir_insert_last();
+
         struct ir_node *call = ir_func_call_init(ast->name, args_start);
         ir_last = ir_store_sym_init(next_idx, call);
-        ir_insert(ir_last);
+        ir_insert_last();
+
         ir_last = ir_sym_init(next_idx);
     }
 }

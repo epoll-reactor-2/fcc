@@ -36,6 +36,8 @@ enum ir_type {
     IR_RET_VOID,
     /// Structure member access.
     IR_MEMBER,
+    /// String literal.
+    IR_STRING,
     /// \note Code generator should store type declarations
     ///       and refer to it in order to compute type
     ///       size and member offsets.
@@ -77,17 +79,16 @@ struct ir_node {
 };
 
 /// All information contained about processed file.
-/// Exists because strings are stored as global objects.
+/// There will be added structure declarations, some
+/// attributes and other configuration.
 struct ir_unit {
-    /// Linked list of literals.
-    struct ir_node *literals;
     /// Linked list of function declarations.
     struct ir_node *func_decls;
 };
 
 struct ir_alloca {
     enum data_type   dt;
-    bool             ptr;
+    uint16_t         indir_lvl;
     /// This is index of an variable. Like
     /// D_T_INT %1.
     /// Alternatively, string names can be stored.
@@ -121,6 +122,13 @@ struct ir_imm {
     /// Immediate value. Used as argument of
     /// store or binary instructions.
     union ir_imm_val imm;
+};
+
+struct ir_string {
+    /// Length in bytes.
+    uint64_t  len;
+    /// Literal value. Ends with \0.
+    char     *imm;
 };
 
 struct ir_sym {
@@ -232,7 +240,7 @@ struct ir_func_call {
 void ir_reset_internal_state();
 
 __weak_wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
-__weak_wur struct ir_node *ir_alloca_init(enum data_type dt, bool ptr, int32_t idx);
+__weak_wur struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, int32_t idx);
 __weak_wur struct ir_node *ir_alloca_array_init(
     enum data_type  dt,
     uint64_t       *enclosure_lvls,
@@ -245,6 +253,7 @@ __weak_wur struct ir_node *ir_imm_bool_init(bool imm);
 __weak_wur struct ir_node *ir_imm_char_init(char imm);
 __weak_wur struct ir_node *ir_imm_float_init(float imm);
 __weak_wur struct ir_node *ir_imm_int_init(int32_t imm);
+__weak_wur struct ir_node *ir_string_init(uint64_t len, char *imm);
 
 __weak_wur struct ir_node *ir_sym_init(int32_t idx);
 __weak_wur struct ir_node *ir_sym_ptr_init(int32_t idx);

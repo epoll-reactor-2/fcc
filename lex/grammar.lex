@@ -32,6 +32,23 @@ extern void lex_consume_token(struct token *tok);
     lex_consume_token(&t);                                               \
 } while (0);
 
+/* Don't include quotes to match. Lex has no lookahead in their regular
+   expression engine, so we emulate it by hand. */
+#define LEX_CONSUME_QUOTED_LITERAL(tok_type) do {                        \
+    ++yytext;                                                            \
+    struct token t = {                                                   \
+        .data    = strdup(yytext),                                       \
+        .type    = tok_type,                                             \
+        .line_no = lex_lineno,                                           \
+        .col_no  = lex_colno                                             \
+    };                                                                   \
+    --yytext;                                                            \
+    size_t data_len = strlen(t.data);                                    \
+    if (data_len > 0)                                                    \
+        t.data[data_len - 1] = '\0';                                     \
+    lex_consume_token(&t);                                               \
+} while (0);
+
 /* Operator can have no data, since all information about it contained
    in type. */
 #define LEX_CONSUME_OPERATOR(tok_type) do {                              \
@@ -58,8 +75,8 @@ extern void lex_consume_token(struct token *tok);
 
 -?[0-9]+                     LEX_CONSUME_WORD(TOK_INTEGRAL_LITERAL)
 -?[0-9]+\.[0-9]+             LEX_CONSUME_WORD(TOK_FLOATING_POINT_LITERAL)
-\"([^\"\\]*(\\.[^\"\\]*)*)\" LEX_CONSUME_WORD(TOK_STRING_LITERAL)
-\'.\'                        LEX_CONSUME_WORD(TOK_CHAR_LITERAL)
+\"([^\"\\]*(\\.[^\"\\]*)*)\" LEX_CONSUME_QUOTED_LITERAL(TOK_STRING_LITERAL)
+\'.\'                        LEX_CONSUME_QUOTED_LITERAL(TOK_CHAR_LITERAL)
 
 "bool"                       LEX_CONSUME_WORD(TOK_BOOL)
 "break"                      LEX_CONSUME_WORD(TOK_BREAK)

@@ -7,6 +7,7 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_IR_STORAGE_H
 #define WEAK_COMPILER_MIDDLE_END_IR_STORAGE_H
 
+#include "front_end/lex/data_type.h"
 #include "util/compiler.h"
 #include <stdint.h>
 
@@ -28,14 +29,20 @@ void ir_storage_reset();
 
 struct ir_storage_record {
     int32_t         sym_idx;
+    enum data_type  dt;
     /// Allocated inside internal hashmap.
     /// Not needed to free.
     struct ir_node *ir;
 };
 
-void
-ir_storage_push(const char *name, int32_t ir_idx, struct ir_node *ir);
+void ir_storage_push(
+    const char     *name,
+    int32_t         sym_idx,
+    enum data_type  dt,
+    struct ir_node *ir
+);
 
+/// TODO: Put data type in storage.
 __weak_wur struct ir_storage_record *
 ir_storage_get (const char *name);
 

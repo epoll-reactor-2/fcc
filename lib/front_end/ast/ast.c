@@ -407,9 +407,14 @@ void ast_return_cleanup(struct ast_return *ast)
 ///////////////////////////////////////////////
 ///              String literal             ///
 ///////////////////////////////////////////////
-struct ast_node *ast_string_init(char *value, uint16_t line_no, uint16_t col_no)
-{
+struct ast_node *ast_string_init(
+    uint64_t  len,
+    char     *value,
+    uint16_t  line_no,
+    uint16_t col_no
+) {
     struct ast_string *ast = weak_calloc(1, sizeof (struct ast_string));
+    ast->len = len;
     ast->value = value;
     return ast_node_init(AST_STRING_LITERAL, ast, line_no, col_no);
 }
