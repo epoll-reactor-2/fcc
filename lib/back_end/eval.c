@@ -97,6 +97,7 @@ static void storage_set_caller_active()
 static struct ir_imm storage_get(int32_t sym_idx)
 {
     bool ok = 0;
+    /// Whole `struct ir_imm` encoded in 64 bits.
     uint64_t got = hashmap_get(storage_act, sym_idx, &ok);
     if (!ok)
         weak_unreachable("Cannot get symbol %%%d from storage", sym_idx);
