@@ -19,10 +19,10 @@
 #include <assert.h>
 #include <string.h>
 
-typedef vector_t(struct ir_node *) ir_array_t;
+typedef vector_t(struct ir_node *) ir_vector_t;
 
 /// Total list of functions.
-static ir_array_t      ir_func_decls;
+static ir_vector_t     ir_func_decls;
 static struct ir_node *ir_first;
 static struct ir_node *ir_last;
 static struct ir_node *ir_prev;
@@ -31,14 +31,20 @@ static struct ir_node *ir_prev;
 /// - reset at the start of each function declaration,
 /// - increments with every created alloca instruction.
 static int32_t         ir_var_idx;
-
 static bool            ir_save_first;
-
 static bool            ir_meta_is_loop;
-
 static int32_t         ir_meta_loop_idx;
-
 static hashmap_t       ir_func_return_types;
+/// This is stacks for `break` and `continue` instructions.
+/// On the top of stack sits most recent loop (loop with maximum
+/// current depth). This complication used to store correct states
+/// for all nested loops where we are located now.
+///
+/// When
+///   - break   , jumps to the first statement after current loop.
+///   - continue, jumps to the loop header (for, while, do-while conditions).
+static ir_vector_t     ir_break_stack = {0};
+static ir_vector_t     ir_continue_stack = {0};
 
 static void ir_func_add_return_type(const char *name, enum data_type dt)
 {
@@ -107,6 +113,8 @@ __weak_really_inline static void ir_insert_last()
 static void invalidate()
 {
     vector_free(ir_func_decls);
+    vector_free(ir_continue_stack);
+    vector_free(ir_break_stack);
     ir_var_idx = 0;
     ir_first = NULL;
     ir_last = NULL;
@@ -231,8 +239,50 @@ static void visit_ast_binary(struct ast_binary *ast)
     }
 }
 
-static void visit_ast_break(struct ast_break *ast) { (void) ast; }
-static void visit_ast_continue(struct ast_continue *ast) { (void) ast; }
+static void visit_ast_break(struct ast_break *ast)
+{
+    (void) ast;
+    struct ir_node *ir = ir_jump_init(0);
+    vector_push_back(ir_break_stack, ir);
+    ir_insert(ir);
+}
+
+static void visit_ast_continue(struct ast_continue *ast)
+{
+    (void) ast;
+    struct ir_node *ir = ir_jump_init(0);
+    vector_push_back(ir_continue_stack, ir);
+    ir_insert(ir);
+}
+
+/// Set up break & continue jump indices.
+///
+/// TODO: In case of for statement, having of `continue`
+///       leads to omitting increment. Think, how include it
+///       in execution flow. Now we get graph with dead code sections with
+///       no paths to enter the loop.
+static inline void emit_loop_flow_instrs(int32_t header_idx)
+{
+    if (ir_break_stack.count > 0) {
+        struct ir_node *back = vector_back(ir_break_stack);
+        struct ir_jump *jmp = back->ir;
+        jmp->idx = ir_last->instr_idx + 1;
+        /// Target will be added during linkage based on index.
+        jmp->target = NULL;
+
+        --ir_break_stack.count;
+    }
+
+    if (ir_continue_stack.count > 0) {
+        struct ir_node *back = vector_back(ir_continue_stack);
+        struct ir_jump *jmp = back->ir;
+        jmp->idx = header_idx;
+        /// Target will be added during linkage based on index.
+        jmp->target = NULL;
+
+        --ir_continue_stack.count;
+    }
+}
 
 static void visit_ast_for(struct ast_for *ast)
 {
@@ -255,6 +305,7 @@ static void visit_ast_for(struct ast_for *ast)
     /// Body starts with condition that is checked on each
     /// iteration.
     int32_t         next_iter_jump_idx = 0;
+    int32_t         header_idx         = ir_last->instr_idx + 1;
     struct ir_node *cond               = NULL;
     struct ir_node *exit_jmp           = NULL;
     struct ir_jump *exit_jmp_ptr       = NULL;
@@ -293,6 +344,7 @@ static void visit_ast_for(struct ast_for *ast)
     }
 
     ir_insert_last();
+    emit_loop_flow_instrs(header_idx);
 }
 
 static void visit_ast_while(struct ast_while *ast)
@@ -307,6 +359,7 @@ static void visit_ast_while(struct ast_while *ast)
     /// L5: after while instr
 
     int32_t next_iter_idx = ir_last->instr_idx + 1;
+    int32_t header_idx    = ir_last->instr_idx + 1;
 
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
@@ -332,6 +385,8 @@ static void visit_ast_while(struct ast_while *ast)
     exit_jmp->prev = cond;
 
     exit_jmp_ptr->idx = next_iter_jmp->instr_idx + 1;
+
+    emit_loop_flow_instrs(header_idx);
 }
 
 static void visit_ast_do_while(struct ast_do_while *ast)
@@ -345,6 +400,7 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     /// L4: if condition is true jump to L0
 
     int32_t stmt_begin;
+    int32_t header_idx = ir_last->instr_idx + 1;
 
     if (ir_last == NULL)
         stmt_begin = 0;
@@ -362,12 +418,13 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     struct ir_cond *cond_ptr = cond->ir;
 
     /// We will set this pointer in ir_link() because
-    /// we cannot peek next instruction now, since
-    /// it is not generated.
+    /// we cannot peek next instruction now.
+    /// It is not generated.
     cond->next_else = NULL;
     cond_ptr->goto_label = stmt_begin + 1;
 
     ir_insert(cond);
+    emit_loop_flow_instrs(header_idx);
 }
 
 static void visit_ast_if(struct ast_if *ast)
@@ -600,7 +657,7 @@ static void visit_ast_array_access(struct ast_array_access *ast)
     struct ir_storage_record *record = ir_storage_get(ast->name);
 
     struct ast_compound *indices = ast->indices->ast;
-    
+
     if (indices->size == 1) {
         visit_ast(indices->stmts[0]);
         struct ir_node *idx = ir_last;
