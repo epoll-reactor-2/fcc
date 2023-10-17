@@ -270,7 +270,7 @@ static inline void emit_loop_flow_instrs(int32_t header_idx)
         /// Target will be added during linkage based on index.
         jmp->target = NULL;
 
-        --ir_break_stack.count;
+        vector_erase(ir_break_stack, ir_break_stack.count - 1);
     }
 
     if (ir_continue_stack.count > 0) {
@@ -280,7 +280,7 @@ static inline void emit_loop_flow_instrs(int32_t header_idx)
         /// Target will be added during linkage based on index.
         jmp->target = NULL;
 
-        --ir_continue_stack.count;
+        vector_erase(ir_continue_stack, ir_continue_stack.count - 1);
     }
 }
 

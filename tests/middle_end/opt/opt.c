@@ -144,6 +144,10 @@ int main()
     if (run("/test_inputs/reorder") < 0)
         return -1;
 
+    opt_fn = ir_opt_unreachable_code;
+    if (run("/test_inputs/unreachable") < 0)
+        return -1;
+
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);
     free(err_buf);
