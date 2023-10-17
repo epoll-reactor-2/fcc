@@ -72,6 +72,8 @@ void ir_opt_arith(struct ir_node *ir);
 
 void ir_opt_dead_code_elimination(struct ir_node *ir);
 
+void ir_opt_unreachable_code(struct ir_node *ir);
+
 /// Instruction reordering.
 ///
 /// This collects all alloca intsructions in function
