@@ -55,8 +55,7 @@ int diagnostics_memstream_test()
 
 int main()
 {
-    int rc = 0;
-    rc = diagnostics_memstream_test();
+    int rc = diagnostics_memstream_test();
     if (rc != 0)
         return rc;
 }

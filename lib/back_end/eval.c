@@ -5,12 +5,12 @@
  */
 
 #include "back_end/eval.h"
-#include "middle_end/ir/ir.h"
 #include "middle_end/ir/dump.h"
+#include "middle_end/ir/ir.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"
-#include "util/vector.h"
 #include "util/unreachable.h"
+#include "util/vector.h"
 #include <assert.h>
 #include <string.h>
 
@@ -334,7 +334,7 @@ static void eval_cond(struct ir_cond *cond)
 {
     eval_instr(cond->cond);
 
-    bool should_jump = 0;
+    bool should_jump;
     switch (last_imm.type) {
     case IMM_BOOL:  should_jump = last_imm.imm.__bool; break;
     case IMM_CHAR:  should_jump = last_imm.imm.__char != '\0'; break;

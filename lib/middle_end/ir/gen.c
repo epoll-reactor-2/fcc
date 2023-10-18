@@ -6,8 +6,6 @@
 
 #include "middle_end/ir/gen.h"
 #include "middle_end/ir/meta.h"
-#include "middle_end/ir/graph.h"
-#include "middle_end/ir/dump.h"
 #include "middle_end/ir/storage.h"
 #include "middle_end/ir/ir.h"
 #include "front_end/ast/ast.h"
@@ -15,7 +13,6 @@
 #include "util/vector.h"
 #include "util/unreachable.h"
 #include "util/hashmap.h"
-#include "util/vector.h"
 #include <assert.h>
 #include <string.h>
 

@@ -6,9 +6,7 @@
 
 #include "util/diagnostic.h"
 #include <stdarg.h>
-#include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 jmp_buf weak_fatal_error_buf;
 

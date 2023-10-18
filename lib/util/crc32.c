@@ -5,6 +5,7 @@
  */
 
 #include "util/crc32.h"
+#include <stddef.h>
 
 /*
  * Name  : CRC-32
@@ -69,15 +70,6 @@ static const uint32_t crc32_table[256] = {
     0x5d681b02L, 0x2a6f2b94L, 0xb40bbe37L, 0xc30c8ea1L, 0x5a05df1bL,
     0x2d02ef8dL
 };
-
-uint32_t crc32(const uint8_t *mem, size_t len)
-{
-    uint32_t crc32 = 0xFFFFFFFF;
-    while (len-- > 0) {
-      crc32 = (crc32 >> 8) ^ crc32_table[(crc32 ^ *(mem++)) & 0xFF];
-    }
-    return crc32 ^ 0xFFFFFFFF;
-}
 
 uint32_t crc32_string(const char *mem)
 {

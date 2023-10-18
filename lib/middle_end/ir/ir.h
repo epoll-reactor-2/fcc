@@ -18,7 +18,7 @@ enum ir_type {
     IR_ALLOCA_ARRAY,
     /// Immediate value.
     IR_IMM,
-    /// Symbol. Used to refere to a variable.
+    /// Symbol. Used to refer to a variable.
     IR_SYM,
     /// Store to variable or array operator.
     IR_STORE,
@@ -248,7 +248,6 @@ __weak_wur struct ir_node *ir_alloca_array_init(
     int32_t         idx
 );
 
-__weak_wur struct ir_node *ir_imm_init(enum ir_imm_type t, union ir_imm_val imm);
 __weak_wur struct ir_node *ir_imm_bool_init(bool imm);
 __weak_wur struct ir_node *ir_imm_char_init(char imm);
 __weak_wur struct ir_node *ir_imm_float_init(float imm);

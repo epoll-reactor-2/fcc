@@ -5,7 +5,6 @@
  */
 
 #include "middle_end/opt/opt.h"
-#include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 #include "util/unreachable.h"
 #include <assert.h>
