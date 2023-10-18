@@ -255,32 +255,71 @@ static void visit_ast_continue(struct ast_continue *ast)
     ir_insert(ir);
 }
 
-/// Set up break & continue jump indices.
+/// while () {
+///   continue;         | Level 0
+///   while () {
+///     continue;       | Level 1
+///   }
+/// }
 ///
-/// TODO: In case of for statement, having of `continue`
-///       leads to omitting increment. Think, how include it
-///       in execution flow. Now we get graph with dead code sections with
-///       no paths to enter the loop.
+/// If continue_stack.size() > 0 = Wrong condition.
+///
+/// 1. Track loop depth.
+/// 2. Track continue depth.
+///
+///
+///
+///
+
+/// while () {
+///   while () {
+///     continue;       | Level 1
+///   }
+///   continue;         | Level 0
+/// }
+///
+///
+///
+///
+///
+///
+///
+///
+///
 static inline void emit_loop_flow_instrs(int32_t header_idx)
 {
     if (ir_break_stack.count > 0) {
         struct ir_node *back = vector_back(ir_break_stack);
         struct ir_jump *jmp = back->ir;
         jmp->idx = ir_last->instr_idx + 1;
+        printf(
+            "Break stack size: %ld. jmp %%%d set to %d\n",
+            ir_break_stack.count,
+            back->instr_idx,
+            jmp->idx
+        );
         /// Target will be added during linkage based on index.
         jmp->target = NULL;
 
-        vector_erase(ir_break_stack, ir_break_stack.count - 1);
+        --ir_break_stack.count;
+        // vector_erase(ir_break_stack, ir_break_stack.count - 1);
     }
 
     if (ir_continue_stack.count > 0) {
         struct ir_node *back = vector_back(ir_continue_stack);
         struct ir_jump *jmp = back->ir;
         jmp->idx = header_idx;
+        printf(
+            "Continue stack size: %ld. jmp %%%d set to %d\n",
+            ir_continue_stack.count,
+            back->instr_idx,
+            jmp->idx
+        );
         /// Target will be added during linkage based on index.
         jmp->target = NULL;
 
-        vector_erase(ir_continue_stack, ir_continue_stack.count - 1);
+        --ir_continue_stack.count;
+        // vector_erase(ir_continue_stack, ir_continue_stack.count - 1);
     }
 }
 
@@ -696,6 +735,8 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     ir_last = NULL;
     ir_prev = NULL;
     ir_save_first = 1;
+    vector_free(ir_continue_stack);
+    vector_free(ir_break_stack);
 
     visit_ast(decl->args);
     struct ir_node *args = ir_first;

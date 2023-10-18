@@ -70,14 +70,14 @@
 //      24:   jmp L27
 //      25:   t3 = t3(@noalias) + 1
 //      26:   jmp L37
-//      27:   jmp L0
+//      27:   jmp L8
 //      28:   int t9(@loop)
 //      29:   t9 = 0(@loop)
 //      30:   int t10
 //      31:   t10 = t9 < 100
 //      32:   if t10 != 0 goto L34
 //      33:   jmp L37
-//      34:   jmp L8
+//      34:   jmp L30
 //      35:   t3 = t3(@noalias) + 1(@loop)
 //      36:   jmp L30
 //      37:   t0 = t0(@noalias) - 1
