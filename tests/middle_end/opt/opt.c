@@ -14,6 +14,7 @@
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
+#include <sys/stat.h>
 
 extern FILE *yyin;
 extern int yylex();
@@ -24,16 +25,34 @@ void *diag_warn_memstream = NULL;
 
 void (*opt_fn)(struct ir_func_decl *);
 
-bool ir_test(const char *filename)
-{
-    if (strstr(filename, "disabled_") != NULL)
-        return 1;
+char current_output_dir[128];
 
+void create_dir(const char *name)
+{
+    struct stat st = {0};
+    if (stat(name, &st) == -1) {
+        if (mkdir(name, 0777) < 0) {
+            perror("mkdir()");
+            abort();
+        }
+    }
+}
+
+void cfg_dir(const char *name)
+{
+    snprintf(current_output_dir, 127, "test_outputs/%s", name);
+
+    create_dir("test_outputs");
+    create_dir(current_output_dir);
+}
+
+bool ir_test(const char *path, const char *filename)
+{
     lex_reset_state();
     lex_init_state();
 
-    if (!yyin) yyin = fopen(filename, "r");
-    else yyin = freopen(filename, "r", yyin);
+    if (!yyin) yyin = fopen(path, "r");
+    else yyin = freopen(path, "r", yyin);
     if (yyin == NULL) {
         perror("fopen()");
         return false;
@@ -47,8 +66,16 @@ bool ir_test(const char *filename)
     char   *expected = NULL;
     char   *generated = NULL;
     size_t  _ = 0;
-    FILE   *expected_stream = open_memstream(&expected, &_);
+    char    before_opt_path[256] = {0};
+    char     after_opt_path[256] = {0};
+
+    snprintf(before_opt_path, 255, "%s/%s", current_output_dir, filename);
+    snprintf( after_opt_path, 255, "%s/optimized_%s", current_output_dir, filename);
+
+    FILE   * expected_stream = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
+    FILE   *before_opt_stream = fopen(before_opt_path, "w");
+    FILE   * after_opt_stream = fopen( after_opt_path, "w");
 
     if (expected_stream == NULL) {
         perror("open_memstream()");
@@ -69,9 +96,9 @@ bool ir_test(const char *filename)
         struct ir_node *it = ir->func_decls;
 
         while (it) {
-            // ir_dump_cfg(stdout, it->ir);
+            ir_dump_cfg(before_opt_stream, it->ir);
             opt_fn(it->ir);
-            // ir_dump_cfg(stdout, it->ir);
+            ir_dump_cfg(after_opt_stream, it->ir);
             ir_dump(generated_stream, it->ir);
             it = it->next;
         }
@@ -96,6 +123,8 @@ exit:
     tokens_cleanup(toks);
     fclose(expected_stream);
     fclose(generated_stream);
+    fclose(before_opt_stream);
+    fclose( after_opt_stream);
     free(expected);
     free(generated);
 
@@ -107,9 +136,14 @@ static char *warn_buf = NULL;
 static size_t err_buf_len = 0;
 static size_t warn_buf_len = 0;
 
-int run(const char *tests_dir)
+int run(const char *dir)
 {
-    if (!do_on_each_file(tests_dir, ir_test)) {
+    char path[256] = {0};
+    snprintf(path, sizeof (path) - 1, "/test_inputs/%s", dir);
+
+    cfg_dir(dir);
+
+    if (!do_on_each_file(path, ir_test)) {
         return -1;
 
         if (err_buf)
@@ -128,11 +162,11 @@ int main()
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
     opt_fn = ir_opt_fold;
-    if (run("/test_inputs/fold") < 0)
+    if (run("fold") < 0)
         return -1;
 
     opt_fn = ir_opt_arith;
-    if (run("/test_inputs/arith") < 0)
+    if (run("arith") < 0)
         return -1;
 
     /*
@@ -142,11 +176,11 @@ int main()
     */
 
     opt_fn = ir_opt_reorder;
-    if (run("/test_inputs/reorder") < 0)
+    if (run("reorder") < 0)
         return -1;
 
     opt_fn = ir_opt_unreachable_code;
-    if (run("/test_inputs/unreachable") < 0)
+    if (run("unreachable") < 0)
         return -1;
 
     fclose(diag_error_memstream);

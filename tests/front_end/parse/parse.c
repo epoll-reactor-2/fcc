@@ -27,13 +27,15 @@ void *diag_warn_memstream = NULL;
 /// Parse file and compare result with expected.
 ///
 /// \return true on success, false on failure.
-bool parse_test(const char *filename)
+bool parse_test(const char *path, const char *filename)
 {
+    (void) filename;
+
     lex_reset_state();
     lex_init_state();
 
-    if (!yyin) yyin = fopen(filename, "r");
-    else yyin = freopen(filename, "r", yyin);
+    if (!yyin) yyin = fopen(path, "r");
+    else yyin = freopen(path, "r", yyin);
     if (yyin == NULL) {
         perror("fopen()");
         return false;
