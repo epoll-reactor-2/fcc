@@ -5,6 +5,7 @@
  */
 
 #include "middle_end/ir/ir.h"
+#include "middle_end/ir/meta.h"
 #include "util/alloc.h"
 #include "util/unreachable.h"
 #include <assert.h>
@@ -55,14 +56,6 @@ struct ir_node *ir_alloca_array_init(
     memcpy(ir->enclosure_lvls, enclosure_lvls, enclosure_lvls_size * sizeof (uint64_t));
     ++ir_instr_index;
     return ir_node_init(IR_ALLOCA_ARRAY, ir);
-}
-
-struct ir_node *ir_imm_init(enum ir_imm_type t, union ir_imm_val imm)
-{
-    struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
-    ir->imm = imm;
-    ir->type = t;
-    return ir_node_init(IR_IMM, ir);
 }
 
 struct ir_node *ir_imm_bool_init(bool imm)
@@ -354,7 +347,7 @@ void ir_node_cleanup(struct ir_node *ir)
     }
 
     if (ir->meta)
-        weak_free(ir->meta);
+        meta_cleanup(ir->meta);
     weak_free(ir->ir);
     weak_free(ir);
 }

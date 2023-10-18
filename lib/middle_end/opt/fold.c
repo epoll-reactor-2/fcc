@@ -5,15 +5,12 @@
  */
 
 #include "middle_end/ir/ir.h"
-#include "middle_end/ir/dump.h"
 #include "middle_end/ir/meta.h"
 #include "middle_end/opt/opt.h"
 #include "util/compiler.h"
 #include "util/hashmap.h"
-#include "util/vector.h"
 #include "util/unreachable.h"
 #include <string.h>
-#include <assert.h>
 
 /// Hashmap to refer by variable index.
 static hashmap_t consts_mapping;

@@ -6,7 +6,6 @@
 
 #include "middle_end/ir/meta.h"
 #include "util/alloc.h"
-#include <stdint.h>
 
 void *meta_init(int32_t type)
 {

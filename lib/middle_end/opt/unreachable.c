@@ -5,9 +5,8 @@
  */
 
 #include "middle_end/opt/opt.h"
-#include "middle_end/ir/ir.h"
 #include "middle_end/ir/dump.h"
-#include "util/hashmap.h"
+#include "middle_end/ir/ir.h"
 
 __weak_really_inline static void mark_visited(bool *visited, struct ir_node *ir)
 {

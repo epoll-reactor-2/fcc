@@ -7,9 +7,9 @@
 #ifndef WEAK_COMPILER_UTIL_ALLOC_H
 #define WEAK_COMPILER_UTIL_ALLOC_H
 
-#include <stddef.h>
 #include "util/compiler.h"
 #include "util/unreachable.h"
+#include <stddef.h>
 
 #if __has_attribute(returns_nonnull) && __has_attribute(warn_unused_result) && __has_attribute(alloc_size)
 #define __weak_malloc  __attribute__((returns_nonnull, warn_unused_result, malloc, alloc_size(1)))

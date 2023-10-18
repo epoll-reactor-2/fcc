@@ -392,7 +392,7 @@ static void visit_ast_function_decl(FILE *mem, struct ast_node *ast)
         return;
     }
 
-    ast_print_line(mem, ast, is_proto ? "FunctionProtoBody" : "FunctionDeclBody");
+    ast_print_line(mem, ast, "FunctionDeclBody");
 
     ast_indent += 2;
     visit_node(mem, decl->body);

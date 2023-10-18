@@ -10,10 +10,9 @@
 #include "util/diagnostic.h"
 #include "util/unreachable.h"
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
-/// Last return occurence context.
+/// Last return occurrence context.
 ///
 /// \pre All fields set to 0 at the start
 ///      of each function.

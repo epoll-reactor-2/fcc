@@ -10,12 +10,10 @@
 #include "front_end/parse/parse.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
-#include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 extern FILE *yyin;
 extern int yylex();

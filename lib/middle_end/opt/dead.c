@@ -6,11 +6,9 @@
 
 #include "middle_end/opt/opt.h"
 #include "middle_end/ir/ir.h"
-#include "util/unreachable.h"
-#include "util/hashmap.h"
-#include "util/vector.h"
 #include "util/alloc.h"
-#include <assert.h>
+#include "util/unreachable.h"
+#include "util/vector.h"
 
 struct dce_entry {
     uint64_t instr_idx;

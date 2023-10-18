@@ -7,10 +7,7 @@
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/meta.h"
 #include "front_end/lex/data_type.h"
-#include "util/alloc.h"
-#include "util/diagnostic.h"
 #include "util/unreachable.h"
-#include <assert.h>
 
 const char *ir_type_to_string(enum ir_type t)
 {
