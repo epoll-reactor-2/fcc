@@ -22,7 +22,7 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void (*opt_fn)(struct ir_node *);
+void (*opt_fn)(struct ir_func_decl *);
 
 bool ir_test(const char *filename)
 {
@@ -68,9 +68,10 @@ bool ir_test(const char *filename)
         struct ir_unit *ir = ir_gen(ast);
         struct ir_node *it = ir->func_decls;
 
-        opt_fn(it);
-
         while (it) {
+            // ir_dump_cfg(stdout, it->ir);
+            opt_fn(it->ir);
+            // ir_dump_cfg(stdout, it->ir);
             ir_dump(generated_stream, it->ir);
             it = it->next;
         }

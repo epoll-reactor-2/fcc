@@ -164,7 +164,7 @@ static void dce_node(struct ir_node *ir)
     }
 }
 
-static void opt_dce(struct ir_func_decl *decl)
+void ir_opt_dead_code_elimination(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
     uint64_t cfg_no = 0;
@@ -192,13 +192,4 @@ static void opt_dce(struct ir_func_decl *decl)
     }
 
     printf("\n");
-}
-
-void ir_opt_dead_code_elimination(struct ir_node *ir)
-{
-    struct ir_node *it = ir;
-    while (it) {
-        opt_dce(it->ir);
-        it = it->next;
-    }
 }

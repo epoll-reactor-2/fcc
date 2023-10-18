@@ -129,10 +129,10 @@ static void ir_dom_frontier_func_decl(struct ir_func_decl *decl)
     /// 1: Post order DFS
     ir_post_dfs(it, &post_dfs, visited);
 
-    vector_foreach(post_dfs, i) {
-        struct ir_node *ir = vector_at(post_dfs, i);
-        printf("post DFS: %d\n", ir->instr_idx);
-    }
+    /// vector_foreach(post_dfs, i) {
+    ///     struct ir_node *ir = vector_at(post_dfs, i);
+    ///     printf("post DFS: %d\n", ir->instr_idx);
+    /// }
 
     /// 2: Dominance frontier
     it = decl->body;
@@ -195,16 +195,16 @@ static void ir_dom_frontier_func_decl(struct ir_func_decl *decl)
         }
     }
 
-    for (uint64_t i = 0; i < blocks_added; ++i) {
-        ir_vector_t *vit = &blocks[i];
+    /// for (uint64_t i = 0; i < blocks_added; ++i) {
+    ///     ir_vector_t *vit = &blocks[i];
 
-        printf("For instr %ld DF = ", i);
-        vector_foreach(*vit, j) {
-            struct ir_node *df = vector_at(*vit, j);
-            printf("%d ", df->instr_idx);
-        }
-        printf("\n");
-    }
+    ///     printf("For instr %ld DF = ", i);
+    ///     vector_foreach(*vit, j) {
+    ///         struct ir_node *df = vector_at(*vit, j);
+    ///         printf("%d ", df->instr_idx);
+    ///     }
+    ///     printf("\n");
+    /// }
 
     vector_free(post_dfs);
 }

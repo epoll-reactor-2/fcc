@@ -7,14 +7,14 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_OPT_H
 #define WEAK_COMPILER_MIDDLE_END_OPT_H
 
-struct ir_node;
+struct ir_func_decl;
 
 /// Invariant code motion.
 ///
 /// This is based on dominator tree analyis (probably).
 ///
 /// \pre Computed dominator tree.
-void ir_opt_motion(struct ir_node *ir);
+void ir_opt_motion(struct ir_func_decl *ir);
 
 /// Constant and expressions folding.
 ///
@@ -22,7 +22,7 @@ void ir_opt_motion(struct ir_node *ir);
 ///       fold optimization much easier to understand
 ///       and will separate folding from unused instructions
 ///       analysis.
-void ir_opt_fold(struct ir_node *ir);
+void ir_opt_fold(struct ir_func_decl *ir);
 
 /// Arithmetic optimizations.
 ///
@@ -68,11 +68,11 @@ void ir_opt_fold(struct ir_node *ir);
 ///        - A * B = B * A
 ///        - A & B = B & A
 ///        - A | B = B | A
-void ir_opt_arith(struct ir_node *ir);
+void ir_opt_arith(struct ir_func_decl *ir);
 
-void ir_opt_dead_code_elimination(struct ir_node *ir);
+void ir_opt_dead_code_elimination(struct ir_func_decl *ir);
 
-void ir_opt_unreachable_code(struct ir_node *ir);
+void ir_opt_unreachable_code(struct ir_func_decl *ir);
 
 /// Instruction reordering.
 ///
@@ -80,6 +80,6 @@ void ir_opt_unreachable_code(struct ir_node *ir);
 /// in one place. Makes no really difference in case
 /// of interpreter, but in a real backend (ARM, x86_64)
 /// we can substract stack pointer once in a function.
-void ir_opt_reorder(struct ir_node *ir);
+void ir_opt_reorder(struct ir_func_decl *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_OPT_H
