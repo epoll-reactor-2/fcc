@@ -22,13 +22,13 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-bool ir_test(const char *filename)
+bool ir_test(const char *path, const char *filename)
 {
     lex_reset_state();
     lex_init_state();
 
-    if (!yyin) yyin = fopen(filename, "r");
-    else yyin = freopen(filename, "r", yyin);
+    if (!yyin) yyin = fopen(path, "r");
+    else yyin = freopen(path, "r", yyin);
     if (yyin == NULL) {
         perror("fopen()");
         return false;

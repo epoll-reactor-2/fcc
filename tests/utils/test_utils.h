@@ -105,8 +105,13 @@ __weak_really_inline void set_cwd(char cwd[static 512], const char *tests_dir)
     snprintf(cwd + cwd_len, 512 - cwd_len, "%s", tests_dir);
 }
 
-__weak_really_inline bool do_on_each_file(const char *tests_dir, bool(*callback)(const char *))
-{
+__weak_really_inline bool do_on_each_file(
+    const char  *tests_dir,
+    bool       (*callback)(
+        const char */* path */,
+        const char */* filename */
+    )
+) {
     char    cwd  [ 512] = {0};
     char    fname[1024] = {0};
     bool    success     =  1 ;
@@ -132,6 +137,9 @@ __weak_really_inline bool do_on_each_file(const char *tests_dir, bool(*callback)
             weak_unreachable("File or symlink expected as test input.");
         }
 
+        if (strstr(dir->d_name, "disabled_") != NULL)
+            continue;
+
         printf("Testing file %s... ", dir->d_name);
         fflush(stdout);
 
@@ -139,7 +147,7 @@ __weak_really_inline bool do_on_each_file(const char *tests_dir, bool(*callback)
 
         weak_set_source_filename(fname);
 
-        if (!callback(fname)) {
+        if (!callback(fname, dir->d_name)) {
             success = 0;
             goto exit;
         }

@@ -1,4 +1,4 @@
-/* parse.c - Test case for parser.
+/* ast_lower.c - Test case for AST lowering.
  * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -27,13 +27,15 @@ void *diag_warn_memstream = NULL;
 /// Parse file and compare result with expected.
 ///
 /// \return true on success, false on failure.
-bool parse_test(const char *filename)
+bool lower_test(const char *path, const char *filename)
 {
+    (void) filename;
+
     lex_reset_state();
     lex_init_state();
 
-    if (!yyin) yyin = fopen(filename, "r");
-    else yyin = freopen(filename, "r", yyin);
+    if (!yyin) yyin = fopen(path, "r");
+    else yyin = freopen(path, "r", yyin);
     if (yyin == NULL) {
         perror("fopen()");
         return false;
@@ -103,7 +105,7 @@ int main()
     ASSERT_TRUE(diag_error_memstream != NULL);
     ASSERT_TRUE(diag_warn_memstream != NULL);
 
-    if (!do_on_each_file("/test_inputs/ast_lower", parse_test)) {
+    if (!do_on_each_file("/test_inputs/ast_lower", lower_test)) {
         ret = -1;
 
         if (err_buf)

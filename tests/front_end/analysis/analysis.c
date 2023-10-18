@@ -23,7 +23,7 @@ bool ignore_warns = false;
 
 void(*analysis_fn)(struct ast_node *) = NULL;
 
-bool analysis_test(const char *filename)
+bool analysis_test(const char *path, const char *filename)
 {
     /// Static due to the `longjmp()` semantics [-Werror=clobbered].
     static  bool success = true;
@@ -32,13 +32,15 @@ bool analysis_test(const char *filename)
     size_t  err_buf_len  = 0;
     size_t  warn_buf_len = 0;
 
+    (void) filename;
+
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
     lex_reset_state();
     lex_init_state();
 
-    yyin = fopen(filename, "r");
+    yyin = fopen(path, "r");
     if (yyin == NULL) {
         perror("fopen()");
         return false;
@@ -56,7 +58,7 @@ bool analysis_test(const char *filename)
 
     fseek(yyin, 0, SEEK_SET);
 
-    extract_compiler_messages(filename, yyin, msg_stream);
+    extract_compiler_messages(path, yyin, msg_stream);
 
     tok_array_t *toks = lex_consumed_tokens();
     struct ast_node *ast = parse(toks->data, toks->data + toks->count);
