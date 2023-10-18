@@ -197,15 +197,6 @@ static struct ir_node *opt_arith_node(struct ir_node *ir)
     return no_result();
 }
 
-static void opt_arith(struct ir_func_decl *decl)
-{
-    struct ir_node *it = decl->body;
-    while (it) {
-        opt_arith_node(it);
-        it = it->next;
-    }
-}
-
 /// Transform arithmetic operations.
 ///
 ///     1. Negation laws:
@@ -250,11 +241,11 @@ static void opt_arith(struct ir_func_decl *decl)
 ///        - A * B = B * A
 ///        - A & B = B & A
 ///        - A | B = B | A
-void ir_opt_arith(struct ir_node *ir)
+void ir_opt_arith(struct ir_func_decl *decl)
 {
-    struct ir_node *it = ir;
+    struct ir_node *it = decl->body;
     while (it) {
-        opt_arith(it->ir);
+        opt_arith_node(it);
         it = it->next;
     }
 }

@@ -81,7 +81,7 @@ static void cut(bool *visited, int32_t siz, struct ir_node *ir)
 
     while (it) {
         if (ir->instr_idx <= siz && !visited[it->instr_idx]) {
-            printf("Dead instruction at %d\n", it->instr_idx);
+            /// printf("Dead instruction at %d\n", it->instr_idx);
             remove_node(&it, &ir);
         }
         it = it->next;
@@ -89,27 +89,12 @@ static void cut(bool *visited, int32_t siz, struct ir_node *ir)
 }
 
 /// Traverse CFG and remove all unvisited nodes.
-static void unreachable(struct ir_func_decl *decl)
+void ir_opt_unreachable_code(struct ir_func_decl *decl)
 {
     bool visited[8192] = {0};
     /// How much nodes potentially were visited.
     int32_t max_id = 0;
 
-    ir_dump_cfg(stdout, decl);
-
     traverse(visited, &max_id, decl->body);
     cut(visited, max_id, decl->body);
-
-    puts("");
-    ir_dump_cfg(stdout, decl);
-}
-
-void ir_opt_unreachable_code(struct ir_node *ir)
-{
-    struct ir_node *it = ir;
-
-    while (it) {
-        unreachable(it->ir);
-        it = it->next;
-    }
 }

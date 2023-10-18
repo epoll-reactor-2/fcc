@@ -21,7 +21,7 @@
 //      19:   jmp L0
 //      37:   t3 = t3(@noalias) + 1(@loop)
 //      38:   jmp L8
-//      39:   ret 0 ????
+//      39:   ret 0
 int main() {
     // Dead instruction at 20
     // Dead instruction at 21

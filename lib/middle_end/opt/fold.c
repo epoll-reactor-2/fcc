@@ -439,7 +439,7 @@ static struct ir_node *fold_node(struct ir_node *ir)
     return no_result();
 }
 
-static void fold(struct ir_func_decl *decl)
+void ir_opt_fold(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
     uint64_t cfg_no = 0;
@@ -455,16 +455,6 @@ static void fold(struct ir_func_decl *decl)
         fold_node(it);
 
         cfg_no = it->cfg_block_no;
-        it = it->next;
-    }
-}
-
-void ir_opt_fold(struct ir_node *ir)
-{
-    struct ir_node *it = ir;
-
-    while (it) {
-        fold(it->ir);
         it = it->next;
     }
 }

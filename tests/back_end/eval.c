@@ -65,6 +65,12 @@ bool ir_test(const char *filename)
         analysis_type_analysis(ast);
 
         struct ir_unit *ir = ir_gen(ast);
+        struct ir_node *it = ir->func_decls;
+
+        while (it) {
+            ir_opt_arith(it->ir);
+            it = it->next;
+        }
 
         // struct ir_node *it = ir;
         // puts("Source:");
@@ -73,7 +79,7 @@ bool ir_test(const char *filename)
             // it = it->next;
         // }
 
-        ir_opt_arith(ir->func_decls);
+        // ir_opt_arith(ir->func_decls);
         // ir_opt_fold(ir);
 
         // it = ir;
