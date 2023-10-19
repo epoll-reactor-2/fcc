@@ -35,7 +35,7 @@
 //      33:   jmp L29
 //      34:   t3 = t3(@noalias) + 1(@loop)
 //      35:   jmp L29
-//      36:   jmp L8
+//      36:   jmp L29
 //      37:   t0 = t0(@noalias) - 1
 //      38:   t1 = t1(@noalias) - 1
 //      39:   t2 = t2(@noalias) - 1

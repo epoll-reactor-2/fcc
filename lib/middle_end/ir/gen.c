@@ -19,19 +19,19 @@
 typedef vector_t(struct ir_node *) ir_vector_t;
 
 /// Total list of functions.
-static ir_vector_t     ir_func_decls;
-static struct ir_node *ir_first;
-static struct ir_node *ir_last;
-static struct ir_node *ir_prev;
+static ir_vector_t        ir_func_decls;
+static struct ir_node    *ir_first;
+static struct ir_node    *ir_last;
+static struct ir_node    *ir_prev;
 /// Used to count alloca instructions.
 /// Conditions:
 /// - reset at the start of each function declaration,
 /// - increments with every created alloca instruction.
-static int32_t         ir_var_idx;
-static bool            ir_save_first;
-static bool            ir_meta_is_loop;
-static int32_t         ir_meta_loop_idx;
-static hashmap_t       ir_func_return_types;
+static int32_t            ir_var_idx;
+static bool               ir_save_first;
+static bool               ir_meta_is_loop;
+static int32_t            ir_meta_loop_idx;
+static hashmap_t          ir_func_return_types;
 /// This is stacks for `break` and `continue` instructions.
 /// On the top of stack sits most recent loop (loop with maximum
 /// current depth). This complication used to store correct states
@@ -40,8 +40,9 @@ static hashmap_t       ir_func_return_types;
 /// When
 ///   - break   , jumps to the first statement after current loop.
 ///   - continue, jumps to the loop header (for, while, do-while conditions).
-static ir_vector_t     ir_break_stack = {0};
-static ir_vector_t     ir_continue_stack = {0};
+static ir_vector_t        ir_break_stack;
+static ir_vector_t        ir_continue_stack;
+static vector_t(uint64_t) ir_loop_header_stack;
 
 static void ir_func_add_return_type(const char *name, enum data_type dt)
 {
@@ -112,6 +113,7 @@ static void invalidate()
     vector_free(ir_func_decls);
     vector_free(ir_continue_stack);
     vector_free(ir_break_stack);
+    vector_free(ir_loop_header_stack);
     ir_var_idx = 0;
     ir_first = NULL;
     ir_last = NULL;
@@ -247,77 +249,36 @@ static void visit_ast_break(struct ast_break *ast)
 static void visit_ast_continue(struct ast_continue *ast)
 {
     (void) ast;
-    struct ir_node *ir = ir_jump_init(0);
+    struct ir_node *ir = ir_jump_init(vector_back(ir_loop_header_stack));
     vector_push_back(ir_continue_stack, ir);
     ir_insert(ir);
 }
 
+/// To emit correct `break`, we just attach it to the next
+/// statement after the loop.
+///
+/// To emit correct `continue` we taking last (deepest right now)
+/// loop header index from stack and then remove it from stack.
+///
 /// while () {
 ///   continue;         | Level 0
 ///   while () {
 ///     continue;       | Level 1
 ///   }
 /// }
-///
-/// If continue_stack.size() > 0 = Wrong condition.
-///
-/// 1. Track loop depth.
-/// 2. Track continue depth.
-///
-///
-///
-///
-
-/// while () {
-///   while () {
-///     continue;       | Level 1
-///   }
-///   continue;         | Level 0
-/// }
-///
-///
-///
-///
-///
-///
-///
-///
-///
-static inline void emit_loop_flow_instrs(int32_t header_idx)
+static inline void emit_loop_flow_instrs()
 {
     if (ir_break_stack.count > 0) {
         struct ir_node *back = vector_back(ir_break_stack);
         struct ir_jump *jmp = back->ir;
         jmp->idx = ir_last->instr_idx + 1;
-        printf(
-            "Break stack size: %ld. jmp %%%d set to %d\n",
-            ir_break_stack.count,
-            back->instr_idx,
-            jmp->idx
-        );
         /// Target will be added during linkage based on index.
         jmp->target = NULL;
 
-        --ir_break_stack.count;
-        // vector_erase(ir_break_stack, ir_break_stack.count - 1);
+        vector_erase(ir_break_stack, ir_break_stack.count - 1);
     }
 
-    if (ir_continue_stack.count > 0) {
-        struct ir_node *back = vector_back(ir_continue_stack);
-        struct ir_jump *jmp = back->ir;
-        jmp->idx = header_idx;
-        printf(
-            "Continue stack size: %ld. jmp %%%d set to %d\n",
-            ir_continue_stack.count,
-            back->instr_idx,
-            jmp->idx
-        );
-        /// Target will be added during linkage based on index.
-        jmp->target = NULL;
-
-        --ir_continue_stack.count;
-        // vector_erase(ir_continue_stack, ir_continue_stack.count - 1);
-    }
+    vector_erase(ir_loop_header_stack, ir_loop_header_stack.count - 1);
 }
 
 static void visit_ast_for(struct ast_for *ast)
@@ -345,6 +306,8 @@ static void visit_ast_for(struct ast_for *ast)
     struct ir_node *cond               = NULL;
     struct ir_node *exit_jmp           = NULL;
     struct ir_jump *exit_jmp_ptr       = NULL;
+
+    vector_push_back(ir_loop_header_stack, header_idx);
 
     /// Condition is optional.
     if (ast->condition) {
@@ -380,7 +343,7 @@ static void visit_ast_for(struct ast_for *ast)
     }
 
     ir_insert_last();
-    emit_loop_flow_instrs(header_idx);
+    emit_loop_flow_instrs();
 }
 
 static void visit_ast_while(struct ast_while *ast)
@@ -396,6 +359,8 @@ static void visit_ast_while(struct ast_while *ast)
 
     int32_t next_iter_idx = ir_last->instr_idx + 1;
     int32_t header_idx    = ir_last->instr_idx + 1;
+
+    vector_push_back(ir_loop_header_stack, header_idx);
 
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
@@ -422,7 +387,7 @@ static void visit_ast_while(struct ast_while *ast)
 
     exit_jmp_ptr->idx = next_iter_jmp->instr_idx + 1;
 
-    emit_loop_flow_instrs(header_idx);
+    emit_loop_flow_instrs();
 }
 
 static void visit_ast_do_while(struct ast_do_while *ast)
@@ -437,6 +402,8 @@ static void visit_ast_do_while(struct ast_do_while *ast)
 
     int32_t stmt_begin;
     int32_t header_idx = ir_last->instr_idx + 1;
+
+    vector_push_back(ir_loop_header_stack, header_idx);
 
     if (ir_last == NULL)
         stmt_begin = 0;
@@ -460,7 +427,7 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     cond_ptr->goto_label = stmt_begin + 1;
 
     ir_insert(cond);
-    emit_loop_flow_instrs(header_idx);
+    emit_loop_flow_instrs();
 }
 
 static void visit_ast_if(struct ast_if *ast)
@@ -734,6 +701,7 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     ir_save_first = 1;
     vector_free(ir_continue_stack);
     vector_free(ir_break_stack);
+    vector_free(ir_loop_header_stack);
 
     visit_ast(decl->args);
     struct ir_node *args = ir_first;
