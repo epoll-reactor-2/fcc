@@ -98,6 +98,8 @@ do { \
     } \
 } while(0)
 
+#define vector_pop_back(vec) vector_erase((vec), (vec).count - 1)
+
 // Be sure to break loop after vector_erase() since it invalidates forward iterators
 #define vector_foreach(vec, iter) \
     for (size_t iter=0; iter<(vec).count; ++iter)

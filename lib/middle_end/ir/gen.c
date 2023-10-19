@@ -275,10 +275,10 @@ static inline void emit_loop_flow_instrs()
         /// Target will be added during linkage based on index.
         jmp->target = NULL;
 
-        vector_erase(ir_break_stack, ir_break_stack.count - 1);
+        vector_pop_back(ir_break_stack);
     }
 
-    vector_erase(ir_loop_header_stack, ir_loop_header_stack.count - 1);
+    vector_pop_back(ir_loop_header_stack);
 }
 
 static void visit_ast_for(struct ast_for *ast)
