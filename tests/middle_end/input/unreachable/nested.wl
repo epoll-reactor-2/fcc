@@ -18,7 +18,7 @@
 //      16:   t5 = t6 == 0
 //      17:   if t5 != 0 goto L19
 //      18:   jmp L37
-//      19:   jmp L0
+//      19:   jmp L8
 //      37:   t3 = t3(@noalias) + 1(@loop)
 //      38:   jmp L8
 //      39:   ret 0

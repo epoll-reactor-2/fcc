@@ -80,7 +80,6 @@ static void cut(bool *visited, int32_t siz, struct ir_node *ir)
 
     while (it) {
         if (ir->instr_idx <= siz && !visited[it->instr_idx]) {
-            printf("Dead instruction at %d\n", it->instr_idx);
             remove_node(&it, &ir);
         }
         it = it->next;
