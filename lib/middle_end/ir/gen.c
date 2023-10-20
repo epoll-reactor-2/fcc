@@ -40,8 +40,10 @@ static hashmap_t          ir_func_return_types;
 /// When
 ///   - break   , jumps to the first statement after current loop.
 ///   - continue, jumps to the loop header (for, while, do-while conditions).
+///
+/// Note, that there is no stack for continue statements. Indices for them
+/// computed immediately from `ir_loop_header_stack`.
 static ir_vector_t        ir_break_stack;
-static ir_vector_t        ir_continue_stack;
 static vector_t(uint64_t) ir_loop_header_stack;
 
 static void ir_func_add_return_type(const char *name, enum data_type dt)
@@ -111,7 +113,6 @@ __weak_really_inline static void ir_insert_last()
 static void invalidate()
 {
     vector_free(ir_func_decls);
-    vector_free(ir_continue_stack);
     vector_free(ir_break_stack);
     vector_free(ir_loop_header_stack);
     ir_var_idx = 0;
@@ -250,7 +251,6 @@ static void visit_ast_continue(struct ast_continue *ast)
 {
     (void) ast;
     struct ir_node *ir = ir_jump_init(vector_back(ir_loop_header_stack));
-    vector_push_back(ir_continue_stack, ir);
     ir_insert(ir);
 }
 
@@ -699,7 +699,6 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     ir_last = NULL;
     ir_prev = NULL;
     ir_save_first = 1;
-    vector_free(ir_continue_stack);
     vector_free(ir_break_stack);
     vector_free(ir_loop_header_stack);
 
