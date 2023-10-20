@@ -4,6 +4,7 @@
 \usepackage[polish]{babel}
 \usepackage{polski}
 \usepackage[fleqn]{amsmath}  % Aligned to left equations.
+\usepackage{amssymb}
 \usepackage[a4paper, total={7.5in, 9.5in}]{geometry}
 \usepackage{indentfirst}
 \usepackage{amsfonts}
@@ -960,9 +961,19 @@ void f() {
 			\end{itemize}
 			
 			\spacing
-			
+
 			Algorytm polega na zlalezieniu takich \textbf{podgrafów} grafu sterowania programem, do których
 			nie prowadzi żadna z krawędzi.
+			
+			\spacing
+
+			\textbf{Definicja}
+			\\
+			Niech $G = (V, E)$ -- graf skierowany. Niech $i$ -- wierzchołek startowy grafu $G$.
+			$G' = (V', E') \subseteq G$ -- podgraf, gdzie każdy wierzchołek $v \in G'$ jest nieosiągalny z
+			dowolnej ścieżki $(i, ...,  v) \in G$. Zauważmy, że $G'$ może być grafem rozłącznym.
+
+			$$i = initial(G), \forall v \in G' \ \nexists \ path (i, ..., v) $$
 
 			\spacing
 
