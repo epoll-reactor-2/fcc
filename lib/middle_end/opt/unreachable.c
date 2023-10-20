@@ -13,6 +13,11 @@ __weak_really_inline static void mark_visited(bool *visited, struct ir_node *ir)
     visited[ir->instr_idx] = 1;
 }
 
+__weak_really_inline static bool in_same_cfg_block(struct ir_node *l, struct ir_node *r)
+{
+    return l->cfg_block_no == r->cfg_block_no;
+}
+
 static void traverse(bool *visited, int32_t *max_id, struct ir_node *ir)
 {
     if (visited[ir->instr_idx]) return;
@@ -49,7 +54,12 @@ static void traverse(bool *visited, int32_t *max_id, struct ir_node *ir)
     case IR_RET:
     case IR_RET_VOID: {
         mark_visited(visited, ir);
-        if (ir->next)
+        bool should_jump = ir->next;
+        if (ir->next) {
+            should_jump &= !in_same_cfg_block(ir, ir->next);
+            should_jump &= ir->next->type != IR_JUMP;
+        }
+        if (should_jump)
             traverse(visited, max_id, ir->next);
         break;
     }
