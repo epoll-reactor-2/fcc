@@ -69,8 +69,8 @@ bool ir_test(const char *path, const char *filename)
     char    before_opt_path[256] = {0};
     char     after_opt_path[256] = {0};
 
-    snprintf(before_opt_path, 255, "%s/%s", current_output_dir, filename);
-    snprintf( after_opt_path, 255, "%s/optimized_%s", current_output_dir, filename);
+    snprintf(before_opt_path, 255, "%s/%s.dot", current_output_dir, filename);
+    snprintf( after_opt_path, 255, "%s/%s_optimized.dot", current_output_dir, filename);
 
     FILE   * expected_stream = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
@@ -115,7 +115,7 @@ bool ir_test(const char *path, const char *filename)
         printf("Success!\n");
     } else {
         /// Error, will be printed in main.
-        return false;
+        success = false;
     }
 
 exit:
@@ -138,13 +138,14 @@ static size_t warn_buf_len = 0;
 
 int run(const char *dir)
 {
+    int  ret       =  0;
     char path[256] = {0};
     snprintf(path, sizeof (path) - 1, "/test_inputs/%s", dir);
 
     cfg_dir(dir);
 
     if (!do_on_each_file(path, ir_test)) {
-        return -1;
+        ret = -1;
 
         if (err_buf)
             fputs(err_buf, stderr);
@@ -153,7 +154,7 @@ int run(const char *dir)
             fputs(warn_buf, stderr);
     }
 
-    return 0;
+    return ret;
 }
 
 int main()
