@@ -5,7 +5,6 @@
  */
 
 #include "middle_end/opt/opt.h"
-#include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 
 __weak_really_inline static void mark_visited(bool *visited, struct ir_node *ir)
@@ -56,6 +55,15 @@ static void traverse(bool *visited, int32_t *max_id, struct ir_node *ir)
         mark_visited(visited, ir);
         bool should_jump = ir->next;
         if (ir->next) {
+            /// We continue walking over graph if
+            /// 1) Return statement has successor in other CFG block.
+            /// 2) Return statement has no jump successors. Even if jumps
+            ///    are located after return, they were/will visited
+            ///    as condition or other jump targets, so they are not
+            ///    removed.
+            ///
+            /// Otherwise, all after return statement can be safely
+            /// removed since it guaranteed to never be reached.
             should_jump &= !in_same_cfg_block(ir, ir->next);
             should_jump &= ir->next->type != IR_JUMP;
         }
