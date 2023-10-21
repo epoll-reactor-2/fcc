@@ -5,7 +5,7 @@ int main() {
     int c = 3;
 
     if (a + b) {
-        c = 4;
+        b = 4;
     } else {
         b = 5;
     }

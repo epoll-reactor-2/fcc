@@ -172,7 +172,7 @@ int main()
 
     /*
     opt_fn = ir_opt_dead_code_elimination;
-    if (run("/test_inputs/dead_code") < 0)
+    if (run("dead_code") < 0)
         return -1;
     */
 
