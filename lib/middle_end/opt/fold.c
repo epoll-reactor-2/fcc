@@ -446,10 +446,9 @@ void ir_opt_fold(struct ir_func_decl *decl)
         should_reset |= it == decl->body;
         should_reset |= cfg_no != it->cfg_block_no;
 
+        fold_node(it);
         if (should_reset)
             fold_opt_reset();
-
-        fold_node(it);
 
         cfg_no = it->cfg_block_no;
         it = it->next;
