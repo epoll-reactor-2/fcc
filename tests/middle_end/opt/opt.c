@@ -13,6 +13,7 @@
 #include "middle_end/ir/dump.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
+#include "middle_end/ir/ddg.h"
 #include <stdio.h>
 #include <sys/stat.h>
 
@@ -98,6 +99,7 @@ bool ir_test(const char *path, const char *filename)
         while (it) {
             ir_dump_cfg(before_opt_stream, it->ir);
             opt_fn(it->ir);
+            ir_ddg_build(it->ir);
             ir_dump_cfg(after_opt_stream, it->ir);
             ir_dump(generated_stream, it->ir);
             it = it->next;

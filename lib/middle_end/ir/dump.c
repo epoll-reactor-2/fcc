@@ -5,8 +5,8 @@
  */
 
 #include "middle_end/ir/dump.h"
-#include "middle_end/ir/meta.h"
 #include "front_end/lex/data_type.h"
+#include "middle_end/ir/meta.h"
 #include "util/unreachable.h"
 
 const char *ir_type_to_string(enum ir_type t)
@@ -226,6 +226,17 @@ static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *ne
     fprintf(mem, "\"\n");
 }
 
+static void ir_dump_node_ddg(FILE *mem, struct ir_node *ir)
+{
+    vector_foreach(ir->ddg_stmts, i) {
+        struct ir_node *dependence = vector_at(ir->ddg_stmts, i);
+        fprintf(mem, "    \"%d:   ", ir->instr_idx);
+        ir_dump_node(mem, ir);
+        fprintf(mem, "\" -> \"%d:   ", dependence->instr_idx);
+        ir_dump_node(mem, dependence);
+        fprintf(mem, "\" [style = dotted]\n");
+    }
+}
 
 __weak_really_inline static void ir_mark(bool *visited, struct ir_node *ir)
 {
@@ -323,7 +334,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
 
             /// This is reorder trick for dot language.
             /// Even though dot specification says, that
-            /// in geenral order of subgraphs and nodes
+            /// in general order of subgraphs and nodes
             /// must not affect output PNG, this always
             /// happens. Thanks to this subgraph reindexing,
             /// condition targets both on true and false
@@ -345,6 +356,8 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
             break;
         }
         }
+
+        ir_dump_node_ddg(mem, it);
 
         cfg_no = it->cfg_block_no;
         it = it->next;
