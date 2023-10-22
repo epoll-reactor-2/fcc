@@ -170,11 +170,11 @@ int main()
     if (run("arith") < 0)
         return -1;
 
-    /*
+#if 0
     opt_fn = ir_opt_dead_code_elimination;
     if (run("dead_code") < 0)
         return -1;
-    */
+#endif
 
     opt_fn = ir_opt_reorder;
     if (run("reorder") < 0)

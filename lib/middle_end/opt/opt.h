@@ -11,7 +11,7 @@ struct ir_func_decl;
 
 /// Invariant code motion.
 ///
-/// This is based on dominator tree analyis (probably).
+/// This is based on dominator tree analysis (probably).
 ///
 /// \pre Computed dominator tree.
 void ir_opt_motion(struct ir_func_decl *ir);
@@ -70,16 +70,18 @@ void ir_opt_fold(struct ir_func_decl *ir);
 ///        - A | B = B | A
 void ir_opt_arith(struct ir_func_decl *ir);
 
+#if 0
 void ir_opt_dead_code_elimination(struct ir_func_decl *ir);
+#endif
 
 void ir_opt_unreachable_code(struct ir_func_decl *ir);
 
 /// Instruction reordering.
 ///
-/// This collects all alloca intsructions in function
+/// This collects all alloca instructions in function
 /// in one place. Makes no really difference in case
 /// of interpreter, but in a real backend (ARM, x86_64)
-/// we can substract stack pointer once in a function.
+/// we can subtract stack pointer once in a function.
 void ir_opt_reorder(struct ir_func_decl *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_OPT_H

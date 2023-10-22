@@ -4,13 +4,19 @@
  * This file is distributed under the MIT license.
  */
 
-#include <assert.h>
+/// This optimization is completely wrong.
+/// Correct dead code elimination requires more
+/// advanced techniques such as data dependence graph
+/// and SSA.
+
+#if 0
 #include "middle_end/opt/opt.h"
 #include "middle_end/ir/ir.h"
 #include "util/alloc.h"
+#include "util/hashmap.h"
 #include "util/unreachable.h"
 #include "util/vector.h"
-#include "util/hashmap.h"
+#include <assert.h>
 
 struct dce_entry {
     uint64_t instr_idx;
@@ -107,6 +113,7 @@ static void dce_keep_alive_last(uint64_t sym_idx)
             alloca_idx = alloca_get(sym_idx);
             live_idx = e.instr_idx;
             found = 1;
+            break;
             // printf("Entry (%ld, %ld)\n", e.instr_idx, e.sym_idx);
         }
     }
@@ -187,6 +194,24 @@ static void dce_fcall(struct ir_node *ir)
     vector_push_back(live_instrs, ir->instr_idx);
 }
 
+static void dce_cond(struct ir_node *ir)
+{
+    struct ir_cond *cond = ir->ir;
+    dce_node(cond->cond);
+    /// Not our optimization case.
+    vector_push_back(live_instrs, ir->instr_idx);
+}
+
+static void dce_jmp(struct ir_node *ir)
+{
+    struct ir_jump *jmp = ir->ir;
+    /// Not our optimization case.
+    vector_push_back(live_instrs, ir->instr_idx);
+    /// I am not sure.
+    vector_push_back(live_instrs, jmp->target->instr_idx);
+}
+
+
 
 static void dce_node(struct ir_node *ir)
 {
@@ -197,6 +222,7 @@ static void dce_node(struct ir_node *ir)
     case IR_IMM:
     case IR_SYM:
     case IR_JUMP:
+        dce_jmp(ir);
     case IR_MEMBER:
     case IR_TYPE_DECL:
     case IR_FUNC_DECL:
@@ -214,6 +240,7 @@ static void dce_node(struct ir_node *ir)
         dce_ret(ir);
         break;
     case IR_COND:
+        dce_cond(ir);
         break;
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
@@ -228,15 +255,16 @@ static void dce(struct ir_node *start)
     reset_hashmap(&alloca_stmts);
 
     while (it) {
-        bool should_reset = 0;
-        should_reset |= it == start;
-        should_reset |= cfg_no != it->cfg_block_no;
+//        bool should_reset = 0;
+//        should_reset |= it == start;
+//        should_reset |= cfg_no != it->cfg_block_no;
 
-        if (should_reset)
-            dce_reset();
+//        if (should_reset)
+//            dce_reset();
 
         dce_node(it);
 
+        /*
         if (!it->next || it->next->cfg_block_no != cfg_no) {
             vector_foreach(live_instrs, i) {
                 uint64_t instr_idx = vector_at(live_instrs, i);
@@ -244,8 +272,9 @@ static void dce(struct ir_node *start)
             }
             printf("\n");
         }
+        */
 
-        cfg_no = it->cfg_block_no;
+//        cfg_no = it->cfg_block_no;
         it = it->next;
     }
 }
@@ -278,12 +307,20 @@ static void cut(struct ir_node **ir)
     qsort(live_instrs.data, live_instrs.count, sizeof (int32_t), qsort_cmp);
 
     while (it) {
-        int32_t *instr = bsearch(&it->instr_idx, live_instrs.data, live_instrs.count, sizeof (int32_t), qsort_cmp);
-        if (instr == NULL) {
-            printf("Remove at %%%d\n", it->instr_idx);
+        struct ir_node *next_node = it->next;
+
+        int32_t *instr = bsearch(
+            &it->instr_idx,
+            live_instrs.data,
+            live_instrs.count,
+            sizeof (int32_t),
+            qsort_cmp
+        );
+
+        if (instr == NULL)
             remove_node(&it, ir);
-        }
-        it = it->next;
+
+        it = next_node;
     }
 }
 
@@ -292,3 +329,4 @@ void ir_opt_dead_code_elimination(struct ir_func_decl *decl)
     dce(decl->body);
     cut(&decl->body);
 }
+#endif // 0
