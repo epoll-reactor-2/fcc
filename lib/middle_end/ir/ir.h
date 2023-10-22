@@ -10,6 +10,7 @@
 #include "front_end/lex/data_type.h"
 #include "front_end/lex/tok_type.h"
 #include "util/compiler.h"
+#include "util/vector.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -63,6 +64,13 @@ struct ir_node {
     struct ir_node  *idom;
     /// Number of basic block in CFG to which current node is associated.
     uint64_t         cfg_block_no;
+
+    /// Data dependence graph.
+    ///
+    /// This array shows, on which data operations
+    /// this statement depends.
+    vector_t(struct ir_node *)
+                     ddg_stmts;
 
     struct ir_node  *next;
     struct ir_node  *next_else;

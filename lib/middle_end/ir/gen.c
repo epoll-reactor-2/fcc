@@ -5,14 +5,15 @@
  */
 
 #include "middle_end/ir/gen.h"
+#include "front_end/ast/ast.h"
+#include "middle_end/ir/ddg.h"
+#include "middle_end/ir/ir.h"
 #include "middle_end/ir/meta.h"
 #include "middle_end/ir/storage.h"
-#include "middle_end/ir/ir.h"
-#include "front_end/ast/ast.h"
 #include "util/crc32.h"
-#include "util/vector.h"
-#include "util/unreachable.h"
 #include "util/hashmap.h"
+#include "util/unreachable.h"
+#include "util/vector.h"
 #include <assert.h>
 #include <string.h>
 
