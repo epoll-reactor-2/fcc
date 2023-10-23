@@ -84,4 +84,12 @@ void ir_opt_unreachable_code(struct ir_func_decl *ir);
 /// we can subtract stack pointer once in a function.
 void ir_opt_reorder(struct ir_func_decl *ir);
 
+/// Data flow analysis.
+///
+/// This optimization keeps only things, needed to compute
+/// a return value. There are two conditions
+///   - All variable operations used to compute return values are left.
+///   - All loops (including nested) used to compute return values are left.
+void ir_opt_data_flow(struct ir_func_decl *ir);
+
 #endif // WEAK_COMPILER_MIDDLE_END_OPT_H

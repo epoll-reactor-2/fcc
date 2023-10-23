@@ -48,11 +48,15 @@ static void ddg_bin(struct ir_node *ir, struct ir_node *ir_bin)
 static void ddg_node(struct ir_node *ir)
 {
     switch (ir->type) {
+    case IR_ALLOCA: {
+        struct ir_alloca *alloca = ir->ir;
+        hashmap_put(&stores, (uint64_t) ir, alloca->idx);
+        break;
+    }
     case IR_STORE: {
         struct ir_store *store = ir->ir;
         if (store->idx->type == IR_SYM) {
             struct ir_sym *sym = store->idx->ir;
-            hashmap_remove(&stores, (uint64_t) ir);
             hashmap_put(&stores, (uint64_t) ir, sym->idx);
         }
 
