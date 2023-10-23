@@ -308,6 +308,7 @@ static void visit_ast_for(struct ast_for *ast)
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
+    ++ir_loop_depth;
     /// Condition is optional.
     if (ast->condition) {
         next_iter_jump_idx       = ir_last->instr_idx + 1;
@@ -326,9 +327,7 @@ static void visit_ast_for(struct ast_for *ast)
         next_iter_jump_idx = ir_last->instr_idx + 1;
     }
 
-    ++ir_loop_depth;
     visit_ast(ast->body);
-    --ir_loop_depth;
 
     /// Increment is optional.
     ir_meta_is_loop = 1;
@@ -344,6 +343,7 @@ static void visit_ast_for(struct ast_for *ast)
     }
 
     ir_insert_last();
+    --ir_loop_depth;
     emit_loop_flow_instrs();
 }
 
@@ -363,6 +363,7 @@ static void visit_ast_while(struct ast_while *ast)
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
+    ++ir_loop_depth;
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
     ir_meta_is_loop = 0;
@@ -378,12 +379,11 @@ static void visit_ast_while(struct ast_while *ast)
 
     cond_ptr->goto_label = exit_jmp->instr_idx + 1;
 
-    ++ir_loop_depth;
     visit_ast(ast->body);
-    --ir_loop_depth;
 
     struct ir_node *next_iter_jmp = ir_jump_init(next_iter_idx);
     ir_insert(next_iter_jmp);
+    --ir_loop_depth;
 
     cond->next_else = exit_jmp;
     exit_jmp->prev = cond;
@@ -415,7 +415,6 @@ static void visit_ast_do_while(struct ast_do_while *ast)
 
     ++ir_loop_depth;
     visit_ast(ast->body);
-    --ir_loop_depth;
 
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
@@ -432,6 +431,8 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     cond_ptr->goto_label = stmt_begin + 1;
 
     ir_insert(cond);
+    --ir_loop_depth;
+
     emit_loop_flow_instrs();
 }
 
