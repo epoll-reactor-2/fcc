@@ -21,26 +21,8 @@
 //      19:   jmp L8
 //      37:   t3 = t3(@noalias) + 1(@loop)
 //      38:   jmp L8
-//      39:   ret 0
+//      39:   ret t0
 int main() {
-    // Dead instruction at 20
-    // Dead instruction at 21
-    // Dead instruction at 22
-    // Dead instruction at 23
-    // Dead instruction at 24
-    // Dead instruction at 25
-    // Dead instruction at 26
-    // Dead instruction at 27
-    // Dead instruction at 28
-    // Dead instruction at 29
-    // Dead instruction at 30
-    // Dead instruction at 31
-    // Dead instruction at 32
-    // Dead instruction at 33
-    // Dead instruction at 34
-    // Dead instruction at 35
-    // Dead instruction at 36
-
     int a = 1;
     int b = a;
     int c = b;
@@ -59,6 +41,6 @@ int main() {
             }
         }
     }
-    
-    return 0;
+
+    return a;
 }
