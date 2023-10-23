@@ -4,10 +4,10 @@
  * This file is distributed under the MIT license.
  */
 
-#include <assert.h>
 #include "middle_end/ir/ddg.h"
 #include "middle_end/ir/ir.h"
 #include "util/hashmap.h"
+#include <assert.h>
 
 /// Key:   ir
 /// Value: sym_idx
@@ -32,7 +32,7 @@ static void ddg_add_dependency(struct ir_node *ir, struct ir_node *symbol)
     hashmap_foreach(&stores, k, v) {
         if (v == (uint64_t) sym->idx) {
             struct ir_node *node = (struct ir_node *) k;
-            vector_push_back(node->ddg_stmts, ir);
+            vector_push_back(ir->ddg_stmts, node);
         }
     }
 }
@@ -81,11 +81,23 @@ static void ddg_node(struct ir_node *ir)
     }
 }
 
+static void ddg_cleanup(struct ir_node *ir)
+{
+    struct ir_node *it = ir;
+
+    while (it) {
+        vector_clear(it->ddg_stmts);
+        it = it->next;
+    }
+}
+
 void ir_ddg_build(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
 
     reset_hashmap(&stores);
+
+    ddg_cleanup(it);
 
     while (it) {
         ddg_node(it);

@@ -97,6 +97,7 @@ bool ir_test(const char *path, const char *filename)
         struct ir_node *it = ir->func_decls;
 
         while (it) {
+            ir_ddg_build(it->ir);
             ir_dump_cfg(before_opt_stream, it->ir);
             opt_fn(it->ir);
             ir_ddg_build(it->ir);
