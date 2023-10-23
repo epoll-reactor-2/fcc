@@ -31,6 +31,7 @@ static struct ir_node    *ir_prev;
 static int32_t            ir_var_idx;
 static bool               ir_save_first;
 static bool               ir_meta_is_loop;
+static uint64_t           ir_loop_depth;
 static int32_t            ir_meta_loop_idx;
 static hashmap_t          ir_func_return_types;
 /// This is stacks for `break` and `continue` instructions.
@@ -65,16 +66,13 @@ static enum data_type ir_func_return_type(const char *name)
 
 static void ir_try_add_meta(struct ir_node *ir)
 {
-    if (!ir_meta_is_loop) return;
-
-    struct meta *meta = meta_init(IR_META_VAR);
+    ir->meta = meta_init(IR_META_VAR);
+    ir->meta->loop_depth = ir_loop_depth;
 
     if (ir_meta_is_loop) {
-        meta->sym_meta.loop = 1;
-        meta->sym_meta.loop_idx = ir_meta_loop_idx++;
+        ir->meta->sym_meta.loop = 1;
+        ir->meta->sym_meta.loop_idx = ir_meta_loop_idx++;
     }
-
-    ir->meta = meta;
 }
 
 static void ir_insert(struct ir_node *new_node)
@@ -84,6 +82,8 @@ static void ir_insert(struct ir_node *new_node)
         ir_dump_node(stdout, new_node);
         puts("");
     });
+
+    ir_try_add_meta(new_node);
 
     if (ir_save_first) {
         ir_first = new_node;
@@ -102,8 +102,6 @@ static void ir_insert(struct ir_node *new_node)
     new_node->prev = ir_prev;
     new_node->prev_else = NULL;
     ir_prev = new_node;
-
-    ir_try_add_meta(new_node);
 }
 
 __weak_really_inline static void ir_insert_last()
@@ -328,7 +326,9 @@ static void visit_ast_for(struct ast_for *ast)
         next_iter_jump_idx = ir_last->instr_idx + 1;
     }
 
+    ++ir_loop_depth;
     visit_ast(ast->body);
+    --ir_loop_depth;
 
     /// Increment is optional.
     ir_meta_is_loop = 1;
@@ -378,7 +378,9 @@ static void visit_ast_while(struct ast_while *ast)
 
     cond_ptr->goto_label = exit_jmp->instr_idx + 1;
 
+    ++ir_loop_depth;
     visit_ast(ast->body);
+    --ir_loop_depth;
 
     struct ir_node *next_iter_jmp = ir_jump_init(next_iter_idx);
     ir_insert(next_iter_jmp);
@@ -411,7 +413,9 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     else
         stmt_begin = ir_last->instr_idx;
 
+    ++ir_loop_depth;
     visit_ast(ast->body);
+    --ir_loop_depth;
 
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
