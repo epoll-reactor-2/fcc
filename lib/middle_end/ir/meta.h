@@ -30,7 +30,26 @@ struct meta {
         } fun_meta;
     };
 
+    /// Depth of current loop. Needed to handle
+    /// nested loops in optimizations.
     uint64_t loop_depth;
+
+    /// Most outer loop index. Needed to know when
+    /// to stop optimizing algorithms in case when
+    /// loops are placed close. Without it
+    /// we could incorrectly think, that shown below
+    /// 3 while's is the same loop because of same
+    /// loop depth.
+    ///
+    /// while (a) { ... } /< Loop depth = 1
+    /// <<< separator >>>
+    ///
+    /// while (b) { ... } /< Loop depth = 1
+    /// <<< separator >>>
+    ///
+    /// while (c) { ... } /< Loop depth = 1
+    /// <<< separator >>>
+    uint64_t global_loop_idx;
 };
 
 void *meta_init(int32_t type);
