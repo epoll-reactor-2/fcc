@@ -24,8 +24,7 @@
 //      24:   | | t7 = t2 <<= 1(@loop)
 //      25:   | | jmp L8
 //      26:   | jmp L4
-//      27:   t0 = t0(@noalias) + 1
-//      36:   ret t0
+//      35:   ret t0
 int main() {
     int i = 0;
     int j = 0;
@@ -39,15 +38,6 @@ int main() {
             }
         }
     }
-
-    // This is buggy behaviour.
-    //
-    // Now if two loops are located close to each other,
-    // by IR meta information we can judge, that this is a single
-    // loop statement, because loop depth = 1 in both loops.
-    //
-    // This separator fix situation, but bug should be fixed.
-    ++i;
 
     while (j) {
         ++j;

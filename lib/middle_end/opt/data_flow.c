@@ -12,29 +12,45 @@ __weak_really_inline static void mark_visited(bool *visited, struct ir_node *ir)
     visited[ir->instr_idx] = 1;
 }
 
-/// This does not determines loop boundaries.
+/// dd -- Data dependency.
+__weak_really_inline static void traverse_dd_chain(bool *visited, struct ir_node *it)
+{
+    ir_vector_t *ddgs = &it->ddg_stmts;
+    vector_foreach(*ddgs, i) {
+        struct ir_node *ddg = vector_at(*ddgs, i);
+        if (!visited[ddg->instr_idx])
+            mark_visited(visited, ddg);
+    }
+}
+
+/// while (j) { ++i; } ... OK
 ///
-/// while (...) {
-///     // ...
-/// }
-/// while (...) {
-///     // ...
-/// }
-///
-/// This treated as same loop.
+/// while (k) { ++i; }
+/// return i;          ... i is not dependent by (k) condition, but should be,
+///                        therefore (k) condition cannot be optimized out.
 static void extend_loop(bool *visited, struct ir_node *ir)
 {
     struct ir_node *it = ir;
 
-    while (it && it->meta->loop_depth > 0) {
+    while (it &&
+           it->prev &&
+           it->meta->global_loop_idx == ir->prev->meta->global_loop_idx &&
+           it->meta->loop_depth > 0
+    ) {
         mark_visited(visited, it);
+        traverse_dd_chain(visited, it);
         it = it->prev;
     }
 
     it = ir;
 
-    while (it && it->meta->loop_depth > 0) {
+    while (it &&
+           it->next &&
+           it->meta->global_loop_idx == ir->next->meta->global_loop_idx &&
+           it->meta->loop_depth > 0
+    ) {
         mark_visited(visited, it);
+        traverse_dd_chain(visited, it);
         it = it->next;
     }
 }

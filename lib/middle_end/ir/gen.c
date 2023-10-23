@@ -29,6 +29,7 @@ static int32_t            ir_var_idx;
 static bool               ir_save_first;
 static bool               ir_meta_is_loop;
 static uint64_t           ir_loop_depth;
+static uint64_t           ir_loop_idx;
 static int32_t            ir_meta_loop_idx;
 static hashmap_t          ir_func_return_types;
 /// This is stacks for `break` and `continue` instructions.
@@ -65,6 +66,7 @@ static void ir_try_add_meta(struct ir_node *ir)
 {
     ir->meta = meta_init(IR_META_VAR);
     ir->meta->loop_depth = ir_loop_depth;
+    ir->meta->global_loop_idx = ir_loop_idx;
 
     if (ir_meta_is_loop) {
         ir->meta->sym_meta.loop = 1;
@@ -305,6 +307,9 @@ static void visit_ast_for(struct ast_for *ast)
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
+    if (ir_loop_depth == 0)
+        ++ir_loop_idx;
+
     ++ir_loop_depth;
     /// Condition is optional.
     if (ast->condition) {
@@ -360,6 +365,9 @@ static void visit_ast_while(struct ast_while *ast)
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
+    if (ir_loop_depth == 0)
+        ++ir_loop_idx;
+
     ++ir_loop_depth;
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
@@ -409,6 +417,9 @@ static void visit_ast_do_while(struct ast_do_while *ast)
         stmt_begin = 0;
     else
         stmt_begin = ir_last->instr_idx;
+
+    if (ir_loop_depth == 0)
+        ++ir_loop_idx;
 
     ++ir_loop_depth;
     visit_ast(ast->body);
@@ -698,6 +709,8 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     ir_storage_init();
 
     ir_var_idx = 0;
+    ir_loop_idx = 0;
+    ir_loop_depth = 0;
     ir_first = NULL;
     ir_last = NULL;
     ir_prev = NULL;
