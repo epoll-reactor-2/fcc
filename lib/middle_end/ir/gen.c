@@ -6,7 +6,6 @@
 
 #include "middle_end/ir/gen.h"
 #include "front_end/ast/ast.h"
-#include "middle_end/ir/ddg.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/meta.h"
 #include "middle_end/ir/storage.h"
@@ -16,8 +15,6 @@
 #include "util/vector.h"
 #include <assert.h>
 #include <string.h>
-
-typedef vector_t(struct ir_node *) ir_vector_t;
 
 /// Total list of functions.
 static ir_vector_t        ir_func_decls;

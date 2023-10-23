@@ -8,8 +8,8 @@
 #include "middle_end/ir/graph.h"
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
+#include "middle_end/ir/ir_ops.h"
 #include "util/compiler.h"
-#include "util/vector.h"
 
 __weak_really_inline static void ir_set_idom(
     struct ir_node  *node,
@@ -80,8 +80,6 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
         }
     }
 }
-
-typedef vector_t(struct ir_node *) ir_vector_t;
 
 static void ir_post_dfs(struct ir_node *ir, ir_vector_t *out, bool *visited)
 {

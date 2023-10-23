@@ -7,8 +7,6 @@
 #include "middle_end/opt/opt.h"
 #include "middle_end/ir/ir.h"
 
-typedef vector_t(struct ir_node *) ir_vector_t;
-
 __weak_really_inline static void mark_visited(bool *visited, struct ir_node *ir)
 {
     visited[ir->instr_idx] = 1;
@@ -72,29 +70,13 @@ static void traverse(bool *visited, struct ir_node *ir)
     }
 }
 
-static void remove_node(struct ir_node **ir, struct ir_node **head)
-{
-    /// Note: conditional statements is never removed, so
-    ///       *next_else and *prev_else are unused.
-    if ((*ir)->next) {
-        (*ir)->next->prev = (*ir)->prev;
-    }
-
-    if ((*ir)->prev) {
-        (*ir)->prev->next = (*ir)->next;
-    } else {
-        (*ir) = (*ir)->next;
-        (*head) = (*ir);
-    }
-}
-
 static void cut(bool *visited, struct ir_node *ir)
 {
     struct ir_node *it = ir;
 
     while (it) {
         if (!visited[it->instr_idx])
-            remove_node(&it, &ir);
+            ir_remove(&it, &ir);
         it = it->next;
     }
 }
