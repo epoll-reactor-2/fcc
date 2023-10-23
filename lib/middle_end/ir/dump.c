@@ -31,6 +31,13 @@ const char *ir_type_to_string(enum ir_type t)
     }
 }
 
+static void fprintf_n(FILE *stream, uint32_t count, char c)
+{
+    for (uint32_t i = 0; i < count; ++i) {
+        fputc(i % 2 != 0 ? c : '|', stream);
+    }
+}
+
 static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 {
     fprintf(
@@ -151,6 +158,7 @@ static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
     it = ir->body;
     while (it) {
         fprintf(mem, "\n% 8d:   ", it->instr_idx);
+        fprintf_n(mem, it->meta->loop_depth * 2, ' ');
         ir_dump_node(mem, it);
         it = it->next;
     }

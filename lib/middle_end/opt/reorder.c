@@ -21,6 +21,11 @@ __weak_really_inline static void reindex(ir_vector_t *stmts)
     vector_foreach(*stmts, i) {
         struct ir_node *curr = vector_at(*stmts, i);
 
+        /// We move allocas to most outer block, hence
+        /// out of any loop.
+        if (curr->type == IR_ALLOCA)
+            curr->meta->loop_depth = 0;
+
         if (curr->type == IR_COND) {
             struct ir_cond *cond = curr->ir;
             struct ir_node *jump = vector_at(*stmts, cond->goto_label);
