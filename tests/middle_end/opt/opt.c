@@ -187,6 +187,10 @@ int main()
     if (run("unreachable") < 0)
         return -1;
 
+    opt_fn = ir_opt_data_flow;
+    if (run("data_flow") < 0)
+        return -1;
+
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);
     free(err_buf);
