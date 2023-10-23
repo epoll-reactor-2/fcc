@@ -9,6 +9,7 @@
 
 #include "front_end/lex/data_type.h"
 #include "front_end/lex/tok_type.h"
+#include "middle_end/ir/ir_ops.h"
 #include "middle_end/ir/meta.h"
 #include "util/compiler.h"
 #include "util/vector.h"
@@ -70,8 +71,7 @@ struct ir_node {
     ///
     /// This array shows, on which data operations
     /// this statement depends.
-    vector_t(struct ir_node *)
-                     ddg_stmts;
+    ir_vector_t     ddg_stmts;
 
     struct ir_node  *next;
     struct ir_node  *next_else;

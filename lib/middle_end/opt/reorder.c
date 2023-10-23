@@ -9,8 +9,6 @@
 #include "util/vector.h"
 #include <stddef.h>
 
-typedef vector_t(struct ir_node *) ir_vector_t;
-
 /// We assume that vector index is match with contained
 /// IR instruction index.
 ///
