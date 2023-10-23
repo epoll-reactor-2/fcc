@@ -1,5 +1,5 @@
 //fun main():
-//       0:   int t0
+//       0:   int t0(@loop)
 //       1:   t0 = 0(@loop)
 //       2:   int t1
 //       3:   int t2

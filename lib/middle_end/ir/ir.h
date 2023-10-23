@@ -9,6 +9,7 @@
 
 #include "front_end/lex/data_type.h"
 #include "front_end/lex/tok_type.h"
+#include "middle_end/ir/meta.h"
 #include "util/compiler.h"
 #include "util/vector.h"
 #include <stdbool.h>
@@ -83,7 +84,7 @@ struct ir_node {
     ///
     /// If NULL, there is no metadata for given
     /// node.
-    void            *meta;
+    struct meta     *meta;
 };
 
 /// All information contained about processed file.

@@ -350,6 +350,7 @@ void ir_node_cleanup(struct ir_node *ir)
         meta_cleanup(ir->meta);
     weak_free(ir->ir);
     weak_free(ir);
+    vector_clear(ir->ddg_stmts);
 }
 
 void ir_unit_cleanup(struct ir_unit *ir)

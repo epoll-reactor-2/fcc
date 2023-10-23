@@ -29,6 +29,8 @@ struct meta {
             bool is_const;
         } fun_meta;
     };
+
+    uint64_t loop_depth;
 };
 
 void *meta_init(int32_t type);
