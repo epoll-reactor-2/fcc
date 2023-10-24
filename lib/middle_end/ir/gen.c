@@ -29,6 +29,7 @@ static bool               ir_save_first;
 static bool               ir_meta_is_loop;
 static uint64_t           ir_loop_depth;
 static uint64_t           ir_loop_idx;
+static  int64_t           ir_dominant_condition_idx = -1;
 static int32_t            ir_meta_loop_idx;
 static hashmap_t          ir_func_return_types;
 /// This is stacks for `break` and `continue` instructions.
@@ -250,6 +251,24 @@ static void visit_ast_continue(struct ast_continue *ast)
     ir_insert(ir);
 }
 
+
+/// Add metainformation about data flow conditon dominator.
+/// After this, each statement is data-depenent on its loop
+/// condition.
+///
+/// Pay attention, that if loop is nested, each statement is dependent
+/// on most outer condition. In general, on loop condition at global
+/// function level.
+static void mark_dominant_condition(struct ir_node *start, struct ir_node *end, uint64_t dom_idx)
+{
+    while (start && start != end) {
+        start->meta.dominant_condition_idx =
+            dom_idx;
+
+        start = start->next;
+    }
+}
+
 /// To emit correct `break`, we just attach it to the next
 /// statement after the loop.
 ///
@@ -291,6 +310,7 @@ static void visit_ast_for(struct ast_for *ast)
     /// L7:  after for instr
 
     /// Initial part is optional.
+
     ir_meta_is_loop = 1;
     if (ast->init) visit_ast(ast->init);
     ir_meta_is_loop = 0;
@@ -302,6 +322,7 @@ static void visit_ast_for(struct ast_for *ast)
     struct ir_node *cond               = NULL;
     struct ir_node *exit_jmp           = NULL;
     struct ir_jump *exit_jmp_ptr       = NULL;
+    struct ir_node *body_start         = NULL;
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
@@ -327,7 +348,12 @@ static void visit_ast_for(struct ast_for *ast)
         next_iter_jump_idx = ir_last->instr_idx + 1;
     }
 
+    body_start = ir_last;
     visit_ast(ast->body);
+    if (body_start != ir_last)
+        body_start = body_start->next;
+    else
+        body_start = NULL;
 
     /// Increment is optional.
     ir_meta_is_loop = 1;
@@ -344,6 +370,10 @@ static void visit_ast_for(struct ast_for *ast)
 
     ir_insert_last();
     --ir_loop_depth;
+
+    if (ast->condition && body_start)
+        mark_dominant_condition(body_start, ir_last, cond->instr_idx);
+
     emit_loop_flow_instrs();
 }
 
@@ -377,6 +407,8 @@ static void visit_ast_while(struct ast_while *ast)
     struct ir_node *exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *exit_jmp_ptr  = exit_jmp->ir;
 
+    ir_dominant_condition_idx = cond->instr_idx;
+
     ir_insert(cond);
     ir_insert(exit_jmp);
 
@@ -409,6 +441,8 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     int32_t stmt_begin;
     int32_t header_idx = ir_last->instr_idx + 1;
 
+    struct ir_node *initial_stmt = ir_last;
+
     vector_push_back(ir_loop_header_stack, header_idx);
 
     if (ir_last == NULL)
@@ -421,6 +455,11 @@ static void visit_ast_do_while(struct ast_do_while *ast)
 
     ++ir_loop_depth;
     visit_ast(ast->body);
+
+    if (initial_stmt == NULL)
+        initial_stmt = ir_first;
+    else
+        initial_stmt = initial_stmt->next;
 
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
@@ -438,6 +477,8 @@ static void visit_ast_do_while(struct ast_do_while *ast)
 
     ir_insert(cond);
     --ir_loop_depth;
+
+    mark_dominant_condition(initial_stmt, ir_last, ir_last->instr_idx);
 
     emit_loop_flow_instrs();
 }
@@ -480,12 +521,19 @@ static void visit_ast_if(struct ast_if *ast)
     struct ir_node *end_jmp     = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *end_jmp_ptr = end_jmp->ir;
 
+    ir_dominant_condition_idx = cond->instr_idx;
+
     /// Body starts after exit jump.
     cond_ptr->goto_label = end_jmp->instr_idx + 1;
     ir_insert(cond);
     ir_insert(end_jmp);
 
+    struct ir_node *initial_stmt = ir_last;
+
     visit_ast(ast->body);
+
+    initial_stmt = initial_stmt->next;
+
     /// Even with code like
     /// void f() { if (x) { f(); } }
     /// this will make us to jump to the `ret`
@@ -496,11 +544,15 @@ static void visit_ast_if(struct ast_if *ast)
     cond->next_else = end_jmp;
     end_jmp->prev = cond;
 
+    mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
+
     if (!ast->else_body) return;
     struct ir_node *else_jmp = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *else_jmp_ptr = else_jmp->ir;
     /// Index of this jump will be changed through pointer.
     ir_insert(else_jmp);
+
+    initial_stmt = ir_last;
 
     /// Jump over the `then` statement to `else`.
     end_jmp_ptr->idx = ir_last->instr_idx
@@ -509,6 +561,10 @@ static void visit_ast_if(struct ast_if *ast)
     visit_ast(ast->else_body);
     /// `then` part ends with jump over `else` part.
     else_jmp_ptr->idx = ir_last->instr_idx + 1;
+
+    initial_stmt = initial_stmt->next;
+
+    mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
 }
 
 static void visit_ast_return(struct ast_return *ast)
@@ -708,6 +764,7 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     ir_var_idx = 0;
     ir_loop_idx = 0;
     ir_loop_depth = 0;
+    ir_dominant_condition_idx = -1;
     ir_first = NULL;
     ir_last = NULL;
     ir_prev = NULL;
