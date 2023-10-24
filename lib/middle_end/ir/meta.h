@@ -12,8 +12,9 @@
 
 struct meta {
     enum {
-        IR_META_VAR,
-        IR_META_FUN
+        IR_META_UNKNOWN = 0,
+        IR_META_VAR     = 1,
+        IR_META_FUN     = 2
     } type;
 
     union {
@@ -51,8 +52,5 @@ struct meta {
     /// <<< separator >>>
     uint64_t global_loop_idx;
 };
-
-void *meta_init(int32_t type);
-void  meta_cleanup(void *meta);
 
 #endif // WEAK_COMPILER_MIDDLE_END_META_H

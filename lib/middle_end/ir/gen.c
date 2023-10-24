@@ -7,7 +7,6 @@
 #include "middle_end/ir/gen.h"
 #include "front_end/ast/ast.h"
 #include "middle_end/ir/ir.h"
-#include "middle_end/ir/meta.h"
 #include "middle_end/ir/storage.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"
@@ -64,13 +63,13 @@ static enum data_type ir_func_return_type(const char *name)
 
 static void ir_try_add_meta(struct ir_node *ir)
 {
-    ir->meta = meta_init(IR_META_VAR);
-    ir->meta->loop_depth = ir_loop_depth;
-    ir->meta->global_loop_idx = ir_loop_idx;
+    ir->meta.type = IR_META_VAR;
+    ir->meta.loop_depth = ir_loop_depth;
+    ir->meta.global_loop_idx = ir_loop_idx;
 
     if (ir_meta_is_loop) {
-        ir->meta->sym_meta.loop = 1;
-        ir->meta->sym_meta.loop_idx = ir_meta_loop_idx++;
+        ir->meta.sym_meta.loop = 1;
+        ir->meta.sym_meta.loop_idx = ir_meta_loop_idx++;
     }
 }
 
@@ -177,9 +176,8 @@ __weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym 
     struct ir_sym *sym = ir->ir;
 
     if (sym->idx == assign->idx) {
-        struct meta *meta = meta_init(IR_META_VAR);
-        meta->sym_meta.noalias = 1;
-        ir->meta = meta;
+        ir->meta.type = IR_META_VAR;
+        ir->meta.sym_meta.noalias = 1;
     }
 }
 
@@ -558,9 +556,8 @@ static void visit_ast_unary(struct ast_unary *ast)
 
     ir_last = ir_store_sym_init(sym->idx, ir_last);
 
-    struct meta *meta = meta_init(IR_META_VAR);
-    meta->sym_meta.noalias = 1;
-    sym_node->meta = meta;
+    sym_node->meta.type = IR_META_VAR;
+    sym_node->meta.sym_meta.noalias = 1;
 
     ir_insert_last();
 }

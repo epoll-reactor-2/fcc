@@ -34,8 +34,8 @@ static void extend_loop(bool *visited, struct ir_node *ir)
 
     while (it &&
            it->prev &&
-           it->meta->global_loop_idx == ir->prev->meta->global_loop_idx &&
-           it->meta->loop_depth > 0
+           it->meta.global_loop_idx == ir->prev->meta.global_loop_idx &&
+           it->meta.loop_depth > 0
     ) {
         mark_visited(visited, it);
         traverse_dd_chain(visited, it);
@@ -46,8 +46,8 @@ static void extend_loop(bool *visited, struct ir_node *ir)
 
     while (it &&
            it->next &&
-           it->meta->global_loop_idx == ir->next->meta->global_loop_idx &&
-           it->meta->loop_depth > 0
+           it->meta.global_loop_idx == ir->next->meta.global_loop_idx &&
+           it->meta.loop_depth > 0
     ) {
         mark_visited(visited, it);
         traverse_dd_chain(visited, it);
