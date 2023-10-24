@@ -82,9 +82,9 @@ struct ir_node {
     /// Meta information. Used for analysis
     /// and optimizations.
     ///
-    /// If NULL, there is no metadata for given
+    /// If type is IR_META_UNKNOWN, there is no metadata for given
     /// node.
-    struct meta     *meta;
+    struct meta      meta;
 };
 
 /// All information contained about processed file.

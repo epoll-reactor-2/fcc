@@ -13,7 +13,7 @@
 //instr  3: depends on ()
 //instr  4: depends on ()
 //instr  5: depends on ()
-//instr  6: depends on (0, 1)
+//instr  6: depends on (1, 0)
 int main() {
     int a = 1;
     int b = 2;

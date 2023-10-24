@@ -158,7 +158,7 @@ static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
     it = ir->body;
     while (it) {
         fprintf(mem, "\n% 8d:   ", it->instr_idx);
-        fprintf_n(mem, it->meta->loop_depth * 2, ' ');
+        fprintf_n(mem, it->meta.loop_depth * 2, ' ');
         ir_dump_node(mem, it);
         it = it->next;
     }
@@ -199,15 +199,11 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 
-    if (ir->meta) {
-        struct meta *meta = ir->meta;
+    if (ir->meta.sym_meta.loop)
+        fprintf(mem, "(@loop)");
 
-        if (meta->sym_meta.loop)
-            fprintf(mem, "(@loop)");
-
-        if (meta->sym_meta.noalias)
-            fprintf(mem, "(@noalias)");
-    }
+    if (ir->meta.sym_meta.noalias)
+        fprintf(mem, "(@noalias)");
 }
 
 void ir_dump(FILE *mem, struct ir_func_decl *decl)
