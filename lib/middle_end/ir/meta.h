@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+enum { META_VALUE_UNKNOWN = UINT64_MAX };
+
 struct meta {
     enum {
         IR_META_UNKNOWN = 0,
@@ -53,7 +55,11 @@ struct meta {
     uint64_t global_loop_idx;
 
     /// On which condition instruction depends.
-    /// Used in data-flow analysis.
+    /// Used in data-flow analysis. This points
+    /// to most outer condition. It means,
+    /// each statement in inner loop depends on
+    /// most outer loop condition. Thus, outer loop
+    /// "dominates" its whole body.
     ///
     /// \note Condition can be placed as above (for, while)
     ///       so below (do-while). It means, we should walk
