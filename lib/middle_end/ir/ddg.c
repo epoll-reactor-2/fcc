@@ -95,6 +95,20 @@ static void ddg_cleanup(struct ir_node *ir)
     }
 }
 
+static int qsort_cmp(const void *lhs, const void *rhs)
+{
+    struct ir_node *l = *((struct ir_node **) lhs);
+    struct ir_node *r = *((struct ir_node **) rhs);
+
+    return l->instr_idx - r->instr_idx;
+}
+
+static void ddg_sort(struct ir_node *ir)
+{
+    ir_vector_t *ddgs = &ir->ddg_stmts;
+    qsort(ddgs->data, ddgs->count, sizeof (struct ir_node *), qsort_cmp);
+}
+
 void ir_ddg_build(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
@@ -105,6 +119,12 @@ void ir_ddg_build(struct ir_func_decl *decl)
 
     while (it) {
         ddg_node(it);
+        it = it->next;
+    }
+
+    it = decl->body;
+    while (it) {
+        ddg_sort(it);
         it = it->next;
     }
 

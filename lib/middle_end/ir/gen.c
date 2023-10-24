@@ -252,12 +252,12 @@ static void visit_ast_continue(struct ast_continue *ast)
 }
 
 
-/// Add metainformation about data flow conditon dominator.
-/// After this, each statement is data-depenent on its loop
+/// Add metainformation about data flow condition dominator.
+/// After this, each statement is depends (by data) on its loop
 /// condition.
 ///
-/// Pay attention, that if loop is nested, each statement is dependent
-/// on most outer condition. In general, on loop condition at global
+/// Pay attention, that if loop is nested, each statement depends
+/// on the most outer condition. In general, on loop condition at global
 /// function level.
 static void mark_dominant_condition(struct ir_node *start, struct ir_node *end, uint64_t dom_idx)
 {
