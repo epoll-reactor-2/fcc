@@ -1,4 +1,4 @@
-/* opt.c - Test cases for optimizations.
+/* ddg.c - Test case for data dependence graph.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -8,10 +8,10 @@
 #include "front_end/ast/ast.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
-#include "middle_end/ir/gen.h"
-#include "middle_end/opt/opt.h"
 #include "middle_end/ir/ddg.h"
 #include "middle_end/ir/dump.h"
+#include "middle_end/ir/ir.h"
+#include "middle_end/ir/gen.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
@@ -23,8 +23,6 @@ extern int yylex_destroy();
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
-
-void (*opt_fn)(struct ir_func_decl *);
 
 char current_output_dir[128];
 
@@ -47,8 +45,28 @@ void cfg_dir(const char *name)
     create_dir(current_output_dir);
 }
 
+void ddg_dump(FILE *stream, struct ir_func_decl *decl)
+{
+    struct ir_node *it = decl->body;
+
+    while (it) {
+        ir_vector_t *ddgs = &it->ddg_stmts;
+        fprintf(stream, "instr %2d: depends on (", it->instr_idx);
+        vector_foreach(*ddgs, i) {
+            struct ir_node *stmt = vector_at(*ddgs, i);
+            fprintf(stream, "%d", stmt->instr_idx);
+            if (i < ddgs->count - 1)
+                fprintf(stream, ", ");
+        }
+        fprintf(stream, ")\n");
+        it = it->next;
+    }
+}
+
 bool ir_test(const char *path, const char *filename)
 {
+    (void) filename;
+
     lex_reset_state();
     lex_init_state();
 
@@ -67,16 +85,9 @@ bool ir_test(const char *path, const char *filename)
     char   *expected = NULL;
     char   *generated = NULL;
     size_t  _ = 0;
-    char    before_opt_path[256] = {0};
-    char     after_opt_path[256] = {0};
-
-    snprintf(before_opt_path, 255, "%s/%s.dot", current_output_dir, filename);
-    snprintf( after_opt_path, 255, "%s/%s_optimized.dot", current_output_dir, filename);
 
     FILE   * expected_stream = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
-    FILE   *before_opt_stream = fopen(before_opt_path, "w");
-    FILE   * after_opt_stream = fopen( after_opt_path, "w");
 
     if (expected_stream == NULL) {
         perror("open_memstream()");
@@ -98,11 +109,9 @@ bool ir_test(const char *path, const char *filename)
 
         while (it) {
             ir_ddg_build(it->ir);
-            ir_dump_cfg(before_opt_stream, it->ir);
-            opt_fn(it->ir);
-            ir_ddg_build(it->ir);
-            ir_dump_cfg(after_opt_stream, it->ir);
             ir_dump(generated_stream, it->ir);
+            fprintf(generated_stream, "--------\n");
+            ddg_dump(generated_stream, it->ir);
             it = it->next;
         }
 
@@ -126,8 +135,6 @@ exit:
     tokens_cleanup(toks);
     fclose(expected_stream);
     fclose(generated_stream);
-    fclose(before_opt_stream);
-    fclose( after_opt_stream);
     free(expected);
     free(generated);
 
@@ -139,15 +146,13 @@ static char *warn_buf = NULL;
 static size_t err_buf_len = 0;
 static size_t warn_buf_len = 0;
 
-int run(const char *dir)
+int run()
 {
-    int  ret       =  0;
-    char path[256] = {0};
-    snprintf(path, sizeof (path) - 1, "/test_inputs/%s", dir);
+    int ret = 0;
 
-    cfg_dir(dir);
+    cfg_dir("ddg");
 
-    if (!do_on_each_file(path, ir_test)) {
+    if (!do_on_each_file("/test_inputs/ddg", ir_test)) {
         ret = -1;
 
         if (err_buf)
@@ -165,35 +170,11 @@ int main()
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
-    opt_fn = ir_opt_fold;
-    if (run("fold") < 0)
-        return -1;
-
-    opt_fn = ir_opt_arith;
-    if (run("arith") < 0)
-        return -1;
-
-#if 0
-    opt_fn = ir_opt_dead_code_elimination;
-    if (run("dead_code") < 0)
-        return -1;
-#endif
-
-    opt_fn = ir_opt_reorder;
-    if (run("reorder") < 0)
-        return -1;
-
-    opt_fn = ir_opt_unreachable_code;
-    if (run("unreachable") < 0)
-        return -1;
-
-    opt_fn = ir_opt_data_flow;
-    if (run("data_flow") < 0)
-        return -1;
+    int ret = run();
 
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);
     free(err_buf);
     free(warn_buf);
-    return 0;
+    return ret;
 }
