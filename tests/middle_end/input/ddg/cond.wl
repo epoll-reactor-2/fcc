@@ -16,10 +16,10 @@
 //instr  3: depends on ()
 //instr  4: depends on ()
 //instr  5: depends on ()
-//instr  6: depends on (6, 0, 1)
+//instr  6: depends on (1, 6, 0)
 //instr  7: depends on ()
-//instr  8: depends on (8, 6, 0, 1)
-//instr  9: depends on (8, 6, 0, 1)
+//instr  8: depends on (1, 6, 8, 0)
+//instr  9: depends on (1, 6, 8, 0)
 int main(int arg) {
     int a = 1;
     int b = 2;
