@@ -23,12 +23,9 @@ __weak_really_inline static void traverse_dd_chain(bool *visited, struct ir_node
     }
 }
 
-/// while (j) { ++i; } ... OK
-///
-/// while (k) { ++i; }
-/// return i;          ... i is not dependent by (k) condition, but should be,
-///                        therefore (k) condition cannot be optimized out.
-static void extend_loop(bool *visited, struct ir_node *ir)
+/// Walk over loop and mark statements above and below
+/// in bounds of loop (up to most outer) as needed.
+__weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
 {
     struct ir_node *it = ir;
 
