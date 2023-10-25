@@ -206,6 +206,17 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
         fprintf(mem, "(@noalias)");
 }
 
+static void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
+{
+    fprintf(mem, "DF = {");
+    for (uint64_t i = 0; i < ir->df_siz; ++i) {
+        fprintf(mem, "%d", ir->df[i]->instr_idx);
+        if (i < ir->df_siz - 1)
+            fprintf(mem, ", ");
+    }
+    fprintf(mem, "}\n");
+}
+
 void ir_dump(FILE *mem, struct ir_func_decl *decl)
 {
     ir_dump_func_decl(mem, decl);
@@ -225,8 +236,12 @@ static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *ne
 {
     fprintf(mem, "    \"%d:   ", curr->instr_idx);
     ir_dump_node(mem, curr);
+    fprintf(mem, "\n");
+    ir_dump_dominance_frontier(mem, curr);
     fprintf(mem, "\" -> \"%d:   ", next->instr_idx);
     ir_dump_node(mem, next);
+    fprintf(mem, "\n");
+    ir_dump_dominance_frontier(mem, next);
     fprintf(mem, "\"\n");
 }
 
@@ -304,6 +319,8 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
 
     fprintf(mem, "    start -> \"%d:   ", it->instr_idx);
     ir_dump_node(mem, it);
+    fprintf(mem, "\n");
+    ir_dump_dominance_frontier(mem, it);
     fprintf(mem, "\"\n");
 
     while (it) {
@@ -351,6 +368,8 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         case IR_RET_VOID: {
             fprintf(mem, "    \"%d:   ", it->instr_idx);
             ir_dump_node(mem, it);
+            fprintf(mem, "\n");
+            ir_dump_dominance_frontier(mem, it);
             fprintf(mem, "\" -> exit\n");
             break;
         }
