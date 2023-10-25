@@ -1,4 +1,3 @@
-
 /* graph.c - Functions to build graph from IR.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
@@ -10,21 +9,25 @@
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/ir_ops.h"
 #include "util/compiler.h"
+#include <assert.h>
 
-__weak_really_inline static void ir_set_idom(
+__weak_really_inline static void set_idom(
     struct ir_node  *node,
     struct ir_node  *idom,
     struct ir_node **worklist,
     uint64_t        *siz
 ) {
-    /// \todo: Link conditions. Rewrite removed ir_link().
     if (node->idom == NULL) {
         node->idom = idom;
+        if (idom->idom_back[0] == NULL)
+            idom->idom_back[0] = node;
+        else
+            idom->idom_back[1] = node;
         worklist[(*siz)++] = node;
     }
 }
 
-static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
+static void dom_tree(struct ir_func_decl *decl)
 {
     struct ir_node *root           = decl->body;
     struct ir_node *worklist[2048] = {0};
@@ -51,28 +54,28 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
         case IR_FUNC_CALL:
         case IR_STORE: {
             struct ir_node *succ = cur->next;
-            ir_set_idom(succ, cur, worklist, &siz);
+            set_idom(succ, cur, worklist, &siz);
             break;
         }
         case IR_JUMP: {
             struct ir_jump *jump = cur->ir;
             struct ir_node *succ = jump->target;
-            ir_set_idom(succ, cur, worklist, &siz);
+            set_idom(succ, cur, worklist, &siz);
             break;
         }
         case IR_COND: {
             struct ir_cond *cond  = cur->ir;
             struct ir_node *succ1 = cond->target;
             struct ir_node *succ2 = cur->next_else;
-            ir_set_idom(succ1, cur, worklist, &siz);
-            ir_set_idom(succ2, cur, worklist, &siz);
+            set_idom(succ2, cur, worklist, &siz);
+            set_idom(succ1, cur, worklist, &siz);
             break;
         }
         case IR_RET:
         case IR_RET_VOID: {
             struct ir_node *succ = cur->next;
             if (succ)
-                ir_set_idom(succ, cur, worklist, &siz);
+                set_idom(succ, cur, worklist, &siz);
             break;
         }
         default:
@@ -81,194 +84,97 @@ static void ir_dom_tree_func_decl(struct ir_func_decl *decl)
     }
 }
 
-static void ir_post_dfs(struct ir_node *ir, ir_vector_t *out, bool *visited)
-{
-    visited[ir->instr_idx] = 1;
-
+static void control_flow_successors(
+    struct ir_node *ir,
+    struct ir_node **out_main,
+    struct ir_node **out_alt
+) {
     switch (ir->type) {
     case IR_COND: {
         struct ir_cond *cond = ir->ir;
-        struct ir_node *succ1 = cond->target;
-        struct ir_node *succ2 = ir->next_else;
-        if (succ1)
-            if (!visited[succ1->instr_idx])
-                ir_post_dfs(succ1, out, visited);
-        if (succ2)
-            if (!visited[succ2->instr_idx])
-                ir_post_dfs(succ2, out, visited);
+        *out_main = cond->target;
+        *out_alt = ir->next_else;
         break;
     }
     case IR_JUMP: {
         struct ir_jump *jmp = ir->ir;
-        struct ir_node *target = jmp->target;
-        if (target)
-            if (!visited[target->instr_idx])
-                ir_post_dfs(target, out, visited);
+        *out_main = jmp->target;
+        *out_alt = NULL;
         break;
     }
     default: {
-        struct ir_node *succ = ir->next;
-        if (succ)
-            if (!visited[succ->instr_idx])
-                ir_post_dfs(succ, out, visited);
+        *out_main = ir->next;
+        *out_alt = NULL;
         break;
     }
     }
-
-    vector_push_back(*out, ir);
 }
 
-static void ir_dom_frontier_func_decl(struct ir_func_decl *decl)
+/* This function constructs dominance frontier for given IR node.
+
+   https://c9x.me/compile/bib/ssa.pdf
+
+   for each X in a bottom-up traversal of the dominator tree do
+     for each Y : Succ(X) do
+       if idom(Y) != X
+         then DF(X) <- DF(X) U {Y}   // local
+     end
+     for each Z : Children(X) do
+       for each Y E DF(Z) do
+         if idom(Y) != X
+           then DF(X) <- DF(X) U {Y}   // up
+       end
+     end
+   end
+*/
+static void dominance_frontier(struct ir_node *x)
 {
-    struct ir_node *it            = decl->body;
-    ir_vector_t     post_dfs      = {0};
-    bool            visited[8192] = {0};
+    if (x->idom_back[0])
+        dominance_frontier(x->idom_back[0]);
 
-    /// 1: Post order DFS
-    ir_post_dfs(it, &post_dfs, visited);
+    if (x->idom_back[1])
+        dominance_frontier(x->idom_back[1]);
 
-    /// vector_foreach(post_dfs, i) {
-    ///     struct ir_node *ir = vector_at(post_dfs, i);
-    ///     printf("post DFS: %d\n", ir->instr_idx);
-    /// }
+    struct ir_node *succs[2] = {0};
 
-    /// 2: Dominance frontier
-    it = decl->body;
+    control_flow_successors(x, &succs[0], &succs[1]);
 
-    ir_vector_t blocks[512] = {0};
-    uint64_t    blocks_added = 0;
-
-    while (it) {
-        vector_push_back(blocks[it->instr_idx], it);
-        ++blocks_added;
-        it = it->next;
+    for (uint64_t i = 0; i < 2; ++i) {
+        struct ir_node *y = succs[i];
+        if (y && y->idom != x)
+            x->df[x->df_siz++] = y;
     }
 
-    vector_foreach(post_dfs, i) {
-        struct ir_node *ir = vector_at(post_dfs, i);
-
-        switch (ir->type) {
-        case IR_COND: {
-            struct ir_cond *cond = ir->ir;
-            struct ir_node *succ1 = cond->target;
-            struct ir_node *succ2 = ir->next_else;
-
-            if (succ1)
-                if (succ1->idom != ir) {
-                    vector_push_back(blocks[ir->instr_idx], succ1);
-                    ++blocks_added;
-                }
-
-            if (succ2)
-                if (succ2->idom != ir) {
-                    vector_push_back(blocks[ir->instr_idx], succ2);
-                    ++blocks_added;
-                }
-
-            break;
-        }
-        case IR_JUMP: {
-            struct ir_jump *jump = ir->ir;
-            struct ir_node *succ = jump->target;
-
-            if (succ)
-                if (succ->idom != ir) {
-                    vector_push_back(blocks[ir->instr_idx], succ);
-                    ++blocks_added;
-                }
-
-            break;
-        }
-        default: {
-            struct ir_node *succ = ir->next;
-
-            if (succ)
-                if (succ->idom != ir) {
-                    vector_push_back(blocks[ir->instr_idx], succ);
-                    ++blocks_added;
-                }
-
-            break;
-        }
+    for (uint64_t i = 0; i < 2; ++i) {
+        struct ir_node *z = x->idom_back[i];
+        if (z) {
+            for (uint64_t j = 0; j < z->df_siz; ++j) {
+                struct ir_node *y = z->df[j];
+                if (y && y->idom != x)
+                    x->df[x->df_siz++] = y;
+            }
         }
     }
-
-    /// for (uint64_t i = 0; i < blocks_added; ++i) {
-    ///     ir_vector_t *vit = &blocks[i];
-
-    ///     printf("For instr %ld DF = ", i);
-    ///     vector_foreach(*vit, j) {
-    ///         struct ir_node *df = vector_at(*vit, j);
-    ///         printf("%d ", df->instr_idx);
-    ///     }
-    ///     printf("\n");
-    /// }
-
-    vector_free(post_dfs);
 }
-
-#define WEAK_DEBUG_DOMINATOR_TREE 1
-
-#if WEAK_DEBUG_DOMINATOR_TREE == 1
-# include <stdio.h>
-# include "util/unreachable.h"
 
 void ir_compute_dom_tree(struct ir_node *ir)
 {
-    FILE *cfg = fopen("/tmp/graph_cfg.dot", "w");
-    FILE *dom = fopen("/tmp/graph_dom.dot", "w");
-    if (!cfg) weak_unreachable("Open failed");
-    if (!dom) weak_unreachable("Open failed");
-
     struct ir_node *it = ir;
     while (it) {
-        ir_dom_tree_func_decl(it->ir);
-        /// ir_dump(stdout, it->ir);
-        /// ir_dump_graph_dot(cfg, it->ir);
-        ir_dump_cfg(cfg, it->ir);
-        ir_dump_dom_tree(dom, it->ir);
+        dom_tree(it->ir);
         it = it->next;
     }
-
-    fclose(dom);
-    fclose(cfg);
 }
 
 void ir_compute_dom_frontier(struct ir_node *decls)
 {
-    // FILE *cfg = fopen("/tmp/graph_cfg.dot", "w");
-    // FILE *dom = fopen("/tmp/graph_dom.dot", "w");
-    // if (!cfg) weak_unreachable("Open failed");
-    // if (!dom) weak_unreachable("Open failed");
-
     struct ir_node *it = decls;
     while (it) {
-        ir_dom_frontier_func_decl(it->ir);
-        it = it->next;
-    }
-
-    // fclose(dom);
-    // fclose(cfg);
-}
-#else /// !WEAK_DEBUG_DOMINATOR_TREE
-void ir_compute_dom_tree(struct ir_node *decls)
-{
-    struct ir_node *it = decls;
-    while (it) {
-        ir_dom_tree_func_decl(it->ir);
+        struct ir_func_decl *decl = it->ir;
+        dominance_frontier(decl->body);
         it = it->next;
     }
 }
-
-void ir_compute_dom_tree(struct ir_node *decls)
-{
-    struct ir_node *it = ir;
-    while (it) {
-        ir_dom_frontier_func_decl(it->ir);
-        it = it->next;
-    }
-}
-#endif /// !WEAK_DEBUG_DOMINATOR_TREE
 
 bool ir_dominated_by(struct ir_node *node, struct ir_node *dom)
 {

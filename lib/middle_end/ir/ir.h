@@ -64,6 +64,12 @@ struct ir_node {
     void            *ir;
     /// Immediate dominator. Used to compute dominator tree.
     struct ir_node  *idom;
+    /// Backward edges of dominator tree. Maximum 2 (binary tree property).
+    struct ir_node  *idom_back[2];
+    /// Dominance frontier.
+    struct ir_node  *df[64];
+    /// How much nodes is in dominance frontier.
+    uint64_t         df_siz;
     /// Number of basic block in CFG to which current node is associated.
     uint64_t         cfg_block_no;
 
