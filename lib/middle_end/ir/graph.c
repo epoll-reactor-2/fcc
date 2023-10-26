@@ -11,79 +11,6 @@
 #include "util/compiler.h"
 #include <assert.h>
 
-__weak_really_inline static void set_idom(
-    struct ir_node  *node,
-    struct ir_node  *idom,
-    struct ir_node **worklist,
-    uint64_t        *siz
-) {
-    if (node->idom == NULL) {
-        node->idom = idom;
-        if (idom->idom_back[0] == NULL)
-            idom->idom_back[0] = node;
-        else
-            idom->idom_back[1] = node;
-        worklist[(*siz)++] = node;
-    }
-}
-
-static void dom_tree(struct ir_func_decl *decl)
-{
-    struct ir_node *root           = decl->body;
-    struct ir_node *worklist[2048] = {0};
-    uint64_t        siz            =  0;
-
-    root->idom = root;
-
-    worklist[siz++] = root;
-
-    /// \todo: Dominance by in-statement variable indices.
-    ///        Now immediate dominators are attached to
-    ///        the wrong nodes. I guess, correct dom tree
-    ///        in general should be "wider" than "taller".
-    while (siz > 0) {
-        struct ir_node *cur = worklist[--siz];
-
-        switch (cur->type) {
-        case IR_IMM:
-        case IR_SYM:
-        case IR_BIN:
-        case IR_MEMBER:
-            break;
-        case IR_ALLOCA:
-        case IR_FUNC_CALL:
-        case IR_STORE: {
-            struct ir_node *succ = cur->next;
-            set_idom(succ, cur, worklist, &siz);
-            break;
-        }
-        case IR_JUMP: {
-            struct ir_jump *jump = cur->ir;
-            struct ir_node *succ = jump->target;
-            set_idom(succ, cur, worklist, &siz);
-            break;
-        }
-        case IR_COND: {
-            struct ir_cond *cond  = cur->ir;
-            struct ir_node *succ1 = cond->target;
-            struct ir_node *succ2 = cur->next_else;
-            set_idom(succ2, cur, worklist, &siz);
-            set_idom(succ1, cur, worklist, &siz);
-            break;
-        }
-        case IR_RET:
-        case IR_RET_VOID: {
-            struct ir_node *succ = cur->next;
-            if (succ)
-                set_idom(succ, cur, worklist, &siz);
-            break;
-        }
-        default:
-            break;
-        }
-    }
-}
-
 static void control_flow_successors(
     struct ir_node *ir,
     struct ir_node **out_main,
@@ -110,6 +37,48 @@ static void control_flow_successors(
     }
 }
 
+__weak_really_inline static void set_idom(
+    struct ir_node  *node,
+    struct ir_node  *idom,
+    struct ir_node **worklist,
+    uint64_t        *siz
+) {
+    if (node->idom == NULL) {
+        node->idom = idom;
+        if (idom->idom_back[0] == NULL)
+            idom->idom_back[0] = node;
+        else
+            idom->idom_back[1] = node;
+        worklist[(*siz)++] = node;
+    }
+}
+
+/* https://www.cs.utexas.edu/users/misra/Lengauer+Tarjan.pdf
+   https://www.cs.princeton.edu/courses/archive/fall03/cs528/handouts/a%20fast%20algorithm%20for%20finding.pdf */
+static void dom_tree(struct ir_func_decl *decl)
+{
+    struct ir_node *root           = decl->body;
+    struct ir_node *worklist[2048] = {0};
+    uint64_t        siz            =  0;
+
+    root->idom = root;
+
+    worklist[siz++] = root;
+
+    while (siz > 0) {
+        struct ir_node *cur = worklist[--siz];
+
+        struct ir_node *succs[2] = {0};
+        control_flow_successors(cur, &succs[0], &succs[1]);
+
+        if (succs[0])
+            set_idom(succs[0], cur, worklist, &siz);
+
+        if (succs[1])
+            set_idom(succs[1], cur, worklist, &siz);
+    }
+}
+
 /* This function constructs dominance frontier for given IR node.
 
    https://c9x.me/compile/bib/ssa.pdf
@@ -125,8 +94,7 @@ static void control_flow_successors(
            then DF(X) <- DF(X) U {Y}   // up
        end
      end
-   end
-*/
+   end */
 static void dominance_frontier(struct ir_node *x)
 {
     if (x->idom_back[0])
