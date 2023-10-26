@@ -5,10 +5,10 @@
  */
 
 #include "middle_end/ir/graph.h"
-#include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/ir_ops.h"
 #include "util/compiler.h"
+#include "util/hashmap.h"
 #include <assert.h>
 
 static void control_flow_successors(
@@ -79,22 +79,6 @@ static void dom_tree(struct ir_func_decl *decl)
     }
 }
 
-/* This function constructs dominance frontier for given IR node.
-
-   https://c9x.me/compile/bib/ssa.pdf
-
-   for each X in a bottom-up traversal of the dominator tree do
-     for each Y : Succ(X) do
-       if idom(Y) != X
-         then DF(X) <- DF(X) U {Y}   // local
-     end
-     for each Z : Children(X) do
-       for each Y E DF(Z) do
-         if idom(Y) != X
-           then DF(X) <- DF(X) U {Y}   // up
-       end
-     end
-   end */
 static void dominance_frontier(struct ir_node *x)
 {
     if (x->idom_back[0])
@@ -125,6 +109,118 @@ static void dominance_frontier(struct ir_node *x)
     }
 }
 
+
+
+static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
+{
+    struct ir_node *it = decl->body;
+
+    while (it) {
+        if (it->type == IR_STORE) {
+            struct ir_store *store = it->ir;
+            assert(store->idx->type == IR_SYM);
+            struct ir_sym *sym = store->idx->ir;
+
+            bool ok = 0;
+            uint64_t addr = hashmap_get(out, sym->idx, &ok);
+
+            if (!ok) {
+                ir_vector_t *assign_list = weak_calloc(1, sizeof (ir_vector_t));
+                vector_push_back(*assign_list, it);
+                hashmap_put(out, sym->idx, (uint64_t) assign_list);
+            } else {
+                ir_vector_t *assign_list = (ir_vector_t *) addr;
+                vector_push_back(*assign_list, it);
+            }
+        }
+
+        it = it->next;
+    }
+}
+
+static void assigns_dump(hashmap_t *assigns)
+{
+    hashmap_foreach(assigns, k, v) {
+        ir_vector_t *list = (ir_vector_t *) v;
+        printf("For symbol %ld { ", k);
+        vector_foreach(*list, i) {
+            printf("%d ", vector_at(*list, i)->instr_idx);
+        }
+        printf("}\n");
+    }
+}
+
+/* This function implements algorithm given in
+   https://c9x.me/compile/bib/ssa.pdf */
+static void phi_insert(struct ir_func_decl *decl)
+{
+    /* Key:   ir
+       Value: 1 | 0 */
+    hashmap_t       dom_fron_plus = {0};
+    /* Key:   sym_idx
+       Value: array of ir's */
+    hashmap_t       assigns       = {0};
+    /* Key:   ir
+       Value: sym_idx */
+    hashmap_t       work          = {0};
+    ir_vector_t     w             = {0};
+
+    hashmap_init(&assigns, 256);
+    hashmap_init(&work, 256);
+    hashmap_init(&dom_fron_plus, 256);
+
+    assigns_collect(decl, &assigns);
+    assigns_dump(&assigns);
+
+    hashmap_foreach(&assigns, sym_idx, __list) {
+        ir_vector_t *assign_list = (ir_vector_t *) __list;
+
+        vector_foreach(*assign_list, i) {
+            struct ir_node *x = vector_at(*assign_list, i);
+
+            hashmap_put(&work, (uint64_t) x, 1);
+            vector_push_back(w, x);
+        }
+
+        while (w.count > 0) {
+            struct ir_node *x = vector_back(w);
+            vector_pop_back(w);
+
+            for (uint64_t i = 0; i < x->df_siz; ++i) {
+                struct ir_node *y = x->df[i];
+
+                bool ok = 0;
+                hashmap_get(&dom_fron_plus, (uint64_t) y, &ok);
+
+                if (!ok) {
+                    /* TODO: Phi instruction
+                       TODO: Which basic block numbers to put into Phi instruction? */
+                    printf("Should put phi for symbol %ld before instr %d\n", sym_idx, y->instr_idx);
+                    hashmap_put(&dom_fron_plus, (uint64_t) y, 1);
+
+                    hashmap_get(&work, (uint64_t) y, &ok);
+                    if (!ok) {
+                        hashmap_put(&work, (uint64_t) y, 1);
+                        vector_push_back(w, y);
+                    }
+                }
+            }
+        }
+    }
+
+    vector_free(w);
+    hashmap_destroy(&work);
+    hashmap_foreach(&assigns, k, v) {
+        (void) k;
+        ir_vector_t *assign_list = (ir_vector_t *) v;
+        vector_free(*assign_list);
+    }
+    hashmap_destroy(&assigns);
+    hashmap_destroy(&dom_fron_plus);
+}
+
+
+
 void ir_compute_dom_tree(struct ir_node *ir)
 {
     struct ir_node *it = ir;
@@ -143,6 +239,19 @@ void ir_compute_dom_frontier(struct ir_node *decls)
         it = it->next;
     }
 }
+
+void ir_compute_ssa(struct ir_node *decls)
+{
+    struct ir_node *it = decls;
+    while (it) {
+        struct ir_func_decl *decl = it->ir;
+        dominance_frontier(decl->body);
+        phi_insert(decl);
+        it = it->next;
+    }
+}
+
+
 
 bool ir_dominated_by(struct ir_node *node, struct ir_node *dom)
 {

@@ -100,6 +100,7 @@ bool ir_test(const char *path, const char *filename)
 
         ir_compute_dom_tree(it);
         ir_compute_dom_frontier(it);
+        ir_compute_ssa(it);
 
         while (it) {
             ir_dump_cfg(cfg_stream, it->ir);
