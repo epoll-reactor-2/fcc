@@ -13,20 +13,6 @@
 struct ir_node;
 struct ir_func_decl;
 
-/// Build directed graph from the IR list.
-///
-/// There is no output since all what this function does
-/// is setting up pointers named `next` on each IR statement.
-/// So the result of such linking is adjacency list, which
-/// is implicitly contained in IR nodes.
-///
-/// \note Done by default in ir_gen().
-///
-/// \param ir     List of function declarations.
-///               Linking is performed separately for each
-///               function.
-// void ir_link(struct ir_node *ir);
-
 /// Set a dominator tree of each given function in IR.
 ///
 /// This function traverse function statements and set
@@ -37,6 +23,8 @@ struct ir_func_decl;
 void ir_compute_dom_tree(struct ir_node *decls);
 
 void ir_compute_dom_frontier(struct ir_node *decls);
+
+void ir_compute_ssa(struct ir_node *decls);
 
 /// Judge of \p node is dominated by \p dom.
 bool ir_dominated_by(struct ir_node *node, struct ir_node *dom);
