@@ -903,6 +903,26 @@ void f() {
 		\newpage
 	
 	\section{Optymalizacje kodu pośredniego}
+		
+		\subsection{Definicje}
+
+			Niech $G = (V, E, s)$ -- graf skierowany.
+			$V$ -- zbiór wierzchołków. $E$ -- zbiór krawędzi. $s$ -- węzęł początkowy.
+			$G' = (V', E') \subseteq G$ -- podgraf, gdzie każdy wierzchołek $v \in G'$ jest nieosiągalny z
+			dowolnej ścieżki $(s, ...,  v) \in G$. Zauważmy, że $G'$ może być grafem rozłącznym.
+
+			$$V' = \{ \ v \ | \ \forall \ v \ \nexists \ (s, ..., v) \ \}$$
+
+			\spacing
+
+			Niech $G = (V, E, s)$ -- graf skierowany, zdefiniowany powyżej. Graf zależności danych -- graf
+			$G' = (V', E', D')$. Wtedy $D' = \{ \ d, d' \in V' \ | \ d \rightarrow d' \ \}$. Przez $d \rightarrow d'$
+			oznaczona zależnośc $d$ od wyniku obliczenia $d'$. Zbiór $D'$ reprezentuje takie zależności, przy czym
+			dodatkowo mysi być spełnione
+
+			$$d, d' \in V', \ v \rightarrow v' \iff \exists \ (v', ..., v) \in G' $$
+
+			\newpage
 	
 		\subsection{Constant propagation}
 		
@@ -965,16 +985,6 @@ void f() {
 			Algorytm polega na zlalezieniu takich \textbf{podgrafów} grafu sterowania programem, do których
 			nie prowadzi żadna z krawędzi.
 			
-			\spacing
-
-			\textbf{Definicja}
-			\\
-			Niech $G = (V, E)$ -- graf skierowany. Niech $i$ -- wierzchołek startowy grafu $G$.
-			$G' = (V', E') \subseteq G$ -- podgraf, gdzie każdy wierzchołek $v \in G'$ jest nieosiągalny z
-			dowolnej ścieżki $(i, ...,  v) \in G$. Zauważmy, że $G'$ może być grafem rozłącznym.
-
-			$$i = initial(G), \forall v \in G' \ \nexists \ path (i, ..., v) $$
-
 			\spacing
 
 			\begin{algorithm}
