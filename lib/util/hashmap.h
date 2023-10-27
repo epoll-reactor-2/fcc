@@ -29,6 +29,7 @@ void     hashmap_destroy(hashmap_t *map);
 void     hashmap_put    (hashmap_t *map, uint64_t key, uint64_t value);
 uint64_t hashmap_get    (hashmap_t *map, uint64_t key, bool *success);
 bool     hashmap_remove (hashmap_t *map, uint64_t key);
+bool     hashmap_has    (hashmap_t *map, uint64_t key);
 
 #define hashmap_foreach(map, k, v) \
     for (uint64_t _i = 0, k, v;  k = (map)->buckets[_i].key, \

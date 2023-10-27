@@ -26,6 +26,7 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_TYPE_DECL:    return "IR_TYPE_DECL";
     case IR_FUNC_DECL:    return "IR_FUNC_DECL";
     case IR_FUNC_CALL:    return "IR_FUNC_CALL";
+    case IR_PHI:          return "IR_PHI";
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", t);
     }
@@ -177,6 +178,11 @@ static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
     fprintf(mem, ")");
 }
 
+static void ir_dump_phi(FILE *mem, struct ir_phi *ir)
+{
+    fprintf(mem, "phi%ld = φ(%ld, %ld)", ir->sym_idx, ir->op_1_idx, ir->op_2_idx);
+}
+
 void ir_dump_node(FILE *mem, struct ir_node *ir)
 {
     switch (ir->type) {
@@ -195,6 +201,7 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir->ir); break;
     case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir->ir); break;
     case IR_FUNC_CALL:    ir_dump_func_call(mem, ir->ir); break;
+    case IR_PHI:          ir_dump_phi(mem, ir->ir); break;
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
@@ -276,6 +283,7 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     case IR_ALLOCA:
     case IR_ALLOCA_ARRAY:
     case IR_FUNC_CALL:
+    case IR_PHI:
     case IR_JUMP: {
         ir_mark(visited, ir);
 

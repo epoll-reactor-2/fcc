@@ -265,6 +265,19 @@ struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
     return ir_node_init(IR_FUNC_CALL, ir);
 }
 
+__weak_wur struct ir_node *ir_phi_init(
+    uint64_t sym_idx,
+    uint64_t op_1_idx,
+    uint64_t op_2_idx
+) {
+    struct ir_phi *ir = weak_calloc(1, sizeof (struct ir_phi));
+    ir->sym_idx = sym_idx;
+    ir->op_1_idx = op_1_idx;
+    ir->op_2_idx = op_2_idx;
+    ++ir_instr_index;
+    return ir_node_init(IR_PHI, ir);
+}
+
 static void ir_string_cleanup(struct ir_string *ir)
 {
     weak_free(ir->imm);
@@ -332,7 +345,8 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_IMM:
     case IR_SYM:
     case IR_JUMP:
-    case IR_MEMBER: /// Fall through.
+    case IR_MEMBER:
+    case IR_PHI: /// Fall through.
         /// Nothing to clean except ir->ir itself.
         break;
     case IR_STRING:       ir_string_cleanup(ir->ir); break;

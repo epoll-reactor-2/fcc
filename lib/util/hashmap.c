@@ -116,3 +116,10 @@ bool hashmap_remove(hashmap_t *map, uint64_t key)
 
     return 0;  // Key not found
 }
+
+bool hashmap_has(hashmap_t *map, uint64_t key)
+{
+    bool ok = 0;
+    hashmap_get(map, key, &ok);
+    return ok;
+}
