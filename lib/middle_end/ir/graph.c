@@ -55,7 +55,7 @@ __weak_really_inline static void set_idom(
 
 /* https://www.cs.utexas.edu/users/misra/Lengauer+Tarjan.pdf
    https://www.cs.princeton.edu/courses/archive/fall03/cs528/handouts/a%20fast%20algorithm%20for%20finding.pdf */
-static void dom_tree(struct ir_func_decl *decl)
+static void dominator_tree(struct ir_func_decl *decl)
 {
     struct ir_node *root           = decl->body;
     struct ir_node *worklist[2048] = {0};
@@ -194,8 +194,13 @@ static void phi_insert(struct ir_func_decl *decl)
 
                 if (!ok) {
                     /* TODO: Phi instruction
-                       TODO: Which basic block numbers to put into Phi instruction? */
-                    printf("Should put phi for symbol %ld before instr %d\n", sym_idx, y->instr_idx);
+                       TODO: Which basic block numbers to put into Phi instruction?
+                       NOTE: Phi instruction typically has at most two operands. */
+                    printf("Should put phi for symbol %ld before instr %d, CFG's = {", sym_idx, y->instr_idx);
+                    /* TODO: Control flow predecessors. */
+                    printf("%d, %d", y->prev->instr_idx, y->prev_else->instr_idx);
+                    puts("}");
+
                     hashmap_put(&dom_fron_plus, (uint64_t) y, 1);
 
                     hashmap_get(&work, (uint64_t) y, &ok);
@@ -225,7 +230,7 @@ void ir_compute_dom_tree(struct ir_node *ir)
 {
     struct ir_node *it = ir;
     while (it) {
-        dom_tree(it->ir);
+        dominator_tree(it->ir);
         it = it->next;
     }
 }
@@ -245,7 +250,6 @@ void ir_compute_ssa(struct ir_node *decls)
     struct ir_node *it = decls;
     while (it) {
         struct ir_func_decl *decl = it->ir;
-        dominance_frontier(decl->body);
         phi_insert(decl);
         it = it->next;
     }
