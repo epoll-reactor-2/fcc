@@ -64,7 +64,6 @@ bool ir_test(const char *path, const char *filename)
         struct ir_unit *ir = ir_gen(ast);
 
         ir_dump_unit(generated_stream, ir);
-
         fflush(generated_stream);
         ast_node_cleanup(ast);
         ir_unit_cleanup(ir);
