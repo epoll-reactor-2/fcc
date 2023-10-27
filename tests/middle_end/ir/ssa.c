@@ -98,8 +98,6 @@ bool ir_test(const char *path, const char *filename)
         struct ir_unit *ir = ir_gen(ast);
         struct ir_node *it = ir->func_decls;
 
-        ir_compute_dom_tree(it);
-        ir_compute_dom_frontier(it);
         ir_compute_ssa(it);
 
         while (it) {

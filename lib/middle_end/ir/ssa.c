@@ -81,6 +81,8 @@ static void dominator_tree(struct ir_func_decl *decl)
     }
 }
 
+/* This function implements algorithm given in
+   https://c9x.me/compile/bib/ssa.pdf */
 static void dominance_frontier(struct ir_node *x)
 {
     if (x->idom_back[0])
@@ -140,6 +142,7 @@ static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
     }
 }
 
+/*
 static void assigns_dump(hashmap_t *assigns)
 {
     hashmap_foreach(assigns, k, v) {
@@ -151,6 +154,7 @@ static void assigns_dump(hashmap_t *assigns)
         printf("}\n");
     }
 }
+*/
 
 /*
     (prev    ) -- next --> (  ir    )
@@ -189,7 +193,7 @@ static void phi_insert(struct ir_func_decl *decl)
     hashmap_init(&dom_fron_plus, 256);
 
     assigns_collect(decl, &assigns);
-    assigns_dump(&assigns);
+    /* assigns_dump(&assigns); */
 
     hashmap_foreach(&assigns, sym_idx, __list) {
         ir_vector_t *assign_list = (ir_vector_t *) __list;
@@ -210,6 +214,8 @@ static void phi_insert(struct ir_func_decl *decl)
                 uint64_t y_addr = (uint64_t) y;
 
                 if (!hashmap_has(&dom_fron_plus, y_addr)) {
+                    /* NOTE: prev & prev_else are control flow (not just list list) predecessors.
+                             and they are built during IR linkage. */
                     struct ir_node *phi = ir_phi_init(sym_idx, y->prev->instr_idx, y->prev_else->instr_idx);
                     ir_insert_before(y, phi);
                     memcpy(&phi->meta, &y->meta, sizeof (struct meta));
@@ -235,32 +241,13 @@ static void phi_insert(struct ir_func_decl *decl)
     hashmap_destroy(&dom_fron_plus);
 }
 
-
-
-void ir_compute_dom_tree(struct ir_node *ir)
-{
-    struct ir_node *it = ir;
-    while (it) {
-        dominator_tree(it->ir);
-        it = it->next;
-    }
-}
-
-void ir_compute_dom_frontier(struct ir_node *decls)
-{
-    struct ir_node *it = decls;
-    while (it) {
-        struct ir_func_decl *decl = it->ir;
-        dominance_frontier(decl->body);
-        it = it->next;
-    }
-}
-
 void ir_compute_ssa(struct ir_node *decls)
 {
     struct ir_node *it = decls;
     while (it) {
         struct ir_func_decl *decl = it->ir;
+        dominator_tree(decl);
+        dominance_frontier(decl->body);
         phi_insert(decl);
         it = it->next;
     }
