@@ -13,18 +13,7 @@
 struct ir_node;
 struct ir_func_decl;
 
-/// Set a dominator tree of each given function in IR.
-///
-/// This function traverse function statements and set
-/// struct ir_node->idom pointer. It is pointing to immediate
-/// dominator, through which we can achieve dominator tree.
-///
-/// To view dominator tree, ir_dump_dom_tree() should be used.
-void ir_compute_dom_tree(struct ir_node *decls);
-
-void ir_compute_dom_frontier(struct ir_node *decls);
-
-void ir_compute_ssa(struct ir_node *decls);
+void ir_compute_ssa(struct ir_node *functions);
 
 /// Judge of \p node is dominated by \p dom.
 bool ir_dominated_by(struct ir_node *node, struct ir_node *dom);
