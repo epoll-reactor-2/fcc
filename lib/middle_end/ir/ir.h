@@ -47,6 +47,7 @@ enum ir_type {
     IR_TYPE_DECL,
     IR_FUNC_DECL,
     IR_FUNC_CALL,
+    IR_PHI
 };
 
 /// This IR node designed to be able to represent
@@ -252,6 +253,12 @@ struct ir_func_call {
     struct ir_node  *args;
 };
 
+struct ir_phi {
+    uint64_t         sym_idx;
+    uint64_t         op_1_idx;
+    uint64_t         op_2_idx;
+};
+
 void ir_reset_internal_state();
 
 __weak_wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
@@ -283,6 +290,12 @@ __weak_wur struct ir_node *ir_member_init(int32_t idx, int32_t field_idx);
 __weak_wur struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls);
 __weak_wur struct ir_node *ir_func_decl_init(enum data_type ret_type, const char *name, struct ir_node *args, struct ir_node *body);
 __weak_wur struct ir_node *ir_func_call_init(const char *name, struct ir_node *args);
+
+__weak_wur struct ir_node *ir_phi_init(
+    uint64_t sym_idx,
+    uint64_t op_1_idx,
+    uint64_t op_2_idx
+);
 
 void ir_node_cleanup(struct ir_node *ir);
 void ir_unit_cleanup(struct ir_unit *ir);

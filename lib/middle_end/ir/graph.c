@@ -5,11 +5,13 @@
  */
 
 #include "middle_end/ir/graph.h"
+#include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/ir_ops.h"
 #include "util/compiler.h"
 #include "util/hashmap.h"
 #include <assert.h>
+#include <string.h>
 
 static void control_flow_successors(
     struct ir_node *ir,
@@ -150,6 +152,23 @@ static void assigns_dump(hashmap_t *assigns)
     }
 }
 
+/*
+    (prev    ) -- next --> (  ir    )
+    (prev    ) <- prev --- (  ir    )
+
+    (prev    ) -- next --> (new node) -- next --> (  ir    )
+    (prev    ) <- prev --- (new node) <- prev --- (  ir    )
+*/
+static void ir_insert_before(struct ir_node *ir, struct ir_node *new)
+{
+    struct ir_node *prev = ir->prev;
+
+    prev->next = new;
+    new->prev = prev;
+    new->next = ir;
+    ir->prev = new;
+}
+
 /* This function implements algorithm given in
    https://c9x.me/compile/bib/ssa.pdf */
 static void phi_insert(struct ir_func_decl *decl)
@@ -188,23 +207,16 @@ static void phi_insert(struct ir_func_decl *decl)
 
             for (uint64_t i = 0; i < x->df_siz; ++i) {
                 struct ir_node *y = x->df[i];
+                uint64_t y_addr = (uint64_t) y;
 
-                bool ok = 0;
-                hashmap_get(&dom_fron_plus, (uint64_t) y, &ok);
-
-                if (!ok) {
-                    /* TODO: Phi instruction
-                       TODO: Which basic block numbers to put into Phi instruction?
-                       NOTE: Phi instruction typically has at most two operands. */
-                    printf("Should put phi for symbol %ld before instr %d, CFG's = {", sym_idx, y->instr_idx);
-                    /* TODO: Control flow predecessors. */
-                    printf("%d, %d", y->prev->instr_idx, y->prev_else->instr_idx);
-                    puts("}");
+                if (!hashmap_has(&dom_fron_plus, y_addr)) {
+                    struct ir_node *phi = ir_phi_init(sym_idx, y->prev->instr_idx, y->prev_else->instr_idx);
+                    ir_insert_before(y, phi);
+                    memcpy(&phi->meta, &y->meta, sizeof (struct meta));
 
                     hashmap_put(&dom_fron_plus, (uint64_t) y, 1);
 
-                    hashmap_get(&work, (uint64_t) y, &ok);
-                    if (!ok) {
+                    if (!hashmap_has(&work, y_addr)) {
                         hashmap_put(&work, (uint64_t) y, 1);
                         vector_push_back(w, y);
                     }
@@ -217,8 +229,7 @@ static void phi_insert(struct ir_func_decl *decl)
     hashmap_destroy(&work);
     hashmap_foreach(&assigns, k, v) {
         (void) k;
-        ir_vector_t *assign_list = (ir_vector_t *) v;
-        vector_free(*assign_list);
+        vector_free(*(ir_vector_t *) v);
     }
     hashmap_destroy(&assigns);
     hashmap_destroy(&dom_fron_plus);
@@ -251,6 +262,7 @@ void ir_compute_ssa(struct ir_node *decls)
     while (it) {
         struct ir_func_decl *decl = it->ir;
         phi_insert(decl);
+        ir_dump(stdout, decl);
         it = it->next;
     }
 }
