@@ -5,7 +5,7 @@
  */
 
 #include "middle_end/ir/ir.h"
-#include "middle_end/ir/graph.h"
+#include "middle_end/ir/ssa.h"
 #include "utils/test_utils.h"
 
 void *diag_error_memstream = NULL;

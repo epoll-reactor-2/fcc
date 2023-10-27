@@ -1,4 +1,4 @@
-/* graph.c - Tests for IR graph functions.
+/* ssa.c - Tests for SSA form.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -10,7 +10,7 @@
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/gen.h"
-#include "middle_end/ir/graph.h"
+#include "middle_end/ir/ssa.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
@@ -105,20 +105,29 @@ bool ir_test(const char *path, const char *filename)
         while (it) {
             ir_dump_cfg(cfg_stream, it->ir);
             ir_dump_dom_tree(dom_tree_stream, it->ir);
+            ir_dump_unit(generated_stream, ir);
             fflush(cfg_stream);
             fflush(dom_tree_stream);
+            fflush(generated_stream);
             it = it->next;
         }
 
         ast_node_cleanup(ast);
         ir_unit_cleanup(ir);
 
+        if (strcmp(expected, generated) != 0) {
+            printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
+            fflush(stdout);
+            success = false;
+            goto exit;
+        }
         printf("Success!\n");
     } else {
         /// Error, will be printed in main.
         success = false;
     }
 
+exit:
     yylex_destroy();
     tokens_cleanup(toks);
     fclose(expected_stream);
@@ -162,7 +171,7 @@ int main()
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
-    if (run("ir_graph") < 0)
+    if (run("ssa") < 0)
         return -1;
 
     fclose(diag_error_memstream);

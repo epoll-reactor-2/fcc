@@ -1,10 +1,10 @@
-/* graph.c - Functions to build graph from IR.
+/* ssa.c - Static single assignment routines.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "middle_end/ir/graph.h"
+#include "middle_end/ir/ssa.h"
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/ir_ops.h"
@@ -262,7 +262,6 @@ void ir_compute_ssa(struct ir_node *decls)
     while (it) {
         struct ir_func_decl *decl = it->ir;
         phi_insert(decl);
-        ir_dump(stdout, decl);
         it = it->next;
     }
 }

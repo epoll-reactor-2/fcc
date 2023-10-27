@@ -8,6 +8,7 @@
 //       6:   t1 = 1
 //       7:   jmp L9
 //       8:   t1 = 2
+//      10:   phi2 = φ(8, 7)
 //       9:   ret t1
 int f(int arg) {
     int result = 0;

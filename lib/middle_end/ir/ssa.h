@@ -1,10 +1,10 @@
-/* graph.h - Functions to build graph from IR.
+/* ssa.h - Static single assignment routines.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H
+#ifndef WEAK_COMPILER_MIDDLE_END_SSA_H
 #define WEAK_COMPILER_MIDDLE_END_IR_GRAPH_H
 
 #include <stdint.h>
