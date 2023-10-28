@@ -18,15 +18,15 @@
 //      16:   | t0 = t0(@noalias) + 1
 //      17:   | t1 = t1(@noalias) + 1
 //      18:   | t2 = t2(@noalias) + 1
-//      19:   | int t7
-//      20:   | int t8
-//      21:   | t8 = t3 % 2
-//      22:   | t7 = t8 == 0
-//      23:   | if t7 != 0 goto L25
-//      24:   | jmp L27
-//      25:   | t3 = t3(@noalias) + 1
-//      26:   | jmp L28
-//      27:   | jmp L33
+//      19:   | | int t7
+//      20:   | | int t8
+//      21:   | | t8 = t3 % 2
+//      22:   | | t7 = t8 == 0
+//      23:   | | if t7 != 0 goto L25
+//      24:   | | jmp L27
+//      25:   | | t3 = t3(@noalias) + 1
+//      26:   | | jmp L28
+//      27:   | | jmp L33
 //      28:   | t0 = t0(@noalias) - 1
 //      29:   | t1 = t1(@noalias) - 1
 //      30:   | t2 = t2(@noalias) - 1

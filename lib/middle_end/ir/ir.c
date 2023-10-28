@@ -27,7 +27,7 @@ struct ir_node *ir_node_init(enum ir_type type, void *ir)
     node->type = type;
     node->instr_idx = ir_instr_index;
     node->ir = ir;
-    node->meta.loop_depth = META_VALUE_UNKNOWN;
+    node->meta.nesting = META_VALUE_UNKNOWN;
     node->meta.global_loop_idx = META_VALUE_UNKNOWN;
     node->meta.dominant_condition_idx = META_VALUE_UNKNOWN;
     /// Is not set for now.
