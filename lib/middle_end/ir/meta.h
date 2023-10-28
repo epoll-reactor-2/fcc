@@ -33,9 +33,9 @@ struct meta {
         } fun_meta;
     };
 
-    /// Depth of current loop. Needed to handle
-    /// nested loops in optimizations.
-    uint64_t loop_depth;
+    /// Depth of current block. Needed to handle
+    /// nested code blocks inside '{' and '}' in optimizations.
+    uint64_t nesting;
 
     /// Most outer loop index. Needed to know when
     /// to stop optimizing algorithms in case when

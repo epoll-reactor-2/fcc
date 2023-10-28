@@ -3,11 +3,11 @@
 //       1:   t1 = 1
 //       2:   int t2
 //       3:   t2 = 2
-//       4:   if t0 != 0 goto L6
-//       5:   jmp L8
-//       6:   t1 = t1(@noalias) + 1
-//       7:   jmp L9
-//       8:   t1 = t1(@noalias) - 1
+//       4:   | if t0 != 0 goto L6
+//       5:   | jmp L8
+//       6:   | t1 = t1(@noalias) + 1
+//       7:   | jmp L9
+//       8:   | t1 = t1(@noalias) - 1
 //       9:   ret t1
 //--------
 //instr  0: depends on ()

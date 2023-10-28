@@ -27,7 +27,7 @@ static struct ir_node    *ir_prev;
 static int32_t            ir_var_idx;
 static bool               ir_save_first;
 static bool               ir_meta_is_loop;
-static uint64_t           ir_loop_depth;
+static uint64_t           ir_nesting;
 static uint64_t           ir_loop_idx;
 static  int64_t           ir_dominant_condition_idx = -1;
 static int32_t            ir_meta_loop_idx;
@@ -65,7 +65,7 @@ static enum data_type ir_func_return_type(const char *name)
 static void ir_try_add_meta(struct ir_node *ir)
 {
     ir->meta.type = IR_META_VAR;
-    ir->meta.loop_depth = ir_loop_depth;
+    ir->meta.nesting = ir_nesting;
     ir->meta.global_loop_idx = ir_loop_idx;
 
     if (ir_meta_is_loop) {
@@ -326,10 +326,10 @@ static void visit_ast_for(struct ast_for *ast)
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
-    if (ir_loop_depth == 0)
+    if (ir_nesting == 0)
         ++ir_loop_idx;
 
-    ++ir_loop_depth;
+    ++ir_nesting;
     /// Condition is optional.
     if (ast->condition) {
         next_iter_jump_idx       = ir_last->instr_idx + 1;
@@ -369,7 +369,7 @@ static void visit_ast_for(struct ast_for *ast)
     }
 
     ir_insert_last();
-    --ir_loop_depth;
+    --ir_nesting;
 
     if (ast->condition && body_start)
         mark_dominant_condition(body_start, ir_last, cond->instr_idx);
@@ -393,10 +393,10 @@ static void visit_ast_while(struct ast_while *ast)
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
-    if (ir_loop_depth == 0)
+    if (ir_nesting == 0)
         ++ir_loop_idx;
 
-    ++ir_loop_depth;
+    ++ir_nesting;
     ir_meta_is_loop = 1;
     visit_ast(ast->condition);
     ir_meta_is_loop = 0;
@@ -418,7 +418,7 @@ static void visit_ast_while(struct ast_while *ast)
 
     struct ir_node *next_iter_jmp = ir_jump_init(next_iter_idx);
     ir_insert(next_iter_jmp);
-    --ir_loop_depth;
+    --ir_nesting;
 
     cond->next_else = exit_jmp;
     exit_jmp->prev = cond;
@@ -450,10 +450,10 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     else
         stmt_begin = ir_last->instr_idx;
 
-    if (ir_loop_depth == 0)
+    if (ir_nesting == 0)
         ++ir_loop_idx;
 
-    ++ir_loop_depth;
+    ++ir_nesting;
     visit_ast(ast->body);
 
     if (initial_stmt == NULL)
@@ -476,7 +476,7 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     cond_ptr->goto_label = stmt_begin + 1;
 
     ir_insert(cond);
-    --ir_loop_depth;
+    --ir_nesting;
 
     mark_dominant_condition(initial_stmt, ir_last, ir_last->instr_idx);
 
@@ -502,6 +502,7 @@ static void visit_ast_if(struct ast_if *ast)
     /// L4:  else body instr 1
     /// L5:  else body instr 2
     /// L6:  after if
+    ++ir_nesting;
     visit_ast(ast->condition);
     assert((
         ir_last->type == IR_IMM ||
@@ -531,6 +532,7 @@ static void visit_ast_if(struct ast_if *ast)
     struct ir_node *initial_stmt = ir_last;
 
     visit_ast(ast->body);
+    --ir_nesting;
 
     initial_stmt = initial_stmt->next;
 
@@ -547,6 +549,7 @@ static void visit_ast_if(struct ast_if *ast)
     mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
 
     if (!ast->else_body) return;
+    ++ir_nesting;
     struct ir_node *else_jmp = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *else_jmp_ptr = else_jmp->ir;
     /// Index of this jump will be changed through pointer.
@@ -565,6 +568,7 @@ static void visit_ast_if(struct ast_if *ast)
     initial_stmt = initial_stmt->next;
 
     mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
+    --ir_nesting;
 }
 
 static void visit_ast_return(struct ast_return *ast)
@@ -763,7 +767,7 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
 
     ir_var_idx = 0;
     ir_loop_idx = 0;
-    ir_loop_depth = 0;
+    ir_nesting = 0;
     ir_dominant_condition_idx = -1;
     ir_first = NULL;
     ir_last = NULL;

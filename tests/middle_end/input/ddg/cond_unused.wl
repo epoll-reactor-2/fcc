@@ -3,22 +3,22 @@
 //       1:   t1 = 1
 //       2:   int t2
 //       3:   t2 = 2
-//       4:   if t0 != 0 goto L6
-//       5:   jmp L8
-//       6:   t1 = t1(@noalias) + 1
-//       7:   jmp L9
-//       8:   t1 = t1(@noalias) - 1
-//       9:   if t2 != 0 goto L11
-//      10:   jmp L20
-//      11:   int t3
-//      12:   t3 = 0
-//      13:   | int t4(@loop)
-//      14:   | t4 = t3 < 10(@loop)
-//      15:   | if t4 != 0 goto L17
-//      16:   | jmp L20
-//      17:   | t3 = t3(@noalias) + 1
-//      18:   | t2 = t2(@noalias) + 1
-//      19:   | jmp L13
+//       4:   | if t0 != 0 goto L6
+//       5:   | jmp L8
+//       6:   | t1 = t1(@noalias) + 1
+//       7:   | jmp L9
+//       8:   | t1 = t1(@noalias) - 1
+//       9:   | if t2 != 0 goto L11
+//      10:   | jmp L20
+//      11:   | int t3
+//      12:   | t3 = 0
+//      13:   | | int t4(@loop)
+//      14:   | | t4 = t3 < 10(@loop)
+//      15:   | | if t4 != 0 goto L17
+//      16:   | | jmp L20
+//      17:   | | t3 = t3(@noalias) + 1
+//      18:   | | t2 = t2(@noalias) + 1
+//      19:   | | jmp L13
 //      20:   ret t1
 //--------
 //instr  0: depends on ()

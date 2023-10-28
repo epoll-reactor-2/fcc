@@ -22,7 +22,7 @@ __weak_really_inline static void reindex(ir_vector_t *stmts)
         /// We move allocas to most outer block, hence
         /// out of any loop.
         if (curr->type == IR_ALLOCA)
-            curr->meta.loop_depth = 0;
+            curr->meta.nesting = 0;
 
         if (curr->type == IR_COND) {
             struct ir_cond *cond = curr->ir;

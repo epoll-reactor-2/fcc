@@ -14,15 +14,15 @@
 //      12:   | t0 = t0(@noalias) + 1
 //      13:   | t1 = t1(@noalias) + 1
 //      14:   | t2 = t2(@noalias) + 1
-//      15:   | int t5
-//      16:   | int t6
-//      17:   | t6 = t1 % 2
-//      18:   | t5 = t6 == 0
-//      19:   | if t5 != 0 goto L21
-//      20:   | jmp L23
-//      21:   | t2 = t2(@noalias) + 1
-//      22:   | jmp L24
-//      23:   | jmp L6
+//      15:   | | int t5
+//      16:   | | int t6
+//      17:   | | t6 = t1 % 2
+//      18:   | | t5 = t6 == 0
+//      19:   | | if t5 != 0 goto L21
+//      20:   | | jmp L23
+//      21:   | | t2 = t2(@noalias) + 1
+//      22:   | | jmp L24
+//      23:   | | jmp L6
 //      24:   | t0 = t0(@noalias) - 1
 //      25:   | t1 = t1(@noalias) - 1
 //      26:   | t2 = t2(@noalias) - 1

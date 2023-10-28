@@ -5,10 +5,10 @@
 //       3:   t1 = 1
 //       4:   int t2
 //       5:   t2 = 2
-//       6:   if 0 != 0 goto L8
-//       7:   jmp L10
-//       8:   ret 1
-//      10:   ret 2
+//       6:   | if 0 != 0 goto L8
+//       7:   | jmp L10
+//       8:   | ret 1
+//      10:   | ret 2
 int main() {
     int a = 0;
     int b = 1;

@@ -8,15 +8,15 @@
 //       6:   | t0 = t0(@noalias) + 1
 //       7:   | t1 = t1(@noalias) + 1
 //       8:   | t2 = t2(@noalias) + 1
-//       9:   | int t3
-//      10:   | int t4
-//      11:   | t4 = t1 % 2
-//      12:   | t3 = t4 == 0
-//      13:   | if t3 != 0 goto L15
-//      14:   | jmp L17
-//      15:   | t2 = t2(@noalias) + 1
-//      16:   | jmp L18
-//      17:   | jmp L6
+//       9:   | | int t3
+//      10:   | | int t4
+//      11:   | | t4 = t1 % 2
+//      12:   | | t3 = t4 == 0
+//      13:   | | if t3 != 0 goto L15
+//      14:   | | jmp L17
+//      15:   | | t2 = t2(@noalias) + 1
+//      16:   | | jmp L18
+//      17:   | | jmp L6
 //      18:   | t0 = t0(@noalias) - 1
 //      19:   | t1 = t1(@noalias) - 1
 //      20:   | t2 = t2(@noalias) - 1

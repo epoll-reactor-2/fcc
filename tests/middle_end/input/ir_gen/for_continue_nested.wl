@@ -18,24 +18,24 @@
 //      16:   | t0 = t0(@noalias) + 1
 //      17:   | t1 = t1(@noalias) + 1
 //      18:   | t2 = t2(@noalias) + 1
-//      19:   | int t7
-//      20:   | int t8
-//      21:   | t8 = t3 % 2
-//      22:   | t7 = t8 == 0
-//      23:   | if t7 != 0 goto L25
-//      24:   | jmp L27
-//      25:   | t3 = t3(@noalias) + 1
-//      26:   | jmp L37
-//      27:   | int t9(@loop)
-//      28:   | t9 = 0(@loop)
-//      29:   | | int t10
-//      30:   | | t10 = t9 < 100
-//      31:   | | if t10 != 0 goto L33
-//      32:   | | jmp L36
-//      33:   | | jmp L29
-//      34:   | | t3 = t3(@noalias) + 1(@loop)
-//      35:   | | jmp L29
-//      36:   | jmp L29
+//      19:   | | int t7
+//      20:   | | int t8
+//      21:   | | t8 = t3 % 2
+//      22:   | | t7 = t8 == 0
+//      23:   | | if t7 != 0 goto L25
+//      24:   | | jmp L27
+//      25:   | | t3 = t3(@noalias) + 1
+//      26:   | | jmp L37
+//      27:   | | int t9(@loop)
+//      28:   | | t9 = 0(@loop)
+//      29:   | | | int t10
+//      30:   | | | t10 = t9 < 100
+//      31:   | | | if t10 != 0 goto L33
+//      32:   | | | jmp L36
+//      33:   | | | jmp L29
+//      34:   | | | t3 = t3(@noalias) + 1(@loop)
+//      35:   | | | jmp L29
+//      36:   | | jmp L29
 //      37:   | t0 = t0(@noalias) - 1
 //      38:   | t1 = t1(@noalias) - 1
 //      39:   | t2 = t2(@noalias) - 1
@@ -62,24 +62,24 @@
 //      16:   | t0 = t0(@noalias) + 1
 //      17:   | t1 = t1(@noalias) + 1
 //      18:   | t2 = t2(@noalias) + 1
-//      19:   | int t7
-//      20:   | int t8
-//      21:   | t8 = t3 % 2
-//      22:   | t7 = t8 == 0
-//      23:   | if t7 != 0 goto L25
-//      24:   | jmp L27
-//      25:   | t3 = t3(@noalias) + 1
-//      26:   | jmp L37
-//      27:   | jmp L8
-//      28:   | int t9(@loop)
-//      29:   | t9 = 0(@loop)
-//      30:   | | int t10
-//      31:   | | t10 = t9 < 100
-//      32:   | | if t10 != 0 goto L34
-//      33:   | | jmp L37
-//      34:   | | jmp L30
-//      35:   | | t3 = t3(@noalias) + 1(@loop)
-//      36:   | | jmp L30
+//      19:   | | int t7
+//      20:   | | int t8
+//      21:   | | t8 = t3 % 2
+//      22:   | | t7 = t8 == 0
+//      23:   | | if t7 != 0 goto L25
+//      24:   | | jmp L27
+//      25:   | | t3 = t3(@noalias) + 1
+//      26:   | | jmp L37
+//      27:   | | jmp L8
+//      28:   | | int t9(@loop)
+//      29:   | | t9 = 0(@loop)
+//      30:   | | | int t10
+//      31:   | | | t10 = t9 < 100
+//      32:   | | | if t10 != 0 goto L34
+//      33:   | | | jmp L37
+//      34:   | | | jmp L30
+//      35:   | | | t3 = t3(@noalias) + 1(@loop)
+//      36:   | | | jmp L30
 //      37:   | t0 = t0(@noalias) - 1
 //      38:   | t1 = t1(@noalias) - 1
 //      39:   | t2 = t2(@noalias) - 1
