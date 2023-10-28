@@ -31,6 +31,9 @@ static uint64_t           ir_nesting;
 static uint64_t           ir_loop_idx;
 static  int64_t           ir_dominant_condition_idx = -1;
 static int32_t            ir_meta_loop_idx;
+/// This used to judge if we should put function call to IR list
+/// or use it as instruction operand.
+static bool               ir_is_global_scope;
 static hashmap_t          ir_func_return_types;
 /// This is stacks for `break` and `continue` instructions.
 /// On the top of stack sits most recent loop (loop with maximum
@@ -757,8 +760,16 @@ static void visit_ast_member(struct ast_member *ast) { (void) ast; }
 
 static void visit_ast_compound(struct ast_compound *ast)
 {
-    for (uint64_t i = 0; i < ast->size; ++i)
-        visit_ast(ast->stmts[i]);
+    for (uint64_t i = 0; i < ast->size; ++i) {
+        struct ast_node *s = ast->stmts[i];
+        if (s->type == AST_FUNCTION_CALL) {
+            ir_is_global_scope = 1;
+            visit_ast(s);
+            ir_is_global_scope = 0;
+        } else {
+            visit_ast(s);
+        }
+    }
 }
 
 static void visit_ast_function_decl(struct ast_function_decl *decl)
@@ -814,10 +825,6 @@ static void visit_ast_function_call(struct ast_function_call *ast)
     struct ir_node *args = NULL;
     struct ir_node *args_start = NULL;
 
-    /// Todo: lost immediate instructions (needed for
-    ///       get result symbol)
-    ///
-    ///       store %4 call fact(%3) /// All stuff for %3 is lost.
     for (uint64_t i = 0; i < args_ast->size; ++i) {
         visit_ast(args_ast->stmts[i]);
 
@@ -832,18 +839,17 @@ static void visit_ast_function_call(struct ast_function_call *ast)
 
     enum data_type ret_dt = ir_func_return_type(ast->name);
 
-    if (ret_dt == D_T_VOID) {
-        struct ir_node *call = ir_func_call_init(ast->name, args_start);
-        ir_insert(call);
+    if (ir_is_global_scope) {
+        ir_last = ir_func_call_init(ast->name, args_start);
+        ir_insert(ir_last);
     } else {
         int32_t next_idx = ir_var_idx++;
         ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
         ir_insert_last();
 
-        struct ir_node *call = ir_func_call_init(ast->name, args_start);
-        ir_last = ir_store_sym_init(next_idx, call);
+        ir_last = ir_func_call_init(ast->name, args_start);
+        ir_last = ir_store_sym_init(next_idx, ir_last);
         ir_insert_last();
-
         ir_last = ir_sym_init(next_idx);
     }
 }
