@@ -12,7 +12,7 @@ __weak_really_inline static void mark_visited(bool *visited, struct ir_node *ir)
     visited[ir->instr_idx] = 1;
 }
 
-/// dd -- Data dependency.
+/* dd -- Data dependency. */
 __weak_really_inline static void traverse_dd_chain(bool *visited, struct ir_node *it)
 {
     ir_vector_t *ddgs = &it->ddg_stmts;
@@ -23,8 +23,8 @@ __weak_really_inline static void traverse_dd_chain(bool *visited, struct ir_node
     }
 }
 
-/// Walk over loop and mark statements above and below
-/// in bounds of loop (up to most outer) as needed.
+/* Walk over loop and mark statements above and below
+   in bounds of loop (up to most outer) as needed. */
 __weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
 {
     struct ir_node *it = ir;
@@ -77,8 +77,19 @@ static void traverse(bool *visited, struct ir_node *ir)
     struct ir_node *it = ir;
 
     while (it) {
-        if (it->type == IR_RET)
+        switch (it->type) {
+        case IR_RET:
+            /* Return is start point for whole optimization. */
             traverse_from_ret(visited, it);
+            break;
+        case IR_FUNC_CALL:
+            /* Raw function calls are not this optimizer case.
+               Left them. */
+            mark_visited(visited, it);
+            break;
+        default: break;
+        }
+
         it = it->next;
     }
 }
@@ -90,7 +101,8 @@ static void cut(bool *visited, struct ir_node *ir)
     while (it) {
         if (!visited[it->instr_idx])
             ir_remove(&it, &ir);
-        it = it->next;
+        if (it)
+            it = it->next;
     }
 }
 
