@@ -9,18 +9,18 @@
 #include "util/vector.h"
 #include <stddef.h>
 
-/// We assume that vector index is match with contained
-/// IR instruction index.
-///
-/// This function follows alloca instructions chain and sets jump
-/// targets to instructions, that placed after alloca's.
+/* We assume that vector index is match with contained
+   IR instruction index.
+  
+   This function follows alloca instructions chain and sets jump
+   targets to instructions, that placed after alloca's. */
 __weak_really_inline static void reindex(ir_vector_t *stmts)
 {
     vector_foreach(*stmts, i) {
         struct ir_node *curr = vector_at(*stmts, i);
 
-        /// We move allocas to most outer block, hence
-        /// out of any loop.
+        /* We move allocas to most outer block, hence
+            out of any loop. */
         if (curr->type == IR_ALLOCA)
             curr->meta.nesting = 0;
 
@@ -47,13 +47,13 @@ __weak_really_inline static void reindex(ir_vector_t *stmts)
     }
 }
 
-/// +-------+ -- next --> +-------+ -- next --> +-------+ -- next --> +-------+
-/// |   1   |             |   2   |             |  ir   |             |   3   |
-/// +-------+ <-- prev -- +-------+ <-- prev -- +-------+ <-- prev -- +-------+
-///
-/// +-------+ -- next --> +-------+ -- next --> +-------+ -- next --> +-------+
-/// |   1   |             |  ir   |             |   2   |             |   3   |
-/// +-------+ <-- prev -- +-------+ <-- prev -- +-------+ <-- prev -- +-------+
+/* +-------+ -- next --> +-------+ -- next --> +-------+ -- next --> +-------+
+   |   1   |             |   2   |             |  ir   |             |   3   |
+   +-------+ <-- prev -- +-------+ <-- prev -- +-------+ <-- prev -- +-------+
+  
+   +-------+ -- next --> +-------+ -- next --> +-------+ -- next --> +-------+
+   |   1   |             |  ir   |             |   2   |             |   3   |
+   +-------+ <-- prev -- +-------+ <-- prev -- +-------+ <-- prev -- +-------+ */
 __weak_really_inline static void swap(struct ir_node *ir)
 {
     if (!ir->prev) {
@@ -78,9 +78,9 @@ __weak_really_inline static void swap(struct ir_node *ir)
     _3->prev = _2;
 }
 
-/// This generally needed to force reordering algorithm to begin.
-/// If we will start from first alloca statements, wi will fall
-/// into the senseless infinite recursion.
+/* This generally needed to force reordering algorithm to begin.
+   If we will start from first alloca statements, wi will fall
+   into the senseless infinite recursion. */
 __weak_really_inline static bool initial_move(struct ir_node **ir)
 {
     (*ir) = (*ir)->next;
@@ -90,10 +90,10 @@ __weak_really_inline static bool initial_move(struct ir_node **ir)
     return (*ir);
 }
 
-/// This function traversing the list and group all
-/// alloca instructions together. This purpose of this
-/// optimization is easily determine, how many stack
-/// storage we must allocate for given function.
+/* This function traversing the list and group all
+   alloca instructions together. This purpose of this
+   optimization is easily determine, how many stack
+   storage we must allocate for given function. */
 void ir_opt_reorder(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;

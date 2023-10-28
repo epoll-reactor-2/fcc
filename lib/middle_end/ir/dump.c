@@ -128,7 +128,6 @@ static void ir_dump_ret_void(FILE *mem)
 
 static void ir_dump_member(FILE *mem, struct ir_member *ir)
 {
-    /// %1.0
     fprintf(mem, "%%%d.%d", ir->idx, ir->field_idx);
 }
 
@@ -362,13 +361,13 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
             ir_dump_node_dot(mem, it, cond->target);
             fprintf(mem, " [ label = \"  true\"]\n");
 
-            /// This is reorder trick for dot language.
-            /// Even though dot specification says, that
-            /// in general order of subgraphs and nodes
-            /// must not affect output PNG, this always
-            /// happens. Thanks to this subgraph reindexing,
-            /// condition targets both on true and false
-            /// branches are located in the same subgraph.
+            /* This is reorder trick for dot language.
+               Even though dot specification says, that
+               in general order of subgraphs and nodes
+               must not affect output PNG, this always
+               happens. Thanks to this subgraph reindexing,
+               condition targets both on true and false
+               branches are located in the same subgraph. */
             --cluster_no;
             --cluster_no;
             break;
@@ -430,9 +429,9 @@ void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl)
 
     ir_dump_cfg_traverse(mem, decl->body);
 
-    /// Wierd specific of algorithm above forces
-    /// us to paste extra `}`, but this makes code much
-    /// simpler.
+    /* Wierd specific of algorithm above forces
+       us to paste extra `}`, but this makes code much
+       simpler. */
     fprintf(mem, "}\n");
 }
 

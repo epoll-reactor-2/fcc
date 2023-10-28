@@ -55,15 +55,15 @@ static void traverse(bool *visited, int32_t *max_id, struct ir_node *ir)
         mark_visited(visited, ir);
         bool should_jump = ir->next;
         if (ir->next) {
-            /// We continue walking over graph if
-            /// 1) Return statement has successor in other CFG block.
-            /// 2) Return statement has no jump successors. Even if jumps
-            ///    are located after return, they were/will visited
-            ///    as condition or other jump targets, so they are not
-            ///    removed.
-            ///
-            /// Otherwise, all after return statement can be safely
-            /// removed since it guaranteed to never be reached.
+            /* We continue walking over graph if
+               1) Return statement has successor in other CFG block.
+               2) Return statement has no jump successors. Even if jumps
+                  are located after return, they were/will visited
+                  as condition or other jump targets, so they are not
+                  removed.
+              
+               Otherwise, all after return statement can be safely
+               removed since it guaranteed to never be reached. */
             should_jump &= !in_same_cfg_block(ir, ir->next);
             should_jump &= ir->next->type != IR_JUMP;
         }
@@ -88,11 +88,11 @@ static void cut(bool *visited, int32_t siz, struct ir_node *ir)
     }
 }
 
-/// Traverse CFG and remove all unvisited nodes.
+/* Traverse CFG and remove all unvisited nodes. */
 void ir_opt_unreachable_code(struct ir_func_decl *decl)
 {
     bool visited[8192] = {0};
-    /// How much nodes potentially were visited.
+    /* How much nodes potentially were visited. */
     int32_t max_id = 0;
 
     traverse(visited, &max_id, decl->body);

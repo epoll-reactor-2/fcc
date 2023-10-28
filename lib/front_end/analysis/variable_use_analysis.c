@@ -30,8 +30,8 @@ static void collected_uses_end_scope()
 
 static void init_internal_state()
 {
-    /// Initialize first stack entry for the first
-    /// scope depth.
+    /* Initialize first stack entry for the first
+       scope depth. */
     collected_uses_start_scope();
 }
 
@@ -69,9 +69,9 @@ static bool is_assignment_op(enum token_type e)
     }
 }
 
-/// This used in functions
-/// ast_assert_declared() for symbols, function calls and array access statements,
-/// ast_asssert_not_declared() for all declarations.
+/* This used in functions
+   ast_assert_declared() for symbols, function calls and array access statements,
+   ast_asssert_not_declared() for all declarations. */
 static const char *ast_decl_or_expr_to_string(struct ast_node *ast)
 {
     switch (ast->type) {
@@ -116,8 +116,8 @@ static void add_use(struct ast_node *ast, bool is_write)
             struct ast_symbol *sym = member->structure->ast;
             usage_add_fun(sym->value);
         }
-        /// Otherwise it can be unary statement like
-        /// *(var).member.
+        /* Otherwise it can be unary statement like
+           *(var).member. */
     }
 }
 
@@ -216,8 +216,8 @@ static void visit_ast_symbol(struct ast_node *ast)
     assert_is_declared(sym->value, ast);
 
     collect_ast(ast);
-    /// We will decide if there is write use of this statement
-    /// inside binary/unary operators logic.
+    /* We will decide if there is write use of this statement
+       inside binary/unary operators logic.  */
 }
 
 static void visit_ast_var_decl(struct ast_node *ast)
@@ -242,7 +242,7 @@ static void visit_ast_binary(struct ast_node *ast)
     visit_ast_node(stmt->lhs);
     visit_ast_node(stmt->rhs);
 
-    /// Only left hand side can be writable.
+    /* Only left hand side can be writeable. */
     if (is_assignment_op(stmt->operation))
         add_write_use(stmt->lhs);
     else
@@ -255,10 +255,10 @@ static void visit_ast_unary(struct ast_node *ast)
     struct ast_unary *stmt = ast->ast;
     struct ast_node *op = stmt->operand;
     bool is_var = false;
-    is_var |= op->type == AST_SYMBOL; /// *var
-    is_var |= op->type == AST_ARRAY_ACCESS; /// *var[0]
-    is_var |= op->type == AST_MEMBER; /// *var.field
-    is_var |= op->type == AST_PREFIX_UNARY; /// *(*var)
+    is_var |= op->type == AST_SYMBOL; /* *var */
+    is_var |= op->type == AST_ARRAY_ACCESS; /* *var[0] */
+    is_var |= op->type == AST_MEMBER; /* *var.field */
+    is_var |= op->type == AST_PREFIX_UNARY; /* *(*var) */
     if (!is_var)
         weak_compile_error(
             ast->line_no,
@@ -267,12 +267,12 @@ static void visit_ast_unary(struct ast_node *ast)
         );
 
     switch (stmt->operation) {
-    case TOK_INC: /// ++var
-    case TOK_DEC: /// --var
+    case TOK_INC: /* ++var */
+    case TOK_DEC: /* --var */
         add_write_use(op);
         break;
-    case TOK_STAR: /// *var
-    case TOK_BIT_AND: /// &var
+    case TOK_STAR: /* *var */
+    case TOK_BIT_AND: /* &var */
         add_read_use(op);
         break;
     default:
@@ -281,7 +281,7 @@ static void visit_ast_unary(struct ast_node *ast)
     visit_ast_node(op);
 }
 
-/// \todo: What if (*mem_ptr)[0][1][2]?
+/* \todo: What if (*mem_ptr)[0][1][2]? */
 static void visit_ast_array_access(struct ast_node *ast)
 {
     struct ast_array_access *stmt = ast->ast;
@@ -367,16 +367,16 @@ static void visit_ast_function_decl(struct ast_node *ast)
     assert_is_not_declared(decl->name, ast);
 
     ast_storage_start_scope();
-    /// This is to have function in recursive calls.
+    /* This is to have function in recursive calls. */
     ast_storage_push(decl->name, ast);
-    /// Don't just visit compound AST, which creates and terminates scope.
+    /* Don't just visit compound AST, which creates and terminates scope. */
     struct ast_compound *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
         visit_ast_node(args->stmts[i]);
     visit_ast_node(decl->body);
     make_unused_var_analysis();
     ast_storage_end_scope();
-    /// This is to have function outside.
+    /* This is to have function outside. */
     ast_storage_push(decl->name, ast);
 }
 
@@ -399,14 +399,14 @@ void visit_ast_node(struct ast_node *ast)
     assert(ast);
 
     switch (ast->type) {
-    case AST_CHAR_LITERAL: /// Unused.
-    case AST_INTEGER_LITERAL: /// Unused.
-    case AST_FLOATING_POINT_LITERAL: /// Unused.
-    case AST_STRING_LITERAL: /// Unused.
-    case AST_BOOLEAN_LITERAL: /// Unused.
-    case AST_STRUCT_DECL: /// Unused.
-    case AST_BREAK_STMT: /// Unused.
-    case AST_CONTINUE_STMT: break; /// Unused.
+    case AST_CHAR_LITERAL: /* Unused. */
+    case AST_INTEGER_LITERAL: /* Unused. */
+    case AST_FLOATING_POINT_LITERAL: /* Unused. */
+    case AST_STRING_LITERAL: /* Unused. */
+    case AST_BOOLEAN_LITERAL: /* Unused. */
+    case AST_STRUCT_DECL: /* Unused. */
+    case AST_BREAK_STMT: /* Unused. */
+    case AST_CONTINUE_STMT: break; /* Unused. */
     case AST_SYMBOL:
         visit_ast_symbol(ast);
         break;

@@ -15,21 +15,21 @@
 
 #define DECL_NAME_MAX_LEN 256
 
-/// \note: Functions cannot return array.
-///        Function takes array as parameter via pointer.
-///        Array can be declared as variable.
+/* \note: Functions cannot return array.
+          Function takes array as parameter via pointer.
+          Array can be declared as variable. */
 struct array_decl_info {
     struct ast_node     *ast;
     char                 name[DECL_NAME_MAX_LEN];
     enum data_type       dt;
-    /// If the array is
-    ///
-    ///     int mem[1][2][3],
-    /// `3` is stored. Used as is because
-    /// we can iterate only by last
-    /// level of array. To iterate over
-    /// next ones, we should push new record
-    /// to the storage with lower enclosure.
+    /* If the array is
+      
+           int mem[1][2][3],
+       `3` is stored. Used as is because
+       we can iterate only by last
+       level of array. To iterate over
+       next ones, we should push new record
+       to the storage with lower enclosure. */
     int32_t              top_enclosure_size;
     uint64_t             depth;
 };
@@ -69,7 +69,6 @@ static void storage_end_scope()
     --scope_depth;
 }
 
-/// \todo: Put information about each level of array enclosure.
 static void storage_put(
     struct ast_node *ast,
     const char      *name,
@@ -148,14 +147,14 @@ static void visit_ast_function_decl(struct ast_node *ast)
 
 
 
-/// Check if iterated array declaration "drops"
-/// last enclosure level. For example:
-///
-///    int array[1][2][3];
-///
-///    for (int it[1][2] : array) {} /* Correct. */
-///    for (int it[1] : array) {} /* Incorrect. */
-///    for (int it[2][2] : array) {} /* Incorrect. */
+/* Check if iterated array declaration "drops"
+   last enclosure level. For example:
+  
+      int array[1][2][3];
+  
+      for (int it[1][2] : array) {} // Correct.
+      for (int it[1] : array) {}    // Incorrect.
+      for (int it[2][2] : array) {} // Incorrect. */
 static bool verify_iterated_array(
     struct ast_array_decl *iterated,
     struct ast_array_decl *target
@@ -183,60 +182,60 @@ static bool verify_iterated_array(
     return 1;
 }
 
-/// 1. Determine size of array
-/// 2. Make usual for header
-/// 3. Make iterator being pointer
-/// 4. Copy `for` body after iterator declaration
-///
-///     int main() {
-///       int array[5];
-///       int num = 0;
-///       for (int *i : array) {
-///         *i = ++num;
-///       }
-///       // ... //
-///       for (int __i = 0; __i < /* size of */ array; ++__i) {
-///         int *i = &array[__i];
-///         *i = ++num;
-///       }
-///     }
-/// ...
-/// Or
-/// ...
-///     int main() {
-///       for (int *i : f()) {
-///         *i = 0;
-///       }
-///       // ... //
-///       /* ??? */ *__range_target_1 = f();
-///       for (int __i = 0; __i < /* size of */ __range_target_1; ++__i) {
-///         int *i = &__range_target_1[__i];
-///       }
-///     }
-/// ...
-/// Or
-/// ...
-///     int main() {
-///       int arr[1][2][3] = { ... };
-///       for (int *ptr[1][2] : arr) {
-///         for (int *i[1] : *ptr) {
-///           for (int *j : *i) {
-///             ++(*j);
-///           }
-///         }
-///       }
-///       // ... //
-///       for (int __i1 = 0; __i1 < /* size of */ arr; ++__i1) {
-///         int *ptr[1][2] = &arr[__i1];
-///         for (int __i2 = 0; __i2 < /* size of */ *ptr; ++__i2) {
-///           int *i[1] = &ptr[__i2];
-///           for (int __i3 = 0; __i3 < /* size of */ *i; ++__i3) {
-///             int *j = &i[__i3];
-///             ++(*j); /* Action on j. */
-///           }
-///         }
-///       }
-///     }
+/* 1. Determine size of array
+   2. Make usual for header
+   3. Make iterator being pointer
+   4. Copy `for` body after iterator declaration
+  
+       int main() {
+         int array[5];
+         int num = 0;
+         for (int *i : array) {
+           *i = ++num;
+         }
+         // ... //
+         for (int __i = 0; __i < / * size of * / array; ++__i) {
+           int *i = &array[__i];
+           *i = ++num;
+         }
+       }
+   ...
+   Or
+   ...
+       int main() {
+         for (int *i : f()) {
+           *i = 0;
+         }
+         // ... //
+         / * ??? * / *__range_target_1 = f();
+         for (int __i = 0; __i < / * size of * / __range_target_1; ++__i) {
+           int *i = &__range_target_1[__i];
+         }
+       }
+   ...
+   Or
+   ...
+       int main() {
+         int arr[1][2][3] = { ... };
+         for (int *ptr[1][2] : arr) {
+           for (int *i[1] : *ptr) {
+             for (int *j : *i) {
+               ++(*j);
+             }
+           }
+         }
+         // ... //
+         for (int __i1 = 0; __i1 < / * size of * / arr; ++__i1) {
+           int *ptr[1][2] = &arr[__i1];
+           for (int __i2 = 0; __i2 < / * size of * / *ptr; ++__i2) {
+             int *i[1] = &ptr[__i2];
+             for (int __i3 = 0; __i3 < / * size of * / *i; ++__i3) {
+               int *j = &i[__i3];
+               ++(*j); / * Action on j. * /
+             }
+           }
+         }
+       } */
 
 __weak_really_inline static void assertion(
     struct ast_for_range *range,
@@ -314,9 +313,9 @@ __weak_really_inline static void make_iter_ptr_body(
         0, 0
     );
 
-    /// TODO: Compiler can derive all type information manually.
-    ///       Then verify_iterated_array() can be thrown out.
-    ///       Will `auto` keyword as in C++ make sence?
+    /* TODO: Compiler can derive all type information manually.
+             Then verify_iterated_array() can be thrown out.
+             Will `auto` keyword as in C++ make sence? */
     if (array) {
         struct ast_array_decl *arr = iter_ptr->ast;
         arr->body = iter_body;
@@ -330,8 +329,8 @@ __weak_really_inline static struct ast_node *enlarge_body(struct ast_compound *b
 {
     struct ast_node **new_stmts = weak_calloc(body->size + 1, sizeof (struct ast_node *));
 
-    /// Copy all statements from old body to the new
-    /// and left space for first assignment.
+    /* Copy all statements from old body to the new
+       and left space for first assignment. */
     for (uint64_t i = 1; i < body->size + 1; ++i)
         new_stmts[i] = body->stmts[i - 1];
 
@@ -401,21 +400,21 @@ static void visit_node(struct ast_node **ast)
     assert(ast);
 
     switch ((*ast)->type) {
-    /// Only for full tree traversal.
+    /* Only for full tree traversal. */
     case AST_COMPOUND_STMT:
         visit_ast_compound(*ast);
         break;
     case AST_FUNCTION_DECL:
         visit_ast_function_decl(*ast);
         break;
-    /// Stuff.
+    /* Stuff. */
     case AST_ARRAY_DECL:
         visit_ast_array_decl(*ast);
         break;
     case AST_FOR_RANGE_STMT:
         visit_ast_for_range(ast);
         break;
-    /// Ignore.
+    /* Ignore. */
     default:
         break;
     }

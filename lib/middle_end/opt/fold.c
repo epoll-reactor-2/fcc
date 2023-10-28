@@ -12,7 +12,7 @@
 #include "util/unreachable.h"
 #include <string.h>
 
-/// Hashmap to refer by variable index.
+/* Hashmap to refer by variable index. */
 static hashmap_t consts_mapping;
 static hashmap_t loop_dependent_stmts;
 
@@ -298,9 +298,9 @@ static void fold_store(struct ir_node *ir)
     }
 }
 
-/// This function tries to reduce binary statement
-/// with respect to @noalias attribute. Symbols marked
-/// with @noalias are always left as is.
+/* This function tries to reduce binary statement
+   with respect to @noalias attribute. Symbols marked
+   with @noalias are always left as is. */
 static struct ir_node *fold_bin(struct ir_bin *ir)
 {
     struct ir_node *l = NULL;
@@ -373,7 +373,7 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
             return no_result();
     }
 
-    /// Attributes are lost, but this is not much important.
+    /* Attributes are lost, but this is not much important. */
     return ir_bin_init(
         ir->op,
         is_no_result(l) ? ir_sym_init( ((struct ir_sym *) ir->lhs->ir)->idx) : l,
@@ -390,7 +390,7 @@ static void fold_ret(struct ir_ret *ir)
     if (consts_mapping_is_const(sym->idx)) {
         union ir_imm_val imm = consts_mapping_get(sym->idx);
 
-        /// \todo: Immediate emit for all types.
+        /* TODO: Immediate emit for all types. */
         ir_node_cleanup(ir->body);
         ir->body = ir_imm_int_init(imm.__int);
     }

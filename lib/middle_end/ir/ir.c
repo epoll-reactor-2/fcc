@@ -10,10 +10,10 @@
 #include <assert.h>
 #include <string.h>
 
-/// Global state. -1 because of semantics of
-/// index incrementing. This should be done before
-/// instruction allocation. So it needed to have
-/// indexing from 0.
+/* Global state. -1 because of semantics of
+   index incrementing. This should be done before
+   instruction allocation. So it needed to have
+   indexing from 0. */
 static int32_t ir_instr_index = -1;
 
 void ir_reset_internal_state()
@@ -30,7 +30,6 @@ struct ir_node *ir_node_init(enum ir_type type, void *ir)
     node->meta.nesting = META_VALUE_UNKNOWN;
     node->meta.global_loop_idx = META_VALUE_UNKNOWN;
     node->meta.dominant_condition_idx = META_VALUE_UNKNOWN;
-    /// Is not set for now.
     node->cfg_block_no = 0;
     return node;
 }
@@ -185,7 +184,7 @@ struct ir_node *ir_ret_init(bool is_void, struct ir_node *body)
     struct ir_ret *ir = weak_calloc(1, sizeof (struct ir_ret));
     ir->is_void = is_void;
     ir->body = body;
-    /// Return operand is inline instruction.
+    /* Return operand is inline instruction. */
     ++ir_instr_index;
     return ir_node_init(is_void ? IR_RET_VOID : IR_RET, ir);
 }
@@ -347,7 +346,7 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_JUMP:
     case IR_MEMBER:
     case IR_PHI: /// Fall through.
-        /// Nothing to clean except ir->ir itself.
+        /* Nothing to clean except ir->ir itself. */
         break;
     case IR_STRING:       ir_string_cleanup(ir->ir); break;
     case IR_STORE:        ir_store_cleanup(ir->ir); break;

@@ -12,10 +12,10 @@
 #include <assert.h>
 #include <string.h>
 
-/// Last return occurrence context.
-///
-/// \pre All fields set to 0 at the start
-///      of each function.
+/* Last return occurrence context.
+
+   \pre All fields set to 0 at the start
+        of each function. */
 static struct {
     uint16_t line_no;
     uint16_t col_no;
@@ -27,9 +27,9 @@ static void reset_internal_state()
     memset(&last_ret, 0, sizeof (last_ret));
 }
 
-/// \note Interesting in this context things are only in the
-///       conditional and iteration statements body, not in
-///       the conditions.
+/* \note Interesting in this context things are only in the
+         conditional and iteration statements body, not in
+         the conditions. */
 static void visit_ast_node(struct ast_node *ast);
 
 static void visit_ast_compound(struct ast_node *ast)
@@ -80,7 +80,7 @@ static void visit_ast_function_decl(struct ast_node *ast)
 {
     struct ast_function_decl *decl = ast->ast;
     ast_storage_push(decl->name, ast);
-    /// Don't need to analyze arguments though.
+    /* Don't need to analyze arguments though. */
     visit_ast_node(decl->body);
 
     uint16_t line_no = last_ret.line_no;
@@ -128,22 +128,22 @@ void visit_ast_node(struct ast_node *ast)
     assert(ast);
 
     switch (ast->type) {
-    case AST_CHAR_LITERAL: /// Unused.
-    case AST_INTEGER_LITERAL: /// Unused.
-    case AST_FLOATING_POINT_LITERAL: /// Unused.
-    case AST_STRING_LITERAL: /// Unused.
-    case AST_BOOLEAN_LITERAL: /// Unused.
-    case AST_STRUCT_DECL: /// Unused.
-    case AST_BREAK_STMT: /// Unused.
-    case AST_CONTINUE_STMT: /// Unused.
-    case AST_VAR_DECL: /// Unused.
-    case AST_SYMBOL: /// Unused.
-    case AST_ARRAY_DECL: /// Unused.
-    case AST_BINARY: /// Unused.
-    case AST_PREFIX_UNARY: /// Unused.
-    case AST_POSTFIX_UNARY: /// Unused.
-    case AST_ARRAY_ACCESS: /// Unused.
-    case AST_MEMBER: /// Unused.
+    case AST_CHAR_LITERAL: /* Unused. */
+    case AST_INTEGER_LITERAL: /* Unused. */
+    case AST_FLOATING_POINT_LITERAL: /* Unused. */
+    case AST_STRING_LITERAL: /* Unused. */
+    case AST_BOOLEAN_LITERAL: /* Unused. */
+    case AST_STRUCT_DECL: /* Unused. */
+    case AST_BREAK_STMT: /* Unused. */
+    case AST_CONTINUE_STMT: /* Unused. */
+    case AST_VAR_DECL: /* Unused. */
+    case AST_SYMBOL: /* Unused. */
+    case AST_ARRAY_DECL: /* Unused. */
+    case AST_BINARY: /* Unused. */
+    case AST_PREFIX_UNARY: /* Unused. */
+    case AST_POSTFIX_UNARY: /* Unused. */
+    case AST_ARRAY_ACCESS: /* Unused. */
+    case AST_MEMBER: /* Unused. */
         break;
     case AST_COMPOUND_STMT:
         visit_ast_compound(ast);

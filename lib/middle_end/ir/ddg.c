@@ -9,8 +9,8 @@
 #include "util/hashmap.h"
 #include <assert.h>
 
-/// Key:   ir
-/// Value: sym_idx
+/* Key:   ir
+   Value: sym_idx */
 static hashmap_t stores;
 
 static void reset_hashmap(hashmap_t *map)
