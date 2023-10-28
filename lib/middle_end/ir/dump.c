@@ -216,9 +216,10 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
 static void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
 {
     fprintf(mem, "DF = {");
-    for (uint64_t i = 0; i < ir->df_siz; ++i) {
-        fprintf(mem, "%d", ir->df[i]->instr_idx);
-        if (i < ir->df_siz - 1)
+    vector_foreach(ir->df, i) {
+        struct ir_node *df = vector_at(ir->df, i);
+        fprintf(mem, "%d", df->instr_idx);
+        if (i < ir->df.count - 1)
             fprintf(mem, ", ");
     }
     fprintf(mem, "}\n");

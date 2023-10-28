@@ -13,6 +13,17 @@
 #include <assert.h>
 #include <string.h>
 
+
+static void reset_hashmap(hashmap_t *map, uint64_t siz)
+{
+    if (map->buckets) {
+        hashmap_destroy(map);
+    }
+    hashmap_init(map, siz);
+}
+
+
+
 static void control_flow_successors(
     struct ir_node *ir,
     struct ir_node **out_main,
@@ -21,8 +32,13 @@ static void control_flow_successors(
     switch (ir->type) {
     case IR_COND: {
         struct ir_cond *cond = ir->ir;
+#if 1
         *out_main = cond->target;
         *out_alt = ir->next_else;
+#else
+        *out_main = ir->next_else;
+        *out_alt = cond->target;
+#endif
         break;
     }
     case IR_JUMP: {
@@ -47,10 +63,7 @@ __weak_really_inline static void set_idom(
 ) {
     if (node->idom == NULL) {
         node->idom = idom;
-        if (idom->idom_back[0] == NULL)
-            idom->idom_back[0] = node;
-        else
-            idom->idom_back[1] = node;
+        vector_push_back(idom->idom_back, node);
         worklist[(*siz)++] = node;
     }
 }
@@ -81,39 +94,66 @@ static void dominator_tree(struct ir_func_decl *decl)
     }
 }
 
+static void traverse_cfg_post_order(ir_vector_t *out, struct ir_node *ir)
+{
+    vector_foreach(ir->idom_back, i) {
+        struct ir_node *x = vector_at(ir->idom_back, i);
+        if (x)
+            traverse_cfg_post_order(out, x);
+    }
+    vector_push_back(*out, ir);
+}
+
 /* This function implements algorithm given in
    https://c9x.me/compile/bib/ssa.pdf */
-static void dominance_frontier(struct ir_node *x)
+static void dominance_frontier(struct ir_node *ir)
 {
-    if (x->idom_back[0])
-        dominance_frontier(x->idom_back[0]);
+    ir_vector_t post_order = {0};
+    traverse_cfg_post_order(&post_order, ir);
 
-    if (x->idom_back[1])
-        dominance_frontier(x->idom_back[1]);
+    vector_foreach(post_order, i) {
+        struct ir_node *x = vector_at(post_order, i);
+        vector_free(x->df);
 
-    struct ir_node *succs[2] = {0};
+        /* printf("Post order: %d, idom = %d, idom_back = ( ", x->instr_idx, x->idom->instr_idx);
+        vector_foreach(x->idom_back, j) {
+            struct ir_node *z = vector_at(x->idom_back, j);
+            printf("%d ", z->instr_idx);
+        }
+        printf("), CFG succs = ( "); */
 
-    control_flow_successors(x, &succs[0], &succs[1]);
+        struct ir_node *succs[2] = {0};
+        control_flow_successors(x, &succs[0], &succs[1]);
 
-    for (uint64_t i = 0; i < 2; ++i) {
-        struct ir_node *y = succs[i];
-        if (y && y->idom != x)
-            x->df[x->df_siz++] = y;
-    }
+        /* for (uint64_t j = 0; j < 2; ++j) {
+            struct ir_node *y = succs[j];
+            if (y)
+                printf("%d ", y->instr_idx);
+        }
+        puts(")"); */
 
-    for (uint64_t i = 0; i < 2; ++i) {
-        struct ir_node *z = x->idom_back[i];
-        if (z) {
-            for (uint64_t j = 0; j < z->df_siz; ++j) {
-                struct ir_node *y = z->df[j];
-                if (y && y->idom != x)
-                    x->df[x->df_siz++] = y;
+        for (uint64_t j = 0; j < 2; ++j) {
+            struct ir_node *y = succs[j];
+            if (y && y->idom != x) {
+                /* printf("1: Add %d to DF(%d)\n", y->instr_idx, x->instr_idx); */
+                vector_push_back(x->df, y);
+            }
+        }
+
+        vector_foreach(x->idom_back, j) {
+            struct ir_node *z = vector_at(x->idom_back, j);
+            vector_foreach(z->df, k) {
+                struct ir_node *y = vector_at(z->df, k);
+                if (y && y->idom != x) {
+                    /* printf("2: Add %d to DF(%d)\n", y->instr_idx, x->instr_idx); */
+                    vector_push_back(x->df, y);
+                }
             }
         }
     }
+
+    vector_free(post_order);
 }
-
-
 
 static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
 {
@@ -142,7 +182,6 @@ static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
     }
 }
 
-/*
 static void assigns_dump(hashmap_t *assigns)
 {
     hashmap_foreach(assigns, k, v) {
@@ -154,7 +193,6 @@ static void assigns_dump(hashmap_t *assigns)
         printf("}\n");
     }
 }
-*/
 
 /*
     (prev    ) -- next --> (  ir    )
@@ -188,14 +226,17 @@ static void phi_insert(struct ir_func_decl *decl)
     hashmap_t       work          = {0};
     ir_vector_t     w             = {0};
 
-    hashmap_init(&assigns, 256);
-    hashmap_init(&work, 256);
-    hashmap_init(&dom_fron_plus, 256);
-
+    reset_hashmap(&assigns, 256);
     assigns_collect(decl, &assigns);
-    /* assigns_dump(&assigns); */
+    assigns_dump(&assigns);
 
     hashmap_foreach(&assigns, sym_idx, __list) {
+        reset_hashmap(&dom_fron_plus, 256);
+        reset_hashmap(&work, 256);
+        vector_free(w);
+
+        printf("Analyze %ld, ", sym_idx);
+
         ir_vector_t *assign_list = (ir_vector_t *) __list;
 
         vector_foreach(*assign_list, i) {
@@ -209,14 +250,15 @@ static void phi_insert(struct ir_func_decl *decl)
             struct ir_node *x = vector_back(w);
             vector_pop_back(w);
 
-            for (uint64_t i = 0; i < x->df_siz; ++i) {
-                struct ir_node *y = x->df[i];
+            vector_foreach(x->df, i) {
+                struct ir_node *y = vector_at(x->df, i);
                 uint64_t y_addr = (uint64_t) y;
 
                 if (!hashmap_has(&dom_fron_plus, y_addr)) {
                     /* NOTE: prev & prev_else are control flow (not just list list) predecessors.
                              and they are built during IR linkage. */
                     struct ir_node *phi = ir_phi_init(sym_idx, y->prev->instr_idx, y->prev_else->instr_idx);
+                    printf("insert phi before %%%d\n", y->instr_idx);
                     ir_insert_before(y, phi);
                     memcpy(&phi->meta, &y->meta, sizeof (struct meta));
 
@@ -247,6 +289,7 @@ void ir_compute_ssa(struct ir_node *decls)
     while (it) {
         struct ir_func_decl *decl = it->ir;
         dominator_tree(decl);
+        puts("");
         dominance_frontier(decl->body);
         phi_insert(decl);
         it = it->next;

@@ -362,9 +362,11 @@ void ir_node_cleanup(struct ir_node *ir)
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 
+    vector_clear(ir->idom_back);
+    vector_clear(ir->ddg_stmts);
+    vector_clear(ir->df);
     weak_free(ir->ir);
     weak_free(ir);
-    vector_clear(ir->ddg_stmts);
 }
 
 void ir_unit_cleanup(struct ir_unit *ir)
