@@ -44,12 +44,6 @@ static struct token *peek_current()
 
 static struct token *peek_next()
 {
-    // printf(
-        // "Peek next: %s\n",
-        // tok_begin->data
-            // ? tok_begin->data
-            // : tok_to_string(tok_begin->type)
-    // );
     return tok_begin++;
 }
 
@@ -132,7 +126,7 @@ struct ast_node *parse(const struct token *begin, const struct token *end)
         case TOK_INT:
         case TOK_CHAR:
         case TOK_FLOAT:
-        case TOK_BOOL: /// Fall through.
+        case TOK_BOOL: /* Fall through. */
             vector_push_back(global_stmts, parse_function_decl());
             break;
         default:
@@ -170,11 +164,11 @@ static struct localized_data_type parse_type()
     case TOK_FLOAT:
     case TOK_CHAR:
     case TOK_BOOL:
-    case TOK_SYMBOL: { /// Fall through.
+    case TOK_SYMBOL: { /* Fall through. */
         unsigned indirection_lvl = 0;
         while (tok_is(peek_current(), '*')) {
             ++indirection_lvl;
-            peek_next(); /// Don't needed to require '*'.
+            peek_next(); /* Don't needed to require '*'. */
         }
 
         struct localized_data_type dt = {
@@ -304,10 +298,10 @@ static struct ast_node *parse_decl_without_initializer()
 
     tok_begin -= offset;
 
-    /// We just compute the offset of whole type
-    /// declaration, e.g for `char ********` to judge
-    /// what type of declaration there is. All other
-    /// allocated strings are not needed.
+    /* We just compute the offset of whole type
+       declaration, e.g for `char ********` to judge
+       what type of declaration there is. All other
+       allocated strings are not needed. */
     if (dt.type_name)
         weak_free(dt.type_name);
 
@@ -317,10 +311,10 @@ static struct ast_node *parse_decl_without_initializer()
     case TOK_INT:
     case TOK_FLOAT:
     case TOK_CHAR:
-    case TOK_BOOL: /// Fall through.
+    case TOK_BOOL: /* Fall through. */
         if (is_array)
-            /// TODO: parse_array_decl_without_initializer().
-            ///       parse_array_decl() can have initializer now.
+            /* TODO: parse_array_decl_without_initializer().
+                     parse_array_decl() can have initializer now. */
             return parse_array_decl_without_initializer();
         else
             return parse_var_decl_without_initializer();
@@ -340,7 +334,7 @@ static struct ast_node *parse_var_decl_without_initializer()
     return ast_var_decl_init(
         dt.data_type,
         strdup(var_name->data),
-        dt.type_name, /// Already strdup()'ed.
+        dt.type_name, /* Already strdup()'ed. */
         dt.indirection_lvl,
         /*body=*/NULL,
         dt.line_no,
@@ -373,19 +367,19 @@ static struct ast_node *parse_var_decl()
             dt.col_no
         );
 
-    /// This is placed here because language supports nested functions.
+    /* This is placed here because language supports nested functions. */
     if (tok_is(operator, '(')) {
-        --tok_begin; /// Open paren.
-        --tok_begin; /// Function name.
-        --tok_begin; /// Data type.
+        --tok_begin; /* Open paren. */
+        --tok_begin; /* Function name. */
+        --tok_begin; /* Data type. */
         tok_begin -= dt.indirection_lvl;
         return parse_function_decl();
     }
 
     if (tok_is(operator, '[')) {
-        --tok_begin; /// Open paren.
-        --tok_begin; /// Function name.
-        --tok_begin; /// Data type.
+        --tok_begin; /* Open paren. */
+        --tok_begin; /* Function name. */
+        --tok_begin; /* Data type. */
         tok_begin -= dt.indirection_lvl;
         return parse_array_decl();
     }
@@ -410,7 +404,7 @@ static struct ast_node *parse_decl()
     case TOK_INT:
     case TOK_CHAR:
     case TOK_FLOAT:
-    case TOK_BOOL: /// Fall through.
+    case TOK_BOOL: /* Fall through. */
         return parse_decl_without_initializer();
     default:
         weak_compile_error(
@@ -490,9 +484,9 @@ static struct ast_node *parse_function_decl()
     struct ast_node *block = NULL;
 
     if (tok_is(peek_current(), '{'))
-        block = parse_block(); /// Function.
+        block = parse_block(); /* Function. */
     else
-        require_char(';'); /// Prototype.
+        require_char(';'); /* Prototype. */
 
     return ast_function_decl_init(
         dt.data_type,
@@ -516,28 +510,28 @@ static struct ast_node *parse_stmt()
         return parse_selection_stmt();
     case TOK_FOR:
     case TOK_DO:
-    case TOK_WHILE: /// Fall through.
+    case TOK_WHILE: /* Fall through. */
         return parse_iteration_stmt();
     case TOK_RETURN:
         return parse_jump_stmt();
     case TOK_INT:
     case TOK_CHAR:
     case TOK_FLOAT:
-    case TOK_BOOL: /// Fall through.
+    case TOK_BOOL: /* Fall through. */
         return parse_var_decl();
     case TOK_SYMBOL: {
-        /// Expression like `a *b` means structure
-        /// variable declaration only in global context
-        /// (most top level in block), elsewise this is
-        /// a multiplication operator.
+        /* Expression like `a *b` means structure
+           variable declaration only in global context
+           (most top level in block), elsewise this is
+           a multiplication operator. */
         return (tok_is(tok_begin + 1, '*') || (tok_begin + 1)->type == TOK_SYMBOL)
             ? parse_struct_var_decl()
             : parse_expr();
     }
-    case TOK_BIT_AND: /// Address operator `&`.
-    case TOK_STAR: /// Dereference operator `*`.
+    case TOK_BIT_AND: /* Address operator `&`. */
+    case TOK_STAR: /* Dereference operator `*`. */
     case TOK_INC:
-    case TOK_DEC: /// Fall through.
+    case TOK_DEC: /* Fall through. */
         return parse_assignment();
     case TOK_OPEN_PAREN:
         return parse_primary();
@@ -588,7 +582,7 @@ static struct ast_node *parse_iteration_block()
         case AST_MEMBER:
         case AST_FUNCTION_CALL:
         case AST_BREAK_STMT:
-        case AST_CONTINUE_STMT: /// Fall through.
+        case AST_CONTINUE_STMT: /* Fall through. */
             require_char(';');
             break;
         default:
@@ -629,7 +623,7 @@ static struct ast_node *parse_block()
         case AST_ARRAY_DECL:
         case AST_ARRAY_ACCESS:
         case AST_MEMBER:
-        case AST_FUNCTION_CALL: /// Fall through.
+        case AST_FUNCTION_CALL: /* Fall through. */
             require_char(';');
             break;
         default:
@@ -701,9 +695,9 @@ static struct ast_node *parse_jump_stmt()
     return ast_return_init(body, start->line_no, start->col_no);
 }
 
-// for (decl : expr) {}
-///     ^
-///     Starting from here
+/* for (decl : expr) {}
+       ^
+       Starting from here */
 static struct ast_node *parse_for_range(
     uint16_t start_line_no,
     uint16_t start_col_no
@@ -726,26 +720,26 @@ static struct ast_node *parse_for_range(
     );
 }
 
-/// What is going on is not much obvious.
-///
-/// This function handles both `regular` and `range`
-/// for loops.
-///
-///   1) for (init; cond; inc) { /* ... */ }
-///
-///   2) for (iter : expr) { /* ... */ }
-///
-/// First it gets the type declarator and checks
-/// if '=' or ':' follows this declarator. If '='
-/// then we assume regular for; if ':', we assume
-/// range-based for. Hence, the following construction
-/// is forbidden:
-///
-///      for (int i; i < 1; ++i) { /* ... */ }
-///               ^ Then expects ':'.
-///
-/// However, this loop without initialized variable is
-/// absurd.
+/* What is going on is not much obvious.
+  
+   This function handles both `regular` and `range`
+   for loops.
+  
+     1) for (init; cond; inc) { ... }
+  
+     2) for (iter : expr) { ... }
+  
+   First it gets the type declarator and checks
+   if '=' or ':' follows this declarator. If '='
+   then we assume regular for; if ':', we assume
+   range-based for. Hence, the following construction
+   is forbidden:
+  
+        for (int i; i < 1; ++i) { ... }
+                 ^ Then expects ':'.
+  
+   However, this loop without initialized variable is
+   absurd. */
 static struct ast_node *parse_for()
 {
     struct token *start = require_token(TOK_FOR);
@@ -763,12 +757,12 @@ static struct ast_node *parse_for()
         weak_free(dt.type_name);
 
         if (tok_is(peek_current() + 1, '=')) {
-            /// Regular for.
+            /* Regular for. */
             tok_begin = curr;
             init = parse_expr();
             require_char(';');
         } else {
-            /// Range for.
+            /* Range for. */
             tok_begin = curr;
             return parse_for_range(
                 start->line_no,
@@ -948,7 +942,7 @@ static struct ast_node *parse_equality()
         struct token *t = peek_next();
         switch (t->type) {
         case TOK_EQ:
-        case TOK_NEQ: /// Fall through.
+        case TOK_NEQ: /* Fall through. */
             expr = ast_binary_init(t->type, expr, parse_equality(), t->line_no, t->col_no);
             continue;
         default:
@@ -970,7 +964,7 @@ static struct ast_node *parse_relational()
         case TOK_GT:
         case TOK_LT:
         case TOK_GE:
-        case TOK_LE: /// Fall through.
+        case TOK_LE: /* Fall through. */
             expr = ast_binary_init(t->type, expr, parse_relational(), t->line_no, t->col_no);
             continue;
         default:
@@ -990,7 +984,7 @@ static struct ast_node *parse_shift()
         struct token *t = peek_next();
         switch (t->type) {
         case TOK_SHL:
-        case TOK_SHR: /// Fall through.
+        case TOK_SHR: /* Fall through. */
             expr = ast_binary_init(t->type, expr, parse_shift(), t->line_no, t->col_no);
             continue;
         default:
@@ -1010,7 +1004,7 @@ static struct ast_node *parse_additive()
         struct token *t = peek_next();
         switch (t->type) {
         case TOK_PLUS:
-        case TOK_MINUS: /// Fall through.
+        case TOK_MINUS: /* Fall through. */
             expr = ast_binary_init(t->type, expr, parse_additive(), t->line_no, t->col_no);
             continue;
         default:
@@ -1031,7 +1025,7 @@ static struct ast_node *parse_multiplicative()
         switch (t->type) {
         case TOK_STAR:
         case TOK_SLASH:
-        case TOK_MOD: /// Fall through.
+        case TOK_MOD: /* Fall through. */
             expr = ast_binary_init(t->type, expr, parse_multiplicative(), t->line_no, t->col_no);
             continue;
         default:
@@ -1048,10 +1042,10 @@ static struct ast_node *parse_prefix_unary()
     struct token *t = peek_next();
 
     switch (t->type) {
-    case TOK_BIT_AND: /// Address operator `&`.
-    case TOK_STAR: /// Dereference operator `*`.
+    case TOK_BIT_AND: /* Address operator `&`. */
+    case TOK_STAR: /* Dereference operator `*`. */
     case TOK_INC:
-    case TOK_DEC: /// Fall through.
+    case TOK_DEC: /* Fall through. */
         return ast_unary_init(
             AST_PREFIX_UNARY,
             t->type,
@@ -1060,7 +1054,7 @@ static struct ast_node *parse_prefix_unary()
             t->col_no
         );
     default:
-        /// Rollback current token pointer because there's no unary operator.
+        /* Rollback current token pointer because there's no unary operator. */
         --tok_begin;
         return parse_postfix_unary();
     }
@@ -1073,7 +1067,7 @@ static struct ast_node *parse_postfix_unary()
 
     switch (t->type) {
     case TOK_INC:
-    case TOK_DEC: /// Fall through.
+    case TOK_DEC: /* Fall through. */
         return ast_unary_init(
             AST_POSTFIX_UNARY,
             t->type,
@@ -1093,19 +1087,19 @@ static struct ast_node *parse_symbol()
     struct token *curr_tok = tok_begin;
 
     switch (curr_tok->type) {
-    /// symbol(
+    /* symbol( */
     case TOK_OPEN_PAREN:
         --tok_begin;
         return parse_function_call();
-    /// symbol[
+    /* symbol[ */
     case TOK_OPEN_BOX_BRACKET:
         --tok_begin;
         return parse_array_access();
-    /// symbol.
+    /* symbol. */
     case TOK_DOT:
         --tok_begin;
         return parse_struct_field_access();
-    /// symbol
+    /* symbol */
     default:
         return ast_symbol_init(strdup(start->data), start->line_no, start->col_no);
     }
@@ -1149,7 +1143,6 @@ static struct ast_node *parse_struct_var_decl()
 
     while (tok_is(peek_current(), '[')) {
         require_char('[');
-        /// \todo: Just peek number.
         struct ast_node *constant = parse_constant();
 
         if (constant->type != AST_INTEGER_LITERAL)
@@ -1180,7 +1173,7 @@ static struct ast_node *parse_struct_var_decl()
         return ast_array_decl_init(
             D_T_STRUCT,
             strdup(name->data),
-            dt.type_name, /// Already strdup()'ed.
+            dt.type_name, /* Already strdup()'ed. */
             enclosure_list_ast,
             dt.indirection_lvl,
             ptr_decl_body,
@@ -1192,7 +1185,7 @@ static struct ast_node *parse_struct_var_decl()
     return ast_var_decl_init(
         D_T_STRUCT,
         strdup(name->data),
-        dt.type_name, /// Already strdup()'ed.
+        dt.type_name, /* Already strdup()'ed. */
         dt.indirection_lvl,
         /*body=*/NULL,
         dt.line_no,
@@ -1259,7 +1252,7 @@ static struct ast_node *parse_expr()
     case TOK_INT:
     case TOK_CHAR:
     case TOK_FLOAT:
-    case TOK_BOOL: /// Fall through.
+    case TOK_BOOL: /* Fall through. */
       return parse_var_decl();
     default:
       return parse_assignment();
@@ -1284,7 +1277,7 @@ static struct ast_node *parse_assignment()
         case TOK_SHR_ASSIGN:
         case TOK_BIT_AND_ASSIGN:
         case TOK_BIT_OR_ASSIGN:
-        case TOK_XOR_ASSIGN: /// Fall through.
+        case TOK_XOR_ASSIGN: /* Fall through. */
             expr = ast_binary_init(
                 t->type,
                 expr,
@@ -1352,7 +1345,6 @@ static struct ast_node *parse_constant()
 {
     struct token *t = peek_next();
 
-    /// TODO: eliminate quotes
     switch (t->type) {
     case TOK_INTEGRAL_LITERAL:
         return ast_num_init(atoi(t->data), t->line_no, t->col_no);

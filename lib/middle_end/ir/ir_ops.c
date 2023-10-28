@@ -9,8 +9,8 @@
 
 void ir_remove(struct ir_node **ir, struct ir_node **list_head)
 {
-    /// Note: conditional statements is never removed, so
-    ///       *next_else and *prev_else are unused.
+    /* Note: conditional statements is never removed, so
+             *next_else and *prev_else are unused. */
     if ((*ir)->next) {
         (*ir)->next->prev = (*ir)->prev;
     }

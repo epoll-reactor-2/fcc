@@ -35,11 +35,11 @@ static bool correct_bin_ops(enum token_type op, enum data_type t)
     bool are_correct = false;
 
     switch (op) {
-    case TOK_ASSIGN: /// Fall through.
-        /// We need only check if there are same types on assignment.
+    case TOK_ASSIGN: /* Fall through. */
+        /* We need only check if there are same types on assignment. */
         are_correct = true;
         break;
-    /// Integer and floats.
+    /* Integer and floats. */
     case TOK_PLUS:
     case TOK_MINUS:
     case TOK_STAR:
@@ -55,7 +55,7 @@ static bool correct_bin_ops(enum token_type op, enum data_type t)
     case TOK_MUL_ASSIGN:
     case TOK_DIV_ASSIGN:
     case TOK_PLUS_ASSIGN:
-    case TOK_MINUS_ASSIGN: /// Fall through.
+    case TOK_MINUS_ASSIGN: /* Fall through. */
         are_correct |= t == D_T_INT;
         are_correct |= t == D_T_CHAR;
         are_correct |= t == D_T_BOOL;
@@ -73,7 +73,7 @@ static bool correct_bin_ops(enum token_type op, enum data_type t)
     case TOK_BIT_AND_ASSIGN:
     case TOK_XOR_ASSIGN:
     case TOK_SHL_ASSIGN:
-    case TOK_SHR_ASSIGN: /// Fall through.
+    case TOK_SHR_ASSIGN: /* Fall through. */
         are_correct |= t == D_T_INT;
         are_correct |= t == D_T_CHAR;
         are_correct |= t == D_T_BOOL;
@@ -135,7 +135,7 @@ static void visit_ast_unary(struct ast_node *ast)
 
     switch (stmt->operation) {
     case TOK_INC:
-    case TOK_DEC: /// Fall through.
+    case TOK_DEC: /* Fall through. */
         if (dt != D_T_CHAR && dt != D_T_INT)
             weak_compile_error(
                 ast->line_no,
@@ -145,10 +145,10 @@ static void visit_ast_unary(struct ast_node *ast)
                 data_type_to_string(dt)
             );
         break;
-    case TOK_BIT_AND: /// Address operator `&`.
+    case TOK_BIT_AND: /* Address operator `&`. */
         ++last_indir_lvl;
         break;
-    case TOK_STAR: /// Dereference operator `*`.
+    case TOK_STAR: /* Dereference operator `*`. */
         if (last_indir_lvl == 0)
             weak_compile_error(
                 ast->line_no,
@@ -196,7 +196,7 @@ static void visit_ast_var_decl(struct ast_node *ast)
 static void visit_ast_array_decl(struct ast_node *ast)
 {
     struct ast_array_decl *decl = ast->ast;
-    /// Required to be compound.
+    /* Required to be compound. */
     struct ast_compound *dimensions = decl->enclosure_list->ast;
     for (uint64_t i = 0; i < dimensions->size; ++i) {
         int32_t num = ( (struct ast_num *) (dimensions->stmts[i]->ast) )->value;
@@ -269,8 +269,8 @@ static void visit_ast_array_access(struct ast_node *ast)
         out_of_range_analysis(decl->enclosure_list, stmt->indices);
         decl_dt = decl->dt;
     } else {
-        /// If it is not an array, then obviously variable
-        /// declaration.
+        /* If it is not an array, then obviously variable
+           declaration. */
         struct ast_var_decl *decl = record->ast;
         if (decl->indirection_lvl == 0)
             weak_compile_error(
@@ -432,14 +432,14 @@ static void visit_ast_function_decl(struct ast_node *ast)
 {
     struct ast_function_decl *decl = ast->ast;
     enum data_type dt = decl->data_type;
-    if (decl->body == NULL) { /// Function prototype.
+    if (decl->body == NULL) { /* Function prototype. */
         ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
         return;
     }
     ast_storage_start_scope();
-    /// This is to have function in recursive calls.
+    /* This is to have function in recursive calls. */
     ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
-    /// Don't just visit compound AST, which creates and terminates scope.
+    /* Don't just visit compound AST, which creates and terminates scope. */
     struct ast_compound *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
         visit_ast_node(args->stmts[i]);
@@ -454,7 +454,7 @@ static void visit_ast_function_decl(struct ast_node *ast)
             data_type_to_string(dt)
         );
     ast_storage_end_scope();
-    /// This is to have function outside.
+    /* This is to have function outside. */
     ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
 }
 
@@ -463,10 +463,10 @@ void visit_ast_node(struct ast_node *ast)
     assert(ast);
 
     switch (ast->type) {
-    case AST_MEMBER: /// Unused... Or should be used?
-    case AST_STRUCT_DECL: /// Unused... Or should be used?
-    case AST_BREAK_STMT: /// Unused.
-    case AST_CONTINUE_STMT: break; /// Unused.
+    case AST_MEMBER: /* Unused... Or should be used? */
+    case AST_STRUCT_DECL: /* Unused... Or should be used? */
+    case AST_BREAK_STMT: /* Unused. */
+    case AST_CONTINUE_STMT: break; /* Unused. */
     case AST_CHAR_LITERAL:
         visit_ast_char();
         break;

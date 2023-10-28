@@ -15,15 +15,15 @@
 #include <assert.h>
 #include <string.h>
 
-/// Total list of functions.
+/* Total list of functions. */
 static ir_vector_t        ir_func_decls;
 static struct ir_node    *ir_first;
 static struct ir_node    *ir_last;
 static struct ir_node    *ir_prev;
-/// Used to count alloca instructions.
-/// Conditions:
-/// - reset at the start of each function declaration,
-/// - increments with every created alloca instruction.
+/* Used to count alloca instructions.
+   Conditions:
+   - reset at the start of each function declaration,
+   - increments with every created alloca instruction. */
 static int32_t            ir_var_idx;
 static bool               ir_save_first;
 static bool               ir_meta_is_loop;
@@ -31,21 +31,21 @@ static uint64_t           ir_nesting;
 static uint64_t           ir_loop_idx;
 static  int64_t           ir_dominant_condition_idx = -1;
 static int32_t            ir_meta_loop_idx;
-/// This used to judge if we should put function call to IR list
-/// or use it as instruction operand.
+/* This used to judge if we should put function call to IR list
+   or use it as instruction operand. */
 static bool               ir_is_global_scope;
 static hashmap_t          ir_func_return_types;
-/// This is stacks for `break` and `continue` instructions.
-/// On the top of stack sits most recent loop (loop with maximum
-/// current depth). This complication used to store correct states
-/// for all nested loops where we are located now.
-///
-/// When
-///   - break   , jumps to the first statement after current loop.
-///   - continue, jumps to the loop header (for, while, do-while conditions).
-///
-/// Note, that there is no stack for continue statements. Indices for them
-/// computed immediately from `ir_loop_header_stack`.
+/* This is stacks for `break` and `continue` instructions.
+   On the top of stack sits most recent loop (loop with maximum
+   current depth). This complication used to store correct states
+   for all nested loops where we are located now.
+  
+   When
+     - break   , jumps to the first statement after current loop.
+     - continue, jumps to the loop header (for, while, do-while conditions).
+  
+   Note, that there is no stack for continue statements. Indices for them
+   computed immediately from `ir_loop_header_stack`. */
 static ir_vector_t        ir_break_stack;
 static vector_t(uint64_t) ir_loop_header_stack;
 
@@ -129,8 +129,8 @@ static void invalidate()
 
 static void visit_ast(struct ast_node *ast);
 
-/// Primitives. Are not pushed to ir_stmts, because
-/// they are immediate values.
+/* Primitives. They are not pushed to ir_stmts, because
+   they are immediate values. */
 static void visit_ast_bool(struct ast_bool *ast)
 {
     ir_last = ir_imm_bool_init(ast->value);
@@ -153,8 +153,8 @@ static void visit_ast_num(struct ast_num *ast)
 
 static void visit_ast_string(struct ast_string *ast)
 {
-    /// ast->value is allocated in AST also. We duplicate to do not
-    /// be dependent on AST cleanup.
+    /* ast->value is allocated in AST also. We duplicate to do not
+       be dependent on AST cleanup. */
     ir_last = ir_string_init(ast->len, strdup(ast->value));
 }
 
@@ -173,7 +173,7 @@ static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
 
 __weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym *assign)
 {
-    /// We want to mark @noalias only symbols.
+    /* We want to mark @noalias only symbols. */
     if (ir->type != IR_SYM)
         return;
 
@@ -213,7 +213,7 @@ static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
 
 static void visit_ast_binary(struct ast_binary *ast)
 {
-    /// Symbol.
+    /* Symbol. */
     static struct ir_node *last_assign = NULL;
     static int32_t depth = 0;
 
@@ -228,13 +228,13 @@ static void visit_ast_binary(struct ast_binary *ast)
     }
 
     if (depth == 0) {
-        /// Depth is 0 means end of the binary expression
-        /// at the program syntax level.
-        ///
-        /// int a = /// Depth is 0.
-        ///       b + c /// Depth is 1, then 2.
-        ///         d + e; /// Depth is 3, then 4.
-        /// /// Depth is again 0.
+        /* Depth is 0 means end of the binary expression
+           at the program syntax level.
+          
+           int a =        // Depth is 0.
+                 b + c    // Depth is 1, then 2.
+                   d + e; // Depth is 3, then 4.
+                          // Depth is again 0. */
         last_assign = NULL;
     }
 }
@@ -254,14 +254,13 @@ static void visit_ast_continue(struct ast_continue *ast)
     ir_insert(ir);
 }
 
-
-/// Add metainformation about data flow condition dominator.
-/// After this, each statement is depends (by data) on its loop
-/// condition.
-///
-/// Pay attention, that if loop is nested, each statement depends
-/// on the most outer condition. In general, on loop condition at global
-/// function level.
+/* Add metainformation about data flow condition dominator.
+   After this, each statement is depends (by data) on its loop
+   condition.
+  
+   Pay attention, that if loop is nested, each statement depends
+   on the most outer condition. In general, on loop condition at global
+   function level. */
 static void mark_dominant_condition(struct ir_node *start, struct ir_node *end, uint64_t dom_idx)
 {
     while (start && start != end) {
@@ -272,25 +271,25 @@ static void mark_dominant_condition(struct ir_node *start, struct ir_node *end, 
     }
 }
 
-/// To emit correct `break`, we just attach it to the next
-/// statement after the loop.
-///
-/// To emit correct `continue` we taking last (deepest right now)
-/// loop header index from stack and then remove it from stack.
-///
-/// while () {
-///   continue;         | Level 0
-///   while () {
-///     continue;       | Level 1
-///   }
-/// }
+/* To emit correct `break`, we just attach it to the next
+   statement after the loop.
+  
+   To emit correct `continue` we taking last (deepest right now)
+   loop header index from stack and then remove it from stack.
+  
+   while () {
+     continue;         | Level 0
+     while () {
+       continue;       | Level 1
+     }
+   } */
 static inline void emit_loop_flow_instrs()
 {
     if (ir_break_stack.count > 0) {
         struct ir_node *back = vector_back(ir_break_stack);
         struct ir_jump *jmp = back->ir;
         jmp->idx = ir_last->instr_idx + 1;
-        /// Target will be added during linkage based on index.
+        /* Target will be added during linkage based on index. */
         jmp->target = NULL;
 
         vector_pop_back(ir_break_stack);
@@ -301,25 +300,25 @@ static inline void emit_loop_flow_instrs()
 
 static void visit_ast_for(struct ast_for *ast)
 {
-    /// Schema:
-    ///
-    /// L0:  init variable
-    /// L1:  if condition is true jump to L3
-    /// L2:  jump to L7 (exit label)
-    /// L3:  body instr 1
-    /// L4:  body instr 2
-    /// L5:  increment
-    /// L6:  jump to L1 (condition)
-    /// L7:  after for instr
-
-    /// Initial part is optional.
+    /* Schema:
+      
+       L0:  init variable
+       L1:  if condition is true jump to L3
+       L2:  jump to L7 (exit label)
+       L3:  body instr 1
+       L4:  body instr 2
+       L5:  increment
+       L6:  jump to L1 (condition)
+       L7:  after for instr
+       
+       Initial part is optional. */
 
     ir_meta_is_loop = 1;
     if (ast->init) visit_ast(ast->init);
     ir_meta_is_loop = 0;
 
-    /// Body starts with condition that is checked on each
-    /// iteration.
+    /* Body starts with condition that is checked on each
+      iteration. */
     int32_t         next_iter_jump_idx = 0;
     int32_t         header_idx         = ir_last->instr_idx + 1;
     struct ir_node *cond               = NULL;
@@ -333,13 +332,13 @@ static void visit_ast_for(struct ast_for *ast)
         ++ir_loop_idx;
 
     ++ir_nesting;
-    /// Condition is optional.
+    /* Condition is optional. */
     if (ast->condition) {
         next_iter_jump_idx       = ir_last->instr_idx + 1;
         visit_ast(ast->condition);
         struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
-        cond                     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
-        exit_jmp                 = ir_jump_init(/*Not used for now.*/-1);
+        cond                     = ir_cond_init(cond_bin, /* Not used for now. */-1);
+        exit_jmp                 = ir_jump_init(/* Not used for now. */-1);
         exit_jmp_ptr             = exit_jmp->ir;
         struct ir_cond *cond_ptr = cond->ir;
 
@@ -358,7 +357,7 @@ static void visit_ast_for(struct ast_for *ast)
     else
         body_start = NULL;
 
-    /// Increment is optional.
+    /* Increment is optional. */
     ir_meta_is_loop = 1;
     if (ast->increment) visit_ast(ast->increment);
     ir_meta_is_loop = 0;
@@ -382,14 +381,14 @@ static void visit_ast_for(struct ast_for *ast)
 
 static void visit_ast_while(struct ast_while *ast)
 {
-    /// Schema:
-    ///
-    /// L0: if condition is true jump to L2
-    /// L1: jump to L5 (exit label)
-    /// L2: body instr 1
-    /// L3: body instr 2
-    /// L4: jump to L0 (condition)
-    /// L5: after while instr
+    /* Schema:
+      
+       L0: if condition is true jump to L2
+       L1: jump to L5 (exit label)
+       L2: body instr 1
+       L3: body instr 2
+       L4: jump to L0 (condition)
+       L5: after while instr */
 
     int32_t next_iter_idx = ir_last->instr_idx + 1;
     int32_t header_idx    = ir_last->instr_idx + 1;
@@ -433,13 +432,13 @@ static void visit_ast_while(struct ast_while *ast)
 
 static void visit_ast_do_while(struct ast_do_while *ast)
 {
-    /// Schema:
-    ///
-    /// L0: body instr 1
-    /// L1: body instr 2
-    /// L2: allocate temporary for condition
-    /// L3: store condition in temporary
-    /// L4: if condition is true jump to L0
+    /* Schema:
+      
+       L0: body instr 1
+       L1: body instr 2
+       L2: allocate temporary for condition
+       L3: store condition in temporary
+       L4: if condition is true jump to L0 */
 
     int32_t stmt_begin;
     int32_t header_idx = ir_last->instr_idx + 1;
@@ -472,9 +471,9 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     struct ir_node *cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr = cond->ir;
 
-    /// We will set this pointer in ir_link() because
-    /// we cannot peek next instruction now.
-    /// It is not generated.
+    /* We will set this pointer in ir_link() because
+       we cannot peek next instruction now.
+       It is not generated. */
     cond->next_else = NULL;
     cond_ptr->goto_label = stmt_begin + 1;
 
@@ -488,36 +487,39 @@ static void visit_ast_do_while(struct ast_do_while *ast)
 
 static void visit_ast_if(struct ast_if *ast)
 {
-    /// Schema:
-    ///
-    ///      if condition is true jump to L1
-    /// L0:  jump to L3 (exit label)
-    /// L1:  body instr 1 (first if stmt)
-    /// L2:  body instr 2
-    /// L3:  after if
-    ///
-    /// or
-    ///      if condition is true jump to L1
-    /// L0:  jump to L4 (else label)
-    /// L1:  body instr 1 (first if stmt)
-    /// L2:  body instr 2
-    /// L3:  jump to L6
-    /// L4:  else body instr 1
-    /// L5:  else body instr 2
-    /// L6:  after if
+    /* Schema:
+      
+            if condition is true jump to L1
+       L0:  jump to L3 (exit label)
+       L1:  body instr 1 (first if stmt)
+       L2:  body instr 2
+       L3:  after if
+      
+       or
+            if condition is true jump to L1
+       L0:  jump to L4 (else label)
+       L1:  body instr 1 (first if stmt)
+       L2:  body instr 2
+       L3:  jump to L6
+       L4:  else body instr 1
+       L5:  else body instr 2
+       L6:  after if */
+
     ++ir_nesting;
     visit_ast(ast->condition);
     assert((
         ir_last->type == IR_IMM ||
         ir_last->type == IR_SYM
     ) && ("Immediate value or symbol required."));
-    /// Condition always looks like comparison with 0.
-    ///
-    /// Possible cases:
-    ///                    v Binary operation result.
-    /// - if (1 + 1) -> if sym neq $0 goto ...
-    /// - if (1    ) -> if imm neq $0 goto ...
-    /// - if (var  ) -> if sym neq $0 goto ...
+
+    /* Condition always looks like comparison with 0.
+      
+       Possible cases:
+                          v Binary operation result.
+       - if (1 + 1) -> if sym neq $0 goto ...
+       - if (1    ) -> if imm neq $0 goto ...
+       - if (var  ) -> if sym neq $0 goto ... */
+   
     ir_last = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
 
     struct ir_node *cond        = ir_cond_init(ir_last, /*Not used for now.*/-1);
@@ -527,7 +529,7 @@ static void visit_ast_if(struct ast_if *ast)
 
     ir_dominant_condition_idx = cond->instr_idx;
 
-    /// Body starts after exit jump.
+    /* Body starts after exit jump. */
     cond_ptr->goto_label = end_jmp->instr_idx + 1;
     ir_insert(cond);
     ir_insert(end_jmp);
@@ -539,11 +541,11 @@ static void visit_ast_if(struct ast_if *ast)
 
     initial_stmt = initial_stmt->next;
 
-    /// Even with code like
-    /// void f() { if (x) { f(); } }
-    /// this will make us to jump to the `ret`
-    /// instruction, which terminates each (regardless
-    /// on the return type) function.
+    /* Even with code like
+       void f() { if (x) { f(); } }
+       this will make us to jump to the `ret`
+       instruction, which terminates each (regardless
+       on the return type) function. */
     end_jmp_ptr->idx = ir_last->instr_idx + 1;
 
     cond->next_else = end_jmp;
@@ -555,17 +557,15 @@ static void visit_ast_if(struct ast_if *ast)
     ++ir_nesting;
     struct ir_node *else_jmp = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *else_jmp_ptr = else_jmp->ir;
-    /// Index of this jump will be changed through pointer.
+    /* Index of this jump will be changed through pointer. */
     ir_insert(else_jmp);
 
     initial_stmt = ir_last;
 
-    /// Jump over the `then` statement to `else`.
-    end_jmp_ptr->idx = ir_last->instr_idx
-        // + 1  /// Jump statement.
-        + 1; /// The next one (first in `else` part).
+    /* Jump over the `then` statement to `else`. */
+    end_jmp_ptr->idx = ir_last->instr_idx + 1; /* +1 jump statement. */
     visit_ast(ast->else_body);
-    /// `then` part ends with jump over `else` part.
+    /* `then` part ends with jump over `else` part. */
     else_jmp_ptr->idx = ir_last->instr_idx + 1;
 
     initial_stmt = initial_stmt->next;
@@ -593,7 +593,7 @@ static void visit_ast_symbol(struct ast_symbol *ast)
     ir_last = ir_sym_init(idx);
 }
 
-/// Note: unary statements always have @noalias attribute.
+/* Note: unary statements always have @noalias attribute. */
 static void visit_ast_unary(struct ast_unary *ast)
 {
     visit_ast(ast->operand);
@@ -606,7 +606,7 @@ static void visit_ast_unary(struct ast_unary *ast)
     struct ir_node *sym_node = ir_last;
 
     enum token_type op = ast->operation;
-    /// Checked by parser.
+    /* Checked by parser. */
     assert(op == TOK_INC || op == TOK_DEC);
 
     ir_last = ir_bin_init(
@@ -631,7 +631,8 @@ static void emit_var(struct ast_var_decl *ast)
 {
     int32_t next_idx = ir_var_idx++;
     ir_last = ir_alloca_init(ast->dt, ast->indirection_lvl, next_idx);
-    /// Used as function argument or as function body statement.
+
+    /* Used as function argument or as function body statement. */
     ir_insert_last();
     ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
 
@@ -646,7 +647,7 @@ static void emit_var_string(struct ast_var_decl *ast)
 {
     struct ast_string *string   = ast->body->ast;
      int32_t           next_idx = ir_var_idx++;
-    uint64_t           mem_siz  = string->len + 1; /// We add '\0'.
+    uint64_t           mem_siz  = string->len + 1; /* We add '\0'. */
 
     ir_last = ir_alloca_array_init(D_T_CHAR, &mem_siz, 1, next_idx);
     ir_insert_last();
@@ -670,28 +671,27 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
         emit_var(ast);
 }
 
-/*
-    Example. Decide, how to store indices list.
+/* Example. Decide, how to store indices list.
 
-    int mem[1][2][3];
-    mem[0][0][1] = 6;
-    mem[0][1][2] = 9;
+   int mem[1][2][3];
+   mem[0][0][1] = 6;
+   mem[0][1][2] = 9;
 
-    alloca [1 * 2 * 3] %0
-    %1 = load %0 [0 * 1 + 0 * 2 + 1]
-        /// Stride = 1
-        ///
-        /// [ ][ ][ ][ ][ ][ ]
-        ///     ^
-        ///     Store there
-    store %1 6
-    %2 = load %0 [0 * 1 + 1 * 2 + 2]
-        /// Stride = 4
-        ///
-        /// [ ][ ][ ][ ][ ][ ]
-        ///              ^
-        ///              Store there
-    store %2 9
+   alloca [1 * 2 * 3] %0
+   %1 = load %0 [0 * 1 + 0 * 2 + 1]
+       /// Stride = 1
+       ///
+       /// [ ][ ][ ][ ][ ][ ]
+       ///     ^
+       ///     Store there
+   store %1 6
+   %2 = load %0 [0 * 1 + 1 * 2 + 2]
+       /// Stride = 4
+       ///
+       /// [ ][ ][ ][ ][ ][ ]
+       ///              ^
+       ///              Store there
+   store %2 9
 */
 static void visit_ast_array_decl(struct ast_array_decl *ast)
 {
@@ -728,8 +728,8 @@ static void visit_ast_array_decl(struct ast_array_decl *ast)
 
 static void visit_ast_array_access(struct ast_array_access *ast)
 {
-    /// First just assume one-dimensional array.
-    /// Next extend to multi-dimensional.
+    /* First just assume one-dimensional array.
+       Next extend to multi-dimensional. */
 
     struct ir_storage_record *record = ir_storage_get(ast->name);
 
@@ -854,7 +854,7 @@ static void visit_ast_function_call(struct ast_function_call *ast)
     }
 }
 
-/* static */ void visit_ast(struct ast_node *ast)
+static void visit_ast(struct ast_node *ast)
 {
     assert(ast);
 
@@ -913,10 +913,11 @@ void ir_link(struct ir_func_decl *decl)
         case IR_COND: {
             struct ir_cond *cond = stmt->ir;
             cond->target = stmts.data[cond->goto_label];
-            /// If next_else pointer is NULL, we assume,
-            /// that this is do-while condition. We
-            /// have nowhere to jump during do {} while (...)
-            /// statement codegen.
+
+            /* If next_else pointer is NULL, we assume,
+               that this is do-while condition. We
+               have nowhere to jump during do {} while (...)
+               statement codegen. */
             if (!stmt->next_else)
                  stmt->next_else = stmts.data[i + 1];
             stmts.data[cond->goto_label]->prev_else = stmt;
@@ -938,19 +939,16 @@ static void ir_build_cfg(struct ir_func_decl *decl)
     uint64_t cfg_no = 0;
 
     while (it) {
-        if (!it->prev || it->prev_else || it->prev->type == IR_JUMP || it->prev->type == IR_COND) {
+        if (!it->prev || it->prev_else || it->prev->type == IR_JUMP || it->prev->type == IR_COND)
             started = 1;
-            // printf("\nBlock %ld from instr %d", cfg_no, it->instr_idx);
-        }
+
         if (started && (it->type == IR_JUMP || it->type == IR_COND)) {
             started = 0;
             ++cfg_no;
             it->cfg_block_no = cfg_no;
-            // printf(" to instr %d", it->instr_idx);
         }
         it = it->next;
     }
-    // printf("\n");
 }
 
 struct ir_unit *ir_gen(struct ast_node *ast)
@@ -975,7 +973,6 @@ struct ir_unit *ir_gen(struct ast_node *ast)
 
         ir_link(decl->ir);
         ir_build_cfg(decl->ir);
-        // ir_dump_cfg(stdout, decl->ir);
     }
 
     struct ir_node *decls = vector_at(ir_func_decls, 0);
