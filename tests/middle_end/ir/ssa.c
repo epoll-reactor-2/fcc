@@ -60,11 +60,11 @@ bool ir_test(const char *path, const char *filename)
 
     tok_array_t *toks = lex_consumed_tokens();
 
-    bool    success = true;
-    char   *expected = NULL;
-    char   *generated = NULL;
-    size_t  _ = 0;
-    char    cfg_path[256] = {0};
+    bool    success            = true;
+    char   *expected           = NULL;
+    char   *generated          = NULL;
+    size_t  _                  =  0;
+    char    cfg_path[256]      = {0};
     char    dom_tree_path[256] = {0};
 
     snprintf(cfg_path, 255, "%s/%s_cfg.dot", current_output_dir, filename);
