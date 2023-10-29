@@ -52,7 +52,9 @@ __weak_really_inline void tokens_cleanup(tok_array_t *toks)
    // A,
    // b,
    // c.
-   String "A,\nb,\nc." will be issued in output stream. */
+   String "A,\nb,\nc." will be issued in output stream.
+
+   NOTE: Requires opened `yyin` stream. */
 __weak_really_inline void extract_assertion_comment(FILE *in, FILE *out)
 {
     char   *line = NULL;
@@ -172,7 +174,7 @@ extern int yylex_destroy();
 
 /* Depends on flex output state, `lex_consumed_tokens` should
    return tokens for current file opened by lex. */
-__weak_really_inline struct ir_unit *gen_ir(const char *filename)
+__weak_really_inline tok_array_t *gen_tokens(const char *filename)
 {
     lex_reset_state();
     lex_init_state();
@@ -186,7 +188,12 @@ __weak_really_inline struct ir_unit *gen_ir(const char *filename)
     yylex();
     fseek(yyin, 0, SEEK_SET);
 
-    tok_array_t *tokens = lex_consumed_tokens();
+    return lex_consumed_tokens();
+}
+
+__weak_really_inline struct ir_unit *gen_ir(const char *filename)
+{
+    tok_array_t *tokens = gen_tokens(filename);
 
     struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);
 

@@ -15,7 +15,7 @@
 struct ast_storage_decl {
     struct ast_node *ast;
     enum data_type   data_type;
-    char            *name;
+    const char      *name;
     uint16_t         indirection_lvl;
     uint16_t         read_uses; /// How many times variable was accessed.
     uint16_t         write_uses; /// How many times value was written to variable.

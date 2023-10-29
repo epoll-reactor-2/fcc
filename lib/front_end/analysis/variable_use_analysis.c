@@ -13,7 +13,7 @@
 #include <assert.h>
 #include <string.h>
 
-typedef vector_t(struct ast_node *) ast_array_t;
+typedef vector_t         (struct ast_node *)  ast_array_t;
 typedef vector_t(vector_t(struct ast_node *)) ast_usage_stack_t;
 
 static ast_usage_stack_t collected_uses = {0};
@@ -38,10 +38,9 @@ static void init_internal_state()
 static void reset_internal_state()
 {
     vector_foreach(collected_uses, i) {
-        vector_clear(collected_uses.data[i]);
+        vector_free(collected_uses.data[i]);
     }
-    vector_clear(collected_uses);
-    memset(&collected_uses, 0, sizeof (ast_usage_stack_t));
+    vector_free(collected_uses);
 }
 
 static void collect_ast(struct ast_node *ast)
@@ -181,6 +180,8 @@ void make_unused_var_analysis()
             );
         }
     }
+
+    vector_free(set);
 }
 
 void make_unused_var_and_func_analysis()
@@ -206,6 +207,8 @@ void make_unused_var_and_func_analysis()
                 use->write_uses ? "written, but never read" : "is never used"
             );
     }
+
+    vector_free(set);
 }
 
 static void visit_ast_node(struct ast_node *ast);

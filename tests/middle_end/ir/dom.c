@@ -72,11 +72,12 @@ void dominates_condition()
     struct ir_node *f = ir_func_decl_init(D_T_INT, "f", NULL, _1);
 
     ir_dominator_tree(f->ir);
-
+    /*
     printf("idom(1): %d\n", _1->idom->instr_idx);
     printf("idom(2): %d\n", _2->idom->instr_idx);
     printf("idom(3): %d\n", _3->idom->instr_idx);
     printf("idom(4): %d\n", _4->idom->instr_idx);
+    */
 
     /* CFG:
 
@@ -123,8 +124,8 @@ void dominates_condition()
     ASSERT_TRUE(!ir_dominates(_2, _4));
 //  ASSERT_TRUE(!ir_dominates(_3, _4));
 
-    ir_dump_cfg(stdout, f->ir);
-    ir_dump_dom_tree(stdout, f->ir);
+    /* ir_dump_cfg(stdout, f->ir);
+    ir_dump_dom_tree(stdout, f->ir); */
 
     ir_node_cleanup(f);
 
