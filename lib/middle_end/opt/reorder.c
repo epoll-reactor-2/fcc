@@ -79,7 +79,7 @@ __weak_really_inline static void swap(struct ir_node *ir)
 }
 
 /* This generally needed to force reordering algorithm to begin.
-   If we will start from first alloca statements, wi will fall
+   If we start from first alloca statements, wi will fall
    into the senseless infinite recursion. */
 __weak_really_inline static bool initial_move(struct ir_node **ir)
 {

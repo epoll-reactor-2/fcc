@@ -43,7 +43,7 @@ static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 {
     fprintf(
         mem,
-        "%s %st%d",
+        "%s %st%lu",
         data_type_to_string(ir->dt),
         ir->indir_lvl ? "* " : "",
         ir->idx
@@ -54,7 +54,7 @@ static void ir_dump_alloca_array(FILE *mem, struct ir_alloca_array *ir)
 {
     uint64_t total = ir->enclosure_lvls_size;
 
-    fprintf(mem, "%s t%d[", data_type_to_string(ir->dt), ir->idx);
+    fprintf(mem, "%s t%lu[", data_type_to_string(ir->dt), ir->idx);
     for (uint64_t i = 0; i < total; ++i) {
         uint64_t e = ir->enclosure_lvls[i];
         fprintf(mem, "%ld", e);
@@ -84,7 +84,7 @@ static void ir_dump_string(FILE *mem, struct ir_string *ir)
 
 static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 {
-    fprintf(mem, "%st%d", ir->deref ? "*" : "", ir->idx);
+    fprintf(mem, "%st%lu", ir->deref ? "*" : "", ir->idx);
 }
 
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
@@ -105,14 +105,14 @@ static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
 
 static void ir_dump_jump(FILE *mem, struct ir_jump *ir)
 {
-    fprintf(mem, "jmp L%d", ir->idx);
+    fprintf(mem, "jmp L%ld", ir->idx);
 }
 
 static void ir_dump_cond(FILE *mem, struct ir_cond *ir)
 {
     fprintf(mem, "if ");
     ir_dump_node(mem, ir->cond);
-    fprintf(mem, " goto L%d", ir->goto_label);
+    fprintf(mem, " goto L%ld", ir->goto_label);
 }
 
 static void ir_dump_ret(FILE *mem, struct ir_ret *ir)
@@ -128,7 +128,7 @@ static void ir_dump_ret_void(FILE *mem)
 
 static void ir_dump_member(FILE *mem, struct ir_member *ir)
 {
-    fprintf(mem, "%%%d.%d", ir->idx, ir->field_idx);
+    fprintf(mem, "%%%ld.%ld", ir->idx, ir->field_idx);
 }
 
 static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)

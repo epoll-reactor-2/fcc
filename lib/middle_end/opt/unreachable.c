@@ -58,10 +58,10 @@ static void traverse(bool *visited, uint64_t *max_id, struct ir_node *ir)
             /* We continue walking over graph if
                1) Return statement has successor in other CFG block.
                2) Return statement has no jump successors. Even if jumps
-                  are located after return, they were/will visited
+                  are located after return, they were/will visit
                   as condition or other jump targets, so they are not
                   removed.
-              
+
                Otherwise, all after return statement can be safely
                removed since it guaranteed to never be reached. */
             should_jump &= !in_same_cfg_block(ir, ir->next);

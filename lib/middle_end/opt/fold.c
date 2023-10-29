@@ -173,7 +173,7 @@ __weak_wur static bool is_no_result(struct ir_node *ir)
     return ir == no_result();
 }
 
-static int32_t get_store_idx(struct ir_node *ir)
+static uint64_t get_store_idx(struct ir_node *ir)
 {
     struct ir_sym *store = ir->ir;
     return store->idx;

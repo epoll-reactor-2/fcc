@@ -34,7 +34,7 @@ struct ir_node *ir_node_init(enum ir_type type, void *ir)
     return node;
 }
 
-struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, int32_t idx)
+struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, uint64_t idx)
 {
     struct ir_alloca *ir = weak_calloc(1, sizeof (struct ir_alloca));
     ir->dt = dt;
@@ -48,7 +48,7 @@ struct ir_node *ir_alloca_array_init(
     enum data_type  dt,
     uint64_t       *enclosure_lvls,
     uint64_t        enclosure_lvls_size,
-    int32_t         idx
+    uint64_t         idx
 ) {
     struct ir_alloca_array *ir = weak_calloc(1, sizeof (struct ir_alloca_array));
     ir->dt = dt;
@@ -83,7 +83,7 @@ struct ir_node *ir_imm_float_init(float imm)
     return ir_node_init(IR_IMM, ir);
 }
 
-struct ir_node *ir_imm_int_init(int32_t imm)
+struct ir_node *ir_imm_int_init(uint64_t imm)
 {
     struct ir_imm *ir = weak_calloc(1, sizeof (struct ir_imm));
     ir->imm.__int = imm;
@@ -100,7 +100,7 @@ struct ir_node *ir_string_init(uint64_t len, char *imm)
     return ir_node_init(IR_STRING, ir);
 }
 
-struct ir_node *ir_sym_init(int32_t idx)
+struct ir_node *ir_sym_init(uint64_t idx)
 {
     struct ir_sym *ir = weak_calloc(1, sizeof (struct ir_sym));
     ir->deref = 0;
@@ -108,7 +108,7 @@ struct ir_node *ir_sym_init(int32_t idx)
     return ir_node_init(IR_SYM, ir);
 }
 
-struct ir_node *ir_sym_ptr_init(int32_t idx)
+struct ir_node *ir_sym_ptr_init(uint64_t idx)
 {
     struct ir_sym *ir = weak_calloc(1, sizeof (struct ir_sym));
     ir->deref = 1;
@@ -131,7 +131,7 @@ struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body)
     return ir_node_init(IR_STORE, ir);
 }
 
-struct ir_node *ir_store_sym_init(int32_t idx, struct ir_node *body)
+struct ir_node *ir_store_sym_init(uint64_t idx, struct ir_node *body)
 {
     return ir_store_init(ir_sym_init(idx), body);
 }
@@ -154,7 +154,7 @@ struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_n
     return ir_node_init(IR_BIN, ir);
 }
 
-struct ir_node *ir_jump_init(int32_t idx)
+struct ir_node *ir_jump_init(uint64_t idx)
 {
     struct ir_jump *ir = weak_calloc(1, sizeof (struct ir_jump));
     ir->idx = idx;
@@ -162,7 +162,7 @@ struct ir_node *ir_jump_init(int32_t idx)
     return ir_node_init(IR_JUMP, ir);
 }
 
-struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label)
+struct ir_node *ir_cond_init(struct ir_node *cond, uint64_t goto_label)
 {
     assert(cond->type == IR_BIN && "Only binary instruction supported as condition body");
     struct ir_cond *ir = weak_calloc(1, sizeof (struct ir_cond));
@@ -189,7 +189,7 @@ struct ir_node *ir_ret_init(bool is_void, struct ir_node *body)
     return ir_node_init(is_void ? IR_RET_VOID : IR_RET, ir);
 }
 
-struct ir_node *ir_member_init(int32_t idx, int32_t field_idx)
+struct ir_node *ir_member_init(uint64_t idx, uint64_t field_idx)
 {
     struct ir_member *ir = weak_calloc(1, sizeof (struct ir_member));
     ir->idx = idx;
