@@ -157,7 +157,7 @@ static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
 
     it = ir->body;
     while (it) {
-        fprintf(mem, "\n% 8d:   ", it->instr_idx);
+        fprintf(mem, "\n% 8ld:   ", it->instr_idx);
         fprintf_n(mem, it->meta.nesting * 2, ' ');
         ir_dump_node(mem, it);
         it = it->next;
@@ -220,7 +220,7 @@ static void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
     fprintf(mem, "\nDF = {");
     vector_foreach(ir->df, i) {
         struct ir_node *df = vector_at(ir->df, i);
-        fprintf(mem, "%d", df->instr_idx);
+        fprintf(mem, "%ld", df->instr_idx);
         if (i < ir->df.count - 1)
             fprintf(mem, ", ");
     }
@@ -244,7 +244,7 @@ void ir_dump_unit(FILE *mem, struct ir_unit *unit)
 
 __weak_really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
 {
-    fprintf(mem, "%d:   ", ir->instr_idx);
+    fprintf(mem, "%ld:   ", ir->instr_idx);
     ir_dump_node(mem, ir);
     ir_dump_dominance_frontier(mem, ir);
 }

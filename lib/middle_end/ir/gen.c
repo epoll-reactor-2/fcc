@@ -24,13 +24,13 @@ static struct ir_node    *ir_prev;
    Conditions:
    - reset at the start of each function declaration,
    - increments with every created alloca instruction. */
-static int32_t            ir_var_idx;
+static uint64_t            ir_var_idx;
 static bool               ir_save_first;
 static bool               ir_meta_is_loop;
 static uint64_t           ir_nesting;
 static uint64_t           ir_loop_idx;
 static  int64_t           ir_dominant_condition_idx = -1;
-static int32_t            ir_meta_loop_idx;
+static uint64_t           ir_meta_loop_idx;
 /* This used to judge if we should put function call to IR list
    or use it as instruction operand. */
 static bool               ir_is_global_scope;
@@ -189,7 +189,7 @@ static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
 {
     ir_last = ir_alloca_init(D_T_INT, /*ptr=*/0, ir_var_idx++);
     struct ir_alloca *alloca = ir_last->ir;
-    int32_t alloca_idx = alloca->idx;
+    uint64_t alloca_idx = alloca->idx;
 
     ir_insert_last();
 
@@ -216,7 +216,7 @@ static void visit_ast_binary(struct ast_binary *ast)
 {
     /* Symbol. */
     static struct ir_node *last_assign = NULL;
-    static int32_t depth = 0;
+    static uint64_t depth = 0;
 
     if (ast->operation == TOK_ASSIGN) {
         ++depth;
@@ -320,12 +320,12 @@ static void visit_ast_for(struct ast_for *ast)
 
     /* Body starts with condition that is checked on each
       iteration. */
-    int32_t         next_iter_jump_idx = 0;
-    int32_t         header_idx         = ir_last->instr_idx + 1;
-    struct ir_node *cond               = NULL;
-    struct ir_node *exit_jmp           = NULL;
-    struct ir_jump *exit_jmp_ptr       = NULL;
-    struct ir_node *body_start         = NULL;
+    uint64_t         next_iter_jump_idx = 0;
+    uint64_t         header_idx         = ir_last->instr_idx + 1;
+    struct ir_node *cond                = NULL;
+    struct ir_node *exit_jmp            = NULL;
+    struct ir_jump *exit_jmp_ptr        = NULL;
+    struct ir_node *body_start          = NULL;
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
@@ -391,8 +391,8 @@ static void visit_ast_while(struct ast_while *ast)
        L4: jump to L0 (condition)
        L5: after while instr */
 
-    int32_t next_iter_idx = ir_last->instr_idx + 1;
-    int32_t header_idx    = ir_last->instr_idx + 1;
+    uint64_t next_iter_idx = ir_last->instr_idx + 1;
+    uint64_t header_idx    = ir_last->instr_idx + 1;
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
@@ -441,8 +441,8 @@ static void visit_ast_do_while(struct ast_do_while *ast)
        L3: store condition in temporary
        L4: if condition is true jump to L0 */
 
-    int32_t stmt_begin;
-    int32_t header_idx = ir_last->instr_idx + 1;
+    uint64_t stmt_begin;
+    uint64_t header_idx = ir_last->instr_idx + 1;
 
     struct ir_node *initial_stmt = ir_last;
 
@@ -590,7 +590,7 @@ static void visit_ast_return(struct ast_return *ast)
 
 static void visit_ast_symbol(struct ast_symbol *ast)
 {
-    int32_t idx = ir_storage_get(ast->value)->sym_idx;
+    uint64_t idx = ir_storage_get(ast->value)->sym_idx;
     ir_last = ir_sym_init(idx);
 }
 
@@ -630,7 +630,7 @@ static void visit_ast_struct_decl(struct ast_struct_decl *ast) { (void) ast; }
 
 static void emit_var(struct ast_var_decl *ast)
 {
-    int32_t next_idx = ir_var_idx++;
+    uint64_t next_idx = ir_var_idx++;
     ir_last = ir_alloca_init(ast->dt, ast->indirection_lvl, next_idx);
 
     /* Used as function argument or as function body statement. */
@@ -647,7 +647,7 @@ static void emit_var(struct ast_var_decl *ast)
 static void emit_var_string(struct ast_var_decl *ast)
 {
     struct ast_string *string   = ast->body->ast;
-     int32_t           next_idx = ir_var_idx++;
+    uint64_t           next_idx = ir_var_idx++;
     uint64_t           mem_siz  = string->len + 1; /* We add '\0'. */
 
     ir_last = ir_alloca_array_init(D_T_CHAR, &mem_siz, 1, next_idx);
@@ -702,7 +702,7 @@ static void visit_ast_array_decl(struct ast_array_decl *ast)
         "Array declarator expectes compound ast enclosure list."
     ));
 
-    int32_t next_idx = ir_var_idx++;
+    uint64_t next_idx = ir_var_idx++;
 
     struct ast_compound *enclosure = ast->enclosure_list->ast;
 
@@ -740,7 +740,7 @@ static void visit_ast_array_access(struct ast_array_access *ast)
         visit_ast(indices->stmts[0]);
         struct ir_node *idx = ir_last;
 
-        int32_t next_idx = ir_var_idx++;
+        uint64_t next_idx = ir_var_idx++;
 
         ir_last = ir_alloca_init(record->dt, /*ptr=*/1, next_idx);
         ir_insert_last();
@@ -844,7 +844,7 @@ static void visit_ast_function_call(struct ast_function_call *ast)
         ir_last = ir_func_call_init(ast->name, args_start);
         ir_insert(ir_last);
     } else {
-        int32_t next_idx = ir_var_idx++;
+        uint64_t next_idx = ir_var_idx++;
         ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
         ir_insert_last();
 

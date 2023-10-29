@@ -24,10 +24,10 @@ void ddg_dump(FILE *stream, struct ir_func_decl *decl)
 
     while (it) {
         ir_vector_t *ddgs = &it->ddg_stmts;
-        fprintf(stream, "instr %2d: depends on (", it->instr_idx);
+        fprintf(stream, "instr %2ld: depends on (", it->instr_idx);
         vector_foreach(*ddgs, i) {
             struct ir_node *stmt = vector_at(*ddgs, i);
-            fprintf(stream, "%d", stmt->instr_idx);
+            fprintf(stream, "%ld", stmt->instr_idx);
             if (i < ddgs->count - 1)
                 fprintf(stream, ", ");
         }

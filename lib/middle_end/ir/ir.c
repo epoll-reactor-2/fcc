@@ -14,18 +14,18 @@
    index incrementing. This should be done before
    instruction allocation. So it needed to have
    indexing from 0. */
-static int32_t ir_instr_index = -1;
+static uint64_t ir_instr_idx = -1;
 
 void ir_reset_internal_state()
 {
-    ir_instr_index = -1;
+    ir_instr_idx = -1;
 }
 
 struct ir_node *ir_node_init(enum ir_type type, void *ir)
 {
     struct ir_node *node = weak_calloc(1, sizeof (struct ir_node));
     node->type = type;
-    node->instr_idx = ir_instr_index;
+    node->instr_idx = ir_instr_idx;
     node->ir = ir;
     node->meta.nesting = META_VALUE_UNKNOWN;
     node->meta.global_loop_idx = META_VALUE_UNKNOWN;
@@ -40,7 +40,7 @@ struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, int32_t id
     ir->dt = dt;
     ir->indir_lvl = indir_lvl;
     ir->idx = idx;
-    ++ir_instr_index;
+    ++ir_instr_idx;
     return ir_node_init(IR_ALLOCA, ir);
 }
 
@@ -55,7 +55,7 @@ struct ir_node *ir_alloca_array_init(
     ir->enclosure_lvls_size = enclosure_lvls_size;
     ir->idx = idx;
     memcpy(ir->enclosure_lvls, enclosure_lvls, enclosure_lvls_size * sizeof (uint64_t));
-    ++ir_instr_index;
+    ++ir_instr_idx;
     return ir_node_init(IR_ALLOCA_ARRAY, ir);
 }
 
@@ -127,7 +127,7 @@ struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body)
     ir->idx = idx;
     ir->body = body;
     if (body->type != IR_FUNC_CALL)
-        ++ir_instr_index;
+        ++ir_instr_idx;
     return ir_node_init(IR_STORE, ir);
 }
 
@@ -158,7 +158,7 @@ struct ir_node *ir_jump_init(int32_t idx)
 {
     struct ir_jump *ir = weak_calloc(1, sizeof (struct ir_jump));
     ir->idx = idx;
-    ++ir_instr_index;
+    ++ir_instr_idx;
     return ir_node_init(IR_JUMP, ir);
 }
 
@@ -168,7 +168,7 @@ struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label)
     struct ir_cond *ir = weak_calloc(1, sizeof (struct ir_cond));
     ir->cond = cond;
     ir->goto_label = goto_label;
-    ++ir_instr_index;
+    ++ir_instr_idx;
     return ir_node_init(IR_COND, ir);
 }
 
@@ -185,7 +185,7 @@ struct ir_node *ir_ret_init(bool is_void, struct ir_node *body)
     ir->is_void = is_void;
     ir->body = body;
     /* Return operand is inline instruction. */
-    ++ir_instr_index;
+    ++ir_instr_idx;
     return ir_node_init(is_void ? IR_RET_VOID : IR_RET, ir);
 }
 
@@ -260,7 +260,7 @@ struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
     struct ir_func_call *ir = weak_calloc(1, sizeof (struct ir_func_call));
     ir->name = name;
     ir->args = args;
-    ++ir_instr_index;
+    ++ir_instr_idx;
     return ir_node_init(IR_FUNC_CALL, ir);
 }
 
@@ -273,7 +273,7 @@ __weak_wur struct ir_node *ir_phi_init(
     ir->sym_idx = sym_idx;
     ir->op_1_idx = op_1_idx;
     ir->op_2_idx = op_2_idx;
-    ++ir_instr_index;
+    ++ir_instr_idx;
     return ir_node_init(IR_PHI, ir);
 }
 
