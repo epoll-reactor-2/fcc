@@ -14,7 +14,7 @@ static struct ir_node *opt_arith_node(struct ir_node *ir);
 static struct ir_node *no_result()
 {
     struct ir_node * ir = ir_node_init(-1, NULL);
-    ir->instr_idx = -1;
+    ir->instr_idx = (uint64_t) -1;
     ir->ir = NULL;
     ir->idom = NULL;
     return ir;
@@ -23,7 +23,7 @@ static struct ir_node *no_result()
 __weak_unused static bool is_no_result(struct ir_node *ir)
 {
     return
-        ir->instr_idx ==   -1 &&
+        ir->instr_idx == (uint64_t) -1 &&
         ir->ir        == NULL &&
         ir->idom      == NULL;
 }

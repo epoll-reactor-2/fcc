@@ -61,7 +61,7 @@ enum ir_type {
 /// .
 struct ir_node {
     enum ir_type     type;
-    int32_t          instr_idx;
+    uint64_t         instr_idx;
     void            *ir;
     /// Immediate dominator. Used to compute dominator tree.
     struct ir_node  *idom;

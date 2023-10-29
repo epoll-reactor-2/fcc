@@ -17,7 +17,7 @@ __weak_really_inline static bool in_same_cfg_block(struct ir_node *l, struct ir_
     return l->cfg_block_no == r->cfg_block_no;
 }
 
-static void traverse(bool *visited, int32_t *max_id, struct ir_node *ir)
+static void traverse(bool *visited, uint64_t *max_id, struct ir_node *ir)
 {
     if (visited[ir->instr_idx]) return;
 
@@ -76,7 +76,7 @@ static void traverse(bool *visited, int32_t *max_id, struct ir_node *ir)
     }
 }
 
-static void cut(bool *visited, int32_t siz, struct ir_node *ir)
+static void cut(bool *visited, uint64_t siz, struct ir_node *ir)
 {
     struct ir_node *it = ir;
 
@@ -92,8 +92,8 @@ static void cut(bool *visited, int32_t siz, struct ir_node *ir)
 void ir_opt_unreachable_code(struct ir_func_decl *decl)
 {
     bool visited[8192] = {0};
-    /* How much nodes potentially were visited. */
-    int32_t max_id = 0;
+    /* How many nodes potentially were visited. */
+    uint64_t max_id = 0;
 
     traverse(visited, &max_id, decl->body);
     cut(visited, max_id, decl->body);
