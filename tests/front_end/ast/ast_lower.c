@@ -20,18 +20,17 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-/// Parse file and compare result with expected.
-///
-/// \return true on success, false on failure.
+/* Parse file and compare result with expected.
+   \return 1 on success, 0 on failure. */
 bool lower_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    bool    success = true;
-    char   *expected = NULL;
-    char   *generated = NULL;
-    size_t  _ = 0;
-    FILE   *ast_stream = open_memstream(&expected, &_);
+    bool    ok          = 1;
+    char   *expected    = NULL;
+    char   *generated   = NULL;
+    size_t  _           = 0;
+    FILE   *ast_stream  = open_memstream(&expected, &_);
     FILE   *dump_stream = open_memstream(&generated, &_);
 
     tok_array_t *tokens = gen_tokens(path);
@@ -47,13 +46,13 @@ bool lower_test(const char *path, const char *filename)
 
         if (strcmp(expected, generated) != 0) {
             printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            success = false;
+            ok = 0;
             goto exit;
         }
         printf("Success!\n");
     } else {
         /* Error, will be printed in main. */
-        success = false;
+        ok = 0;
     }
 
 exit:
@@ -64,22 +63,19 @@ exit:
     free(expected);
     free(generated);
 
-    return success;
+    return ok;
 }
 
 int main()
 {
-    int            ret          = 0;
-    static char   *err_buf      = NULL;
-    static char   *warn_buf     = NULL;
-    static size_t  err_buf_len  = 0;
-    static size_t  warn_buf_len = 0;
+    int     ret          = 0;
+    char   *err_buf      = NULL;
+    char   *warn_buf     = NULL;
+    size_t  err_buf_len  = 0;
+    size_t  warn_buf_len = 0;
 
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
-
-    ASSERT_TRUE(diag_error_memstream != NULL);
-    ASSERT_TRUE(diag_warn_memstream != NULL);
 
     if (!do_on_each_file("/test_inputs/ast_lower", lower_test)) {
         ret = -1;
