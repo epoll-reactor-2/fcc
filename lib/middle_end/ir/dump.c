@@ -214,7 +214,10 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
 
 static void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
 {
-    fprintf(mem, "DF = {");
+    if (ir->df.count == 0)
+        return;
+
+    fprintf(mem, "\nDF = {");
     vector_foreach(ir->df, i) {
         struct ir_node *df = vector_at(ir->df, i);
         fprintf(mem, "%d", df->instr_idx);
@@ -239,16 +242,19 @@ void ir_dump_unit(FILE *mem, struct ir_unit *unit)
     }
 }
 
+__weak_really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
+{
+    fprintf(mem, "%d:   ", ir->instr_idx);
+    ir_dump_node(mem, ir);
+    ir_dump_dominance_frontier(mem, ir);
+}
+
 static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *next)
 {
-    fprintf(mem, "    \"%d:   ", curr->instr_idx);
-    ir_dump_node(mem, curr);
-    fprintf(mem, "\n");
-    ir_dump_dominance_frontier(mem, curr);
-    fprintf(mem, "\" -> \"%d:   ", next->instr_idx);
-    ir_dump_node(mem, next);
-    fprintf(mem, "\n");
-    ir_dump_dominance_frontier(mem, next);
+    fprintf(mem, "    \"");
+    dump_one_dot(mem, curr);
+    fprintf(mem, "\" -> \"");
+    dump_one_dot(mem, next);
     fprintf(mem, "\"\n");
 }
 
@@ -256,11 +262,8 @@ static void ir_dump_node_ddg(FILE *mem, struct ir_node *ir)
 {
     vector_foreach(ir->ddg_stmts, i) {
         struct ir_node *dependence = vector_at(ir->ddg_stmts, i);
-        fprintf(mem, "    \"%d:   ", ir->instr_idx);
-        ir_dump_node(mem, ir);
-        fprintf(mem, "\" -> \"%d:   ", dependence->instr_idx);
-        ir_dump_node(mem, dependence);
-        fprintf(mem, "\" [style = dotted]\n");
+        ir_dump_node_dot(mem, ir, dependence);
+        fprintf(mem, " [style = dotted]\n");
     }
 }
 
@@ -325,11 +328,9 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
     uint64_t cfg_no = 0;
     uint64_t cluster_no = 0;
 
-    fprintf(mem, "    start -> \"%d:   ", it->instr_idx);
-    ir_dump_node(mem, it);
-    fprintf(mem, "\n");
-    ir_dump_dominance_frontier(mem, it);
-    fprintf(mem, "\"\n");
+    fprintf(mem, "start -> \"");
+    dump_one_dot(mem, it);
+    fprintf(mem, "\"");
 
     while (it) {
         bool should_split = 0;
@@ -374,10 +375,8 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         }
         case IR_RET:
         case IR_RET_VOID: {
-            fprintf(mem, "    \"%d:   ", it->instr_idx);
-            ir_dump_node(mem, it);
-            fprintf(mem, "\n");
-            ir_dump_dominance_frontier(mem, it);
+            fprintf(mem, "    \"");
+            dump_one_dot(mem, it);
             fprintf(mem, "\" -> exit\n");
             break;
         }
@@ -386,7 +385,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
                 ir_dump_node_dot(mem, it, it->next);
             break;
         }
-        }
+        } /* switch */
 
         ir_dump_node_ddg(mem, it);
 
