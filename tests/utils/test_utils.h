@@ -5,18 +5,22 @@
  */
 
 #undef NDEBUG
-#include <dirent.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <assert.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
 #include "front_end/lex/lex.h"
-#include "util/diagnostic.h"
+#include "front_end/analysis/analysis.h"
+#include "front_end/ast/ast.h"
+#include "front_end/parse/parse.h"
+#include "middle_end/ir/gen.h"
 #include "util/compiler.h"
+#include "util/diagnostic.h"
+#include <assert.h>
+#include <dirent.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define ASSERT_TRUE(expr)   assert((expr));
 #define ASSERT_FALSE(expr)  assert(!(expr));
@@ -43,12 +47,12 @@ __weak_really_inline void tokens_cleanup(tok_array_t *toks)
     vector_free(*toks);
 }
 
-/// Get string represented as comment placed in the very
-/// begin of file. For example,
-/// // A,
-/// // b,
-/// // c.
-/// String "A,\nb,\nc." will be issued in output stream.
+/* Get string represented as comment placed in the very
+   beginning of file. For example,
+   // A,
+   // b,
+   // c.
+   String "A,\nb,\nc." will be issued in output stream. */
 __weak_really_inline void extract_assertion_comment(FILE *in, FILE *out)
 {
     char   *line = NULL;
@@ -129,10 +133,10 @@ __weak_really_inline bool do_on_each_file(
     while ((dir = readdir(it))) {
         switch (dir->d_type) {
         case DT_DIR:
-            continue; /// Skip.
+            continue; /* Skip. */
         case DT_REG:
         case DT_LNK:
-            break; /// Ok.
+            break; /* Ok. */
         default:
             weak_unreachable("File or symlink expected as test input.");
         }
@@ -158,4 +162,42 @@ __weak_really_inline bool do_on_each_file(
 exit:
     closedir(it);
     return success;
+}
+
+
+
+extern FILE *yyin;
+extern int yylex();
+extern int yylex_destroy();
+
+/* Depends on flex output state, `lex_consumed_tokens` should
+   return tokens for current file opened by lex. */
+__weak_really_inline struct ir_unit *gen_ir(const char *filename)
+{
+    lex_reset_state();
+    lex_init_state();
+
+    if (!yyin) yyin = fopen(filename, "r");
+    else yyin = freopen(filename, "r", yyin);
+    if (yyin == NULL) {
+        perror("fopen()");
+        return false;
+    }
+    yylex();
+    fseek(yyin, 0, SEEK_SET);
+
+    tok_array_t *tokens = lex_consumed_tokens();
+
+    struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);
+
+    /* Preconditions for IR generator. */
+    analysis_variable_use_analysis(ast);
+    analysis_functions_analysis(ast);
+    analysis_type_analysis(ast);
+
+    struct ir_unit *unit = ir_gen(ast);
+    tokens_cleanup(tokens);
+    /* There is some memory corruption in AST <-> IR function names. */
+    /* ast_node_cleanup(ast); */
+    return unit;
 }

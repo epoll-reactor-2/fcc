@@ -4,46 +4,17 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/analysis/analysis.h"
-#include "front_end/ast/ast.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/ddg.h"
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
-#include "middle_end/ir/gen.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
-#include <sys/stat.h>
-
-extern FILE *yyin;
-extern int yylex();
-extern int yylex_destroy();
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
-
-char current_output_dir[128];
-
-void create_dir(const char *name)
-{
-    struct stat st = {0};
-    if (stat(name, &st) == -1) {
-        if (mkdir(name, 0777) < 0) {
-            perror("mkdir()");
-            abort();
-        }
-    }
-}
-
-void cfg_dir(const char *name)
-{
-    snprintf(current_output_dir, 127, "test_outputs/%s", name);
-
-    create_dir("test_outputs");
-    create_dir(current_output_dir);
-}
 
 void ddg_dump(FILE *stream, struct ir_func_decl *decl)
 {
@@ -67,20 +38,6 @@ bool ir_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    lex_reset_state();
-    lex_init_state();
-
-    if (!yyin) yyin = fopen(path, "r");
-    else yyin = freopen(path, "r", yyin);
-    if (yyin == NULL) {
-        perror("fopen()");
-        return false;
-    }
-    yylex();
-    fseek(yyin, 0, SEEK_SET);
-
-    tok_array_t *toks = lex_consumed_tokens();
-
     bool    success = true;
     char   *expected = NULL;
     char   *generated = NULL;
@@ -94,18 +51,11 @@ bool ir_test(const char *path, const char *filename)
         return false;
     }
 
-    extract_assertion_comment(yyin, expected_stream);
-
     if (!setjmp(weak_fatal_error_buf)) {
-        struct ast_node *ast = parse(toks->data, toks->data + toks->count);
-
-        /// Preconditions for IR generator.
-        analysis_variable_use_analysis(ast);
-        analysis_functions_analysis(ast);
-        analysis_type_analysis(ast);
-
-        struct ir_unit *ir = ir_gen(ast);
+        struct ir_unit *ir = gen_ir(path);
         struct ir_node *it = ir->func_decls;
+
+        extract_assertion_comment(yyin, expected_stream);
 
         while (it) {
             ir_ddg_build(it->ir);
@@ -116,7 +66,6 @@ bool ir_test(const char *path, const char *filename)
         }
 
         fflush(generated_stream);
-        ast_node_cleanup(ast);
         ir_unit_cleanup(ir);
 
         if (strcmp(expected, generated) != 0) {
@@ -132,7 +81,6 @@ bool ir_test(const char *path, const char *filename)
 
 exit:
     yylex_destroy();
-    tokens_cleanup(toks);
     fclose(expected_stream);
     fclose(generated_stream);
     free(expected);
@@ -149,8 +97,6 @@ static size_t warn_buf_len = 0;
 int run()
 {
     int ret = 0;
-
-    cfg_dir("ddg");
 
     if (!do_on_each_file("/test_inputs/ddg", ir_test)) {
         ret = -1;
