@@ -69,7 +69,7 @@ __weak_really_inline static void set_idom(
 
    https://www.cs.utexas.edu/users/misra/Lengauer+Tarjan.pdf
    https://www.cs.princeton.edu/courses/archive/fall03/cs528/handouts/a%20fast%20algorithm%20for%20finding.pdf */
-static void dominator_tree(struct ir_func_decl *decl)
+void ir_dominator_tree(struct ir_func_decl *decl)
 {
     struct ir_node *root           = decl->body;
     struct ir_node *worklist[2048] = {0};
@@ -327,7 +327,7 @@ void ir_compute_ssa(struct ir_node *decls)
     struct ir_node *it = decls;
     while (it) {
         struct ir_func_decl *decl = it->ir;
-        dominator_tree(decl);
+        ir_dominator_tree(decl);
         puts("");
         dominance_frontier(decl->body);
 //        phi_insert(decl);
@@ -341,7 +341,7 @@ bool ir_dominated_by(struct ir_node *node, struct ir_node *dom)
 {
     if (node == dom) return 1;
 
-    while (node) {
+    while (node && node != node->idom) {
         node = node->idom;
         if (node == dom) return 1;
     }
@@ -350,14 +350,11 @@ bool ir_dominated_by(struct ir_node *node, struct ir_node *dom)
 
 bool ir_dominates(struct ir_node *dom, struct ir_node *node)
 {
-    /// Note:
-    /// It is possible to call there ir_is_dominated_by(),
-    /// but this function is never inlineable in this context.
     if (dom == node) return 1;
 
-    while (node) {
+    while (node && node != node->idom) {
         node = node->idom;
-        if (node == dom) return 1;
+        if (node && node == dom) return 1;
     }
     return 0;
 }

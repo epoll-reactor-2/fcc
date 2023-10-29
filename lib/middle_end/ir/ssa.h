@@ -13,6 +13,8 @@
 struct ir_node;
 struct ir_func_decl;
 
+void ir_dominator_tree(struct ir_func_decl *decl);
+
 void ir_compute_ssa(struct ir_node *functions);
 
 /// Judge of \p node is dominated by \p dom.
