@@ -27,11 +27,6 @@ bool ir_test(const char *path, const char *filename)
     FILE   *expected_stream  = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
 
-    if (expected_stream == NULL) {
-        perror("open_memstream()");
-        return 0;
-    }
-
     if (!setjmp(weak_fatal_error_buf)) {
         struct ir_unit *ir = gen_ir(path);
 

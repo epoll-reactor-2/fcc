@@ -15,10 +15,10 @@ void *diag_warn_memstream = NULL;
 
 int diagnostics_memstream_test()
 {
-    static char *err_buf = NULL;
-    static char *warn_buf = NULL;
-    static size_t err_buf_len = 0;
-    static size_t warn_buf_len = 0;
+    char   *err_buf      = NULL;
+    char   *warn_buf     = NULL;
+    size_t  err_buf_len  = 0;
+    size_t  warn_buf_len = 0;
 
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);

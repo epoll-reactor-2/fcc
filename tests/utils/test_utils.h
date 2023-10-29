@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #define ASSERT_TRUE(expr)   assert((expr));
 #define ASSERT_FALSE(expr)  assert(!(expr));
@@ -37,7 +38,7 @@
     }                                   \
 } while(0);
 
-__weak_really_inline void tokens_cleanup(tok_array_t *toks)
+void tokens_cleanup(tok_array_t *toks)
 {
     for (uint64_t i = 0; i < toks->count; ++i) {
         struct token *t = &toks->data[i];
@@ -55,7 +56,7 @@ __weak_really_inline void tokens_cleanup(tok_array_t *toks)
    String "A,\nb,\nc." will be issued in output stream.
 
    NOTE: Requires opened `yyin` stream. */
-__weak_really_inline void extract_assertion_comment(FILE *in, FILE *out)
+void extract_assertion_comment(FILE *in, FILE *out)
 {
     char   *line = NULL;
     size_t  len  = 0;
@@ -77,7 +78,7 @@ __weak_really_inline void extract_assertion_comment(FILE *in, FILE *out)
     fflush(out);
 }
 
-__weak_really_inline void extract_compiler_messages(const char *filename, FILE *in, FILE *out)
+void extract_compiler_messages(const char *filename, FILE *in, FILE *out)
 {
     char   *line = NULL;
     size_t  len  = 0;
@@ -101,7 +102,7 @@ __weak_really_inline void extract_compiler_messages(const char *filename, FILE *
     fflush(out);
 }
 
-__weak_really_inline void set_cwd(char cwd[static 512], const char *tests_dir)
+void set_cwd(char cwd[static 512], const char *tests_dir)
 {
     if (!getcwd(cwd, 512))
         weak_unreachable("Cannot get current dir: %s", strerror(errno));
@@ -111,7 +112,7 @@ __weak_really_inline void set_cwd(char cwd[static 512], const char *tests_dir)
     snprintf(cwd + cwd_len, 512 - cwd_len, "%s", tests_dir);
 }
 
-__weak_really_inline bool do_on_each_file(
+bool do_on_each_file(
     const char  *tests_dir,
     bool       (*callback)(
         const char */* path */,
@@ -120,7 +121,7 @@ __weak_really_inline bool do_on_each_file(
 ) {
     char    cwd  [ 512] = {0};
     char    fname[1024] = {0};
-    bool    success     =  1 ;
+    bool    ok          =  1 ;
     DIR    *it          = NULL;
     struct  dirent *dir = NULL;
 
@@ -154,7 +155,7 @@ __weak_really_inline bool do_on_each_file(
         weak_set_source_filename(fname);
 
         if (!callback(fname, dir->d_name)) {
-            success = 0;
+            ok = 0;
             goto exit;
         }
 
@@ -163,8 +164,30 @@ __weak_really_inline bool do_on_each_file(
 
 exit:
     closedir(it);
-    return success;
+    return ok;
 }
+
+
+
+void create_dir(const char *name)
+{
+    struct stat st = {0};
+    if (stat(name, &st) == -1) {
+        if (mkdir(name, 0777) < 0) {
+            perror("mkdir()");
+            abort();
+        }
+    }
+}
+
+void cfg_dir(const char *name, char *curr_out_dir)
+{
+    snprintf(curr_out_dir, 127, "test_outputs/%s", name);
+
+    create_dir("test_outputs");
+    create_dir(curr_out_dir);
+}
+
 
 
 
@@ -174,7 +197,7 @@ extern int yylex_destroy();
 
 /* Depends on flex output state, `lex_consumed_tokens` should
    return tokens for current file opened by lex. */
-__weak_really_inline tok_array_t *gen_tokens(const char *filename)
+tok_array_t *gen_tokens(const char *filename)
 {
     lex_reset_state();
     lex_init_state();
@@ -191,7 +214,7 @@ __weak_really_inline tok_array_t *gen_tokens(const char *filename)
     return lex_consumed_tokens();
 }
 
-__weak_really_inline struct ir_unit *gen_ir(const char *filename)
+struct ir_unit *gen_ir(const char *filename)
 {
     tok_array_t *tokens = gen_tokens(filename);
 

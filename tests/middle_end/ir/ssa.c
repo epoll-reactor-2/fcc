@@ -10,7 +10,6 @@
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
-#include <sys/stat.h>
 
 extern int yylex_destroy();
 
@@ -18,25 +17,6 @@ void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
 char current_output_dir[128];
-
-void create_dir(const char *name)
-{
-    struct stat st = {0};
-    if (stat(name, &st) == -1) {
-        if (mkdir(name, 0777) < 0) {
-            perror("mkdir()");
-            abort();
-        }
-    }
-}
-
-void cfg_dir(const char *name)
-{
-    snprintf(current_output_dir, 127, "test_outputs/%s", name);
-
-    create_dir("test_outputs");
-    create_dir(current_output_dir);
-}
 
 bool ir_test(const char *path, const char *filename)
 {
@@ -54,16 +34,6 @@ bool ir_test(const char *path, const char *filename)
     FILE   *generated_stream = open_memstream(&generated, &_);
     FILE   *cfg_stream       = fopen(cfg_path, "w");
     FILE   *dom_tree_stream  = fopen(dom_tree_path, "w");
-
-    if (expected_stream == NULL) {
-        perror("open_memstream()");
-        return 0;
-    }
-
-    if (!cfg_stream || !dom_tree_stream) {
-        perror("fopen()");
-        return 0;
-    }
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ir_unit *ir = gen_ir(path);
@@ -109,10 +79,10 @@ exit:
     return ok;
 }
 
-static char *err_buf       = NULL;
-static char *warn_buf      = NULL;
-static size_t err_buf_len  = 0;
-static size_t warn_buf_len = 0;
+char *err_buf       = NULL;
+char *warn_buf      = NULL;
+size_t err_buf_len  = 0;
+size_t warn_buf_len = 0;
 
 int run(const char *dir)
 {
@@ -120,7 +90,7 @@ int run(const char *dir)
     char path[256] = {0};
     snprintf(path, sizeof (path) - 1, "/test_inputs/%s", dir);
 
-    cfg_dir(dir);
+    cfg_dir(dir, current_output_dir);
 
     if (!do_on_each_file(path, ir_test)) {
         ret = -1;
