@@ -4,19 +4,12 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/analysis/analysis.h"
-#include "front_end/ast/ast.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
-#include "middle_end/ir/gen.h"
 #include "middle_end/ir/dump.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
-
-extern FILE *yyin;
-extern int yylex();
-extern int yylex_destroy();
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
@@ -24,20 +17,6 @@ void *diag_warn_memstream = NULL;
 bool ir_test(const char *path, const char *filename)
 {
     (void) filename;
-
-    lex_reset_state();
-    lex_init_state();
-
-    if (!yyin) yyin = fopen(path, "r");
-    else yyin = freopen(path, "r", yyin);
-    if (yyin == NULL) {
-        perror("fopen()");
-        return false;
-    }
-    yylex();
-    fseek(yyin, 0, SEEK_SET);
-
-    tok_array_t *toks = lex_consumed_tokens();
 
     bool    success = true;
     char   *expected = NULL;
@@ -51,21 +30,13 @@ bool ir_test(const char *path, const char *filename)
         return false;
     }
 
-    extract_assertion_comment(yyin, expected_stream);
-
     if (!setjmp(weak_fatal_error_buf)) {
-        struct ast_node *ast = parse(toks->data, toks->data + toks->count);
+        struct ir_unit *ir = gen_ir(path);
 
-        /// Preconditions for IR generator.
-        analysis_variable_use_analysis(ast);
-        analysis_functions_analysis(ast);
-        analysis_type_analysis(ast);
-
-        struct ir_unit *ir = ir_gen(ast);
+        extract_assertion_comment(yyin, expected_stream);
 
         ir_dump_unit(generated_stream, ir);
         fflush(generated_stream);
-        ast_node_cleanup(ast);
         ir_unit_cleanup(ir);
         
         if (strcmp(expected, generated) != 0) {
@@ -81,7 +52,6 @@ bool ir_test(const char *path, const char *filename)
 
 exit:
     yylex_destroy();
-    tokens_cleanup(toks);
     fclose(expected_stream);
     fclose(generated_stream);
     free(expected);
