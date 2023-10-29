@@ -141,4 +141,6 @@ void ir_ddg_build(struct ir_func_decl *decl)
             it = it->next;
         }
     });
+
+    hashmap_destroy(&stores);
 }

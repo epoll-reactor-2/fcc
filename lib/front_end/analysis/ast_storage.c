@@ -60,7 +60,7 @@ void ast_storage_push_typed(
     struct ast_storage_decl *decl = weak_calloc(1, sizeof (struct ast_storage_decl));
     decl->ast = ast;
     decl->data_type = dt;
-    decl->name = strdup(var_name);
+    decl->name = var_name;
     decl->indirection_lvl = indirection_lvl;
     decl->read_uses = 0;
     decl->write_uses = 0;

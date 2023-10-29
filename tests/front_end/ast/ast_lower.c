@@ -15,8 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern FILE *yyin;
-extern int yylex();
 extern int yylex_destroy();
 
 void *diag_error_memstream = NULL;
@@ -29,18 +27,6 @@ bool lower_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    lex_reset_state();
-    lex_init_state();
-
-    if (!yyin) yyin = fopen(path, "r");
-    else yyin = freopen(path, "r", yyin);
-    if (yyin == NULL) {
-        perror("fopen()");
-        return false;
-    }
-    yylex();
-    fseek(yyin, 0, SEEK_SET);
-
     bool    success = true;
     char   *expected = NULL;
     char   *generated = NULL;
@@ -48,23 +34,15 @@ bool lower_test(const char *path, const char *filename)
     FILE   *ast_stream = open_memstream(&expected, &_);
     FILE   *dump_stream = open_memstream(&generated, &_);
 
-    if (ast_stream == NULL || dump_stream == NULL) {
-        perror("open_memstream()");
-        return false;
-    }
+    tok_array_t *tokens = gen_tokens(path);
 
     extract_assertion_comment(yyin, ast_stream);
 
-    tok_array_t *toks = lex_consumed_tokens();
-
     if (!setjmp(weak_fatal_error_buf)) {
-        struct ast_node *ast = parse(toks->data, toks->data + toks->count);
+        struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);
         ast_lower(&ast);
         ast_dump(dump_stream, ast);
 
-        /// There is some memory corruption in AST transform
-        /// algorithm.
-        ///
         ast_node_cleanup(ast);
 
         if (strcmp(expected, generated) != 0) {
@@ -74,13 +52,13 @@ bool lower_test(const char *path, const char *filename)
         }
         printf("Success!\n");
     } else {
-        /// Error, will be printed in main.
+        /* Error, will be printed in main. */
         success = false;
     }
 
 exit:
     yylex_destroy();
-    tokens_cleanup(toks);
+    tokens_cleanup(tokens);
     fclose(ast_stream);
     fclose(dump_stream);
     free(expected);
@@ -91,11 +69,11 @@ exit:
 
 int main()
 {
-    int ret = 0;
-    static char *err_buf = NULL;
-    static char *warn_buf = NULL;
-    static size_t err_buf_len = 0;
-    static size_t warn_buf_len = 0;
+    int            ret          = 0;
+    static char   *err_buf      = NULL;
+    static char   *warn_buf     = NULL;
+    static size_t  err_buf_len  = 0;
+    static size_t  warn_buf_len = 0;
 
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);

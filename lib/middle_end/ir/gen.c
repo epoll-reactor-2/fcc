@@ -187,10 +187,11 @@ __weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym 
 
 static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
 {
-    struct ir_node *alloca = ir_alloca_init(D_T_INT, /*ptr=*/0, ir_var_idx++);
-    int32_t alloca_idx = ((struct ir_alloca *) alloca->ir)->idx;
+    ir_last = ir_alloca_init(D_T_INT, /*ptr=*/0, ir_var_idx++);
+    struct ir_alloca *alloca = ir_last->ir;
+    int32_t alloca_idx = alloca->idx;
 
-    ir_insert(alloca);
+    ir_insert_last();
 
     visit_ast(ast->lhs);
     struct ir_node *lhs = ir_last;

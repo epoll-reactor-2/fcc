@@ -54,7 +54,7 @@ static void hashmap_resize(hashmap_t *map)
         }
     }
 
-    free(old_buckets);
+    weak_free(old_buckets);
 }
 
 void hashmap_put(hashmap_t *map, uint64_t key, uint64_t val)

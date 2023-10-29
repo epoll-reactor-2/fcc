@@ -13,6 +13,8 @@
 #include "utils/test_utils.h"
 #include <stdio.h>
 
+extern int yylex_destroy();
+
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
@@ -38,17 +40,16 @@ bool ir_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    bool    success = true;
-    char   *expected = NULL;
-    char   *generated = NULL;
-    size_t  _ = 0;
-
+    bool    ok               = 1;
+    char   *expected         = NULL;
+    char   *generated        = NULL;
+    size_t  _                = 0;
     FILE   * expected_stream = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
 
     if (expected_stream == NULL) {
         perror("open_memstream()");
-        return false;
+        return 0;
     }
 
     if (!setjmp(weak_fatal_error_buf)) {
@@ -70,13 +71,13 @@ bool ir_test(const char *path, const char *filename)
 
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
-            success = false;
+            ok = 0;
             goto exit;
         }
         printf("Success!\n");
     } else {
         /// Error, will be printed in main.
-        success = false;
+        ok = 0;
     }
 
 exit:
@@ -86,13 +87,13 @@ exit:
     free(expected);
     free(generated);
 
-    return success;
+    return ok;
 }
 
-static char *err_buf = NULL;
-static char *warn_buf = NULL;
-static size_t err_buf_len = 0;
-static size_t warn_buf_len = 0;
+char *err_buf       = NULL;
+char *warn_buf      = NULL;
+size_t err_buf_len  = 0;
+size_t warn_buf_len = 0;
 
 int run()
 {

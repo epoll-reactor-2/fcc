@@ -41,10 +41,10 @@ void cfg_dir(const char *name)
 
 bool ir_test(const char *path, const char *filename)
 {
-    bool    success = true;
-    char   *expected = NULL;
-    char   *generated = NULL;
-    size_t  _ = 0;
+    bool    ok                   = 1;
+    char   *expected             = NULL;
+    char   *generated            = NULL;
+    size_t  _                    = 0;
     char    before_opt_path[256] = {0};
     char     after_opt_path[256] = {0};
 
@@ -58,7 +58,7 @@ bool ir_test(const char *path, const char *filename)
 
     if (expected_stream == NULL) {
         perror("open_memstream()");
-        return false;
+        return 0;
     }
 
     if (!setjmp(weak_fatal_error_buf)) {
@@ -82,13 +82,13 @@ bool ir_test(const char *path, const char *filename)
 
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
-            success = false;
+            ok = 0;
             goto exit;
         }
         printf("Success!\n");
     } else {
         /// Error, will be printed in main.
-        success = false;
+        ok = 0;
     }
 
 exit:
@@ -100,12 +100,12 @@ exit:
     free(expected);
     free(generated);
 
-    return success;
+    return ok;
 }
 
-static char *err_buf = NULL;
-static char *warn_buf = NULL;
-static size_t err_buf_len = 0;
+static char *err_buf       = NULL;
+static char *warn_buf      = NULL;
+static size_t err_buf_len  = 0;
 static size_t warn_buf_len = 0;
 
 int run(const char *dir)
