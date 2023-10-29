@@ -13,7 +13,7 @@
 #include <assert.h>
 #include <string.h>
 
-
+#if 0
 static void reset_hashmap(hashmap_t *map, uint64_t siz)
 {
     if (map->buckets) {
@@ -21,6 +21,7 @@ static void reset_hashmap(hashmap_t *map, uint64_t siz)
     }
     hashmap_init(map, siz);
 }
+#endif
 
 
 
@@ -32,13 +33,8 @@ static void control_flow_successors(
     switch (ir->type) {
     case IR_COND: {
         struct ir_cond *cond = ir->ir;
-#if 1
         *out_main = cond->target;
         *out_alt = ir->next_else;
-#else
-        *out_main = ir->next_else;
-        *out_alt = cond->target;
-#endif
         break;
     }
     case IR_JUMP: {
@@ -68,7 +64,10 @@ __weak_really_inline static void set_idom(
     }
 }
 
-/* https://www.cs.utexas.edu/users/misra/Lengauer+Tarjan.pdf
+/* I realized, that is completely wrong. Requires more
+   sophisticated logic.
+
+   https://www.cs.utexas.edu/users/misra/Lengauer+Tarjan.pdf
    https://www.cs.princeton.edu/courses/archive/fall03/cs528/handouts/a%20fast%20algorithm%20for%20finding.pdf */
 static void dominator_tree(struct ir_func_decl *decl)
 {
@@ -94,6 +93,37 @@ static void dominator_tree(struct ir_func_decl *decl)
     }
 }
 
+/* Cooper algorithm
+   TODO: Fix dominator tree. It is incorrect.
+   https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf */
+static void dominance_frontier(struct ir_node *ir)
+{
+    struct ir_node *b = ir;
+
+    while (b) {
+        vector_free(b->df);
+        ir_vector_t preds = {0};
+        if (b->prev)      vector_push_back(preds, b->prev);
+        if (b->prev_else) vector_push_back(preds, b->prev_else);
+
+        if (preds.count >= 2) {
+            vector_foreach(preds, pred_i) {
+                struct ir_node *p = vector_at(preds, pred_i);
+                struct ir_node *runner = p;
+
+                while (runner != runner->idom && runner != b->idom && runner != b) {
+                    vector_push_back(runner->df, b);
+                    runner = runner->idom;
+                }
+            }
+        }
+
+        b = b->next;
+        vector_free(preds);
+    }
+}
+
+#if 0
 static void traverse_cfg_post_order(ir_vector_t *out, struct ir_node *ir)
 {
     vector_foreach(ir->idom_back, i) {
@@ -103,9 +133,11 @@ static void traverse_cfg_post_order(ir_vector_t *out, struct ir_node *ir)
     }
     vector_push_back(*out, ir);
 }
+#endif // 0
 
 /* This function implements algorithm given in
-   https://c9x.me/compile/bib/ssa.pdf */
+https://c9x.me/compile/bib/ssa.pdf */
+#if 0
 static void dominance_frontier(struct ir_node *ir)
 {
     ir_vector_t post_order = {0};
@@ -154,7 +186,9 @@ static void dominance_frontier(struct ir_node *ir)
 
     vector_free(post_order);
 }
+#endif
 
+#if 0
 static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
 {
     struct ir_node *it = decl->body;
@@ -193,6 +227,7 @@ static void assigns_dump(hashmap_t *assigns)
         printf("}\n");
     }
 }
+#endif // 0
 
 /*
     (prev    ) -- next --> (  ir    )
@@ -201,6 +236,7 @@ static void assigns_dump(hashmap_t *assigns)
     (prev    ) -- next --> (new node) -- next --> (  ir    )
     (prev    ) <- prev --- (new node) <- prev --- (  ir    )
 */
+#if 0
 static void ir_insert_before(struct ir_node *ir, struct ir_node *new)
 {
     struct ir_node *prev = ir->prev;
@@ -210,9 +246,11 @@ static void ir_insert_before(struct ir_node *ir, struct ir_node *new)
     new->next = ir;
     ir->prev = new;
 }
+#endif // 0
 
 /* This function implements algorithm given in
    https://c9x.me/compile/bib/ssa.pdf */
+#if 0
 static void phi_insert(struct ir_func_decl *decl)
 {
     /* Key:   ir
@@ -255,10 +293,10 @@ static void phi_insert(struct ir_func_decl *decl)
                 uint64_t y_addr = (uint64_t) y;
 
                 if (!hashmap_has(&dom_fron_plus, y_addr)) {
-                    /* NOTE: prev & prev_else are control flow (not just list list) predecessors.
+                    /* NOTE: prev & prev_else are control flow (not just list) predecessors.
                              and they are built during IR linkage. */
                     struct ir_node *phi = ir_phi_init(sym_idx, y->prev->instr_idx, y->prev_else->instr_idx);
-                    printf("insert phi before %%%d\n", y->instr_idx);
+                    printf("insert phi(%ld) before %%%d\n", sym_idx, y->instr_idx);
                     ir_insert_before(y, phi);
                     memcpy(&phi->meta, &y->meta, sizeof (struct meta));
 
@@ -282,6 +320,7 @@ static void phi_insert(struct ir_func_decl *decl)
     hashmap_destroy(&assigns);
     hashmap_destroy(&dom_fron_plus);
 }
+#endif
 
 void ir_compute_ssa(struct ir_node *decls)
 {
@@ -291,7 +330,7 @@ void ir_compute_ssa(struct ir_node *decls)
         dominator_tree(decl);
         puts("");
         dominance_frontier(decl->body);
-        phi_insert(decl);
+//        phi_insert(decl);
         it = it->next;
     }
 }
