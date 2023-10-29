@@ -106,7 +106,7 @@ struct ir_alloca {
     /// This is index of an variable. Like
     /// D_T_INT %1.
     /// Alternatively, string names can be stored.
-    int32_t          idx;
+    uint64_t         idx;
 };
 
 struct ir_alloca_array {
@@ -114,7 +114,7 @@ struct ir_alloca_array {
     /// Possible multiple dimensions.
     uint64_t         enclosure_lvls[16];
     uint64_t         enclosure_lvls_size;
-    int32_t          idx;
+    uint64_t         idx;
 };
 
 enum ir_imm_type {
@@ -148,8 +148,8 @@ struct ir_string {
 struct ir_sym {
     /// Are we dereferencing pointer or not?
     /// Like *ptr.
-    bool    deref;
-    int32_t idx;
+    bool     deref;
+    uint64_t idx;
 };
 
 struct ir_store {
@@ -179,7 +179,7 @@ struct ir_bin {
 
 struct ir_jump {
     /// Instruction index where to jump.
-    int32_t          idx;
+    uint64_t         idx;
     /// Pointer to node at given \c idx.
     struct ir_node  *target;
 };
@@ -193,7 +193,7 @@ struct ir_cond {
     /// Requires only binary IR instruction.
     struct ir_node  *cond;
     /// Instruction index where to jump.
-    int32_t          goto_label;
+    uint64_t         goto_label;
     /// Pointer to node at given \c goto_label.
     struct ir_node  *target;
 };
@@ -218,8 +218,8 @@ struct ir_member {
     /// %1 = allocation of x
     /// %1.0 = x.a
     /// %1.1 = x.b
-    int32_t idx;
-    int32_t field_idx;
+    uint64_t idx;
+    uint64_t field_idx;
 };
 
 struct ir_type_decl {
@@ -260,31 +260,31 @@ struct ir_phi {
 void ir_reset_internal_state();
 
 __weak_wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
-__weak_wur struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, int32_t idx);
+__weak_wur struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, uint64_t idx);
 __weak_wur struct ir_node *ir_alloca_array_init(
     enum data_type  dt,
     uint64_t       *enclosure_lvls,
     uint64_t        enclosure_lvls_size,
-    int32_t         idx
+    uint64_t         idx
 );
 
 __weak_wur struct ir_node *ir_imm_bool_init(bool imm);
 __weak_wur struct ir_node *ir_imm_char_init(char imm);
 __weak_wur struct ir_node *ir_imm_float_init(float imm);
-__weak_wur struct ir_node *ir_imm_int_init(int32_t imm);
+__weak_wur struct ir_node *ir_imm_int_init(uint64_t imm);
 __weak_wur struct ir_node *ir_string_init(uint64_t len, char *imm);
 
-__weak_wur struct ir_node *ir_sym_init(int32_t idx);
-__weak_wur struct ir_node *ir_sym_ptr_init(int32_t idx);
+__weak_wur struct ir_node *ir_sym_init(uint64_t idx);
+__weak_wur struct ir_node *ir_sym_ptr_init(uint64_t idx);
 
 __weak_wur struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body);
-__weak_wur struct ir_node *ir_store_sym_init(int32_t idx, struct ir_node *body);
+__weak_wur struct ir_node *ir_store_sym_init(uint64_t idx, struct ir_node *body);
 
 __weak_wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
-__weak_wur struct ir_node *ir_jump_init(int32_t idx);
-__weak_wur struct ir_node *ir_cond_init(struct ir_node *cond, int32_t goto_label);
+__weak_wur struct ir_node *ir_jump_init(uint64_t idx);
+__weak_wur struct ir_node *ir_cond_init(struct ir_node *cond, uint64_t goto_label);
 __weak_wur struct ir_node *ir_ret_init(bool is_void, struct ir_node *body);
-__weak_wur struct ir_node *ir_member_init(int32_t idx, int32_t field_idx);
+__weak_wur struct ir_node *ir_member_init(uint64_t idx, uint64_t field_idx);
 __weak_wur struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls);
 __weak_wur struct ir_node *ir_func_decl_init(enum data_type ret_type, const char *name, struct ir_node *args, struct ir_node *body);
 __weak_wur struct ir_node *ir_func_call_init(const char *name, struct ir_node *args);
