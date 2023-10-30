@@ -55,21 +55,21 @@ void dominates_condition()
 
     struct ir_node *body = ir_bin_init(TOK_PLUS, ir_sym_init(0), ir_sym_init(0));
 
-    struct ir_node *_1 = ir_cond_init(body, 0);
+    struct ir_node *_0 = ir_cond_init(body, 0);
+    struct ir_node *_1 = ir_jump_init(0);
     struct ir_node *_2 = ir_jump_init(0);
-    struct ir_node *_3 = ir_jump_init(0);
-    struct ir_node *_4 = ir_ret_init(0, ir_sym_init(0));
+    struct ir_node *_3 = ir_ret_init(0, ir_sym_init(0));
 
-    ((struct ir_cond *) _1->ir)->target    = _2;
-                        _1     ->next_else = _3;
-    ((struct ir_jump *) _2->ir)->target    = _4;
-    ((struct ir_jump *) _3->ir)->target    = _4;
+    ((struct ir_cond *) _0->ir)->target    = _1;
+                        _0     ->next_else = _2;
+    ((struct ir_jump *) _1->ir)->target    = _3;
+    ((struct ir_jump *) _2->ir)->target    = _3;
 
+    _0->next = _1;
     _1->next = _2;
     _2->next = _3;
-    _3->next = _4;
 
-    struct ir_node *f = ir_func_decl_init(D_T_INT, strdup("f"), NULL, _1);
+    struct ir_node *f = ir_func_decl_init(D_T_INT, strdup("f"), NULL, _0);
 
     ir_dominator_tree(f->ir);
     /*
@@ -82,7 +82,7 @@ void dominates_condition()
     /* CFG:
 
               +-------+
-              |   1   |
+              |   0   |
               +-------+
                  / \
                 /   \
@@ -91,7 +91,7 @@ void dominates_condition()
              /         \
             /           \
        +-------+     +-------+
-       |   2   |     |   3   |
+       |   1   |     |   2   |
        +-------+     +-------+
             \            /
              \          /
@@ -100,32 +100,29 @@ void dominates_condition()
                 \    /
                  \  /
               +-------+
-              |   4   |
+              |   3   |
               +-------+
 
        Dominator tree:
 
                   +-------+
-             -----|   1   |-----
+             -----|   0   |-----
             /     +-------+     \
            /          |          \
        +-------+  +-------+  +-------+
-       |   2   |  |   4   |  |   3   |
+       |   1   |  |   2   |  |   3   |
        +-------+  +-------+  +-------+
     */
 
-    ASSERT_TRUE(_2->idom == _1);
-//  ASSERT_TRUE(_4->idom == _1);
-    ASSERT_TRUE(_3->idom == _1);
+    ASSERT_TRUE(_1->idom == _0);
+    ASSERT_TRUE(_3->idom == _0);
+    ASSERT_TRUE(_2->idom == _0);
 
-    ASSERT_TRUE(!ir_dominates(_2, _1));
-    ASSERT_TRUE(!ir_dominates(_4, _1));
-    ASSERT_TRUE(!ir_dominates(_3, _1));
-    ASSERT_TRUE(!ir_dominates(_2, _4));
-//  ASSERT_TRUE(!ir_dominates(_3, _4));
-
-    /* ir_dump_cfg(stdout, f->ir);
-    ir_dump_dom_tree(stdout, f->ir); */
+    ASSERT_TRUE(!ir_dominates(_1, _0));
+    ASSERT_TRUE(!ir_dominates(_3, _0));
+    ASSERT_TRUE(!ir_dominates(_2, _0));
+    ASSERT_TRUE(!ir_dominates(_1, _3));
+    ASSERT_TRUE(!ir_dominates(_2, _3));
 
     ir_node_cleanup(f);
 
