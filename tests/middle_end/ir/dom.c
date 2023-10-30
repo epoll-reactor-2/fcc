@@ -69,7 +69,7 @@ void dominates_condition()
     _2->next = _3;
     _3->next = _4;
 
-    struct ir_node *f = ir_func_decl_init(D_T_INT, "f", NULL, _1);
+    struct ir_node *f = ir_func_decl_init(D_T_INT, strdup("f"), NULL, _1);
 
     ir_dominator_tree(f->ir);
     /*
