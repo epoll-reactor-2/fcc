@@ -811,7 +811,8 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
         ir_func_decls,
         ir_func_decl_init(
             decl->data_type,
-            decl->name,
+            /* Duplicate to not be depended on AST string values (after free). */
+            strdup(decl->name),
             args,
             body
         )
@@ -839,16 +840,18 @@ static void visit_ast_function_call(struct ast_function_call *ast)
     }
 
     enum data_type ret_dt = ir_func_return_type(ast->name);
+    /* Duplicate to not be depended on AST string values (after free). */
+    char *fcall_name = strdup(ast->name);
 
     if (ir_is_global_scope) {
-        ir_last = ir_func_call_init(ast->name, args_start);
+        ir_last = ir_func_call_init(fcall_name, args_start);
         ir_insert(ir_last);
     } else {
         uint64_t next_idx = ir_var_idx++;
         ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
         ir_insert_last();
 
-        ir_last = ir_func_call_init(ast->name, args_start);
+        ir_last = ir_func_call_init(fcall_name, args_start);
         ir_last = ir_store_sym_init(next_idx, ir_last);
         ir_insert_last();
         ir_last = ir_sym_init(next_idx);

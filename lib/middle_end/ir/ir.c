@@ -220,7 +220,7 @@ struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls)
 
 struct ir_node *ir_func_decl_init(
     enum data_type  ret_type,
-    const char     *name,
+    char           *name,
     struct ir_node *args,
     struct ir_node *body
 ) {
@@ -242,7 +242,7 @@ struct ir_node *ir_func_decl_init(
     return ir_node_init(IR_FUNC_DECL, ir);
 }
 
-struct ir_node *ir_func_call_init(const char *name, struct ir_node *args)
+struct ir_node *ir_func_call_init(char *name, struct ir_node *args)
 {
     __weak_debug({
         struct ir_node *it = args;
@@ -326,6 +326,8 @@ static void ir_func_decl_cleanup(struct ir_func_decl *ir)
         ir_node_cleanup(it);
         it = it->next;
     }
+
+    weak_free(ir->name);
 }
 static void ir_func_call_cleanup(struct ir_func_call *ir)
 {
@@ -334,6 +336,8 @@ static void ir_func_call_cleanup(struct ir_func_call *ir)
         ir_node_cleanup(it);
         it = it->next;
     }
+
+    weak_free(ir->name);
 }
 
 void ir_node_cleanup(struct ir_node *ir)

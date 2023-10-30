@@ -227,7 +227,6 @@ struct ir_unit *gen_ir(const char *filename)
 
     struct ir_unit *unit = ir_gen(ast);
     tokens_cleanup(tokens);
-    /* There is some memory corruption in AST <-> IR function names. */
-    /* ast_node_cleanup(ast); */
+    ast_node_cleanup(ast);
     return unit;
 }
