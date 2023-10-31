@@ -321,6 +321,25 @@ static void ir_insert_before(struct ir_node *ir, struct ir_node *new)
     ir->prev = new;
 }
 
+/* Fix jump statements pointing to nothing
+   (really broken jump targets.)
+
+   I guess, this is not strictly important in SSA-based
+   analysis. But it is more comfortable to see properly
+   linked CFG. */
+static void phi_link(struct ir_node *it)
+{
+    while (it) {
+        if (it->type == IR_JUMP) {
+            struct ir_jump *jmp = it->ir;
+            while (jmp->target->prev &&
+                   jmp->target->prev->type == IR_PHI)
+            jmp->target = jmp->target->prev;
+        }
+        it = it->next;
+    }
+}
+
 /* This function implements algorithm given in
    https://c9x.me/compile/bib/ssa.pdf */
 static void phi_insert(struct ir_func_decl *decl)
@@ -383,6 +402,8 @@ static void phi_insert(struct ir_func_decl *decl)
             }
         }
     }
+
+    phi_link(decl->body);
 
     vector_free(w);
     hashmap_destroy(&work);
