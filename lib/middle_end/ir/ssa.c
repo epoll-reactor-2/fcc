@@ -248,7 +248,6 @@ static void dominance_frontier(struct ir_node *ir)
         if (b->prev_else) vector_push_back(preds, b->prev_else);
 
         if (preds.count >= 2) {
-            printf("DF for %ld\n", b->instr_idx);
             vector_foreach(preds, pred_i) {
                 struct ir_node *p = vector_at(preds, pred_i);
                 struct ir_node *runner = p;
@@ -362,11 +361,17 @@ static void phi_insert(struct ir_func_decl *decl)
     hashmap_foreach(&assigns, sym_idx, __list) {
         reset_hashmap(&dom_fron_plus, 256);
         reset_hashmap(&work, 256);
-        vector_free(w);
-
-        printf("Analyze %ld, ", sym_idx);
+        /* `w` vector generally can be left uncleared, since algorithm
+           assumes that we do something while it not empty. So now it
+           guaranteed to be empty. */
 
         ir_vector_t *assign_list = (ir_vector_t *) __list;
+
+        vector_foreach(*assign_list, i) {
+            (void) i;
+            hashmap_put(&work, 0, 0);
+            hashmap_put(&dom_fron_plus, 0, 0);
+        }
 
         vector_foreach(*assign_list, i) {
             struct ir_node *x = vector_at(*assign_list, i);
@@ -394,7 +399,9 @@ static void phi_insert(struct ir_func_decl *decl)
 
                     hashmap_put(&dom_fron_plus, (uint64_t) y, 1);
 
-                    if (!hashmap_has(&work, y_addr)) {
+                    bool ok = 0;
+                    uint64_t val = hashmap_get(&work, y_addr, &ok);
+                    if (ok && val == 0) {
                         hashmap_put(&work, (uint64_t) y, 1);
                         vector_push_back(w, y);
                     }
