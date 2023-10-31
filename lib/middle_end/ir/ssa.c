@@ -248,11 +248,12 @@ static void dominance_frontier(struct ir_node *ir)
         if (b->prev_else) vector_push_back(preds, b->prev_else);
 
         if (preds.count >= 2) {
+            printf("DF for %ld\n", b->instr_idx);
             vector_foreach(preds, pred_i) {
                 struct ir_node *p = vector_at(preds, pred_i);
                 struct ir_node *runner = p;
 
-                while (runner != runner->idom && runner != b->idom && runner != b) {
+                while (runner != runner->idom && runner != b->idom) {
                     vector_push_back(runner->df, b);
                     runner = runner->idom;
                 }
@@ -350,8 +351,9 @@ static void phi_insert(struct ir_func_decl *decl)
 
         vector_foreach(*assign_list, i) {
             struct ir_node *x = vector_at(*assign_list, i);
+            uint64_t x_addr = (uint64_t) x;
 
-            hashmap_put(&work, (uint64_t) x, 1);
+            hashmap_put(&work, x_addr, 1);
             vector_push_back(w, x);
         }
 
