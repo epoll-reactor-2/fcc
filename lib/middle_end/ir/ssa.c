@@ -230,16 +230,20 @@ void ir_dominator_tree(struct ir_func_decl *decl)
     dom_tree();
 
     for (uint64_t i = 0; i < stmts_cnt; ++i) {
-        uint64_t idom_idx = inverse_visit_time[idom[visit_time[i]]];
-        stmts[i]->idom = stmts[idom_idx];
+        uint64_t        idom_idx = inverse_visit_time[idom[visit_time[i]]];
+        struct ir_node *stmt     = stmts[i];
+        struct ir_node *dom      = stmts[idom_idx];
+
+        stmt->idom = dom;
+        vector_push_back(dom->idom_back, stmt);
     }
 }
 
 /* Cooper algorithm
    https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf */
-static void dominance_frontier(struct ir_node *ir)
+static void dominance_frontier(struct ir_func_decl *decl)
 {
-    struct ir_node *b = ir;
+    struct ir_node *b = decl->body;
 
     while (b) {
         vector_free(b->df);
@@ -268,6 +272,8 @@ static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
 {
     struct ir_node *it = decl->body;
 
+    reset_hashmap(out, 256);
+
     while (it) {
         if (it->type == IR_STORE) {
             struct ir_store *store = it->ir;
@@ -289,6 +295,15 @@ static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
 
         it = it->next;
     }
+}
+
+static void assigns_destroy(hashmap_t *assigns)
+{
+    hashmap_foreach(assigns, k, v) {
+        (void) k;
+        vector_free(*(ir_vector_t *) v);
+    }
+    hashmap_destroy(assigns);
 }
 
 static void assigns_dump(hashmap_t *assigns)
@@ -341,24 +356,21 @@ static void phi_link(struct ir_node *it)
 
 /* This function implements algorithm given in
    https://c9x.me/compile/bib/ssa.pdf */
-static void phi_insert(struct ir_func_decl *decl)
-{
+static void phi_insert(
+    struct ir_func_decl *decl,
+    /* Key:   sym_idx
+       Value: array of ir's */
+    hashmap_t *assigns
+) {
     /* Key:   ir
        Value: 1 | 0 */
     hashmap_t       dom_fron_plus = {0};
-    /* Key:   sym_idx
-       Value: array of ir's */
-    hashmap_t       assigns       = {0};
     /* Key:   ir
        Value: sym_idx */
     hashmap_t       work          = {0};
     ir_vector_t     w             = {0};
 
-    reset_hashmap(&assigns, 256);
-    assigns_collect(decl, &assigns);
-    assigns_dump(&assigns);
-
-    hashmap_foreach(&assigns, sym_idx, __list) {
+    hashmap_foreach(assigns, sym_idx, __list) {
         reset_hashmap(&dom_fron_plus, 256);
         reset_hashmap(&work, 256);
         /* `w` vector generally can be left uncleared, since algorithm
@@ -414,12 +426,44 @@ static void phi_insert(struct ir_func_decl *decl)
 
     vector_free(w);
     hashmap_destroy(&work);
-    hashmap_foreach(&assigns, k, v) {
-        (void) k;
-        vector_free(*(ir_vector_t *) v);
-    }
-    hashmap_destroy(&assigns);
     hashmap_destroy(&dom_fron_plus);
+}
+
+typedef vector_t(uint64_t) ssa_stack_t;
+
+/* TODO: Make phi instruction store pointers to symbols IR.
+   TODO: This operates on one basic block. We have rather one
+         IR statement. Figure out and adapt algorithm from SSA paper. */
+static void ssa_rename(struct ir_func_decl *decl, uint64_t sym_idx, ssa_stack_t *stack)
+{
+    struct ir_node *it = decl->body;
+
+    while (it) {
+        switch (it->type) {
+        case IR_PHI: {
+            struct ir_phi *phi = it->ir;
+            break;
+        }
+        case IR_COND: {
+            struct ir_cond *cond = it->ir;
+            break;
+        }
+        case IR_STORE: {
+            struct ir_store *store = it->ir;
+            break;
+        }
+        default:
+            break;
+        }
+
+        /* TODO: Rename for CFG successor.
+
+        vector_foreach(it->idom_back, i)
+            ssa_rename(// ... //); */
+
+
+        it = it->next;
+    }
 }
 
 void ir_compute_ssa(struct ir_node *decls)
@@ -427,12 +471,27 @@ void ir_compute_ssa(struct ir_node *decls)
     struct ir_node *it = decls;
     while (it) {
         struct ir_func_decl *decl = it->ir;
+        /* Key:   sym_idx
+           Value: array of ir's */
+        hashmap_t assigns     = {0};
+        /* Value: sym_idx */
+        ssa_stack_t ssa_stack = {0};
+        assigns_collect(decl, &assigns);
+
         dom_tree_reset_state();
         ir_dominator_tree(decl);
-        puts("");
-        dominance_frontier(decl->body);
-        phi_insert(decl);
+        dominance_frontier(decl);
+        phi_insert(decl, &assigns);
+
+        hashmap_foreach(&assigns, sym_idx, __) {
+            (void) __;
+            vector_free(ssa_stack);
+            ssa_rename(decl, sym_idx, &ssa_stack);
+        }
+
         it = it->next;
+
+        assigns_destroy(&assigns);
     }
 }
 
