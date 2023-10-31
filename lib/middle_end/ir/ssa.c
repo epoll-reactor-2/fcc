@@ -14,7 +14,6 @@
 #include <string.h>
 #include <math.h>
 
-#if 1
 static void reset_hashmap(hashmap_t *map, uint64_t siz)
 {
     if (map->buckets) {
@@ -22,7 +21,6 @@ static void reset_hashmap(hashmap_t *map, uint64_t siz)
     }
     hashmap_init(map, siz);
 }
-#endif
 
 
 
@@ -52,114 +50,150 @@ static void control_flow_successors(
     }
 }
 
-__weak_really_inline static void set_idom(
-    struct ir_node  *node,
-    struct ir_node  *idom,
-    struct ir_node **worklist,
-    uint64_t        *siz
-) {
-    if (node->idom == NULL) {
-        node->idom = idom;
-        vector_push_back(idom->idom_back, node);
-        worklist[(*siz)++] = node;
-    }
-}
-
 
 
 #define MAX_VERTICES 512
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 static vector_t(int) graph        [MAX_VERTICES];
-static vector_t(int) reverse_graph[MAX_VERTICES]; // original graph, reverse graph
-static vector_t(int) semidoms     [MAX_VERTICES]; // semidominated, semidoms[u] = {v | sdom[v] = u}
+static vector_t(int) reverse_graph[MAX_VERTICES];
+/* semidoms[u] = {v | sdom[v] = u} */
+static vector_t(int) semidoms     [MAX_VERTICES];
 
-static int visit_time        [MAX_VERTICES];
-static int inverse_visit_time[MAX_VERTICES];
-static int parent_in_dfs_tree[MAX_VERTICES]; // visit time, inverse function of visit time, parent in the DFS tree
-static int semidom           [MAX_VERTICES];
-static int idom              [MAX_VERTICES]; // semidominator, immediate dominator
-static int union_find        [MAX_VERTICES];
-static int path_compression  [MAX_VERTICES]; // DSU stuff for path compression min query
+static uint64_t visit_time        [MAX_VERTICES];
+static uint64_t inverse_visit_time[MAX_VERTICES];
+static uint64_t parent_in_dfs_tree[MAX_VERTICES];
+static uint64_t semidom           [MAX_VERTICES];
+static uint64_t idom              [MAX_VERTICES];
+static uint64_t union_find        [MAX_VERTICES];
+static uint64_t path_compression  [MAX_VERTICES];
 
-struct Edge
+static uint64_t current_time;
+
+static void dom_tree_reset_state()
 {
-    uint64_t u;
-    uint64_t v;
+    for (uint64_t i = 0; i < MAX_VERTICES; ++i) {
+        vector_free(graph[i]);
+        vector_free(reverse_graph[i]);
+        vector_free(semidoms[i]);
+    }
+
+    memset(graph,              0, sizeof (graph));
+    memset(reverse_graph,      0, sizeof (reverse_graph));
+    memset(semidoms,           0, sizeof (semidoms));
+    memset(visit_time,         0, sizeof (visit_time));
+    memset(inverse_visit_time, 0, sizeof (inverse_visit_time));
+    memset(parent_in_dfs_tree, 0, sizeof (parent_in_dfs_tree));
+    memset(semidom,            0, sizeof (semidom));
+    memset(idom,               0, sizeof (idom));
+    memset(union_find,         0, sizeof (union_find));
+    memset(path_compression,   0, sizeof (path_compression));
+
+    current_time = 0;
+}
+
+struct edge {
+    uint64_t from;
+    uint64_t to;
 };
 
-struct Edge least_semi_dom(int u) {
+struct edge least_semidom(uint64_t u)
+{
     if (u == union_find[u]) {
-        struct Edge e = { u, u };
+        struct edge e = {
+            .from = u,
+            .to   = u
+        };
         return e;
     }
-    int p;
 
-    struct Edge got = least_semi_dom(union_find[u]);
-    p = got.u;
-    union_find[u] = got.v;
-    
-    if(semidom[p] < semidom[path_compression[u]]) path_compression[u] = p;
-    struct Edge e = {
-        path_compression[u],
-        union_find[u]
+    struct edge got = least_semidom(union_find[u]);
+    uint64_t p      = got.from;
+    union_find[u]   = got.to;
+
+    if (semidom[p] < semidom[path_compression[u]])
+        path_compression[u] = p;
+
+    struct edge e = {
+        .from = path_compression[u],
+        .to   = union_find[u]
     };
+
     return e;
 }
 
-int current_time;
-void dfs(int u) {
+void dfs(uint64_t u)
+{
     visit_time[u] = ++current_time;
     inverse_visit_time[current_time] = u;
     vector_foreach(graph[u], i) {
-        int v = vector_at(graph[u], i);
-        if(!visit_time[v]) {
+        uint64_t v = vector_at(graph[u], i);
+        if (!visit_time[v]) {
             dfs(v);
             parent_in_dfs_tree[visit_time[v]] = visit_time[u];
         }
     }
 }
 
-void dom_tree() {
-    for(int u = 1; u <= current_time; ++u) {
-        semidom[u] = idom[u] = union_find[u] = path_compression[u] = u;
+void dom_tree()
+{
+    for (uint64_t i = 1; i <= current_time; ++i) {
+        semidom         [i] = i;
+        idom            [i] = i;
+        union_find      [i] = i;
+        path_compression[i] = i;
     }
 
-    for(int u = current_time; u >= 1; --u) {
+    for (uint64_t u = current_time; u >= 1; --u) {
         vector_foreach(reverse_graph[inverse_visit_time[u]], i) {
-            int v = vector_at(reverse_graph[inverse_visit_time[u]], i);
+            uint64_t v = vector_at(reverse_graph[inverse_visit_time[u]], i);
             v = visit_time[v];
-            if (v == 0) continue;
-            if (v < u) semidom[u] = MIN(semidom[u], semidom[v]);
-            else semidom[u] = MIN(semidom[u], semidom[least_semi_dom(v).u]);
+
+            /* if (v == 0)
+                continue; */
+
+            if (v < u)
+                semidom[u] = MIN(semidom[u], semidom[v]);
+            else
+                semidom[u] = MIN(semidom[u], semidom[least_semidom(v).from]);
         }
         vector_push_back(semidoms[semidom[u]], u);
 
         vector_foreach(semidoms[u], i) {
-            int v = vector_at(semidoms[u], i);
-            int best = least_semi_dom(v).u;
-            if (semidom[best] >= u) idom[v] = u;
-            else idom[v] = best;
+            uint64_t v    = vector_at(semidoms[u], i);
+            uint64_t best = least_semidom(v).from;
+
+            if (semidom[best] >= u)
+                idom[v] = u;
+            else
+                idom[v] = best;
         }
 
         vector_foreach(graph[inverse_visit_time[u]], i) {
-            int v = vector_at(graph[inverse_visit_time[u]], i);
+            uint64_t v = vector_at(graph[inverse_visit_time[u]], i);
             v = visit_time[v];
-            if(v == 0) continue;
-            if(parent_in_dfs_tree[v] == u) union_find[v] = u; // if u->v is a tree edge, add it
+
+            if (v == 0)
+                continue;
+
+            if (parent_in_dfs_tree[v] == u)
+                union_find[v] = u;
         }
     }
 
-    for(int u = 1; u <= current_time; ++u) 
-        if(idom[u] != semidom[u]) idom[u] = idom[idom[u]];
+    for (uint64_t i = 1; i <= current_time; ++i)
+        if (idom[i] != semidom[i])
+            idom[i]  = idom[idom[i]];
 }
 
-void ir_dominator_tree(struct ir_func_decl *decl)
-{
-    struct ir_node *it = decl->body;
-    uint64_t stmts_cnt = 0;
+/* Put IR nodes to static array. Used in this specific dominator
+   tree algorithm.
 
-    struct ir_node *stmts[8192] = {0};
+   Returns number of added items. */
+static uint64_t dom_tree_fill(struct ir_node *it, struct ir_node **stmts)
+{
+    uint64_t cnt = 0;
 
     while (it) {
         stmts[it->instr_idx] = it;
@@ -167,45 +201,41 @@ void ir_dominator_tree(struct ir_func_decl *decl)
         struct ir_node *succs[2] = {0};
         control_flow_successors(it, &succs[0], &succs[1]);
 
-        /* Hack for this copy-paste dominator tree implementation.
-           TODO: Rework totally whole algorithm.
-           TODO: Properly reset state between building dominator tree.
-                 for different functions. */
-        if (succs[0]) {
-            uint64_t u = it->instr_idx;
-            uint64_t v = succs[0]->instr_idx;
+        for (uint64_t i = 0; i < 2; ++i)
+            if (succs[i]) {
+                uint64_t u = it->instr_idx;
+                uint64_t v = succs[i]->instr_idx;
 
-            vector_push_back(graph[u], v);
-            vector_push_back(reverse_graph[v], u);
-        }
-
-        if (succs[1]) {
-            uint64_t u = it->instr_idx;
-            uint64_t v = succs[1]->instr_idx;
-
-            vector_push_back(graph[u], v);
-            vector_push_back(reverse_graph[v], u);
-        }
+                vector_push_back(graph[u], v);
+                vector_push_back(reverse_graph[v], u);
+            }
 
         it = it->next;
-        ++stmts_cnt;
+        ++cnt;
     }
+
+    return cnt;
+}
+
+void ir_dominator_tree(struct ir_func_decl *decl)
+{
+    struct ir_node *it                  = decl->body;
+    struct ir_node *stmts[MAX_VERTICES] = {0};
+
+    dom_tree_reset_state();
+
+    uint64_t stmts_cnt = dom_tree_fill(it, stmts);
 
     dfs(0);
     dom_tree();
 
-    puts("");
-    for (int i = 0; i < stmts_cnt; ++i) {
-        int got = inverse_visit_time[idom[visit_time[i]]];
-
-        stmts[i]->idom = stmts[got];
-
-        printf("%d %d\n", i, got);
+    for (uint64_t i = 0; i < stmts_cnt; ++i) {
+        uint64_t idom_idx = inverse_visit_time[idom[visit_time[i]]];
+        stmts[i]->idom = stmts[idom_idx];
     }
 }
 
 /* Cooper algorithm
-   TODO: Fix dominator tree. It is incorrect.
    https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf */
 static void dominance_frontier(struct ir_node *ir)
 {
@@ -234,72 +264,6 @@ static void dominance_frontier(struct ir_node *ir)
     }
 }
 
-#if 0
-static void traverse_cfg_post_order(ir_vector_t *out, struct ir_node *ir)
-{
-    vector_foreach(ir->idom_back, i) {
-        struct ir_node *x = vector_at(ir->idom_back, i);
-        if (x)
-            traverse_cfg_post_order(out, x);
-    }
-    vector_push_back(*out, ir);
-}
-#endif // 0
-
-/* This function implements algorithm given in
-https://c9x.me/compile/bib/ssa.pdf */
-#if 0
-static void dominance_frontier(struct ir_node *ir)
-{
-    ir_vector_t post_order = {0};
-    traverse_cfg_post_order(&post_order, ir);
-
-    vector_foreach(post_order, i) {
-        struct ir_node *x = vector_at(post_order, i);
-        vector_free(x->df);
-
-        /* printf("Post order: %d, idom = %d, idom_back = ( ", x->instr_idx, x->idom->instr_idx);
-        vector_foreach(x->idom_back, j) {
-            struct ir_node *z = vector_at(x->idom_back, j);
-            printf("%d ", z->instr_idx);
-        }
-        printf("), CFG succs = ( "); */
-
-        struct ir_node *succs[2] = {0};
-        control_flow_successors(x, &succs[0], &succs[1]);
-
-        /* for (uint64_t j = 0; j < 2; ++j) {
-            struct ir_node *y = succs[j];
-            if (y)
-                printf("%d ", y->instr_idx);
-        }
-        puts(")"); */
-
-        for (uint64_t j = 0; j < 2; ++j) {
-            struct ir_node *y = succs[j];
-            if (y && y->idom != x) {
-                /* printf("1: Add %d to DF(%d)\n", y->instr_idx, x->instr_idx); */
-                vector_push_back(x->df, y);
-            }
-        }
-
-        vector_foreach(x->idom_back, j) {
-            struct ir_node *z = vector_at(x->idom_back, j);
-            vector_foreach(z->df, k) {
-                struct ir_node *y = vector_at(z->df, k);
-                if (y && y->idom != x) {
-                    /* printf("2: Add %d to DF(%d)\n", y->instr_idx, x->instr_idx); */
-                    vector_push_back(x->df, y);
-                }
-            }
-        }
-    }
-
-    vector_free(post_order);
-}
-#endif
-
-#if 1
 static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
 {
     struct ir_node *it = decl->body;
@@ -333,12 +297,11 @@ static void assigns_dump(hashmap_t *assigns)
         ir_vector_t *list = (ir_vector_t *) v;
         printf("For symbol %ld { ", k);
         vector_foreach(*list, i) {
-            printf("%d ", vector_at(*list, i)->instr_idx);
+            printf("%ld ", vector_at(*list, i)->instr_idx);
         }
         printf("}\n");
     }
 }
-#endif // 0
 
 /*
     (prev    ) -- next --> (  ir    )
@@ -347,7 +310,6 @@ static void assigns_dump(hashmap_t *assigns)
     (prev    ) -- next --> (new node) -- next --> (  ir    )
     (prev    ) <- prev --- (new node) <- prev --- (  ir    )
 */
-#if 1
 static void ir_insert_before(struct ir_node *ir, struct ir_node *new)
 {
     struct ir_node *prev = ir->prev;
@@ -357,11 +319,9 @@ static void ir_insert_before(struct ir_node *ir, struct ir_node *new)
     new->next = ir;
     ir->prev = new;
 }
-#endif // 0
 
 /* This function implements algorithm given in
    https://c9x.me/compile/bib/ssa.pdf */
-#if 1
 static void phi_insert(struct ir_func_decl *decl)
 {
     /* Key:   ir
@@ -407,7 +367,7 @@ static void phi_insert(struct ir_func_decl *decl)
                     /* NOTE: prev & prev_else are control flow (not just list) predecessors.
                              and they are built during IR linkage. */
                     struct ir_node *phi = ir_phi_init(sym_idx, y->prev->instr_idx, y->prev_else->instr_idx);
-                    printf("insert phi(%ld) before %%%d\n", sym_idx, y->instr_idx);
+                    printf("insert phi(%ld) before %%%ld\n", sym_idx, y->instr_idx);
                     ir_insert_before(y, phi);
                     memcpy(&phi->meta, &y->meta, sizeof (struct meta));
 
@@ -431,13 +391,13 @@ static void phi_insert(struct ir_func_decl *decl)
     hashmap_destroy(&assigns);
     hashmap_destroy(&dom_fron_plus);
 }
-#endif
 
 void ir_compute_ssa(struct ir_node *decls)
 {
     struct ir_node *it = decls;
     while (it) {
         struct ir_func_decl *decl = it->ir;
+        dom_tree_reset_state();
         ir_dominator_tree(decl);
         puts("");
         dominance_frontier(decl->body);

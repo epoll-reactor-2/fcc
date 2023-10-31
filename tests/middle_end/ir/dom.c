@@ -1,136 +1,129 @@
-/* dom.c - Tests for IR dominator properties.
+/* ssa.c - Tests for SSA form.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "middle_end/ir/ir.h"
+#include "front_end/lex/lex.h"
 #include "middle_end/ir/dump.h"
 #include "middle_end/ir/ssa.h"
+#include "util/diagnostic.h"
 #include "utils/test_utils.h"
+#include <stdio.h>
+
+extern int yylex_destroy();
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void dominates()
+char current_output_dir[128];
+
+void idom_dump(FILE *stream, struct ir_func_decl *decl)
 {
-    TEST_START_INFO
+    struct ir_node *it = decl->body;
 
-    ir_reset_internal_state();
-
-    struct ir_node *_1 = ir_jump_init(0);
-    struct ir_node *_2 = ir_jump_init(1);
-
-    /* Dominator tree:
-
-           +-------+
-           |   1   |
-           +-------+
-               |
-               | Dominates
-               V
-           +-------+
-           |   2   |
-           +-------+ */
-    _1->idom = NULL;
-    _2->idom = _1;
-
-    ASSERT_TRUE( ir_dominates   (_1, _2));
-    ASSERT_TRUE(!ir_dominated_by(_1, _2));
-
-    ASSERT_TRUE(!ir_dominates   (_2, _1));
-    ASSERT_TRUE( ir_dominated_by(_2, _1));
-
-    ir_node_cleanup(_2);
-    ir_node_cleanup(_1);
-
-    TEST_END_INFO
+    while (it) {
+        if (it->idom)
+            fprintf(
+                stream, "idom(%ld) = %ld\n",
+                it->instr_idx,
+                it->idom->instr_idx
+            );
+        it = it->next;
+    }
 }
 
-void dominates_condition()
+bool ir_test(const char *path, const char *filename)
 {
-    TEST_START_INFO
+    bool    ok                 = 1;
+    char   *expected           = NULL;
+    char   *generated          = NULL;
+    size_t  _                  =  0;
+    FILE   *expected_stream    = open_memstream(&expected, &_);
+    FILE   *generated_stream   = open_memstream(&generated, &_);
+    char    dom_path[256]      = {0};
 
-    ir_reset_internal_state();
+    snprintf(dom_path, 255, "%s/%s_dom_tree.dot", current_output_dir, filename);
 
-    struct ir_node *body = ir_bin_init(TOK_PLUS, ir_sym_init(0), ir_sym_init(0));
+    FILE   *dom_stream         = fopen(dom_path, "w");
 
-    struct ir_node *_0 = ir_cond_init(body, 0);
-    struct ir_node *_1 = ir_jump_init(0);
-    struct ir_node *_2 = ir_jump_init(0);
-    struct ir_node *_3 = ir_ret_init(0, ir_sym_init(0));
+    if (!setjmp(weak_fatal_error_buf)) {
+        struct ir_unit *ir = gen_ir(path);
+        struct ir_node *it = ir->func_decls;
 
-    ((struct ir_cond *) _0->ir)->target    = _1;
-                        _0     ->next_else = _2;
-    ((struct ir_jump *) _1->ir)->target    = _3;
-    ((struct ir_jump *) _2->ir)->target    = _3;
+        extract_assertion_comment(yyin, expected_stream);
 
-    _0->next = _1;
-    _1->next = _2;
-    _2->next = _3;
+        while (it) {
+            ir_dominator_tree(it->ir);
+            ir_dump_dom_tree(dom_stream, it->ir);
+            ir_dump(generated_stream, it->ir);
+            fprintf(generated_stream, "--------\n");
+            idom_dump(generated_stream, it->ir);
+            fflush(generated_stream);
+            it = it->next;
+        }
 
-    struct ir_node *f = ir_func_decl_init(D_T_INT, strdup("f"), NULL, _0);
+        ir_unit_cleanup(ir);
 
-    ir_dominator_tree(f->ir);
-    /*
-    printf("idom(1): %d\n", _1->idom->instr_idx);
-    printf("idom(2): %d\n", _2->idom->instr_idx);
-    printf("idom(3): %d\n", _3->idom->instr_idx);
-    printf("idom(4): %d\n", _4->idom->instr_idx);
-    */
+        if (strcmp(expected, generated) != 0) {
+            printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
+            fflush(stdout);
+            ok = 0;
+            goto exit;
+        }
+        printf("Success!\n");
+    } else {
+        /// Error, will be printed in main.
+        ok = 0;
+    }
 
-    /* CFG:
+exit:
+    yylex_destroy();
+    fclose(expected_stream);
+    fclose(generated_stream);
+    fclose(dom_stream);
+    free(expected);
+    free(generated);
 
-              +-------+
-              |   0   |
-              +-------+
-                 / \
-                /   \
-               /     \
-              /       \
-             /         \
-            /           \
-       +-------+     +-------+
-       |   1   |     |   2   |
-       +-------+     +-------+
-            \            /
-             \          /
-              \        /
-               \      /
-                \    /
-                 \  /
-              +-------+
-              |   3   |
-              +-------+
+    return ok;
+}
 
-       Dominator tree:
+char *err_buf       = NULL;
+char *warn_buf      = NULL;
+size_t err_buf_len  = 0;
+size_t warn_buf_len = 0;
 
-                  +-------+
-             -----|   0   |-----
-            /     +-------+     \
-           /          |          \
-       +-------+  +-------+  +-------+
-       |   1   |  |   2   |  |   3   |
-       +-------+  +-------+  +-------+
-    */
+int run()
+{
+    int   ret  = 0;
+    char *path = "/test_inputs/dom";
 
-    ASSERT_TRUE(_1->idom == _0);
-    ASSERT_TRUE(_3->idom == _0);
-    ASSERT_TRUE(_2->idom == _0);
+    cfg_dir("dom", current_output_dir);
 
-    ASSERT_TRUE(!ir_dominates(_1, _0));
-    ASSERT_TRUE(!ir_dominates(_3, _0));
-    ASSERT_TRUE(!ir_dominates(_2, _0));
-    ASSERT_TRUE(!ir_dominates(_1, _3));
-    ASSERT_TRUE(!ir_dominates(_2, _3));
+    if (!do_on_each_file(path, ir_test)) {
+        ret = -1;
 
-    ir_node_cleanup(f);
+        if (err_buf)
+            fputs(err_buf, stderr);
 
-    TEST_END_INFO
+        if (warn_buf)
+            fputs(warn_buf, stderr);
+    }
+
+    return ret;
 }
 
 int main()
 {
-    dominates();
-    dominates_condition();
+    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
+    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+
+    if (run() < 0)
+        return -1;
+
+    fclose(diag_error_memstream);
+    fclose(diag_warn_memstream);
+    free(err_buf);
+    free(warn_buf);
+    return 0;
 }
