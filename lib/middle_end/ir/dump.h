@@ -32,6 +32,9 @@ void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl);
 /// \param ir      Pointer to IR the statement.
 void ir_dump_node(FILE *mem, struct ir_node *ir);
 
+/// Print dominance frontier for given node.
+void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir);
+
 /// Print IR as dot graph. May be used to generate images.
 ///
 /// $ dot -Tpng graph.dot -o graph.png

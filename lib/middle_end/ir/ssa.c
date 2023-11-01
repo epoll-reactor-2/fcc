@@ -241,7 +241,7 @@ void ir_dominator_tree(struct ir_func_decl *decl)
 
 /* Cooper algorithm
    https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf */
-static void dominance_frontier(struct ir_func_decl *decl)
+void ir_dominance_frontier(struct ir_func_decl *decl)
 {
     struct ir_node *b = decl->body;
 
@@ -306,6 +306,7 @@ static void assigns_destroy(hashmap_t *assigns)
     hashmap_destroy(assigns);
 }
 
+/*
 static void assigns_dump(hashmap_t *assigns)
 {
     hashmap_foreach(assigns, k, v) {
@@ -317,22 +318,23 @@ static void assigns_dump(hashmap_t *assigns)
         printf("}\n");
     }
 }
+*/
 
 /*
-    (prev    ) -- next --> (  ir    )
-    (prev    ) <- prev --- (  ir    )
+    (prev    ) -- next --> (curr    )
+    (prev    ) <- prev --- (curr    )
 
-    (prev    ) -- next --> (new node) -- next --> (  ir    )
-    (prev    ) <- prev --- (new node) <- prev --- (  ir    )
+    (prev    ) -- next --> (new     ) -- next --> (curr    )
+    (prev    ) <- prev --- (new     ) <- prev --- (curr    )
 */
-static void ir_insert_before(struct ir_node *ir, struct ir_node *new)
+static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 {
-    struct ir_node *prev = ir->prev;
+    struct ir_node *prev = curr->prev;
 
     prev->next = new;
     new->prev = prev;
-    new->next = ir;
-    ir->prev = new;
+    new->next = curr;
+    curr->prev = new;
 }
 
 /* Fix jump statements pointing to nothing
@@ -355,7 +357,9 @@ static void phi_link(struct ir_node *it)
 }
 
 /* This function implements algorithm given in
-   https://c9x.me/compile/bib/ssa.pdf */
+   https://c9x.me/compile/bib/ssa.pdf
+
+   TODO: Phis inserted in really wierd places. */
 static void phi_insert(
     struct ir_func_decl *decl,
     /* Key:   sym_idx
@@ -382,7 +386,12 @@ static void phi_insert(
         vector_foreach(*assign_list, i) {
             (void) i;
             hashmap_put(&work, 0, 0);
-            hashmap_put(&dom_fron_plus, 0, 0);
+        }
+
+        struct ir_node *it = decl->body;
+        while (it) {
+            hashmap_put(&dom_fron_plus, (uint64_t) it, 0);
+            it = it->next;
         }
 
         vector_foreach(*assign_list, i) {
@@ -401,17 +410,18 @@ static void phi_insert(
                 struct ir_node *y = vector_at(x->df, i);
                 uint64_t y_addr = (uint64_t) y;
 
-                if (!hashmap_has(&dom_fron_plus, y_addr)) {
+                bool ok = 0;
+                uint64_t got = hashmap_get(&dom_fron_plus, y_addr, &ok);
+                if (ok && got == 0) {
                     /* NOTE: prev & prev_else are control flow (not just list) predecessors.
                              and they are built during IR linkage. */
                     struct ir_node *phi = ir_phi_init(sym_idx, y->prev->instr_idx, y->prev_else->instr_idx);
-                    printf("insert phi(%ld) before %%%ld\n", sym_idx, y->instr_idx);
                     ir_insert_before(y, phi);
                     memcpy(&phi->meta, &y->meta, sizeof (struct meta));
 
-                    hashmap_put(&dom_fron_plus, (uint64_t) y, 1);
+                    hashmap_put(&dom_fron_plus, y_addr, 1);
 
-                    bool ok = 0;
+                    ok = 0;
                     uint64_t val = hashmap_get(&work, y_addr, &ok);
                     if (ok && val == 0) {
                         hashmap_put(&work, (uint64_t) y, 1);
@@ -431,38 +441,107 @@ static void phi_insert(
 
 typedef vector_t(uint64_t) ssa_stack_t;
 
-/* TODO: Make phi instruction store pointers to symbols IR.
-   TODO: This operates on one basic block. We have rather one
-         IR statement. Figure out and adapt algorithm from SSA paper. */
-static void ssa_rename(struct ir_func_decl *decl, uint64_t sym_idx, ssa_stack_t *stack)
-{
-    struct ir_node *it = decl->body;
+static uint64_t ssa_idx;
 
-    while (it) {
-        switch (it->type) {
-        case IR_PHI: {
-            struct ir_phi *phi = it->ir;
+__weak_really_inline static void ssa_rename_sym(struct ir_node *sym_ir, uint64_t sym_idx, ssa_stack_t *stack)
+{
+    if (sym_ir->type != IR_SYM)
+        return;
+
+    struct ir_sym *sym = sym_ir->ir;
+    if (sym->idx == sym_idx)
+        sym->ssa_idx = vector_back(*stack);
+}
+
+static void ssa_rename_bin(struct ir_bin *bin, uint64_t sym_idx, ssa_stack_t *stack)
+{
+    ssa_rename_sym(bin->lhs, sym_idx, stack);
+    ssa_rename_sym(bin->rhs, sym_idx, stack);
+}
+
+static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack, bool *visited)
+{
+    if (visited[ir->instr_idx])
+        return;
+
+    visited[ir->instr_idx] = 1;
+
+    switch (ir->type) {
+    case IR_PHI: {
+        struct ir_phi *phi = ir->ir;
+        if (phi->sym_idx == sym_idx) {
+            phi->ssa_idx = ssa_idx;
+            vector_push_back(*stack, ssa_idx++);
+        }
+        break;
+    }
+    case IR_COND: {
+        struct ir_cond *cond = ir->ir;
+        struct ir_bin  *body = cond->cond->ir;
+
+        ssa_rename_bin(body, sym_idx, stack);
+        break;
+    }
+    case IR_STORE: {
+        struct ir_store *store = ir->ir;
+        if (store->idx->type == IR_SYM) {
+            struct ir_sym *sym = store->idx->ir;
+            if (sym->idx == sym_idx) {
+                sym->ssa_idx = ssa_idx;
+                vector_push_back(*stack, ssa_idx++);
+            }
+        }
+
+        switch (store->body->type) {
+        case IR_BIN: {
+            struct ir_bin *body = store->body->ir;
+            ssa_rename_bin(body, sym_idx, stack);
             break;
         }
-        case IR_COND: {
-            struct ir_cond *cond = it->ir;
-            break;
-        }
-        case IR_STORE: {
-            struct ir_store *store = it->ir;
+        case IR_SYM: {
+            struct ir_sym *sym = store->body->ir;
+            if (stack->count > 0)
+                sym->ssa_idx = vector_back(*stack);
             break;
         }
         default:
             break;
         }
+        break;
+    }
+    case IR_RET: {
+        struct ir_ret *ret = ir->ir;
+        if (ret->body &&
+            ret->body->type == IR_SYM)
+            ssa_rename_sym(ret->body, sym_idx, stack);
+    }
+    default:
+        break;
+    }
 
-        /* TODO: Rename for CFG successor.
+    /* 1. Some logic with phi nodes. */
+    struct ir_node *succs[2] = {0};
+    control_flow_successors(ir, &succs[0], &succs[1]);
 
-        vector_foreach(it->idom_back, i)
-            ssa_rename(// ... //); */
+    for (uint64_t i = 0; i < 2; ++i)
+        if (succs[i] && succs[i]->type == IR_PHI) {
+            /* struct ir_phi *phi = succs[i]->ir; */
+        }
 
+    /* 2. call recursive for dominator tree children. */
+    vector_foreach(ir->idom_back, i) {
+        struct ir_node *submissive = vector_at(ir->idom_back, i);
+        ssa_rename(submissive, sym_idx, stack, visited);
+    }
 
-        it = it->next;
+    /* 3. Pop from stack for current assignment. */
+    if (ir->type == IR_STORE) {
+        struct ir_store *store = ir->ir;
+        if (store->idx->type != IR_SYM)
+            return;
+        struct ir_sym *sym = store->idx->ir;
+        if (sym->idx == sym_idx)
+            vector_pop_back(*stack);
     }
 }
 
@@ -473,20 +552,25 @@ void ir_compute_ssa(struct ir_node *decls)
         struct ir_func_decl *decl = it->ir;
         /* Key:   sym_idx
            Value: array of ir's */
-        hashmap_t assigns     = {0};
+        hashmap_t assigns        = {0};
         /* Value: sym_idx */
-        ssa_stack_t ssa_stack = {0};
+        ssa_stack_t ssa_stack    = {0};
+
         assigns_collect(decl, &assigns);
 
         dom_tree_reset_state();
         ir_dominator_tree(decl);
-        dominance_frontier(decl);
+        ir_dominance_frontier(decl);
         phi_insert(decl, &assigns);
 
         hashmap_foreach(&assigns, sym_idx, __) {
+            bool visited[512] = {0};
+
             (void) __;
             vector_free(ssa_stack);
-            ssa_rename(decl, sym_idx, &ssa_stack);
+            printf("Assigns idx: %ld, ssa_idx: %ld\n", sym_idx, ssa_idx);
+            ssa_idx = 0;
+            ssa_rename(decl->body, sym_idx, &ssa_stack, visited);
         }
 
         it = it->next;

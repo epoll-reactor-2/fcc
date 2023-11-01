@@ -85,6 +85,8 @@ static void ir_dump_string(FILE *mem, struct ir_string *ir)
 static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 {
     fprintf(mem, "%st%lu", ir->deref ? "*" : "", ir->idx);
+    if (ir->ssa_idx != UINT64_MAX)
+        fprintf(mem, ".%lu", ir->ssa_idx);
 }
 
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
@@ -179,7 +181,7 @@ static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
 
 static void ir_dump_phi(FILE *mem, struct ir_phi *ir)
 {
-    fprintf(mem, "phi%ld = φ(%ld, %ld)", ir->sym_idx, ir->op_1_idx, ir->op_2_idx);
+    fprintf(mem, "t%ld.%ld = φ(%ld, %ld)", ir->sym_idx, ir->ssa_idx, ir->op_1_idx, ir->op_2_idx);
 }
 
 void ir_dump_node(FILE *mem, struct ir_node *ir)
@@ -212,12 +214,12 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
         fprintf(mem, "(@noalias)");
 }
 
-static void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
+void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
 {
     if (ir->df.count == 0)
         return;
 
-    fprintf(mem, "\nDF = {");
+    fprintf(mem, "DF = {");
     vector_foreach(ir->df, i) {
         struct ir_node *df = vector_at(ir->df, i);
         fprintf(mem, "%ld", df->instr_idx);
@@ -246,6 +248,7 @@ __weak_really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
 {
     fprintf(mem, "%ld:   ", ir->instr_idx);
     ir_dump_node(mem, ir);
+    fprintf(mem, "\n");
     ir_dump_dominance_frontier(mem, ir);
 }
 

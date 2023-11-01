@@ -150,6 +150,7 @@ struct ir_sym {
     /// Like *ptr.
     bool     deref;
     uint64_t idx;
+    uint64_t ssa_idx;
 };
 
 struct ir_store {
@@ -253,6 +254,7 @@ struct ir_func_call {
 
 struct ir_phi {
     uint64_t         sym_idx;
+    uint64_t         ssa_idx;
     uint64_t         op_1_idx;
     uint64_t         op_2_idx;
 };
