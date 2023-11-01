@@ -8,13 +8,13 @@
 //       6:   | t0 = 2
 //       7:   ret t0
 //--------
-//idom(0) = 0
-//idom(1) = 0
-//idom(2) = 1
-//idom(3) = 2
-//idom(4) = 2
-//idom(5) = 4
-//idom(6) = 3
+//idom(0) = 0, DF = {6}
+//idom(1) = 0, DF = {6}
+//idom(2) = 1, DF = {6}
+//idom(3) = 2, DF = {4, 7}
+//idom(4) = 2, DF = {6, 7}
+//idom(5) = 4, DF = {6, 7}
+//idom(6) = 3, DF = {7}
 //idom(7) = 2
 int main() {
     int r = 0;
