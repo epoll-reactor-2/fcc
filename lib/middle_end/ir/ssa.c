@@ -69,7 +69,7 @@ static uint64_t idom              [MAX_VERTICES];
 static uint64_t union_find        [MAX_VERTICES];
 static uint64_t path_compression  [MAX_VERTICES];
 
-static uint64_t current_time;
+static uint64_t dfs_index;
 
 static void dom_tree_reset_state()
 {
@@ -90,7 +90,7 @@ static void dom_tree_reset_state()
     memset(union_find,         0, sizeof (union_find));
     memset(path_compression,   0, sizeof (path_compression));
 
-    current_time = 0;
+    dfs_index = 0;
 }
 
 struct edge {
@@ -123,10 +123,12 @@ struct edge least_semidom(uint64_t u)
     return e;
 }
 
+/* Topological sort. */
 void dfs(uint64_t u)
 {
-    visit_time[u] = ++current_time;
-    inverse_visit_time[current_time] = u;
+    visit_time[u] = ++dfs_index;
+    inverse_visit_time[dfs_index] = u;
+
     vector_foreach(graph[u], i) {
         uint64_t v = vector_at(graph[u], i);
         if (!visit_time[v]) {
@@ -136,16 +138,38 @@ void dfs(uint64_t u)
     }
 }
 
+/* https://www.cs.princeton.edu/courses/archive/fall03/cs528/handouts/a%20fast%20algorithm%20for%20finding.pdf
+   https://baziotis.cs.illinois.edu/compilers/semidominators-proof.html
+   https://www.cs.utexas.edu/users/misra/Lengauer+Tarjan.pdf
+
+    The union find and path compression techniques are used
+    to speed up algorithm.
+
+    If v < u then v visited before u.
+    If v < u then v is ancestor of u in DFS tree. */
 void dom_tree()
 {
-    for (uint64_t i = 1; i <= current_time; ++i) {
+    /* Step 1 already executed by performing DFS. */
+
+    /* Each node dominates itself. */
+    for (uint64_t i = 1; i <= dfs_index; ++i) {
         semidom         [i] = i;
         idom            [i] = i;
         union_find      [i] = i;
         path_compression[i] = i;
     }
 
-    for (uint64_t u = current_time; u >= 1; --u) {
+    /* Traverse results of topological sort in reverse order. */
+    for (uint64_t u = dfs_index; u >= 1; --u) {
+
+        /* Step 2: Compute semidominators by applying
+
+                   sdom(w) = min({
+                                       v | (v, w) in E && v < w 
+                                 } U {
+                                       sdom(u) | u > w && E edge (v, w)
+                                       such as there is path from u to v
+                                 }) */
         vector_foreach(reverse_graph[inverse_visit_time[u]], i) {
             uint64_t v = vector_at(reverse_graph[inverse_visit_time[u]], i);
             v = visit_time[v];
@@ -160,6 +184,7 @@ void dom_tree()
         }
         vector_push_back(semidoms[semidom[u]], u);
 
+        /* Step 3: Define the immediate dominators. */
         vector_foreach(semidoms[u], i) {
             uint64_t v    = vector_at(semidoms[u], i);
             uint64_t best = least_semidom(v).from;
@@ -174,15 +199,16 @@ void dom_tree()
             uint64_t v = vector_at(graph[inverse_visit_time[u]], i);
             v = visit_time[v];
 
-            if (v == 0)
-                continue;
+            /* if (v == 0)
+                continue; */
 
             if (parent_in_dfs_tree[v] == u)
                 union_find[v] = u;
         }
     }
 
-    for (uint64_t i = 1; i <= current_time; ++i)
+    /* Step 4: ??? */
+    for (uint64_t i = 1; i <= dfs_index; ++i)
         if (idom[i] != semidom[i])
             idom[i]  = idom[idom[i]];
 }
