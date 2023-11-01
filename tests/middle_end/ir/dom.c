@@ -25,16 +25,16 @@ void idom_dump(FILE *stream, struct ir_func_decl *decl)
     while (it) {
         if (it->idom)
             fprintf(
-                stream, "idom(%ld) = %ld",
+                stream, "idom(%ld) = %ld\n",
                 it->instr_idx,
                 it->idom->instr_idx
             );
 
-        if (it->df.count > 0) {
-            fprintf(stream, ", ");
-            ir_dump_dominance_frontier(stream, it);
-        } else
-            fprintf(stream, "\n");
+        // if (it->df.count > 0) {
+        //     fprintf(stream, ", ");
+        //     ir_dump_dominance_frontier(stream, it);
+        // } else
+            // fprintf(stream, "\n");
 
         it = it->next;
     }
