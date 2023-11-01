@@ -19,5 +19,5 @@ int main() {
         ++j;
         ++i;
     }
-    return 0;
+    return i;
 }

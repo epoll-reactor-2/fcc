@@ -25,10 +25,17 @@ void idom_dump(FILE *stream, struct ir_func_decl *decl)
     while (it) {
         if (it->idom)
             fprintf(
-                stream, "idom(%ld) = %ld\n",
+                stream, "idom(%ld) = %ld",
                 it->instr_idx,
                 it->idom->instr_idx
             );
+
+        if (it->df.count > 0) {
+            fprintf(stream, ", ");
+            ir_dump_dominance_frontier(stream, it);
+        } else
+            fprintf(stream, "\n");
+
         it = it->next;
     }
 }
@@ -55,6 +62,7 @@ bool ir_test(const char *path, const char *filename)
 
         while (it) {
             ir_dominator_tree(it->ir);
+            ir_dominance_frontier(it->ir);
             ir_dump_dom_tree(dom_stream, it->ir);
             ir_dump(generated_stream, it->ir);
             fprintf(generated_stream, "--------\n");
