@@ -256,8 +256,13 @@ void ir_dominance_frontier(struct ir_func_decl *decl)
                 struct ir_node *p = vector_at(preds, pred_i);
                 struct ir_node *runner = p;
 
-                while (runner != runner->idom && runner != b->idom) {
+                while (runner != b->idom) {
                     vector_push_back(runner->df, b);
+
+                    /* Upper statement is reached. */
+                    if (runner == runner->idom)
+                        break;
+
                     runner = runner->idom;
                 }
             }

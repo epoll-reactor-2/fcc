@@ -49,10 +49,13 @@ bool ir_test(const char *path, const char *filename)
     FILE   *expected_stream    = open_memstream(&expected, &_);
     FILE   *generated_stream   = open_memstream(&generated, &_);
     char    dom_path[256]      = {0};
+    char    cfg_path[256]      = {0};
 
     snprintf(dom_path, 255, "%s/%s_dom_tree.dot", current_output_dir, filename);
+    snprintf(cfg_path, 255, "%s/%s_cfg.dot",      current_output_dir, filename);
 
     FILE   *dom_stream         = fopen(dom_path, "w");
+    FILE   *cfg_stream         = fopen(cfg_path, "w");
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ir_unit *ir = gen_ir(path);
@@ -64,6 +67,7 @@ bool ir_test(const char *path, const char *filename)
             ir_dominator_tree(it->ir);
             ir_dominance_frontier(it->ir);
             ir_dump_dom_tree(dom_stream, it->ir);
+            ir_dump_cfg(cfg_stream, it->ir);
             ir_dump(generated_stream, it->ir);
             fprintf(generated_stream, "--------\n");
             idom_dump(generated_stream, it->ir);
@@ -89,6 +93,7 @@ exit:
     yylex_destroy();
     fclose(expected_stream);
     fclose(generated_stream);
+    fclose(cfg_stream);
     fclose(dom_stream);
     free(expected);
     free(generated);
