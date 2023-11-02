@@ -4,6 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
+#if 0
 #include "middle_end/ir/ir.h"
 #include "middle_end/opt/opt.h"
 #include "util/vector.h"
@@ -126,3 +127,5 @@ void ir_opt_reorder(struct ir_func_decl *decl)
 
     vector_free(stmts);
 }
+
+#endif /* 0 */

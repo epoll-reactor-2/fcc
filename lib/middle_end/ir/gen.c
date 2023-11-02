@@ -24,7 +24,7 @@ static struct ir_node    *ir_prev;
    Conditions:
    - reset at the start of each function declaration,
    - increments with every created alloca instruction. */
-static uint64_t            ir_var_idx;
+static uint64_t           ir_var_idx;
 static bool               ir_save_first;
 static bool               ir_meta_is_loop;
 static uint64_t           ir_nesting;
@@ -77,6 +77,9 @@ static void ir_try_add_meta(struct ir_node *ir)
     }
 }
 
+/* Note: This function does not set previous pointers
+         in IR list. Back edges always represents control flow
+         and set up in `ir_link()`. */
 static void ir_insert(struct ir_node *new_node)
 {
     __weak_debug({
@@ -95,14 +98,10 @@ static void ir_insert(struct ir_node *new_node)
 
     if (ir_prev == NULL) {
         ir_prev = new_node;
-        new_node->prev = NULL;
-        new_node->prev_else = NULL;
         return;
     }
 
     ir_prev->next = new_node;
-    new_node->prev = ir_prev;
-    new_node->prev_else = NULL;
     ir_prev = new_node;
 }
 
@@ -367,7 +366,6 @@ static void visit_ast_for(struct ast_for *ast)
 
     if (ast->condition) {
         cond->next_else = exit_jmp;
-        exit_jmp->prev = cond;
         exit_jmp_ptr->idx = ir_last->instr_idx + 1;
     }
 
@@ -424,7 +422,6 @@ static void visit_ast_while(struct ast_while *ast)
     --ir_nesting;
 
     cond->next_else = exit_jmp;
-    exit_jmp->prev = cond;
 
     exit_jmp_ptr->idx = next_iter_jmp->instr_idx + 1;
 
@@ -550,7 +547,6 @@ static void visit_ast_if(struct ast_if *ast)
     end_jmp_ptr->idx = ir_last->instr_idx + 1;
 
     cond->next_else = end_jmp;
-    end_jmp->prev = cond;
 
     mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
 
@@ -895,6 +891,18 @@ static void visit_ast(struct ast_node *ast)
 
 
 
+/* Assure we will omit same predecessors. */
+static bool has_prev(ir_vector_t *t, uint64_t idx)
+{
+    vector_foreach(*t, i) {
+        struct ir_node *ir = vector_at(*t, i);
+        if (ir->instr_idx == idx)
+            return 1;
+    }
+
+    return 0;
+}
+
 void ir_link(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
@@ -907,30 +915,43 @@ void ir_link(struct ir_func_decl *decl)
 
     for (uint64_t i = 0; i < stmts.count - 1; ++i) {
         struct ir_node *stmt = stmts.data[i];
+
         switch (stmt->type) {
         case IR_JUMP: {
             struct ir_jump *jump = stmt->ir;
             jump->target = stmts.data[jump->idx];
-            stmts.data[jump->idx]->prev_else = stmt;
+            ir_vector_t *prevs = &jump->target->prev;
+            if (!has_prev(prevs, stmt->instr_idx))
+                vector_push_back(*prevs, stmt);
             break;
         }
         case IR_COND: {
             struct ir_cond *cond = stmt->ir;
             cond->target = stmts.data[cond->goto_label];
-
             /* If next_else pointer is NULL, we assume,
                that this is do-while condition. We
                have nowhere to jump during do {} while (...)
                statement codegen. */
             if (!stmt->next_else)
                  stmt->next_else = stmts.data[i + 1];
-            stmts.data[cond->goto_label]->prev_else = stmt;
+            ir_vector_t *prevs = &cond->target->prev;
+            if (!has_prev(prevs, stmt->instr_idx))
+                vector_push_back(*prevs, stmt);
             break;
         }
         default:
             break;
         }
+
+        if (i > 0 && stmts.data[i - 1]->type != IR_JUMP)
+            vector_push_back(stmt->prev, stmts.data[i - 1]);
     }
+
+
+    if (vector_back(stmts)->type != IR_JUMP)
+        /* stmts.count - 2 is exactly what is located before
+           current statement. */
+        vector_push_back(vector_back(stmts)->prev, stmts.data[stmts.count - 2]);
 
     vector_free(stmts);
 }
@@ -943,7 +964,10 @@ static void ir_build_cfg(struct ir_func_decl *decl)
     uint64_t cfg_no = 0;
 
     while (it) {
-        if (!it->prev || it->prev_else || it->prev->type == IR_JUMP || it->prev->type == IR_COND)
+        bool new = 0;
+        new |= it->prev.count == 0; /* Very beginning. */
+        new |= it->prev.count >= 2; /* Branch. */
+        if (new)
             started = 1;
 
         if (started && (it->type == IR_JUMP || it->type == IR_COND)) {
@@ -969,7 +993,7 @@ struct ir_unit *ir_gen(struct ast_node *ast)
         struct ir_node *decl_next = vector_at(ir_func_decls, i + 1);
 
         decl->next = decl_next;
-        decl_next->prev = decl;
+        vector_push_back(decl_next->prev, decl);
     }
 
     vector_foreach(ir_func_decls, i) {

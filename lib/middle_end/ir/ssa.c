@@ -272,14 +272,24 @@ void ir_dominance_frontier(struct ir_func_decl *decl)
     struct ir_node *b = decl->body;
 
     while (b) {
-        vector_free(b->df);
-        ir_vector_t preds = {0};
-        if (b->prev)      vector_push_back(preds, b->prev);
-        if (b->prev_else) vector_push_back(preds, b->prev_else);
+        printf("%ld's preds: ", b->instr_idx);
+        vector_foreach(b->prev, pred_i) {
+            struct ir_node *p = vector_at(b->prev, pred_i);
+            printf("%ld ", p->instr_idx);
+        }
+        puts("");
 
-        if (preds.count >= 2) {
-            vector_foreach(preds, pred_i) {
-                struct ir_node *p = vector_at(preds, pred_i);
+        b = b->next;
+    }
+
+    b = decl->body;
+
+    while (b) {
+        vector_free(b->df);
+        if (b->prev.count >= 2) {
+            printf("Starting from %ld\n", b->instr_idx);
+            vector_foreach(b->prev, pred_i) {
+                struct ir_node *p = vector_at(b->prev, pred_i);
                 struct ir_node *runner = p;
 
                 while (runner != b->idom) {
@@ -295,7 +305,6 @@ void ir_dominance_frontier(struct ir_func_decl *decl)
         }
 
         b = b->next;
-        vector_free(preds);
     }
 }
 
@@ -360,12 +369,16 @@ static void assigns_dump(hashmap_t *assigns)
 */
 static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 {
-    struct ir_node *prev = curr->prev;
+    struct ir_node *prev = vector_at(curr->prev, 0);
 
     prev->next = new;
-    new->prev = prev;
+    vector_free(new->prev);
+    vector_push_back(new->prev, prev);
+    // new->prev = prev;
     new->next = curr;
-    curr->prev = new;
+    // curr->prev = new;
+    vector_free(curr->prev);
+    vector_push_back(curr->prev, new);
 }
 
 /* Fix jump statements pointing to nothing
@@ -374,6 +387,7 @@ static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
    I guess, this is not strictly important in SSA-based
    analysis. But it is more comfortable to see properly
    linked CFG. */
+/*
 static void phi_link(struct ir_node *it)
 {
     while (it) {
@@ -386,6 +400,7 @@ static void phi_link(struct ir_node *it)
         it = it->next;
     }
 }
+*/
 
 /* This function implements algorithm given in
    https://c9x.me/compile/bib/ssa.pdf
@@ -446,8 +461,18 @@ static void phi_insert(
                 if (ok && got == 0) {
                     /* NOTE: prev & prev_else are control flow (not just list) predecessors.
                              and they are built during IR linkage. */
-                    struct ir_node *phi = ir_phi_init(sym_idx, y->prev->instr_idx, y->prev_else->instr_idx);
+                    struct ir_node *phi = ir_phi_init(
+                        sym_idx,
+                        vector_at(y->prev, 0)->instr_idx,
+                        vector_at(y->prev, 0)->instr_idx
+                    );
+
+                    /* TODO: I lose statement after which phi node is
+                             pasted. */
                     ir_insert_before(y, phi);
+
+                    printf("Insert phi before %ld\n", y->instr_idx);
+
                     memcpy(&phi->meta, &y->meta, sizeof (struct meta));
 
                     hashmap_put(&dom_fron_plus, y_addr, 1);
@@ -463,7 +488,7 @@ static void phi_insert(
         }
     }
 
-    phi_link(decl->body);
+    // phi_link(decl->body);
 
     vector_free(w);
     hashmap_destroy(&work);

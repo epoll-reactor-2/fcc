@@ -340,7 +340,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         bool first = it == ir;
         should_split |= first;
         should_split |= cfg_no != it->cfg_block_no;
-        should_split |= it->next && it->next->prev_else != NULL;
+        should_split |= it->next && it->next->prev.count >= 2;
 
         if (should_split) {
             if (!first)
@@ -456,7 +456,7 @@ void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
         bool first = it == decl->body;
         should_split |= first;
         should_split |= cfg_no != it->cfg_block_no;
-        should_split |= it->next && it->next->prev_else != NULL;
+        should_split |= it->next && it->next->prev.count >= 2;
 
         if (should_split) {
             if (!first)

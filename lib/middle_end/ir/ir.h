@@ -59,6 +59,15 @@ enum ir_type {
 /// - ir_%name%_init(...)
 /// - ir_%name%_cleanup(...)
 /// .
+///
+/// Important notice:
+/// 1) IR list links are represented only in `next` pointer.
+/// 2) Control flow links (jump targets, other CFG edges)
+///    are represented in
+///    - `next_else` in case of false branch of condition;
+///    - `*instr*->target` in case of specific instruction
+///      jump (ir_jump, ir_cond).
+///    - `prev` array.
 struct ir_node {
     enum ir_type     type;
     uint64_t         instr_idx;
@@ -76,13 +85,12 @@ struct ir_node {
     ///
     /// This array shows, on which data operations
     /// this statement depends.
-    ir_vector_t     ddg_stmts;
+    ir_vector_t      ddg_stmts;
 
     struct ir_node  *next;
     struct ir_node  *next_else;
 
-    struct ir_node  *prev;
-    struct ir_node  *prev_else;
+    ir_vector_t      prev;
 
     /// Meta information. Used for analysis
     /// and optimizations.
