@@ -50,6 +50,20 @@ enum ir_type {
     IR_PHI
 };
 
+/// Represents the IR doubly linked list pointres.
+struct ir_list_flow {
+    struct ir_node *next;
+    struct ir_node *prev;
+};
+
+/// Represents control flow graph (CFG) edges.
+/// 1) CFG node can have up to 2 successors.
+/// 2) CFG node can have various predecessors (> 2).
+struct ir_cfg {
+    ir_vector_t     succs;
+    ir_vector_t     preds;
+};
+
 /// This IR node designed to be able to represent
 /// Control Flow Graph (CFG). Each concrete IR node has
 /// pointer to the next statement in execution flow,
@@ -69,35 +83,35 @@ enum ir_type {
 ///      jump (ir_jump, ir_cond).
 ///    - `prev` array.
 struct ir_node {
-    enum ir_type     type;
-    uint64_t         instr_idx;
-    void            *ir;
+    enum ir_type        type;
+    uint64_t            instr_idx;
+    void               *ir;
     /// Immediate dominator. Used to compute dominator tree.
-    struct ir_node  *idom;
+    struct ir_node     *idom;
     /// Backward edges of dominator tree. Maximum 2 (binary tree property).
-    ir_vector_t      idom_back;
+    ir_vector_t         idom_back;
     /// Dominance frontier.
-    ir_vector_t      df;
+    ir_vector_t         df;
     /// Number of basic block in CFG to which current node is associated.
-    uint64_t         cfg_block_no;
+    uint64_t            cfg_block_no;
 
     /// Data dependence graph.
     ///
     /// This array shows, on which data operations
     /// this statement depends.
-    ir_vector_t      ddg_stmts;
+    ir_vector_t         ddg_stmts;
 
-    struct ir_node  *next;
-    struct ir_node  *next_else;
+    struct ir_node     *prev;
+    struct ir_node     *next;
 
-    ir_vector_t      prev;
+    struct ir_cfg       cfg;
 
     /// Meta information. Used for analysis
     /// and optimizations.
     ///
     /// If type is IR_META_UNKNOWN, there is no metadata for given
     /// node.
-    struct meta      meta;
+    struct meta         meta;
 };
 
 /// All information contained about processed file.

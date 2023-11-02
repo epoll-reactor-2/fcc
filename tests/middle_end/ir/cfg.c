@@ -21,17 +21,17 @@ void cfg_edges_dump(FILE *stream, struct ir_func_decl *decl)
     struct ir_node *it = decl->body;
 
     while (it) {
-        if (it->prev.count == 0) {
+        if (it->cfg.preds.count == 0) {
             it = it->next;
             continue;
         }
 
         fprintf(stream, "prev(%ld) = ", it->instr_idx);
 
-        vector_foreach(it->prev, i) {
-            struct ir_node *prev = vector_at(it->prev, i);
+        vector_foreach(it->cfg.preds, i) {
+            struct ir_node *prev = vector_at(it->cfg.preds, i);
             fprintf(stream, "%ld", prev->instr_idx);
-            if (i < it->prev.count - 1)
+            if (i < it->cfg.preds.count - 1)
                 fprintf(stream, ", ");
         }
 
