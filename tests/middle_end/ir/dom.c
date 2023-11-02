@@ -64,13 +64,15 @@ bool ir_test(const char *path, const char *filename)
         extract_assertion_comment(yyin, expected_stream);
 
         while (it) {
-            ir_dominator_tree(it->ir);
-            ir_dominance_frontier(it->ir);
-            ir_dump_dom_tree(dom_stream, it->ir);
-            ir_dump_cfg(cfg_stream, it->ir);
-            ir_dump(generated_stream, it->ir);
+            struct ir_func_decl *decl = it->ir;
+
+            ir_dominator_tree(decl);
+            ir_dominance_frontier(decl);
+            ir_dump_dom_tree(dom_stream, decl);
+            ir_dump_cfg(cfg_stream, decl);
+            ir_dump(generated_stream, decl);
             fprintf(generated_stream, "--------\n");
-            idom_dump(generated_stream, it->ir);
+            idom_dump(generated_stream, decl);
             fflush(generated_stream);
             it = it->next;
         }
@@ -85,7 +87,7 @@ bool ir_test(const char *path, const char *filename)
         }
         printf("Success!\n");
     } else {
-        /// Error, will be printed in main.
+        /* Error, will be printed in main. */
         ok = 0;
     }
 

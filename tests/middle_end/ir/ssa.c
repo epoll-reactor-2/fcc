@@ -63,7 +63,7 @@ bool ir_test(const char *path, const char *filename)
         }
         printf("Success!\n");
     } else {
-        /// Error, will be printed in main.
+        /* Error, will be printed in main. */
         ok = 0;
     }
 

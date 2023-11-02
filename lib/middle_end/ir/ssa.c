@@ -272,22 +272,7 @@ void ir_dominance_frontier(struct ir_func_decl *decl)
     struct ir_node *b = decl->body;
 
     while (b) {
-        printf("%ld's preds: ", b->instr_idx);
-        vector_foreach(b->prev, pred_i) {
-            struct ir_node *p = vector_at(b->prev, pred_i);
-            printf("%ld ", p->instr_idx);
-        }
-        puts("");
-
-        b = b->next;
-    }
-
-    b = decl->body;
-
-    while (b) {
-        vector_free(b->df);
         if (b->prev.count >= 2) {
-            printf("Starting from %ld\n", b->instr_idx);
             vector_foreach(b->prev, pred_i) {
                 struct ir_node *p = vector_at(b->prev, pred_i);
                 struct ir_node *runner = p;
@@ -374,38 +359,13 @@ static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
     prev->next = new;
     vector_free(new->prev);
     vector_push_back(new->prev, prev);
-    // new->prev = prev;
     new->next = curr;
-    // curr->prev = new;
     vector_free(curr->prev);
     vector_push_back(curr->prev, new);
 }
 
-/* Fix jump statements pointing to nothing
-   (really broken jump targets.)
-
-   I guess, this is not strictly important in SSA-based
-   analysis. But it is more comfortable to see properly
-   linked CFG. */
-/*
-static void phi_link(struct ir_node *it)
-{
-    while (it) {
-        if (it->type == IR_JUMP) {
-            struct ir_jump *jmp = it->ir;
-            while (jmp->target->prev &&
-                   jmp->target->prev->type == IR_PHI)
-            jmp->target = jmp->target->prev;
-        }
-        it = it->next;
-    }
-}
-*/
-
 /* This function implements algorithm given in
-   https://c9x.me/compile/bib/ssa.pdf
-
-   TODO: Phis inserted in really wierd places. */
+   https://c9x.me/compile/bib/ssa.pdf */
 static void phi_insert(
     struct ir_func_decl *decl,
     /* Key:   sym_idx
@@ -463,7 +423,7 @@ static void phi_insert(
                              and they are built during IR linkage. */
                     struct ir_node *phi = ir_phi_init(
                         sym_idx,
-                        vector_at(y->prev, 0)->instr_idx,
+                        y->instr_idx,
                         vector_at(y->prev, 0)->instr_idx
                     );
 
@@ -487,8 +447,6 @@ static void phi_insert(
             }
         }
     }
-
-    // phi_link(decl->body);
 
     vector_free(w);
     hashmap_destroy(&work);
