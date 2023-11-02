@@ -389,8 +389,8 @@ static void visit_ast_while(struct ast_while *ast)
        L4: jump to L0 (condition)
        L5: after while instr */
 
-    uint64_t next_iter_idx = ir_last->instr_idx + 1;
-    uint64_t header_idx    = ir_last->instr_idx + 1;
+    uint64_t next_iter_idx = ir_last ? ir_last->instr_idx + 1 : 0;
+    uint64_t header_idx    = ir_last ? ir_last->instr_idx + 1 : 0;
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
@@ -943,15 +943,27 @@ void ir_link(struct ir_func_decl *decl)
             break;
         }
 
-        if (i > 0 && stmts.data[i - 1]->type != IR_JUMP)
-            vector_push_back(stmt->prev, stmts.data[i - 1]);
+        if (i > 0) {
+            struct ir_node *prev = vector_at(stmts, i - 1);
+
+            if (prev->type != IR_JUMP)
+                vector_push_back(stmt->prev, prev);
+        }
     }
 
+    /* Case when there at least two statements, so we can
+       analyze the last predecessors. */
+    if (stmts.count > 1) {
+        /* If jump, then this is not our predecessor, since it is not
+           reachable from current statement. Elsewise, statement that is
+           located above us is our predecessor. */
+        struct ir_node *prev = vector_at(stmts, stmts.count - 2);
 
-    if (vector_back(stmts)->type != IR_JUMP)
-        /* stmts.count - 2 is exactly what is located before
-           current statement. */
-        vector_push_back(vector_back(stmts)->prev, stmts.data[stmts.count - 2]);
+        if (prev->type != IR_JUMP)
+            /* stmts.count - 2 is exactly what is located before
+               current statement. */
+            vector_push_back(vector_back(stmts)->prev, prev);
+    }
 
     vector_free(stmts);
 }
