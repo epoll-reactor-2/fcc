@@ -47,7 +47,8 @@ static void traverse(bool *visited, uint64_t *max_id, struct ir_node *ir)
         struct ir_cond *cond = ir->ir;
         mark_visited(visited, ir);
         traverse(visited, max_id, cond->target);
-        traverse(visited, max_id, ir->next_else);
+        traverse(visited, max_id, vector_at(ir->cfg.succs, 0));
+        // traverse(visited, max_id, ir->next_else);
         break;
     }
     case IR_RET:

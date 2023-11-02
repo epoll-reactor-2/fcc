@@ -33,7 +33,7 @@ static void control_flow_successors(
     case IR_COND: {
         struct ir_cond *cond = ir->ir;
         *out_main = cond->target;
-        *out_alt = ir->next_else;
+        *out_alt = vector_at(ir->cfg.succs, 0);
         break;
     }
     case IR_JUMP: {
@@ -272,9 +272,9 @@ void ir_dominance_frontier(struct ir_func_decl *decl)
     struct ir_node *b = decl->body;
 
     while (b) {
-        if (b->prev.count >= 2) {
-            vector_foreach(b->prev, pred_i) {
-                struct ir_node *p = vector_at(b->prev, pred_i);
+        if (b->cfg.preds.count >= 2) {
+            vector_foreach(b->cfg.preds, pred_i) {
+                struct ir_node *p = vector_at(b->cfg.preds, pred_i);
                 struct ir_node *runner = p;
 
                 while (runner != b->idom) {
@@ -372,7 +372,7 @@ static void assigns_dump(hashmap_t *assigns)
 */
 static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 {
-    struct ir_node *prev = vector_at(curr->prev, 0);
+    struct ir_node *prev = vector_at(curr->cfg.preds, 0);
 
     printf("prev idx: %ld\n", prev->instr_idx);
 
@@ -442,7 +442,7 @@ static void phi_insert(
                     struct ir_node *phi = ir_phi_init(
                         sym_idx,
                         y->instr_idx,
-                        vector_at(y->prev, 0)->instr_idx
+                        vector_at(y->cfg.preds, 0)->instr_idx
                     );
 
                     /* TODO: I lose statement after which phi node is

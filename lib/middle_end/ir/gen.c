@@ -365,7 +365,7 @@ static void visit_ast_for(struct ast_for *ast)
     ir_last = ir_jump_init(next_iter_jump_idx);
 
     if (ast->condition) {
-        cond->next_else = exit_jmp;
+        vector_push_back(cond->cfg.succs, exit_jmp);
         exit_jmp_ptr->idx = ir_last->instr_idx + 1;
     }
 
@@ -421,7 +421,7 @@ static void visit_ast_while(struct ast_while *ast)
     ir_insert(next_iter_jmp);
     --ir_nesting;
 
-    cond->next_else = exit_jmp;
+    vector_push_back(cond->cfg.succs, exit_jmp);
 
     exit_jmp_ptr->idx = next_iter_jmp->instr_idx + 1;
 
@@ -472,7 +472,6 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     /* We will set this pointer in ir_link() because
        we cannot peek next instruction now.
        It is not generated. */
-    cond->next_else = NULL;
     cond_ptr->goto_label = stmt_begin + 1;
 
     ir_insert(cond);
@@ -520,17 +519,17 @@ static void visit_ast_if(struct ast_if *ast)
    
     ir_last = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
 
-    struct ir_node *cond        = ir_cond_init(ir_last, /*Not used for now.*/-1);
-    struct ir_cond *cond_ptr    = cond->ir;
-    struct ir_node *end_jmp     = ir_jump_init(/*Not used for now.*/-1);
-    struct ir_jump *end_jmp_ptr = end_jmp->ir;
+    struct ir_node *cond         = ir_cond_init(ir_last, /*Not used for now.*/-1);
+    struct ir_cond *cond_ptr     = cond->ir;
+    struct ir_node *exit_jmp     = ir_jump_init(/*Not used for now.*/-1);
+    struct ir_jump *exit_jmp_ptr = exit_jmp->ir;
 
     ir_dominant_condition_idx = cond->instr_idx;
 
     /* Body starts after exit jump. */
-    cond_ptr->goto_label = end_jmp->instr_idx + 1;
+    cond_ptr->goto_label = exit_jmp->instr_idx + 1;
     ir_insert(cond);
-    ir_insert(end_jmp);
+    ir_insert(exit_jmp);
 
     struct ir_node *initial_stmt = ir_last;
 
@@ -544,9 +543,9 @@ static void visit_ast_if(struct ast_if *ast)
        this will make us to jump to the `ret`
        instruction, which terminates each (regardless
        on the return type) function. */
-    end_jmp_ptr->idx = ir_last->instr_idx + 1;
+    exit_jmp_ptr->idx = ir_last->instr_idx + 1;
 
-    cond->next_else = end_jmp;
+    vector_push_back(cond->cfg.succs, exit_jmp);
 
     mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
 
@@ -560,7 +559,7 @@ static void visit_ast_if(struct ast_if *ast)
     initial_stmt = ir_last;
 
     /* Jump over the `then` statement to `else`. */
-    end_jmp_ptr->idx = ir_last->instr_idx + 1; /* +1 jump statement. */
+    exit_jmp_ptr->idx = ir_last->instr_idx + 1; /* +1 jump statement. */
     visit_ast(ast->else_body);
     /* `then` part ends with jump over `else` part. */
     else_jmp_ptr->idx = ir_last->instr_idx + 1;
@@ -920,7 +919,7 @@ void ir_link(struct ir_func_decl *decl)
         case IR_JUMP: {
             struct ir_jump *jump = stmt->ir;
             jump->target = stmts.data[jump->idx];
-            ir_vector_t *prevs = &jump->target->prev;
+            ir_vector_t *prevs = &jump->target->cfg.preds;
             if (!has_prev(prevs, stmt->instr_idx))
                 vector_push_back(*prevs, stmt);
             break;
@@ -932,9 +931,9 @@ void ir_link(struct ir_func_decl *decl)
                that this is do-while condition. We
                have nowhere to jump during do {} while (...)
                statement codegen. */
-            if (!stmt->next_else)
-                 stmt->next_else = stmts.data[i + 1];
-            ir_vector_t *prevs = &cond->target->prev;
+            if (stmt->cfg.succs.count == 0)
+                vector_push_back(stmt->cfg.succs, stmts.data[i + 1]);
+            ir_vector_t *prevs = &cond->target->cfg.preds;
             if (!has_prev(prevs, stmt->instr_idx))
                 vector_push_back(*prevs, stmt);
             break;
@@ -947,7 +946,7 @@ void ir_link(struct ir_func_decl *decl)
             struct ir_node *prev = vector_at(stmts, i - 1);
 
             if (prev->type != IR_JUMP)
-                vector_push_back(stmt->prev, prev);
+                vector_push_back(stmt->cfg.preds, prev);
         }
     }
 
@@ -962,7 +961,7 @@ void ir_link(struct ir_func_decl *decl)
         if (prev->type != IR_JUMP)
             /* stmts.count - 2 is exactly what is located before
                current statement. */
-            vector_push_back(vector_back(stmts)->prev, prev);
+            vector_push_back(vector_back(stmts)->cfg.preds, prev);
     }
 
     vector_free(stmts);
@@ -977,8 +976,8 @@ static void ir_build_cfg(struct ir_func_decl *decl)
 
     while (it) {
         bool new = 0;
-        new |= it->prev.count == 0; /* Very beginning. */
-        new |= it->prev.count >= 2; /* Branch. */
+        new |= it->cfg.preds.count == 0; /* Very beginning. */
+        new |= it->cfg.preds.count >= 2; /* Branch. */
         if (new)
             started = 1;
 
@@ -1005,7 +1004,7 @@ struct ir_unit *ir_gen(struct ast_node *ast)
         struct ir_node *decl_next = vector_at(ir_func_decls, i + 1);
 
         decl->next = decl_next;
-        vector_push_back(decl_next->prev, decl);
+        vector_push_back(decl_next->cfg.preds, decl);
     }
 
     vector_foreach(ir_func_decls, i) {

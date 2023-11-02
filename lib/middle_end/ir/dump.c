@@ -300,14 +300,15 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     case IR_COND: {
         ir_mark(visited, ir);
 
-        ir_dump_node_dot(mem, ir, ir->next);
+        // ir_dump_node_dot(mem, ir, ir->next);
+        ir_dump_node_dot(mem, ir, vector_at(ir->cfg.succs, 0));
         fprintf(mem, " [ label = \"  true\"]\n");
 
-        ir_dump_node_dot(mem, ir, ir->next_else);
+        ir_dump_node_dot(mem, ir, vector_at(ir->cfg.succs, 1));
         fprintf(mem, " [ label = \"  false\"]\n");
 
-        ir_dump_traverse(mem, visited, ir->next);
-        ir_dump_traverse(mem, visited, ir->next_else);
+        ir_dump_traverse(mem, visited, vector_at(ir->cfg.succs, 0));
+        ir_dump_traverse(mem, visited, vector_at(ir->cfg.succs, 1));
         break;
     }
     case IR_RET:
@@ -340,7 +341,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         bool first = it == ir;
         should_split |= first;
         should_split |= cfg_no != it->cfg_block_no;
-        should_split |= it->next && it->next->prev.count >= 2;
+        should_split |= it->next && it->next->cfg.preds.count >= 2;
 
         if (should_split) {
             if (!first)
@@ -357,7 +358,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         }
         case IR_COND: {
             struct ir_cond *cond = it->ir;
-            ir_dump_node_dot(mem, it, it->next_else);
+            ir_dump_node_dot(mem, it, ir->next);
             fprintf(mem, " [ label = \"  false\"]\n");
 
             fprintf(mem, "} subgraph cluster%ld {\n", cluster_no++);
@@ -456,7 +457,7 @@ void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
         bool first = it == decl->body;
         should_split |= first;
         should_split |= cfg_no != it->cfg_block_no;
-        should_split |= it->next && it->next->prev.count >= 2;
+        should_split |= it->next && it->next->cfg.preds.count >= 2;
 
         if (should_split) {
             if (!first)
