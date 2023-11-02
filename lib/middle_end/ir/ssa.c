@@ -346,6 +346,24 @@ static void assigns_dump(hashmap_t *assigns)
 */
 
 /*
+    TODO: Explicitly split control flow and IR list
+          edges. I've created fucking hell and ambiguous
+          names.
+
+          How must be:
+
+          ir_node {
+              list {
+                  prev
+                  next
+              }
+
+              cfg {
+                  vector<next>
+                  vector<prev>
+              }
+          }
+
     (prev    ) -- next --> (curr    )
     (prev    ) <- prev --- (curr    )
 
@@ -356,12 +374,12 @@ static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 {
     struct ir_node *prev = vector_at(curr->prev, 0);
 
+    printf("prev idx: %ld\n", prev->instr_idx);
+
+    return;
+
     prev->next = new;
-    vector_free(new->prev);
-    vector_push_back(new->prev, prev);
     new->next = curr;
-    vector_free(curr->prev);
-    vector_push_back(curr->prev, new);
 }
 
 /* This function implements algorithm given in
@@ -428,7 +446,11 @@ static void phi_insert(
                     );
 
                     /* TODO: I lose statement after which phi node is
-                             pasted. */
+                             pasted.
+
+                             Problem is when inserting phi node
+                             in the two CFG's joint point.
+                             Some links are broken. */
                     ir_insert_before(y, phi);
 
                     printf("Insert phi before %ld\n", y->instr_idx);
