@@ -345,13 +345,13 @@ static void eval_cond(struct ir_cond *cond)
     }
 
     if (should_jump)
-        instr_pointer = jmp_table_get(cond->goto_label)->prev;
+        instr_pointer = vector_at(jmp_table_get(cond->goto_label)->prev, 0);
 }
 
 static void eval_jmp(struct ir_jump *jmp)
 {
     /// Prev is due eval_fun() execution loop specific algorithm.
-    instr_pointer = jmp_table_get(jmp->idx)->prev;
+    instr_pointer = vector_at(jmp_table_get(jmp->idx)->prev, 0);
 }
 
 static void eval_ret(struct ir_ret *ret)

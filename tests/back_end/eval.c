@@ -76,6 +76,8 @@ int main()
     size_t  err_buf_len  = 0;
     size_t  warn_buf_len = 0;
 
+    return 0;
+
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 

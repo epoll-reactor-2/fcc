@@ -30,13 +30,14 @@ __weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
     struct ir_node *it = ir;
 
     while (it &&
-           it->prev &&
-           it->meta.global_loop_idx == ir->prev->meta.global_loop_idx &&
+           it->prev.count > 0 &&
+           it->meta.global_loop_idx == vector_at(ir->prev, 0)->meta.global_loop_idx &&
            it->meta.nesting > 0
     ) {
         mark_visited(visited, it);
         traverse_dd_chain(visited, it);
-        it = it->prev;
+        // it = it->prev;
+        it = vector_at(it->prev, 0);
     }
 
     it = ir;
