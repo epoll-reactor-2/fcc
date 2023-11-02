@@ -102,6 +102,7 @@ static void ir_insert(struct ir_node *new_node)
     }
 
     ir_prev->next = new_node;
+    new_node->prev = ir_prev;
     ir_prev = new_node;
 }
 
@@ -365,7 +366,7 @@ static void visit_ast_for(struct ast_for *ast)
     ir_last = ir_jump_init(next_iter_jump_idx);
 
     if (ast->condition) {
-        vector_push_back(cond->cfg.succs, exit_jmp);
+        // vector_push_back(cond->cfg.succs, exit_jmp);
         exit_jmp_ptr->idx = ir_last->instr_idx + 1;
     }
 
@@ -421,7 +422,7 @@ static void visit_ast_while(struct ast_while *ast)
     ir_insert(next_iter_jmp);
     --ir_nesting;
 
-    vector_push_back(cond->cfg.succs, exit_jmp);
+    // vector_push_back(cond->cfg.succs, exit_jmp);
 
     exit_jmp_ptr->idx = next_iter_jmp->instr_idx + 1;
 
@@ -545,7 +546,7 @@ static void visit_ast_if(struct ast_if *ast)
        on the return type) function. */
     exit_jmp_ptr->idx = ir_last->instr_idx + 1;
 
-    vector_push_back(cond->cfg.succs, exit_jmp);
+    // vector_push_back(cond->cfg.succs, exit_jmp);
 
     mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
 
@@ -920,6 +921,7 @@ void ir_link(struct ir_func_decl *decl)
             struct ir_jump *jump = stmt->ir;
             jump->target = stmts.data[jump->idx];
             ir_vector_t *prevs = &jump->target->cfg.preds;
+            vector_push_back(stmt->cfg.succs, jump->target);
             if (!has_prev(prevs, stmt->instr_idx))
                 vector_push_back(*prevs, stmt);
             break;
@@ -931,14 +933,15 @@ void ir_link(struct ir_func_decl *decl)
                that this is do-while condition. We
                have nowhere to jump during do {} while (...)
                statement codegen. */
-            if (stmt->cfg.succs.count == 0)
-                vector_push_back(stmt->cfg.succs, stmts.data[i + 1]);
+            vector_push_back(stmt->cfg.succs, stmts.data[cond->goto_label]);
+            vector_push_back(stmt->cfg.succs, stmts.data[i + 1]);
             ir_vector_t *prevs = &cond->target->cfg.preds;
             if (!has_prev(prevs, stmt->instr_idx))
                 vector_push_back(*prevs, stmt);
             break;
         }
         default:
+            vector_push_back(stmt->cfg.succs, stmts.data[i + 1]);
             break;
         }
 

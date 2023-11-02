@@ -159,7 +159,10 @@ static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
 
     it = ir->body;
     while (it) {
-        fprintf(mem, "\n% 8ld:   ", it->instr_idx);
+        if (it->type == IR_PHI)
+            fprintf(mem, "\n            ");
+        else
+            fprintf(mem, "\n% 8ld:   ", it->instr_idx);
         fprintf_n(mem, it->meta.nesting * 2, ' ');
         ir_dump_node(mem, it);
         it = it->next;
@@ -246,7 +249,8 @@ void ir_dump_unit(FILE *mem, struct ir_unit *unit)
 
 __weak_really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
 {
-    fprintf(mem, "%ld:   ", ir->instr_idx);
+    if (ir->type != IR_PHI)
+        fprintf(mem, "%ld:   ", ir->instr_idx);
     ir_dump_node(mem, ir);
     fprintf(mem, "\n");
     ir_dump_dominance_frontier(mem, ir);
@@ -300,13 +304,14 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     case IR_COND: {
         ir_mark(visited, ir);
 
-        // ir_dump_node_dot(mem, ir, ir->next);
+        ir_dump_node_dot(mem, ir, ir->next);
         ir_dump_node_dot(mem, ir, vector_at(ir->cfg.succs, 0));
         fprintf(mem, " [ label = \"  true\"]\n");
 
         ir_dump_node_dot(mem, ir, vector_at(ir->cfg.succs, 1));
         fprintf(mem, " [ label = \"  false\"]\n");
 
+        ir_dump_traverse(mem, visited, ir->next);
         ir_dump_traverse(mem, visited, vector_at(ir->cfg.succs, 0));
         ir_dump_traverse(mem, visited, vector_at(ir->cfg.succs, 1));
         break;

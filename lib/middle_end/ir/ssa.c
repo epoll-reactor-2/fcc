@@ -372,14 +372,12 @@ static void assigns_dump(hashmap_t *assigns)
 */
 static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 {
-    struct ir_node *prev = vector_at(curr->cfg.preds, 0);
-
-    printf("prev idx: %ld\n", prev->instr_idx);
-
-    return;
+    struct ir_node *prev = curr->prev;
 
     prev->next = new;
+    new->prev = prev;
     new->next = curr;
+    curr->prev = new;
 }
 
 /* This function implements algorithm given in
@@ -437,26 +435,15 @@ static void phi_insert(
                 bool ok = 0;
                 uint64_t got = hashmap_get(&dom_fron_plus, y_addr, &ok);
                 if (ok && got == 0) {
-                    /* NOTE: prev & prev_else are control flow (not just list) predecessors.
-                             and they are built during IR linkage. */
                     struct ir_node *phi = ir_phi_init(
                         sym_idx,
                         y->instr_idx,
                         vector_at(y->cfg.preds, 0)->instr_idx
                     );
 
-                    /* TODO: I lose statement after which phi node is
-                             pasted.
-
-                             Problem is when inserting phi node
-                             in the two CFG's joint point.
-                             Some links are broken. */
                     ir_insert_before(y, phi);
-
-                    printf("Insert phi before %ld\n", y->instr_idx);
-
+                    /* printf("Insert phi before %ld\n", y->instr_idx); */
                     memcpy(&phi->meta, &y->meta, sizeof (struct meta));
-
                     hashmap_put(&dom_fron_plus, y_addr, 1);
 
                     ok = 0;
@@ -604,7 +591,6 @@ void ir_compute_ssa(struct ir_node *decls)
 
             (void) __;
             vector_free(ssa_stack);
-            printf("Assigns idx: %ld, ssa_idx: %ld\n", sym_idx, ssa_idx);
             ssa_idx = 0;
             ssa_rename(decl->body, sym_idx, &ssa_stack, visited);
         }
