@@ -977,14 +977,14 @@ static void ir_build_cfg(struct ir_func_decl *decl)
         bool new = 0;
         new |= it->cfg.preds.count == 0; /* Very beginning. */
         new |= it->cfg.preds.count >= 2; /* Branch. */
-        if (new)
-            started = 1;
+        new |= it->type == IR_JUMP;
+        new |= it->type == IR_COND;
 
-        if (started && (it->type == IR_JUMP || it->type == IR_COND)) {
-            started = 0;
+        it->cfg_block_no = cfg_no;
+
+        if (new)
             ++cfg_no;
-            it->cfg_block_no = cfg_no;
-        }
+
         it = it->next;
     }
 }

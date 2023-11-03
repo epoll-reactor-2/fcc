@@ -16,23 +16,32 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
+void cfg_edge_vector_dump(FILE *stream, ir_vector_t *v)
+{
+    vector_foreach(*v, i) {
+        struct ir_node *p = vector_at(*v, i);
+        fprintf(stream, "%ld", p->instr_idx);
+        if (i < v->count - 1)
+            fprintf(stream, ", ");
+    }
+}
+
 void cfg_edges_dump(FILE *stream, struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
 
     while (it) {
-        if (it->cfg.preds.count == 0) {
-            it = it->next;
-            continue;
+        fprintf(stream, "% 3ld: cfg = %ld", it->instr_idx, it->cfg_block_no);
+
+        if (it->cfg.preds.count > 0) {
+            fprintf(stream, ", prev = (");
+            cfg_edge_vector_dump(stream, &it->cfg.preds);
+            fprintf(stream, ")");
         }
-
-        fprintf(stream, "prev(%ld) = ", it->instr_idx);
-
-        vector_foreach(it->cfg.preds, i) {
-            struct ir_node *prev = vector_at(it->cfg.preds, i);
-            fprintf(stream, "%ld", prev->instr_idx);
-            if (i < it->cfg.preds.count - 1)
-                fprintf(stream, ", ");
+        if (it->cfg.succs.count > 0) {
+            fprintf(stream, ", next = (");
+            cfg_edge_vector_dump(stream, &it->cfg.succs);
+            fprintf(stream, ")");
         }
 
         fputc('\n', stream);
