@@ -8,13 +8,14 @@
 //       6:   | t1 = 2
 //       7:   ret 0
 //--------
-//prev(1) = 0
-//prev(2) = 0
-//prev(3) = 2
-//prev(4) = 3
-//prev(5) = 1
-//prev(6) = 5
-//prev(7) = 4, 6
+//  0: cfg = 0, next = (2, 1)
+//  1: cfg = 1, prev = (0), next = (5)
+//  2: cfg = 2, prev = (0), next = (3)
+//  3: cfg = 2, prev = (2), next = (4)
+//  4: cfg = 2, prev = (3), next = (7)
+//  5: cfg = 3, prev = (1), next = (6)
+//  6: cfg = 3, prev = (5), next = (7)
+//  7: cfg = 3, prev = (4, 6)
 int main() {
     if (0) {
         int i = 1;

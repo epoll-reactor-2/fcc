@@ -18,23 +18,24 @@
 //      16:   | jmp L2
 //      17:   ret 0
 //--------
-//prev(1) = 0
-//prev(2) = 1, 16
-//prev(3) = 2
-//prev(4) = 3
-//prev(5) = 4
-//prev(6) = 4
-//prev(7) = 6
-//prev(8) = 7, 14
-//prev(9) = 8
-//prev(10) = 9
-//prev(11) = 10
-//prev(12) = 10
-//prev(13) = 12
-//prev(14) = 13
-//prev(15) = 11
-//prev(16) = 15
-//prev(17) = 5
+//  0: cfg = 0, next = (1)
+//  1: cfg = 1, prev = (0), next = (2)
+//  2: cfg = 1, prev = (1, 16), next = (3)
+//  3: cfg = 2, prev = (2), next = (4)
+//  4: cfg = 2, prev = (3), next = (6, 5)
+//  5: cfg = 3, prev = (4), next = (17)
+//  6: cfg = 4, prev = (4), next = (7)
+//  7: cfg = 4, prev = (6), next = (8)
+//  8: cfg = 4, prev = (7, 14), next = (9)
+//  9: cfg = 5, prev = (8), next = (10)
+// 10: cfg = 5, prev = (9), next = (12, 11)
+// 11: cfg = 6, prev = (10), next = (15)
+// 12: cfg = 7, prev = (10), next = (13)
+// 13: cfg = 7, prev = (12), next = (14)
+// 14: cfg = 7, prev = (13), next = (8)
+// 15: cfg = 8, prev = (11), next = (16)
+// 16: cfg = 8, prev = (15), next = (2)
+// 17: cfg = 9, prev = (5)
 int main() {
     for (int i = 0; i < 10; ++i) {
         for (int j = 10; j >= 0; --j) {
