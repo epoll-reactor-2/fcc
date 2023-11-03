@@ -462,7 +462,8 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
 
     switch (ir->type) {
     case IR_PHI: {
-        /* TODO: This code is never reached. Fix. */
+        /* TODO: This code is never reached because of broken
+                 IR links after phi nodes insertion. Fix. */
         struct ir_phi *phi = ir->ir;
         if (phi->sym_idx == sym_idx) {
             phi->ssa_idx = ssa_idx;
@@ -519,6 +520,14 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
         struct ir_node *it = vector_at(ir->cfg.succs, i);
         if (it->type == IR_PHI) {
             /* ... */
+            struct ir_phi *phi = it->ir;
+            if (phi->sym_idx == sym_idx &&
+                stack->count > 0) {
+                /* TODO: Store variable list assigned in
+                         each related block in phi node.
+                         Then rename operands of phi. */
+                phi->ssa_idx = vector_back(*stack);
+            }
         }
     }
 
