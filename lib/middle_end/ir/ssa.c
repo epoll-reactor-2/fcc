@@ -24,34 +24,6 @@ static void reset_hashmap(hashmap_t *map, uint64_t siz)
 
 
 
-static void control_flow_successors(
-    struct ir_node *ir,
-    struct ir_node **out_main,
-    struct ir_node **out_alt
-) {
-    switch (ir->type) {
-    case IR_COND: {
-        struct ir_cond *cond = ir->ir;
-        *out_main = cond->target;
-        *out_alt = vector_at(ir->cfg.succs, 0);
-        break;
-    }
-    case IR_JUMP: {
-        struct ir_jump *jmp = ir->ir;
-        *out_main = jmp->target;
-        *out_alt = NULL;
-        break;
-    }
-    default: {
-        *out_main = ir->next;
-        *out_alt = NULL;
-        break;
-    }
-    }
-}
-
-
-
 #define MAX_VERTICES 512
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -224,17 +196,13 @@ static uint64_t dom_tree_fill(struct ir_node *it, struct ir_node **stmts)
     while (it) {
         stmts[it->instr_idx] = it;
 
-        struct ir_node *succs[2] = {0};
-        control_flow_successors(it, &succs[0], &succs[1]);
+        vector_foreach(it->cfg.succs, i) {
+            uint64_t u = it->instr_idx;
+            uint64_t v = vector_at(it->cfg.succs, i)->instr_idx;
 
-        for (uint64_t i = 0; i < 2; ++i)
-            if (succs[i]) {
-                uint64_t u = it->instr_idx;
-                uint64_t v = succs[i]->instr_idx;
-
-                vector_push_back(graph[u], v);
-                vector_push_back(reverse_graph[v], u);
-            }
+            vector_push_back(graph[u], v);
+            vector_push_back(reverse_graph[v], u);
+        }
 
         it = it->next;
         ++cnt;
@@ -378,6 +346,9 @@ static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
     new->prev = prev;
     new->next = curr;
     curr->prev = new;
+
+    vector_push_back(prev->cfg.succs, new);
+    vector_push_back(curr->cfg.preds, new);
 }
 
 /* This function implements algorithm given in
@@ -491,6 +462,7 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
 
     switch (ir->type) {
     case IR_PHI: {
+        /* TODO: This code is never reached. Fix. */
         struct ir_phi *phi = ir->ir;
         if (phi->sym_idx == sym_idx) {
             phi->ssa_idx = ssa_idx;
@@ -543,13 +515,12 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
     }
 
     /* 1. Some logic with phi nodes. */
-    struct ir_node *succs[2] = {0};
-    control_flow_successors(ir, &succs[0], &succs[1]);
-
-    for (uint64_t i = 0; i < 2; ++i)
-        if (succs[i] && succs[i]->type == IR_PHI) {
-            /* struct ir_phi *phi = succs[i]->ir; */
+    vector_foreach(ir->cfg.succs, i) {
+        struct ir_node *it = vector_at(ir->cfg.succs, i);
+        if (it->type == IR_PHI) {
+            /* ... */
         }
+    }
 
     /* 2. call recursive for dominator tree children. */
     vector_foreach(ir->idom_back, i) {

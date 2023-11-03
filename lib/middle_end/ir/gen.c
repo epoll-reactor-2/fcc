@@ -929,10 +929,6 @@ void ir_link(struct ir_func_decl *decl)
         case IR_COND: {
             struct ir_cond *cond = stmt->ir;
             cond->target = stmts.data[cond->goto_label];
-            /* If next_else pointer is NULL, we assume,
-               that this is do-while condition. We
-               have nowhere to jump during do {} while (...)
-               statement codegen. */
             vector_push_back(stmt->cfg.succs, stmts.data[cond->goto_label]);
             vector_push_back(stmt->cfg.succs, stmts.data[i + 1]);
             ir_vector_t *prevs = &cond->target->cfg.preds;

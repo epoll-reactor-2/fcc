@@ -8,6 +8,7 @@
 #include "front_end/lex/data_type.h"
 #include "middle_end/ir/meta.h"
 #include "util/unreachable.h"
+#include <assert.h>
 
 const char *ir_type_to_string(enum ir_type t)
 {
@@ -362,13 +363,16 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
             break;
         }
         case IR_COND: {
-            struct ir_cond *cond = it->ir;
-            ir_dump_node_dot(mem, it, ir->next);
+            assert(it->cfg.succs.count == 2 && \
+                "Conditional statement requires two \
+                successors");
+
+            ir_dump_node_dot(mem, it, vector_at(it->cfg.succs, 1));
             fprintf(mem, " [ label = \"  false\"]\n");
 
             fprintf(mem, "} subgraph cluster%ld {\n", cluster_no++);
 
-            ir_dump_node_dot(mem, it, cond->target);
+            ir_dump_node_dot(mem, it, vector_at(it->cfg.succs, 0));
             fprintf(mem, " [ label = \"  true\"]\n");
 
             /* This is reorder trick for dot language.
