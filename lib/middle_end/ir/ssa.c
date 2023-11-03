@@ -301,7 +301,9 @@ static void assigns_destroy(hashmap_t *assigns)
     hashmap_destroy(assigns);
 }
 
-/*  (prev    ) -- next --> (curr    )
+/*  TODO: update all links correctly (IR list and CFG).
+
+    (prev    ) -- next --> (curr    )
     (prev    ) <- prev --- (curr    )
 
     (prev    ) -- next --> (new     ) -- next --> (curr    )
@@ -430,6 +432,7 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
 
     switch (ir->type) {
     case IR_PHI: {
+        abort();
         /* TODO: This code is never reached because of broken
                  IR links after phi nodes insertion. Fix. */
         struct ir_phi *phi = ir->ir;
@@ -463,9 +466,7 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
             break;
         }
         case IR_SYM: {
-            struct ir_sym *sym = store->body->ir;
-            if (stack->count > 0)
-                sym->ssa_idx = vector_back(*stack);
+            ssa_rename_sym(store->body, sym_idx, stack);
             break;
         }
         default:
