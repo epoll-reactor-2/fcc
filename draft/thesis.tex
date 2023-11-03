@@ -637,8 +637,6 @@ CompoundStmt <line:0, col:0>
       ArrayDecl <line:13, col:5> char [1000] `mem`
       VarDecl <line:14, col:5> struct string `description`
 			\end{lstlisting}
-
-			\newpage
 	
 	\section{Analiza semantyczna}
 
@@ -770,8 +768,6 @@ void f() {
 				  {\Gamma \vdash \text{x} : float}
 				\end{mathpar}
 
-				\newpage
-
 			Oznaczmy dla $\mathbb{N, R}: \oplus \in \{ =, +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
 
 				\spacing
@@ -877,8 +873,6 @@ void f() {
 					{\Gamma \vdash \text{for (init; condition; increment) } \{ \ e \ \} : \tau_3}
 				\end{mathpar}
 
-				\newpage
-
 	\section{Generacja kodu pośredniego}
 		
 		Kod pośredni -- jest to język, składający się z elementarnych operacji nad danymi, takimi jak
@@ -900,11 +894,31 @@ void f() {
 			\item Ma na celu pokazanie metod na tworzenie takiego języka i operacje nad nimi
 		\end{itemize}
 
-		\newpage
-	
 	\section{Optymalizacje kodu pośredniego}
 		
+		Optymalizacja -- to zmiana kodu programu, mająca na celu polepszyć wydajność albo inne cechy
+		programu. Najważniejym z kriteria optymalizacji jest utrzymanie całej struktury działania programu,
+		takiej, jak chce programista. Nie wolno przeprowadzać wiodące do niespodziewanych lub
+		niepoprawnych wyników optymalizacje.
+		\\
+		
+		Istnieje wiele rodzajów optymalizacji, gdzie każda wymaga więcej lub mniej założeń i
+		matematyki. Jeżeli chodzi o matematykę, to główną rolę w optymalizacji pełni \textbf{teoria grafów}.
+		Jednym z pierwszych naukowców, kto zadecydował wprowadzić modele grafowe do kompilatorów był
+		\textbf{Robert Tarjan}. Wprowadził także on algorytm do obliczenia drzewa dominatorów (dominator tree),
+		co przyda nam się później.
+
 		\subsection{Definicje}
+			Każdy program posiadą taką cechę jak \textbf{przepływ sterowania}, i może ona być dość
+			precyzyjnie wyrażona \textbf{grafem przepływu sterowania} (Control Flow Graph). Program
+			rozpatrywany jest jako graf skierowany, posiadający wierzchołek startowy, będący pierwszą
+			instrukcją w programie. Krawędzie reprezentują przejście pomiędzy instrukcjami. Zauważmy,
+			że każda instrukcja może mieć wiele krawędzi wejściowych i wyjściowych, tworząc \textbf{gałęzi}
+			w wykonaniu programu.
+			\\
+			
+			Oznaczmy kilka ważnych pojęć.
+			\\
 
 			Niech $G = (V, E, s)$ -- graf skierowany.
 			$V$ -- zbiór wierzchołków. $E$ -- zbiór krawędzi. $s$ -- węzęł początkowy.
@@ -918,11 +932,9 @@ void f() {
 			Niech $G = (V, E, s)$ -- graf skierowany, zdefiniowany powyżej. Graf zależności danych -- graf
 			$G' = (V', E', D')$. Wtedy $D' = \{ \ d, d' \in V' \ | \ d \rightarrow d' \ \}$. Przez $d \rightarrow d'$
 			oznaczona zależnośc $d$ od wyniku obliczenia $d'$. Zbiór $D'$ reprezentuje takie zależności, przy czym
-			dodatkowo mysi być spełnione
+			dodatkowo musi być spełnione
 
 			$$d, d' \in V', \ v \rightarrow v' \iff \exists \ (v', ..., v) \in G' $$
-
-			\newpage
 	
 		\subsection{Constant propagation}
 		
@@ -1015,10 +1027,6 @@ void f() {
 		\newpage
 
 	\section{Interpreter}
-		
-		
-		
-		\newpage
 	
 	\section{Annex: Gramatyka w BNF}
 
