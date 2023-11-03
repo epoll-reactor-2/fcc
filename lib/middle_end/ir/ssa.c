@@ -276,14 +276,16 @@ static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
             bool ok = 0;
             uint64_t addr = hashmap_get(out, sym->idx, &ok);
 
-            if (!ok) {
-                ir_vector_t *assign_list = weak_calloc(1, sizeof (ir_vector_t));
-                vector_push_back(*assign_list, it);
-                hashmap_put(out, sym->idx, (uint64_t) assign_list);
-            } else {
-                ir_vector_t *assign_list = (ir_vector_t *) addr;
-                vector_push_back(*assign_list, it);
-            }
+            /* Allocate new array on heap and map it like so
+               sym_idx -> { assign_1, assign_2, ...} */
+            ir_vector_t *list = ok
+                ? (ir_vector_t *) addr
+                : weak_calloc(1, sizeof (ir_vector_t));
+
+            vector_push_back(*list, it);
+
+            if (!ok)
+                hashmap_put(out, sym->idx, (uint64_t) list);
         }
 
         it = it->next;
@@ -299,45 +301,11 @@ static void assigns_destroy(hashmap_t *assigns)
     hashmap_destroy(assigns);
 }
 
-/*
-static void assigns_dump(hashmap_t *assigns)
-{
-    hashmap_foreach(assigns, k, v) {
-        ir_vector_t *list = (ir_vector_t *) v;
-        printf("For symbol %ld { ", k);
-        vector_foreach(*list, i) {
-            printf("%ld ", vector_at(*list, i)->instr_idx);
-        }
-        printf("}\n");
-    }
-}
-*/
-
-/*
-    TODO: Explicitly split control flow and IR list
-          edges. I've created fucking hell and ambiguous
-          names.
-
-          How must be:
-
-          ir_node {
-              list {
-                  prev
-                  next
-              }
-
-              cfg {
-                  vector<next>
-                  vector<prev>
-              }
-          }
-
-    (prev    ) -- next --> (curr    )
+/*  (prev    ) -- next --> (curr    )
     (prev    ) <- prev --- (curr    )
 
     (prev    ) -- next --> (new     ) -- next --> (curr    )
-    (prev    ) <- prev --- (new     ) <- prev --- (curr    )
-*/
+    (prev    ) <- prev --- (new     ) <- prev --- (curr    ) */
 static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 {
     struct ir_node *prev = curr->prev;
