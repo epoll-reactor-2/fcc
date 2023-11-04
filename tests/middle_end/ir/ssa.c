@@ -44,8 +44,12 @@ bool ir_test(const char *path, const char *filename)
         ir_compute_ssa(it);
 
         while (it) {
-            ir_dump_cfg(cfg_stream, it->ir);
-            ir_dump_dom_tree(dom_tree_stream, it->ir);
+            struct ir_func_decl *decl = it->ir;
+            ir_link(decl);
+            ir_build_cfg(decl);
+
+            ir_dump_cfg(cfg_stream, decl);
+            ir_dump_dom_tree(dom_tree_stream, decl);
             ir_dump_unit(generated_stream, ir);
             fflush(cfg_stream);
             fflush(dom_tree_stream);

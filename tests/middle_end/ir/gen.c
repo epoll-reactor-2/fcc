@@ -28,6 +28,7 @@ bool ir_test(const char *path, const char *filename)
     FILE   *generated_stream = open_memstream(&generated, &_);
 
     if (!setjmp(weak_fatal_error_buf)) {
+        /* NOTE: CFG is not strictly needed there. */
         struct ir_unit *ir = gen_ir(path);
 
         extract_assertion_comment(yyin, expected_stream);
@@ -35,7 +36,7 @@ bool ir_test(const char *path, const char *filename)
         ir_dump_unit(generated_stream, ir);
         fflush(generated_stream);
         ir_unit_cleanup(ir);
-        
+
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
             ok = 0;

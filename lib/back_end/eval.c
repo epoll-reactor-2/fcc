@@ -16,293 +16,337 @@
 
 
 
-static void reset_hashmap(hashmap_t *map)
+/* ==========================
+   Stack routines.
+   ========================== */
+
+#define STACK_SIZE_BYTES 100000
+
+/* TODO: Stucture like `eval_result` with
+         - immediate value type
+           ` int
+           ` char
+           ` other primitive
+           ` pointer
+           ` static string
+           ` structure
+         - value itself. Maybe, union.
+
+         Thus we will always know that we write and read from
+         the stack. If we want to get value, it is enough to
+         get pointer to stack. Not copying everything. */
+
+/* NOTE: Such stack usage has sense only with reordered alloca
+         instructions, where they are all collected at the beginning of
+         the function. Thus we not require to injure our stack during
+         loop execution. Each variable allocated once and set up
+         multiple times.
+
+         Moreover, language semantics forbid to have uninitialized
+         values.
+
+         Stack contains `struct eval_result`. */
+static char     stack[STACK_SIZE_BYTES];
+static uint64_t sp;        /* Global stack pointer. Named as assembly register. */
+static uint64_t frame_off; /* Offset from stack_ptr in currently called function.
+                              Used only to save & restore calling function
+                              offset. */
+
+static uint64_t stack_map[STACK_SIZE_BYTES]; /* Index: sym_idx
+                                                Value: sp */
+
+/* Performance issue: each type (even if 1 byte)
+   occurs 16 bytes in memory. */
+struct eval_result {
+    enum data_type dt;
+
+    union {
+        struct {
+            bool value;
+        } __bool;
+
+        struct {
+            char value;
+        } __char;
+
+        struct {
+            int32_t value;
+        } __int;
+
+        struct {
+            float value;
+        } __float;
+
+        struct {
+            uint64_t  siz;
+            char     *value;
+        } __string;
+
+        struct {
+            /* TODO. */
+        } __struct;
+    };
+};
+
+
+
+static void reset()
 {
-    if (map->buckets) {
-        hashmap_destroy(map);
-    }
-    hashmap_init(map, 512);
+    memset(stack_map, 0, sizeof (stack_map));
+    memset(stack, 0, sizeof (stack));
+    sp = 0;
+    frame_off = 0;
+}
+
+static inline void push(uint64_t sym_idx)
+{
+    uint64_t siz = sizeof (struct eval_result);
+
+    stack_map[sym_idx] = sp;
+    sp += siz;
+    frame_off += siz;
+
+}
+
+static inline void set(uint64_t sym_idx, struct eval_result *er)
+{
+    uint64_t sp_ptr = stack_map[sym_idx];
+
+    if (er->dt == D_T_UNKNOWN)
+        weak_unreachable("D_T_UNKNOWN");
+
+    memcpy(&stack[sp_ptr], er, sizeof (struct eval_result));
+}
+
+static inline struct eval_result *get(uint64_t sym_idx)
+{
+    uint64_t sp_ptr = stack_map[sym_idx];
+
+    struct eval_result *er = (struct eval_result *) &stack[sp_ptr];
+
+    if (er->dt == D_T_UNKNOWN)
+        weak_unreachable("D_T_UNKNOWN");
+
+    return er;
+}
+
+/* Pop is called only at the end of function. */
+static inline void pop()
+{
+    sp -= frame_off;
+    frame_off = 0;
 }
 
 
 
-/// key:   symbol index
-/// value: immediate
-static vector_t(hashmap_t *) storages;
-static hashmap_t *storage_act;
+/* ==========================
+   Instructions routines.
+   ========================== */
 
-static void storage_new()
-{
-    hashmap_t *map = weak_calloc(1, sizeof (hashmap_t));
-    hashmap_init(map, 128);
-    vector_push_back(storages, map);
-    __weak_debug_msg("Allocated storage, count: %ld\n", storages.count);
-}
+static void call_eval(struct ir_func_call *call);
+static void instr_eval(struct ir_node *ir);
 
-void storage_pop()
+static struct ir_node     *instr_ptr;
+static struct eval_result  last;
+
+
+
+static void eval_alloca(struct ir_alloca *alloca)
 {
-    vector_foreach_back(storages, i) {
-        hashmap_t *storage = vector_at(storages, i);
-        if (storage == storage_act) {
-            vector_erase(storages, i);
-        }
-    }
-    __weak_debug_msg("Removed storage, count: %ld\n", storages.count);
+    push(alloca->idx);
 }
 
 
-
-hashmap_t *storage_callee()
-{
-    assert(storages.count > 0 && "Cannot get anything from empty storage.");
-    return vector_at(storages, storages.count - 1);
-}
-
-hashmap_t *storage_caller()
-{
-    assert(storages.count > 1 && "Cannot get anything from empty storage.");
-    return vector_at(storages, storages.count - 2);
-}
-
-static void storage_set_callee_active()
-{
-    __weak_debug_msg("Set callee storage active\n");
-    storage_act = storage_callee();
-
-    __weak_debug({
-        hashmap_foreach(storage_act, k, v) {
-            struct ir_imm imm = {0};
-            memcpy(&imm, &v, sizeof (uint64_t));
-            __weak_debug_msg("  \\ Callee storage: sym %%%ld: $%d\n", k, imm.imm.__int);
-        }
-    });
-}
-
-static void storage_set_caller_active()
-{
-    __weak_debug_msg("Set caller storage active\n");
-    storage_act = storage_caller();
-
-    __weak_debug({
-        hashmap_foreach(storage_act, k, v) {
-            struct ir_imm imm = {0};
-            memcpy(&imm, &v, sizeof (uint64_t));
-            __weak_debug_msg("  \\ Caller storage: sym %%%ld: $%d\n", k, imm.imm.__int);
-        }
-    });
-}
-
-
-
-static struct ir_imm storage_get(int32_t sym_idx)
-{
-    bool ok = 0;
-    /// Whole `struct ir_imm` encoded in 64 bits.
-    uint64_t got = hashmap_get(storage_act, sym_idx, &ok);
-    if (!ok)
-        weak_unreachable("Cannot get symbol %%%d from storage", sym_idx);
-
-    struct ir_imm imm = {0};
-    memcpy(&imm, &got, sizeof (uint64_t));
-    return imm;
-}
-
-
-
-static void storage_set(int32_t sym_idx, struct ir_imm imm)
-{
-    uint64_t val = 0;
-    memcpy(&val, &imm, sizeof (uint64_t));
-    hashmap_put(storage_act, sym_idx, val);
-    __weak_debug_msg("Put to storage idx: %%%d, value: %d\n", sym_idx, imm.imm.__int);
-}
-
-
-
-static struct ir_node *instr_pointer;
-static hashmap_t jmp_table;
-
-static void jmp_table_init(struct ir_node *ir)
-{
-    reset_hashmap(&jmp_table);
-
-    struct ir_node *it = ir;
-    while (it) {
-        hashmap_put(&jmp_table, it->instr_idx, (uint64_t) it);
-        it = it->next;
-    }
-}
-
-static struct ir_node *jmp_table_get(int32_t instr_idx)
-{
-    bool ok = 0;
-    uint64_t got = hashmap_get(&jmp_table, instr_idx, &ok);
-    if (!ok)
-        weak_unreachable("Jump table lookup failed: no instruction at index %d", instr_idx);
-
-    return (struct ir_node *) got;
-}
-
-
-
-static struct ir_imm last_imm;
-
-static void eval_func_call(struct ir_func_call *fcall);
-static void eval_instr(struct ir_node *ir);
 
 static void eval_imm(struct ir_imm *imm)
 {
-    last_imm = *imm;
+    struct eval_result er = {0};
+    switch (imm->type) {
+    case IMM_BOOL:  er.dt = D_T_BOOL;  er.__bool .value = imm->imm.__bool;  break;
+    case IMM_CHAR:  er.dt = D_T_CHAR;  er.__char .value = imm->imm.__char;  break;
+    case IMM_FLOAT: er.dt = D_T_FLOAT; er.__float.value = imm->imm.__float; break;
+    case IMM_INT:   er.dt = D_T_INT;   er.__int  .value = imm->imm.__int;   break;
+    default:
+        weak_unreachable("Should not reach there.");
+    }
+    memcpy(&last, &er, sizeof (struct eval_result));
 }
 
 static void eval_sym(struct ir_sym *sym)
 {
-    last_imm = storage_get(sym->idx);
+    struct eval_result *er = get(sym->idx);
+    memcpy(&last, er, sizeof (struct eval_result));
 }
 
 
 
-static struct ir_imm eval_imm_imm_bool(enum token_type op, bool l, bool r)
+static void eval_bools(enum token_type op, bool l, bool r)
 {
-    struct ir_imm imm = {
-        .type = IMM_BOOL,
-        .imm  = (union ir_imm_val) 0
-    };
+    last.dt = D_T_BOOL;
 
     switch (op) {
-    case TOK_BIT_AND: imm.imm.__bool = l & r; break;
-    case TOK_BIT_OR:  imm.imm.__bool = l | r; break;
-    case TOK_XOR:     imm.imm.__bool = l ^ r; break;
+    case TOK_BIT_AND: last.__bool.value = l & r; break;
+    case TOK_BIT_OR:  last.__bool.value = l | r; break;
+    case TOK_XOR:     last.__bool.value = l ^ r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
-
-    return imm;
 }
 
-static struct ir_imm eval_imm_imm_float(enum token_type op, float l, float r)
+static void eval_floats(enum token_type op, float l, float r)
 {
-    struct ir_imm imm = {
-        .type = IMM_FLOAT,
-        .imm  = (union ir_imm_val) 0
-    };
+    last.dt = D_T_FLOAT;
 
     switch (op) {
-    case TOK_EQ:      imm.imm.__float = l == r; break;
-    case TOK_NEQ:     imm.imm.__float = l != r; break;
-    case TOK_GT:      imm.imm.__float = l  > r; break;
-    case TOK_LT:      imm.imm.__float = l  < r; break;
-    case TOK_GE:      imm.imm.__float = l >= r; break;
-    case TOK_LE:      imm.imm.__float = l <= r; break;
-    case TOK_PLUS:    imm.imm.__float = l  + r; break;
-    case TOK_MINUS:   imm.imm.__float = l  - r; break;
-    case TOK_STAR:    imm.imm.__float = l  * r; break;
-    case TOK_SLASH:   imm.imm.__float = l  / r; break;
+    case TOK_EQ:      last.__float.value = l == r; break;
+    case TOK_NEQ:     last.__float.value = l != r; break;
+    case TOK_GT:      last.__float.value = l  > r; break;
+    case TOK_LT:      last.__float.value = l  < r; break;
+    case TOK_GE:      last.__float.value = l >= r; break;
+    case TOK_LE:      last.__float.value = l <= r; break;
+    case TOK_PLUS:    last.__float.value = l  + r; break;
+    case TOK_MINUS:   last.__float.value = l  - r; break;
+    case TOK_STAR:    last.__float.value = l  * r; break;
+    case TOK_SLASH:   last.__float.value = l  / r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
-
-    return imm;
 }
 
-/// Integer and char supports same binary operations.
-static struct ir_imm eval_imm_imm_integral(
+static void eval_ints(
     enum token_type  op,
     int32_t          l,
-    int32_t          r,
-    enum ir_imm_type t
+    int32_t          r
 ) {
-    struct ir_imm imm = {
-        .type = t,
-        .imm  = (union ir_imm_val) 0
-    };
+    last.dt = D_T_INT;
 
     switch (op) {
-    case TOK_AND:     imm.imm.__int = l && r; break;
-    case TOK_OR:      imm.imm.__int = l || r; break;
-    case TOK_XOR:     imm.imm.__int = l  ^ r; break;
-    case TOK_BIT_AND: imm.imm.__int = l  & r; break;
-    case TOK_BIT_OR:  imm.imm.__int = l  | r; break;
-    case TOK_EQ:      imm.imm.__int = l == r; break;
-    case TOK_NEQ:     imm.imm.__int = l != r; break;
-    case TOK_GT:      imm.imm.__int = l  > r; break;
-    case TOK_LT:      imm.imm.__int = l  < r; break;
-    case TOK_GE:      imm.imm.__int = l >= r; break;
-    case TOK_LE:      imm.imm.__int = l <= r; break;
-    case TOK_SHL:     imm.imm.__int = l << r; break;
-    case TOK_SHR:     imm.imm.__int = l >> r; break;
-    case TOK_PLUS:    imm.imm.__int = l  + r; break;
-    case TOK_MINUS:   imm.imm.__int = l  - r; break;
-    case TOK_STAR:    imm.imm.__int = l  * r; break;
-    case TOK_SLASH:   imm.imm.__int = l  / r; break;
-    case TOK_MOD:     imm.imm.__int = l  % r; break;
+    case TOK_AND:     last.__int.value = l && r; break;
+    case TOK_OR:      last.__int.value = l || r; break;
+    case TOK_XOR:     last.__int.value = l  ^ r; break;
+    case TOK_BIT_AND: last.__int.value = l  & r; break;
+    case TOK_BIT_OR:  last.__int.value = l  | r; break;
+    case TOK_EQ:      last.__int.value = l == r; break;
+    case TOK_NEQ:     last.__int.value = l != r; break;
+    case TOK_GT:      last.__int.value = l  > r; break;
+    case TOK_LT:      last.__int.value = l  < r; break;
+    case TOK_GE:      last.__int.value = l >= r; break;
+    case TOK_LE:      last.__int.value = l <= r; break;
+    case TOK_SHL:     last.__int.value = l << r; break;
+    case TOK_SHR:     last.__int.value = l >> r; break;
+    case TOK_PLUS:    last.__int.value = l  + r; break;
+    case TOK_MINUS:   last.__int.value = l  - r; break;
+    case TOK_STAR:    last.__int.value = l  * r; break;
+    case TOK_SLASH:   last.__int.value = l  / r; break;
+    case TOK_MOD:     last.__int.value = l  % r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
-
-    return imm;
 }
 
-static struct ir_imm eval_imm_imm(
-    enum   token_type op,
-    struct ir_imm     l,
-    struct ir_imm     r
+static void eval_chars(
+    enum token_type  op,
+    int32_t          l,
+    int32_t          r
 ) {
-    switch (l.type) {
-    case IMM_BOOL:  return eval_imm_imm_bool    (op, l.imm.__bool,  r.imm.__bool);
-    case IMM_CHAR:  return eval_imm_imm_integral(op, l.imm.__char,  r.imm.__char, IMM_CHAR);
-    case IMM_FLOAT: return eval_imm_imm_float   (op, l.imm.__float, r.imm.__float);
-    case IMM_INT:   return eval_imm_imm_integral(op, l.imm.__int,   r.imm.__int, IMM_INT);
+    last.dt = D_T_CHAR;
+
+    switch (op) {
+    case TOK_AND:     last.__char.value = l && r; break;
+    case TOK_OR:      last.__char.value = l || r; break;
+    case TOK_XOR:     last.__char.value = l  ^ r; break;
+    case TOK_BIT_AND: last.__char.value = l  & r; break;
+    case TOK_BIT_OR:  last.__char.value = l  | r; break;
+    case TOK_EQ:      last.__char.value = l == r; break;
+    case TOK_NEQ:     last.__char.value = l != r; break;
+    case TOK_GT:      last.__char.value = l  > r; break;
+    case TOK_LT:      last.__char.value = l  < r; break;
+    case TOK_GE:      last.__char.value = l >= r; break;
+    case TOK_LE:      last.__char.value = l <= r; break;
+    case TOK_SHL:     last.__char.value = l << r; break;
+    case TOK_SHR:     last.__char.value = l >> r; break;
+    case TOK_PLUS:    last.__char.value = l  + r; break;
+    case TOK_MINUS:   last.__char.value = l  - r; break;
+    case TOK_STAR:    last.__char.value = l  * r; break;
+    case TOK_SLASH:   last.__char.value = l  / r; break;
+    case TOK_MOD:     last.__char.value = l  % r; break;
     default:
-        weak_unreachable("Unknown immediate type (numeric: %d).", l.type);
+        weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
+    }
+}
+
+
+static void compute(enum token_type op, struct eval_result *l, struct eval_result *r)
+{
+    if (l->dt != r->dt)
+        weak_unreachable("dt(L) = %s, dt(R) = %s", data_type_to_string(l->dt), data_type_to_string(r->dt));
+
+    switch (l->dt) {
+    case D_T_BOOL:  eval_bools (op, l->__bool .value, r->__bool .value); break;
+    case D_T_CHAR:  eval_chars (op, l->__char .value, r->__char .value); break;
+    case D_T_INT:   eval_ints  (op, l->__int  .value, r->__int  .value); break;
+    case D_T_FLOAT: eval_floats(op, l->__float.value, r->__float.value); break;
+    default:
+        weak_unreachable("Unknown immediate type (numeric: %d).", l->dt);
     }
 }
 
 static void eval_bin(struct ir_bin *bin)
 {
-    eval_instr(bin->lhs);
-    struct ir_imm l = last_imm;
+    instr_eval(bin->lhs);
+    struct eval_result l = last;
 
-    eval_instr(bin->rhs);
-    struct ir_imm r = last_imm;
+    instr_eval(bin->rhs);
+    struct eval_result r = last;
 
-    last_imm = eval_imm_imm(bin->op, l, r);
+    compute(bin->op, &l, &r);
 }
 
 
 
-static void eval_store_bin(struct ir_store *ir)
+static void eval_store_imm(struct ir_store *store)
 {
-    eval_instr(ir->body);
-    assert(ir->idx->type == IR_SYM && "TODO: Implement arrays");
-    struct ir_sym *to_sym = ir->idx->ir;
-    storage_set(to_sym->idx, last_imm);
+    assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
+
+    struct ir_imm *imm = store->body->ir;
+    struct ir_sym *sym = store->idx->ir;
+
+    switch (imm->type) {
+    case IMM_BOOL:  last.dt = D_T_BOOL;  last.__bool .value = imm->imm.__bool;  break;
+    case IMM_CHAR:  last.dt = D_T_CHAR;  last.__char .value = imm->imm.__char;  break;
+    case IMM_FLOAT: last.dt = D_T_FLOAT; last.__float.value = imm->imm.__float; break;
+    case IMM_INT:   last.dt = D_T_INT;   last.__int  .value = imm->imm.__int;   break;
+    default:
+        weak_unreachable("Should not reach there");
+    }
+
+    set(sym->idx, &last);
 }
 
-static void eval_store_imm(struct ir_store *ir)
+static void eval_store_sym(struct ir_store *store)
 {
-    assert(ir->idx->type == IR_SYM && "TODO: Implement arrays");
-    struct ir_sym *to_sym = ir->idx->ir;
-    struct ir_imm *imm = ir->body->ir;
-    storage_set(to_sym->idx, *imm);
+    /* Copy from one stack location to another. */
+    assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
+
+    struct ir_sym *from = store->body->ir;
+    struct ir_sym *to   = store->idx->ir;
+
+    struct eval_result *er = get(from->idx);
+    set(to->idx, er);
 }
 
-static void eval_store_sym(struct ir_store *ir)
+static void eval_store_bin(struct ir_store *store)
 {
-    assert(ir->idx->type == IR_SYM && "TODO: Implement arrays");
-    struct ir_sym *to_sym = ir->idx->ir;
-    struct ir_sym *from_sym = ir->body->ir;
-    struct ir_imm imm = storage_get(from_sym->idx);
-    storage_set(to_sym->idx, imm);
+    instr_eval(store->body);
+    assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
+
+    struct ir_sym *sym = store->idx->ir;
+    set(sym->idx, &last);
 }
 
-static void eval_store_call(struct ir_store *ir)
+static void eval_store_call(struct ir_store *store)
 {
-    struct ir_func_call *fcall = ir->body->ir;
-    assert(ir->idx->type == IR_SYM && "TODO: Implement arrays");
-    struct ir_sym *to_sym = ir->idx->ir;
-    eval_func_call(fcall);
-    storage_set(to_sym->idx, last_imm);
+    
 }
 
 static void eval_store(struct ir_store *store)
@@ -317,7 +361,6 @@ static void eval_store(struct ir_store *store)
         break;
     }
     case IR_BIN: {
-        // Some error there.
         eval_store_bin(store);
         break;
     }
@@ -328,48 +371,51 @@ static void eval_store(struct ir_store *store)
     default:
         break;
     }
+
 }
 
-static void eval_cond(struct ir_cond *cond)
+
+static void eval_jmp(struct ir_node *jmp)
 {
-    eval_instr(cond->cond);
+    instr_ptr = vector_at(jmp->cfg.succs, 0);
+}
+
+static void eval_cond(struct ir_node *__cond)
+{
+    struct ir_cond *cond = __cond->ir;
+    instr_eval(cond->cond);
 
     bool should_jump;
-    switch (last_imm.type) {
-    case IMM_BOOL:  should_jump = last_imm.imm.__bool; break;
-    case IMM_CHAR:  should_jump = last_imm.imm.__char != '\0'; break;
-    case IMM_FLOAT: should_jump = last_imm.imm.__float != 0.0; break;
-    case IMM_INT:   should_jump = last_imm.imm.__int != 0; break;
+    switch (last.dt) {
+    case D_T_BOOL:  should_jump = last.__bool.value; break;
+    case D_T_CHAR:  should_jump = last.__char.value != '\0'; break;
+    case D_T_FLOAT: should_jump = last.__float.value != 0.0; break;
+    case D_T_INT:   should_jump = last.__int.value != 0; break;
     default:
-        weak_unreachable("Unknown immediate type (numeric: %d).", last_imm.type);
+        weak_unreachable("Unknown immediate type (numeric: %d).", last.dt);
     }
 
     if (should_jump)
-        instr_pointer = vector_at(jmp_table_get(cond->goto_label)->cfg.preds, 0);
-}
-
-static void eval_jmp(struct ir_jump *jmp)
-{
-    /// Prev is due eval_fun() execution loop specific algorithm.
-    instr_pointer = vector_at(jmp_table_get(jmp->idx)->cfg.preds, 0);
+        instr_ptr = cond->target; /* True branch. */
+    else 
+        instr_ptr = __cond->next; /* False branch. */
 }
 
 static void eval_ret(struct ir_ret *ret)
 {
-    if (ret->is_void)
-        return;
+    if (ret->body)
+        instr_eval(ret->body);
 
-    eval_instr(ret->body);
-
-    instr_pointer = NULL;
+    instr_ptr = NULL;
 }
 
 
 
-static void eval_instr(struct ir_node *ir)
+static void instr_eval(struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_ALLOCA:
+        eval_alloca(ir->ir);
         break;
     case IR_IMM:
         eval_imm(ir->ir);
@@ -378,15 +424,14 @@ static void eval_instr(struct ir_node *ir)
         eval_sym(ir->ir);
         break;
     case IR_JUMP:
-        eval_jmp(ir->ir);
+        eval_jmp(ir);
         break;
     case IR_MEMBER:
     case IR_TYPE_DECL:
-        break;
     case IR_FUNC_DECL:
         break;
     case IR_FUNC_CALL:
-        eval_func_call(ir->ir);
+        call_eval(ir->ir);
         break;
     case IR_STORE:
         eval_store(ir->ir);
@@ -399,7 +444,7 @@ static void eval_instr(struct ir_node *ir)
         eval_ret(ir->ir);
         break;
     case IR_COND:
-        eval_cond(ir->ir);
+        eval_cond(ir);
         break;
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
@@ -408,120 +453,106 @@ static void eval_instr(struct ir_node *ir)
 
 
 
-static hashmap_t function_list;
+/* ==========================
+   Functions routines.
+   ========================== */
 
-static struct ir_func_decl *function_list_lookup(const char *name)
+static void reset_hashmap(hashmap_t *map, uint64_t siz)
+{
+    if (map->buckets) {
+        hashmap_destroy(map);
+    }
+    hashmap_init(map, siz);
+}
+
+static hashmap_t funs;
+
+static void fun_list_init(struct ir_node *ir)
+{
+    while (ir) {
+        struct ir_func_decl *fun = ir->ir;
+        hashmap_put(&funs, crc32_string(fun->name), (uint64_t) fun);
+        ir = ir->next;
+    }
+}
+
+static struct ir_func_decl *fun_lookup(const char *name)
 {
     uint64_t hash = crc32_string(name);
 
     bool ok = 0;
-    uint64_t got = hashmap_get(&function_list, hash, &ok);
+    uint64_t got = hashmap_get(&funs, hash, &ok);
     if (!ok)
-        weak_unreachable("Cannot get function pointer `%s`", name);
+        weak_unreachable("Function lookup failed for `%s`, CRC32: %ld", name, hash);
 
     return (struct ir_func_decl *) got;
 }
 
-
-
-static void eval_func_decl(struct ir_func_decl *func)
+static void fun_eval(struct ir_func_decl *decl)
 {
-    struct ir_node *it = func->body;
-    jmp_table_init(it);
+    struct ir_node *it = decl->body;
 
-    instr_pointer = it;
+    instr_ptr = it;
 
-    while (instr_pointer) {
-        eval_instr(instr_pointer);
+    while (instr_ptr) {
+        struct ir_node *prev_ptr = instr_ptr;
+        instr_eval(instr_ptr);
 
-        /// If instruction pointer was set to NULL,
-        /// then `ret` instruction was interpreted,
-        /// code should exit now.
-        if (instr_pointer)
-            instr_pointer = instr_pointer->next;
+        /* Conditional and jump statements set up their
+           successor instructions manually. Elsewise,
+           we just peek the next one. */
+        switch (prev_ptr->type) {
+        case IR_COND:
+        case IR_JUMP:
+            break;
+        default:
+            if (instr_ptr)
+                instr_ptr = vector_at(instr_ptr->cfg.succs, 0);
+        }
     }
 }
 
-/// Preconditions:
-/// 1) Allocated storage
-/// 2) Computed and pushed to it arguments
 static void call(const char *name)
 {
-    __weak_debug_msg("Calling `%s`\n", name);
+    memset(stack_map, 0, sizeof (stack_map));
 
-    struct ir_node *saved = instr_pointer;
+    struct ir_node *save = instr_ptr;
 
-    struct ir_func_decl *func = function_list_lookup(name);
-    eval_func_decl(func);
+    fun_eval(fun_lookup(name));
 
-    instr_pointer = saved;
-
-    __weak_debug_msg("Exiting `%s`\n", name);
+    instr_ptr = save;
 }
 
-static void eval_func_call(struct ir_func_call *fcall)
+static void call_eval(struct ir_func_call *call)
 {
-    storage_new();
+    frame_off = 0;
 
-    int32_t sym_idx = 0;
-
-    struct ir_node *it = fcall->args;
-    while (it) {
-        /// Copy from caller to callee.
-        storage_set_caller_active();
-        eval_instr(it);
-        storage_set_callee_active();
-        storage_set(sym_idx++, last_imm);
-        it = it->next;
+    struct ir_node *arg = call->args;
+    while (arg) {
+        
+        arg = arg->next;
     }
 
-    call(fcall->name);
-
-    storage_pop();
-    storage_set_callee_active();
+    pop();
 }
 
 
 
-static void reset_all()
-{
-    vector_foreach(storages, i) {
-        hashmap_t *storage = vector_at(storages, i);
-        hashmap_destroy(storage);
-    }
-    vector_free(storages);
-
-    reset_hashmap(&function_list);
-    reset_hashmap(&jmp_table);
-    instr_pointer = NULL;
-}
+/* ==========================
+   Driver code.
+   ========================== */
 
 int32_t eval(struct ir_node *ir)
 {
-    reset_all();
+    reset();
+    reset_hashmap(&funs, 512);
 
-    struct ir_node *it = ir;
-
-    while (it) {
-        struct ir_func_decl *func = it->ir;
-        hashmap_put(&function_list, crc32_string(func->name), (uint64_t) func);
-        it = it->next;
-    }
-
-    __weak_debug({
-        hashmap_foreach(&function_list, k, v) {
-            (void) k;
-            struct ir_func_decl *func = (struct ir_func_decl *) v;
-            __weak_debug_msg("Function in list: `%s`\n", func->name);
-        }
-    });
-
-    /// Allocate storage there manually. Allocated also
-    /// in eval_func_call().
-    storage_new();
-    storage_set_callee_active();
+    fun_list_init(ir);
     call("main");
-    storage_pop();
 
-    return last_imm.imm.__int;
+    /* Required to be int. */
+    if (last.dt != D_T_INT)
+        weak_unreachable("main() return only ints.");
+
+    return last.__int.value;
 }
