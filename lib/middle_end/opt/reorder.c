@@ -4,16 +4,12 @@
  * This file is distributed under the MIT license.
  */
 
-#if 0
 #include "middle_end/ir/ir.h"
 #include "middle_end/opt/opt.h"
 #include "util/vector.h"
 #include <stddef.h>
 
-/* We assume that vector index is match with contained
-   IR instruction index.
-  
-   This function follows alloca instructions chain and sets jump
+/* This function follows alloca instructions chain and sets jump
    targets to instructions, that placed after alloca's. */
 __weak_really_inline static void reindex(ir_vector_t *stmts)
 {
@@ -27,22 +23,23 @@ __weak_really_inline static void reindex(ir_vector_t *stmts)
 
         if (curr->type == IR_COND) {
             struct ir_cond *cond = curr->ir;
-            struct ir_node *jump = vector_at(*stmts, cond->goto_label);
-            while (jump->type == IR_ALLOCA) {
+            uint64_t jump_idx = cond->goto_label;
+
+            while (vector_at(*stmts, cond->goto_label)->type == IR_ALLOCA) {
                 ++cond->goto_label;
-                jump = jump->next;
+                ++jump_idx;
+                cond->target = vector_at(*stmts, jump_idx);
             }
-            cond->target = jump;
         }
 
         if (curr->type == IR_JUMP) {
             struct ir_jump *jump = curr->ir;
-            uint64_t jump_idx = jump->target->instr_idx;
+            uint64_t jump_idx = jump->idx;
 
-            while (jump->target->type == IR_ALLOCA) {
-                jump->target = vector_at(*stmts, jump_idx);
+            while (vector_at(*stmts, jump->idx)->type == IR_ALLOCA) {
                 ++jump->idx;
                 ++jump_idx;
+                jump->target = vector_at(*stmts, jump_idx);
             }
         }
     }
@@ -127,5 +124,3 @@ void ir_opt_reorder(struct ir_func_decl *decl)
 
     vector_free(stmts);
 }
-
-#endif /* 0 */

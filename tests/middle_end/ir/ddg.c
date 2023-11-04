@@ -54,10 +54,14 @@ bool ir_test(const char *path, const char *filename)
         extract_assertion_comment(yyin, expected_stream);
 
         while (it) {
-            ir_ddg_build(it->ir);
-            ir_dump(generated_stream, it->ir);
+            struct ir_func_decl *decl = it->ir;
+
+            ir_ddg_build(decl);
+            ir_link(decl);
+            ir_build_cfg(decl);
+            ir_dump(generated_stream, decl);
             fprintf(generated_stream, "--------\n");
-            ddg_dump(generated_stream, it->ir);
+            ddg_dump(generated_stream, decl);
             it = it->next;
         }
 

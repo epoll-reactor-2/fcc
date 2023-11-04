@@ -365,10 +365,8 @@ static void visit_ast_for(struct ast_for *ast)
 
     ir_last = ir_jump_init(next_iter_jump_idx);
 
-    if (ast->condition) {
-        // vector_push_back(cond->cfg.succs, exit_jmp);
+    if (ast->condition)
         exit_jmp_ptr->idx = ir_last->instr_idx + 1;
-    }
 
     ir_insert_last();
     --ir_nesting;
@@ -903,15 +901,24 @@ static bool has_prev(ir_vector_t *t, uint64_t idx)
     return 0;
 }
 
+/* TODO: Refactor. */
 void ir_link(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
     vector_t(struct ir_node *) stmts = {0};
+    hashmap_t stmt_map;
+    hashmap_init(&stmt_map, 128);
 
     while (it) {
         vector_push_back(stmts, it);
+        hashmap_put(&stmt_map, it->instr_idx, (uint64_t) it);
+        /* Clear all CFG information. */
+        vector_free(it->cfg.preds);
+        vector_free(it->cfg.succs);
         it = it->next;
     }
+
+    bool ok = 0;
 
     for (uint64_t i = 0; i < stmts.count - 1; ++i) {
         struct ir_node *stmt = stmts.data[i];
@@ -919,7 +926,11 @@ void ir_link(struct ir_func_decl *decl)
         switch (stmt->type) {
         case IR_JUMP: {
             struct ir_jump *jump = stmt->ir;
-            jump->target = stmts.data[jump->idx];
+
+            uint64_t addr = hashmap_get(&stmt_map, jump->idx, &ok);
+            assert(ok);
+            jump->target = (struct ir_node *) addr;
+
             ir_vector_t *prevs = &jump->target->cfg.preds;
             vector_push_back(stmt->cfg.succs, jump->target);
             if (!has_prev(prevs, stmt->instr_idx))
@@ -928,21 +939,30 @@ void ir_link(struct ir_func_decl *decl)
         }
         case IR_COND: {
             struct ir_cond *cond = stmt->ir;
-            cond->target = stmts.data[cond->goto_label];
-            vector_push_back(stmt->cfg.succs, stmts.data[cond->goto_label]);
-            vector_push_back(stmt->cfg.succs, stmts.data[i + 1]);
+
+            uint64_t goto_addr = hashmap_get(&stmt_map, cond->goto_label, &ok);
+            assert(ok);
+
+            struct ir_node *cond_target = (struct ir_node *) goto_addr;
+
+            cond->target = cond_target;
+            vector_push_back(stmt->cfg.succs, cond_target);
+            vector_push_back(stmt->cfg.succs, stmt->next);
+
             ir_vector_t *prevs = &cond->target->cfg.preds;
             if (!has_prev(prevs, stmt->instr_idx))
                 vector_push_back(*prevs, stmt);
             break;
         }
         default:
-            vector_push_back(stmt->cfg.succs, stmts.data[i + 1]);
+            vector_push_back(stmt->cfg.succs, stmt->next);
             break;
         }
 
         if (i > 0) {
-            struct ir_node *prev = vector_at(stmts, i - 1);
+            uint64_t addr = hashmap_get(&stmt_map, i - 1, &ok);
+            assert(ok);
+            struct ir_node *prev = (struct ir_node *) addr;
 
             if (prev->type != IR_JUMP)
                 vector_push_back(stmt->cfg.preds, prev);
@@ -964,14 +984,13 @@ void ir_link(struct ir_func_decl *decl)
     }
 
     vector_free(stmts);
+    hashmap_destroy(&stmt_map);
 }
 
-static void ir_build_cfg(struct ir_func_decl *decl)
+void ir_build_cfg(struct ir_func_decl *decl)
 {
-    struct ir_node *it = decl->body;
-
-    bool started = 1;
-    uint64_t cfg_no = 0;
+    struct ir_node *it     = decl->body;
+    uint64_t        cfg_no = 0;
 
     while (it) {
         bool new = 0;
@@ -1006,12 +1025,8 @@ struct ir_unit *ir_gen(struct ast_node *ast)
         vector_push_back(decl_next->cfg.preds, decl);
     }
 
-    vector_foreach(ir_func_decls, i) {
-        struct ir_node *decl = vector_at(ir_func_decls, i);
-
-        ir_link(decl->ir);
-        ir_build_cfg(decl->ir);
-    }
+    /* NOTE: Linking and CFG construction is done
+             by driver code. */
 
     struct ir_node *decls = vector_at(ir_func_decls, 0);
 
