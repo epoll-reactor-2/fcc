@@ -319,6 +319,14 @@ static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 
     vector_push_back(prev->cfg.succs, new);
     vector_push_back(curr->cfg.preds, new);
+
+    /* TODO: Now first SSA renaming algorithm visits
+             statement after phi, then before. Fix it
+             by introducing correct predecessors.
+             Phi node must be the only predecessor of next statement. */
+
+    /* To traverse dominator tree next. */
+    vector_push_back(curr->idom_back, new);
 }
 
 /* This function implements algorithm given in
@@ -428,11 +436,12 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
     if (visited[ir->instr_idx])
         return;
 
+    printf("Visited :%ld\n", ir->instr_idx);
+
     visited[ir->instr_idx] = 1;
 
     switch (ir->type) {
     case IR_PHI: {
-        abort();
         /* TODO: This code is never reached because of broken
                  IR links after phi nodes insertion. Fix. */
         struct ir_phi *phi = ir->ir;
