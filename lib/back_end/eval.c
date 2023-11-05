@@ -22,7 +22,7 @@
 
 #define STACK_SIZE_BYTES 100000
 
-/* TODO: Stucture like `eval_result` with
+/* TODO: Structure like `eval_result` with
          - immediate value type
            ` int
            ` char
@@ -47,13 +47,11 @@
 
          Stack contains `struct eval_result`. */
 static char     stack[STACK_SIZE_BYTES];
-static uint64_t sp;        /* Global stack pointer. Named as assembly register. */
-static uint64_t frame_off; /* Offset from stack_ptr in currently called function.
-                              Used only to save & restore calling function
-                              offset. */
-
-static uint64_t stack_map[STACK_SIZE_BYTES]; /* Index: sym_idx
-                                                Value: sp */
+/* Index: sym_idx
+   Value: sp */
+static uint64_t stack_map[STACK_SIZE_BYTES];
+/* Global stack pointer. Named as assembly register. */
+static uint64_t sp;
 
 /* Performance issue: each type (even if 1 byte)
    occurs 16 bytes in memory. */
@@ -95,7 +93,6 @@ static void reset()
     memset(stack_map, 0, sizeof (stack_map));
     memset(stack, 0, sizeof (stack));
     sp = 0;
-    frame_off = 0;
 }
 
 static inline void push(uint64_t sym_idx)
@@ -104,8 +101,6 @@ static inline void push(uint64_t sym_idx)
 
     stack_map[sym_idx] = sp;
     sp += siz;
-    frame_off += siz;
-
 }
 
 static inline void set(uint64_t sym_idx, struct eval_result *er)
@@ -114,6 +109,8 @@ static inline void set(uint64_t sym_idx, struct eval_result *er)
 
     if (er->dt == D_T_UNKNOWN)
         weak_unreachable("D_T_UNKNOWN");
+
+    /* printf("Set stack[%ld, sym=%ld]: %d\n", sp_ptr, sym_idx, er->__int.value); */
 
     memcpy(&stack[sp_ptr], er, sizeof (struct eval_result));
 }
@@ -127,14 +124,9 @@ static inline struct eval_result *get(uint64_t sym_idx)
     if (er->dt == D_T_UNKNOWN)
         weak_unreachable("D_T_UNKNOWN");
 
-    return er;
-}
+    /* printf("Get stack[%ld, sym=%ld]: %d\n", sp_ptr, sym_idx, er->__int.value); */
 
-/* Pop is called only at the end of function. */
-static inline void pop()
-{
-    sp -= frame_off;
-    frame_off = 0;
+    return er;
 }
 
 
@@ -176,6 +168,7 @@ static void eval_sym(struct ir_sym *sym)
 {
     struct eval_result *er = get(sym->idx);
     memcpy(&last, er, sizeof (struct eval_result));
+    /* printf("Last sym (%ld): %d, sp: %ld\n", sym->idx, last.__int.value, sp); */
 }
 
 
@@ -299,6 +292,8 @@ static void eval_bin(struct ir_bin *bin)
     instr_eval(bin->rhs);
     struct eval_result r = last;
 
+    /* printf("Eval binary %d `%s` %d\n", l.__int.value, tok_to_string(bin->op), r.__int.value); */
+
     compute(bin->op, &l, &r);
 }
 
@@ -333,6 +328,7 @@ static void eval_store_sym(struct ir_store *store)
 
     struct eval_result *er = get(from->idx);
     set(to->idx, er);
+    /* printf("%ld: Store sym: %d\n", to->idx, last.__int.value); */
 }
 
 static void eval_store_bin(struct ir_store *store)
@@ -342,11 +338,17 @@ static void eval_store_bin(struct ir_store *store)
 
     struct ir_sym *sym = store->idx->ir;
     set(sym->idx, &last);
+    /* printf("%ld: Store bin: %d\n", sym->idx, last.__int.value); */
 }
 
 static void eval_store_call(struct ir_store *store)
 {
-    
+    instr_eval(store->body);
+    assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
+
+    struct ir_sym *sym = store->idx->ir;
+    set(sym->idx, &last);
+    /* printf("%ld: Store call: %d\n", sym->idx, last.__int.value); */
 }
 
 static void eval_store(struct ir_store *store)
@@ -397,7 +399,7 @@ static void eval_cond(struct ir_node *__cond)
 
     if (should_jump)
         instr_ptr = cond->target; /* True branch. */
-    else 
+    else
         instr_ptr = __cond->next; /* False branch. */
 }
 
@@ -405,6 +407,8 @@ static void eval_ret(struct ir_ret *ret)
 {
     if (ret->body)
         instr_eval(ret->body);
+
+    /* printf("Return %d\n\n", last.__int.value); */
 
     instr_ptr = NULL;
 }
@@ -454,6 +458,45 @@ static void instr_eval(struct ir_node *ir)
 
 
 /* ==========================
+   Call stack.
+   ========================== */
+
+static void printf_n(uint32_t count, char c)
+{
+    for (uint32_t i = 0; i < count; ++i) {
+        putc(i % 2 != 0 ? c : '|', stdout);
+    }
+}
+
+struct call_stack_entry {
+    const char *name;
+    uint64_t    sp;
+};
+
+typedef vector_t(struct call_stack_entry) call_stack_t;
+
+static uint64_t call_depth;
+
+static void call_stack_head(const char *fname)
+{
+    struct call_stack_entry cse = {
+        .name = fname,
+        .sp   = sp
+    };
+
+    printf_n(call_depth, ' ');
+    printf("call `%s` (+%ld)\n", fname, sp);
+    call_depth += 2;
+}
+
+static void call_stack_tail()
+{
+    call_depth -= 2;
+}
+
+
+
+/* ==========================
    Functions routines.
    ========================== */
 
@@ -496,6 +539,7 @@ static void fun_eval(struct ir_func_decl *decl)
 
     while (instr_ptr) {
         struct ir_node *prev_ptr = instr_ptr;
+        /* printf("Eval %ld\n", prev_ptr->instr_idx); */
         instr_eval(instr_ptr);
 
         /* Conditional and jump statements set up their
@@ -512,28 +556,37 @@ static void fun_eval(struct ir_func_decl *decl)
     }
 }
 
-static void call(const char *name)
+
+
+static void call_eval(struct ir_func_call *fcall)
 {
-    memset(stack_map, 0, sizeof (stack_map));
+    call_stack_head(fcall->name);
 
-    struct ir_node *save = instr_ptr;
+    uint64_t sym = 0;
+    uint64_t save_sp = sp;
+    struct ir_node *save_instr_ptr = instr_ptr;
 
-    fun_eval(fun_lookup(name));
+    static uint64_t stack_copy[STACK_SIZE_BYTES];
+    memcpy(stack_copy, stack_map, STACK_SIZE_BYTES);
 
-    instr_ptr = save;
-}
-
-static void call_eval(struct ir_func_call *call)
-{
-    frame_off = 0;
-
-    struct ir_node *arg = call->args;
+    struct ir_node *arg = fcall->args;
     while (arg) {
-        
+        instr_eval(arg);
+        push(sym);
+        set(sym++, &last);
+
         arg = arg->next;
     }
 
-    pop();
+    struct ir_func_decl *fun = fun_lookup(fcall->name);
+
+    fun_eval(fun);
+
+    call_stack_tail();
+
+    sp = save_sp;
+    instr_ptr = save_instr_ptr;
+    memcpy(stack_map, stack_copy, STACK_SIZE_BYTES);
 }
 
 
@@ -548,7 +601,11 @@ int32_t eval(struct ir_node *ir)
     reset_hashmap(&funs, 512);
 
     fun_list_init(ir);
-    call("main");
+
+    struct ir_func_call main = {
+        .name = "main"
+    };
+    call_eval(&main);
 
     /* Required to be int. */
     if (last.dt != D_T_INT)

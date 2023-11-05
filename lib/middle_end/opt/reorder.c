@@ -54,15 +54,21 @@ __weak_really_inline static void reindex(ir_vector_t *stmts)
    +-------+ <-- prev -- +-------+ <-- prev -- +-------+ <-- prev -- +-------+ */
 __weak_really_inline static void swap(struct ir_node *ir)
 {
-    if (!ir->prev) {
+    if (!ir->prev)
         return;
-    }
 
     if (!ir->prev->prev) {
         ir->prev->next = ir;
         ir->prev = NULL;
         return;
     }
+
+    if (ir->type == IR_RET ||
+        ir->type == IR_RET_VOID)
+        return;
+
+    if (ir->type != IR_ALLOCA)
+        return;
 
     struct ir_node *_1 = ir->prev->prev;
     struct ir_node *_2 = ir->prev;
