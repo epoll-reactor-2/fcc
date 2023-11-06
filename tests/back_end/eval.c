@@ -74,8 +74,18 @@ bool ir_test(const char *path, const char *filename)
             struct ir_func_decl *decl = it->ir;
             /* Reordering before building CFG links. */
             ir_opt_reorder(decl);
+            ir_opt_arith(decl);
+
             ir_link(decl);
             ir_build_cfg(decl);
+
+            ir_opt_unreachable_code(decl);
+            /* There is some trouble with
+               data flow of input function
+               parameters.
+
+               ir_opt_data_flow(decl); */
+
             /* ir_dump_cfg(tmp_cfg, decl); */
             /* ir_dump(stdout, decl); */
             /* cfg_edges_dump(stdout, decl); */
