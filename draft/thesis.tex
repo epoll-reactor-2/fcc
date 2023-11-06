@@ -8,6 +8,7 @@
 \usepackage[a4paper, total={7.5in, 9.5in}]{geometry}
 \usepackage{indentfirst}
 \usepackage{amsfonts}
+\usepackage[dvipsnames]{xcolor}
 
 \usepackage{caption}
 \usepackage{chngcntr}
@@ -28,7 +29,12 @@
 \usepackage[autosize]{dot2texi}
 \usepackage{tikz}
 
-\usetikzlibrary{automata, positioning, shapes, arrows}
+\usetikzlibrary{automata}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{chains}
+\usetikzlibrary{calc}
 
 \algnewcommand\algorithmicswitch{\textbf{switch}}
 \algnewcommand\algorithmiccase{\textbf{case}}
@@ -51,6 +57,10 @@
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{C}[1]{>{\centering  \let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft \let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\newcommand\kk[1]{\textcolor{RoyalBlue}{\text{\textup{\textbf{\texttt{#1}}}}}}
+\newcommand\cc[1]{\textcolor{Sepia}{\text{\textup{\textbf{\texttt{#1}}}}}}
+
 
 \newcommand{\spacing}{\vskip 0.5cm}
 
@@ -1027,7 +1037,9 @@ void f() {
 		\newpage
 
 	\section{Interpreter}
-	
+
+		% https://tex.stackexchange.com/questions/235000/drawing-an-activation-stack-in-latex
+
 	\section{Annex: Gramatyka w BNF}
 
         \setlength{\grammarindent}{12em}

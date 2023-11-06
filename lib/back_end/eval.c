@@ -452,6 +452,9 @@ static void instr_eval(struct ir_node *ir)
    Call stack.
    ========================== */
 
+/* Important notice about drawing stacks in LaTeX
+   https://tex.stackexchange.com/questions/235000/drawing-an-activation-stack-in-latex */
+
 static void printf_n(uint32_t count, char c)
 {
     for (uint32_t i = 0; i < count; ++i) {
