@@ -95,6 +95,9 @@ static void reset()
     sp = 0;
 }
 
+/* Notice: There is no `pop` function, since popping
+           is implemented by storing stack pointer before
+           call and restoring it after call. */
 static inline void push(uint64_t sym_idx)
 {
     uint64_t siz = sizeof (struct eval_result);
@@ -408,8 +411,6 @@ static void eval_ret(struct ir_ret *ret)
     if (ret->body)
         instr_eval(ret->body);
 
-    /* printf("Return %d\n\n", last.__int.value); */
-
     instr_ptr = NULL;
 }
 
@@ -477,13 +478,21 @@ typedef vector_t(struct call_stack_entry) call_stack_t;
 
 static uint64_t call_depth;
 
+/* TODO: Builtin function that prints stacktrace at
+         the moment.
+
+         strace();
+         ` prints
+         `
+         call `main` (+0)
+           call `fact` (+24)
+             call `fact` (+144)
+               call `fact` (+264)
+                 call `fact` (+384)
+                  call `fact` (+504)
+*/
 static void call_stack_head(const char *fname)
 {
-    struct call_stack_entry cse = {
-        .name = fname,
-        .sp   = sp
-    };
-
     printf_n(call_depth, ' ');
     printf("call `%s` (+%ld)\n", fname, sp);
     call_depth += 2;
@@ -566,27 +575,28 @@ static void call_eval(struct ir_func_call *fcall)
     uint64_t save_sp = sp;
     struct ir_node *save_instr_ptr = instr_ptr;
 
-    static uint64_t stack_copy[STACK_SIZE_BYTES];
-    memcpy(stack_copy, stack_map, STACK_SIZE_BYTES);
+    uint64_t stack_map_copy[STACK_SIZE_BYTES];
+
+    memcpy(stack_map_copy, stack_map, STACK_SIZE_BYTES);
 
     struct ir_node *arg = fcall->args;
     while (arg) {
+        /* Evaluate in current stack frame. */
         instr_eval(arg);
+        /* Push to the callee stack frame. */
         push(sym);
         set(sym++, &last);
-
         arg = arg->next;
     }
 
     struct ir_func_decl *fun = fun_lookup(fcall->name);
 
     fun_eval(fun);
-
     call_stack_tail();
 
     sp = save_sp;
     instr_ptr = save_instr_ptr;
-    memcpy(stack_map, stack_copy, STACK_SIZE_BYTES);
+    memcpy(stack_map, stack_map_copy, STACK_SIZE_BYTES);
 }
 
 
