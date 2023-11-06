@@ -113,8 +113,6 @@ static inline void set(uint64_t sym_idx, struct eval_result *er)
     if (er->dt == D_T_UNKNOWN)
         weak_unreachable("D_T_UNKNOWN");
 
-    /* printf("Set stack[%ld, sym=%ld]: %d\n", sp_ptr, sym_idx, er->__int.value); */
-
     memcpy(&stack[sp_ptr], er, sizeof (struct eval_result));
 }
 
@@ -126,8 +124,6 @@ static inline struct eval_result *get(uint64_t sym_idx)
 
     if (er->dt == D_T_UNKNOWN)
         weak_unreachable("D_T_UNKNOWN");
-
-    /* printf("Get stack[%ld, sym=%ld]: %d\n", sp_ptr, sym_idx, er->__int.value); */
 
     return er;
 }
@@ -171,7 +167,6 @@ static void eval_sym(struct ir_sym *sym)
 {
     struct eval_result *er = get(sym->idx);
     memcpy(&last, er, sizeof (struct eval_result));
-    /* printf("Last sym (%ld): %d, sp: %ld\n", sym->idx, last.__int.value, sp); */
 }
 
 
@@ -295,8 +290,6 @@ static void eval_bin(struct ir_bin *bin)
     instr_eval(bin->rhs);
     struct eval_result r = last;
 
-    /* printf("Eval binary %d `%s` %d\n", l.__int.value, tok_to_string(bin->op), r.__int.value); */
-
     compute(bin->op, &l, &r);
 }
 
@@ -331,7 +324,6 @@ static void eval_store_sym(struct ir_store *store)
 
     struct eval_result *er = get(from->idx);
     set(to->idx, er);
-    /* printf("%ld: Store sym: %d\n", to->idx, last.__int.value); */
 }
 
 static void eval_store_bin(struct ir_store *store)
@@ -341,7 +333,6 @@ static void eval_store_bin(struct ir_store *store)
 
     struct ir_sym *sym = store->idx->ir;
     set(sym->idx, &last);
-    /* printf("%ld: Store bin: %d\n", sym->idx, last.__int.value); */
 }
 
 static void eval_store_call(struct ir_store *store)
@@ -351,7 +342,6 @@ static void eval_store_call(struct ir_store *store)
 
     struct ir_sym *sym = store->idx->ir;
     set(sym->idx, &last);
-    /* printf("%ld: Store call: %d\n", sym->idx, last.__int.value); */
 }
 
 static void eval_store(struct ir_store *store)
@@ -548,7 +538,6 @@ static void fun_eval(struct ir_func_decl *decl)
 
     while (instr_ptr) {
         struct ir_node *prev_ptr = instr_ptr;
-        /* printf("Eval %ld\n", prev_ptr->instr_idx); */
         instr_eval(instr_ptr);
 
         /* Conditional and jump statements set up their
