@@ -114,7 +114,7 @@ bool hashmap_remove(hashmap_t *map, uint64_t key)
         index = (index + 1) % map->capacity;
     }
 
-    return 0;  // Key not found
+    return 0; /* Key not found */
 }
 
 bool hashmap_has(hashmap_t *map, uint64_t key)

@@ -9,16 +9,16 @@
 
 struct ir_func_decl;
 
-/// Build data dependence graph. Read operation
-/// is dependent on write operation.
-///
-/// \note It makes sense to call this function before
-///       and after optimization to maintain correct
-///       links.
-///
-/// \todo This algorithm does not take care of loops
-///       and what is going on in future (after
-///       loop header, for example).
+/** Build data dependence graph. Read operation
+    is dependent on write operation.
+   
+    \note It makes sense to call this function before
+          and after optimization to maintain correct
+          links.
+   
+    \todo This algorithm does not take care of loops
+          and what is going on in future (after
+          loop header, for example). */
 void ir_ddg_build(struct ir_func_decl *decl);
 
 #endif // WEAK_COMPILER_MIDDLE_END_DDG_H

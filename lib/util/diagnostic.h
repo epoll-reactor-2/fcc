@@ -11,45 +11,45 @@
 #include <setjmp.h>
 #include <stdnoreturn.h>
 
-/// Jump buffer for handling errors. As warning/errors emit
-/// functions, can be used in normal "real-world" compiler mode
-/// as well as in testing mode.
-///
-/// \note Driver code should do similar thing
-///
-/// \code{.c}
-/// if (!setjmp(fatal_error_buf)) {
-///     // Normal code.
-/// } else {
-///     // Fallback on error inside normal code.
-/// }
-/// \endcode
+/** Jump buffer for handling errors. As warning/errors emit
+    functions, can be used in normal "real-world" compiler mode
+    as well as in testing mode.
+   
+    \note Driver code should do similar thing
+   
+    \code{.c}
+    if (!setjmp(fatal_error_buf)) {
+        // Normal code.
+    } else {
+        // Fallback on error inside normal code.
+    }
+    \endcode */
 extern jmp_buf weak_fatal_error_buf;
 
-/// \defgroup weak_diagnostic_streams
-///
-/// Streams being FILE * used for debug purposes. There are
-/// two cases:
-/// - streams are NULL, then all compiler outputs written to the screen and program
-///   terminates on compile error;
-/// - streams are set, then all compiler outputs written to it.
-///
-/// \code{c}
-/// void *diag_error_memstream;
-/// void *diag_warn_memstream;
-/// \endcode
+/** \defgroup weak_diagnostic_streams
+   
+    Streams being FILE * used for debug purposes. There are
+    two cases:
+    - streams are NULL, then all compiler outputs written to the screen and program
+      terminates on compile error;
+    - streams are set, then all compiler outputs written to it.
+   
+    \code{c}
+    void *diag_error_memstream;
+    void *diag_warn_memstream;
+    \endcode */
 extern void *diag_error_memstream;
 extern void *diag_warn_memstream;
 
-/// \brief Set source code location being analyzed. Used to display
-///        warns and errors.
+/** \brief Set source code location being analyzed. Used to display
+           warns and errors. */
 void weak_set_source_filename(const char *filename);
 
-/// \brief Emit compile error according to \ref weak_diagnostic_streams rule
-///        and go out from executor function of any depth.
+/** \brief Emit compile error according to \ref weak_diagnostic_streams rule
+           and go out from executor function of any depth. */
 noreturn
 void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...);
-/// \brief Emit compile warning according to \ref weak_diagnostic_streams rule.
+/** \brief Emit compile warning according to \ref weak_diagnostic_streams rule. */
 void weak_compile_warn (uint16_t line_no, uint16_t col_no, const char *fmt, ...);
 
 #endif // WEAK_COMPILER_UTIL_DIAGNOSTICS_H

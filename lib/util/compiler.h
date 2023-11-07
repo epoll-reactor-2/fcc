@@ -34,7 +34,7 @@
 # define __weak_debug(block) block
 #else
 # define __weak_debug(block)
-#endif /// USE_LOG
+#endif /* USE_LOG */
 
 #ifdef USE_LOG
 # define __weak_debug_msg(fmt, ...) do { \
@@ -42,7 +42,7 @@
  } while (0);
 #else
 # define __weak_debug_msg(fmt, ...)
-#endif /// USE_LOG
+#endif /* USE_LOG */
 
 
 #define __weak_array_size(x) (sizeof (x) / sizeof (*x))
