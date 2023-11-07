@@ -23,7 +23,7 @@ void weak_set_source_filename(const char *filename)
 static noreturn void weak_terminate_compilation()
 {
     longjmp(weak_fatal_error_buf, 1);
-    __builtin_trap(); /// Just to be sure that we will never get there.
+    __builtin_trap(); /* Just to be sure that we will never get there. */
 }
 
 void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)

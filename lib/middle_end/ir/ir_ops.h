@@ -13,8 +13,8 @@
 struct ir_node;
 typedef vector_t(struct ir_node *) ir_vector_t;
 
-/// Remove `ir` from IR. If `ir` is a first statement
-/// in list, update `list_head`.
+/** Remove `ir` from IR. If `ir` is a first statement
+    in list, update `list_head`. */
 void ir_remove(struct ir_node **ir, struct ir_node **list_head);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_OPS_H

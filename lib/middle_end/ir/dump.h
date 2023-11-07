@@ -12,39 +12,39 @@
 
 const char *ir_type_to_string(enum ir_type t);
 
-/// Print IR to given stream.
-///
-/// \param ir      Pointer to the function IR.
+/** Print IR to given stream.
+   
+    \param ir      Pointer to the function IR. */
 void ir_dump(FILE *mem, struct ir_func_decl *decl);
 
-/// Print whole translation unit to given stream.
-///
-/// \param ir      Pointer to the unit.
+/** Print whole translation unit to given stream.
+   
+    \param ir      Pointer to the unit. */
 void ir_dump_unit(FILE *mem, struct ir_unit *unit);
 
-/// Print IR dominator tree.
-///
-/// \param ir      Pointer to the function IR.
+/** Print IR dominator tree.
+   
+    \param ir      Pointer to the function IR. */
 void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl);
 
-/// Print IR node to given stream.
-///
-/// \param ir      Pointer to IR the statement.
+/** Print IR node to given stream.
+   
+    \param ir      Pointer to IR the statement. */
 void ir_dump_node(FILE *mem, struct ir_node *ir);
 
-/// Print dominance frontier for given node.
+/** Print dominance frontier for given node. */
 void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir);
 
-/// Print IR as dot graph. May be used to generate images.
-///
-/// $ dot -Tpng graph.dot -o graph.png
-///
-/// \param ir      Pointer to the function IR.
-///
-/// \note  In purpose of optimization and getting rid of
-///        dynamic allocation, limit of dumped function is
-///        set to 8192. Anyway, after that value generated
-///        graph image will be completely messy.
+/** Print IR as dot graph. May be used to generate images.
+   
+    $ dot -Tpng graph.dot -o graph.png
+   
+    \param ir      Pointer to the function IR.
+   
+    \note  In purpose of optimization and getting rid of
+           dynamic allocation, limit of dumped function is
+           set to 8192. Anyway, after that value generated
+           graph image will be completely messy. */
 void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl);
 
 void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl);

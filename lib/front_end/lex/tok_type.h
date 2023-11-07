@@ -10,7 +10,7 @@
 #include "util/compiler.h"
 
 enum token_type {
-    /// Keywords.
+    /** Keywords. */
     TOK_BOOL,
     TOK_BREAK,
     TOK_CHAR,
@@ -28,14 +28,14 @@ enum token_type {
     TOK_VOID,
     TOK_WHILE,
 
-    /// Literals.
+    /** Literals. */
     TOK_CHAR_LITERAL,
     TOK_INTEGRAL_LITERAL,
     TOK_FLOATING_POINT_LITERAL,
     TOK_STRING_LITERAL,
     TOK_SYMBOL,
 
-    /// Operators.
+    /** Operators. */
     TOK_ASSIGN,              // =
     TOK_MUL_ASSIGN,          // *=
     TOK_DIV_ASSIGN,          // /=
@@ -80,15 +80,15 @@ enum token_type {
     TOK_CLOSE_PAREN          // )
 };
 
-/// \return String representation of the token. Don't
-///         apply free() to the result.
-///
-/// \note   weak_unreachable() called on unknown integer value of t.
+/** \return String representation of the token. Don't
+            apply free() to the result.
+   
+    \note   weak_unreachable() called on unknown integer value of t. */
 __weak_wur const char *tok_to_string(enum token_type t);
 
-/// \return Token type based on its character value.
-///
-/// \note   weak_unreachable() called on unknown char.
+/** \return Token type based on its character value.
+   
+    \note   weak_unreachable() called on unknown char. */
 __weak_wur enum token_type tok_char_to_tok(char c);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOK_TYPE_H

@@ -21,10 +21,10 @@ enum data_type {
     D_T_BOOL
 };
 
-/// \return String representation of the token. Don't
-///         apply free() to the result.
-///
-/// \note   weak_unreachable() called on unknown integer value of dt.
+/** \return String representation of the token. Don't
+            apply free() to the result.
+   
+    \note   weak_unreachable() called on unknown integer value of dt. */
 __weak_wur const char *data_type_to_string(enum data_type dt);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_DATA_TYPE_H

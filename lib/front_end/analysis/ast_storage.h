@@ -17,30 +17,30 @@ struct ast_storage_decl {
     enum data_type   data_type;
     const char      *name;
     uint16_t         indirection_lvl;
-    uint16_t         read_uses; /// How many times variable was accessed.
-    uint16_t         write_uses; /// How many times value was written to variable.
-    uint16_t         depth; /// How much variable is nested.
+    uint16_t         read_uses;  /** How many times variable was accessed. */
+    uint16_t         write_uses; /** How many times value was written to variable. */
+    uint16_t         depth;      /** How much variable is nested. */
 };
 
 typedef vector_t(struct ast_storage_decl *) ast_storage_decl_array_t;
 
-/// Initialize internal data, needed for correct scope depth
-/// resolution.
+/** Initialize internal data, needed for correct scope depth
+    resolution. */
 void ast_storage_init_state();
 
-/// Reset all internal data.
+/** Reset all internal data. */
 void ast_storage_reset_state();
 
-/// Increment scope depth.
+/** Increment scope depth. */
 void ast_storage_start_scope();
 
-/// Decrement scope depth, cleanup all most top scope records.
+/** Decrement scope depth, cleanup all most top scope records. */
 void ast_storage_end_scope();
 
-/// Add record at current depth.
+/** Add record at current depth. */
 void ast_storage_push(const char *var_name, struct ast_node *ast);
 
-/// \copydoc ast_storage_push(const char *, struct ast_node *)
+/** \copydoc ast_storage_push(const char *, struct ast_node *) */
 void ast_storage_push_typed(
     const char      *var_name,
     enum data_type   dt,
@@ -48,29 +48,29 @@ void ast_storage_push_typed(
     struct ast_node *ast
 );
 
-/// Find storage by name.
-///
-/// \return Corresponding record if found, NULL otherwise.
+/** Find storage by name.
+   
+    \return Corresponding record if found, NULL otherwise. */
 __weak_wur struct ast_storage_decl *ast_storage_lookup(const char *var_name);
 
-/// Add read use.
-///
-/// \pre Variable as declared before.
-/// \pre Variable depth is <= current depth.
+/** Add read use.
+   
+    \pre Variable as declared before.
+    \pre Variable depth is <= current depth. */
 void ast_storage_add_read_use(const char *var_name);
 
-/// Add read use.
-///
-/// \pre Variable as declared before.
-/// \pre Variable depth is <= current depth.
+/** Add read use.
+   
+    \pre Variable as declared before.
+    \pre Variable depth is <= current depth. */
 void ast_storage_add_write_use(const char *var_name);
 
-/// Collect all variable usages in current scope. Don't care
-/// about reads and writes, though.
-///
-/// \todo  Order of output uses is undefined, since it operates on
-///        hashmap, hence we don't have properly sorted by occurrence
-///        warnings. Maybe, just sort result array?
+/** Collect all variable usages in current scope. Don't care
+    about reads and writes, though.
+   
+    \todo  Order of output uses is undefined, since it operates on
+           hashmap, hence we don't have properly sorted by occurrence
+           warnings. Maybe, just sort result array? */
 void ast_storage_current_scope_uses(ast_storage_decl_array_t *out_set);
 
 #endif // WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
