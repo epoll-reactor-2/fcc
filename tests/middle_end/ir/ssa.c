@@ -41,13 +41,18 @@ bool ir_test(const char *path, const char *filename)
 
         extract_assertion_comment(yyin, expected_stream);
 
-        ir_compute_ssa(it);
-
         while (it) {
             struct ir_func_decl *decl = it->ir;
             ir_link(decl);
             ir_build_cfg(decl);
+            it = it->next;
+        }
 
+        it = ir->func_decls;
+        ir_compute_ssa(it);
+
+        while (it) {
+            struct ir_func_decl *decl = it->ir;
             ir_dump_cfg(cfg_stream, decl);
             ir_dump_dom_tree(dom_tree_stream, decl);
             ir_dump_unit(generated_stream, ir);
