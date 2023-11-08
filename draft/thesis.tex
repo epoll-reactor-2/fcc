@@ -724,9 +724,10 @@ void f() {
 			\subsection{Opis}
 
 				Wiele zasad, dotyczących pracy z typami mogą być precyzyjnie opisane zasadami typów
-				(\textbf{Typing rules}). Jest to notacja matematyczna, znaczenie której niżej wyjaśnimy.
+				(\textbf{Typing rules}). Jest to notacja matematyczna, stworzona przez \textbf{Per Martin-Löf}'a,
+				szwedzkiego matematyka.
 				\\
-				
+
 				Kluczowym pojęciem w tej notacji jest \textbf{statyczne środowisko typów}
 				(\textbf{static typing environment}). Oznacza się ono symbolem $\Gamma$. Mówimy, że to
 				środowisko jest skonstruowane poprawnie pisząc $$\Gamma \vdash \diamond$$
@@ -811,8 +812,6 @@ void f() {
 				Wprowadźmy reguły niejawnej konwersji, które są niezbędne przy sprawdzaniu w warunku
 				logicznym wyniku operacji arytmetycznej, zwracającej typ różny od
 				\texttt{bool}. Oznaczmy reguły dla typów \texttt{int}, \texttt{char} i \texttt{float}.
-
-				\spacing
 				
 				\begin{mathpar}
 				\inferrule
@@ -831,53 +830,45 @@ void f() {
 				\spacing
 				
 				Wprowadźmy także reguły do operacji wskaźnikowych. Oznaczmy
-				$\oplus \in \{ =, +, -, \ \le, \ge, ==, \neq \}$, wtedy
-				
-				\spacing
-				
+				$\oplus \in \{ +, - \}$ i $\tau$ jako wskaźnik dowolnego typu, wtedy
+
 				\begin{mathpar}
 				\inferrule
-					{\Gamma \vdash e_l : int \ * \\ \Gamma \vdash e_r : int \ *}
-					{\Gamma \vdash e_l \oplus e_r : int \ *}
+					{\Gamma \vdash e_l : \tau \ * \\ \Gamma \vdash e_r : \tau \ *}
+					{\Gamma \vdash e_l \oplus e_r : \tau \ *}
 
 				\inferrule
-					{\Gamma \vdash e_l : char \ * \\ \Gamma \vdash e_r : char \ *}
-					{\Gamma \vdash e_l \oplus e_r : char \ *}
+					{\Gamma \vdash e_l : \tau \ * \\ \Gamma \vdash e_r : int}
+					{\Gamma \vdash e_l \oplus e_r : \tau \ *}
 
 				\inferrule
-					{\Gamma \vdash e_l : float \ * \\ \Gamma \vdash e_r : float \ *}
-					{\Gamma \vdash e_l \oplus e_r : float \ *}
-	
-				\inferrule
-					{\Gamma \vdash e_l : bool \ * \\ \Gamma \vdash e_r : bool \ *}
-					{\Gamma \vdash e_l \oplus e_r : bool \ *}
+					{\Gamma \vdash e_l : int \\ \Gamma \vdash e_r : \tau \ *}
+					{\Gamma \vdash e_l \oplus e_r : \tau \ *}
 				\end{mathpar}
 
-				\spacing
+				Dla $\oplus \in \{ ==, !=, <, >, \le, \ge \}$
+
+				\begin{mathpar}
+				\inferrule
+					{\Gamma \vdash e_l : \tau \ * \\ \Gamma \vdash e_r : \tau \ *}
+					{\Gamma \vdash e_l \oplus e_r : int}
+				\end{mathpar}
 
 				Mając taką konwersję, możemy wprowadzić reguły do konstrukcji warunkowych: 
-
-				\spacing
 
 				\begin{mathpar}
 				\inferrule
 				  {\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e_1 : \tau \\ \Gamma \vdash e_2 : \tau}
 				  {\Gamma \vdash \text{if (condition) } \{ \ e_1 \ \}  \text{ else }  \{ \ e_2 \ \} : \tau}
-				\end{mathpar}
 
-				\begin{mathpar}
 				\inferrule
 					{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
 					{\Gamma \vdash \text{while (condition) } \{ \ e \ \} : \tau}
-				\end{mathpar}
 
-				\begin{mathpar}
 				\inferrule
 					{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
 					{\Gamma \vdash \text{do } \{ \ e \ \} \text{ while (condition)} : \tau}
-				\end{mathpar}
 
-				\begin{mathpar}
 				\inferrule
 					{\Gamma \vdash \text{init} : \tau_1 \\
 					 \Gamma \vdash \text{condition} : bool \\
@@ -1113,21 +1104,19 @@ void f() {
 				\begin{tikzpicture}[x=1.05cm,y=0.7cm]
 					\small
 
-					\separator
-					\cell{\texttt{call main()}}     \cellcomL{global=0}          \coordinate (p0)    at (currentcell.east);
-					\cell{\texttt{int a = 0}}       \cellcomL{global=4}          \coordinate (p4)    at (currentcell.east);
-					\cell{\texttt{int b = 0}}       \cellcomL{global=8}          \coordinate (p8n1)  at (currentcell.east);
-					\cell{\texttt{call f()}}        \cellcomL{global=8}          \coordinate (p8n2)  at (currentcell.east);
-					\cell{\texttt{int c = 0}}       \cellcomL{global=12,local=4} \coordinate (p12)   at (currentcell.east);
-					\cell{\texttt{int d = 0}}       \cellcomL{global=16,local=8} \coordinate (p16n1) at (currentcell.east);
-					\cell{\texttt{return from f()}} \cellcomL{global=8}          \coordinate (p16n2) at (currentcell.east);
-					\cell{\texttt{return b}}        \cellcomL{global=8}          \coordinate (p16n3) at (currentcell.east);
-					\stackbottom{}
 					\cell[draw=none]{Stos}
+					\cell[fill=white]{\texttt{call main()}}     \cellcomL{global=0}          \coordinate (p0)    at (currentcell.east);
+					\cell[fill=white]{\texttt{int a = 0}}       \cellcomL{global=4}          \coordinate (p4)    at (currentcell.east);
+					\cell[fill=white]{\texttt{int b = 0}}       \cellcomL{global=8}          \coordinate (p8n1)  at (currentcell.east);
+					\cell[fill=white]{\texttt{call f()}}        \cellcomL{global=8}          \coordinate (p8n2)  at (currentcell.east);
+					\cell[fill=white]{\texttt{int c = 0}}       \cellcomL{global=12,local=4} \coordinate (p12)   at (currentcell.east);
+					\cell[fill=white]{\texttt{int d = 0}}       \cellcomL{global=16,local=8} \coordinate (p16n1) at (currentcell.east);
+					\cell[fill=white]{\texttt{return from f()}} \cellcomL{global=8}          \coordinate (p16n2) at (currentcell.east);
+					\cell[fill=white]{\texttt{return b}}        \cellcomL{global=8}          \coordinate (p16n3) at (currentcell.east);
+					\stackbottom[fill=white]{}
 
 					% todo: Draw from borders.
 					\draw[->] (p16n3) to [bend right=100] (p8n1);
-					\draw[->] (p8n1)  to [bend left=100]  (p16n1);
 				\end{tikzpicture}
 				&
 				Interpreter -- program, który produkuje dane wyjściowe zgodnie z zasadami semantycznymi, które
@@ -1154,7 +1143,7 @@ void f() {
 		bądź samą siebie. Naprzykład, dana funkcja \textbf{f()}, która definiuje zmienną \textbf{i}, i
 		załóżmy, że wywoła ona się rekurencyjnie. Wtedy podczas pierwszego wywołania zmienna \textbf{i}
 		będzie miała adres \textbf{0x00}. Podczas drugiego wywołania \textbf{0x04}, dalej \textbf{0x08},
-		\textbf{0xC0}, ...
+		\textbf{0x0C}, ...
 
 		\newpage
 
