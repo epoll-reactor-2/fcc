@@ -436,8 +436,6 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
     if (visited[ir->instr_idx])
         return;
 
-    printf("Visited :%ld\n", ir->instr_idx);
-
     visited[ir->instr_idx] = 1;
 
     switch (ir->type) {
