@@ -23,20 +23,6 @@
 
 #define STACK_SIZE_BYTES 100000
 
-/* TODO: Structure like `eval_result` with
-         - immediate value type
-           ` int
-           ` char
-           ` other primitive
-           ` pointer
-           ` static string
-           ` structure
-         - value itself. Maybe, union.
-
-         Thus we will always know that we write and read from
-         the stack. If we want to get value, it is enough to
-         get pointer to stack. Not copying everything. */
-
 /* NOTE: Such stack usage has sense only with reordered alloca
          instructions, where they are all collected at the beginning of
          the function. Thus we not require to injure our stack during
@@ -66,7 +52,7 @@ static void reset()
 /* Notice: There is no `pop` function, since popping
            is implemented by storing stack pointer before
            call and restoring it after call. */
-static inline void push(uint64_t sym_idx)
+static inline void push(uint64_t sym_idx, uint64_t imm_siz)
 {
     uint64_t siz = sizeof (struct value);
 
@@ -110,9 +96,40 @@ static struct value   last;
 
 
 
+static uint64_t dt_size(enum data_type dt)
+{
+    switch (dt) {
+    case D_T_BOOL:  return 1;
+    case D_T_CHAR:  return 1;
+    case D_T_INT:   return 4;
+    case D_T_FLOAT: return 4;
+    default:
+        weak_unreachable("Unknown data type: `%s`", data_type_to_string(dt));
+    }
+}
+
+static uint64_t alloca_size(struct ir_alloca *alloca)
+{
+    if (alloca->indir_lvl > 0)
+        return 8;
+
+    return dt_size(alloca->dt);
+}
+
+static uint64_t alloca_array_size(struct ir_alloca_array *alloca)
+{
+    uint64_t siz = 1;
+
+    for (uint64_t i = 0; i < alloca->enclosure_lvls_size; ++i)
+        siz *= alloca->enclosure_lvls[i];
+    siz *= dt_size(alloca->dt);
+
+    return siz;
+}
+
 static void eval_alloca(struct ir_alloca *alloca)
 {
-    push(alloca->idx);
+    push(alloca->idx, alloca_size(alloca));
 }
 
 
@@ -315,26 +332,21 @@ static void eval_store_call(struct ir_store *store)
 static void eval_store(struct ir_store *store)
 {
     switch (store->body->type) {
-    case IR_IMM: {
+    case IR_IMM:
         eval_store_imm(store);
         break;
-    }
-    case IR_SYM: {
+    case IR_SYM:
         eval_store_sym(store);
         break;
-    }
-    case IR_BIN: {
+    case IR_BIN:
         eval_store_bin(store);
         break;
-    }
-    case IR_FUNC_CALL: {
+    case IR_FUNC_CALL:
         eval_store_call(store);
         break;
-    }
     default:
         break;
     }
-
 }
 
 
@@ -348,15 +360,9 @@ static void eval_cond(struct ir_node *__cond)
     struct ir_cond *cond = __cond->ir;
     instr_eval(cond->cond);
 
-    bool should_jump;
-    switch (last.dt) {
-    case D_T_BOOL:  should_jump = last.__bool; break;
-    case D_T_CHAR:  should_jump = last.__char != '\0'; break;
-    case D_T_FLOAT: should_jump = last.__float != 0.0; break;
-    case D_T_INT:   should_jump = last.__int != 0; break;
-    default:
-        weak_unreachable("Unknown immediate type (numeric: %d).", last.dt);
-    }
+    /* Take biggest union value and compare
+       with 0. No difference, which type. */
+    bool should_jump = last.__int != 0;
 
     if (should_jump)
         instr_ptr = cond->target; /* True branch. */
@@ -536,7 +542,7 @@ static void call_eval(struct ir_func_call *fcall)
         /* Evaluate in current stack frame. */
         instr_eval(arg);
         /* Push to the callee stack frame. */
-        push(sym);
+        push(sym, dt_size(last.dt));
         set(sym++, &last);
         arg = arg->next;
     }
