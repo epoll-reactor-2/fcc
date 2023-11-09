@@ -11,6 +11,7 @@
 #include "util/hashmap.h"
 #include "util/unreachable.h"
 #include "util/vector.h"
+#include "execution.h"
 #include <assert.h>
 #include <string.h>
 
@@ -45,33 +46,13 @@
          Moreover, language semantics forbid to have uninitialized
          values.
 
-         Stack contains `struct eval_result`. */
+         Stack contains `struct value`. */
 static char     stack[STACK_SIZE_BYTES];
 /* Index: sym_idx
    Value: sp */
 static uint64_t stack_map[STACK_SIZE_BYTES];
 /* Global stack pointer. Named as assembly register. */
 static uint64_t sp;
-
-/* Performance issue: each type (even if 1 byte)
-   occurs 16 bytes in memory. */
-struct eval_result {
-    enum data_type dt;
-
-    union {
-        bool    __bool;
-        char    __char;
-        int32_t __int;
-        float   __float;
-        struct {
-            uint64_t  siz;
-            char     *value;
-        } __string;
-        struct {
-            /* TODO. */
-        } __struct;
-    };
-};
 
 
 
@@ -87,32 +68,32 @@ static void reset()
            call and restoring it after call. */
 static inline void push(uint64_t sym_idx)
 {
-    uint64_t siz = sizeof (struct eval_result);
+    uint64_t siz = sizeof (struct value);
 
     stack_map[sym_idx] = sp;
     sp += siz;
 }
 
-static inline void set(uint64_t sym_idx, struct eval_result *er)
+static inline void set(uint64_t sym_idx, struct value *v)
 {
     uint64_t sp_ptr = stack_map[sym_idx];
 
-    if (er->dt == D_T_UNKNOWN)
+    if (v->dt == D_T_UNKNOWN)
         weak_unreachable("D_T_UNKNOWN");
 
-    memcpy(&stack[sp_ptr], er, sizeof (struct eval_result));
+    memcpy(&stack[sp_ptr], v, sizeof (struct value));
 }
 
-static inline struct eval_result *get(uint64_t sym_idx)
+static inline struct value *get(uint64_t sym_idx)
 {
     uint64_t sp_ptr = stack_map[sym_idx];
 
-    struct eval_result *er = (struct eval_result *) &stack[sp_ptr];
+    struct value *v = (struct value *) &stack[sp_ptr];
 
-    if (er->dt == D_T_UNKNOWN)
+    if (v->dt == D_T_UNKNOWN)
         weak_unreachable("D_T_UNKNOWN");
 
-    return er;
+    return v;
 }
 
 
@@ -124,8 +105,8 @@ static inline struct eval_result *get(uint64_t sym_idx)
 static void call_eval(struct ir_func_call *call);
 static void instr_eval(struct ir_node *ir);
 
-static struct ir_node     *instr_ptr;
-static struct eval_result  last;
+static struct ir_node *instr_ptr;
+static struct value   last;
 
 
 
@@ -138,22 +119,22 @@ static void eval_alloca(struct ir_alloca *alloca)
 
 static void eval_imm(struct ir_imm *imm)
 {
-    struct eval_result er = {0};
+    struct value v = {0};
     switch (imm->type) {
-    case IMM_BOOL:  er.dt = D_T_BOOL;  er.__bool  = imm->imm.__bool;  break;
-    case IMM_CHAR:  er.dt = D_T_CHAR;  er.__char  = imm->imm.__char;  break;
-    case IMM_FLOAT: er.dt = D_T_FLOAT; er.__float = imm->imm.__float; break;
-    case IMM_INT:   er.dt = D_T_INT;   er.__int   = imm->imm.__int;   break;
+    case IMM_BOOL:  v.dt = D_T_BOOL;  v.__bool  = imm->imm.__bool;  break;
+    case IMM_CHAR:  v.dt = D_T_CHAR;  v.__char  = imm->imm.__char;  break;
+    case IMM_FLOAT: v.dt = D_T_FLOAT; v.__float = imm->imm.__float; break;
+    case IMM_INT:   v.dt = D_T_INT;   v.__int   = imm->imm.__int;   break;
     default:
         weak_unreachable("Should not reach there.");
     }
-    memcpy(&last, &er, sizeof (struct eval_result));
+    memcpy(&last, &v, sizeof (struct value));
 }
 
 static void eval_sym(struct ir_sym *sym)
 {
-    struct eval_result *er = get(sym->idx);
-    memcpy(&last, er, sizeof (struct eval_result));
+    struct value *v = get(sym->idx);
+    memcpy(&last, v, sizeof (struct value));
 }
 
 
@@ -254,7 +235,7 @@ static void eval_chars(
 }
 
 
-static void compute(enum token_type op, struct eval_result *l, struct eval_result *r)
+static void compute(enum token_type op, struct value *l, struct value *r)
 {
     if (l->dt != r->dt)
         weak_unreachable("dt(L) = %s, dt(R) = %s", data_type_to_string(l->dt), data_type_to_string(r->dt));
@@ -272,10 +253,10 @@ static void compute(enum token_type op, struct eval_result *l, struct eval_resul
 static void eval_bin(struct ir_bin *bin)
 {
     instr_eval(bin->lhs);
-    struct eval_result l = last;
+    struct value l = last;
 
     instr_eval(bin->rhs);
-    struct eval_result r = last;
+    struct value r = last;
 
     compute(bin->op, &l, &r);
 }
@@ -309,8 +290,8 @@ static void eval_store_sym(struct ir_store *store)
     struct ir_sym *from = store->body->ir;
     struct ir_sym *to   = store->idx->ir;
 
-    struct eval_result *er = get(from->idx);
-    set(to->idx, er);
+    struct value *v = get(from->idx);
+    set(to->idx, v);
 }
 
 static void eval_store_bin(struct ir_store *store)
