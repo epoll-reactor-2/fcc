@@ -23,6 +23,13 @@ void hashmap_init(hashmap_t *map, uint64_t size)
     map->size = 0;
 }
 
+void hashmap_reset(hashmap_t *map, uint64_t size)
+{
+    if (map->buckets)
+        hashmap_destroy(map);
+    hashmap_init(map, size);
+}
+
 void hashmap_destroy(hashmap_t *map)
 {
     weak_free(map->buckets);

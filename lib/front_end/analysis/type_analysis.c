@@ -12,23 +12,30 @@
 #include "util/unreachable.h"
 #include <assert.h>
 
-static enum data_type last_dt = D_T_UNKNOWN;
-static uint16_t       last_indir_lvl = 0;
-static enum data_type last_return_dt = D_T_UNKNOWN;
+static enum data_type     last_dt = D_T_UNKNOWN;
+static uint16_t           last_indir_lvl = 0;
+static enum data_type     last_return_dt = D_T_UNKNOWN;
+static struct ast_storage storage;
+
+static void init()
+{
+    ast_storage_init(&storage);
+}
 
 static void reset()
 {
     last_dt = D_T_UNKNOWN;
     last_return_dt = D_T_UNKNOWN;
+    ast_storage_free(&storage);
 }
 
-static void visit_ast_node(struct ast_node *ast);
+static void visit_node(struct ast_node *ast);
 
-static void visit_ast_char  () { last_indir_lvl = 0; last_dt = D_T_CHAR; }
-static void visit_ast_num   () { last_indir_lvl = 0; last_dt = D_T_INT; }
-static void visit_ast_float () { last_indir_lvl = 0; last_dt = D_T_FLOAT; }
-static void visit_ast_string() { last_indir_lvl = 0; last_dt = D_T_STRING; }
-static void visit_ast_bool  () { last_indir_lvl = 0; last_dt = D_T_BOOL; }
+static void visit_char  () { last_indir_lvl = 0; last_dt = D_T_CHAR; }
+static void visit_num   () { last_indir_lvl = 0; last_dt = D_T_INT; }
+static void visit_float () { last_indir_lvl = 0; last_dt = D_T_FLOAT; }
+static void visit_string() { last_indir_lvl = 0; last_dt = D_T_STRING; }
+static void visit_bool  () { last_indir_lvl = 0; last_dt = D_T_BOOL; }
 
 static bool correct_bin_ops(enum token_type op, enum data_type t)
 {
@@ -61,7 +68,7 @@ static bool correct_bin_ops(enum token_type op, enum data_type t)
         are_correct |= t == D_T_BOOL;
         are_correct |= t == D_T_FLOAT;
         break;
-    /// Only integers.
+    /* Only integers. */
     case TOK_BIT_OR:
     case TOK_BIT_AND:
     case TOK_XOR:
@@ -85,15 +92,15 @@ static bool correct_bin_ops(enum token_type op, enum data_type t)
     return are_correct;
 }
 
-static void visit_ast_binary(struct ast_node *ast)
+static void visit_binary(struct ast_node *ast)
 {
     struct ast_binary *stmt = ast->ast;
 
-    visit_ast_node(stmt->lhs);
+    visit_node(stmt->lhs);
     enum data_type l_dt = last_dt;
     uint16_t l_indir_lvl = last_indir_lvl;
 
-    visit_ast_node(stmt->rhs);
+    visit_node(stmt->rhs);
     enum data_type r_dt = last_dt;
     uint16_t r_indir_lvl = last_indir_lvl;
 
@@ -127,10 +134,10 @@ static void visit_ast_binary(struct ast_node *ast)
     }
 }
 
-static void visit_ast_unary(struct ast_node *ast)
+static void visit_unary(struct ast_node *ast)
 {
     struct ast_unary *stmt = ast->ast;
-    visit_ast_node(stmt->operand);
+    visit_node(stmt->operand);
     enum data_type dt = last_dt;
 
     switch (stmt->operation) {
@@ -162,20 +169,20 @@ static void visit_ast_unary(struct ast_node *ast)
     }
 }
 
-static void visit_ast_symbol(struct ast_node *ast)
+static void visit_symbol(struct ast_node *ast)
 {
     struct ast_symbol *stmt = ast->ast;
-    struct ast_storage_decl *record = ast_storage_lookup(stmt->value);
+    struct ast_storage_decl *record = ast_storage_lookup(&storage, stmt->value);
 
     last_dt = record->data_type;
     last_indir_lvl = record->indirection_lvl;
 }
 
-static void visit_ast_var_decl(struct ast_node *ast)
+static void visit_var_decl(struct ast_node *ast)
 {
     struct ast_var_decl *decl = ast->ast;
     if (decl->body) {
-        visit_ast_node(decl->body);
+        visit_node(decl->body);
         bool are_correct = 0;
         are_correct |= decl->dt == last_dt;
         are_correct |= decl->indirection_lvl == 1 && last_dt == D_T_STRING;
@@ -188,12 +195,12 @@ static void visit_ast_var_decl(struct ast_node *ast)
                 data_type_to_string(decl->dt)
             );
     }
-    ast_storage_push_typed(decl->name, decl->dt, decl->indirection_lvl, ast);
+    ast_storage_push_typed(&storage, decl->name, decl->dt, decl->indirection_lvl, ast);
     last_dt = decl->dt;
     last_indir_lvl = decl->indirection_lvl;
 }
 
-static void visit_ast_array_decl(struct ast_node *ast)
+static void visit_array_decl(struct ast_node *ast)
 {
     struct ast_array_decl *decl = ast->ast;
     /* Required to be compound. */
@@ -208,7 +215,7 @@ static void visit_ast_array_decl(struct ast_node *ast)
             );
     }
 
-    ast_storage_push_typed(decl->name, decl->dt, decl->indirection_lvl, ast);
+    ast_storage_push_typed(&storage, decl->name, decl->dt, decl->indirection_lvl, ast);
     last_dt = decl->dt;
     last_indir_lvl = decl->indirection_lvl;
 }
@@ -258,10 +265,10 @@ static void out_of_range_analysis(struct ast_node *decl_indices_ast, struct ast_
 }
 #undef MIN
 
-static void visit_ast_array_access(struct ast_node *ast)
+static void visit_array_access(struct ast_node *ast)
 {
     struct ast_array_access *stmt = ast->ast;
-    struct ast_node *record = ast_storage_lookup(stmt->name)->ast;
+    struct ast_node *record = ast_storage_lookup(&storage, stmt->name)->ast;
     enum data_type decl_dt = D_T_UNKNOWN;
 
     if (record->type == AST_ARRAY_DECL) {
@@ -282,7 +289,7 @@ static void visit_ast_array_access(struct ast_node *ast)
     }
     struct ast_compound *enclosure = stmt->indices->ast;
     for (uint64_t i = 0; i < enclosure->size; ++i) {
-        visit_ast_node(enclosure->stmts[i]);
+        visit_node(enclosure->stmts[i]);
         if (last_dt != D_T_INT)
             weak_compile_error(
                 enclosure->stmts[i]->line_no,
@@ -307,62 +314,62 @@ static void require_last_dt_convertible_to_bool(struct ast_node *location)
         );
 }
 
-static void visit_ast_if(struct ast_node *ast)
+static void visit_if(struct ast_node *ast)
 {
     struct ast_if *stmt = ast->ast;
-    visit_ast_node(stmt->condition);
+    visit_node(stmt->condition);
     require_last_dt_convertible_to_bool(ast);
 
-    visit_ast_node(stmt->body);
+    visit_node(stmt->body);
     if (stmt->else_body)
-        visit_ast_node(stmt->else_body);
+        visit_node(stmt->else_body);
 }
 
-static void visit_ast_for(struct ast_node *ast)
+static void visit_for(struct ast_node *ast)
 {
     struct ast_for *stmt = ast->ast;
     if (stmt->init)
-        visit_ast_node(stmt->init);
+        visit_node(stmt->init);
     if (stmt->condition) {
-        visit_ast_node(stmt->condition);
+        visit_node(stmt->condition);
         require_last_dt_convertible_to_bool(ast);
     }
     if (stmt->increment)
-        visit_ast_node(stmt->increment);
-    visit_ast_node(stmt->body);
+        visit_node(stmt->increment);
+    visit_node(stmt->body);
 }
 
-static void visit_ast_while(struct ast_node *ast)
+static void visit_while(struct ast_node *ast)
 {
     struct ast_while *stmt = ast->ast;
-    visit_ast_node(stmt->condition);
+    visit_node(stmt->condition);
     require_last_dt_convertible_to_bool(ast);
-    visit_ast_node(stmt->body);
+    visit_node(stmt->body);
 }
 
-static void visit_ast_do_while(struct ast_node *ast)
+static void visit_do_while(struct ast_node *ast)
 {
     struct ast_do_while *stmt = ast->ast;
-    visit_ast_node(stmt->body);
-    visit_ast_node(stmt->condition);
+    visit_node(stmt->body);
+    visit_node(stmt->condition);
     require_last_dt_convertible_to_bool(ast);
 }
 
-static void visit_ast_return(struct ast_node *ast)
+static void visit_return(struct ast_node *ast)
 {
     struct ast_return *stmt = ast->ast;
     if (stmt->operand)
-        visit_ast_node(stmt->operand);
+        visit_node(stmt->operand);
     last_return_dt = last_dt;
 }
 
-static void visit_ast_compound(struct ast_node *ast)
+static void visit_compound(struct ast_node *ast)
 {
     struct ast_compound *stmt = ast->ast;
-    ast_storage_start_scope();
+    ast_storage_start_scope(&storage);
     for (uint64_t i = 0; i < stmt->size; ++i)
-        visit_ast_node(stmt->stmts[i]);
-    ast_storage_end_scope();
+        visit_node(stmt->stmts[i]);
+    ast_storage_end_scope(&storage);
 }
 
 static char *decl_name(struct ast_node *decl)
@@ -376,10 +383,10 @@ static char *decl_name(struct ast_node *decl)
     weak_unreachable("Declaration expected.");
 }
 
-static void visit_ast_function_call(struct ast_node *ast)
+static void visit_function_call(struct ast_node *ast)
 {
     struct ast_function_call *call = ast->ast;
-    struct ast_node *decl = ast_storage_lookup(call->name)->ast;
+    struct ast_node *decl = ast_storage_lookup(&storage, call->name)->ast;
     if (decl->type != AST_FUNCTION_DECL)
         weak_compile_error(
             ast->line_no,
@@ -397,11 +404,11 @@ static void visit_ast_function_call(struct ast_node *ast)
     );
 
     for (uint64_t i = 0; i < call_args->size; ++i) {
-        visit_ast_node(fun_args->stmts[i]);
+        visit_node(fun_args->stmts[i]);
         enum data_type l_dt = last_dt;
         uint64_t l_indir_lvl = last_indir_lvl;
 
-        visit_ast_node(call_args->stmts[i]);
+        visit_node(call_args->stmts[i]);
         enum data_type r_dt = last_dt;
         uint64_t r_indir_lvl = last_indir_lvl;
 
@@ -428,23 +435,23 @@ static void visit_ast_function_call(struct ast_node *ast)
     last_indir_lvl = fun->indirection_lvl;
 }
 
-static void visit_ast_function_decl(struct ast_node *ast)
+static void visit_function_decl(struct ast_node *ast)
 {
     struct ast_function_decl *decl = ast->ast;
     enum data_type dt = decl->data_type;
     if (decl->body == NULL) { /* Function prototype. */
-        ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
+        ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->indirection_lvl, ast);
         return;
     }
-    ast_storage_start_scope();
+    ast_storage_start_scope(&storage);
     /* This is to have function in recursive calls. */
-    ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
+    ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->indirection_lvl, ast);
     /* Don't just visit compound AST, which creates and terminates scope. */
     struct ast_compound *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
-        visit_ast_node(args->stmts[i]);
+        visit_node(args->stmts[i]);
 
-    visit_ast_node(decl->body);
+    visit_node(decl->body);
     if (dt != D_T_VOID && dt != last_return_dt)
         weak_compile_error(
             ast->line_no,
@@ -453,12 +460,12 @@ static void visit_ast_function_decl(struct ast_node *ast)
             data_type_to_string(last_return_dt),
             data_type_to_string(dt)
         );
-    ast_storage_end_scope();
+    ast_storage_end_scope(&storage);
     /* This is to have function outside. */
-    ast_storage_push_typed(decl->name, D_T_FUNC, decl->indirection_lvl, ast);
+    ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->indirection_lvl, ast);
 }
 
-void visit_ast_node(struct ast_node *ast)
+void visit_node(struct ast_node *ast)
 {
     assert(ast);
 
@@ -466,66 +473,67 @@ void visit_ast_node(struct ast_node *ast)
     case AST_MEMBER: /* Unused... Or should be used? */
     case AST_STRUCT_DECL: /* Unused... Or should be used? */
     case AST_BREAK_STMT: /* Unused. */
-    case AST_CONTINUE_STMT: break; /* Unused. */
+    case AST_CONTINUE_STMT: /* Unused. */
+        break;
     case AST_CHAR_LITERAL:
-        visit_ast_char();
+        visit_char();
         break;
     case AST_INTEGER_LITERAL:
-        visit_ast_num();
+        visit_num();
         break;
     case AST_FLOATING_POINT_LITERAL:
-        visit_ast_float();
+        visit_float();
         break;
     case AST_STRING_LITERAL:
-        visit_ast_string();
+        visit_string();
         break;
     case AST_BOOLEAN_LITERAL:
-        visit_ast_bool();
+        visit_bool();
         break;
     case AST_SYMBOL:
-        visit_ast_symbol(ast);
+        visit_symbol(ast);
         break;
     case AST_VAR_DECL:
-        visit_ast_var_decl(ast);
+        visit_var_decl(ast);
         break;
     case AST_ARRAY_DECL:
-        visit_ast_array_decl(ast);
+        visit_array_decl(ast);
         break;
     case AST_BINARY:
-        visit_ast_binary(ast);
+        visit_binary(ast);
         break;
     case AST_PREFIX_UNARY:
-        visit_ast_unary(ast);
+        visit_unary(ast);
         break;
     case AST_POSTFIX_UNARY:
-        visit_ast_unary(ast);
+        visit_unary(ast);
         break;
     case AST_ARRAY_ACCESS:
-        visit_ast_array_access(ast);
+        visit_array_access(ast);
         break;
     case AST_IF_STMT:
-        visit_ast_if(ast);
+        visit_if(ast);
         break;
     case AST_FOR_STMT:
-        visit_ast_for(ast);
+        visit_for(ast);
         break;
     case AST_WHILE_STMT:
-        visit_ast_while(ast);
+        visit_while(ast);
         break;
     case AST_DO_WHILE_STMT:
-        visit_ast_do_while(ast);
+        visit_do_while(ast);
         break;
     case AST_RETURN_STMT:
-        visit_ast_return(ast);
+        visit_return(ast);
         break;
     case AST_COMPOUND_STMT:
-        visit_ast_compound(ast);
+        visit_compound(ast);
         break;
     case AST_FUNCTION_DECL:
-        visit_ast_function_decl(ast);
+        visit_function_decl(ast);
         break;
     case AST_FUNCTION_CALL:
-        visit_ast_function_call(ast);
+        visit_function_call(ast);
         break;
     default:
         weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
@@ -534,8 +542,7 @@ void visit_ast_node(struct ast_node *ast)
 
 void analysis_type_analysis(struct ast_node *root)
 {
-    ast_storage_init_state();
-    visit_ast_node(root);
+    init();
+    visit_node(root);
     reset();
-    ast_storage_reset_state();
 }

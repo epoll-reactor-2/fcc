@@ -252,7 +252,7 @@ static void dce(struct ir_node *start)
     struct ir_node *it = start;
     uint64_t cfg_no = 0;
 
-    reset_hashmap(&alloca_stmts);
+    reset_hashmap(&alloca_stmts, 512);
 
     while (it) {
 //        bool should_reset = 0;

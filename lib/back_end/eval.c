@@ -470,14 +470,6 @@ static void call_stack_tail()
    Functions routines.
    ========================== */
 
-static void reset_hashmap(hashmap_t *map, uint64_t siz)
-{
-    if (map->buckets) {
-        hashmap_destroy(map);
-    }
-    hashmap_init(map, siz);
-}
-
 static hashmap_t funs;
 
 static void fun_list_init(struct ir_node *ir)
@@ -568,7 +560,7 @@ static void call_eval(struct ir_func_call *fcall)
 int32_t eval(struct ir_node *ir)
 {
     reset();
-    reset_hashmap(&funs, 512);
+    hashmap_reset(&funs, 512);
 
     fun_list_init(ir);
 

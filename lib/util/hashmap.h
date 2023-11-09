@@ -25,6 +25,7 @@ typedef struct {
 } hashmap_t;
 
 void     hashmap_init   (hashmap_t *map, uint64_t size);
+void     hashmap_reset  (hashmap_t *map, uint64_t size);
 void     hashmap_destroy(hashmap_t *map);
 void     hashmap_put    (hashmap_t *map, uint64_t key, uint64_t value);
 uint64_t hashmap_get    (hashmap_t *map, uint64_t key, bool *success);
