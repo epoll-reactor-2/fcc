@@ -23,9 +23,9 @@ void ast_storage_init_state()
 void ast_storage_reset_state()
 {
     scope_depth = 0;
-    hashmap_foreach(&scopes, key, val) {
-        (void) key;
-        struct ast_storage_decl *decl = (struct ast_storage_decl *) val;
+    hashmap_foreach(&scopes, k, v) {
+        (void) k;
+        struct ast_storage_decl *decl = (struct ast_storage_decl *) v;
         weak_free(decl);
     }
     hashmap_destroy(&scopes);
@@ -38,10 +38,10 @@ void ast_storage_start_scope()
 
 void ast_storage_end_scope()
 {
-    hashmap_foreach(&scopes, key, val) {
-        struct ast_storage_decl *decl = (struct ast_storage_decl *) val;
+    hashmap_foreach(&scopes, k, v) {
+        struct ast_storage_decl *decl = (struct ast_storage_decl *) v;
         if (decl->depth == scope_depth)
-            hashmap_remove(&scopes, key);
+            hashmap_remove(&scopes, k);
     }
     --scope_depth;
 }
@@ -71,8 +71,8 @@ void ast_storage_push_typed(
 struct ast_storage_decl *ast_storage_lookup(const char *var_name)
 {
     uint64_t hash = crc32_string(var_name);
-    bool ok = 0;
-    int64_t addr = hashmap_get(&scopes, hash, &ok);
+    bool ok       = 0;
+    int64_t addr  = hashmap_get(&scopes, hash, &ok);
 
     if (!ok || addr == 0)
         return NULL;
@@ -103,9 +103,9 @@ void ast_storage_add_write_use(const char *var_name)
 
 void ast_storage_current_scope_uses(ast_storage_decl_array_t *out_set)
 {
-    hashmap_foreach(&scopes, key, val) {
-        (void) key;
-        struct ast_storage_decl *decl = (struct ast_storage_decl *) val;
+    hashmap_foreach(&scopes, k, v) {
+        (void) k;
+        struct ast_storage_decl *decl = (struct ast_storage_decl *) v;
         if (decl->depth == scope_depth)
             vector_push_back(*out_set, decl);
     }

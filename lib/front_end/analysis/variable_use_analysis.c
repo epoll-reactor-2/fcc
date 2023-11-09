@@ -10,6 +10,7 @@
 #include "util/diagnostic.h"
 #include "util/unreachable.h"
 #include "util/vector.h"
+#include "builtins.h"
 #include <assert.h>
 #include <string.h>
 
@@ -28,14 +29,14 @@ static void collected_uses_end_scope()
     vector_erase(collected_uses, collected_uses.count - 1);
 }
 
-static void init_internal_state()
+static void init()
 {
     /* Initialize first stack entry for the first
        scope depth. */
     collected_uses_start_scope();
 }
 
-static void reset_internal_state()
+static void reset()
 {
     vector_foreach(collected_uses, i) {
         vector_free(collected_uses.data[i]);
@@ -136,8 +137,18 @@ static void collected_uses_mark_top_scope_as_read()
         add_read_use(vector_back(collected_uses).data[i]);
 }
 
+static bool is_builtin(const char *name)
+{
+    for (uint64_t i = 0; i < __weak_array_size(builtin_fns); ++i)
+         if (strcmp(builtin_fns[i].name, name) == 0)
+            return 1;
+
+    return 0;
+}
+
 static void assert_is_declared(const char *name, struct ast_node *location)
 {
+    if (is_builtin(name)) return;
     if (ast_storage_lookup(name)) return;
     weak_compile_error(
         location->line_no,
@@ -386,6 +397,9 @@ static void visit_ast_function_decl(struct ast_node *ast)
 static void visit_ast_function_call(struct ast_node *ast)
 {
     struct ast_function_call *stmt = ast->ast;
+
+    if (is_builtin(stmt->name)) return;
+
     assert_is_declared(stmt->name, ast);
     add_read_use(ast);
 
@@ -466,8 +480,8 @@ void visit_ast_node(struct ast_node *ast)
 void analysis_variable_use_analysis(struct ast_node *root)
 {
     ast_storage_init_state();
-    init_internal_state();
+    init();
     visit_ast_node(root);
-    reset_internal_state();
+    reset();
     ast_storage_reset_state();
 }
