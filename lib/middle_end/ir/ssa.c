@@ -11,16 +11,8 @@
 #include "util/compiler.h"
 #include "util/hashmap.h"
 #include <assert.h>
-#include <string.h>
 #include <math.h>
-
-static void reset_hashmap(hashmap_t *map, uint64_t siz)
-{
-    if (map->buckets) {
-        hashmap_destroy(map);
-    }
-    hashmap_init(map, siz);
-}
+#include <string.h>
 
 
 
@@ -265,7 +257,7 @@ static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
 {
     struct ir_node *it = decl->body;
 
-    reset_hashmap(out, 256);
+    hashmap_reset(out, 256);
 
     while (it) {
         if (it->type == IR_STORE) {
@@ -346,8 +338,8 @@ static void phi_insert(
     ir_vector_t     w             = {0};
 
     hashmap_foreach(assigns, sym_idx, __list) {
-        reset_hashmap(&dom_fron_plus, 256);
-        reset_hashmap(&work, 256);
+        hashmap_reset(&dom_fron_plus, 256);
+        hashmap_reset(&work, 256);
         /* `w` vector generally can be left uncleared, since algorithm
            assumes that we do something while it not empty. So now it
            guaranteed to be empty. */

@@ -13,14 +13,6 @@
    Value: sym_idx */
 static hashmap_t stores;
 
-static void reset_hashmap(hashmap_t *map)
-{
-    if (map->buckets) {
-        hashmap_destroy(map);
-    }
-    hashmap_init(map, 512);
-}
-
 
 
 static void ddg_add_dependency(struct ir_node *ir, struct ir_node *symbol)
@@ -113,7 +105,7 @@ void ir_ddg_build(struct ir_func_decl *decl)
 {
     struct ir_node *it = decl->body;
 
-    reset_hashmap(&stores);
+    hashmap_reset(&stores, 512);
 
     ddg_cleanup(it);
 

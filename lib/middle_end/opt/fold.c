@@ -16,18 +16,12 @@
 static hashmap_t consts_mapping;
 static hashmap_t loop_dependent_stmts;
 
-static void reset_hashmap(hashmap_t *map)
-{
-    if (map->buckets) {
-        hashmap_destroy(map);
-    }
-    hashmap_init(map, 512);
-}
+
 
 static void fold_opt_reset()
 {
-    reset_hashmap(&consts_mapping);
-    reset_hashmap(&loop_dependent_stmts);
+    hashmap_reset(&consts_mapping, 256);
+    hashmap_reset(&loop_dependent_stmts, 256);
 }
 
 static void consts_mapping_add(uint64_t idx, uint64_t value)

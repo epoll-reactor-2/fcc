@@ -10,6 +10,7 @@
 #include "front_end/ast/ast.h"
 #include "front_end/lex/data_type.h"
 #include "util/compiler.h"
+#include "util/hashmap.h"
 #include "util/vector.h"
 
 struct ast_storage_decl {
@@ -22,48 +23,57 @@ struct ast_storage_decl {
     uint16_t         depth;      /** How much variable is nested. */
 };
 
+struct ast_storage {
+    uint64_t         scope_depth;
+    hashmap_t        scopes;
+};
+
 typedef vector_t(struct ast_storage_decl *) ast_storage_decl_array_t;
 
 /** Initialize internal data, needed for correct scope depth
     resolution. */
-void ast_storage_init_state();
+void ast_storage_init(struct ast_storage *s);
 
 /** Reset all internal data. */
-void ast_storage_reset_state();
+void ast_storage_free(struct ast_storage *s);
 
 /** Increment scope depth. */
-void ast_storage_start_scope();
+void ast_storage_start_scope(struct ast_storage *s);
 
 /** Decrement scope depth, cleanup all most top scope records. */
-void ast_storage_end_scope();
+void ast_storage_end_scope(struct ast_storage *s);
 
 /** Add record at current depth. */
-void ast_storage_push(const char *var_name, struct ast_node *ast);
+void ast_storage_push(struct ast_storage *s, const char *var_name, struct ast_node *ast);
 
 /** \copydoc ast_storage_push(const char *, struct ast_node *) */
 void ast_storage_push_typed(
-    const char      *var_name,
-    enum data_type   dt,
-    uint16_t         indirection_lvl,
-    struct ast_node *ast
+    struct ast_storage *s,
+    const char         *var_name,
+    enum data_type      dt,
+    uint16_t            indirection_lvl,
+    struct ast_node    *ast
 );
 
 /** Find storage by name.
    
     \return Corresponding record if found, NULL otherwise. */
-__weak_wur struct ast_storage_decl *ast_storage_lookup(const char *var_name);
+__weak_wur struct ast_storage_decl *ast_storage_lookup(
+    struct ast_storage *s,
+    const char         *var_name
+);
 
 /** Add read use.
    
     \pre Variable as declared before.
     \pre Variable depth is <= current depth. */
-void ast_storage_add_read_use(const char *var_name);
+void ast_storage_add_read_use(struct ast_storage *s, const char *var_name);
 
 /** Add read use.
    
     \pre Variable as declared before.
     \pre Variable depth is <= current depth. */
-void ast_storage_add_write_use(const char *var_name);
+void ast_storage_add_write_use(struct ast_storage *s, const char *var_name);
 
 /** Collect all variable usages in current scope. Don't care
     about reads and writes, though.
@@ -71,6 +81,9 @@ void ast_storage_add_write_use(const char *var_name);
     \todo  Order of output uses is undefined, since it operates on
            hashmap, hence we don't have properly sorted by occurrence
            warnings. Maybe, just sort result array? */
-void ast_storage_current_scope_uses(ast_storage_decl_array_t *out_set);
+void ast_storage_current_scope_uses(
+    struct ast_storage       *s,
+    ast_storage_decl_array_t *out_set
+);
 
 #endif // WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
