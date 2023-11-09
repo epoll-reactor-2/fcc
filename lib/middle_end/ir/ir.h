@@ -50,12 +50,6 @@ enum ir_type {
     IR_PHI
 };
 
-/** Represents the IR doubly linked list pointres. */
-struct ir_list_flow {
-    struct ir_node *next;
-    struct ir_node *prev;
-};
-
 /** Represents control flow graph (CFG) edges.
     1) CFG node can have up to 2 successors.
     2) CFG node can have various predecessors (> 2). */

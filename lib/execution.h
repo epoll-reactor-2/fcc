@@ -16,16 +16,14 @@
    potentially return. */
 struct value {
     enum data_type dt;
+    uint64_t       siz;
 
     union {
-        bool    __bool;
-        char    __char;
-        int32_t __int;
-        float   __float;
-        struct {
-            uint64_t  siz;
-            char     *value;
-        } __string;
+        bool     __bool;
+        char     __char;
+        int32_t  __int;
+        float    __float;
+        char    *__string;
         struct {
             /* TODO. */
         } __struct;
