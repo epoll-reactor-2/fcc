@@ -16,7 +16,7 @@ static enum data_type last_dt = D_T_UNKNOWN;
 static uint16_t       last_indir_lvl = 0;
 static enum data_type last_return_dt = D_T_UNKNOWN;
 
-static void reset_internal_state()
+static void reset()
 {
     last_dt = D_T_UNKNOWN;
     last_return_dt = D_T_UNKNOWN;
@@ -536,6 +536,6 @@ void analysis_type_analysis(struct ast_node *root)
 {
     ast_storage_init_state();
     visit_ast_node(root);
-    reset_internal_state();
+    reset();
     ast_storage_reset_state();
 }

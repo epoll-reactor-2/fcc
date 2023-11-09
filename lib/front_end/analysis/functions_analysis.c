@@ -5,10 +5,13 @@
  */
 
 #include "front_end/analysis/analysis.h"
-#include "front_end/analysis/ast_storage.h"
 #include "front_end/ast/ast.h"
 #include "util/diagnostic.h"
+#include "util/alloc.h"
+#include "util/crc32.h"
+#include "util/hashmap.h"
 #include "util/unreachable.h"
+#include "builtins.h"
 #include <assert.h>
 #include <string.h>
 
@@ -22,9 +25,70 @@ static struct {
     bool     occurred;
 } last_ret = {0};
 
-static void reset_internal_state()
+/* Key:   CRC-32 of function name.
+   Value: Pointer to malloc()'ed struct builtin. */
+static hashmap_t fn_storage;
+
+static void fn_storage_push(const char *name, struct ast_function_decl *decl)
+{
+    struct builtin_fn   *fn   = weak_calloc(1, sizeof (struct builtin_fn));
+    struct ast_compound *args = decl->args->ast;
+
+    strncpy(fn->name, decl->name, sizeof (fn->name) - 1);
+    fn->rt = decl->data_type;
+    fn->args_cnt = args->size;
+
+    for (uint16_t i = 0; i < fn->args_cnt; ++i) {
+        struct ast_var_decl *arg = args->stmts[i]->ast;
+        fn->args[i] = arg->dt;
+    }
+
+    hashmap_put(&fn_storage, crc32_string(name), (uint64_t) fn);
+}
+
+static struct builtin_fn *fn_builtin_lookup(const char *name)
+{
+    for (uint64_t i = 0; i < __weak_array_size(builtin_fns); ++i)
+         if (strcmp(builtin_fns[i].name, name) == 0)
+            return &builtin_fns[i];
+
+    return NULL;
+}
+
+static struct builtin_fn *fn_storage_lookup(const char *name)
+{
+    uint64_t hash = crc32_string(name);
+    bool     ok   = 0;
+    uint64_t addr = hashmap_get(&fn_storage, hash, &ok);
+
+    if (!ok || addr == 0)
+        return fn_builtin_lookup(name);
+
+    return (struct builtin_fn *) addr;
+}
+
+static void reset_hashmap(hashmap_t *map)
+{
+    if (map->buckets) {
+        hashmap_destroy(map);
+    }
+    hashmap_init(map, 512);
+}
+
+static void init()
 {
     memset(&last_ret, 0, sizeof (last_ret));
+    reset_hashmap(&fn_storage);
+}
+
+static void reset()
+{
+    hashmap_foreach(&fn_storage, k, v) {
+        (void) k;
+        struct builtin_fn *fn = (struct builtin_fn *) v;
+        weak_free(fn);
+    }
+    hashmap_destroy(&fn_storage);
 }
 
 /* \note Interesting in this context things are only in the
@@ -79,7 +143,7 @@ static void visit_ast_return(struct ast_node *ast)
 static void visit_ast_function_decl(struct ast_node *ast)
 {
     struct ast_function_decl *decl = ast->ast;
-    ast_storage_push(decl->name, ast);
+    fn_storage_push(decl->name, decl);
     /* Don't need to analyze arguments though. */
     visit_ast_node(decl->body);
 
@@ -87,7 +151,7 @@ static void visit_ast_function_decl(struct ast_node *ast)
     uint16_t col_no = last_ret.col_no;
 
     if (last_ret.occurred && decl->data_type == D_T_VOID) {
-        reset_internal_state();
+        reset();
         weak_compile_error(
             line_no, col_no,
             "Cannot return value from void function"
@@ -95,7 +159,7 @@ static void visit_ast_function_decl(struct ast_node *ast)
     }
 
     if (!last_ret.occurred && decl->data_type != D_T_VOID) {
-        reset_internal_state();
+        reset();
         weak_compile_error(
             ast->line_no, ast->col_no,
             "Expected return value"
@@ -105,18 +169,17 @@ static void visit_ast_function_decl(struct ast_node *ast)
 
 static void visit_ast_function_call(struct ast_node *ast)
 {
-    struct ast_function_call *stmt = ast->ast;
-    struct ast_function_decl *fun = ast_storage_lookup(stmt->name)->ast->ast;
-    struct ast_compound *call_args = stmt->args->ast;
-    struct ast_compound *decl_args = fun->args->ast;
+    struct ast_function_call *stmt      = ast->ast;
+    struct builtin_fn        *fn        = fn_storage_lookup(stmt->name);
+    struct ast_compound      *call_args = stmt->args->ast;
 
-    if (call_args->size != decl_args->size)
+    if (call_args->size != fn->args_cnt)
         weak_compile_error(
             ast->line_no,
             ast->col_no,
             "Arguments size mismatch: %u got, but %u expected",
             call_args->size,
-            decl_args->size
+            fn->args_cnt
         );
 
     for (uint64_t i = 0; i < call_args->size; ++i)
@@ -176,8 +239,7 @@ void visit_ast_node(struct ast_node *ast)
 
 void analysis_functions_analysis(struct ast_node *root)
 {
-    ast_storage_init_state();
+    init();
     visit_ast_node(root);
-    reset_internal_state();
-    ast_storage_reset_state();
+    reset();
 }
