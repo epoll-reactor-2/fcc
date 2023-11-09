@@ -59,27 +59,14 @@ struct eval_result {
     enum data_type dt;
 
     union {
-        struct {
-            bool value;
-        } __bool;
-
-        struct {
-            char value;
-        } __char;
-
-        struct {
-            int32_t value;
-        } __int;
-
-        struct {
-            float value;
-        } __float;
-
+        bool    __bool;
+        char    __char;
+        int32_t __int;
+        float   __float;
         struct {
             uint64_t  siz;
             char     *value;
         } __string;
-
         struct {
             /* TODO. */
         } __struct;
@@ -153,10 +140,10 @@ static void eval_imm(struct ir_imm *imm)
 {
     struct eval_result er = {0};
     switch (imm->type) {
-    case IMM_BOOL:  er.dt = D_T_BOOL;  er.__bool .value = imm->imm.__bool;  break;
-    case IMM_CHAR:  er.dt = D_T_CHAR;  er.__char .value = imm->imm.__char;  break;
-    case IMM_FLOAT: er.dt = D_T_FLOAT; er.__float.value = imm->imm.__float; break;
-    case IMM_INT:   er.dt = D_T_INT;   er.__int  .value = imm->imm.__int;   break;
+    case IMM_BOOL:  er.dt = D_T_BOOL;  er.__bool  = imm->imm.__bool;  break;
+    case IMM_CHAR:  er.dt = D_T_CHAR;  er.__char  = imm->imm.__char;  break;
+    case IMM_FLOAT: er.dt = D_T_FLOAT; er.__float = imm->imm.__float; break;
+    case IMM_INT:   er.dt = D_T_INT;   er.__int   = imm->imm.__int;   break;
     default:
         weak_unreachable("Should not reach there.");
     }
@@ -176,9 +163,9 @@ static void eval_bools(enum token_type op, bool l, bool r)
     last.dt = D_T_BOOL;
 
     switch (op) {
-    case TOK_BIT_AND: last.__bool.value = l & r; break;
-    case TOK_BIT_OR:  last.__bool.value = l | r; break;
-    case TOK_XOR:     last.__bool.value = l ^ r; break;
+    case TOK_BIT_AND: last.__bool = l & r; break;
+    case TOK_BIT_OR:  last.__bool = l | r; break;
+    case TOK_XOR:     last.__bool = l ^ r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
@@ -189,16 +176,16 @@ static void eval_floats(enum token_type op, float l, float r)
     last.dt = D_T_FLOAT;
 
     switch (op) {
-    case TOK_EQ:      last.__float.value = l == r; break;
-    case TOK_NEQ:     last.__float.value = l != r; break;
-    case TOK_GT:      last.__float.value = l  > r; break;
-    case TOK_LT:      last.__float.value = l  < r; break;
-    case TOK_GE:      last.__float.value = l >= r; break;
-    case TOK_LE:      last.__float.value = l <= r; break;
-    case TOK_PLUS:    last.__float.value = l  + r; break;
-    case TOK_MINUS:   last.__float.value = l  - r; break;
-    case TOK_STAR:    last.__float.value = l  * r; break;
-    case TOK_SLASH:   last.__float.value = l  / r; break;
+    case TOK_EQ:      last.__float = l == r; break;
+    case TOK_NEQ:     last.__float = l != r; break;
+    case TOK_GT:      last.__float = l  > r; break;
+    case TOK_LT:      last.__float = l  < r; break;
+    case TOK_GE:      last.__float = l >= r; break;
+    case TOK_LE:      last.__float = l <= r; break;
+    case TOK_PLUS:    last.__float = l  + r; break;
+    case TOK_MINUS:   last.__float = l  - r; break;
+    case TOK_STAR:    last.__float = l  * r; break;
+    case TOK_SLASH:   last.__float = l  / r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
@@ -212,24 +199,24 @@ static void eval_ints(
     last.dt = D_T_INT;
 
     switch (op) {
-    case TOK_AND:     last.__int.value = l && r; break;
-    case TOK_OR:      last.__int.value = l || r; break;
-    case TOK_XOR:     last.__int.value = l  ^ r; break;
-    case TOK_BIT_AND: last.__int.value = l  & r; break;
-    case TOK_BIT_OR:  last.__int.value = l  | r; break;
-    case TOK_EQ:      last.__int.value = l == r; break;
-    case TOK_NEQ:     last.__int.value = l != r; break;
-    case TOK_GT:      last.__int.value = l  > r; break;
-    case TOK_LT:      last.__int.value = l  < r; break;
-    case TOK_GE:      last.__int.value = l >= r; break;
-    case TOK_LE:      last.__int.value = l <= r; break;
-    case TOK_SHL:     last.__int.value = l << r; break;
-    case TOK_SHR:     last.__int.value = l >> r; break;
-    case TOK_PLUS:    last.__int.value = l  + r; break;
-    case TOK_MINUS:   last.__int.value = l  - r; break;
-    case TOK_STAR:    last.__int.value = l  * r; break;
-    case TOK_SLASH:   last.__int.value = l  / r; break;
-    case TOK_MOD:     last.__int.value = l  % r; break;
+    case TOK_AND:     last.__int = l && r; break;
+    case TOK_OR:      last.__int = l || r; break;
+    case TOK_XOR:     last.__int = l  ^ r; break;
+    case TOK_BIT_AND: last.__int = l  & r; break;
+    case TOK_BIT_OR:  last.__int = l  | r; break;
+    case TOK_EQ:      last.__int = l == r; break;
+    case TOK_NEQ:     last.__int = l != r; break;
+    case TOK_GT:      last.__int = l  > r; break;
+    case TOK_LT:      last.__int = l  < r; break;
+    case TOK_GE:      last.__int = l >= r; break;
+    case TOK_LE:      last.__int = l <= r; break;
+    case TOK_SHL:     last.__int = l << r; break;
+    case TOK_SHR:     last.__int = l >> r; break;
+    case TOK_PLUS:    last.__int = l  + r; break;
+    case TOK_MINUS:   last.__int = l  - r; break;
+    case TOK_STAR:    last.__int = l  * r; break;
+    case TOK_SLASH:   last.__int = l  / r; break;
+    case TOK_MOD:     last.__int = l  % r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
@@ -243,24 +230,24 @@ static void eval_chars(
     last.dt = D_T_CHAR;
 
     switch (op) {
-    case TOK_AND:     last.__char.value = l && r; break;
-    case TOK_OR:      last.__char.value = l || r; break;
-    case TOK_XOR:     last.__char.value = l  ^ r; break;
-    case TOK_BIT_AND: last.__char.value = l  & r; break;
-    case TOK_BIT_OR:  last.__char.value = l  | r; break;
-    case TOK_EQ:      last.__char.value = l == r; break;
-    case TOK_NEQ:     last.__char.value = l != r; break;
-    case TOK_GT:      last.__char.value = l  > r; break;
-    case TOK_LT:      last.__char.value = l  < r; break;
-    case TOK_GE:      last.__char.value = l >= r; break;
-    case TOK_LE:      last.__char.value = l <= r; break;
-    case TOK_SHL:     last.__char.value = l << r; break;
-    case TOK_SHR:     last.__char.value = l >> r; break;
-    case TOK_PLUS:    last.__char.value = l  + r; break;
-    case TOK_MINUS:   last.__char.value = l  - r; break;
-    case TOK_STAR:    last.__char.value = l  * r; break;
-    case TOK_SLASH:   last.__char.value = l  / r; break;
-    case TOK_MOD:     last.__char.value = l  % r; break;
+    case TOK_AND:     last.__char = l && r; break;
+    case TOK_OR:      last.__char = l || r; break;
+    case TOK_XOR:     last.__char = l  ^ r; break;
+    case TOK_BIT_AND: last.__char = l  & r; break;
+    case TOK_BIT_OR:  last.__char = l  | r; break;
+    case TOK_EQ:      last.__char = l == r; break;
+    case TOK_NEQ:     last.__char = l != r; break;
+    case TOK_GT:      last.__char = l  > r; break;
+    case TOK_LT:      last.__char = l  < r; break;
+    case TOK_GE:      last.__char = l >= r; break;
+    case TOK_LE:      last.__char = l <= r; break;
+    case TOK_SHL:     last.__char = l << r; break;
+    case TOK_SHR:     last.__char = l >> r; break;
+    case TOK_PLUS:    last.__char = l  + r; break;
+    case TOK_MINUS:   last.__char = l  - r; break;
+    case TOK_STAR:    last.__char = l  * r; break;
+    case TOK_SLASH:   last.__char = l  / r; break;
+    case TOK_MOD:     last.__char = l  % r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
@@ -273,10 +260,10 @@ static void compute(enum token_type op, struct eval_result *l, struct eval_resul
         weak_unreachable("dt(L) = %s, dt(R) = %s", data_type_to_string(l->dt), data_type_to_string(r->dt));
 
     switch (l->dt) {
-    case D_T_BOOL:  eval_bools (op, l->__bool .value, r->__bool .value); break;
-    case D_T_CHAR:  eval_chars (op, l->__char .value, r->__char .value); break;
-    case D_T_INT:   eval_ints  (op, l->__int  .value, r->__int  .value); break;
-    case D_T_FLOAT: eval_floats(op, l->__float.value, r->__float.value); break;
+    case D_T_BOOL:  eval_bools (op, l->__bool , r->__bool ); break;
+    case D_T_CHAR:  eval_chars (op, l->__char , r->__char ); break;
+    case D_T_INT:   eval_ints  (op, l->__int  , r->__int  ); break;
+    case D_T_FLOAT: eval_floats(op, l->__float, r->__float); break;
     default:
         weak_unreachable("Unknown immediate type (numeric: %d).", l->dt);
     }
@@ -303,10 +290,10 @@ static void eval_store_imm(struct ir_store *store)
     struct ir_sym *sym = store->idx->ir;
 
     switch (imm->type) {
-    case IMM_BOOL:  last.dt = D_T_BOOL;  last.__bool .value = imm->imm.__bool;  break;
-    case IMM_CHAR:  last.dt = D_T_CHAR;  last.__char .value = imm->imm.__char;  break;
-    case IMM_FLOAT: last.dt = D_T_FLOAT; last.__float.value = imm->imm.__float; break;
-    case IMM_INT:   last.dt = D_T_INT;   last.__int  .value = imm->imm.__int;   break;
+    case IMM_BOOL:  last.dt = D_T_BOOL;  last.__bool  = imm->imm.__bool;  break;
+    case IMM_CHAR:  last.dt = D_T_CHAR;  last.__char  = imm->imm.__char;  break;
+    case IMM_FLOAT: last.dt = D_T_FLOAT; last.__float = imm->imm.__float; break;
+    case IMM_INT:   last.dt = D_T_INT;   last.__int   = imm->imm.__int;   break;
     default:
         weak_unreachable("Should not reach there");
     }
@@ -382,10 +369,10 @@ static void eval_cond(struct ir_node *__cond)
 
     bool should_jump;
     switch (last.dt) {
-    case D_T_BOOL:  should_jump = last.__bool.value; break;
-    case D_T_CHAR:  should_jump = last.__char.value != '\0'; break;
-    case D_T_FLOAT: should_jump = last.__float.value != 0.0; break;
-    case D_T_INT:   should_jump = last.__int.value != 0; break;
+    case D_T_BOOL:  should_jump = last.__bool; break;
+    case D_T_CHAR:  should_jump = last.__char != '\0'; break;
+    case D_T_FLOAT: should_jump = last.__float != 0.0; break;
+    case D_T_INT:   should_jump = last.__int != 0; break;
     default:
         weak_unreachable("Unknown immediate type (numeric: %d).", last.dt);
     }
@@ -613,5 +600,5 @@ int32_t eval(struct ir_node *ir)
     if (last.dt != D_T_INT)
         weak_unreachable("main() return only ints.");
 
-    return last.__int.value;
+    return last.__int;
 }
