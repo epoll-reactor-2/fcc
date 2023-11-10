@@ -160,6 +160,7 @@ static struct ir_node *opt_arith_node(struct ir_node *ir)
     case IR_FUNC_DECL:
     case IR_FUNC_CALL:
     case IR_ALLOCA:
+    case IR_ALLOCA_ARRAY:
     case IR_IMM:
     case IR_SYM:
         break;
