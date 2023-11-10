@@ -54,6 +54,15 @@ static void reset()
            call and restoring it after call. */
 static inline void push(uint64_t sym_idx, uint64_t imm_siz)
 {
+    /* 0 | struct value {
+         | ...
+         | }
+      16 | immediate?
+         |   - string of any length
+         |   - int
+         |   - float
+         | */
+    (void) imm_siz;
     uint64_t siz = sizeof (struct value);
 
     stack_map[sym_idx] = sp;
@@ -130,6 +139,11 @@ static uint64_t alloca_array_size(struct ir_alloca_array *alloca)
 static void eval_alloca(struct ir_alloca *alloca)
 {
     push(alloca->idx, alloca_size(alloca));
+}
+
+static void eval_alloca_array(struct ir_alloca_array *alloca)
+{
+    push(alloca->idx, alloca_array_size(alloca));
 }
 
 
@@ -228,17 +242,17 @@ static void eval_chars(
     last.dt = D_T_CHAR;
 
     switch (op) {
-    case TOK_AND:     last.__char = l && r; break;
-    case TOK_OR:      last.__char = l || r; break;
+    case TOK_AND:     last.dt = D_T_INT; last.__char = l && r; break;
+    case TOK_OR:      last.dt = D_T_INT; last.__char = l || r; break;
     case TOK_XOR:     last.__char = l  ^ r; break;
     case TOK_BIT_AND: last.__char = l  & r; break;
     case TOK_BIT_OR:  last.__char = l  | r; break;
-    case TOK_EQ:      last.__char = l == r; break;
-    case TOK_NEQ:     last.__char = l != r; break;
-    case TOK_GT:      last.__char = l  > r; break;
-    case TOK_LT:      last.__char = l  < r; break;
-    case TOK_GE:      last.__char = l >= r; break;
-    case TOK_LE:      last.__char = l <= r; break;
+    case TOK_EQ:      last.dt = D_T_INT; last.__char = l == r; break;
+    case TOK_NEQ:     last.dt = D_T_INT; last.__char = l != r; break;
+    case TOK_GT:      last.dt = D_T_INT; last.__char = l  > r; break;
+    case TOK_LT:      last.dt = D_T_INT; last.__char = l  < r; break;
+    case TOK_GE:      last.dt = D_T_INT; last.__char = l >= r; break;
+    case TOK_LE:      last.dt = D_T_INT; last.__char = l <= r; break;
     case TOK_SHL:     last.__char = l << r; break;
     case TOK_SHR:     last.__char = l >> r; break;
     case TOK_PLUS:    last.__char = l  + r; break;
@@ -320,6 +334,15 @@ static void eval_store_bin(struct ir_store *store)
     set(sym->idx, &last);
 }
 
+static void eval_store_string(struct ir_store *store)
+{
+    struct ir_string *s = store->body->ir;
+    assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
+
+    struct ir_sym *sym = store->idx->ir;
+    /* set(sym->idx, );  */
+}
+
 static void eval_store_call(struct ir_store *store)
 {
     instr_eval(store->body);
@@ -340,6 +363,9 @@ static void eval_store(struct ir_store *store)
         break;
     case IR_BIN:
         eval_store_bin(store);
+        break;
+    case IR_STRING:
+        eval_store_string(store);
         break;
     case IR_FUNC_CALL:
         eval_store_call(store);
@@ -385,6 +411,9 @@ static void instr_eval(struct ir_node *ir)
     switch (ir->type) {
     case IR_ALLOCA:
         eval_alloca(ir->ir);
+        break;
+    case IR_ALLOCA_ARRAY:
+        eval_alloca_array(ir->ir);
         break;
     case IR_IMM:
         eval_imm(ir->ir);
@@ -542,7 +571,10 @@ static void call_eval(struct ir_func_call *fcall)
         /* Evaluate in current stack frame. */
         instr_eval(arg);
         /* Push to the callee stack frame. */
-        push(sym, dt_size(last.dt));
+        if (last.dt == D_T_STRING)
+            push(sym, strlen(last.__string));
+        else
+            push(sym, dt_size(last.dt));
         set(sym++, &last);
         arg = arg->next;
     }

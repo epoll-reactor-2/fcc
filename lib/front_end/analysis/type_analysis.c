@@ -47,10 +47,6 @@ static bool correct_bin_ops(enum token_type op, enum data_type t)
         are_correct = true;
         break;
     /* Integer and floats. */
-    case TOK_PLUS:
-    case TOK_MINUS:
-    case TOK_STAR:
-    case TOK_SLASH:
     case TOK_LE:
     case TOK_LT:
     case TOK_GE:
@@ -58,7 +54,18 @@ static bool correct_bin_ops(enum token_type op, enum data_type t)
     case TOK_EQ:
     case TOK_NEQ:
     case TOK_OR:
-    case TOK_AND:
+    case TOK_AND: /* Fall through. */
+        switch (t) {
+        case D_T_CHAR:
+        case D_T_FLOAT: /* Fall through. */
+            last_dt = D_T_INT;
+        default: break;
+        }
+        /* Fall through. */
+    case TOK_PLUS:
+    case TOK_MINUS:
+    case TOK_STAR:
+    case TOK_SLASH:
     case TOK_MUL_ASSIGN:
     case TOK_DIV_ASSIGN:
     case TOK_PLUS_ASSIGN:
@@ -105,10 +112,10 @@ static void visit_binary(struct ast_node *ast)
     uint16_t r_indir_lvl = last_indir_lvl;
 
     bool are_same = false;
-    are_same |= l_dt == D_T_BOOL && r_dt == D_T_BOOL;
-    are_same |= l_dt == D_T_CHAR && r_dt == D_T_CHAR;
+    are_same |= l_dt == D_T_BOOL  && r_dt == D_T_BOOL;
+    are_same |= l_dt == D_T_CHAR  && r_dt == D_T_CHAR;
     are_same |= l_dt == D_T_FLOAT && r_dt == D_T_FLOAT;
-    are_same |= l_dt == D_T_INT && r_dt == D_T_INT;
+    are_same |= l_dt == D_T_INT   && r_dt == D_T_INT;
 
     if (l_indir_lvl == 0 && r_indir_lvl == 0) {
         bool correct_ops = correct_bin_ops(stmt->operation, l_dt);
