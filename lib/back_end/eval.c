@@ -18,18 +18,6 @@
 
 #define STACK_SIZE_BYTES 100000
 
-/* ==========================
-   Type information.
-   ========================== */
-
-struct type {
-    enum data_type dt;
-    bool           ptr;
-    uint64_t       arity[16];
-    uint64_t       arity_size;
-    uint64_t       bytes;
-};
-
 /* Index: sym_idx
    Value: sp */
 static struct type type_map[STACK_SIZE_BYTES];
