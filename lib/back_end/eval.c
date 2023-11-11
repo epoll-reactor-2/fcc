@@ -5,7 +5,6 @@
  */
 
 #include "back_end/eval.h"
-#include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"
@@ -17,15 +16,43 @@
 
 
 
+#define STACK_SIZE_BYTES 100000
+
+/* ==========================
+   Type information.
+   ========================== */
+
+struct type {
+    enum data_type dt;
+    bool           ptr;
+    uint64_t       arity[16];
+    uint64_t       arity_size;
+    uint64_t       bytes;
+};
+
+/* Index: sym_idx
+   Value: sp */
+static struct type type_map[STACK_SIZE_BYTES];
+
+static void type_dump(uint64_t sym_idx)
+{
+    struct type *t = &type_map[sym_idx];
+
+    printf("typeof(%ld).dt    = `%s`\n", sym_idx, data_type_to_string(t->dt));
+    printf("typeof(%ld).ptr   = %d\n", sym_idx, t->ptr);
+    printf("typeof(%ld).bytes = %ld\n", sym_idx, t->bytes);
+    for (uint64_t i = 0; i < t->arity_size; ++i) {
+        printf("typeof(%ld).enclose[%ld] = %ld\n", sym_idx, i, t->arity[i]);
+    }
+}
+
 /* ==========================
    Stack routines.
    ========================== */
 
-#define STACK_SIZE_BYTES 100000
-
 /* NOTE: Such stack usage has sense only with reordered alloca
          instructions, where they are all collected at the beginning of
-         the function. Thus we not require to injure our stack during
+         the function. Thus, we not require to injure our stack during
          loop execution. Each variable allocated once and set up
          multiple times.
 
@@ -46,25 +73,8 @@ static void reset()
 {
     memset(stack_map, 0, sizeof (stack_map));
     memset(stack, 0, sizeof (stack));
+    memset(type_map, 0, sizeof (type_map));
     sp = 0;
-}
-
-/* Stack frame
-
-   0 |
-     | uint64_t size
-     |
-   8 | immediate of given size
-     | */
-
-static uint64_t stack_imm_by_off(uint64_t sym_idx)
-{
-    return stack_map[sym_idx] + sizeof (uint64_t);
-}
-
-static uint64_t stack_imm_size_by_off(uint64_t sym_idx)
-{
-    return stack_map[sym_idx];
 }
 
 /* Notice: There is no `pop` function, since popping
@@ -72,44 +82,36 @@ static uint64_t stack_imm_size_by_off(uint64_t sym_idx)
            call and restoring it after call. */
 static inline void push(uint64_t sym_idx, uint64_t imm_siz)
 {
-    (void) imm_siz;
-    uint64_t siz = sizeof (struct value);
-
-    /* Fill in first 8 bytes by size and move
-       stack pointer by these 8 bytes + the size
-       of immediate value. */
-    sp += siz;
-    sp += sizeof (imm_siz);
-    memcpy(&stack[sp], &imm_siz, sizeof (imm_siz));
     stack_map[sym_idx] = sp;
+    sp += imm_siz;
 }
 
 static inline void set(uint64_t sym_idx, struct value *v)
 {
-    uint64_t sp_ptr = stack_imm_by_off(sym_idx);
+    uint64_t sp_ptr = stack_map[sym_idx];
 
     if (v->dt == D_T_UNKNOWN)
         weak_unreachable("D_T_UNKNOWN");
 
-    memcpy(&stack[sp_ptr], v, sizeof (struct value));
+    /* __string is biggest union value. Rework this crap. */
+    memcpy(&stack[sp_ptr], &v->__string, type_map[sym_idx].bytes);
 }
 
 static inline void set_string(uint64_t sym_idx, char *imm)
 {
-    uint64_t siz    = stack_imm_size_by_off(sym_idx);
-    uint64_t sp_ptr = stack_imm_by_off(sym_idx);
-
-    memcpy(&stack[sp_ptr], imm, siz);
+    uint64_t sp_ptr = stack_map[sym_idx];
+    memcpy(&stack[sp_ptr], imm, strlen(imm));
 }
 
-static inline struct value *get(uint64_t sym_idx)
+static inline struct value get(uint64_t sym_idx)
 {
-    uint64_t sp_ptr = stack_imm_by_off(sym_idx);
+    uint64_t sp_ptr = stack_map[sym_idx];
 
-    struct value *v = (struct value *) &stack[sp_ptr];
-
-    if (v->dt == D_T_UNKNOWN)
-        weak_unreachable("D_T_UNKNOWN");
+    struct value v = {
+        .dt = type_map[sym_idx].dt
+    };
+    /* __string is biggest union value. Rework this crap. */
+    memcpy(&v.__string, &stack[sp_ptr], type_map[sym_idx].bytes);
 
     return v;
 }
@@ -142,7 +144,7 @@ static uint64_t dt_size(enum data_type dt)
 
 static uint64_t alloca_size(struct ir_alloca *alloca)
 {
-    if (alloca->indir_lvl > 0)
+    if (alloca->ptr_depth > 0)
         return 8;
 
     return dt_size(alloca->dt);
@@ -152,8 +154,8 @@ static uint64_t alloca_array_size(struct ir_alloca_array *alloca)
 {
     uint64_t siz = 1;
 
-    for (uint64_t i = 0; i < alloca->enclosure_lvls_size; ++i)
-        siz *= alloca->enclosure_lvls[i];
+    for (uint64_t i = 0; i < alloca->arity_size; ++i)
+        siz *= alloca->arity[i];
     siz *= dt_size(alloca->dt);
 
     return siz;
@@ -161,12 +163,36 @@ static uint64_t alloca_array_size(struct ir_alloca_array *alloca)
 
 static void eval_alloca(struct ir_alloca *alloca)
 {
-    push(alloca->idx, alloca_size(alloca));
+    uint64_t i     = alloca->idx;
+    uint64_t bytes = alloca_size(alloca);
+
+    push(i, bytes);
+
+    type_map[i] = (struct type) {
+        .dt         = alloca->dt,
+        .ptr        = alloca->ptr_depth > 0,
+        .arity_size = 0,
+        .bytes      = bytes
+    };
+
+    memset(type_map[i].arity, 0, sizeof (type_map[i].arity));
 }
 
 static void eval_alloca_array(struct ir_alloca_array *alloca)
 {
-    push(alloca->idx, alloca_array_size(alloca));
+    uint64_t i     = alloca->idx;
+    uint64_t bytes = alloca_array_size(alloca);
+
+    push(i, bytes);
+
+    type_map[i] = (struct type) {
+        .dt         = alloca->dt,
+        .ptr        = 0,
+        .arity_size = alloca->arity_size,
+        .bytes      = bytes
+    };
+
+    memcpy(type_map[i].arity, alloca->arity, alloca->arity_size);
 }
 
 
@@ -187,16 +213,8 @@ static void eval_imm(struct ir_imm *imm)
 
 static void eval_sym(struct ir_sym *sym)
 {
-    if (sym->deref) {
-        uint64_t off = stack_imm_by_off(sym->idx);
-        struct value *v = (struct value *) &stack[off];
-        if (v->dt == D_T_UNKNOWN)
-            weak_unreachable("u");
-        printf("v: `%s`\n", v->__string);
-    } else {
-        struct value *v = get(sym->idx);
-        memcpy(&last, v, sizeof(struct value));
-    }
+    struct value v = get(sym->idx);
+    memcpy(&last, &v, sizeof(struct value));
 }
 
 
@@ -352,8 +370,13 @@ static void eval_store_sym(struct ir_store *store)
     struct ir_sym *from = store->body->ir;
     struct ir_sym *to   = store->idx->ir;
 
-    struct value *v = get(from->idx);
-    set(to->idx, v);
+//    printf("\nFrom:\n");
+//    type_dump(from->idx);
+//    printf("\nTo:\n");
+//    type_dump(to->idx);
+
+    struct value v = get(from->idx);
+    set(to->idx, &v);
 }
 
 static void eval_store_bin(struct ir_store *store)
@@ -569,7 +592,7 @@ static void fun_eval(struct ir_func_decl *decl)
 
     while (instr_ptr) {
         struct ir_node *prev_ptr = instr_ptr;
-        printf("Eval %ld\n", instr_ptr->instr_idx);
+//        printf("Eval %ld\n", instr_ptr->instr_idx);
         instr_eval(instr_ptr);
 
         /* Conditional and jump statements set up their

@@ -38,7 +38,7 @@ struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, uint64_t i
 {
     struct ir_alloca *ir = weak_calloc(1, sizeof (struct ir_alloca));
     ir->dt = dt;
-    ir->indir_lvl = indir_lvl;
+    ir->ptr_depth = indir_lvl;
     ir->idx = idx;
     ++ir_instr_idx;
     return ir_node_init(IR_ALLOCA, ir);
@@ -52,9 +52,9 @@ struct ir_node *ir_alloca_array_init(
 ) {
     struct ir_alloca_array *ir = weak_calloc(1, sizeof (struct ir_alloca_array));
     ir->dt = dt;
-    ir->enclosure_lvls_size = enclosure_lvls_size;
+    ir->arity_size = enclosure_lvls_size;
     ir->idx = idx;
-    memcpy(ir->enclosure_lvls, enclosure_lvls, enclosure_lvls_size * sizeof (uint64_t));
+    memcpy(ir->arity, enclosure_lvls, enclosure_lvls_size * sizeof (uint64_t));
     ++ir_instr_idx;
     return ir_node_init(IR_ALLOCA_ARRAY, ir);
 }
