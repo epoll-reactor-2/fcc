@@ -211,10 +211,10 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 
-    if (ir->meta.sym_meta.loop)
+    if (ir->meta.sym.loop)
         fprintf(mem, "(@loop)");
 
-    if (ir->meta.sym_meta.noalias)
+    if (ir->meta.sym.noalias)
         fprintf(mem, "(@noalias)");
 }
 

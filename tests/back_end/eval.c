@@ -9,6 +9,7 @@
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/dump.h"
+#include "middle_end/ir/type.h"
 #include "middle_end/opt/opt.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
@@ -67,6 +68,7 @@ bool ir_test(const char *path, const char *filename)
     if (!setjmp(weak_fatal_error_buf)) {
         struct ir_unit *ir = gen_ir(path);
         struct ir_node *it = ir->func_decls;
+        ir_type_pass(ir);
 
         extract_assertion_comment(yyin, expected_stream);
 

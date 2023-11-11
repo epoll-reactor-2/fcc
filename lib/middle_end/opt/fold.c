@@ -190,8 +190,8 @@ static bool fold_store_mark_loop_dependent(struct ir_node *ir)
 {
     struct ir_store *store = ir->ir;
 
-    if (ir->meta.sym_meta.loop) {
-        loop_dependent_put(get_store_idx(store->idx), ir->meta.sym_meta.loop_idx);
+    if (ir->meta.sym.loop) {
+        loop_dependent_put(get_store_idx(store->idx), ir->meta.sym.loop_idx);
         __weak_debug_msg("Added loop-dependent variable (loop attr) %%%d. Return\n", store->idx);
         return 1;
     }
@@ -202,7 +202,7 @@ static void fold_store_bin(struct ir_node *ir)
 {
     struct ir_store *store = ir->ir;
 
-    if (ir->meta.type != IR_META_UNKNOWN)
+    if (ir->meta.kind != IR_META_UNKNOWN)
         if (fold_store_mark_loop_dependent(ir))
             return;
 
@@ -237,7 +237,7 @@ static void fold_store_sym(struct ir_node *ir)
     struct ir_store *store = ir->ir;
     struct ir_sym *sym = store->body->ir;
 
-    if (ir->meta.type != IR_META_UNKNOWN)
+    if (ir->meta.kind != IR_META_UNKNOWN)
         if (fold_store_mark_loop_dependent(ir))
             return;
 
@@ -260,7 +260,7 @@ static void fold_store_imm(struct ir_node *ir)
     struct ir_store *store = ir->ir;
     struct ir_imm   *imm = store->body->ir;
 
-    if (ir->meta.type != IR_META_UNKNOWN)
+    if (ir->meta.kind != IR_META_UNKNOWN)
         if (fold_store_mark_loop_dependent(ir))
             return;
 
@@ -300,9 +300,9 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
     struct ir_node *l = NULL;
     struct ir_node *r = NULL;
 
-    if (ir->lhs->meta.type != IR_META_UNKNOWN) {
+    if (ir->lhs->meta.kind != IR_META_UNKNOWN) {
         struct meta *meta = &ir->lhs->meta;
-        if (!meta->sym_meta.noalias) {
+        if (!meta->sym.noalias) {
             l = fold_node(ir->lhs);
         } else {
             __weak_debug_msg("Found noalias attribute for %%%d\n", ir->lhs->instr_idx);
@@ -323,9 +323,9 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
         });
     }
 
-    if (ir->rhs->meta.type != IR_META_UNKNOWN) {
+    if (ir->rhs->meta.kind != IR_META_UNKNOWN) {
         struct meta *meta = &ir->rhs->meta;
-        if (!meta->sym_meta.noalias) {
+        if (!meta->sym.noalias) {
             r = fold_node(ir->rhs);
         } else {
             __weak_debug_msg("Found noalias attribute for %%%d\n", ir->rhs->instr_idx);

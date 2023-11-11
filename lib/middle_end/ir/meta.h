@@ -7,17 +7,27 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_META_H
 #define WEAK_COMPILER_MIDDLE_END_META_H
 
+#include "front_end/lex/data_type.h"
 #include <stdint.h>
 #include <stdbool.h>
+
+struct type {
+    enum data_type dt;
+    bool           ptr;
+    uint64_t       arity[16];
+    uint64_t       arity_size;
+    uint64_t       bytes;
+};
 
 enum { META_VALUE_UNKNOWN = UINT64_MAX };
 
 struct meta {
     enum {
         IR_META_UNKNOWN = 0,
-        IR_META_VAR     = 1,
-        IR_META_FUN     = 2
-    } type;
+        IR_META_TYPE    = 1,
+        IR_META_VAR     = 2,
+        IR_META_FUN     = 4
+    } kind;
 
     union {
         /** Variable information. */
@@ -25,12 +35,15 @@ struct meta {
             bool    loop;
             bool    noalias;
             int32_t loop_idx;
-        } sym_meta;
+        } sym;
 
         /** Function information. */
         struct {
             bool is_const;
-        } fun_meta;
+        } fun;
+
+        /** Type information. */
+        struct type type;
     };
 
     /** Depth of current block. Needed to handle
@@ -43,13 +56,13 @@ struct meta {
         we could incorrectly think, that shown below
         3 while's is the same loop because of same
         loop depth.
-       
+
         while (a) { ... } /< Loop depth = 1
         <<< separator >>>
-       
+
         while (b) { ... } /< Loop depth = 1
         <<< separator >>>
-       
+
         while (c) { ... } /< Loop depth = 1
         <<< separator >>> */
     uint64_t global_loop_idx;
@@ -60,23 +73,23 @@ struct meta {
         each statement in inner loop depends on
         most outer loop condition. Thus, outer loop
         "dominates" its whole body.
-       
+
         \note Condition can be placed as above (for, while)
               so below (do-while). It means, we should walk
               upwards or downwards marking IR nodes as needed.
-       
+
         int a = 1;
         int b = 2;
         int c = 3;
-        
+
         if (c) {
             ++b;
         } else {
             ++a;
         }
-        
+
         - b depends on b, c
-        - a depende on a, c */
+        - a depends on a, c */
     uint64_t dominant_condition_idx;
 };
 
