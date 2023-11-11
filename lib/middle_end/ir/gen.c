@@ -604,6 +604,13 @@ static void visit_ast_unary(struct ast_unary *ast)
     /* Checked by parser. */
     assert(op == TOK_INC || op == TOK_DEC);
 
+    /* int t0
+     * t0 = 1
+     * int *t1
+     * t1 = &t1
+     * */
+
+    /* TODO: &dereference operator. */
     ir_last = ir_bin_init(
         op == TOK_INC
             ? TOK_PLUS

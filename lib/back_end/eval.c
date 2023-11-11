@@ -49,29 +49,44 @@ static void reset()
     sp = 0;
 }
 
+/* Stack frame
+
+   0 |
+     | uint64_t size
+     |
+   8 | immediate of given size
+     | */
+
+static uint64_t stack_imm_by_off(uint64_t sym_idx)
+{
+    return stack_map[sym_idx] + sizeof (uint64_t);
+}
+
+static uint64_t stack_imm_size_by_off(uint64_t sym_idx)
+{
+    return stack_map[sym_idx];
+}
+
 /* Notice: There is no `pop` function, since popping
            is implemented by storing stack pointer before
            call and restoring it after call. */
 static inline void push(uint64_t sym_idx, uint64_t imm_siz)
 {
-    /* 0 | struct value {
-         | ...
-         | }
-      16 | immediate?
-         |   - string of any length
-         |   - int
-         |   - float
-         | */
     (void) imm_siz;
     uint64_t siz = sizeof (struct value);
 
-    stack_map[sym_idx] = sp;
+    /* Fill in first 8 bytes by size and move
+       stack pointer by these 8 bytes + the size
+       of immediate value. */
     sp += siz;
+    sp += sizeof (imm_siz);
+    memcpy(&stack[sp], &imm_siz, sizeof (imm_siz));
+    stack_map[sym_idx] = sp;
 }
 
 static inline void set(uint64_t sym_idx, struct value *v)
 {
-    uint64_t sp_ptr = stack_map[sym_idx];
+    uint64_t sp_ptr = stack_imm_by_off(sym_idx);
 
     if (v->dt == D_T_UNKNOWN)
         weak_unreachable("D_T_UNKNOWN");
@@ -79,9 +94,17 @@ static inline void set(uint64_t sym_idx, struct value *v)
     memcpy(&stack[sp_ptr], v, sizeof (struct value));
 }
 
+static inline void set_string(uint64_t sym_idx, char *imm)
+{
+    uint64_t siz    = stack_imm_size_by_off(sym_idx);
+    uint64_t sp_ptr = stack_imm_by_off(sym_idx);
+
+    memcpy(&stack[sp_ptr], imm, siz);
+}
+
 static inline struct value *get(uint64_t sym_idx)
 {
-    uint64_t sp_ptr = stack_map[sym_idx];
+    uint64_t sp_ptr = stack_imm_by_off(sym_idx);
 
     struct value *v = (struct value *) &stack[sp_ptr];
 
@@ -164,8 +187,16 @@ static void eval_imm(struct ir_imm *imm)
 
 static void eval_sym(struct ir_sym *sym)
 {
-    struct value *v = get(sym->idx);
-    memcpy(&last, v, sizeof (struct value));
+    if (sym->deref) {
+        uint64_t off = stack_imm_by_off(sym->idx);
+        struct value *v = (struct value *) &stack[off];
+        if (v->dt == D_T_UNKNOWN)
+            weak_unreachable("u");
+        printf("v: `%s`\n", v->__string);
+    } else {
+        struct value *v = get(sym->idx);
+        memcpy(&last, v, sizeof(struct value));
+    }
 }
 
 
@@ -340,7 +371,9 @@ static void eval_store_string(struct ir_store *store)
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
     struct ir_sym *sym = store->idx->ir;
-    /* set(sym->idx, );  */
+
+    set_string(sym->idx, s->imm);
+//    set(sym->idx, );
 }
 
 static void eval_store_call(struct ir_store *store)
@@ -536,6 +569,7 @@ static void fun_eval(struct ir_func_decl *decl)
 
     while (instr_ptr) {
         struct ir_node *prev_ptr = instr_ptr;
+        printf("Eval %ld\n", instr_ptr->instr_idx);
         instr_eval(instr_ptr);
 
         /* Conditional and jump statements set up their
