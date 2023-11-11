@@ -87,7 +87,7 @@ bool ir_test(const char *path, const char *filename)
                ir_opt_data_flow(decl); */
 
             /* ir_dump_cfg(tmp_cfg, decl); */
-            /* ir_dump(stdout, decl); */
+             ir_dump(stdout, decl);
             /* cfg_edges_dump(stdout, decl); */
             fflush(tmp_cfg);
             it = it->next;
