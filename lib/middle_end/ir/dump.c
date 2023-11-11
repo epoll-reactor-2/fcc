@@ -46,18 +46,18 @@ static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
         mem,
         "%s %st%lu",
         data_type_to_string(ir->dt),
-        ir->indir_lvl ? "* " : "",
+        ir->ptr_depth ? "* " : "",
         ir->idx
     );
 }
 
 static void ir_dump_alloca_array(FILE *mem, struct ir_alloca_array *ir)
 {
-    uint64_t total = ir->enclosure_lvls_size;
+    uint64_t total = ir->arity_size;
 
     fprintf(mem, "%s t%lu[", data_type_to_string(ir->dt), ir->idx);
     for (uint64_t i = 0; i < total; ++i) {
-        uint64_t e = ir->enclosure_lvls[i];
+        uint64_t e = ir->arity[i];
         fprintf(mem, "%ld", e);
         if (i < total - 1) {
             fprintf(mem, " x ");

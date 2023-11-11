@@ -118,7 +118,7 @@ struct ir_unit {
 
 struct ir_alloca {
     enum data_type   dt;
-    uint16_t         indir_lvl;
+    uint16_t         ptr_depth;
     /** This is index of an variable. Like
         D_T_INT %1.
         Alternatively, string names can be stored. */
@@ -128,8 +128,8 @@ struct ir_alloca {
 struct ir_alloca_array {
     enum data_type   dt;
     /** Possible multiple dimensions. */
-    uint64_t         enclosure_lvls[16];
-    uint64_t         enclosure_lvls_size;
+    uint64_t         arity[16];
+    uint64_t         arity_size;
     uint64_t         idx;
 };
 
