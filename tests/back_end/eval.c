@@ -72,6 +72,8 @@ bool ir_test(const char *path, const char *filename)
 
         extract_assertion_comment(yyin, expected_stream);
 
+        ir_dump_unit(stdout, ir);
+
         while (it) {
             struct ir_func_decl *decl = it->ir;
             /* Reordering before building CFG links. */

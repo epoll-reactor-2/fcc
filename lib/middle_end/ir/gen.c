@@ -171,22 +171,12 @@ static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
     ir_insert_last();
 }
 
-__weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym *assign)
+static void emit_bin(struct ast_binary *ast)
 {
-    /* We want to mark @noalias only symbols. */
-    if (ir->type != IR_SYM)
-        return;
-
-    struct ir_sym *sym = ir->ir;
-
-    if (sym->idx == assign->idx) {
-        ir->meta.kind = IR_META_SYM;
-        ir->meta.sym.noalias = 1;
-    }
-}
-
-static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
-{
+    /* TODO: Any type, not only int.
+             There is lack of context in AST symbols. Its type
+             is unknown. Should we maintain some variable-type mapping?
+             What if we operate on immediate values? */
     ir_last = ir_alloca_init(D_T_INT, /*ptr=*/0, ir_var_idx++);
     struct ir_alloca *alloca = ir_last->ir;
     uint64_t alloca_idx = alloca->idx;
@@ -200,13 +190,6 @@ static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
 
     struct ir_node *bin = ir_bin_init(ast->op, lhs, rhs);
     ir_last = ir_store_sym_init(alloca_idx, bin);
-
-    if (last_assign != NULL) {
-        struct ir_sym *assign = last_assign->ir;
-
-        mark_noalias(lhs, assign);
-        mark_noalias(rhs, assign);
-    }
 
     ir_insert_last();
     ir_last = ir_sym_init(alloca_idx);
@@ -224,7 +207,7 @@ static void visit_binary(struct ast_binary *ast)
         --depth;
     } else {
         ++depth;
-        emit_bin(ast, last_assign);
+        emit_bin(ast);
         --depth;
     }
 
