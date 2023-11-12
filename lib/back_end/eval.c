@@ -6,6 +6,7 @@
 
 #include "back_end/eval.h"
 #include "middle_end/ir/ir.h"
+#include "middle_end/ir/dump.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"
 #include "util/unreachable.h"
@@ -167,7 +168,7 @@ static void eval_imm(struct ir_imm *imm)
 static void eval_sym(struct ir_node *sym)
 {
     struct ir_sym *s = sym->ir;
-    struct type   *t = &sym->meta.type;
+    struct type   *t = &s->type_info;
     struct value   v = get(s->idx, t);
 
     memcpy(&last, &v, sizeof(struct value));
@@ -303,9 +304,9 @@ static void eval_store_imm(struct ir_store *store)
 {
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
-    struct ir_imm *from    =  store->body->ir;
-    struct ir_sym *to      =  store->idx->ir;
-    struct type   *to_meta = &store->idx->meta.type;
+    struct ir_imm *from    = store->body->ir;
+    struct ir_sym *to      = store->idx->ir;
+    struct type   *to_meta = &to->type_info;
 
     switch (from->type) {
     case IMM_BOOL:  last.dt = D_T_BOOL;  last.__bool  = from->imm.__bool;  break;
@@ -325,9 +326,9 @@ static void eval_store_sym(struct ir_store *store)
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
     struct ir_sym *from      = store->body->ir;
-    struct ir_sym *to        = store->idx->ir;
-    struct type   *from_meta = &store->body->meta.type;
-    struct type   *  to_meta = &store->idx ->meta.type;
+    struct ir_sym *to        = store->idx ->ir;
+    struct type   *from_meta = &from->type_info;
+    struct type   *  to_meta = &to  ->type_info;
 
     struct value v = get(from->idx, from_meta);
     set(to->idx, &v, to_meta);
@@ -338,8 +339,8 @@ static void eval_store_bin(struct ir_store *store)
     instr_eval(store->body);
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
-    struct ir_sym *sym     =  store->idx->ir;
-    struct type   *to_meta = &store->idx->meta.type;
+    struct ir_sym *sym     = store->idx->ir;
+    struct type   *to_meta = &sym->type_info;
 
     set(sym->idx, &last, to_meta);
 }
@@ -360,7 +361,7 @@ static void eval_store_call(struct ir_store *store)
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
     struct ir_sym *sym     =  store->idx->ir;
-    struct type   *to_meta = &store->idx->meta.type;
+    struct type   *to_meta = &sym->type_info;
 
     set(sym->idx, &last, to_meta);
 }
@@ -566,6 +567,25 @@ static void fun_eval(struct ir_func_decl *decl)
 }
 
 
+static void set_call_arg(struct ir_node *arg, uint64_t *sym)
+{
+    struct type *t = NULL;
+
+    switch (arg->type) {
+    case IR_SYM:       t = &((struct ir_sym       *) arg->ir)->type_info; break;
+    case IR_IMM:       t = &((struct ir_imm       *) arg->ir)->type_info; break;
+    case IR_FUNC_CALL: t = &((struct ir_func_call *) arg->ir)->type_info; break;
+    /* TODO: Struct member access. */
+    default:
+        weak_unreachable(
+            "Cannot pass `%s` as function argument",
+            ir_type_to_string(arg->type)
+        );
+    }
+
+    set((*sym)++, &last, t);
+}
+
 static void push_call_arg(struct ir_node *arg, uint64_t *sym)
 {
     /* 1. Evaluate in current stack frame. */
@@ -576,14 +596,8 @@ static void push_call_arg(struct ir_node *arg, uint64_t *sym)
     else
         push(*sym, dt_size(last.dt));
 
-    /* We don't compute type traits for immediate value
-       during type analysis IR pass. Instead, do manually.
-       Maybe, should we? Code below is ugly. */
-    if (arg->meta.type.bytes == 0)
-        arg->meta.type.bytes = dt_size(last.dt);
-
     /* 3. Set argument value in callee stack frame. */
-    set((*sym)++, &last, &arg->meta.type);
+    set_call_arg(arg, sym);
 }
 
 static void call_eval(struct ir_func_call *fcall)

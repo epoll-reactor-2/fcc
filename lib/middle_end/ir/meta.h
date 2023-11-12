@@ -24,7 +24,6 @@ enum { META_VALUE_UNKNOWN = UINT64_MAX };
 struct meta {
     enum {
         IR_META_UNKNOWN = 0,
-        IR_META_TYPE    = 1,
         IR_META_SYM     = 2,
         IR_META_FUN     = 4
     } kind;
@@ -41,9 +40,6 @@ struct meta {
         struct {
             bool is_const;
         } fun;
-
-        /** Type information. */
-        struct type type;
     };
 
     /** Depth of current block. Needed to handle

@@ -151,7 +151,8 @@ struct ir_imm {
     enum ir_imm_type type;
     /** Immediate value. Used as argument of
         store or binary instructions. */
-    union ir_imm_val imm;
+    union  ir_imm_val imm;
+    struct type       type_info;
 };
 
 struct ir_string {
@@ -164,9 +165,10 @@ struct ir_string {
 struct ir_sym {
     /** Are we dereferencing pointer or not?
         Like *ptr. */
-    bool     deref;
-    uint64_t idx;
-    uint64_t ssa_idx;
+    bool        deref;
+    uint64_t    idx;
+    uint64_t    ssa_idx;
+    struct type type_info;
 };
 
 struct ir_store {
@@ -266,6 +268,7 @@ struct ir_func_call {
         - struct ir_imm.
         Correct argument types is code generator responsibility. */
     struct ir_node  *args;
+    struct type      type_info;
 };
 
 struct ir_phi {
