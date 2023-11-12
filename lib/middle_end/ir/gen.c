@@ -812,6 +812,7 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
         ir_func_decls,
         ir_func_decl_init(
             decl->data_type,
+            decl->ptr_depth,
             /* Duplicate to not be depended on AST string values (after free). */
             strdup(decl->name),
             args,

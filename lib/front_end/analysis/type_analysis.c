@@ -439,7 +439,7 @@ static void visit_function_call(struct ast_node *ast)
             );
     }
     last_dt = fun->data_type;
-    last_indir_lvl = fun->indirection_lvl;
+    last_indir_lvl = fun->ptr_depth;
 }
 
 static void visit_function_decl(struct ast_node *ast)
@@ -447,12 +447,12 @@ static void visit_function_decl(struct ast_node *ast)
     struct ast_function_decl *decl = ast->ast;
     enum data_type dt = decl->data_type;
     if (decl->body == NULL) { /* Function prototype. */
-        ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->indirection_lvl, ast);
+        ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->ptr_depth, ast);
         return;
     }
     ast_storage_start_scope(&storage);
     /* This is to have function in recursive calls. */
-    ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->indirection_lvl, ast);
+    ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->ptr_depth, ast);
     /* Don't just visit compound AST, which creates and terminates scope. */
     struct ast_compound *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
@@ -469,7 +469,7 @@ static void visit_function_decl(struct ast_node *ast)
         );
     ast_storage_end_scope(&storage);
     /* This is to have function outside. */
-    ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->indirection_lvl, ast);
+    ast_storage_push_typed(&storage, decl->name, D_T_FUNC, decl->ptr_depth, ast);
 }
 
 void visit_node(struct ast_node *ast)

@@ -296,7 +296,7 @@ void ast_function_call_cleanup(struct ast_function_call *ast)
  **********************************************/
 struct ast_node *ast_function_decl_init(
     enum data_type   data_type,
-    uint16_t         indirection_lvl,
+    uint16_t         ptr_depth,
     char            *name,
     struct ast_node *args,
     struct ast_node *body,
@@ -305,7 +305,7 @@ struct ast_node *ast_function_decl_init(
 ) {
     struct ast_function_decl *ast = weak_calloc(1, sizeof (struct ast_function_decl));
     ast->data_type = data_type;
-    ast->indirection_lvl = indirection_lvl;
+    ast->ptr_depth = ptr_depth;
     ast->name = name;
     ast->args = args;
     ast->body = body;
