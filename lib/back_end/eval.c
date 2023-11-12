@@ -306,7 +306,7 @@ static void eval_store_imm(struct ir_store *store)
 
     struct ir_imm *from    = store->body->ir;
     struct ir_sym *to      = store->idx->ir;
-    struct type   *to_meta = &to->type_info;
+    struct type   *to_type = &to->type_info;
 
     switch (from->type) {
     case IMM_BOOL:  last.dt = D_T_BOOL;  last.__bool  = from->imm.__bool;  break;
@@ -317,7 +317,7 @@ static void eval_store_imm(struct ir_store *store)
         weak_unreachable("Should not reach there");
     }
 
-    set(to->idx, &last, to_meta);
+    set(to->idx, &last, to_type);
 }
 
 static void eval_store_sym(struct ir_store *store)
@@ -327,11 +327,11 @@ static void eval_store_sym(struct ir_store *store)
 
     struct ir_sym *from      = store->body->ir;
     struct ir_sym *to        = store->idx ->ir;
-    struct type   *from_meta = &from->type_info;
-    struct type   *  to_meta = &to  ->type_info;
+    struct type   *from_type = &from->type_info;
+    struct type   *  to_type = &to  ->type_info;
 
-    struct value v = get(from->idx, from_meta);
-    set(to->idx, &v, to_meta);
+    struct value v = get(from->idx, from_type);
+    set(to->idx, &v, to_type);
 }
 
 static void eval_store_bin(struct ir_store *store)
@@ -340,9 +340,9 @@ static void eval_store_bin(struct ir_store *store)
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
     struct ir_sym *sym     = store->idx->ir;
-    struct type   *to_meta = &sym->type_info;
+    struct type   *to_type = &sym->type_info;
 
-    set(sym->idx, &last, to_meta);
+    set(sym->idx, &last, to_type);
 }
 
 static void eval_store_string(struct ir_store *store)
@@ -361,9 +361,9 @@ static void eval_store_call(struct ir_store *store)
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
     struct ir_sym *sym     =  store->idx->ir;
-    struct type   *to_meta = &sym->type_info;
+    struct type   *to_type = &sym->type_info;
 
-    set(sym->idx, &last, to_meta);
+    set(sym->idx, &last, to_type);
 }
 
 static void eval_store(struct ir_store *store)
@@ -572,9 +572,8 @@ static void set_call_arg(struct ir_node *arg, uint64_t *sym)
     struct type *t = NULL;
 
     switch (arg->type) {
-    case IR_SYM:       t = &((struct ir_sym       *) arg->ir)->type_info; break;
-    case IR_IMM:       t = &((struct ir_imm       *) arg->ir)->type_info; break;
-    case IR_FUNC_CALL: t = &((struct ir_func_call *) arg->ir)->type_info; break;
+    case IR_SYM: t = &((struct ir_sym *) arg->ir)->type_info; break;
+    case IR_IMM: t = &((struct ir_imm *) arg->ir)->type_info; break;
     /* TODO: Struct member access. */
     default:
         weak_unreachable(

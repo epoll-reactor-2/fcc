@@ -292,7 +292,7 @@ void ast_function_call_cleanup(struct ast_function_call *ast);
  **********************************************/
 struct ast_function_decl {
     enum data_type   data_type;
-    uint16_t         indirection_lvl;
+    uint16_t         ptr_depth;
     char            *name; /** \note Must be dynamically allocated. */
     struct ast_node *args;
     struct ast_node *body; /** \note May be NULL. If so, this statement represents
@@ -301,7 +301,7 @@ struct ast_function_decl {
 
 __weak_wur struct ast_node *ast_function_decl_init(
     enum data_type   data_type,
-    uint16_t         indirection_lvl,
+    uint16_t         ptr_depth,
     char            *name,
     struct ast_node *args,
     struct ast_node *body,

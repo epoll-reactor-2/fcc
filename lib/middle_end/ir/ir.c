@@ -222,6 +222,7 @@ struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls)
 
 struct ir_node *ir_func_decl_init(
     enum data_type  ret_type,
+    uint64_t        ptr_depth,
     char           *name,
     struct ir_node *args,
     struct ir_node *body
@@ -238,6 +239,7 @@ struct ir_node *ir_func_decl_init(
     })
     struct ir_func_decl *ir = weak_calloc(1, sizeof (struct ir_func_decl));
     ir->ret_type = ret_type;
+    ir->ptr_depth = ptr_depth;
     ir->name = name;
     ir->args = args;
     ir->body = body;

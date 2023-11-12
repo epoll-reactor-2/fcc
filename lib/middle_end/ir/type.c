@@ -1,19 +1,15 @@
 #include "middle_end/ir/type.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/meta.h"
+#include "util/crc32.h"
+#include "util/hashmap.h"
 #include <string.h>
 
 #define MAX_IR_STMTS 10000
 
 static struct type type_map[MAX_IR_STMTS];
+static hashmap_t   fn_map;
 
-
-static void init()
-{
-    memset(type_map, 0, sizeof (type_map));
-}
-
-static void type_pass(struct ir_node *ir);
 
 
 static uint64_t dt_size(enum data_type dt)
@@ -39,6 +35,54 @@ static enum data_type imm_type_to_dt(enum ir_imm_type t)
         weak_unreachable("Unknown data type (numeric: %d)", t);
     }
 }
+
+
+
+static void fn_type_save(struct ir_func_decl *decl)
+{
+    struct type *t = weak_calloc(1, sizeof (struct type));
+
+    t->dt = decl->ret_type;
+    t->ptr = decl->ptr_depth > 0;
+    t->bytes = t->ptr ? 8 : dt_size(t->dt);
+
+    hashmap_put(&fn_map, crc32_string(decl->name), (uint64_t) t);
+}
+
+struct type *fn_type_lookup(const char *name)
+{
+    bool     ok   = 0;
+    uint64_t hash = crc32_string(name);
+    uint64_t addr = hashmap_get(&fn_map, hash, &ok);
+
+    if (!ok)
+        weak_unreachable("Function `%s` not found", name);
+
+    return (struct type *) addr;
+}
+
+static void init_fn_state()
+{
+    memset(type_map, 0, sizeof (type_map));
+}
+
+static void init_fn_map()
+{
+    hashmap_reset(&fn_map, 16);
+}
+
+static void reset_fn_map()
+{
+    hashmap_foreach(&fn_map, k, v) {
+        (void) k;
+        weak_free((void *) v);
+    }
+    hashmap_destroy(&fn_map);
+}
+
+static void type_pass(struct ir_node *ir);
+
+
 
 static uint64_t alloca_size(struct ir_alloca *alloca)
 {
@@ -112,13 +156,8 @@ static void type_pass_func_call(struct ir_func_call *call)
         it = it->next;
     }
 
-    call->type_info = (struct type) {
-        .dt = 0
-    };
-
-    /* TODO: Collect function decls types.
-             Replace `struct ir_func_decl.ret_type` with
-             `struct type`. */
+    struct type *t = fn_type_lookup(call->name);
+    memcpy(&call->type_info, t, sizeof (*t));
 }
 
 static void type_pass_sym(struct ir_sym *s)
@@ -196,7 +235,7 @@ static void type_pass(struct ir_node *ir)
 
 static void type_pass_fn(struct ir_func_decl *decl)
 {
-    init();
+    init_fn_state();
     struct ir_node *it = decl->args;
     while (it) {
         type_pass(it);
@@ -212,9 +251,19 @@ static void type_pass_fn(struct ir_func_decl *decl)
 
 void ir_type_pass(struct ir_unit *unit)
 {
+    init_fn_map();
+
     struct ir_node *it = unit->func_decls;
+    while (it) {
+        fn_type_save(it->ir);
+        it = it->next;
+    }
+
+    it = unit->func_decls;
     while (it) {
         type_pass_fn(it->ir);
         it = it->next;
     }
+
+    reset_fn_map();
 }
