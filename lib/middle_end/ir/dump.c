@@ -188,6 +188,14 @@ static void ir_dump_phi(FILE *mem, struct ir_phi *ir)
     fprintf(mem, "t%ld.%ld = φ(%ld, %ld)", ir->sym_idx, ir->ssa_idx, ir->op_1_idx, ir->op_2_idx);
 }
 
+__weak_unused static void type_dump(struct type *t)
+{
+    printf("(dt=`%s`,", data_type_to_string(t->dt));
+    printf("ptr=%d,", t->ptr);
+    printf("bytes=%ld)", t->bytes);
+}
+
+
 void ir_dump_node(FILE *mem, struct ir_node *ir)
 {
     switch (ir->type) {
@@ -211,11 +219,20 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 
-    if (ir->meta.sym.loop)
-        fprintf(mem, "(@loop)");
+    if (ir->meta.kind & IR_META_SYM) {
+        if (ir->meta.sym.loop)
+            fprintf(mem, "(@loop)");
 
-    if (ir->meta.sym.noalias)
-        fprintf(mem, "(@noalias)");
+        if (ir->meta.sym.noalias)
+            fprintf(mem, "(@noalias)");
+    }
+
+    /* Too verbose. Makes sense to use only for
+       debugging
+
+       if (ir->meta.kind & IR_META_TYPE) {
+        type_dump(&ir->meta.type);
+    } */
 }
 
 void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)

@@ -18,22 +18,6 @@
 
 #define STACK_SIZE_BYTES 100000
 
-/* Index: sym_idx
-   Value: sp */
-static struct type type_map[STACK_SIZE_BYTES];
-
-static void type_dump(uint64_t sym_idx)
-{
-    struct type *t = &type_map[sym_idx];
-
-    printf("typeof(%ld).dt    = `%s`\n", sym_idx, data_type_to_string(t->dt));
-    printf("typeof(%ld).ptr   = %d\n", sym_idx, t->ptr);
-    printf("typeof(%ld).bytes = %ld\n", sym_idx, t->bytes);
-    for (uint64_t i = 0; i < t->arity_size; ++i) {
-        printf("typeof(%ld).enclose[%ld] = %ld\n", sym_idx, i, t->arity[i]);
-    }
-}
-
 /* ==========================
    Stack routines.
    ========================== */
@@ -61,7 +45,6 @@ static void reset()
 {
     memset(stack_map, 0, sizeof (stack_map));
     memset(stack, 0, sizeof (stack));
-    memset(type_map, 0, sizeof (type_map));
     sp = 0;
 }
 
@@ -74,15 +57,12 @@ static inline void push(uint64_t sym_idx, uint64_t imm_siz)
     sp += imm_siz;
 }
 
-static inline void set(uint64_t sym_idx, struct value *v)
+static inline void set(uint64_t sym_idx, struct value *v, struct type *traits)
 {
     uint64_t sp_ptr = stack_map[sym_idx];
 
-    if (v->dt == D_T_UNKNOWN)
-        weak_unreachable("D_T_UNKNOWN");
-
     /* __string is biggest union value. Rework this crap. */
-    memcpy(&stack[sp_ptr], &v->__string, type_map[sym_idx].bytes);
+    memcpy(&stack[sp_ptr], &v->__string, traits->bytes);
 }
 
 static inline void set_string(uint64_t sym_idx, char *imm)
@@ -91,15 +71,15 @@ static inline void set_string(uint64_t sym_idx, char *imm)
     memcpy(&stack[sp_ptr], imm, strlen(imm));
 }
 
-static inline struct value get(uint64_t sym_idx)
+static inline struct value get(uint64_t sym_idx, struct type *traits)
 {
     uint64_t sp_ptr = stack_map[sym_idx];
 
     struct value v = {
-        .dt = type_map[sym_idx].dt
+        .dt = traits->dt
     };
     /* __string is biggest union value. Rework this crap. */
-    memcpy(&v.__string, &stack[sp_ptr], type_map[sym_idx].bytes);
+    memcpy(&v.__string, &stack[sp_ptr], traits->bytes);
 
     return v;
 }
@@ -155,15 +135,6 @@ static void eval_alloca(struct ir_alloca *alloca)
     uint64_t bytes = alloca_size(alloca);
 
     push(i, bytes);
-
-    type_map[i] = (struct type) {
-        .dt         = alloca->dt,
-        .ptr        = alloca->ptr_depth > 0,
-        .arity_size = 0,
-        .bytes      = bytes
-    };
-
-    memset(type_map[i].arity, 0, sizeof (type_map[i].arity));
 }
 
 static void eval_alloca_array(struct ir_alloca_array *alloca)
@@ -172,15 +143,6 @@ static void eval_alloca_array(struct ir_alloca_array *alloca)
     uint64_t bytes = alloca_array_size(alloca);
 
     push(i, bytes);
-
-    type_map[i] = (struct type) {
-        .dt         = alloca->dt,
-        .ptr        = 0,
-        .arity_size = alloca->arity_size,
-        .bytes      = bytes
-    };
-
-    memcpy(type_map[i].arity, alloca->arity, alloca->arity_size);
 }
 
 
@@ -199,9 +161,12 @@ static void eval_imm(struct ir_imm *imm)
     memcpy(&last, &v, sizeof (struct value));
 }
 
-static void eval_sym(struct ir_sym *sym)
+static void eval_sym(struct ir_node *sym)
 {
-    struct value v = get(sym->idx);
+    struct ir_sym *s = sym->ir;
+    struct type   *t = &sym->meta.type;
+    struct value   v = get(s->idx, t);
+
     memcpy(&last, &v, sizeof(struct value));
 }
 
@@ -335,19 +300,20 @@ static void eval_store_imm(struct ir_store *store)
 {
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
-    struct ir_imm *imm = store->body->ir;
-    struct ir_sym *sym = store->idx->ir;
+    struct ir_imm *from    =  store->body->ir;
+    struct ir_sym *to      =  store->idx->ir;
+    struct type   *to_meta = &store->idx->meta.type;
 
-    switch (imm->type) {
-    case IMM_BOOL:  last.dt = D_T_BOOL;  last.__bool  = imm->imm.__bool;  break;
-    case IMM_CHAR:  last.dt = D_T_CHAR;  last.__char  = imm->imm.__char;  break;
-    case IMM_FLOAT: last.dt = D_T_FLOAT; last.__float = imm->imm.__float; break;
-    case IMM_INT:   last.dt = D_T_INT;   last.__int   = imm->imm.__int;   break;
+    switch (from->type) {
+    case IMM_BOOL:  last.dt = D_T_BOOL;  last.__bool  = from->imm.__bool;  break;
+    case IMM_CHAR:  last.dt = D_T_CHAR;  last.__char  = from->imm.__char;  break;
+    case IMM_FLOAT: last.dt = D_T_FLOAT; last.__float = from->imm.__float; break;
+    case IMM_INT:   last.dt = D_T_INT;   last.__int   = from->imm.__int;   break;
     default:
         weak_unreachable("Should not reach there");
     }
 
-    set(sym->idx, &last);
+    set(to->idx, &last, to_meta);
 }
 
 static void eval_store_sym(struct ir_store *store)
@@ -355,16 +321,13 @@ static void eval_store_sym(struct ir_store *store)
     /* Copy from one stack location to another. */
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
-    struct ir_sym *from = store->body->ir;
-    struct ir_sym *to   = store->idx->ir;
+    struct ir_sym *from      = store->body->ir;
+    struct ir_sym *to        = store->idx->ir;
+    struct type   *from_meta = &store->body->meta.type;
+    struct type   *  to_meta = &store->idx ->meta.type;
 
-//    printf("\nFrom:\n");
-//    type_dump(from->idx);
-//    printf("\nTo:\n");
-//    type_dump(to->idx);
-
-    struct value v = get(from->idx);
-    set(to->idx, &v);
+    struct value v = get(from->idx, from_meta);
+    set(to->idx, &v, to_meta);
 }
 
 static void eval_store_bin(struct ir_store *store)
@@ -372,8 +335,10 @@ static void eval_store_bin(struct ir_store *store)
     instr_eval(store->body);
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
-    struct ir_sym *sym = store->idx->ir;
-    set(sym->idx, &last);
+    struct ir_sym *sym     =  store->idx->ir;
+    struct type   *to_meta = &store->idx->meta.type;
+
+    set(sym->idx, &last, to_meta);
 }
 
 static void eval_store_string(struct ir_store *store)
@@ -384,7 +349,6 @@ static void eval_store_string(struct ir_store *store)
     struct ir_sym *sym = store->idx->ir;
 
     set_string(sym->idx, s->imm);
-//    set(sym->idx, );
 }
 
 static void eval_store_call(struct ir_store *store)
@@ -392,8 +356,10 @@ static void eval_store_call(struct ir_store *store)
     instr_eval(store->body);
     assert(store->idx->type == IR_SYM && "TODO: Implement arrays");
 
-    struct ir_sym *sym = store->idx->ir;
-    set(sym->idx, &last);
+    struct ir_sym *sym     =  store->idx->ir;
+    struct type   *to_meta = &store->idx->meta.type;
+
+    set(sym->idx, &last, to_meta);
 }
 
 static void eval_store(struct ir_store *store)
@@ -463,7 +429,7 @@ static void instr_eval(struct ir_node *ir)
         eval_imm(ir->ir);
         break;
     case IR_SYM:
-        eval_sym(ir->ir);
+        eval_sym(ir);
         break;
     case IR_JUMP:
         eval_jmp(ir);
@@ -580,7 +546,6 @@ static void fun_eval(struct ir_func_decl *decl)
 
     while (instr_ptr) {
         struct ir_node *prev_ptr = instr_ptr;
-//        printf("Eval %ld\n", instr_ptr->instr_idx);
         instr_eval(instr_ptr);
 
         /* Conditional and jump statements set up their
@@ -596,7 +561,6 @@ static void fun_eval(struct ir_func_decl *decl)
         }
     }
 }
-
 
 
 static void call_eval(struct ir_func_call *fcall)
@@ -620,7 +584,15 @@ static void call_eval(struct ir_func_call *fcall)
             push(sym, strlen(last.__string));
         else
             push(sym, dt_size(last.dt));
-        set(sym++, &last);
+
+        /* We don't compute type traits for immediate value
+           during type analysis IR pass. Instead, do manually.
+           Maybe, should we? Code below is ugly. */
+        if (arg->meta.type.bytes == 0)
+            arg->meta.type.bytes = dt_size(last.dt);
+
+        set(sym++, &last, &arg->meta.type);
+
         arg = arg->next;
     }
 

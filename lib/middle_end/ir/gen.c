@@ -67,7 +67,7 @@ static enum data_type ir_func_return_type(const char *name)
 
 static void ir_try_add_meta(struct ir_node *ir)
 {
-    ir->meta.kind = IR_META_VAR;
+    ir->meta.kind = IR_META_SYM;
     ir->meta.nesting = ir_nesting;
     ir->meta.global_loop_idx = ir_loop_idx;
 
@@ -180,7 +180,7 @@ __weak_really_inline static void mark_noalias(struct ir_node *ir, struct ir_sym 
     struct ir_sym *sym = ir->ir;
 
     if (sym->idx == assign->idx) {
-        ir->meta.kind = IR_META_VAR;
+        ir->meta.kind = IR_META_SYM;
         ir->meta.sym.noalias = 1;
     }
 }
@@ -621,7 +621,7 @@ static void visit_ast_unary(struct ast_unary *ast)
 
     ir_last = ir_store_sym_init(sym->idx, ir_last);
 
-    sym_node->meta.kind = IR_META_VAR;
+    sym_node->meta.kind = IR_META_SYM;
     sym_node->meta.sym.noalias = 1;
 
     ir_insert_last();
