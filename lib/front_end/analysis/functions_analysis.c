@@ -8,8 +8,6 @@
 #include "front_end/analysis/fn_storage.h"
 #include "front_end/ast/ast.h"
 #include "util/diagnostic.h"
-#include "util/alloc.h"
-#include "util/crc32.h"
 #include "util/hashmap.h"
 #include "util/unreachable.h"
 #include "builtins.h"
@@ -42,58 +40,58 @@ static void reset()
 /* \note Interesting in this context things are only in the
          conditional and iteration statements body, not in
          the conditions. */
-static void visit_node(struct ast_node *ast);
+static void visit(struct ast_node *ast);
 
 static void visit_compound(struct ast_node *ast)
 {
     struct ast_compound *stmt = ast->ast;
     for (uint64_t i = 0; i < stmt->size; ++i)
-        visit_node(stmt->stmts[i]);
+        visit(stmt->stmts[i]);
 }
 
 static void visit_if(struct ast_node *ast)
 {
     struct ast_if *stmt = ast->ast;
-    visit_node(stmt->body);
+    visit(stmt->body);
     if (stmt->else_body)
-        visit_node(stmt->else_body);
+        visit(stmt->else_body);
 }
 
 static void visit_for(struct ast_node *ast)
 {
     struct ast_for *stmt = ast->ast;
-    visit_node(stmt->body);
+    visit(stmt->body);
 }
 
 static void visit_while(struct ast_node *ast)
 {
     struct ast_while *stmt = ast->ast;
-    visit_node(stmt->body);
+    visit(stmt->body);
 }
 
 static void visit_do_while(struct ast_node *ast)
 {
     struct ast_do_while *stmt = ast->ast;
-    visit_node(stmt->body);
+    visit(stmt->body);
 }
 
 static void visit_return(struct ast_node *ast)
 {
-    struct ast_return *stmt = ast->ast;
-    if (stmt->operand) {
-        visit_node(stmt->operand);
+    struct ast_ret *stmt = ast->ast;
+    if (stmt->op) {
+        visit(stmt->op);
         last_ret.line_no = ast->line_no;
         last_ret.col_no = ast->col_no;
         last_ret.occurred = true;
     }
 }
 
-static void visit_function_decl(struct ast_node *ast)
+static void visit_fn_decl(struct ast_node *ast)
 {
-    struct ast_function_decl *decl = ast->ast;
+    struct ast_fn_decl *decl = ast->ast;
     fn_storage_push(&fn_storage, decl->name, decl);
     /* Don't need to analyze arguments though. */
-    visit_node(decl->body);
+    visit(decl->body);
 
     uint16_t line_no = last_ret.line_no;
     uint16_t col_no = last_ret.col_no;
@@ -115,11 +113,11 @@ static void visit_function_decl(struct ast_node *ast)
     }
 }
 
-static void visit_function_call(struct ast_node *ast)
+static void visit_fn_call(struct ast_node *ast)
 {
-    struct ast_function_call *stmt      = ast->ast;
-    struct builtin_fn        *fn        = fn_storage_lookup(&fn_storage, stmt->name);
-    struct ast_compound      *call_args = stmt->args->ast;
+    struct ast_fn_call  *stmt      = ast->ast;
+    struct builtin_fn   *fn        = fn_storage_lookup(&fn_storage, stmt->name);
+    struct ast_compound *call_args = stmt->args->ast;
 
     if (call_args->size != fn->args_cnt)
         weak_compile_error(
@@ -131,10 +129,10 @@ static void visit_function_call(struct ast_node *ast)
         );
 
     for (uint64_t i = 0; i < call_args->size; ++i)
-        visit_node(call_args->stmts[i]);
+        visit(call_args->stmts[i]);
 }
 
-void visit_node(struct ast_node *ast)
+void visit(struct ast_node *ast)
 {
     assert(ast);
 
@@ -175,10 +173,10 @@ void visit_node(struct ast_node *ast)
         visit_return(ast);
         break;
     case AST_FUNCTION_DECL:
-        visit_function_decl(ast);
+        visit_fn_decl(ast);
         break;
     case AST_FUNCTION_CALL:
-        visit_function_call(ast);
+        visit_fn_call(ast);
         break;
     default:
         weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
@@ -188,6 +186,6 @@ void visit_node(struct ast_node *ast)
 void analysis_functions_analysis(struct ast_node *root)
 {
     init();
-    visit_node(root);
+    visit(root);
     reset();
 }

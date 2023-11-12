@@ -64,7 +64,7 @@ void analysis_functions_analysis(struct ast_node *root);
       </tr>
       <tr>
         <th>*x</th>
-        <td>Pointer type with indirection level >= 1.</td>
+        <td>Pointer type with depth >= 1.</td>
       </tr>
       <tr>
         <th>mem[1] | mem[var]</th>

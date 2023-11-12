@@ -21,9 +21,9 @@ void fn_storage_free(fn_storage_t *s)
 }
 
 void fn_storage_push(
-    fn_storage_t             *s,
-    const char               *name,
-    struct ast_function_decl *decl
+    fn_storage_t       *s,
+    const char         *name,
+    struct ast_fn_decl *decl
 ) {
     struct builtin_fn   *fn   = weak_calloc(1, sizeof (struct builtin_fn));
     struct ast_compound *args = decl->args->ast;

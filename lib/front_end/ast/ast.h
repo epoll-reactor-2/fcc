@@ -70,31 +70,31 @@ struct ast_array_decl {
     enum data_type dt;
 
     /** Variable name.
-       
+
         \note Must be dynamically allocated. */
     char *name;
 
     /** Optional type name for arrays of structure type.
-       
+
         \note If present, must be dynamically allocated. */
     char *type_name;
 
-    /** This stores information about array enclosure (dimension)
+    /** This stores information about array arity (dimension)
         and size for each dimension, e.g.,
-        for array[1][2][3], EnclosureList equal to { 1, 2, 3 }.
-       
+        for array[1][2][3], arity equal to { 1, 2, 3 }.
+
         Represented as ast_compound of ast_num's. */
-    struct ast_node *enclosure_list;
+    struct ast_node *arity;
 
     /** Depth of pointer, like for
-        int ***ptr[2] indirection level = 3, for
+        int ***ptr[2] pointer depth = 3, for
         int *ptr[2] = 1, for
         int var[2] = 0. */
-    uint16_t indirection_lvl;
+    uint16_t ptr_depth;
 
     /** Declaration body (expression after `=`).
-       
-        \note Must be initialized only if indirection_lvl >= 1.
+
+        \note Must be initialized only if ptr_depth >= 1.
               1) int  mem[1]; <- OK
               2) int *mem[1] = &other_mem[0];
                               <- OK
@@ -108,8 +108,8 @@ __weak_wur struct ast_node *ast_array_decl_init(
     enum data_type   dt,
     char            *name,
     char            *type_name,
-    struct ast_node *enclosure_list,
-    uint16_t         indirection_lvl,
+    struct ast_node *arity,
+    uint16_t         ptr_depth,
     struct ast_node *body,
     uint16_t         line_no,
     uint16_t         col_no
@@ -121,13 +121,13 @@ void ast_array_decl_cleanup(struct ast_array_decl *ast);
  **              Binary expression          ***
  **********************************************/
 struct ast_binary {
-    enum token_type  operation;
+    enum token_type  op;
     struct ast_node *lhs;
     struct ast_node *rhs;
 };
 
 __weak_wur struct ast_node *ast_binary_init(
-    enum token_type  operation,
+    enum token_type  op,
     struct ast_node *lhs,
     struct ast_node *rhs,
     uint16_t         line_no,
@@ -273,24 +273,24 @@ void ast_for_range_cleanup(struct ast_for_range *ast);
 /**********************************************
  **              Function call              ***
  **********************************************/
-struct ast_function_call {
+struct ast_fn_call {
     char            *name; /** \note Must be dynamically allocated. */
     struct ast_node *args;
 };
 
-__weak_wur struct ast_node *ast_function_call_init(
+__weak_wur struct ast_node *ast_fn_call_init(
     char            *name,
     struct ast_node *args,
     uint16_t        line_no,
     uint16_t        col_no
 );
-void ast_function_call_cleanup(struct ast_function_call *ast);
+void ast_fn_call_cleanup(struct ast_fn_call *ast);
 
 
 /**********************************************
  **              Function declaration       ***
  **********************************************/
-struct ast_function_decl {
+struct ast_fn_decl {
     enum data_type   data_type;
     uint16_t         ptr_depth;
     char            *name; /** \note Must be dynamically allocated. */
@@ -299,7 +299,7 @@ struct ast_function_decl {
                                      function prototype. */
 };
 
-__weak_wur struct ast_node *ast_function_decl_init(
+__weak_wur struct ast_node *ast_fn_decl_init(
     enum data_type   data_type,
     uint16_t         ptr_depth,
     char            *name,
@@ -308,7 +308,7 @@ __weak_wur struct ast_node *ast_function_decl_init(
     uint16_t         line_no,
     uint16_t         col_no
 );
-void ast_function_decl_cleanup(struct ast_function_decl *ast);
+void ast_fn_decl_cleanup(struct ast_fn_decl *ast);
 
 
 /**********************************************
@@ -366,14 +366,14 @@ void             ast_num_cleanup(struct ast_num *ast);
 /**********************************************
  **              Return statement           ***
  **********************************************/
-struct ast_return {
-    struct ast_node *operand; /** \note May be NULL to represent
-                                        return from void function. */
+struct ast_ret {
+    struct ast_node *op; /** \note May be NULL to represent
+                                   return from void function. */
 };
 
 __weak_wur
-struct ast_node *ast_return_init(struct ast_node *operand, uint16_t line_no, uint16_t col_no);
-void             ast_return_cleanup(struct ast_return *ast);
+struct ast_node *ast_ret_init(struct ast_node *op, uint16_t line_no, uint16_t col_no);
+void             ast_ret_cleanup(struct ast_ret *ast);
 
 
 /**********************************************
@@ -414,13 +414,13 @@ void ast_struct_decl_cleanup(struct ast_struct_decl *ast);
 /**********************************************
  **              Symbol                     ***
  **********************************************/
-struct ast_symbol {
+struct ast_sym {
     char *value; /** \note Must be dynamically allocated. */
 };
 
 __weak_wur
-struct ast_node *ast_symbol_init(char *value, uint16_t line_no, uint16_t col_no);
-void             ast_symbol_cleanup(struct ast_symbol *ast);
+struct ast_node *ast_sym_init(char *value, uint16_t line_no, uint16_t col_no);
+void             ast_sym_cleanup(struct ast_sym *ast);
 
 
 /**********************************************
@@ -428,13 +428,13 @@ void             ast_symbol_cleanup(struct ast_symbol *ast);
  **********************************************/
 struct ast_unary {
     enum ast_type    type; /** Prefix or postfix. */
-    enum token_type  operation;
+    enum token_type  op;
     struct ast_node *operand;
 };
 
 __weak_wur struct ast_node *ast_unary_init(
     enum ast_type    type,
-    enum token_type  operation,
+    enum token_type  op,
     struct ast_node *operand,
     uint16_t         line_no,
     uint16_t         col_no
@@ -462,10 +462,10 @@ struct ast_var_decl {
     char *type_name;
 
     /** Depth of pointer, like for
-        int ***ptr indirection level = 3, for
+        int ***ptr, ptr depth = 3, for
         int *ptr = 1, for
         int var = 0. */
-    uint16_t indirection_lvl;
+    uint64_t ptr_depth;
 
     /** Declaration body (expression after `=`).
        
@@ -479,7 +479,7 @@ __weak_wur struct ast_node *ast_var_decl_init(
     enum data_type    dt,
     char             *name,
     char             *type_name,
-    uint16_t          indirection_lvl,
+    uint16_t          ptr_depth,
     struct ast_node  *body,
     uint16_t          line_no,
     uint16_t          col_no
@@ -491,12 +491,12 @@ void ast_var_decl_cleanup(struct ast_var_decl *ast);
  **              While statement            ***
  **********************************************/
 struct ast_while {
-    struct ast_node *condition;
+    struct ast_node *cond;
     struct ast_node *body;
 };
 
 __weak_wur struct ast_node *ast_while_init(
-    struct ast_node *condition,
+    struct ast_node *cond,
     struct ast_node *body,
     uint16_t         line_no,
     uint16_t         col_no

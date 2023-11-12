@@ -30,7 +30,7 @@ struct array_decl_info {
        level of array. To iterate over
        next ones, we should push new record
        to the storage with lower enclosure. */
-    int32_t              top_enclosure_size;
+    int32_t              top_arity;
     uint64_t             depth;
 };
 
@@ -73,14 +73,14 @@ static void storage_put(
     struct ast_node *ast,
     const char      *name,
     enum data_type   dt,
-    int32_t          top_enclosure_size
+    int32_t          top_arity
 ) {
     struct array_decl_info *decl = weak_calloc(1, sizeof (struct array_decl_info));
 
     strncpy(decl->name, name, DECL_NAME_MAX_LEN - 1);
     decl->ast = ast;
     decl->dt = dt;
-    decl->top_enclosure_size = top_enclosure_size;
+    decl->top_arity = top_arity;
     hashmap_put(&storage, crc32_string(name), (uint64_t) decl);
 }
 
@@ -104,7 +104,7 @@ static struct array_decl_info *storage_lookup(const char *name)
 static void storage_put_array_decl(struct ast_node *ast)
 {
     struct ast_array_decl *decl = ast->ast;
-    struct ast_compound   *list = decl->enclosure_list->ast;
+    struct ast_compound   *list = decl->arity->ast;
 
     storage_put(
         ast,
@@ -115,34 +115,34 @@ static void storage_put_array_decl(struct ast_node *ast)
     );
 }
 
-static void visit_node(struct ast_node **ast);
+static void visit(struct ast_node **ast);
 
-static void visit_ast_array_decl(struct ast_node *ast)
+static void visit_array_decl(struct ast_node *ast)
 {
     storage_put_array_decl(ast);
 }
 
-static void visit_ast_compound(struct ast_node *ast)
+static void visit_compound(struct ast_node *ast)
 {
     struct ast_compound *compound = ast->ast;
 
     for (uint64_t i = 0; i < compound->size; ++i)
-        visit_node(&compound->stmts[i]);
+        visit(&compound->stmts[i]);
 }
 
-static void visit_ast_function_decl(struct ast_node *ast)
+static void visit_fn_decl(struct ast_node *ast)
 {
-    struct ast_function_decl *decl = ast->ast;
+    struct ast_fn_decl *decl = ast->ast;
 
     storage_start_scope();
 
     struct ast_compound *args = decl->args->ast;
     if (args && args->size > 0)
-        visit_node(&decl->args);
+        visit(&decl->args);
 
     storage_end_scope();
 
-    visit_node(&decl->body);
+    visit(&decl->body);
 }
 
 
@@ -159,8 +159,8 @@ static bool verify_iterated_array(
     struct ast_array_decl *iterated,
     struct ast_array_decl *target
 ) {
-    struct ast_compound *iterated_list = iterated->enclosure_list->ast;
-    struct ast_compound   *target_list =   target->enclosure_list->ast;
+    struct ast_compound *iterated_list = iterated->arity->ast;
+    struct ast_compound   *target_list =   target->arity->ast;
 
     if (iterated_list->size != target_list->size - 1)
         return 0;
@@ -269,7 +269,7 @@ __weak_really_inline static void assertion(
 
 __weak_really_inline static struct ast_node **make_index(const char *name)
 {
-    struct ast_node *idx = ast_symbol_init(strdup(name), 0, 0);
+    struct ast_node *idx = ast_sym_init(strdup(name), 0, 0);
     struct ast_node **idxs = weak_calloc(1, sizeof (struct ast_node *));
     idxs[0] = idx;
 
@@ -285,7 +285,7 @@ __weak_really_inline static struct ast_node *make_iter_index(
         D_T_INT,
         strdup(__i),
         /*type_name*/NULL,
-        /*indirection_lvl*/0,
+        /*ptr_depth=*/0,
         ast_num_init(0, line_no, col_no),
         line_no, col_no
     );
@@ -341,13 +341,13 @@ __weak_really_inline static struct ast_node *enlarge_body(struct ast_compound *b
     );
 }
 
-static void visit_ast_for_range(struct ast_node **ast)
+static void visit_for_range(struct ast_node **ast)
 {
     struct ast_for_range   *range      = (*ast)->ast;
     struct ast_node        *iter       = range->iter;
     struct ast_node        *target     = range->range_target;
     struct ast_compound    *body       = range->body->ast;
-    struct ast_symbol      *target_sym = target->ast;
+    struct ast_sym         *target_sym = target->ast;
     struct array_decl_info *decl       = storage_lookup(target_sym->value);
     bool                    is_array   = iter->type == AST_ARRAY_DECL;
 
@@ -362,7 +362,7 @@ static void visit_ast_for_range(struct ast_node **ast)
     if (is_array)
         storage_put_array_decl(iter);
 
-    visit_node(&range->body);
+    visit(&range->body);
 
     struct ast_node     *enlarged_body     = enlarge_body(body);
     struct ast_compound *enlarged_compound = enlarged_body->ast;
@@ -380,14 +380,14 @@ static void visit_ast_for_range(struct ast_node **ast)
         iterator,
         ast_binary_init(
             TOK_LT,
-            ast_symbol_init(strdup(__i), 0, 0),
-            ast_num_init(decl->top_enclosure_size, 0, 0),
+            ast_sym_init(strdup(__i), 0, 0),
+            ast_num_init(decl->top_arity, 0, 0),
             0, 0
         ),
         ast_unary_init(
             AST_PREFIX_UNARY,
             TOK_INC,
-            ast_symbol_init(strdup(__i), 0, 0),
+            ast_sym_init(strdup(__i), 0, 0),
             0, 0
         ),
         enlarged_body,
@@ -395,24 +395,24 @@ static void visit_ast_for_range(struct ast_node **ast)
     );
 }
 
-static void visit_node(struct ast_node **ast)
+static void visit(struct ast_node **ast)
 {
     assert(ast);
 
     switch ((*ast)->type) {
     /* Only for full tree traversal. */
     case AST_COMPOUND_STMT:
-        visit_ast_compound(*ast);
+        visit_compound(*ast);
         break;
     case AST_FUNCTION_DECL:
-        visit_ast_function_decl(*ast);
+        visit_fn_decl(*ast);
         break;
     /* Stuff. */
     case AST_ARRAY_DECL:
-        visit_ast_array_decl(*ast);
+        visit_array_decl(*ast);
         break;
     case AST_FOR_RANGE_STMT:
-        visit_ast_for_range(ast);
+        visit_for_range(ast);
         break;
     /* Ignore. */
     default:
@@ -423,6 +423,6 @@ static void visit_node(struct ast_node **ast)
 void ast_lower(struct ast_node **ast)
 {
     storage_init();
-    visit_node(ast);
+    visit(ast);
     storage_reset();
 }

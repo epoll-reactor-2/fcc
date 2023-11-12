@@ -127,31 +127,31 @@ static void invalidate()
     hashmap_init(&ir_func_return_types, 32);
 }
 
-static void visit_ast(struct ast_node *ast);
+static void visit(struct ast_node *ast);
 
 /* Primitives. They are not pushed to ir_stmts, because
    they are immediate values. */
-static void visit_ast_bool(struct ast_bool *ast)
+static void visit_bool(struct ast_bool *ast)
 {
     ir_last = ir_imm_bool_init(ast->value);
 }
 
-static void visit_ast_char(struct ast_char *ast)
+static void visit_char(struct ast_char *ast)
 {
     ir_last = ir_imm_char_init(ast->value);
 }
 
-static void visit_ast_float(struct ast_float *ast)
+static void visit_float(struct ast_float *ast)
 {
     ir_last = ir_imm_float_init(ast->value);
 }
 
-static void visit_ast_num(struct ast_num *ast)
+static void visit_num(struct ast_num *ast)
 {
     ir_last = ir_imm_int_init(ast->value);
 }
 
-static void visit_ast_string(struct ast_string *ast)
+static void visit_string(struct ast_string *ast)
 {
     /* ast->value is allocated in AST also. We duplicate to do not
        be dependent on AST cleanup. */
@@ -160,11 +160,11 @@ static void visit_ast_string(struct ast_string *ast)
 
 static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
 {
-    visit_ast(ast->lhs);
+    visit(ast->lhs);
     struct ir_node *lhs = ir_last;
     *last_assign = ir_last;
 
-    visit_ast(ast->rhs);
+    visit(ast->rhs);
     struct ir_node *rhs = ir_last;
 
     ir_last = ir_store_init(lhs, rhs);
@@ -193,12 +193,12 @@ static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
 
     ir_insert_last();
 
-    visit_ast(ast->lhs);
+    visit(ast->lhs);
     struct ir_node *lhs = ir_last;
-    visit_ast(ast->rhs);
+    visit(ast->rhs);
     struct ir_node *rhs = ir_last;
 
-    struct ir_node *bin = ir_bin_init(ast->operation, lhs, rhs);
+    struct ir_node *bin = ir_bin_init(ast->op, lhs, rhs);
     ir_last = ir_store_sym_init(alloca_idx, bin);
 
     if (last_assign != NULL) {
@@ -212,13 +212,13 @@ static void emit_bin(struct ast_binary *ast, struct ir_node *last_assign)
     ir_last = ir_sym_init(alloca_idx);
 }
 
-static void visit_ast_binary(struct ast_binary *ast)
+static void visit_binary(struct ast_binary *ast)
 {
     /* Symbol. */
     static struct ir_node *last_assign = NULL;
     static uint64_t depth = 0;
 
-    if (ast->operation == TOK_ASSIGN) {
+    if (ast->op == TOK_ASSIGN) {
         ++depth;
         emit_assign(ast, &last_assign);
         --depth;
@@ -240,7 +240,7 @@ static void visit_ast_binary(struct ast_binary *ast)
     }
 }
 
-static void visit_ast_break(struct ast_break *ast)
+static void visit_break(struct ast_break *ast)
 {
     (void) ast;
     struct ir_node *ir = ir_jump_init(0);
@@ -248,7 +248,7 @@ static void visit_ast_break(struct ast_break *ast)
     ir_insert(ir);
 }
 
-static void visit_ast_continue(struct ast_continue *ast)
+static void visit_continue(struct ast_continue *ast)
 {
     (void) ast;
     struct ir_node *ir = ir_jump_init(vector_back(ir_loop_header_stack));
@@ -299,7 +299,7 @@ static inline void emit_loop_flow_instrs()
     vector_pop_back(ir_loop_header_stack);
 }
 
-static void visit_ast_for(struct ast_for *ast)
+static void visit_for(struct ast_for *ast)
 {
     /* Schema:
       
@@ -315,7 +315,7 @@ static void visit_ast_for(struct ast_for *ast)
        Initial part is optional. */
 
     ir_meta_is_loop = 1;
-    if (ast->init) visit_ast(ast->init);
+    if (ast->init) visit(ast->init);
     ir_meta_is_loop = 0;
 
     /* Body starts with condition that is checked on each
@@ -336,7 +336,7 @@ static void visit_ast_for(struct ast_for *ast)
     /* Condition is optional. */
     if (ast->condition) {
         next_iter_jump_idx       = ir_last->instr_idx + 1;
-        visit_ast(ast->condition);
+        visit(ast->condition);
         struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
         cond                     = ir_cond_init(cond_bin, /* Not used for now. */-1);
         exit_jmp                 = ir_jump_init(/* Not used for now. */-1);
@@ -352,7 +352,7 @@ static void visit_ast_for(struct ast_for *ast)
     }
 
     body_start = ir_last;
-    visit_ast(ast->body);
+    visit(ast->body);
     if (body_start != ir_last)
         body_start = body_start->next;
     else
@@ -360,7 +360,7 @@ static void visit_ast_for(struct ast_for *ast)
 
     /* Increment is optional. */
     ir_meta_is_loop = 1;
-    if (ast->increment) visit_ast(ast->increment);
+    if (ast->increment) visit(ast->increment);
     ir_meta_is_loop = 0;
 
     ir_last = ir_jump_init(next_iter_jump_idx);
@@ -377,7 +377,7 @@ static void visit_ast_for(struct ast_for *ast)
     emit_loop_flow_instrs();
 }
 
-static void visit_ast_while(struct ast_while *ast)
+static void visit_while(struct ast_while *ast)
 {
     /* Schema:
       
@@ -398,7 +398,7 @@ static void visit_ast_while(struct ast_while *ast)
 
     ++ir_nesting;
     ir_meta_is_loop = 1;
-    visit_ast(ast->condition);
+    visit(ast->cond);
     ir_meta_is_loop = 0;
 
     struct ir_node *cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
@@ -414,7 +414,7 @@ static void visit_ast_while(struct ast_while *ast)
 
     cond_ptr->goto_label = exit_jmp->instr_idx + 1;
 
-    visit_ast(ast->body);
+    visit(ast->body);
 
     struct ir_node *next_iter_jmp = ir_jump_init(next_iter_idx);
     ir_insert(next_iter_jmp);
@@ -427,7 +427,7 @@ static void visit_ast_while(struct ast_while *ast)
     emit_loop_flow_instrs();
 }
 
-static void visit_ast_do_while(struct ast_do_while *ast)
+static void visit_do_while(struct ast_do_while *ast)
 {
     /* Schema:
       
@@ -453,7 +453,7 @@ static void visit_ast_do_while(struct ast_do_while *ast)
         ++ir_loop_idx;
 
     ++ir_nesting;
-    visit_ast(ast->body);
+    visit(ast->body);
 
     if (initial_stmt == NULL)
         initial_stmt = ir_first;
@@ -461,7 +461,7 @@ static void visit_ast_do_while(struct ast_do_while *ast)
         initial_stmt = initial_stmt->next;
 
     ir_meta_is_loop = 1;
-    visit_ast(ast->condition);
+    visit(ast->condition);
     ir_meta_is_loop = 0;
 
     struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
@@ -481,7 +481,7 @@ static void visit_ast_do_while(struct ast_do_while *ast)
     emit_loop_flow_instrs();
 }
 
-static void visit_ast_if(struct ast_if *ast)
+static void visit_if(struct ast_if *ast)
 {
     /* Schema:
       
@@ -502,7 +502,7 @@ static void visit_ast_if(struct ast_if *ast)
        L6:  after if */
 
     ++ir_nesting;
-    visit_ast(ast->condition);
+    visit(ast->condition);
     assert((
         ir_last->type == IR_IMM ||
         ir_last->type == IR_SYM
@@ -532,7 +532,7 @@ static void visit_ast_if(struct ast_if *ast)
 
     struct ir_node *initial_stmt = ir_last;
 
-    visit_ast(ast->body);
+    visit(ast->body);
     --ir_nesting;
 
     initial_stmt = initial_stmt->next;
@@ -543,8 +543,6 @@ static void visit_ast_if(struct ast_if *ast)
        instruction, which terminates each (regardless
        on the return type) function. */
     exit_jmp_ptr->idx = ir_last->instr_idx + 1;
-
-    // vector_push_back(cond->cfg.succs, exit_jmp);
 
     mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
 
@@ -559,7 +557,7 @@ static void visit_ast_if(struct ast_if *ast)
 
     /* Jump over the `then` statement to `else`. */
     exit_jmp_ptr->idx = ir_last->instr_idx + 1; /* +1 jump statement. */
-    visit_ast(ast->else_body);
+    visit(ast->else_body);
     /* `then` part ends with jump over `else` part. */
     else_jmp_ptr->idx = ir_last->instr_idx + 1;
 
@@ -569,29 +567,29 @@ static void visit_ast_if(struct ast_if *ast)
     --ir_nesting;
 }
 
-static void visit_ast_return(struct ast_return *ast)
+static void visit_ret(struct ast_ret *ast)
 {
     memset(&ir_last, 0, sizeof (ir_last));
-    if (ast->operand) {
-        visit_ast(ast->operand);
+    if (ast->op) {
+        visit(ast->op);
     }
     ir_last = ir_ret_init(
-        /*is_void=*/!ast->operand,
+        /*is_void=*/!ast->op,
         /*op=*/ir_last
     );
     ir_insert_last();
 }
 
-static void visit_ast_symbol(struct ast_symbol *ast)
+static void visit_sym(struct ast_sym *ast)
 {
     uint64_t idx = ir_storage_get(ast->value)->sym_idx;
     ir_last = ir_sym_init(idx);
 }
 
 /* Note: unary statements always have @noalias attribute. */
-static void visit_ast_unary(struct ast_unary *ast)
+static void visit_unary(struct ast_unary *ast)
 {
-    visit_ast(ast->operand);
+    visit(ast->operand);
     assert((
         ir_last->type == IR_SYM
     ) && (
@@ -600,7 +598,7 @@ static void visit_ast_unary(struct ast_unary *ast)
     struct ir_sym  *sym      = ir_last->ir;
     struct ir_node *sym_node = ir_last;
 
-    enum token_type op = ast->operation;
+    enum token_type op = ast->op;
     /* Checked by parser. */
     assert(op == TOK_INC || op == TOK_DEC);
 
@@ -627,19 +625,19 @@ static void visit_ast_unary(struct ast_unary *ast)
     ir_insert_last();
 }
 
-static void visit_ast_struct_decl(struct ast_struct_decl *ast) { (void) ast; }
+static void visit_struct_decl(struct ast_struct_decl *ast) { (void) ast; }
 
 static void emit_var(struct ast_var_decl *ast)
 {
     uint64_t next_idx = ir_var_idx++;
-    ir_last = ir_alloca_init(ast->dt, ast->indirection_lvl, next_idx);
+    ir_last = ir_alloca_init(ast->dt, ast->ptr_depth, next_idx);
 
     /* Used as function argument or as function body statement. */
     ir_insert_last();
     ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
 
     if (ast->body) {
-        visit_ast(ast->body);
+        visit(ast->body);
         ir_last = ir_store_sym_init(next_idx, ir_last);
         ir_insert_last();
     }
@@ -655,15 +653,15 @@ static void emit_var_string(struct ast_var_decl *ast)
     ir_insert_last();
     ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
 
-    visit_ast(ast->body);
+    visit(ast->body);
     ir_last = ir_store_init(ir_sym_init(next_idx), ir_last);
     ir_insert_last();
 }
 
-static void visit_ast_var_decl(struct ast_var_decl *ast)
+static void visit_var_decl(struct ast_var_decl *ast)
 {
     bool string = 1;
-    string &= ast->indirection_lvl == 1;
+    string &= ast->ptr_depth == 1;
     string &= ast->dt == D_T_CHAR;
     string &= ast->body && ast->body->type == AST_STRING_LITERAL;
 
@@ -695,17 +693,17 @@ static void visit_ast_var_decl(struct ast_var_decl *ast)
        ///              Store there
    store %2 9
 */
-static void visit_ast_array_decl(struct ast_array_decl *ast)
+static void visit_array_decl(struct ast_array_decl *ast)
 {
     assert((
-        ast->enclosure_list->type == AST_COMPOUND_STMT
+        ast->arity->type == AST_COMPOUND_STMT
     ) && (
         "Array declarator expectes compound ast enclosure list."
     ));
 
     uint64_t next_idx = ir_var_idx++;
 
-    struct ast_compound *enclosure = ast->enclosure_list->ast;
+    struct ast_compound *enclosure = ast->arity->ast;
 
     assert((
         enclosure->size <= 16
@@ -728,7 +726,7 @@ static void visit_ast_array_decl(struct ast_array_decl *ast)
     ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
 }
 
-static void visit_ast_array_access(struct ast_array_access *ast)
+static void visit_array_access(struct ast_array_access *ast)
 {
     /* First just assume one-dimensional array.
        Next extend to multi-dimensional. */
@@ -738,7 +736,7 @@ static void visit_ast_array_access(struct ast_array_access *ast)
     struct ast_compound *indices = ast->indices->ast;
 
     if (indices->size == 1) {
-        visit_ast(indices->stmts[0]);
+        visit(indices->stmts[0]);
         struct ir_node *idx = ir_last;
 
         uint64_t next_idx = ir_var_idx++;
@@ -758,23 +756,23 @@ static void visit_ast_array_access(struct ast_array_access *ast)
     }
 }
 
-static void visit_ast_member(struct ast_member *ast) { (void) ast; }
+static void visit_member(struct ast_member *ast) { (void) ast; }
 
-static void visit_ast_compound(struct ast_compound *ast)
+static void visit_compound(struct ast_compound *ast)
 {
     for (uint64_t i = 0; i < ast->size; ++i) {
         struct ast_node *s = ast->stmts[i];
         if (s->type == AST_FUNCTION_CALL) {
             ir_is_global_scope = 1;
-            visit_ast(s);
+            visit(s);
             ir_is_global_scope = 0;
         } else {
-            visit_ast(s);
+            visit(s);
         }
     }
 }
 
-static void visit_ast_function_decl(struct ast_function_decl *decl)
+static void visit_fn_decl(struct ast_fn_decl *decl)
 {
     ir_storage_init();
 
@@ -789,7 +787,7 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     vector_free(ir_break_stack);
     vector_free(ir_loop_header_stack);
 
-    visit_ast(decl->args);
+    visit(decl->args);
     struct ir_node *args = ir_first;
 
     ir_first = NULL;
@@ -801,7 +799,7 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
 
     ir_func_add_return_type(decl->name, decl->data_type);
 
-    visit_ast(decl->body);
+    visit(decl->body);
     if (decl->data_type == D_T_VOID) {
         struct ir_node *ret_body = ir_node_init(IR_RET_VOID, NULL);
         ir_insert(ir_ret_init(true, ret_body));
@@ -823,14 +821,14 @@ static void visit_ast_function_decl(struct ast_function_decl *decl)
     ir_storage_reset();
 }
 
-static void visit_ast_function_call(struct ast_function_call *ast)
+static void visit_fn_call(struct ast_fn_call *ast)
 {
     struct ast_compound *args_ast = ast->args->ast;
     struct ir_node *args = NULL;
     struct ir_node *args_start = NULL;
 
     for (uint64_t i = 0; i < args_ast->size; ++i) {
-        visit_ast(args_ast->stmts[i]);
+        visit(args_ast->stmts[i]);
 
         if (args == NULL) {
             args = ir_last;
@@ -860,36 +858,36 @@ static void visit_ast_function_call(struct ast_function_call *ast)
     }
 }
 
-static void visit_ast(struct ast_node *ast)
+static void visit(struct ast_node *ast)
 {
     assert(ast);
 
     void *ptr = ast->ast;
     switch (ast->type) {
-    case AST_CHAR_LITERAL:    visit_ast_char(ptr); break;
-    case AST_INTEGER_LITERAL: visit_ast_num(ptr); break;
-    case AST_FLOATING_POINT_LITERAL: visit_ast_float(ptr); break;
-    case AST_STRING_LITERAL:  visit_ast_string(ptr); break;
-    case AST_BOOLEAN_LITERAL: visit_ast_bool(ptr); break;
-    case AST_SYMBOL:          visit_ast_symbol(ptr); break;
-    case AST_VAR_DECL:        visit_ast_var_decl(ptr); break;
-    case AST_ARRAY_DECL:      visit_ast_array_decl(ptr); break;
-    case AST_STRUCT_DECL:     visit_ast_struct_decl(ptr); break;
-    case AST_BREAK_STMT:      visit_ast_break(ptr); break;
-    case AST_CONTINUE_STMT:   visit_ast_continue(ptr); break;
-    case AST_BINARY:          visit_ast_binary(ptr); break;
-    case AST_PREFIX_UNARY:    visit_ast_unary(ptr); break;
-    case AST_POSTFIX_UNARY:   visit_ast_unary(ptr); break;
-    case AST_ARRAY_ACCESS:    visit_ast_array_access(ptr); break;
-    case AST_MEMBER:          visit_ast_member(ptr); break;
-    case AST_IF_STMT:         visit_ast_if(ptr); break;
-    case AST_FOR_STMT:        visit_ast_for(ptr); break;
-    case AST_WHILE_STMT:      visit_ast_while(ptr); break;
-    case AST_DO_WHILE_STMT:   visit_ast_do_while(ptr); break;
-    case AST_RETURN_STMT:     visit_ast_return(ptr); break;
-    case AST_COMPOUND_STMT:   visit_ast_compound(ptr); break;
-    case AST_FUNCTION_DECL:   visit_ast_function_decl(ptr); break;
-    case AST_FUNCTION_CALL:   visit_ast_function_call(ptr); break;
+    case AST_CHAR_LITERAL:    visit_char(ptr); break;
+    case AST_INTEGER_LITERAL: visit_num(ptr); break;
+    case AST_FLOATING_POINT_LITERAL: visit_float(ptr); break;
+    case AST_STRING_LITERAL:  visit_string(ptr); break;
+    case AST_BOOLEAN_LITERAL: visit_bool(ptr); break;
+    case AST_SYMBOL:          visit_sym(ptr); break;
+    case AST_VAR_DECL:        visit_var_decl(ptr); break;
+    case AST_ARRAY_DECL:      visit_array_decl(ptr); break;
+    case AST_STRUCT_DECL:     visit_struct_decl(ptr); break;
+    case AST_BREAK_STMT:      visit_break(ptr); break;
+    case AST_CONTINUE_STMT:   visit_continue(ptr); break;
+    case AST_BINARY:          visit_binary(ptr); break;
+    case AST_PREFIX_UNARY:    visit_unary(ptr); break;
+    case AST_POSTFIX_UNARY:   visit_unary(ptr); break;
+    case AST_ARRAY_ACCESS:    visit_array_access(ptr); break;
+    case AST_MEMBER:          visit_member(ptr); break;
+    case AST_IF_STMT:         visit_if(ptr); break;
+    case AST_FOR_STMT:        visit_for(ptr); break;
+    case AST_WHILE_STMT:      visit_while(ptr); break;
+    case AST_DO_WHILE_STMT:   visit_do_while(ptr); break;
+    case AST_RETURN_STMT:     visit_ret(ptr); break;
+    case AST_COMPOUND_STMT:   visit_compound(ptr); break;
+    case AST_FUNCTION_DECL:   visit_fn_decl(ptr); break;
+    case AST_FUNCTION_CALL:   visit_fn_call(ptr); break;
     default:
         weak_unreachable("Wrong AST type (numeric: %d).", ast->type);
     }
@@ -1020,7 +1018,7 @@ struct ir_unit *ir_gen(struct ast_node *ast)
 {
     invalidate();
 
-    visit_ast(ast);
+    visit(ast);
 
     vector_foreach(ir_func_decls, i) {
         if (i >= ir_func_decls.count - 1)

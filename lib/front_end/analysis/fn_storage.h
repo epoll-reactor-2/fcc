@@ -9,7 +9,7 @@
 
 #include "util/hashmap.h"
 
-struct ast_function_decl;
+struct ast_fn_decl;
 struct builtin_fn;
 
 /** - Key:   CRC-32 of function name.
@@ -23,9 +23,9 @@ void fn_storage_init(fn_storage_t *s);
 void fn_storage_free(fn_storage_t *s);
 
 void fn_storage_push(
-    fn_storage_t             *s,
-    const char               *name,
-    struct ast_function_decl *decl
+    fn_storage_t       *s,
+    const char         *name,
+    struct ast_fn_decl *decl
 );
 
 struct builtin_fn *fn_storage_lookup(

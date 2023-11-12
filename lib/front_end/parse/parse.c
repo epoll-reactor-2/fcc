@@ -150,7 +150,7 @@ struct ast_node *parse(const struct token *begin, const struct token *end)
 struct localized_data_type {
     enum data_type  data_type;
     char           *type_name;
-    uint16_t        indirection_lvl;
+    uint16_t        ptr_depth;
     uint16_t        line_no;
     int16_t         col_no;
 };
@@ -165,20 +165,20 @@ static struct localized_data_type parse_type()
     case TOK_CHAR:
     case TOK_BOOL:
     case TOK_SYMBOL: { /* Fall through. */
-        unsigned indirection_lvl = 0;
+        unsigned ptr_depth = 0;
         while (tok_is(peek_current(), '*')) {
-            ++indirection_lvl;
+            ++ptr_depth;
             peek_next(); /* Don't needed to require '*'. */
         }
 
         struct localized_data_type dt = {
-            .data_type       = tok_to_data_type(t->type),
-            .type_name       = (t->type == TOK_SYMBOL)
-                                 ? strdup(t->data)
-                                 : NULL,
-            .indirection_lvl = indirection_lvl,
-            .line_no         = t->line_no,
-            .col_no          = t->col_no
+            .data_type = tok_to_data_type(t->type),
+            .type_name = (t->type == TOK_SYMBOL)
+                           ? strdup(t->data)
+                           : NULL,
+            .ptr_depth = ptr_depth,
+            .line_no   = t->line_no,
+            .col_no    = t->col_no
         };
 
         return dt;
@@ -205,7 +205,7 @@ static struct localized_data_type parse_return_type()
     struct localized_data_type dt = {
         .data_type       = tok_to_data_type(t->type),
         .type_name       = NULL,
-        .indirection_lvl = 0,
+        .ptr_depth = 0,
         .line_no         = t->line_no,
         .col_no          = t->col_no
     };
@@ -225,7 +225,7 @@ static struct ast_node *parse_array_decl_without_initializer()
             "Variable name expected"
         );
 
-    ast_array_t enclosure_list = {0};
+    ast_array_t arity_list = {0};
 
     if (!tok_is(peek_current(), '['))
         weak_compile_error(
@@ -244,13 +244,13 @@ static struct ast_node *parse_array_decl_without_initializer()
                 "Integer size declarator expected"
             );
 
-        vector_push_back(enclosure_list, constant);
+        vector_push_back(arity_list, constant);
         require_char(']');
     }
 
-    struct ast_node *enclosure_list_compound = ast_compound_init(
-        enclosure_list.count,
-        enclosure_list.data,
+    struct ast_node *arity = ast_compound_init(
+        arity_list.count,
+        arity_list.data,
         dt.line_no,
         dt.col_no
     );
@@ -259,8 +259,8 @@ static struct ast_node *parse_array_decl_without_initializer()
         dt.data_type,
         strdup(var_name->data),
         dt.type_name,
-        enclosure_list_compound,
-        dt.indirection_lvl,
+        arity,
+        dt.ptr_depth,
         /*body=*/NULL,
         dt.line_no,
         dt.col_no
@@ -272,14 +272,14 @@ static struct ast_node *parse_array_decl()
     struct ast_node *ast = parse_array_decl_without_initializer();
     struct ast_array_decl *decl = ast->ast;
 
-    if (decl->indirection_lvl > 0 && !tok_is(peek_current(), '='))
+    if (decl->ptr_depth > 0 && !tok_is(peek_current(), '='))
         weak_compile_error(
             ast->line_no,
             ast->col_no,
             "Pointer array declaration expects body"
         );
 
-    if (decl->indirection_lvl == 0)
+    if (decl->ptr_depth == 0)
         return ast;
 
     require_char('=');
@@ -335,7 +335,7 @@ static struct ast_node *parse_var_decl_without_initializer()
         dt.data_type,
         strdup(var_name->data),
         dt.type_name, /* Already strdup()'ed. */
-        dt.indirection_lvl,
+        dt.ptr_depth,
         /*body=*/NULL,
         dt.line_no,
         dt.col_no
@@ -361,7 +361,7 @@ static struct ast_node *parse_var_decl()
             dt.data_type,
             strdup(var_name->data),
             dt.type_name,
-            dt.indirection_lvl,
+            dt.ptr_depth,
             parse_logical_or(),
             dt.line_no,
             dt.col_no
@@ -372,7 +372,7 @@ static struct ast_node *parse_var_decl()
         --tok_begin; /* Open paren. */
         --tok_begin; /* Function name. */
         --tok_begin; /* Data type. */
-        tok_begin -= dt.indirection_lvl;
+        tok_begin -= dt.ptr_depth;
         return parse_function_decl();
     }
 
@@ -380,7 +380,7 @@ static struct ast_node *parse_var_decl()
         --tok_begin; /* Open paren. */
         --tok_begin; /* Function name. */
         --tok_begin; /* Data type. */
-        tok_begin -= dt.indirection_lvl;
+        tok_begin -= dt.ptr_depth;
         return parse_array_decl();
     }
 
@@ -488,9 +488,9 @@ static struct ast_node *parse_function_decl()
     else
         require_char(';'); /* Prototype. */
 
-    return ast_function_decl_init(
+    return ast_fn_decl_init(
         dt.data_type,
-        dt.indirection_lvl,
+        dt.ptr_depth,
         strdup(name->data),
         param_list,
         block ? block : NULL,
@@ -692,7 +692,7 @@ static struct ast_node *parse_jump_stmt()
     if (!tok_is(peek_current(), ';'))
         body = parse_logical_or();
 
-    return ast_return_init(body, start->line_no, start->col_no);
+    return ast_ret_init(body, start->line_no, start->col_no);
 }
 
 /* for (decl : expr) {}
@@ -1101,7 +1101,7 @@ static struct ast_node *parse_symbol()
         return parse_struct_field_access();
     /* symbol */
     default:
-        return ast_symbol_init(strdup(start->data), start->line_no, start->col_no);
+        return ast_sym_init(strdup(start->data), start->line_no, start->col_no);
     }
 }
 
@@ -1165,7 +1165,7 @@ static struct ast_node *parse_struct_var_decl()
         );
         struct ast_node *ptr_decl_body = NULL;
 
-        if (dt.indirection_lvl > 0) {
+        if (dt.ptr_depth > 0) {
             require_char('=');
             ptr_decl_body = parse_logical_or();
         }
@@ -1175,7 +1175,7 @@ static struct ast_node *parse_struct_var_decl()
             strdup(name->data),
             dt.type_name, /* Already strdup()'ed. */
             enclosure_list_ast,
-            dt.indirection_lvl,
+            dt.ptr_depth,
             ptr_decl_body,
             dt.line_no,
             dt.col_no
@@ -1186,7 +1186,7 @@ static struct ast_node *parse_struct_var_decl()
         D_T_STRUCT,
         strdup(name->data),
         dt.type_name, /* Already strdup()'ed. */
-        dt.indirection_lvl,
+        dt.ptr_depth,
         /*body=*/NULL,
         dt.line_no,
         dt.col_no
@@ -1200,14 +1200,14 @@ static struct ast_node *parse_struct_field_access()
 
     if (tok_is(next, '.'))
         return ast_member_init(
-            ast_symbol_init(strdup(symbol->data), symbol->line_no, symbol->col_no),
+            ast_sym_init(strdup(symbol->data), symbol->line_no, symbol->col_no),
             parse_struct_field_access(),
             symbol->line_no,
             symbol->col_no
         );
 
     --tok_begin;
-    return ast_symbol_init(strdup(symbol->data), symbol->line_no, symbol->col_no);
+    return ast_sym_init(strdup(symbol->data), symbol->line_no, symbol->col_no);
 }
 
 static struct ast_node *parse_array_access()
@@ -1305,7 +1305,7 @@ static struct ast_node *parse_function_call()
     require_char('(');
 
     if (tok_is(peek_next(), ')'))
-        return ast_function_call_init(
+        return ast_fn_call_init(
             strdup(name->data),
             ast_compound_init(
                 0,
@@ -1333,7 +1333,7 @@ static struct ast_node *parse_function_call()
         name->col_no
     );
 
-    return ast_function_call_init(
+    return ast_fn_call_init(
         strdup(name->data),
         args,
         name->line_no,
