@@ -82,6 +82,7 @@ static void type_pass_sym(struct ir_node *sym)
     struct ir_sym *s = sym->ir;
     struct type   *t = &type_map[s->idx];
 
+    sym->meta.kind |= IR_META_TYPE;
     memcpy(&sym->meta.type, t, sizeof (*t));
 }
 
@@ -163,8 +164,13 @@ static void type_pass(struct ir_node *ir)
 static void type_pass_fn(struct ir_func_decl *decl)
 {
     init();
-    struct ir_node *it = decl->body;
+    struct ir_node *it = decl->args;
+    while (it) {
+        type_pass(it);
+        it = it->next;
+    }
 
+    it = decl->body;
     while (it) {
         type_pass(it);
         it = it->next;

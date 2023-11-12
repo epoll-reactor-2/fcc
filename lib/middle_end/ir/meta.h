@@ -25,7 +25,7 @@ struct meta {
     enum {
         IR_META_UNKNOWN = 0,
         IR_META_TYPE    = 1,
-        IR_META_VAR     = 2,
+        IR_META_SYM     = 2,
         IR_META_FUN     = 4
     } kind;
 
