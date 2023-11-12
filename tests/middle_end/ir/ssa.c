@@ -76,7 +76,7 @@ bool ir_test(const char *path, const char *filename)
         ok = 0;
     }
 
-exit:
+/* exit: */
     yylex_destroy();
     fclose(expected_stream);
     fclose(generated_stream);

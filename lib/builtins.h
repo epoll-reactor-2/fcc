@@ -35,7 +35,7 @@ struct builtin_fn {
      before starting evaluation.
 
      { precompiled_1, precompiled_2, from_source_1, from_source_2 } */
-static struct builtin_fn builtin_fns[1] = {
+__weak_unused static struct builtin_fn builtin_fns[1] = {
     { "call_trace", D_T_VOID, 0, {}, /* TODO: write C builtins and pin pointer. */NULL }
 };
 
