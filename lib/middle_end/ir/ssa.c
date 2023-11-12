@@ -432,8 +432,6 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
 
     switch (ir->type) {
     case IR_PHI: {
-        /* TODO: This code is never reached because of broken
-                 IR links after phi nodes insertion. Fix. */
         struct ir_phi *phi = ir->ir;
         if (phi->sym_idx == sym_idx) {
             phi->ssa_idx = ssa_idx;
