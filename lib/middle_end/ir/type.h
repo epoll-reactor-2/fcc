@@ -9,8 +9,14 @@
 
 struct ir_unit;
 
-/* Traverse IR and supply meta information of
-   each symbol with all possible type traits. */
+/** Supply each expression with its type
+    information.
+
+    Expressions:
+    - ir_sym
+    - ir_imm
+    - ir_func_call
+    - ir_member (TODO: implement) */
 void ir_type_pass(struct ir_unit *unit);
 
 #endif // WEAK_COMPILER_MIDDLE_END_TYPE_H

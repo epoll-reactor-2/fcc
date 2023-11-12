@@ -19,12 +19,24 @@ static void type_pass(struct ir_node *ir);
 static uint64_t dt_size(enum data_type dt)
 {
     switch (dt) {
-        case D_T_BOOL:  return 1;
-        case D_T_CHAR:  return 1;
-        case D_T_INT:   return 4;
-        case D_T_FLOAT: return 4;
-        default:
-            weak_unreachable("Unknown data type: `%s`", data_type_to_string(dt));
+    case D_T_BOOL:  return 1;
+    case D_T_CHAR:  return 1;
+    case D_T_INT:   return 4;
+    case D_T_FLOAT: return 4;
+    default:
+        weak_unreachable("Unknown data type: `%s`", data_type_to_string(dt));
+    }
+}
+
+static enum data_type imm_type_to_dt(enum ir_imm_type t)
+{
+    switch (t) {
+    case IMM_BOOL:  return D_T_BOOL;
+    case IMM_CHAR:  return D_T_CHAR;
+    case IMM_INT:   return D_T_INT;
+    case IMM_FLOAT: return D_T_FLOAT;
+    default:
+        weak_unreachable("Unknown data type (numeric: %d)", t);
     }
 }
 
@@ -77,13 +89,43 @@ static void type_pass_alloca_array(struct ir_alloca_array *alloca)
     memcpy(type_map[i].arity, alloca->arity, alloca->arity_size);
 }
 
-static void type_pass_sym(struct ir_node *sym)
+static void type_pass_imm(struct ir_imm *i)
 {
-    struct ir_sym *s = sym->ir;
-    struct type   *t = &type_map[s->idx];
+    enum data_type dt = imm_type_to_dt(i->type);
 
-    sym->meta.kind |= IR_META_TYPE;
-    memcpy(&sym->meta.type, t, sizeof (*t));
+    i->type_info = (struct type) {
+        .dt         = dt,
+        .ptr        = 0,
+        .arity_size = 0,
+        .bytes      = dt_size(dt)
+    };
+
+    memset(&i->type_info.arity, 0, sizeof (i->type_info.arity));
+}
+
+static void type_pass_func_call(struct ir_func_call *call)
+{
+    struct ir_node *it = call->args;
+
+    while (it) {
+        type_pass(it);
+        it = it->next;
+    }
+
+    call->type_info = (struct type) {
+        .dt = 0
+    };
+
+    /* TODO: Collect function decls types.
+             Replace `struct ir_func_decl.ret_type` with
+             `struct type`. */
+}
+
+static void type_pass_sym(struct ir_sym *s)
+{
+    struct type *t = &type_map[s->idx];
+
+    memcpy(&s->type_info, t, sizeof (*t));
 }
 
 static void type_pass_store(struct ir_store *s)
@@ -109,17 +151,6 @@ static void type_pass_ret(struct ir_ret *r)
         type_pass(r->body);
 }
 
-static void type_pass_func_call(struct ir_func_call *call)
-{
-    struct ir_node *it = call->args;
-
-    while (it) {
-        type_pass(it);
-        it = it->next;
-    }
-}
-
-
 static void type_pass(struct ir_node *ir)
 {
     switch (ir->type) {
@@ -130,7 +161,10 @@ static void type_pass(struct ir_node *ir)
         type_pass_alloca_array(ir->ir);
         break;
     case IR_SYM:
-        type_pass_sym(ir);
+        type_pass_sym(ir->ir);
+        break;
+    case IR_IMM:
+        type_pass_imm(ir->ir);
         break;
     case IR_STORE:
         type_pass_store(ir->ir);
@@ -151,7 +185,6 @@ static void type_pass(struct ir_node *ir)
     case IR_MEMBER:
     case IR_TYPE_DECL:
     case IR_FUNC_DECL:
-    case IR_IMM:
     case IR_STRING:
     case IR_JUMP:
     case IR_PHI:
