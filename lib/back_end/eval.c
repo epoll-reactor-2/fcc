@@ -567,6 +567,7 @@ static void fun_eval(struct ir_func_decl *decl)
 }
 
 
+
 static void set_call_arg(struct ir_node *arg, uint64_t *sym)
 {
     struct type *t = NULL;
@@ -594,7 +595,6 @@ static void push_call_arg(struct ir_node *arg, uint64_t *sym)
         push(*sym, strlen(last.__string));
     else
         push(*sym, dt_size(last.dt));
-
     /* 3. Set argument value in callee stack frame. */
     set_call_arg(arg, sym);
 }
