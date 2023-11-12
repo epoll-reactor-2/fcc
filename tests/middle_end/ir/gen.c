@@ -7,7 +7,6 @@
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/dump.h"
-#include "middle_end/ir/type.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
