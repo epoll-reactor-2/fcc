@@ -46,21 +46,21 @@ void ast_storage_end_scope(struct ast_storage *s)
 
 void ast_storage_push(struct ast_storage *s, const char *var_name, struct ast_node *ast)
 {
-    ast_storage_push_typed(s, var_name, D_T_UNKNOWN, /*indirection_lvl=*/0, ast);
+    ast_storage_push_typed(s, var_name, D_T_UNKNOWN, /*ptr_depth=*/0, ast);
 }
 
 void ast_storage_push_typed(
     struct ast_storage *s,
     const char         *var_name,
     enum data_type      dt,
-    uint16_t            indirection_lvl,
+    uint16_t            ptr_depth,
     struct ast_node    *ast
 ) {
     struct ast_storage_decl *decl = weak_calloc(1, sizeof (struct ast_storage_decl));
     decl->ast = ast;
     decl->data_type = dt;
     decl->name = var_name;
-    decl->indirection_lvl = indirection_lvl;
+    decl->ptr_depth = ptr_depth;
     decl->read_uses = 0;
     decl->write_uses = 0;
     decl->depth = s->scope_depth;

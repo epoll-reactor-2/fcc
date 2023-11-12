@@ -103,11 +103,11 @@ static void add_use(struct ast_node *ast, bool is_write)
         : ast_storage_add_read_use;
 
     if (ast->type == AST_FUNCTION_CALL) {
-        struct ast_function_call *stmt = ast->ast;
+        struct ast_fn_call *stmt = ast->ast;
         usage_add_fun(&storage, stmt->name);
     }
     if (ast->type == AST_SYMBOL) {
-        struct ast_symbol *sym = ast->ast;
+        struct ast_sym *sym = ast->ast;
         usage_add_fun(&storage, sym->value);
     }
     if (ast->type == AST_ARRAY_ACCESS) {
@@ -117,7 +117,7 @@ static void add_use(struct ast_node *ast, bool is_write)
     if (ast->type == AST_MEMBER) {
         struct ast_member *member = ast->ast;
         if (member->structure->type == AST_SYMBOL) {
-            struct ast_symbol *sym = member->structure->ast;
+            struct ast_sym *sym = member->structure->ast;
             usage_add_fun(&storage, sym->value);
         }
         /* Otherwise it can be unary statement like
@@ -209,7 +209,7 @@ void make_unused_var_and_func_analysis()
         bool is_func = use->ast->type == AST_FUNCTION_DECL;
         bool is_main_func = false;
         if (is_func) {
-            struct ast_function_decl *decl = use->ast->ast;
+            struct ast_fn_decl *decl = use->ast->ast;
             is_main_func = !strcmp(decl->name, "main");
         }
         if (!is_main_func && use->read_uses == 0)
@@ -226,11 +226,11 @@ void make_unused_var_and_func_analysis()
     vector_free(set);
 }
 
-static void visit_node(struct ast_node *ast);
+static void visit(struct ast_node *ast);
 
 static void visit_symbol(struct ast_node *ast)
 {
-    struct ast_symbol *sym = ast->ast;
+    struct ast_sym *sym = ast->ast;
     assert_is_declared(sym->value, ast);
 
     collect_ast(ast);
@@ -244,7 +244,7 @@ static void visit_var_decl(struct ast_node *ast)
     assert_is_not_declared(decl->name, ast);
     ast_storage_push(&storage, decl->name, ast);
     if (decl->body)
-        visit_node(decl->body);
+        visit(decl->body);
 }
 
 static void visit_array_decl(struct ast_node *ast)
@@ -257,11 +257,11 @@ static void visit_array_decl(struct ast_node *ast)
 static void visit_binary(struct ast_node *ast)
 {
     struct ast_binary *stmt = ast->ast;
-    visit_node(stmt->lhs);
-    visit_node(stmt->rhs);
+    visit(stmt->lhs);
+    visit(stmt->rhs);
 
     /* Only left hand side can be writeable. */
-    if (is_assignment_op(stmt->operation))
+    if (is_assignment_op(stmt->op))
         use_add_write(stmt->lhs);
     else
         use_add_read(stmt->lhs);
@@ -284,7 +284,7 @@ static void visit_unary(struct ast_node *ast)
             "Variable as argument of unary operator expected"
         );
 
-    switch (stmt->operation) {
+    switch (stmt->op) {
     case TOK_INC: /* ++var */
     case TOK_DEC: /* --var */
         use_add_write(op);
@@ -294,9 +294,9 @@ static void visit_unary(struct ast_node *ast)
         use_add_read(op);
         break;
     default:
-        weak_unreachable("Unknown unary operator `%s`.", tok_to_string(stmt->operation));
+        weak_unreachable("Unknown unary operator `%s`.", tok_to_string(stmt->op));
     }
-    visit_node(op);
+    visit(op);
 }
 
 /* \todo: What if (*mem_ptr)[0][1][2]? */
@@ -305,7 +305,7 @@ static void visit_array_access(struct ast_node *ast)
     struct ast_array_access *stmt = ast->ast;
     collect_ast(ast);
     assert(stmt->indices->type == AST_COMPOUND_STMT);
-    visit_node(stmt->indices->ast);
+    visit(stmt->indices->ast);
 }
 
 static void visit_member(struct ast_node *ast)
@@ -316,10 +316,10 @@ static void visit_member(struct ast_node *ast)
 static void visit_if(struct ast_node *ast)
 {
     struct ast_if *stmt = ast->ast;
-    visit_node(stmt->condition);
-    visit_node(stmt->body);
+    visit(stmt->condition);
+    visit(stmt->body);
     if (stmt->else_body)
-        visit_node(stmt->else_body);
+        visit(stmt->else_body);
 }
 
 static void visit_for(struct ast_node *ast)
@@ -327,16 +327,16 @@ static void visit_for(struct ast_node *ast)
     struct ast_for *stmt = ast->ast;
     ast_storage_start_scope(&storage);
     if (stmt->init)
-        visit_node(stmt->init);
+        visit(stmt->init);
     if (stmt->condition) {
         use_start_scope();
-        visit_node(stmt->condition);
+        visit(stmt->condition);
         uses_mark_top_scope_as_read();
         use_end_scope();
     }
     if (stmt->increment)
-        visit_node(stmt->increment);
-    visit_node(stmt->body);
+        visit(stmt->increment);
+    visit(stmt->body);
     ast_storage_end_scope(&storage);
 }
 
@@ -344,28 +344,28 @@ static void visit_while(struct ast_node *ast)
 {
     struct ast_while *stmt = ast->ast;
     use_start_scope();
-    visit_node(stmt->condition);
+    visit(stmt->cond);
     uses_mark_top_scope_as_read();
     use_end_scope();
-    visit_node(stmt->body);
+    visit(stmt->body);
 }
 
 static void visit_do_while(struct ast_node *ast)
 {
     struct ast_do_while *stmt = ast->ast;
     use_start_scope();
-    visit_node(stmt->condition);
+    visit(stmt->condition);
     uses_mark_top_scope_as_read();
     use_end_scope();
-    visit_node(stmt->body);
+    visit(stmt->body);
 }
 
 static void visit_return(struct ast_node *ast)
 {
-    struct ast_return *stmt = ast->ast;
-    if (stmt->operand) {
-        visit_node(stmt->operand);
-        use_add_read(stmt->operand);
+    struct ast_ret *stmt = ast->ast;
+    if (stmt->op) {
+        visit(stmt->op);
+        use_add_read(stmt->op);
     }
 }
 
@@ -374,14 +374,14 @@ static void visit_compound(struct ast_node *ast)
     struct ast_compound *stmt = ast->ast;
     ast_storage_start_scope(&storage);
     for (uint64_t i = 0; i < stmt->size; ++i)
-        visit_node(stmt->stmts[i]);
+        visit(stmt->stmts[i]);
     make_unused_var_and_func_analysis();
     ast_storage_end_scope(&storage);
 }
 
-static void visit_function_decl(struct ast_node *ast)
+static void visit_fn_decl(struct ast_node *ast)
 {
-    struct ast_function_decl *decl = ast->ast;
+    struct ast_fn_decl *decl = ast->ast;
     assert_is_not_declared(decl->name, ast);
 
     ast_storage_start_scope(&storage);
@@ -390,17 +390,17 @@ static void visit_function_decl(struct ast_node *ast)
     /* Don't just visit compound AST, which creates and terminates scope. */
     struct ast_compound *args = decl->args->ast;
     for (uint64_t i = 0; i < args->size; ++i)
-        visit_node(args->stmts[i]);
-    visit_node(decl->body);
+        visit(args->stmts[i]);
+    visit(decl->body);
     make_unused_var_analysis();
     ast_storage_end_scope(&storage);
     /* This is to have function outside. */
     ast_storage_push(&storage, decl->name, ast);
 }
 
-static void visit_function_call(struct ast_node *ast)
+static void visit_fn_call(struct ast_node *ast)
 {
-    struct ast_function_call *stmt = ast->ast;
+    struct ast_fn_call *stmt = ast->ast;
 
     if (is_builtin(stmt->name)) return;
 
@@ -410,12 +410,12 @@ static void visit_function_call(struct ast_node *ast)
     assert(stmt->args->type == AST_COMPOUND_STMT);
     struct ast_compound *args = stmt->args->ast;
     for (uint64_t i = 0; i < args->size; ++i) {
-        visit_node(args->stmts[i]);
+        visit(args->stmts[i]);
         use_add_read(args->stmts[i]);
     }
 }
 
-void visit_node(struct ast_node *ast)
+void visit(struct ast_node *ast)
 {
     assert(ast);
 
@@ -472,10 +472,10 @@ void visit_node(struct ast_node *ast)
         visit_compound(ast);
         break;
     case AST_FUNCTION_DECL:
-        visit_function_decl(ast);
+        visit_fn_decl(ast);
         break;
     case AST_FUNCTION_CALL:
-        visit_function_call(ast);
+        visit_fn_call(ast);
         break;
     default:
         weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
@@ -485,6 +485,6 @@ void visit_node(struct ast_node *ast)
 void analysis_variable_use_analysis(struct ast_node *root)
 {
     init();
-    visit_node(root);
+    visit(root);
     reset();
 }

@@ -17,7 +17,7 @@ struct ast_storage_decl {
     struct ast_node *ast;
     enum data_type   data_type;
     const char      *name;
-    uint16_t         indirection_lvl;
+    uint16_t         ptr_depth;
     uint16_t         read_uses;  /** How many times variable was accessed. */
     uint16_t         write_uses; /** How many times value was written to variable. */
     uint16_t         depth;      /** How much variable is nested. */
@@ -51,7 +51,7 @@ void ast_storage_push_typed(
     struct ast_storage *s,
     const char         *var_name,
     enum data_type      dt,
-    uint16_t            indirection_lvl,
+    uint16_t            ptr_depth,
     struct ast_node    *ast
 );
 
