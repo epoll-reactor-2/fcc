@@ -16,11 +16,14 @@
 
 
 
-#define STACK_SIZE_BYTES 100000
+#define STACK_SIZE_BYTES 32768
 
 /* ==========================
    Stack routines.
    ========================== */
+
+/* sp -- stack pointer
+   bp -- base pointer (callee-save) */
 
 /* NOTE: Such stack usage has sense only with reordered alloca
          instructions, where they are all collected at the beginning of
@@ -563,47 +566,55 @@ static void fun_eval(struct ir_func_decl *decl)
 }
 
 
+static void push_call_arg(struct ir_node *arg, uint64_t *sym)
+{
+    /* 1. Evaluate in current stack frame. */
+    instr_eval(arg);
+    /* 2. Push to the callee stack frame. */
+    if (last.dt == D_T_STRING)
+        push(*sym, strlen(last.__string));
+    else
+        push(*sym, dt_size(last.dt));
+
+    /* We don't compute type traits for immediate value
+       during type analysis IR pass. Instead, do manually.
+       Maybe, should we? Code below is ugly. */
+    if (arg->meta.type.bytes == 0)
+        arg->meta.type.bytes = dt_size(last.dt);
+
+    /* 3. Set argument value in callee stack frame. */
+    set((*sym)++, &last, &arg->meta.type);
+}
+
 static void call_eval(struct ir_func_call *fcall)
 {
-    call_stack_head(fcall->name);
-
-    uint64_t sym = 0;
-    uint64_t save_sp = sp;
+    /* Prologue @{ */
+    uint64_t        sym            = 0;
+    uint64_t        bp             = sp;
     struct ir_node *save_instr_ptr = instr_ptr;
+    uint64_t        stack_map_copy[STACK_SIZE_BYTES];
 
-    uint64_t stack_map_copy[STACK_SIZE_BYTES];
-
+    call_stack_head(fcall->name);
     memcpy(stack_map_copy, stack_map, STACK_SIZE_BYTES);
 
     struct ir_node *arg = fcall->args;
     while (arg) {
-        /* Evaluate in current stack frame. */
-        instr_eval(arg);
-        /* Push to the callee stack frame. */
-        if (last.dt == D_T_STRING)
-            push(sym, strlen(last.__string));
-        else
-            push(sym, dt_size(last.dt));
-
-        /* We don't compute type traits for immediate value
-           during type analysis IR pass. Instead, do manually.
-           Maybe, should we? Code below is ugly. */
-        if (arg->meta.type.bytes == 0)
-            arg->meta.type.bytes = dt_size(last.dt);
-
-        set(sym++, &last, &arg->meta.type);
-
+        push_call_arg(arg, &sym);
         arg = arg->next;
     }
+    /* }@ */
 
+    /* Body @{ */
     struct ir_func_decl *fun = fun_lookup(fcall->name);
-
     fun_eval(fun);
-    call_stack_tail();
+    /* }@ */
 
-    sp = save_sp;
+    /* Epilogue @{ */
+    sp = bp;
     instr_ptr = save_instr_ptr;
     memcpy(stack_map, stack_map_copy, STACK_SIZE_BYTES);
+    call_stack_tail();
+    /* }@ */
 }
 
 
