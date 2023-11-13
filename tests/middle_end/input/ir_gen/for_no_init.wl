@@ -9,8 +9,8 @@
 //       7:   | jmp L13
 //       8:   | int t3
 //       9:   | t3 = t0
-//      10:   | t3 = t3(@noalias) + 1
-//      11:   | t0 = t0(@noalias) + 1(@loop)
+//      10:   | t3 = t3 + 1
+//      11:   | t0 = t0 + 1
 //      12:   | jmp L4
 //      13:   ret 0
 int main() {
