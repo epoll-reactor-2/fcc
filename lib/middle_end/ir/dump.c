@@ -219,14 +219,6 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
 
-    if (ir->meta.kind & IR_META_SYM) {
-        if (ir->meta.sym.loop)
-            fprintf(mem, "(@loop)");
-
-        if (ir->meta.sym.noalias)
-            fprintf(mem, "(@noalias)");
-    }
-
     /* Too verbose. Makes sense to use only for
        debugging
 

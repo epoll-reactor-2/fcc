@@ -1,14 +1,14 @@
 //fun main():
 //       0:   int t0
 //       1:   t0 = 0
-//       2:   int t1(@loop)
-//       3:   t1 = 0(@loop)
+//       2:   int t1
+//       3:   t1 = 0
 //       4:   | int t2
 //       5:   | t2 = t1 < 2
 //       6:   | if t2 != 0 goto L8
 //       7:   | jmp L11
-//       8:   | t0 = t0(@noalias) + 1
-//       9:   | t1 = t1(@noalias) + 1(@loop)
+//       8:   | t0 = t0 + 1
+//       9:   | t1 = t1 + 1
 //      10:   | jmp L4
 //      11:   ret t0
 //--------

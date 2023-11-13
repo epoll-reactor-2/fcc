@@ -3,10 +3,10 @@
 //       1:   t0 = 0
 //       2:   | int t1
 //       3:   | t1 = t0
-//       4:   | t1 = t1(@noalias) + 1
-//       5:   | t0 = t0(@noalias) + 1
-//       6:   | int t2(@loop)
-//       7:   | t2 = t0 < 10(@loop)
+//       4:   | t1 = t1 + 1
+//       5:   | t0 = t0 + 1
+//       6:   | int t2
+//       7:   | t2 = t0 < 10
 //       8:   | if t2 != 0 goto L2
 //       9:   ret 0
 int main() {
