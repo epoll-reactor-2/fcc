@@ -194,12 +194,12 @@ static void eval_floats(enum token_type op, float l, float r)
     last.dt = D_T_FLOAT;
 
     switch (op) {
-    case TOK_EQ:      last.__float = l == r; break;
-    case TOK_NEQ:     last.__float = l != r; break;
-    case TOK_GT:      last.__float = l  > r; break;
-    case TOK_LT:      last.__float = l  < r; break;
-    case TOK_GE:      last.__float = l >= r; break;
-    case TOK_LE:      last.__float = l <= r; break;
+    case TOK_EQ:      last.dt = D_T_INT; last.__int = l == r; break;
+    case TOK_NEQ:     last.dt = D_T_INT; last.__int = l != r; break;
+    case TOK_GT:      last.dt = D_T_INT; last.__int = l  > r; break;
+    case TOK_LT:      last.dt = D_T_INT; last.__int = l  < r; break;
+    case TOK_GE:      last.dt = D_T_INT; last.__int = l >= r; break;
+    case TOK_LE:      last.dt = D_T_INT; last.__int = l <= r; break;
     case TOK_PLUS:    last.__float = l  + r; break;
     case TOK_MINUS:   last.__float = l  - r; break;
     case TOK_STAR:    last.__float = l  * r; break;
