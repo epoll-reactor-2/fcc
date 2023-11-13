@@ -20,6 +20,8 @@ static ir_vector_t        ir_func_decls;
 static struct ir_node    *ir_first;
 static struct ir_node    *ir_last;
 static struct ir_node    *ir_prev;
+static enum   data_type   ir_last_dt;
+static enum   data_type   ir_type_map[65536];
 /* Used to count alloca instructions.
    Conditions:
    - reset at the start of each function declaration,
@@ -113,6 +115,8 @@ __weak_really_inline static void ir_insert_last()
 
 static void invalidate()
 {
+    memset(ir_type_map, 0, sizeof (ir_type_map));
+    ir_last_dt = D_T_UNKNOWN;
     vector_free(ir_func_decls);
     vector_free(ir_break_stack);
     vector_free(ir_loop_header_stack);
@@ -134,21 +138,25 @@ static void visit(struct ast_node *ast);
 static void visit_bool(struct ast_bool *ast)
 {
     ir_last = ir_imm_bool_init(ast->value);
+    ir_last_dt = D_T_BOOL;
 }
 
 static void visit_char(struct ast_char *ast)
 {
     ir_last = ir_imm_char_init(ast->value);
+    ir_last_dt = D_T_CHAR;
 }
 
 static void visit_float(struct ast_float *ast)
 {
     ir_last = ir_imm_float_init(ast->value);
+    ir_last_dt = D_T_FLOAT;
 }
 
 static void visit_num(struct ast_num *ast)
 {
     ir_last = ir_imm_int_init(ast->value);
+    ir_last_dt = D_T_INT;
 }
 
 static void visit_string(struct ast_string *ast)
@@ -156,6 +164,7 @@ static void visit_string(struct ast_string *ast)
     /* ast->value is allocated in AST also. We duplicate to do not
        be dependent on AST cleanup. */
     ir_last = ir_string_init(ast->len, strdup(ast->value));
+    ir_last_dt = D_T_STRING;
 }
 
 static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
@@ -177,7 +186,8 @@ static void emit_bin(struct ast_binary *ast)
              There is lack of context in AST symbols. Its type
              is unknown. Should we maintain some variable-type mapping?
              What if we operate on immediate values? */
-    ir_last = ir_alloca_init(D_T_INT, /*ptr=*/0, ir_var_idx++);
+    uint64_t next_idx = ir_var_idx++;
+    ir_last = ir_alloca_init(D_T_UNKNOWN, /*ptr=*/0, next_idx);
     struct ir_alloca *alloca = ir_last->ir;
     uint64_t alloca_idx = alloca->idx;
 
@@ -188,7 +198,12 @@ static void emit_bin(struct ast_binary *ast)
     visit(ast->rhs);
     struct ir_node *rhs = ir_last;
 
+    alloca->dt = ir_last_dt;
+    if (alloca->dt == D_T_UNKNOWN)
+        weak_unreachable("Unknown data type in alloca statement");
+
     struct ir_node *bin = ir_bin_init(ast->op, lhs, rhs);
+
     ir_last = ir_store_sym_init(alloca_idx, bin);
 
     ir_insert_last();
@@ -282,6 +297,22 @@ static inline void emit_loop_flow_instrs()
     vector_pop_back(ir_loop_header_stack);
 }
 
+/* TODO: Integer or boolean value on logical
+         operations. I want
+
+         float == float -> int | bool */
+static struct ir_node *zero_cond_immediate()
+{
+    switch (ir_last_dt) {
+    case D_T_INT:   return ir_imm_int_init(0);
+    case D_T_FLOAT: return ir_imm_float_init(0.0);
+    case D_T_CHAR:  return ir_imm_char_init(0);
+    case D_T_BOOL:  return ir_imm_bool_init(0);
+    default:
+        weak_unreachable("Unknown data type (numeric: %d)", ir_last_dt);
+    }
+}
+
 static void visit_for(struct ast_for *ast)
 {
     /* Schema:
@@ -320,7 +351,7 @@ static void visit_for(struct ast_for *ast)
     if (ast->condition) {
         next_iter_jump_idx       = ir_last->instr_idx + 1;
         visit(ast->condition);
-        struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
+        struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, zero_cond_immediate());
         cond                     = ir_cond_init(cond_bin, /* Not used for now. */-1);
         exit_jmp                 = ir_jump_init(/* Not used for now. */-1);
         exit_jmp_ptr             = exit_jmp->ir;
@@ -384,7 +415,7 @@ static void visit_while(struct ast_while *ast)
     visit(ast->cond);
     ir_meta_is_loop = 0;
 
-    struct ir_node *cond_bin      = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
+    struct ir_node *cond_bin      = ir_bin_init(TOK_NEQ, ir_last, zero_cond_immediate());
     struct ir_node *cond          = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr      = cond->ir;
     struct ir_node *exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
@@ -447,7 +478,7 @@ static void visit_do_while(struct ast_do_while *ast)
     visit(ast->condition);
     ir_meta_is_loop = 0;
 
-    struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
+    struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, zero_cond_immediate());
     struct ir_node *cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr = cond->ir;
 
@@ -498,8 +529,8 @@ static void visit_if(struct ast_if *ast)
        - if (1 + 1) -> if sym neq $0 goto ...
        - if (1    ) -> if imm neq $0 goto ...
        - if (var  ) -> if sym neq $0 goto ... */
-   
-    ir_last = ir_bin_init(TOK_NEQ, ir_last, ir_imm_int_init(0));
+
+    ir_last = ir_bin_init(TOK_NEQ, ir_last, zero_cond_immediate());
 
     struct ir_node *cond         = ir_cond_init(ir_last, /*Not used for now.*/-1);
     struct ir_cond *cond_ptr     = cond->ir;
@@ -567,6 +598,8 @@ static void visit_sym(struct ast_sym *ast)
 {
     uint64_t idx = ir_storage_get(ast->value)->sym_idx;
     ir_last = ir_sym_init(idx);
+    /* TODO: Supply. */
+    ir_last_dt = ir_type_map[idx];
 }
 
 /* Note: unary statements always have @noalias attribute. */
@@ -614,6 +647,7 @@ static void emit_var(struct ast_var_decl *ast)
 {
     uint64_t next_idx = ir_var_idx++;
     ir_last = ir_alloca_init(ast->dt, ast->ptr_depth, next_idx);
+    ir_type_map[next_idx] = ast->dt;
 
     /* Used as function argument or as function body statement. */
     ir_insert_last();
@@ -725,6 +759,7 @@ static void visit_array_access(struct ast_array_access *ast)
         uint64_t next_idx = ir_var_idx++;
 
         ir_last = ir_alloca_init(record->dt, /*ptr=*/1, next_idx);
+        ir_type_map[next_idx] = record->dt;
         ir_insert_last();
         ir_last = ir_store_init(
             ir_sym_init(next_idx),
@@ -759,6 +794,8 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
 {
     ir_storage_init();
 
+    memset(ir_type_map, 0, sizeof (ir_type_map));
+    ir_last_dt = D_T_UNKNOWN;
     ir_var_idx = 0;
     ir_loop_idx = 0;
     ir_nesting = 0;
@@ -832,6 +869,7 @@ static void visit_fn_call(struct ast_fn_call *ast)
     } else {
         uint64_t next_idx = ir_var_idx++;
         ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
+        ir_type_map[next_idx] = ret_dt;
         ir_insert_last();
 
         ir_last = ir_func_call_init(fcall_name, args_start);
@@ -839,6 +877,8 @@ static void visit_fn_call(struct ast_fn_call *ast)
         ir_insert_last();
         ir_last = ir_sym_init(next_idx);
     }
+
+    ir_last_dt = ret_dt;
 }
 
 static void visit(struct ast_node *ast)
