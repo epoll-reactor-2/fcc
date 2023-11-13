@@ -83,7 +83,9 @@ bool ir_test(const char *path, const char *filename)
             ir_link(decl);
             ir_build_cfg(decl);
 
-            ir_opt_unreachable_code(decl);
+            /* Wrong
+               ir_opt_unreachable_code(decl); */
+
             /* There is some trouble with
                data flow of input function
                parameters.

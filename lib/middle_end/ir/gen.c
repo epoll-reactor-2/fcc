@@ -180,6 +180,21 @@ static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
     ir_insert_last();
 }
 
+static bool logical(enum token_type t)
+{
+    switch (t) {
+    case TOK_EQ:
+    case TOK_NEQ:
+    case TOK_LE:
+    case TOK_GE:
+    case TOK_LT:
+    case TOK_GT:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 static void emit_bin(struct ast_binary *ast)
 {
     /* TODO: Any type, not only int.
@@ -198,7 +213,12 @@ static void emit_bin(struct ast_binary *ast)
     visit(ast->rhs);
     struct ir_node *rhs = ir_last;
 
-    alloca->dt = ir_last_dt;
+    if (logical(ast->op)) {
+        alloca->dt = D_T_INT; /* Or bool. */
+        ir_last_dt = D_T_INT;
+    } else
+        alloca->dt = ir_last_dt;
+
     if (alloca->dt == D_T_UNKNOWN)
         weak_unreachable("Unknown data type in alloca statement");
 
