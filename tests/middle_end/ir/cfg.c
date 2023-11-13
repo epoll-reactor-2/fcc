@@ -16,6 +16,8 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
+char current_output_dir[128];
+
 void cfg_edge_vector_dump(FILE *stream, ir_vector_t *v)
 {
     vector_foreach(*v, i) {
@@ -59,6 +61,11 @@ bool ir_test(const char *path, const char *filename)
     size_t  _                = 0;
     FILE   *expected_stream  = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
+    char    cfg_path[256]    = {0};
+
+    snprintf(cfg_path, 255, "%s/%s_cfg.dot", current_output_dir, filename);
+
+    FILE   *cfg_stream       = fopen(cfg_path, "w");
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ir_unit *ir = gen_ir(path);
@@ -72,6 +79,7 @@ bool ir_test(const char *path, const char *filename)
             ir_build_cfg(decl);
 
             ir_dump(generated_stream, decl);
+            ir_dump_cfg(cfg_stream, decl);
             fprintf(generated_stream, "--------\n");
             cfg_edges_dump(generated_stream, decl);
             it = it->next;
@@ -95,6 +103,7 @@ exit:
     yylex_destroy();
     fclose(expected_stream);
     fclose(generated_stream);
+    fclose(cfg_stream);
     free(expected);
     free(generated);
 
@@ -111,6 +120,8 @@ int main()
 
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+
+    cfg_dir("cfg", current_output_dir);
 
     if (!do_on_each_file("/test_inputs/cfg", ir_test)) {
         ret = -1;
