@@ -34,11 +34,11 @@ struct ir_node *ir_node_init(enum ir_type type, void *ir)
     return node;
 }
 
-struct ir_node *ir_alloca_init(enum data_type dt, uint16_t indir_lvl, uint64_t idx)
+struct ir_node *ir_alloca_init(enum data_type dt, uint16_t ptr_depth, uint64_t idx)
 {
     struct ir_alloca *ir = weak_calloc(1, sizeof (struct ir_alloca));
     ir->dt = dt;
-    ir->ptr_depth = indir_lvl;
+    ir->ptr_depth = ptr_depth;
     ir->idx = idx;
     ++ir_instr_idx;
     return ir_node_init(IR_ALLOCA, ir);
