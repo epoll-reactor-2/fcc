@@ -164,7 +164,7 @@ static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
             fprintf(mem, "\n            ");
         else
             fprintf(mem, "\n% 8ld:   ", it->instr_idx);
-        fprintf_n(mem, it->meta.nesting * 2, ' ');
+        fprintf_n(mem, it->meta.block_depth * 2, ' ');
         ir_dump_node(mem, it);
         it = it->next;
     }

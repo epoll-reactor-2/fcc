@@ -32,7 +32,7 @@ __weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
     while (it &&
            it->cfg.preds.count > 0 &&
            it->meta.global_loop_idx == vector_at(it->cfg.preds, 0)->meta.global_loop_idx &&
-           it->meta.nesting > 0
+           it->meta.block_depth > 0
     ) {
         mark_visited(visited, it);
         traverse_dd_chain(visited, it);
@@ -45,7 +45,7 @@ __weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
     while (it &&
            it->next &&
            it->meta.global_loop_idx == ir->next->meta.global_loop_idx &&
-           it->meta.nesting > 0
+           it->meta.block_depth > 0
     ) {
         mark_visited(visited, it);
         traverse_dd_chain(visited, it);
