@@ -5,6 +5,7 @@
  */
 
 #include "middle_end/ir/ir.h"
+#include "middle_end/ir/dump.h"
 #include "util/alloc.h"
 #include "util/unreachable.h"
 #include <assert.h>
@@ -103,6 +104,7 @@ struct ir_node *ir_sym_init(uint64_t idx)
 {
     struct ir_sym *ir = weak_calloc(1, sizeof (struct ir_sym));
     ir->deref = 0;
+    ir->addr_of = 0;
     ir->idx = idx;
     ir->ssa_idx = UINT64_MAX;
     return ir_node_init(IR_SYM, ir);

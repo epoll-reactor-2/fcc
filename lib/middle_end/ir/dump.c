@@ -85,7 +85,14 @@ static void ir_dump_string(FILE *mem, struct ir_string *ir)
 
 static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
 {
-    fprintf(mem, "%st%lu", ir->deref ? "*" : "", ir->idx);
+    if (ir->deref)
+        fprintf(mem, "*");
+
+    if (ir->addr_of)
+        fprintf(mem, "&");
+
+    fprintf(mem, "t%lu", ir->idx);
+
     if (ir->ssa_idx != UINT64_MAX)
         fprintf(mem, ".%lu", ir->ssa_idx);
 }
