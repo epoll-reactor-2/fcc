@@ -74,6 +74,7 @@ bool ir_test(const char *path, const char *filename)
             ir_ddg_build(decl);
             ddg_dump(stdout, decl);
             opt_fn(decl);
+            ir_build_cfg(decl);
 
             // if (!strcmp(decl->name, "main"))
                 ir_dump_cfg(after_opt_stream, decl);

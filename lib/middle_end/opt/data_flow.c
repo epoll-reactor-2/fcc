@@ -28,10 +28,11 @@ __weak_really_inline static void traverse_dd_chain(bool *visited, struct ir_node
 __weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
 {
     struct ir_node *it = ir;
+    uint64_t loop_idx = ir->meta.global_loop_idx;
 
     while (it &&
            it->cfg.preds.count > 0 &&
-           it->meta.global_loop_idx == vector_at(it->cfg.preds, 0)->meta.global_loop_idx &&
+           it->meta.global_loop_idx == loop_idx &&
            it->meta.block_depth > 0
     ) {
         mark_visited(visited, it);
@@ -43,7 +44,7 @@ __weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
 
     while (it &&
            it->next &&
-           it->meta.global_loop_idx == ir->next->meta.global_loop_idx &&
+           it->meta.global_loop_idx == loop_idx &&
            it->meta.block_depth > 0
     ) {
         mark_visited(visited, it);
@@ -59,7 +60,6 @@ static void traverse_ddg(bool *visited, struct ir_node *ir)
     vector_foreach(*ddgs, i) {
         struct ir_node *ddg = vector_at(*ddgs, i);
         if (!visited[ddg->instr_idx]) {
-            printf("Traverse DDG %ld\n", ddg->instr_idx);
             mark_visited(visited, ddg);
             extend_loop(visited, ddg);
             traverse_ddg(visited, ddg);
@@ -88,7 +88,8 @@ static void traverse(bool *visited, struct ir_node *ir)
                Left them. */
             mark_visited(visited, it);
             break;
-        default: break;
+        default:
+            break;
         }
 
         it = it->next;
@@ -100,10 +101,8 @@ static void cut(bool *visited, struct ir_node *ir)
     struct ir_node *it = ir;
 
     while (it) {
-        if (!visited[it->instr_idx]) {
-            printf("Remove %ld\n", it->instr_idx);
+        if (!visited[it->instr_idx])
             ir_remove(&it, &ir);
-        }
         if (it)
             it = it->next;
     }
