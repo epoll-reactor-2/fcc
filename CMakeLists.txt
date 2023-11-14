@@ -23,7 +23,7 @@ if (SANITIZE)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=cfi -fvisibility=default -flto")
     endif()
 else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -mtune=generic -O3 -D NDEBUG")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -mtune=generic -O3")
 endif()
 
 set(LEX_SRC "lex.yy.c")

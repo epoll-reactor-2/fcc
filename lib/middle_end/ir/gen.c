@@ -628,15 +628,41 @@ static void visit_unary(struct ast_unary *ast)
         ir_insert_last();
         break;
     /* Pointer operations. */
-    case TOK_STAR: /* * */
+    case TOK_STAR:    /* * */
     case TOK_BIT_AND: /* & */ {
         assert(
             ir_last->type == IR_SYM &&
             "Address can be taken only of variable."
         );
-        struct ir_sym *s = ir_last->ir;
-        s->deref   = op == TOK_STAR;
-        s->addr_of = op == TOK_BIT_AND;
+        struct ir_node *s_ir     = ir_last;
+        struct ir_sym  *s        = ir_last->ir;
+        uint64_t        next_idx = ir_var_idx++;
+
+        /* 1. Get existing type from mapping.
+
+           Maybe, ptr_depth is not always equals 1 there.
+           We can get dereference pointer of depth 1 and
+           get scalar alloca. */
+        ir_last = ir_alloca_init(ir_type_map[s->idx], /*ptr_depth=*/1, next_idx);
+        ir_insert_last();
+
+        ir_last = ir_store_sym_init(next_idx, s_ir);
+        ir_insert_last();
+
+        ir_last = ir_sym_init(next_idx);
+        struct ir_sym *new_s = ir_last->ir;
+
+        /* 2. Push new one type to mapping. */
+        ir_type_map[new_s->idx] = ir_type_map[s->idx];
+
+        /* ??? */
+        /*
+        s->deref       = op == TOK_STAR;
+        s->addr_of     = op == TOK_BIT_AND;
+        */
+
+        new_s->deref   = op == TOK_STAR;
+        new_s->addr_of = op == TOK_BIT_AND;
         break;
     }
     default:
