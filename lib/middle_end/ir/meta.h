@@ -44,7 +44,7 @@ struct meta {
 
     /** Depth of current block. Needed to handle
         nested code blocks inside '{' and '}' in optimizations. */
-    uint64_t nesting;
+    uint64_t block_depth;
 
     /** Most outer loop index. Needed to know when
         to stop optimizing algorithms in case when

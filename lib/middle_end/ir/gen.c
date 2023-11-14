@@ -20,6 +20,12 @@ static ir_vector_t        ir_func_decls;
 static struct ir_node    *ir_first;
 static struct ir_node    *ir_last;
 static struct ir_node    *ir_prev;
+/* Our IR is designed to store a lot of implicit information
+   and our language is not simply stack-based, when we can
+   pop last two generated instructions and always know their
+   type.
+   So there is a type of last created instruction (if any),
+   and mapping between symbol index and type. */
 static enum   data_type   ir_last_dt;
 static enum   data_type   ir_type_map[65536];
 /* Used to count alloca instructions.
@@ -29,7 +35,10 @@ static enum   data_type   ir_type_map[65536];
 static uint64_t           ir_var_idx;
 static bool               ir_save_first;
 static bool               ir_meta_is_loop;
-static uint64_t           ir_nesting;
+/* Depth of source-level blocks ({ ... }). */
+static uint64_t           ir_block_depth;
+/* Loop index in function boundaries. If loop is nested,
+   index is incremented sequentially. */
 static uint64_t           ir_loop_idx;
 static  int64_t           ir_dominant_condition_idx = -1;
 static uint64_t           ir_meta_loop_idx;
@@ -70,7 +79,7 @@ static enum data_type ir_func_return_type(const char *name)
 static void ir_try_add_meta(struct ir_node *ir)
 {
     ir->meta.kind = IR_META_SYM;
-    ir->meta.nesting = ir_nesting;
+    ir->meta.block_depth = ir_block_depth;
     ir->meta.global_loop_idx = ir_loop_idx;
 
     if (ir_meta_is_loop) {
@@ -363,10 +372,10 @@ static void visit_for(struct ast_for *ast)
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
-    if (ir_nesting == 0)
+    if (ir_block_depth == 0)
         ++ir_loop_idx;
 
-    ++ir_nesting;
+    ++ir_block_depth;
     /* Condition is optional. */
     if (ast->condition) {
         next_iter_jump_idx       = ir_last->instr_idx + 1;
@@ -403,7 +412,7 @@ static void visit_for(struct ast_for *ast)
         exit_jmp_ptr->idx = ir_last->instr_idx + 1;
 
     ir_insert_last();
-    --ir_nesting;
+    --ir_block_depth;
 
     if (ast->condition && body_start)
         mark_dominant_condition(body_start, ir_last, cond->instr_idx);
@@ -427,10 +436,10 @@ static void visit_while(struct ast_while *ast)
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
-    if (ir_nesting == 0)
+    if (ir_block_depth == 0)
         ++ir_loop_idx;
 
-    ++ir_nesting;
+    ++ir_block_depth;
     ir_meta_is_loop = 1;
     visit(ast->cond);
     ir_meta_is_loop = 0;
@@ -452,7 +461,7 @@ static void visit_while(struct ast_while *ast)
 
     struct ir_node *next_iter_jmp = ir_jump_init(next_iter_idx);
     ir_insert(next_iter_jmp);
-    --ir_nesting;
+    --ir_block_depth;
 
     // vector_push_back(cond->cfg.succs, exit_jmp);
 
@@ -483,10 +492,10 @@ static void visit_do_while(struct ast_do_while *ast)
     else
         stmt_begin = ir_last->instr_idx;
 
-    if (ir_nesting == 0)
+    if (ir_block_depth == 0)
         ++ir_loop_idx;
 
-    ++ir_nesting;
+    ++ir_block_depth;
     visit(ast->body);
 
     if (initial_stmt == NULL)
@@ -508,7 +517,7 @@ static void visit_do_while(struct ast_do_while *ast)
     cond_ptr->goto_label = stmt_begin + 1;
 
     ir_insert(cond);
-    --ir_nesting;
+    --ir_block_depth;
 
     mark_dominant_condition(initial_stmt, ir_last, ir_last->instr_idx);
 
@@ -535,7 +544,7 @@ static void visit_if(struct ast_if *ast)
        L5:  else body instr 2
        L6:  after if */
 
-    ++ir_nesting;
+    ++ir_block_depth;
     visit(ast->condition);
     assert((
         ir_last->type == IR_IMM ||
@@ -567,7 +576,7 @@ static void visit_if(struct ast_if *ast)
     struct ir_node *initial_stmt = ir_last;
 
     visit(ast->body);
-    --ir_nesting;
+    --ir_block_depth;
 
     initial_stmt = initial_stmt->next;
 
@@ -581,7 +590,7 @@ static void visit_if(struct ast_if *ast)
     mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
 
     if (!ast->else_body) return;
-    ++ir_nesting;
+    ++ir_block_depth;
     struct ir_node *else_jmp = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *else_jmp_ptr = else_jmp->ir;
     /* Index of this jump will be changed through pointer. */
@@ -598,7 +607,7 @@ static void visit_if(struct ast_if *ast)
     initial_stmt = initial_stmt->next;
 
     mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
-    --ir_nesting;
+    --ir_block_depth;
 }
 
 static void visit_ret(struct ast_ret *ast)
@@ -818,7 +827,7 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
     ir_last_dt = D_T_UNKNOWN;
     ir_var_idx = 0;
     ir_loop_idx = 0;
-    ir_nesting = 0;
+    ir_block_depth = 0;
     ir_dominant_condition_idx = -1;
     ir_first = NULL;
     ir_last = NULL;
