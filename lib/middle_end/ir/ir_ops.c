@@ -9,20 +9,13 @@
 
 void ir_remove(struct ir_node **ir, struct ir_node **list_head)
 {
-    /* Note: conditional statements is never removed, so
-             *next_else and *prev_else are unused. */
     if ((*ir)->next) {
+        if ((*ir)->prev)
+            (*ir)->prev->next = (*ir)->next;
         (*ir)->next->prev = (*ir)->prev;
-        /* Copy from ir->next->prev to ir->prev. */
-        vector_foreach ((*ir)->cfg.preds, i) {
-            struct ir_node *it = vector_at((*ir)->cfg.preds, i);
-            vector_push_back((*ir)->next->cfg.preds, it);
-        }
     }
 
-    if ((*ir)->cfg.preds.count > 0) {
-        (*ir)->cfg.preds.data[0]->next = (*ir)->next;
-    } else {
+    if (!(*ir)->prev) {
         (*ir) = (*ir)->next;
         (*list_head) = (*ir);
     }
