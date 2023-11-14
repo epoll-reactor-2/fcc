@@ -20,6 +20,24 @@ void (*opt_fn)(struct ir_func_decl *);
 
 char current_output_dir[128];
 
+void ddg_dump(FILE *stream, struct ir_func_decl *decl)
+{
+    struct ir_node *it = decl->body;
+
+    while (it) {
+        ir_vector_t *ddgs = &it->ddg_stmts;
+        fprintf(stream, "instr %2ld: depends on (", it->instr_idx);
+        vector_foreach(*ddgs, i) {
+            struct ir_node *stmt = vector_at(*ddgs, i);
+            fprintf(stream, "%ld", stmt->instr_idx);
+            if (i < ddgs->count - 1)
+                fprintf(stream, ", ");
+        }
+        fprintf(stream, ")\n");
+        it = it->next;
+    }
+}
+
 bool ir_test(const char *path, const char *filename)
 {
     bool    ok                   = 1;
@@ -44,12 +62,25 @@ bool ir_test(const char *path, const char *filename)
         extract_assertion_comment(yyin, expected_stream);
 
         while (it) {
-            ir_ddg_build(it->ir);
-            ir_dump_cfg(before_opt_stream, it->ir);
-            opt_fn(it->ir);
-            ir_ddg_build(it->ir);
-            ir_dump_cfg(after_opt_stream, it->ir);
-            ir_dump(generated_stream, it->ir);
+            struct ir_func_decl *decl = it->ir;
+            ir_link(decl);
+            ir_build_cfg(decl);
+
+            ir_dump(stdout, decl);
+
+            // if (!strcmp(decl->name, "main"))
+                ir_dump_cfg(before_opt_stream, decl);
+
+            ir_ddg_build(decl);
+            ddg_dump(stdout, decl);
+            opt_fn(decl);
+
+            // if (!strcmp(decl->name, "main"))
+                ir_dump_cfg(after_opt_stream, decl);
+
+            // if (!strcmp(decl->name, "main"))
+                ir_dump(generated_stream, decl);
+
             it = it->next;
         }
 
@@ -110,15 +141,17 @@ int main()
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
-    return 0;
-
+#if 0
     opt_fn = ir_opt_fold;
     if (run("fold") < 0)
         return -1;
+#endif
 
+#if 0
     opt_fn = ir_opt_arith;
     if (run("arith") < 0)
         return -1;
+#endif
 
 #if 0
     opt_fn = ir_opt_dead_code_elimination;
@@ -126,17 +159,23 @@ int main()
         return -1;
 #endif
 
+#if 0
     opt_fn = ir_opt_reorder;
     if (run("reorder") < 0)
         return -1;
+#endif
 
+#if 0
     opt_fn = ir_opt_unreachable_code;
     if (run("unreachable") < 0)
         return -1;
+#endif
 
+#if 1
     opt_fn = ir_opt_data_flow;
     if (run("data_flow") < 0)
         return -1;
+#endif
 
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);

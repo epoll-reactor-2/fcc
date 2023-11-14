@@ -24,24 +24,6 @@
 //       2:   int t1
 //       3:   t1 = 0
 //      18:   ret t1
-int __dont() {
-    int a = 0;
-    int b = 0;
-    int c = 0;
-
-    while (b) {
-        while (c) {
-            while (a) {
-                ++a;
-            }
-            ++a;
-        }
-        ++a;
-    }
-
-    return a;
-}
-
 int __do() {
     int a = 0;
     int b = 0;
@@ -58,4 +40,22 @@ int __do() {
     }
 
     return b;
+}
+
+int __dont() {
+    int a = 0;
+    int b = 0;
+    int c = 0;
+
+    while (b) {
+        while (c) {
+            while (a) {
+                ++a;
+            }
+            ++a;
+        }
+        ++a;
+    }
+
+    return a;
 }
