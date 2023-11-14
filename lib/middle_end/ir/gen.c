@@ -614,30 +614,37 @@ static void visit_unary(struct ast_unary *ast)
     struct ir_node *sym_node = ir_last;
 
     enum token_type op = ast->op;
-    /* Checked by parser. */
-    assert(op == TOK_INC || op == TOK_DEC);
 
-    /* int t0
-     * t0 = 1
-     * int *t1
-     * t1 = &t1
-     * */
-
-    /* TODO: &dereference operator. */
-    ir_last = ir_bin_init(
-        op == TOK_INC
-            ? TOK_PLUS
-            : TOK_MINUS,
-        ir_last,
-        ir_imm_int_init(1)
-    );
-
-    ir_last = ir_store_sym_init(sym->idx, ir_last);
+    switch (op) {
+    /* Arithmetic operations. */
+    case TOK_INC:
+    case TOK_DEC:
+        ir_last = ir_bin_init(
+            op == TOK_INC
+                ? TOK_PLUS
+                : TOK_MINUS, ir_last, ir_imm_int_init(1)
+        );
+        ir_last = ir_store_sym_init(sym->idx, ir_last);
+        ir_insert_last();
+        break;
+    /* Pointer operations. */
+    case TOK_STAR: /* * */
+    case TOK_BIT_AND: /* & */ {
+        assert(
+            ir_last->type == IR_SYM &&
+            "Address can be taken only of variable."
+        );
+        struct ir_sym *s = ir_last->ir;
+        s->deref   = op == TOK_STAR;
+        s->addr_of = op == TOK_BIT_AND;
+        break;
+    }
+    default:
+        weak_unreachable("Unknown operator `%s`", tok_to_string(op));
+    }
 
     sym_node->meta.kind = IR_META_SYM;
     sym_node->meta.sym.noalias = 1;
-
-    ir_insert_last();
 }
 
 static void visit_struct_decl(struct ast_struct_decl *ast) { (void) ast; }

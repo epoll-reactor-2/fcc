@@ -164,8 +164,11 @@ struct ir_string {
 
 struct ir_sym {
     /** Are we dereferencing pointer or not?
-        Like *ptr. */
+        *ptr. */
     bool        deref;
+    /** Are we taking address of a variable?
+        &ptr. */
+    bool        addr_of;
     uint64_t    idx;
     uint64_t    ssa_idx;
     struct type type_info;
