@@ -29,7 +29,6 @@ struct ir_node *ir_node_init(enum ir_type type, void *ir)
     node->ir = ir;
     node->meta.block_depth = META_VALUE_UNKNOWN;
     node->meta.global_loop_idx = META_VALUE_UNKNOWN;
-    node->meta.dominant_condition_idx = META_VALUE_UNKNOWN;
     node->cfg_block_no = 0;
     return node;
 }

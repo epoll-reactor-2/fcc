@@ -40,7 +40,6 @@ static uint64_t           ir_block_depth;
 /* Loop index in function boundaries. If loop is nested,
    index is incremented sequentially. */
 static uint64_t           ir_loop_idx;
-static  int64_t           ir_dominant_condition_idx = -1;
 static uint64_t           ir_meta_loop_idx;
 /* This used to judge if we should put function call to IR list
    or use it as instruction operand. */
@@ -282,23 +281,6 @@ static void visit_continue(struct ast_continue *ast)
     ir_insert(ir);
 }
 
-/* Add metainformation about data flow condition dominator.
-   After this, each statement is depends (by data) on its loop
-   condition.
-  
-   Pay attention, that if loop is nested, each statement depends
-   on the most outer condition. In general, on loop condition at global
-   function level. */
-static void mark_dominant_condition(struct ir_node *start, struct ir_node *end, uint64_t dom_idx)
-{
-    while (start && start != end) {
-        start->meta.dominant_condition_idx =
-            dom_idx;
-
-        start = start->next;
-    }
-}
-
 /* To emit correct `break`, we just attach it to the next
    statement after the loop.
   
@@ -414,9 +396,6 @@ static void visit_for(struct ast_for *ast)
     ir_insert_last();
     --ir_block_depth;
 
-    if (ast->condition && body_start)
-        mark_dominant_condition(body_start, ir_last, cond->instr_idx);
-
     emit_loop_flow_instrs();
 }
 
@@ -449,8 +428,6 @@ static void visit_while(struct ast_while *ast)
     struct ir_cond *cond_ptr      = cond->ir;
     struct ir_node *exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *exit_jmp_ptr  = exit_jmp->ir;
-
-    ir_dominant_condition_idx = cond->instr_idx;
 
     ir_insert(cond);
     ir_insert(exit_jmp);
@@ -519,8 +496,6 @@ static void visit_do_while(struct ast_do_while *ast)
     ir_insert(cond);
     --ir_block_depth;
 
-    mark_dominant_condition(initial_stmt, ir_last, ir_last->instr_idx);
-
     emit_loop_flow_instrs();
 }
 
@@ -566,8 +541,6 @@ static void visit_if(struct ast_if *ast)
     struct ir_node *exit_jmp     = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *exit_jmp_ptr = exit_jmp->ir;
 
-    ir_dominant_condition_idx = cond->instr_idx;
-
     /* Body starts after exit jump. */
     cond_ptr->goto_label = exit_jmp->instr_idx + 1;
     ir_insert(cond);
@@ -587,8 +560,6 @@ static void visit_if(struct ast_if *ast)
        on the return type) function. */
     exit_jmp_ptr->idx = ir_last->instr_idx + 1;
 
-    mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
-
     if (!ast->else_body) return;
     ++ir_block_depth;
     struct ir_node *else_jmp = ir_jump_init(/*Not used for now.*/-1);
@@ -606,7 +577,6 @@ static void visit_if(struct ast_if *ast)
 
     initial_stmt = initial_stmt->next;
 
-    mark_dominant_condition(initial_stmt, ir_last, cond->instr_idx);
     --ir_block_depth;
 }
 
@@ -828,7 +798,6 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
     ir_var_idx = 0;
     ir_loop_idx = 0;
     ir_block_depth = 0;
-    ir_dominant_condition_idx = -1;
     ir_first = NULL;
     ir_last = NULL;
     ir_prev = NULL;

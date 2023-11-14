@@ -36,8 +36,7 @@ __weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
     ) {
         mark_visited(visited, it);
         traverse_dd_chain(visited, it);
-        // it = it->prev;
-        it = vector_at(it->cfg.preds, 0);
+        it = it->prev;
     }
 
     it = ir;
@@ -60,6 +59,7 @@ static void traverse_ddg(bool *visited, struct ir_node *ir)
     vector_foreach(*ddgs, i) {
         struct ir_node *ddg = vector_at(*ddgs, i);
         if (!visited[ddg->instr_idx]) {
+            printf("Traverse DDG %ld\n", ddg->instr_idx);
             mark_visited(visited, ddg);
             extend_loop(visited, ddg);
             traverse_ddg(visited, ddg);
@@ -100,8 +100,10 @@ static void cut(bool *visited, struct ir_node *ir)
     struct ir_node *it = ir;
 
     while (it) {
-        if (!visited[it->instr_idx])
+        if (!visited[it->instr_idx]) {
+            printf("Remove %ld\n", it->instr_idx);
             ir_remove(&it, &ir);
+        }
         if (it)
             it = it->next;
     }
