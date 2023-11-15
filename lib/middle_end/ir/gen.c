@@ -601,6 +601,48 @@ static void visit_sym(struct ast_sym *ast)
     ir_last_dt = ir_type_map[idx].dt;
 }
 
+__weak_really_inline static void visit_unary_arith(enum token_type op)
+{
+    struct ir_sym *sym = ir_last->ir;
+
+    ir_last = ir_bin_init(
+            op == TOK_INC
+            ? TOK_PLUS
+            : TOK_MINUS, ir_last, ir_imm_int_init(1)
+    );
+    ir_last = ir_store_sym_init(sym->idx, ir_last);
+    ir_insert_last();
+}
+
+__weak_really_inline static void visit_unary_pointer(enum token_type op)
+{
+    assert(
+            ir_last->type == IR_SYM &&
+            "Address can be taken only of variable."
+    );
+    struct ir_node *sym_node = ir_last;
+    struct ir_sym  *sym      = ir_last->ir;
+    uint64_t        next_idx = ir_var_idx++;
+
+    ir_last = ir_alloca_init(
+        ir_type_map[sym->idx].dt,
+        ir_type_map[sym->idx].ptr_depth > 0,
+        next_idx
+    );
+    ir_insert_last();
+
+    ir_last = ir_store_sym_init(next_idx, sym_node);
+    ir_insert_last();
+
+    ir_last = ir_sym_init(next_idx);
+    struct ir_sym *new_s = ir_last->ir;
+
+    ir_type_map[new_s->idx] = ir_type_map[sym->idx];
+
+    new_s->deref   = op == TOK_STAR;
+    new_s->addr_of = op == TOK_BIT_AND;
+}
+
 /* Note: unary statements always have @noalias attribute. */
 static void visit_unary(struct ast_unary *ast)
 {
@@ -610,8 +652,6 @@ static void visit_unary(struct ast_unary *ast)
     ) && (
         "Unary operator expects variable argument."
     ));
-    struct ir_sym  *sym      = ir_last->ir;
-    struct ir_node *sym_node = ir_last;
 
     enum token_type op = ast->op;
 
@@ -619,52 +659,16 @@ static void visit_unary(struct ast_unary *ast)
     /* Arithmetic operations. */
     case TOK_INC:
     case TOK_DEC:
-        ir_last = ir_bin_init(
-            op == TOK_INC
-                ? TOK_PLUS
-                : TOK_MINUS, ir_last, ir_imm_int_init(1)
-        );
-        ir_last = ir_store_sym_init(sym->idx, ir_last);
-        ir_insert_last();
+        visit_unary_arith(op);
         break;
     /* Pointer operations. */
     case TOK_STAR:    /* * */
-    case TOK_BIT_AND: /* & */ {
-        assert(
-            ir_last->type == IR_SYM &&
-            "Address can be taken only of variable."
-        );
-        struct ir_node *s_ir     = ir_last;
-        struct ir_sym  *s        = ir_last->ir;
-        uint64_t        next_idx = ir_var_idx++;
-
-        /* 1. Get existing type from mapping.
-
-           Maybe, ptr_depth is not always equals 1 there.
-           We can get dereference pointer of depth 1 and
-           get scalar alloca. */
-        ir_last = ir_alloca_init(ir_type_map[s->idx].dt, ir_type_map[s->idx].ptr_depth > 0, next_idx);
-        ir_insert_last();
-
-        ir_last = ir_store_sym_init(next_idx, s_ir);
-        ir_insert_last();
-
-        ir_last = ir_sym_init(next_idx);
-        struct ir_sym *new_s = ir_last->ir;
-
-        /* 2. Push new one type to mapping. */
-        ir_type_map[new_s->idx] = ir_type_map[s->idx];
-
-        new_s->deref   = op == TOK_STAR;
-        new_s->addr_of = op == TOK_BIT_AND;
+    case TOK_BIT_AND: /* & */
+        visit_unary_pointer(op);
         break;
-    }
     default:
         weak_unreachable("Unknown operator `%s`", tok_to_string(op));
     }
-
-    sym_node->meta.kind = IR_META_SYM;
-    sym_node->meta.sym.noalias = 1;
 }
 
 static void visit_struct_decl(struct ast_struct_decl *ast) { (void) ast; }
