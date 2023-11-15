@@ -43,8 +43,8 @@ static void fn_type_save(struct ir_func_decl *decl)
     struct type *t = weak_calloc(1, sizeof (struct type));
 
     t->dt = decl->ret_type;
-    t->ptr = decl->ptr_depth > 0;
-    t->bytes = t->ptr ? 8 : dt_size(t->dt);
+    t->ptr_depth = decl->ptr_depth;
+    t->bytes = t->ptr_depth > 0 ? 8 : dt_size(t->dt);
 
     hashmap_put(&fn_map, crc32_string(decl->name), (uint64_t) t);
 }
@@ -110,7 +110,7 @@ static void type_pass_alloca(struct ir_alloca *alloca)
 
     type_map[i] = (struct type) {
         .dt         = alloca->dt,
-        .ptr        = alloca->ptr_depth > 0,
+        .ptr_depth  = alloca->ptr_depth,
         .arity_size = 0,
         .bytes      = bytes
     };
@@ -125,7 +125,7 @@ static void type_pass_alloca_array(struct ir_alloca_array *alloca)
 
     type_map[i] = (struct type) {
         .dt         = alloca->dt,
-        .ptr        = 0,
+        .ptr_depth  = 0,
         .arity_size = alloca->arity_size,
         .bytes      = bytes
     };
@@ -139,7 +139,7 @@ static void type_pass_imm(struct ir_imm *i)
 
     i->type_info = (struct type) {
         .dt         = dt,
-        .ptr        = 0,
+        .ptr_depth  = 0,
         .arity_size = 0,
         .bytes      = dt_size(dt)
     };

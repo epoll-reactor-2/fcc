@@ -29,6 +29,7 @@ void ir_storage_reset();
 struct ir_storage_record {
     int32_t         sym_idx;
     enum data_type  dt;
+    uint64_t        ptr_depth;
     /** Allocated inside internal hashmap. Not needed to free. */
     struct ir_node *ir;
 };
@@ -37,6 +38,7 @@ void ir_storage_push(
     const char     *name,
     int32_t         sym_idx,
     enum data_type  dt,
+    uint64_t        ptr_depth,
     struct ir_node *ir
 );
 

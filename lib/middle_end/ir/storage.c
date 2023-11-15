@@ -25,6 +25,7 @@ void ir_storage_push(
     const char     *name,
     int32_t         sym_idx,
     enum data_type  dt,
+    uint64_t        ptr_depth,
     struct ir_node *ir
 ) {
     struct ir_storage_record *record =
@@ -33,6 +34,7 @@ void ir_storage_push(
     record->sym_idx = sym_idx;
     record->dt = dt;
     record->ir = ir;
+    record->ptr_depth = ptr_depth;
 
     hashmap_put(&storage, crc32_string(name), (uint64_t) record);
 }
