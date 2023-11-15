@@ -198,7 +198,7 @@ static void ir_dump_phi(FILE *mem, struct ir_phi *ir)
 __weak_unused static void type_dump(struct type *t)
 {
     printf("(dt=`%s`,", data_type_to_string(t->dt));
-    printf("ptr=%d,", t->ptr);
+    printf("ptr=%ld,", t->ptr_depth);
     printf("bytes=%ld)", t->bytes);
 }
 

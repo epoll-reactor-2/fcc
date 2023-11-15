@@ -26,8 +26,8 @@ static struct ir_node    *ir_prev;
    type.
    So there is a type of last created instruction (if any),
    and mapping between symbol index and type. */
-static enum   data_type   ir_last_dt;
-static enum   data_type   ir_type_map[65536];
+static enum data_type     ir_last_dt;
+static struct type        ir_type_map[65536];
 /* Used to count alloca instructions.
    Conditions:
    - reset at the start of each function declaration,
@@ -598,7 +598,7 @@ static void visit_sym(struct ast_sym *ast)
     uint64_t idx = ir_storage_get(ast->value)->sym_idx;
     ir_last = ir_sym_init(idx);
     /* TODO: Supply. */
-    ir_last_dt = ir_type_map[idx];
+    ir_last_dt = ir_type_map[idx].dt;
 }
 
 /* Note: unary statements always have @noalias attribute. */
@@ -643,7 +643,7 @@ static void visit_unary(struct ast_unary *ast)
            Maybe, ptr_depth is not always equals 1 there.
            We can get dereference pointer of depth 1 and
            get scalar alloca. */
-        ir_last = ir_alloca_init(ir_type_map[s->idx], /*ptr_depth=*/1, next_idx);
+        ir_last = ir_alloca_init(ir_type_map[s->idx].dt, ir_type_map[s->idx].ptr_depth > 0, next_idx);
         ir_insert_last();
 
         ir_last = ir_store_sym_init(next_idx, s_ir);
@@ -654,12 +654,6 @@ static void visit_unary(struct ast_unary *ast)
 
         /* 2. Push new one type to mapping. */
         ir_type_map[new_s->idx] = ir_type_map[s->idx];
-
-        /* ??? */
-        /*
-        s->deref       = op == TOK_STAR;
-        s->addr_of     = op == TOK_BIT_AND;
-        */
 
         new_s->deref   = op == TOK_STAR;
         new_s->addr_of = op == TOK_BIT_AND;
@@ -679,11 +673,12 @@ static void emit_var(struct ast_var_decl *ast)
 {
     uint64_t next_idx = ir_var_idx++;
     ir_last = ir_alloca_init(ast->dt, ast->ptr_depth, next_idx);
-    ir_type_map[next_idx] = ast->dt;
+    ir_type_map[next_idx].dt = ast->dt;
+    ir_type_map[next_idx].ptr_depth = ast->ptr_depth;
 
     /* Used as function argument or as function body statement. */
     ir_insert_last();
-    ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
+    ir_storage_push(ast->name, next_idx, ast->dt, ast->ptr_depth, ir_last);
 
     if (ast->body) {
         visit(ast->body);
@@ -700,7 +695,7 @@ static void emit_var_string(struct ast_var_decl *ast)
 
     ir_last = ir_alloca_array_init(D_T_CHAR, &mem_siz, 1, next_idx);
     ir_insert_last();
-    ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
+    ir_storage_push(ast->name, next_idx, ast->dt, ast->ptr_depth, ir_last);
 
     visit(ast->body);
     ir_last = ir_store_init(ir_sym_init(next_idx), ir_last);
@@ -772,7 +767,7 @@ static void visit_array_decl(struct ast_array_decl *ast)
     ir_last = ir_alloca_array_init(ast->dt, lvls, enclosure->size, next_idx);
     ir_insert_last();
 
-    ir_storage_push(ast->name, next_idx, ast->dt, ir_last);
+    ir_storage_push(ast->name, next_idx, ast->dt, ast->ptr_depth, ir_last);
 }
 
 static void visit_array_access(struct ast_array_access *ast)
@@ -791,7 +786,8 @@ static void visit_array_access(struct ast_array_access *ast)
         uint64_t next_idx = ir_var_idx++;
 
         ir_last = ir_alloca_init(record->dt, /*ptr=*/1, next_idx);
-        ir_type_map[next_idx] = record->dt;
+        ir_type_map[next_idx].dt = record->dt;
+        ir_type_map[next_idx].ptr_depth = record->ptr_depth;
         ir_insert_last();
         ir_last = ir_store_init(
             ir_sym_init(next_idx),
@@ -900,7 +896,7 @@ static void visit_fn_call(struct ast_fn_call *ast)
     } else {
         uint64_t next_idx = ir_var_idx++;
         ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
-        ir_type_map[next_idx] = ret_dt;
+        ir_type_map[next_idx].dt = ret_dt;
         ir_insert_last();
 
         ir_last = ir_func_call_init(fcall_name, args_start);

@@ -13,7 +13,7 @@
 
 struct type {
     enum data_type dt;
-    bool           ptr;
+    uint64_t       ptr_depth;
     uint64_t       arity[16];
     uint64_t       arity_size;
     uint64_t       bytes;
