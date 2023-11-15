@@ -64,15 +64,16 @@ bool ir_test(const char *path, const char *filename)
     FILE   *expected_stream  = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
     FILE   *tmp_cfg          = fopen("/tmp/g.dot", "w+");
+    struct  ir_unit      *ir = NULL;
 
     if (!setjmp(weak_fatal_error_buf)) {
-        struct ir_unit *ir = gen_ir(path);
+        ir = gen_ir(path);
         struct ir_node *it = ir->func_decls;
         ir_type_pass(ir);
 
         extract_assertion_comment(yyin, expected_stream);
 
-        ir_dump_unit(stdout, ir);
+        /* ir_dump_unit(stdout, ir); */
 
         while (it) {
             struct ir_func_decl *decl = it->ir;
@@ -93,7 +94,7 @@ bool ir_test(const char *path, const char *filename)
                ir_opt_data_flow(decl); */
 
             /* ir_dump_cfg(tmp_cfg, decl); */
-             ir_dump(stdout, decl);
+            /* ir_dump(stdout, decl); */
             /* cfg_edges_dump(stdout, decl); */
             fflush(tmp_cfg);
             it = it->next;
@@ -102,11 +103,10 @@ bool ir_test(const char *path, const char *filename)
         int32_t exit_code = eval(ir->func_decls);
         int32_t expected_code = 0;
 
-        ir_unit_cleanup(ir);
-
         fscanf(expected_stream, "%d", &expected_code);
 
         if (exit_code != expected_code) {
+            ir_dump_unit(stdout, ir);
             printf("Return value mismatch: got %d, expected %d\n", exit_code, expected_code);
             ok = 0;
             goto exit;
@@ -123,6 +123,7 @@ exit:
     fclose(generated_stream);
     free(expected);
     free(generated);
+    ir_unit_cleanup(ir);
 
     return ok;
 }
