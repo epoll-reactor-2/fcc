@@ -116,7 +116,7 @@ static void ir_insert(struct ir_node *new_node)
     ir_prev = new_node;
 }
 
-__weak_really_inline static void ir_insert_last()
+really_inline static void ir_insert_last()
 {
     ir_insert(ir_last);
 }
@@ -601,12 +601,12 @@ static void visit_sym(struct ast_sym *ast)
     ir_last_dt = ir_type_map[idx].dt;
 }
 
-__weak_really_inline static void visit_unary_arith(enum token_type op)
+really_inline static void visit_unary_arith(enum token_type op)
 {
     struct ir_sym *sym = ir_last->ir;
 
     ir_last = ir_bin_init(
-            op == TOK_INC
+        op == TOK_INC
             ? TOK_PLUS
             : TOK_MINUS, ir_last, ir_imm_int_init(1)
     );
@@ -614,7 +614,7 @@ __weak_really_inline static void visit_unary_arith(enum token_type op)
     ir_insert_last();
 }
 
-__weak_really_inline static void visit_unary_pointer(enum token_type op)
+really_inline static void visit_unary_pointer(enum token_type op)
 {
     assert(
             ir_last->type == IR_SYM &&

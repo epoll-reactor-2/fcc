@@ -7,13 +7,13 @@
 #include "middle_end/opt/opt.h"
 #include "middle_end/ir/ir.h"
 
-__weak_really_inline static void mark_visited(bool *visited, struct ir_node *ir)
+really_inline static void mark_visited(bool *visited, struct ir_node *ir)
 {
     visited[ir->instr_idx] = 1;
 }
 
 /* dd -- Data dependency. */
-__weak_really_inline static void traverse_dd_chain(bool *visited, struct ir_node *it)
+really_inline static void traverse_dd_chain(bool *visited, struct ir_node *it)
 {
     ir_vector_t *ddgs = &it->ddg_stmts;
     vector_foreach(*ddgs, i) {
@@ -25,7 +25,7 @@ __weak_really_inline static void traverse_dd_chain(bool *visited, struct ir_node
 
 /* Walk over loop and mark statements above and below
    in bounds of loop (up to most outer) as needed. */
-__weak_really_inline static void extend_loop(bool *visited, struct ir_node *ir)
+really_inline static void extend_loop(bool *visited, struct ir_node *ir)
 {
     struct ir_node *it = ir;
     uint64_t loop_idx = ir->meta.global_loop_idx;

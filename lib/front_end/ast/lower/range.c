@@ -237,7 +237,7 @@ static bool verify_iterated_array(
          }
        } */
 
-__weak_really_inline static void assertion(
+really_inline static void assertion(
     struct ast_for_range *range,
     struct array_decl_info *decl
 ) {
@@ -267,7 +267,7 @@ __weak_really_inline static void assertion(
             );
 }
 
-__weak_really_inline static struct ast_node **make_index(const char *name)
+really_inline static struct ast_node **make_index(const char *name)
 {
     struct ast_node *idx = ast_sym_init(strdup(name), 0, 0);
     struct ast_node **idxs = weak_calloc(1, sizeof (struct ast_node *));
@@ -276,7 +276,7 @@ __weak_really_inline static struct ast_node **make_index(const char *name)
     return idxs;
 }
 
-__weak_really_inline static struct ast_node *make_iter_index(
+really_inline static struct ast_node *make_iter_index(
     const char *__i,
     uint16_t    line_no,
     uint16_t    col_no
@@ -291,7 +291,7 @@ __weak_really_inline static struct ast_node *make_iter_index(
     );
 }
 
-__weak_really_inline static void make_iter_ptr_body(
+really_inline static void make_iter_ptr_body(
     struct array_decl_info *decl,
     struct ast_node        *iter_ptr,
     const char             *__i
@@ -325,7 +325,7 @@ __weak_really_inline static void make_iter_ptr_body(
     }
 }
 
-__weak_really_inline static struct ast_node *enlarge_body(struct ast_compound *body)
+really_inline static struct ast_node *enlarge_body(struct ast_compound *body)
 {
     struct ast_node **new_stmts = weak_calloc(body->size + 1, sizeof (struct ast_node *));
 

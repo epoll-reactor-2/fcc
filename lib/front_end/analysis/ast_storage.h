@@ -58,7 +58,7 @@ void ast_storage_push_typed(
 /** Find storage by name.
    
     \return Corresponding record if found, NULL otherwise. */
-__weak_wur struct ast_storage_decl *ast_storage_lookup(
+wur struct ast_storage_decl *ast_storage_lookup(
     struct ast_storage *s,
     const char         *var_name
 );

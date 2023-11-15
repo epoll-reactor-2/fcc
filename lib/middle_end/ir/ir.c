@@ -269,7 +269,7 @@ struct ir_node *ir_func_call_init(char *name, struct ir_node *args)
     return ir_node_init(IR_FUNC_CALL, ir);
 }
 
-__weak_wur struct ir_node *ir_phi_init(
+wur struct ir_node *ir_phi_init(
     uint64_t sym_idx,
     uint64_t op_1_idx,
     uint64_t op_2_idx

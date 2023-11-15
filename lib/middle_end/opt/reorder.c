@@ -11,7 +11,7 @@
 
 /* This function follows alloca instructions chain and sets jump
    targets to instructions, that placed after alloca's. */
-__weak_really_inline static void reindex(ir_vector_t *stmts)
+really_inline static void reindex(ir_vector_t *stmts)
 {
     vector_foreach(*stmts, i) {
         struct ir_node *curr = vector_at(*stmts, i);
@@ -52,7 +52,7 @@ __weak_really_inline static void reindex(ir_vector_t *stmts)
    +-------+ -- next --> +-------+ -- next --> +-------+ -- next --> +-------+
    |   1   |             |  ir   |             |   2   |             |   3   |
    +-------+ <-- prev -- +-------+ <-- prev -- +-------+ <-- prev -- +-------+ */
-__weak_really_inline static void swap(struct ir_node *ir)
+really_inline static void swap(struct ir_node *ir)
 {
     if (!ir->prev)
         return;
@@ -85,7 +85,7 @@ __weak_really_inline static void swap(struct ir_node *ir)
 /* This generally needed to force reordering algorithm to begin.
    If we start from first alloca statements, wi will fall
    into the senseless infinite recursion. */
-__weak_really_inline static bool initial_move(struct ir_node **ir)
+really_inline static bool initial_move(struct ir_node **ir)
 {
     (*ir) = (*ir)->next;
     if ((*ir))

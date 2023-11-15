@@ -84,11 +84,11 @@ enum token_type {
             apply free() to the result.
    
     \note   weak_unreachable() called on unknown integer value of t. */
-__weak_wur const char *tok_to_string(enum token_type t);
+wur const char *tok_to_string(enum token_type t);
 
 /** \return Token type based on its character value.
    
     \note   weak_unreachable() called on unknown char. */
-__weak_wur enum token_type tok_char_to_tok(char c);
+wur enum token_type tok_char_to_tok(char c);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOK_TYPE_H

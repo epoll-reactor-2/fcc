@@ -27,7 +27,7 @@ typedef vector_t(struct token) tok_array_t;
     \note - Proper lex_init_global_state() and lex_cleanup_global_state()
             calls is user responsibility.
           - Should be called after yylex() call. */
-__weak_wur tok_array_t *lex_consumed_tokens();
+wur tok_array_t *lex_consumed_tokens();
 
 /** Allocate internal resources needed for representing tokens
     array to user. */

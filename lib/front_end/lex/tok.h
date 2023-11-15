@@ -19,6 +19,6 @@ struct token {
     uint16_t         col_no;
 };
 
-__weak_wur bool tok_is(const struct token *tok, char symbol);
+wur bool tok_is(const struct token *tok, char symbol);
 
 #endif // WEAK_COMPILER_FRONTEND_LEX_TOK_H

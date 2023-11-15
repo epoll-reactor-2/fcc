@@ -284,37 +284,37 @@ struct ir_phi {
 
 void ir_reset_internal_state();
 
-__weak_wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
-__weak_wur struct ir_node *ir_alloca_init(enum data_type dt, uint16_t ptr_depth, uint64_t idx);
-__weak_wur struct ir_node *ir_alloca_array_init(
+wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
+wur struct ir_node *ir_alloca_init(enum data_type dt, uint16_t ptr_depth, uint64_t idx);
+wur struct ir_node *ir_alloca_array_init(
     enum data_type  dt,
     uint64_t       *enclosure_lvls,
     uint64_t        enclosure_lvls_size,
     uint64_t         idx
 );
 
-__weak_wur struct ir_node *ir_imm_bool_init(bool imm);
-__weak_wur struct ir_node *ir_imm_char_init(char imm);
-__weak_wur struct ir_node *ir_imm_float_init(float imm);
-__weak_wur struct ir_node *ir_imm_int_init(uint64_t imm);
-__weak_wur struct ir_node *ir_string_init(uint64_t len, char *imm);
+wur struct ir_node *ir_imm_bool_init(bool imm);
+wur struct ir_node *ir_imm_char_init(char imm);
+wur struct ir_node *ir_imm_float_init(float imm);
+wur struct ir_node *ir_imm_int_init(uint64_t imm);
+wur struct ir_node *ir_string_init(uint64_t len, char *imm);
 
-__weak_wur struct ir_node *ir_sym_init(uint64_t idx);
-__weak_wur struct ir_node *ir_sym_ptr_init(uint64_t idx);
+wur struct ir_node *ir_sym_init(uint64_t idx);
+wur struct ir_node *ir_sym_ptr_init(uint64_t idx);
 
-__weak_wur struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body);
-__weak_wur struct ir_node *ir_store_sym_init(uint64_t idx, struct ir_node *body);
+wur struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body);
+wur struct ir_node *ir_store_sym_init(uint64_t idx, struct ir_node *body);
 
-__weak_wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
-__weak_wur struct ir_node *ir_jump_init(uint64_t idx);
-__weak_wur struct ir_node *ir_cond_init(struct ir_node *cond, uint64_t goto_label);
-__weak_wur struct ir_node *ir_ret_init(bool is_void, struct ir_node *body);
-__weak_wur struct ir_node *ir_member_init(uint64_t idx, uint64_t field_idx);
-__weak_wur struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls);
-__weak_wur struct ir_node *ir_func_decl_init(enum data_type ret_type, uint64_t ptr_depth, char *name, struct ir_node *args, struct ir_node *body);
-__weak_wur struct ir_node *ir_func_call_init(char *name, struct ir_node *args);
+wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
+wur struct ir_node *ir_jump_init(uint64_t idx);
+wur struct ir_node *ir_cond_init(struct ir_node *cond, uint64_t goto_label);
+wur struct ir_node *ir_ret_init(bool is_void, struct ir_node *body);
+wur struct ir_node *ir_member_init(uint64_t idx, uint64_t field_idx);
+wur struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls);
+wur struct ir_node *ir_func_decl_init(enum data_type ret_type, uint64_t ptr_depth, char *name, struct ir_node *args, struct ir_node *body);
+wur struct ir_node *ir_func_call_init(char *name, struct ir_node *args);
 
-__weak_wur struct ir_node *ir_phi_init(
+wur struct ir_node *ir_phi_init(
     uint64_t sym_idx,
     uint64_t op_1_idx,
     uint64_t op_2_idx

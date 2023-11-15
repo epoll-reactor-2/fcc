@@ -195,7 +195,7 @@ static void ir_dump_phi(FILE *mem, struct ir_phi *ir)
     fprintf(mem, "t%ld.%ld = φ(%ld, %ld)", ir->sym_idx, ir->ssa_idx, ir->op_1_idx, ir->op_2_idx);
 }
 
-__weak_unused static void type_dump(struct type *t)
+unused static void type_dump(struct type *t)
 {
     printf("(dt=`%s`,", data_type_to_string(t->dt));
     printf("ptr=%ld,", t->ptr_depth);
@@ -264,7 +264,7 @@ void ir_dump_unit(FILE *mem, struct ir_unit *unit)
     }
 }
 
-__weak_really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
+really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
 {
     if (ir->type != IR_PHI)
         fprintf(mem, "%ld:   ", ir->instr_idx);
@@ -291,7 +291,7 @@ static void ir_dump_node_ddg(FILE *mem, struct ir_node *ir)
     }
 }
 
-__weak_really_inline static void ir_mark(bool *visited, struct ir_node *ir)
+really_inline static void ir_mark(bool *visited, struct ir_node *ir)
 {
     visited[ir->instr_idx] = 1;
 }

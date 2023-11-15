@@ -134,7 +134,7 @@ static float fold_floats(enum token_type op, float l, float r)
     }
 }
 
-__weak_wur static struct ir_node *compute_imm(
+wur static struct ir_node *compute_imm(
     enum  token_type  op,
     enum  ir_imm_type type,
     union ir_imm_val  lhs,
@@ -152,7 +152,7 @@ __weak_wur static struct ir_node *compute_imm(
 
 static struct ir_node *fold_node(struct ir_node *ir);
 
-__weak_wur static struct ir_node *no_result()
+wur static struct ir_node *no_result()
 {
     static struct ir_node ir = {0};
     ir.instr_idx = -1;
@@ -161,7 +161,7 @@ __weak_wur static struct ir_node *no_result()
     return &ir;
 }
 
-__weak_wur static bool is_no_result(struct ir_node *ir)
+wur static bool is_no_result(struct ir_node *ir)
 {
     if (!ir) return 1;
     return ir == no_result();

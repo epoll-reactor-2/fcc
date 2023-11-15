@@ -407,7 +407,7 @@ typedef vector_t(uint64_t) ssa_stack_t;
 
 static uint64_t ssa_idx;
 
-__weak_really_inline static void ssa_rename_sym(struct ir_node *sym_ir, uint64_t sym_idx, ssa_stack_t *stack)
+really_inline static void ssa_rename_sym(struct ir_node *sym_ir, uint64_t sym_idx, ssa_stack_t *stack)
 {
     if (sym_ir->type != IR_SYM)
         return;
