@@ -35,7 +35,7 @@ struct ast_node {
 };
 
 /** Allocate AST node of given type. */
-__weak_wur struct ast_node *ast_node_init(enum ast_type type, void *ast, uint16_t line_no, uint16_t col_no);
+wur struct ast_node *ast_node_init(enum ast_type type, void *ast, uint16_t line_no, uint16_t col_no);
 
 /** Cleanup whole given AST tree through call
     to proper functions for each node type.
@@ -53,7 +53,7 @@ struct ast_array_access {
     struct ast_node *indices; /** \note Must be of type ast_compound */
 };
 
-__weak_wur struct ast_node *ast_array_access_init(
+wur struct ast_node *ast_array_access_init(
     char            *name,
     struct ast_node *indices,
     uint16_t         line_no,
@@ -104,7 +104,7 @@ struct ast_array_decl {
 };
 
 /** \note type_name may be NULL. */
-__weak_wur struct ast_node *ast_array_decl_init(
+wur struct ast_node *ast_array_decl_init(
     enum data_type   dt,
     char            *name,
     char            *type_name,
@@ -126,7 +126,7 @@ struct ast_binary {
     struct ast_node *rhs;
 };
 
-__weak_wur struct ast_node *ast_binary_init(
+wur struct ast_node *ast_binary_init(
     enum token_type  op,
     struct ast_node *lhs,
     struct ast_node *rhs,
@@ -143,7 +143,7 @@ struct ast_bool {
     bool value;
 };
 
-__weak_wur
+wur
 struct ast_node *ast_bool_init(bool value, uint16_t line_no, uint16_t col_no);
 void             ast_bool_cleanup(struct ast_bool *ast);
 
@@ -155,7 +155,7 @@ struct ast_break {
     /** Empty. */
 };
 
-__weak_wur
+wur
 struct ast_node *ast_break_init(uint16_t line_no, uint16_t col_no);
 void             ast_break_cleanup(struct ast_break *ast);
 
@@ -167,7 +167,7 @@ struct ast_char {
     char value;
 };
 
-__weak_wur
+wur
 struct ast_node *ast_char_init(char value, uint16_t line_no, uint16_t col_no);
 void             ast_char_cleanup(struct ast_char *ast);
 
@@ -180,7 +180,7 @@ struct ast_compound {
     struct ast_node **stmts;
 };
 
-__weak_wur struct ast_node *ast_compound_init(
+wur struct ast_node *ast_compound_init(
     uint64_t          size,
     struct ast_node **stmts,
     uint16_t          line_no,
@@ -196,7 +196,7 @@ struct ast_continue {
     /** Empty. */
 };
 
-__weak_wur
+wur
 struct ast_node *ast_continue_init(uint16_t line_no, uint16_t col_no);
 void             ast_continue_cleanup(struct ast_continue *ast);
 
@@ -209,7 +209,7 @@ struct ast_do_while {
     struct ast_node *condition;
 };
 
-__weak_wur struct ast_node *ast_do_while_init(
+wur struct ast_node *ast_do_while_init(
     struct ast_node *body,
     struct ast_node *condition,
     uint16_t         line_no,
@@ -225,7 +225,7 @@ struct ast_float {
     float value;
 };
 
-__weak_wur
+wur
 struct ast_node *ast_float_init(float value, uint16_t line_no, uint16_t col_no);
 void             ast_float_cleanup(struct ast_float *ast);
 
@@ -240,7 +240,7 @@ struct ast_for {
     struct ast_node *body;
 };
 
-__weak_wur struct ast_node *ast_for_init(
+wur struct ast_node *ast_for_init(
     struct ast_node *init,
     struct ast_node *condition,
     struct ast_node *increment,
@@ -260,7 +260,7 @@ struct ast_for_range {
     struct ast_node *body;
 };
 
-__weak_wur struct ast_node *ast_for_range_init(
+wur struct ast_node *ast_for_range_init(
     struct ast_node *iter,
     struct ast_node *range_target,
     struct ast_node *body,
@@ -278,7 +278,7 @@ struct ast_fn_call {
     struct ast_node *args;
 };
 
-__weak_wur struct ast_node *ast_fn_call_init(
+wur struct ast_node *ast_fn_call_init(
     char            *name,
     struct ast_node *args,
     uint16_t        line_no,
@@ -299,7 +299,7 @@ struct ast_fn_decl {
                                      function prototype. */
 };
 
-__weak_wur struct ast_node *ast_fn_decl_init(
+wur struct ast_node *ast_fn_decl_init(
     enum data_type   data_type,
     uint16_t         ptr_depth,
     char            *name,
@@ -320,7 +320,7 @@ struct ast_if {
     struct ast_node *else_body; /** \note May be NULL. */
 };
 
-__weak_wur struct ast_node *ast_if_init(
+wur struct ast_node *ast_if_init(
     struct ast_node *condition,
     struct ast_node *body,
     struct ast_node *else_body,
@@ -342,7 +342,7 @@ struct ast_member {
     struct ast_node *member;
 };
 
-__weak_wur struct ast_node *ast_member_init(
+wur struct ast_node *ast_member_init(
     struct ast_node *structure,
     struct ast_node *member,
     uint16_t         line_no,
@@ -358,7 +358,7 @@ struct ast_num {
     int32_t value;
 };
 
-__weak_wur
+wur
 struct ast_node *ast_num_init(int32_t value, uint16_t line_no, uint16_t col_no);
 void             ast_num_cleanup(struct ast_num *ast);
 
@@ -371,7 +371,7 @@ struct ast_ret {
                                    return from void function. */
 };
 
-__weak_wur
+wur
 struct ast_node *ast_ret_init(struct ast_node *op, uint16_t line_no, uint16_t col_no);
 void             ast_ret_cleanup(struct ast_ret *ast);
 
@@ -384,7 +384,7 @@ struct ast_string {
     char     *value; /** \note Must be dynamically allocated. */
 };
 
-__weak_wur
+wur
 struct ast_node *ast_string_init(
     uint64_t  len,
     char     *value,
@@ -402,7 +402,7 @@ struct ast_struct_decl {
     struct ast_node *decls;
 };
 
-__weak_wur struct ast_node *ast_struct_decl_init(
+wur struct ast_node *ast_struct_decl_init(
     char            *name,
     struct ast_node *decls,
     uint16_t         line_no,
@@ -418,7 +418,7 @@ struct ast_sym {
     char *value; /** \note Must be dynamically allocated. */
 };
 
-__weak_wur
+wur
 struct ast_node *ast_sym_init(char *value, uint16_t line_no, uint16_t col_no);
 void             ast_sym_cleanup(struct ast_sym *ast);
 
@@ -432,7 +432,7 @@ struct ast_unary {
     struct ast_node *operand;
 };
 
-__weak_wur struct ast_node *ast_unary_init(
+wur struct ast_node *ast_unary_init(
     enum ast_type    type,
     enum token_type  op,
     struct ast_node *operand,
@@ -475,7 +475,7 @@ struct ast_var_decl {
 };
 
 /** \note type_name may be NULL. */
-__weak_wur struct ast_node *ast_var_decl_init(
+wur struct ast_node *ast_var_decl_init(
     enum data_type    dt,
     char             *name,
     char             *type_name,
@@ -495,7 +495,7 @@ struct ast_while {
     struct ast_node *body;
 };
 
-__weak_wur struct ast_node *ast_while_init(
+wur struct ast_node *ast_while_init(
     struct ast_node *cond,
     struct ast_node *body,
     uint16_t         line_no,

@@ -7,12 +7,12 @@
 #include "middle_end/opt/opt.h"
 #include "middle_end/ir/ir.h"
 
-__weak_really_inline static void mark_visited(bool *visited, struct ir_node *ir)
+really_inline static void mark_visited(bool *visited, struct ir_node *ir)
 {
     visited[ir->instr_idx] = 1;
 }
 
-__weak_really_inline static bool in_same_cfg_block(struct ir_node *l, struct ir_node *r)
+really_inline static bool in_same_cfg_block(struct ir_node *l, struct ir_node *r)
 {
     return l->cfg_block_no == r->cfg_block_no;
 }

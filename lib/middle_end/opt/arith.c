@@ -20,7 +20,7 @@ static struct ir_node *no_result()
     return ir;
 }
 
-__weak_unused static bool is_no_result(struct ir_node *ir)
+unused static bool is_no_result(struct ir_node *ir)
 {
     return
         ir->instr_idx == (uint64_t) -1 &&

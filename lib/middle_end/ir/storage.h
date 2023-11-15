@@ -42,7 +42,7 @@ void ir_storage_push(
     struct ir_node *ir
 );
 
-__weak_wur struct ir_storage_record *
+wur struct ir_storage_record *
 ir_storage_get (const char *name);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_STORAGE_H

@@ -12,7 +12,7 @@
 
 struct ast_node;
 
-__weak_wur
+wur
 struct ast_node *parse(const struct token *begin, const struct token *end);
 
 #endif // WEAK_COMPILER_FRONTEND_PARSE_PARSE_H
