@@ -55,8 +55,10 @@ bool ir_test(const char *path, const char *filename)
     FILE   *before_opt_stream = fopen(before_opt_path, "w");
     FILE   * after_opt_stream = fopen( after_opt_path, "w");
 
+    struct ir_unit *ir = NULL;
+
     if (!setjmp(weak_fatal_error_buf)) {
-        struct ir_unit *ir = gen_ir(path);
+        ir = gen_ir(path);
         struct ir_node *it = ir->func_decls;
 
         extract_assertion_comment(yyin, expected_stream);
@@ -66,29 +68,20 @@ bool ir_test(const char *path, const char *filename)
             ir_link(decl);
             ir_build_cfg(decl);
 
-            ir_dump(stdout, decl);
-
-            // if (!strcmp(decl->name, "main"))
-                ir_dump_cfg(before_opt_stream, decl);
-
             ir_ddg_build(decl);
-            ddg_dump(stdout, decl);
             opt_fn(decl);
             ir_build_cfg(decl);
 
-            // if (!strcmp(decl->name, "main"))
-                ir_dump_cfg(after_opt_stream, decl);
-
-            // if (!strcmp(decl->name, "main"))
-                ir_dump(generated_stream, decl);
+            ir_dump_cfg(after_opt_stream, decl);
+            ir_dump(generated_stream, decl);
 
             it = it->next;
         }
 
         fflush(generated_stream);
-        ir_unit_cleanup(ir);
 
         if (strcmp(expected, generated) != 0) {
+            ir_dump_unit(stdout, ir);
             printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
             ok = 0;
             goto exit;
@@ -107,6 +100,7 @@ exit:
     fclose( after_opt_stream);
     free(expected);
     free(generated);
+    ir_unit_cleanup(ir);
 
     return ok;
 }
