@@ -984,6 +984,27 @@ really_inline static void link_jmp(hashmap_t *stmt_map, struct ir_node *stmt)
     vector_push_back(*prevs, stmt);
 }
 
+/* Return statement cannot have control flow successors.
+   Also we cannot reach one return from another. */
+really_inline static void link_ret(struct ir_node *stmt)
+{
+    ir_vector_t *succs = &stmt->cfg.succs;
+    ir_vector_t *preds = &stmt->cfg.preds;
+
+    vector_free(*succs);
+    vector_foreach_back(*preds, i) {
+        struct ir_node *pred = vector_at(*preds, i);
+        switch (pred->type) {
+        case IR_RET:
+        case IR_RET_VOID:
+            vector_erase(*preds, i);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 really_inline static void link_cond(hashmap_t *stmt_map, struct ir_node *stmt)
 {
     struct ir_cond *cond = stmt->ir;
@@ -1015,6 +1036,15 @@ void ir_link(struct ir_func_decl *decl)
         (void) k;
         struct ir_node *stmt = (struct ir_node *) v;
 
+        /* Link previous. If we have return statement,
+           some predeccors will be dropped. */
+        if (stmt->instr_idx > 0) {
+            struct ir_node *prev = link_target(&stmt_map, stmt->instr_idx - 1);
+
+            if (prev->type != IR_JUMP)
+                vector_push_back(stmt->cfg.preds, prev);
+        }
+
         switch (stmt->type) {
         case IR_JUMP:
             link_jmp(&stmt_map, stmt);
@@ -1024,17 +1054,14 @@ void ir_link(struct ir_func_decl *decl)
             link_cond(&stmt_map, stmt);
             break;
 
+        case IR_RET:
+        case IR_RET_VOID:
+            link_ret(stmt);
+            break;
+
         default:
             link_stmt(stmt);
             break;
-        }
-
-        /* Link previous. */
-        if (stmt->instr_idx > 0) {
-            struct ir_node *prev = link_target(&stmt_map, stmt->instr_idx - 1);
-
-            if (prev->type != IR_JUMP)
-                vector_push_back(stmt->cfg.preds, prev);
         }
     }
 
