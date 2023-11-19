@@ -17,7 +17,7 @@
    indexing from 0. */
 static uint64_t ir_instr_idx = -1;
 
-void ir_reset_internal_state()
+void ir_reset_state()
 {
     ir_instr_idx = -1;
 }
