@@ -101,7 +101,7 @@ static void ddg_sort(struct ir_node *ir)
     qsort(ddgs->data, ddgs->count, sizeof (struct ir_node *), qsort_cmp);
 }
 
-void ir_ddg_build(struct ir_func_decl *decl)
+void ir_ddg_build(struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
 

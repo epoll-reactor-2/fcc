@@ -15,7 +15,7 @@ struct ir_unit;
     Expressions:
     - ir_sym
     - ir_imm
-    - ir_func_call
+    - ir_fn_call
     - ir_member (TODO: implement) */
 void ir_type_pass(struct ir_unit *unit);
 

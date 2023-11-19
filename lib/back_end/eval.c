@@ -94,7 +94,7 @@ static inline struct value get(uint64_t sym_idx, struct type *traits)
    Instructions routines.
    ========================== */
 
-static void call_eval(struct ir_func_call *call);
+static void call_eval(struct ir_fn_call *call);
 static void instr_eval(struct ir_node *ir);
 
 static struct ir_node *instr_ptr;
@@ -381,7 +381,7 @@ static void eval_store(struct ir_store *store)
     case IR_STRING:
         eval_store_string(store);
         break;
-    case IR_FUNC_CALL:
+    case IR_FN_CALL:
         eval_store_call(store);
         break;
     default:
@@ -440,9 +440,9 @@ static void instr_eval(struct ir_node *ir)
         break;
     case IR_MEMBER:
     case IR_TYPE_DECL:
-    case IR_FUNC_DECL:
+    case IR_FN_DECL:
         break;
-    case IR_FUNC_CALL:
+    case IR_FN_CALL:
         call_eval(ir->ir);
         break;
     case IR_STORE:
@@ -523,13 +523,13 @@ static hashmap_t funs;
 static void fun_list_init(struct ir_node *ir)
 {
     while (ir) {
-        struct ir_func_decl *fun = ir->ir;
+        struct ir_fn_decl *fun = ir->ir;
         hashmap_put(&funs, crc32_string(fun->name), (uint64_t) fun);
         ir = ir->next;
     }
 }
 
-static struct ir_func_decl *fun_lookup(const char *name)
+static struct ir_fn_decl *fun_lookup(const char *name)
 {
     uint64_t hash = crc32_string(name);
 
@@ -538,10 +538,10 @@ static struct ir_func_decl *fun_lookup(const char *name)
     if (!ok)
         weak_unreachable("Function lookup failed for `%s`, CRC32: %ld", name, hash);
 
-    return (struct ir_func_decl *) got;
+    return (struct ir_fn_decl *) got;
 }
 
-static void fun_eval(struct ir_func_decl *decl)
+static void fun_eval(struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
 
@@ -598,7 +598,7 @@ static void push_call_arg(struct ir_node *arg, uint64_t *sym)
     set_call_arg(arg, sym);
 }
 
-static void call_eval(struct ir_func_call *fcall)
+static void call_eval(struct ir_fn_call *fcall)
 {
     /* Prologue @{ */
     uint64_t        sym            = 0;
@@ -617,7 +617,7 @@ static void call_eval(struct ir_func_call *fcall)
     /* }@ */
 
     /* Body @{ */
-    struct ir_func_decl *fun = fun_lookup(fcall->name);
+    struct ir_fn_decl *fun = fun_lookup(fcall->name);
     fun_eval(fun);
     /* }@ */
 
@@ -642,7 +642,7 @@ int32_t eval(struct ir_node *ir)
 
     fun_list_init(ir);
 
-    struct ir_func_call main = {
+    struct ir_fn_call main = {
         .name = "main"
     };
     call_eval(&main);

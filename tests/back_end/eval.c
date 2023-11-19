@@ -30,7 +30,7 @@ void cfg_edge_vector_dump(FILE *stream, ir_vector_t *v)
     }
 }
 
-void cfg_edges_dump(FILE *stream, struct ir_func_decl *decl)
+void cfg_edges_dump(FILE *stream, struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
 
@@ -68,7 +68,7 @@ bool ir_test(const char *path, const char *filename)
 
     if (!setjmp(weak_fatal_error_buf)) {
         ir = gen_ir(path);
-        struct ir_node *it = ir->func_decls;
+        struct ir_node *it = ir->fn_decls;
         ir_type_pass(ir);
 
         extract_assertion_comment(yyin, expected_stream);
@@ -76,7 +76,7 @@ bool ir_test(const char *path, const char *filename)
         /* ir_dump_unit(stdout, ir); */
 
         while (it) {
-            struct ir_func_decl *decl = it->ir;
+            struct ir_fn_decl *decl = it->ir;
             /* Reordering before building CFG links. */
             ir_opt_reorder(decl);
             ir_opt_arith(decl);
@@ -100,7 +100,7 @@ bool ir_test(const char *path, const char *filename)
             it = it->next;
         }
 
-        int32_t exit_code = eval(ir->func_decls);
+        int32_t exit_code = eval(ir->fn_decls);
         int32_t expected_code = 0;
 
         fscanf(expected_stream, "%d", &expected_code);

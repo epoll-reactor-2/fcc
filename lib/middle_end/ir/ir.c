@@ -129,7 +129,7 @@ struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body)
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
     ir->idx = idx;
     ir->body = body;
-    if (body->type != IR_FUNC_CALL)
+    if (body->type != IR_FN_CALL)
         ++ir_instr_idx;
     return ir_node_init(IR_STORE, ir);
 }
@@ -220,7 +220,7 @@ struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls)
     return ir_node_init(IR_TYPE_DECL, ir);
 }
 
-struct ir_node *ir_func_decl_init(
+struct ir_node *ir_fn_decl_init(
     enum data_type  ret_type,
     uint64_t        ptr_depth,
     char           *name,
@@ -237,16 +237,16 @@ struct ir_node *ir_func_decl_init(
             it = it->next;
         }
     })
-    struct ir_func_decl *ir = weak_calloc(1, sizeof (struct ir_func_decl));
+    struct ir_fn_decl *ir = weak_calloc(1, sizeof (struct ir_fn_decl));
     ir->ret_type = ret_type;
     ir->ptr_depth = ptr_depth;
     ir->name = name;
     ir->args = args;
     ir->body = body;
-    return ir_node_init(IR_FUNC_DECL, ir);
+    return ir_node_init(IR_FN_DECL, ir);
 }
 
-struct ir_node *ir_func_call_init(char *name, struct ir_node *args)
+struct ir_node *ir_fn_call_init(char *name, struct ir_node *args)
 {
     __weak_debug({
         struct ir_node *it = args;
@@ -261,11 +261,11 @@ struct ir_node *ir_func_call_init(char *name, struct ir_node *args)
             it = it->next;
         }
     })
-    struct ir_func_call *ir = weak_calloc(1, sizeof (struct ir_func_call));
+    struct ir_fn_call *ir = weak_calloc(1, sizeof (struct ir_fn_call));
     ir->name = name;
     ir->args = args;
     ++ir_instr_idx;
-    return ir_node_init(IR_FUNC_CALL, ir);
+    return ir_node_init(IR_FN_CALL, ir);
 }
 
 wur struct ir_node *ir_phi_init(
@@ -318,7 +318,7 @@ static void ir_type_decl_cleanup(struct ir_type_decl *ir)
     }
 }
 
-static void ir_func_decl_cleanup(struct ir_func_decl *ir)
+static void ir_fn_decl_cleanup(struct ir_fn_decl *ir)
 {
     struct ir_node *it = ir->args;
     while (it) {
@@ -334,7 +334,7 @@ static void ir_func_decl_cleanup(struct ir_func_decl *ir)
 
     weak_free(ir->name);
 }
-static void ir_func_call_cleanup(struct ir_func_call *ir)
+static void ir_fn_call_cleanup(struct ir_fn_call *ir)
 {
     struct ir_node *it = ir->args;
     while (it) {
@@ -363,8 +363,10 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_COND:         ir_cond_cleanup(ir->ir); break;
     case IR_RET:          ir_ret_cleanup(ir->ir); break;
     case IR_TYPE_DECL:    ir_type_decl_cleanup(ir->ir); break;
-    case IR_FUNC_DECL:    ir_func_decl_cleanup(ir->ir); break;
-    case IR_FUNC_CALL:    ir_func_call_cleanup(ir->ir); break;
+    case IR_FN_DECL:
+        ir_fn_decl_cleanup(ir->ir); break;
+    case IR_FN_CALL:
+        ir_fn_call_cleanup(ir->ir); break;
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
     }
@@ -378,7 +380,7 @@ void ir_node_cleanup(struct ir_node *ir)
 
 void ir_unit_cleanup(struct ir_unit *ir)
 {
-    struct ir_node *it = ir->func_decls;
+    struct ir_node *it = ir->fn_decls;
 
     while (it) {
         ir_node_cleanup(it);

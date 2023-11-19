@@ -83,7 +83,7 @@ static void traverse(bool *visited, struct ir_node *ir)
             /* Return is start point for whole optimization. */
             traverse_from_ret(visited, it);
             break;
-        case IR_FUNC_CALL:
+        case IR_FN_CALL:
             /* Raw function calls are not this optimizer case.
                Left them. */
             mark_visited(visited, it);
@@ -108,7 +108,7 @@ static void cut(bool *visited, struct ir_node *ir)
     }
 }
 
-void ir_opt_data_flow(struct ir_func_decl *ir)
+void ir_opt_data_flow(struct ir_fn_decl *ir)
 {
     bool visited[8192] = {0};
     traverse(visited, ir->body);
