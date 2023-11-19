@@ -377,7 +377,8 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
 
 static void fold_ret(struct ir_ret *ir)
 {
-    if (ir->is_void) return;
+    if (!ir->body)
+        return;
 
     struct ir_sym *sym = ir->body->ir;
 
@@ -416,7 +417,6 @@ static struct ir_node *fold_node(struct ir_node *ir)
     case IR_BIN:
         return fold_bin(ir->ir);
     case IR_RET:
-    case IR_RET_VOID:
         fold_ret(ir->ir);
         break;
     case IR_COND:

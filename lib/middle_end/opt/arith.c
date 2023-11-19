@@ -140,7 +140,7 @@ static void opt_arith_store(struct ir_store *store)
 
 static void opt_arith_ret(struct ir_ret *ret)
 {
-    if (ret->is_void)
+    if (!ret->body)
         return;
 
     struct ir_node *body = opt_arith_node(ret->body);
@@ -170,7 +170,6 @@ static struct ir_node *opt_arith_node(struct ir_node *ir)
     case IR_BIN:
         return opt_arith_bin(ir->ir);
     case IR_RET:
-    case IR_RET_VOID:
         opt_arith_ret(ir->ir);
         break;
     case IR_COND:

@@ -186,7 +186,7 @@ static void type_pass_cond(struct ir_cond *c)
 
 static void type_pass_ret(struct ir_ret *r)
 {
-    if (!r->is_void)
+    if (r->body)
         type_pass(r->body);
 }
 
@@ -215,7 +215,6 @@ static void type_pass(struct ir_node *ir)
         type_pass_cond(ir->ir);
         break;
     case IR_RET:
-    case IR_RET_VOID:
         type_pass_ret(ir->ir);
         break;
     case IR_FUNC_CALL:

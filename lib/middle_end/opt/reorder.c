@@ -63,8 +63,7 @@ really_inline static void swap(struct ir_node *ir)
         return;
     }
 
-    if (ir->type == IR_RET ||
-        ir->type == IR_RET_VOID)
+    if (ir->type == IR_RET)
         return;
 
     if (ir->type != IR_ALLOCA)

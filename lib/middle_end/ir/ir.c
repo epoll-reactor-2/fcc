@@ -175,21 +175,20 @@ struct ir_node *ir_cond_init(struct ir_node *cond, uint64_t goto_label)
     return ir_node_init(IR_COND, ir);
 }
 
-struct ir_node *ir_ret_init(bool is_void, struct ir_node *body)
+struct ir_node *ir_ret_init(struct ir_node *body)
 {
-    assert((
-        body->type == IR_SYM ||
-        body->type == IR_IMM ||
-        (is_void && body->type == IR_RET_VOID)
-    ) && (
-        "Ret expects immediate value or variable"
-    ));
+    if (body)
+        assert((
+            body->type == IR_SYM ||
+            body->type == IR_IMM
+        ) && (
+            "Ret expects immediate value or variable"
+        ));
     struct ir_ret *ir = weak_calloc(1, sizeof (struct ir_ret));
-    ir->is_void = is_void;
     ir->body = body;
     /* Return operand is inline instruction. */
     ++ir_instr_idx;
-    return ir_node_init(is_void ? IR_RET_VOID : IR_RET, ir);
+    return ir_node_init(IR_RET, ir);
 }
 
 struct ir_node *ir_member_init(uint64_t idx, uint64_t field_idx)
@@ -306,7 +305,8 @@ static void ir_cond_cleanup(struct ir_cond *ir)
 
 static void ir_ret_cleanup(struct ir_ret *ir)
 {
-    if (!ir->is_void) ir_node_cleanup(ir->body);
+    if (ir->body)
+        ir_node_cleanup(ir->body);
 }
 
 static void ir_type_decl_cleanup(struct ir_type_decl *ir)
@@ -354,7 +354,7 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_SYM:
     case IR_JUMP:
     case IR_MEMBER:
-    case IR_PHI: /// Fall through.
+    case IR_PHI: /* Fall through. */
         /* Nothing to clean except ir->ir itself. */
         break;
     case IR_STRING:       ir_string_cleanup(ir->ir); break;
@@ -362,7 +362,6 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_BIN:          ir_bin_cleanup(ir->ir); break;
     case IR_COND:         ir_cond_cleanup(ir->ir); break;
     case IR_RET:          ir_ret_cleanup(ir->ir); break;
-    case IR_RET_VOID:     ir_ret_cleanup(ir->ir); break;
     case IR_TYPE_DECL:    ir_type_decl_cleanup(ir->ir); break;
     case IR_FUNC_DECL:    ir_func_decl_cleanup(ir->ir); break;
     case IR_FUNC_CALL:    ir_func_call_cleanup(ir->ir); break;
