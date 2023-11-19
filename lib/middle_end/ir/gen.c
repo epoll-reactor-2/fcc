@@ -185,12 +185,10 @@ static void visit_string(struct ast_string *ast)
     ir_last_dt = D_T_STRING;
 }
 
-static void emit_assign(struct ast_binary *ast, struct ir_node **last_assign)
+static void emit_assign(struct ast_binary *ast)
 {
     visit(ast->lhs);
     struct ir_node *lhs = ir_last;
-    *last_assign = ir_last;
-
     visit(ast->rhs);
     struct ir_node *rhs = ir_last;
 
@@ -215,8 +213,7 @@ static bool logical(enum token_type t)
 
 static void emit_bin(struct ast_binary *ast)
 {
-    uint64_t next_idx = ir_var_idx++;
-    ir_last = ir_alloca_init(D_T_UNKNOWN, /*ptr=*/0, next_idx);
+    ir_last = ir_alloca_init(D_T_UNKNOWN, /*ptr_depth=*/0, ir_var_idx++);
     struct ir_alloca *alloca = ir_last->ir;
     uint64_t alloca_idx = alloca->idx;
 
@@ -233,13 +230,10 @@ static void emit_bin(struct ast_binary *ast)
     } else
         alloca->dt = ir_last_dt;
 
-    if (alloca->dt == D_T_UNKNOWN)
-        weak_unreachable("Unknown data type in alloca statement");
-
-    struct ir_node *bin = ir_bin_init(ast->op, lhs, rhs);
-
-    ir_last = ir_store_sym_init(alloca_idx, bin);
-
+    ir_last = ir_store_sym_init(
+        alloca_idx,
+        ir_bin_init(ast->op, lhs, rhs)
+    );
     ir_insert_last();
     ir_last = ir_sym_init(alloca_idx);
 }
@@ -247,28 +241,10 @@ static void emit_bin(struct ast_binary *ast)
 static void visit_binary(struct ast_binary *ast)
 {
     /* Symbol. */
-    static struct ir_node *last_assign = NULL;
-    static uint64_t depth = 0;
-
-    if (ast->op == TOK_ASSIGN) {
-        ++depth;
-        emit_assign(ast, &last_assign);
-        --depth;
-    } else {
-        ++depth;
+    if (ast->op == TOK_ASSIGN)
+        emit_assign(ast);
+    else
         emit_bin(ast);
-        --depth;
-    }
-
-    if (depth == 0)
-        /* Depth is 0 means end of the binary expression
-           at the program syntax level.
-          
-           int a =        // Depth is 0.
-                 b + c    // Depth is 1, then 2.
-                   d + e; // Depth is 3, then 4.
-                          // Depth is again 0. */
-        last_assign = NULL;
 }
 
 static void visit_break(struct ast_break *ast)
@@ -298,7 +274,7 @@ static void visit_continue(struct ast_continue *ast)
        continue;       | Level 1
      }
    } */
-static inline void emit_loop_flow_instrs()
+static void emit_loop_flow_instrs()
 {
     if (ir_break_stack.count > 0) {
         struct ir_node *back = vector_back(ir_break_stack);
@@ -313,10 +289,6 @@ static inline void emit_loop_flow_instrs()
     vector_pop_back(ir_loop_header_stack);
 }
 
-/* TODO: Integer or boolean value on logical
-         operations. I want
-
-         float == float -> int | bool */
 static struct ir_node *zero_cond_immediate()
 {
     switch (ir_last_dt) {
@@ -487,8 +459,14 @@ static void visit_do_while(struct ast_do_while *ast)
     visit(ast->condition);
     ir_meta_is_loop = 0;
 
-    struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, zero_cond_immediate());
-    struct ir_node *cond     = ir_cond_init(cond_bin, stmt_begin + 1);
+    struct ir_node *cond = ir_cond_init(
+        ir_bin_init(
+            TOK_NEQ,
+            ir_last,
+            zero_cond_immediate()
+        ),
+        stmt_begin + 1
+    );
 
     ir_insert(cond);
     --ir_block_depth;
@@ -591,7 +569,6 @@ static void visit_sym(struct ast_sym *ast)
 {
     uint64_t idx = ir_storage_get(ast->value)->sym_idx;
     ir_last = ir_sym_init(idx);
-    /* TODO: Supply. */
     ir_last_dt = ir_type_map[idx].dt;
 }
 
@@ -742,7 +719,7 @@ static void visit_var_decl(struct ast_var_decl *ast)
 */
 static void visit_array_decl(struct ast_array_decl *ast)
 {
-    assert(ast->arity->type == AST_COMPOUND_STMT && "Array declarator expectes compound ast enclosure list.");
+    assert(ast->arity->type == AST_COMPOUND_STMT && "Array declarator expects compound ast enclosure list.");
 
     uint64_t             next_idx  = ir_var_idx++;
     struct ast_compound *enclosure = ast->arity->ast;
