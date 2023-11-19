@@ -280,7 +280,7 @@ struct ir_phi {
     uint64_t         op_2_idx;
 };
 
-void ir_reset_internal_state();
+void ir_reset_state();
 
 wur struct ir_node *ir_node_init(enum ir_type type, void *ir);
 wur struct ir_node *ir_alloca_init(enum data_type dt, uint16_t ptr_depth, uint64_t idx);

@@ -30,7 +30,7 @@ static enum data_type     ir_last_dt;
 static struct type        ir_type_map[65536];
 /* Used to count alloca instructions.
    Conditions:
-   - reset at the start of each function declaration,
+   - reset_state at the start of each function declaration,
    - increments with every created alloca instruction. */
 static uint64_t           ir_var_idx;
 static bool               ir_save_first;
@@ -121,21 +121,31 @@ really_inline static void ir_insert_last()
     ir_insert(ir_last);
 }
 
-static void invalidate()
+static void reset_fn_state()
 {
+    ir_storage_init();
+
     memset(ir_type_map, 0, sizeof (ir_type_map));
     ir_last_dt = D_T_UNKNOWN;
-    vector_free(ir_func_decls);
-    vector_free(ir_break_stack);
-    vector_free(ir_loop_header_stack);
     ir_var_idx = 0;
+    ir_loop_idx = 0;
+    ir_block_depth = 0;
     ir_first = NULL;
     ir_last = NULL;
     ir_prev = NULL;
+    ir_save_first = 1;
+    vector_free(ir_break_stack);
+    vector_free(ir_loop_header_stack);
+}
 
-    if (ir_func_return_types.buckets) {
+static void reset_state()
+{
+    reset_fn_state();
+
+    vector_free(ir_func_decls);
+    if (ir_func_return_types.buckets)
         hashmap_destroy(&ir_func_return_types);
-    }
+
     hashmap_init(&ir_func_return_types, 32);
 }
 
@@ -205,10 +215,6 @@ static bool logical(enum token_type t)
 
 static void emit_bin(struct ast_binary *ast)
 {
-    /* TODO: Any type, not only int.
-             There is lack of context in AST symbols. Its type
-             is unknown. Should we maintain some variable-type mapping?
-             What if we operate on immediate values? */
     uint64_t next_idx = ir_var_idx++;
     ir_last = ir_alloca_init(D_T_UNKNOWN, /*ptr=*/0, next_idx);
     struct ir_alloca *alloca = ir_last->ir;
@@ -254,7 +260,7 @@ static void visit_binary(struct ast_binary *ast)
         --depth;
     }
 
-    if (depth == 0) {
+    if (depth == 0)
         /* Depth is 0 means end of the binary expression
            at the program syntax level.
           
@@ -263,7 +269,6 @@ static void visit_binary(struct ast_binary *ast)
                    d + e; // Depth is 3, then 4.
                           // Depth is again 0. */
         last_assign = NULL;
-    }
 }
 
 static void visit_break(struct ast_break *ast)
@@ -440,8 +445,6 @@ static void visit_while(struct ast_while *ast)
     ir_insert(next_iter_jmp);
     --ir_block_depth;
 
-    // vector_push_back(cond->cfg.succs, exit_jmp);
-
     exit_jmp_ptr->idx = next_iter_jmp->instr_idx + 1;
 
     emit_loop_flow_instrs();
@@ -485,13 +488,7 @@ static void visit_do_while(struct ast_do_while *ast)
     ir_meta_is_loop = 0;
 
     struct ir_node *cond_bin = ir_bin_init(TOK_NEQ, ir_last, zero_cond_immediate());
-    struct ir_node *cond     = ir_cond_init(cond_bin, /*Not used for now.*/-1);
-    struct ir_cond *cond_ptr = cond->ir;
-
-    /* We will set this pointer in ir_link() because
-       we cannot peek next instruction now.
-       It is not generated. */
-    cond_ptr->goto_label = stmt_begin + 1;
+    struct ir_node *cond     = ir_cond_init(cond_bin, stmt_begin + 1);
 
     ir_insert(cond);
     --ir_block_depth;
@@ -745,21 +742,12 @@ static void visit_var_decl(struct ast_var_decl *ast)
 */
 static void visit_array_decl(struct ast_array_decl *ast)
 {
-    assert((
-        ast->arity->type == AST_COMPOUND_STMT
-    ) && (
-        "Array declarator expectes compound ast enclosure list."
-    ));
+    assert(ast->arity->type == AST_COMPOUND_STMT && "Array declarator expectes compound ast enclosure list.");
 
-    uint64_t next_idx = ir_var_idx++;
-
+    uint64_t             next_idx  = ir_var_idx++;
     struct ast_compound *enclosure = ast->arity->ast;
 
-    assert((
-        enclosure->size <= 16
-    ) && (
-        "Maximum array depth limited to 16."
-    ));
+    assert(enclosure->size <= 16 && "Maximum array depth limited to 16.");
 
     uint64_t *lvls = alloca(enclosure->size * sizeof (uint64_t));
     if (!lvls)
@@ -781,9 +769,8 @@ static void visit_array_access(struct ast_array_access *ast)
     /* First just assume one-dimensional array.
        Next extend to multi-dimensional. */
 
-    struct ir_storage_record *record = ir_storage_get(ast->name);
-
-    struct ast_compound *indices = ast->indices->ast;
+    struct ir_storage_record *record  = ir_storage_get(ast->name);
+    struct ast_compound      *indices = ast->indices->ast;
 
     if (indices->size == 1) {
         visit(indices->stmts[0]);
@@ -826,19 +813,7 @@ static void visit_compound(struct ast_compound *ast)
 
 static void visit_fn_decl(struct ast_fn_decl *decl)
 {
-    ir_storage_init();
-
-    memset(ir_type_map, 0, sizeof (ir_type_map));
-    ir_last_dt = D_T_UNKNOWN;
-    ir_var_idx = 0;
-    ir_loop_idx = 0;
-    ir_block_depth = 0;
-    ir_first = NULL;
-    ir_last = NULL;
-    ir_prev = NULL;
-    ir_save_first = 1;
-    vector_free(ir_break_stack);
-    vector_free(ir_loop_header_stack);
+    reset_fn_state();
 
     visit(decl->args);
     struct ir_node *args = ir_first;
@@ -848,7 +823,7 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
     ir_prev = NULL;
     ir_save_first = 1;
 
-    ir_reset_internal_state();
+    ir_reset_state();
 
     ir_func_add_return_type(decl->name, decl->data_type);
 
@@ -875,9 +850,9 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
 
 static void visit_fn_call(struct ast_fn_call *ast)
 {
-    struct ast_compound *args_ast = ast->args->ast;
-    struct ir_node *args = NULL;
-    struct ir_node *args_start = NULL;
+    struct ast_compound *args_ast   = ast->args->ast;
+    struct ir_node      *args       = NULL;
+    struct ir_node      *args_start = NULL;
 
     for (uint64_t i = 0; i < args_ast->size; ++i) {
         visit(args_ast->stmts[i]);
@@ -953,7 +928,6 @@ static void visit(struct ast_node *ast)
 /* To ease IR access by instruction index, we maintain hashmap. */
 really_inline static void link_stmt_map(hashmap_t *stmt_map, struct ir_node *ir)
 {
-
     hashmap_init(stmt_map, 128);
 
     while (ir) {
@@ -1037,7 +1011,7 @@ void ir_link(struct ir_func_decl *decl)
         struct ir_node *stmt = (struct ir_node *) v;
 
         /* Link previous. If we have return statement,
-           some predeccors will be dropped. */
+           some predecessors will be dropped. */
         if (stmt->instr_idx > 0) {
             struct ir_node *prev = link_target(&stmt_map, stmt->instr_idx - 1);
 
@@ -1090,7 +1064,7 @@ void ir_build_cfg(struct ir_func_decl *decl)
 
 struct ir_unit *ir_gen(struct ast_node *ast)
 {
-    invalidate();
+    reset_state();
 
     visit(ast);
 
