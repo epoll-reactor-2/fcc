@@ -16,7 +16,7 @@
 #include <string.h>
 
 /* Total list of functions. */
-static ir_vector_t        ir_func_decls;
+static ir_vector_t        ir_fn_decls;
 static struct ir_node    *ir_first;
 static struct ir_node    *ir_last;
 static struct ir_node    *ir_prev;
@@ -44,7 +44,7 @@ static uint64_t           ir_meta_loop_idx;
 /* This used to judge if we should put function call to IR list
    or use it as instruction operand. */
 static bool               ir_is_global_scope;
-static hashmap_t          ir_func_return_types;
+static hashmap_t          ir_fn_return_types;
 /* This is stacks for `break` and `continue` instructions.
    On the top of stack sits most recent loop (loop with maximum
    current depth). This complication used to store correct states
@@ -59,16 +59,16 @@ static hashmap_t          ir_func_return_types;
 static ir_vector_t        ir_break_stack;
 static vector_t(uint64_t) ir_loop_header_stack;
 
-static void ir_func_add_return_type(const char *name, enum data_type dt)
+static void ir_fn_add_return_type(const char *name, enum data_type dt)
 {
-    hashmap_put(&ir_func_return_types, crc32_string(name), (uint64_t) dt);
+    hashmap_put(&ir_fn_return_types, crc32_string(name), (uint64_t) dt);
 }
 
-static enum data_type ir_func_return_type(const char *name)
+static enum data_type ir_fn_return_type(const char *name)
 {
     bool ok = 0;
     uint64_t name_hash = crc32_string(name);
-    uint64_t got = hashmap_get(&ir_func_return_types, name_hash, &ok);
+    uint64_t got = hashmap_get(&ir_fn_return_types, name_hash, &ok);
     if (!ok)
         weak_unreachable("Cannot get return type for function `%s`", name);
 
@@ -142,11 +142,11 @@ static void reset_state()
 {
     reset_fn_state();
 
-    vector_free(ir_func_decls);
-    if (ir_func_return_types.buckets)
-        hashmap_destroy(&ir_func_return_types);
+    vector_free(ir_fn_decls);
+    if (ir_fn_return_types.buckets)
+        hashmap_destroy(&ir_fn_return_types);
 
-    hashmap_init(&ir_func_return_types, 32);
+    hashmap_init(&ir_fn_return_types, 32);
 }
 
 static void visit(struct ast_node *ast);
@@ -619,7 +619,6 @@ really_inline static void visit_unary_pointer(enum token_type op, bool immediate
     new_s->addr_of = op == TOK_BIT_AND;
 }
 
-/* Note: unary statements always have @noalias attribute. */
 static void visit_unary(struct ast_unary *ast)
 {
     visit(ast->operand);
@@ -802,7 +801,7 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
 
     ir_reset_state();
 
-    ir_func_add_return_type(decl->name, decl->data_type);
+    ir_fn_add_return_type(decl->name, decl->data_type);
 
     visit(decl->body);
     if (decl->data_type == D_T_VOID)
@@ -811,15 +810,15 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
     struct ir_node *body = ir_first;
 
     vector_push_back(
-        ir_func_decls,
-        ir_func_decl_init(
-            decl->data_type,
-            decl->ptr_depth,
-            /* Duplicate to not be depended on AST string values (after free). */
-            strdup(decl->name),
-            args,
-            body
-        )
+        ir_fn_decls,
+        ir_fn_decl_init(
+        decl->data_type,
+        decl->ptr_depth,
+        /* Duplicate to not be depended on AST string values (after free). */
+        strdup(decl->name),
+        args,
+        body
+    )
     );
 
     ir_storage_reset();
@@ -843,12 +842,12 @@ static void visit_fn_call(struct ast_fn_call *ast)
         }
     }
 
-    enum data_type ret_dt = ir_func_return_type(ast->name);
+    enum data_type ret_dt = ir_fn_return_type(ast->name);
     /* Duplicate to not be depended on AST string values (after free). */
     char *fcall_name = strdup(ast->name);
 
     if (ir_is_global_scope) {
-        ir_last = ir_func_call_init(fcall_name, args_start);
+        ir_last = ir_fn_call_init(fcall_name, args_start);
         ir_insert(ir_last);
     } else {
         uint64_t next_idx = ir_var_idx++;
@@ -856,7 +855,7 @@ static void visit_fn_call(struct ast_fn_call *ast)
         ir_type_map[next_idx].dt = ret_dt;
         ir_insert_last();
 
-        ir_last = ir_func_call_init(fcall_name, args_start);
+        ir_last = ir_fn_call_init(fcall_name, args_start);
         ir_last = ir_store_sym_init(next_idx, ir_last);
         ir_insert_last();
         ir_last = ir_sym_init(next_idx);
@@ -976,7 +975,7 @@ really_inline static void link_stmt(struct ir_node *stmt)
         vector_push_back(stmt->cfg.succs, stmt->next);
 }
 
-void ir_link(struct ir_func_decl *decl)
+void ir_link(struct ir_fn_decl *decl)
 {
     struct ir_node *it       = decl->body;
     hashmap_t       stmt_map = {0};
@@ -1018,7 +1017,7 @@ void ir_link(struct ir_func_decl *decl)
     hashmap_destroy(&stmt_map);
 }
 
-void ir_build_cfg(struct ir_func_decl *decl)
+void ir_build_cfg(struct ir_fn_decl *decl)
 {
     struct ir_node *it     = decl->body;
     uint64_t        cfg_no = 0;
@@ -1045,12 +1044,12 @@ struct ir_unit *ir_gen(struct ast_node *ast)
 
     visit(ast);
 
-    vector_foreach(ir_func_decls, i) {
-        if (i >= ir_func_decls.count - 1)
+    vector_foreach(ir_fn_decls, i) {
+        if (i >= ir_fn_decls.count - 1)
             break;
 
-        struct ir_node *decl      = vector_at(ir_func_decls, i);
-        struct ir_node *decl_next = vector_at(ir_func_decls, i + 1);
+        struct ir_node *decl      = vector_at(ir_fn_decls, i);
+        struct ir_node *decl_next = vector_at(ir_fn_decls, i + 1);
 
         decl->next = decl_next;
         vector_push_back(decl_next->cfg.preds, decl);
@@ -1059,11 +1058,11 @@ struct ir_unit *ir_gen(struct ast_node *ast)
     /* NOTE: Linking and CFG construction is done
              by driver code. */
 
-    struct ir_node *decls = vector_at(ir_func_decls, 0);
+    struct ir_node *decls = vector_at(ir_fn_decls, 0);
 
     struct ir_unit *unit = weak_calloc(1, sizeof (struct ir_unit));
 
-    unit->func_decls = decls;
+    unit->fn_decls = decls;
 
     return unit;
 }

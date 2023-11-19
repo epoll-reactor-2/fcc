@@ -43,8 +43,8 @@ enum ir_type {
               and refer to it in order to compute type
               size and member offsets. */
     IR_TYPE_DECL,
-    IR_FUNC_DECL,
-    IR_FUNC_CALL,
+    IR_FN_DECL,
+    IR_FN_CALL,
     IR_PHI
 };
 
@@ -111,7 +111,7 @@ struct ir_node {
     attributes and other configuration. */
 struct ir_unit {
     /** Linked list of function declarations. */
-    struct ir_node *func_decls;
+    struct ir_node *fn_decls;
 };
 
 struct ir_alloca {
@@ -250,7 +250,7 @@ struct ir_type_decl {
     struct ir_node *decls;
 };
 
-struct ir_func_decl {
+struct ir_fn_decl {
     enum data_type   ret_type;
     uint64_t         ptr_depth;
     /** Name instead of index required though
@@ -263,7 +263,7 @@ struct ir_func_decl {
     struct ir_node  *body;
 };
 
-struct ir_func_call {
+struct ir_fn_call {
     char            *name;
     /** Accepted values:
         - struct ir_sym,
@@ -288,7 +288,7 @@ wur struct ir_node *ir_alloca_array_init(
     enum data_type  dt,
     uint64_t       *enclosure_lvls,
     uint64_t        enclosure_lvls_size,
-    uint64_t         idx
+    uint64_t        idx
 );
 
 wur struct ir_node *ir_imm_bool_init(bool imm);
@@ -309,8 +309,14 @@ wur struct ir_node *ir_cond_init(struct ir_node *cond, uint64_t goto_label);
 wur struct ir_node *ir_ret_init(struct ir_node *body);
 wur struct ir_node *ir_member_init(uint64_t idx, uint64_t field_idx);
 wur struct ir_node *ir_type_decl_init(const char *name, struct ir_node *decls);
-wur struct ir_node *ir_func_decl_init(enum data_type ret_type, uint64_t ptr_depth, char *name, struct ir_node *args, struct ir_node *body);
-wur struct ir_node *ir_func_call_init(char *name, struct ir_node *args);
+wur struct ir_node *ir_fn_decl_init(
+    enum data_type  ret_type,
+    uint64_t        ptr_depth,
+    char           *name,
+    struct ir_node *args,
+    struct ir_node *body
+);
+wur struct ir_node *ir_fn_call_init(char *name, struct ir_node *args);
 
 wur struct ir_node *ir_phi_init(
     uint64_t sym_idx,

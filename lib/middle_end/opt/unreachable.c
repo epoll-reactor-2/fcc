@@ -32,7 +32,7 @@ static void traverse(bool *visited, uint64_t *max_id, struct ir_node *ir)
     case IR_STORE:
     case IR_ALLOCA:
     case IR_ALLOCA_ARRAY:
-    case IR_FUNC_CALL: {
+    case IR_FN_CALL: {
         mark_visited(visited, ir);
         traverse(visited, max_id, ir->next);
         break;
@@ -89,7 +89,7 @@ static void cut(bool *visited, uint64_t siz, struct ir_node *ir)
 }
 
 /* Traverse CFG and remove all unvisited nodes. */
-void ir_opt_unreachable_code(struct ir_func_decl *decl)
+void ir_opt_unreachable_code(struct ir_fn_decl *decl)
 {
     bool visited[8192] = {0};
     /* How many nodes potentially were visited. */

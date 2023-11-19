@@ -24,8 +24,8 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_RET:          return "IR_RET";
     case IR_MEMBER:       return "IR_MEMBER";
     case IR_TYPE_DECL:    return "IR_TYPE_DECL";
-    case IR_FUNC_DECL:    return "IR_FUNC_DECL";
-    case IR_FUNC_CALL:    return "IR_FUNC_CALL";
+    case IR_FN_DECL:      return "IR_FN_DECL";
+    case IR_FN_CALL:      return "IR_FN_CALL";
     case IR_PHI:          return "IR_PHI";
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", t);
@@ -150,7 +150,7 @@ static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
     fprintf(mem, "\n}");
 }
 
-static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
+static void ir_dump_fn_decl(FILE *mem, struct ir_fn_decl *ir)
 {
     fprintf(mem, "fun %s(", ir->name);
     struct ir_node *it = ir->args;
@@ -174,7 +174,7 @@ static void ir_dump_func_decl(FILE *mem, struct ir_func_decl *ir)
     }
 }
 
-static void ir_dump_func_call(FILE *mem, struct ir_func_call *ir)
+static void ir_dump_fn_call(FILE *mem, struct ir_fn_call *ir)
 {
     fprintf(mem, "call %s(", ir->name);
     struct ir_node *it = ir->args;
@@ -215,8 +215,10 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_RET:          ir_dump_ret(mem, ir->ir); break;
     case IR_MEMBER:       ir_dump_member(mem, ir->ir); break;
     case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir->ir); break;
-    case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir->ir); break;
-    case IR_FUNC_CALL:    ir_dump_func_call(mem, ir->ir); break;
+    case IR_FN_DECL:
+        ir_dump_fn_decl(mem, ir->ir); break;
+    case IR_FN_CALL:
+        ir_dump_fn_call(mem, ir->ir); break;
     case IR_PHI:          ir_dump_phi(mem, ir->ir); break;
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
@@ -245,15 +247,15 @@ void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
     fprintf(mem, "}\n");
 }
 
-void ir_dump(FILE *mem, struct ir_func_decl *decl)
+void ir_dump(FILE *mem, struct ir_fn_decl *decl)
 {
-    ir_dump_func_decl(mem, decl);
+    ir_dump_fn_decl(mem, decl);
     fprintf(mem, "\n");
 }
 
 void ir_dump_unit(FILE *mem, struct ir_unit *unit)
 {
-    struct ir_node *it = unit->func_decls;
+    struct ir_node *it = unit->fn_decls;
     while (it) {
         ir_dump(mem, it->ir);
         it = it->next;
@@ -305,7 +307,7 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     case IR_STORE:
     case IR_ALLOCA:
     case IR_ALLOCA_ARRAY:
-    case IR_FUNC_CALL:
+    case IR_FN_CALL:
     case IR_PHI:
     case IR_JUMP: {
         ir_mark(visited, ir);
@@ -424,7 +426,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
     );
 }
 
-void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl)
+void ir_dump_graph_dot(FILE *mem, struct ir_fn_decl *decl)
 {
     fprintf(
         mem,
@@ -439,7 +441,7 @@ void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl)
     fprintf(mem, "}\n");
 }
 
-void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl)
+void ir_dump_cfg(FILE *mem, struct ir_fn_decl *decl)
 {
     fprintf(
         mem,
@@ -457,7 +459,7 @@ void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl)
     fprintf(mem, "}\n");
 }
 
-void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl)
+void ir_dump_dom_tree(FILE *mem, struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
     uint64_t cfg_no = 0;

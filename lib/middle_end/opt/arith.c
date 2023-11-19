@@ -157,8 +157,8 @@ static struct ir_node *opt_arith_node(struct ir_node *ir)
     case IR_JUMP:
     case IR_MEMBER:
     case IR_TYPE_DECL:
-    case IR_FUNC_DECL:
-    case IR_FUNC_CALL:
+    case IR_FN_DECL:
+    case IR_FN_CALL:
     case IR_ALLOCA:
     case IR_ALLOCA_ARRAY:
     case IR_IMM:
@@ -226,7 +226,7 @@ static struct ir_node *opt_arith_node(struct ir_node *ir)
           - A & B = B & A
           - A | B = B | A */
 
-void ir_opt_arith(struct ir_func_decl *decl)
+void ir_opt_arith(struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
     while (it) {

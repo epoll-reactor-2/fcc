@@ -203,7 +203,7 @@ static uint64_t dom_tree_fill(struct ir_node *it, struct ir_node **stmts)
     return cnt;
 }
 
-void ir_dominator_tree(struct ir_func_decl *decl)
+void ir_dominator_tree(struct ir_fn_decl *decl)
 {
     struct ir_node *it                  = decl->body;
     struct ir_node *stmts[MAX_VERTICES] = {0};
@@ -227,7 +227,7 @@ void ir_dominator_tree(struct ir_func_decl *decl)
 
 /* Cooper algorithm
    https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf */
-void ir_dominance_frontier(struct ir_func_decl *decl)
+void ir_dominance_frontier(struct ir_fn_decl *decl)
 {
     struct ir_node *b = decl->body;
 
@@ -253,7 +253,7 @@ void ir_dominance_frontier(struct ir_func_decl *decl)
     }
 }
 
-static void assigns_collect(struct ir_func_decl *decl, hashmap_t *out)
+static void assigns_collect(struct ir_fn_decl *decl, hashmap_t *out)
 {
     struct ir_node *it = decl->body;
 
@@ -324,7 +324,7 @@ static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 /* This function implements algorithm given in
    https://c9x.me/compile/bib/ssa.pdf */
 static void phi_insert(
-    struct ir_func_decl *decl,
+    struct ir_fn_decl *decl,
     /* Key:   sym_idx
        Value: array of ir's */
     hashmap_t *assigns
@@ -518,7 +518,7 @@ void ir_compute_ssa(struct ir_node *decls)
 {
     struct ir_node *it = decls;
     while (it) {
-        struct ir_func_decl *decl = it->ir;
+        struct ir_fn_decl *decl = it->ir;
         /* Key:   sym_idx
            Value: array of ir's */
         hashmap_t assigns        = {0};

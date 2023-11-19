@@ -15,7 +15,7 @@ const char *ir_type_to_string(enum ir_type t);
 /** Print IR to given stream.
    
     \param ir      Pointer to the function IR. */
-void ir_dump(FILE *mem, struct ir_func_decl *decl);
+void ir_dump(FILE *mem, struct ir_fn_decl *decl);
 
 /** Print whole translation unit to given stream.
    
@@ -25,7 +25,7 @@ void ir_dump_unit(FILE *mem, struct ir_unit *unit);
 /** Print IR dominator tree.
    
     \param ir      Pointer to the function IR. */
-void ir_dump_dom_tree(FILE *mem, struct ir_func_decl *decl);
+void ir_dump_dom_tree(FILE *mem, struct ir_fn_decl *decl);
 
 /** Print IR node to given stream.
    
@@ -45,8 +45,8 @@ void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir);
            dynamic allocation, limit of dumped function is
            set to 8192. Anyway, after that value generated
            graph image will be completely messy. */
-void ir_dump_graph_dot(FILE *mem, struct ir_func_decl *decl);
+void ir_dump_graph_dot(FILE *mem, struct ir_fn_decl *decl);
 
-void ir_dump_cfg(FILE *mem, struct ir_func_decl *decl);
+void ir_dump_cfg(FILE *mem, struct ir_fn_decl *decl);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_DUMP_H

@@ -38,7 +38,7 @@ static enum data_type imm_type_to_dt(enum ir_imm_type t)
 
 
 
-static void fn_type_save(struct ir_func_decl *decl)
+static void fn_type_save(struct ir_fn_decl *decl)
 {
     struct type *t = weak_calloc(1, sizeof (struct type));
 
@@ -147,7 +147,7 @@ static void type_pass_imm(struct ir_imm *i)
     memset(&i->type_info.arity, 0, sizeof (i->type_info.arity));
 }
 
-static void type_pass_func_call(struct ir_func_call *call)
+static void type_pass_fn_call(struct ir_fn_call *call)
 {
     struct ir_node *it = call->args;
 
@@ -217,12 +217,12 @@ static void type_pass(struct ir_node *ir)
     case IR_RET:
         type_pass_ret(ir->ir);
         break;
-    case IR_FUNC_CALL:
-        type_pass_func_call(ir->ir);
+    case IR_FN_CALL:
+        type_pass_fn_call(ir->ir);
         break;
     case IR_MEMBER:
     case IR_TYPE_DECL:
-    case IR_FUNC_DECL:
+    case IR_FN_DECL:
     case IR_STRING:
     case IR_JUMP:
     case IR_PHI:
@@ -232,7 +232,7 @@ static void type_pass(struct ir_node *ir)
     }
 }
 
-static void type_pass_fn(struct ir_func_decl *decl)
+static void type_pass_fn(struct ir_fn_decl *decl)
 {
     init_fn_state();
     struct ir_node *it = decl->args;
@@ -252,13 +252,13 @@ void ir_type_pass(struct ir_unit *unit)
 {
     init_fn_map();
 
-    struct ir_node *it = unit->func_decls;
+    struct ir_node *it = unit->fn_decls;
     while (it) {
         fn_type_save(it->ir);
         it = it->next;
     }
 
-    it = unit->func_decls;
+    it = unit->fn_decls;
     while (it) {
         type_pass_fn(it->ir);
         it = it->next;

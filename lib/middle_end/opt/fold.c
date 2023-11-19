@@ -408,8 +408,8 @@ static struct ir_node *fold_node(struct ir_node *ir)
     case IR_JUMP:
     case IR_MEMBER:
     case IR_TYPE_DECL:
-    case IR_FUNC_DECL:
-    case IR_FUNC_CALL:
+    case IR_FN_DECL:
+    case IR_FN_CALL:
         break;
     case IR_STORE:
         fold_store(ir);
@@ -429,7 +429,7 @@ static struct ir_node *fold_node(struct ir_node *ir)
     return no_result();
 }
 
-void ir_opt_fold(struct ir_func_decl *decl)
+void ir_opt_fold(struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
     uint64_t cfg_no = 0;
