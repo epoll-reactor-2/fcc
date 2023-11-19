@@ -611,27 +611,32 @@ really_inline static void visit_unary_arith(enum token_type op)
     ir_insert_last();
 }
 
-really_inline static void visit_unary_pointer(enum token_type op)
+really_inline static void visit_unary_pointer(enum token_type op, bool immediate)
 {
     assert(
-            ir_last->type == IR_SYM &&
-            "Address can be taken only of variable."
+        ir_last->type == IR_SYM &&
+        "Address can be taken only of variable."
     );
     struct ir_node *sym_node = ir_last;
     struct ir_sym  *sym      = ir_last->ir;
-    uint64_t        next_idx = ir_var_idx++;
 
-    ir_last = ir_alloca_init(
-        ir_type_map[sym->idx].dt,
-        ir_type_map[sym->idx].ptr_depth > 0,
-        next_idx
-    );
-    ir_insert_last();
+    /* If we reached "leaf" of unary statement, we are not
+       forced to allocate new variable. */
+    if (immediate) {
+        ir_last = ir_sym_init(sym->idx);
+    } else {
+        uint64_t next_idx = ir_var_idx++;
+        ir_last = ir_alloca_init(
+            ir_type_map[sym->idx].dt,
+            ir_type_map[sym->idx].ptr_depth > 0,
+            next_idx
+        );
+        ir_insert_last();
+        ir_last = ir_store_sym_init(next_idx, sym_node);
+        ir_insert_last();
+        ir_last = ir_sym_init(next_idx);
+    }
 
-    ir_last = ir_store_sym_init(next_idx, sym_node);
-    ir_insert_last();
-
-    ir_last = ir_sym_init(next_idx);
     struct ir_sym *new_s = ir_last->ir;
 
     ir_type_map[new_s->idx] = ir_type_map[sym->idx];
@@ -661,7 +666,7 @@ static void visit_unary(struct ast_unary *ast)
     /* Pointer operations. */
     case TOK_STAR:    /* * */
     case TOK_BIT_AND: /* & */
-        visit_unary_pointer(op);
+        visit_unary_pointer(op, ast->operand->type == AST_SYMBOL);
         break;
     default:
         weak_unreachable("Unknown operator `%s`", tok_to_string(op));
