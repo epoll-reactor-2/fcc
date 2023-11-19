@@ -949,101 +949,95 @@ static void visit(struct ast_node *ast)
 
 
 
-/* Assure we will omit same predecessors. */
-static bool has_prev(ir_vector_t *t, uint64_t idx)
+/* To ease IR access by instruction index, we maintain hashmap. */
+really_inline static void link_stmt_map(hashmap_t *stmt_map, struct ir_node *ir)
 {
-    vector_foreach(*t, i) {
-        struct ir_node *ir = vector_at(*t, i);
-        if (ir->instr_idx == idx)
-            return 1;
-    }
 
-    return 0;
+    hashmap_init(stmt_map, 128);
+
+    while (ir) {
+        hashmap_put(stmt_map, ir->instr_idx, (uint64_t) ir);
+        /* Clear all CFG information. */
+        vector_free(ir->cfg.preds);
+        vector_free(ir->cfg.succs);
+        ir = ir->next;
+    }
 }
 
-/* TODO: Refactor. */
+really_inline static struct ir_node *link_target(hashmap_t *stmt_map, uint64_t jmp)
+{
+    bool     ok   = 0;
+    uint64_t addr = hashmap_get(stmt_map, jmp, &ok);
+
+    assert(ok);
+
+    return (struct ir_node *) addr;
+}
+
+really_inline static void link_jmp(hashmap_t *stmt_map, struct ir_node *stmt)
+{
+    struct ir_jump *jump = stmt->ir;
+    jump->target = link_target(stmt_map, jump->idx);
+
+    ir_vector_t *prevs = &jump->target->cfg.preds;
+    vector_push_back(stmt->cfg.succs, jump->target);
+    vector_push_back(*prevs, stmt);
+}
+
+really_inline static void link_cond(hashmap_t *stmt_map, struct ir_node *stmt)
+{
+    struct ir_cond *cond = stmt->ir;
+
+    uint64_t to = cond->goto_label;
+    cond->target = link_target(stmt_map, to);
+
+    vector_push_back(stmt->cfg.succs, cond->target);
+    vector_push_back(stmt->cfg.succs, stmt->next);
+
+    ir_vector_t *prevs = &cond->target->cfg.preds;
+    vector_push_back(*prevs, stmt);
+}
+
+really_inline static void link_stmt(struct ir_node *stmt)
+{
+    if (stmt->next)
+        vector_push_back(stmt->cfg.succs, stmt->next);
+}
+
 void ir_link(struct ir_func_decl *decl)
 {
-    struct ir_node *it = decl->body;
-    vector_t(struct ir_node *) stmts = {0};
-    hashmap_t stmt_map;
-    hashmap_init(&stmt_map, 128);
+    struct ir_node *it       = decl->body;
+    hashmap_t       stmt_map = {0};
 
-    while (it) {
-        vector_push_back(stmts, it);
-        hashmap_put(&stmt_map, it->instr_idx, (uint64_t) it);
-        /* Clear all CFG information. */
-        vector_free(it->cfg.preds);
-        vector_free(it->cfg.succs);
-        it = it->next;
-    }
+    link_stmt_map(&stmt_map, it);
 
-    bool ok = 0;
-
-    for (uint64_t i = 0; i < stmts.count - 1; ++i) {
-        struct ir_node *stmt = stmts.data[i];
+    hashmap_foreach(&stmt_map, k, v) {
+        (void) k;
+        struct ir_node *stmt = (struct ir_node *) v;
 
         switch (stmt->type) {
-        case IR_JUMP: {
-            struct ir_jump *jump = stmt->ir;
-
-            uint64_t addr = hashmap_get(&stmt_map, jump->idx, &ok);
-            assert(ok);
-            jump->target = (struct ir_node *) addr;
-
-            ir_vector_t *prevs = &jump->target->cfg.preds;
-            vector_push_back(stmt->cfg.succs, jump->target);
-            if (!has_prev(prevs, stmt->instr_idx))
-                vector_push_back(*prevs, stmt);
+        case IR_JUMP:
+            link_jmp(&stmt_map, stmt);
             break;
-        }
-        case IR_COND: {
-            struct ir_cond *cond = stmt->ir;
 
-            uint64_t goto_addr = hashmap_get(&stmt_map, cond->goto_label, &ok);
-            assert(ok);
-
-            struct ir_node *cond_target = (struct ir_node *) goto_addr;
-
-            cond->target = cond_target;
-            vector_push_back(stmt->cfg.succs, cond_target);
-            vector_push_back(stmt->cfg.succs, stmt->next);
-
-            ir_vector_t *prevs = &cond->target->cfg.preds;
-            if (!has_prev(prevs, stmt->instr_idx))
-                vector_push_back(*prevs, stmt);
+        case IR_COND:
+            link_cond(&stmt_map, stmt);
             break;
-        }
+
         default:
-            vector_push_back(stmt->cfg.succs, stmt->next);
+            link_stmt(stmt);
             break;
         }
 
-        if (i > 0) {
-            uint64_t addr = hashmap_get(&stmt_map, i - 1, &ok);
-            assert(ok);
-            struct ir_node *prev = (struct ir_node *) addr;
+        /* Link previous. */
+        if (stmt->instr_idx > 0) {
+            struct ir_node *prev = link_target(&stmt_map, stmt->instr_idx - 1);
 
             if (prev->type != IR_JUMP)
                 vector_push_back(stmt->cfg.preds, prev);
         }
     }
 
-    /* Case when there at least two statements, so we can
-       analyze the last predecessors. */
-    if (stmts.count > 1) {
-        /* If jump, then this is not our predecessor, since it is not
-           reachable from current statement. Elsewise, statement that is
-           located above us is our predecessor. */
-        struct ir_node *prev = vector_at(stmts, stmts.count - 2);
-
-        if (prev->type != IR_JUMP)
-            /* stmts.count - 2 is exactly what is located before
-               current statement. */
-            vector_push_back(vector_back(stmts)->cfg.preds, prev);
-    }
-
-    vector_free(stmts);
     hashmap_destroy(&stmt_map);
 }
 
