@@ -22,7 +22,6 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_JUMP:         return "IR_JUMP";
     case IR_COND:         return "IR_COND";
     case IR_RET:          return "IR_RET";
-    case IR_RET_VOID:     return "IR_RET_VOID";
     case IR_MEMBER:       return "IR_MEMBER";
     case IR_TYPE_DECL:    return "IR_TYPE_DECL";
     case IR_FUNC_DECL:    return "IR_FUNC_DECL";
@@ -127,13 +126,11 @@ static void ir_dump_cond(FILE *mem, struct ir_cond *ir)
 
 static void ir_dump_ret(FILE *mem, struct ir_ret *ir)
 {
-    fprintf(mem, "ret ");
-    ir_dump_node(mem, ir->body);
-}
-
-static void ir_dump_ret_void(FILE *mem)
-{
     fprintf(mem, "ret");
+    if (ir->body) {
+        fprintf(mem, " ");
+        ir_dump_node(mem, ir->body);
+    }
 }
 
 static void ir_dump_member(FILE *mem, struct ir_member *ir)
@@ -216,7 +213,6 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_JUMP:         ir_dump_jump(mem, ir->ir); break;
     case IR_COND:         ir_dump_cond(mem, ir->ir); break;
     case IR_RET:          ir_dump_ret(mem, ir->ir); break;
-    case IR_RET_VOID:     ir_dump_ret_void(mem); break;
     case IR_MEMBER:       ir_dump_member(mem, ir->ir); break;
     case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir->ir); break;
     case IR_FUNC_DECL:    ir_dump_func_decl(mem, ir->ir); break;
@@ -333,8 +329,7 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
         ir_dump_traverse(mem, visited, vector_at(ir->cfg.succs, 1));
         break;
     }
-    case IR_RET:
-    case IR_RET_VOID: {
+    case IR_RET: {
         ir_mark(visited, ir);
 
         if (ir->next) {
@@ -402,8 +397,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
             --cluster_no;
             break;
         }
-        case IR_RET:
-        case IR_RET_VOID: {
+        case IR_RET: {
             fprintf(mem, "    \"");
             dump_one_dot(mem, it);
             fprintf(mem, "\" -> exit\n");

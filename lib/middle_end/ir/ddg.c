@@ -68,7 +68,7 @@ static void ddg_node(struct ir_node *ir)
     }
     case IR_RET: {
         struct ir_ret *ret = ir->ir;
-        if (!ret->is_void && ret->body->type == IR_SYM)
+        if (ret->body && ret->body->type == IR_SYM)
             ddg_add_dependency(ir, ret->body);
         break;
     }

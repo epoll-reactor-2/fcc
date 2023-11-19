@@ -51,8 +51,7 @@ static void traverse(bool *visited, uint64_t *max_id, struct ir_node *ir)
         // traverse(visited, max_id, ir->next_else);
         break;
     }
-    case IR_RET:
-    case IR_RET_VOID: {
+    case IR_RET: {
         mark_visited(visited, ir);
         bool should_jump = ir->next;
         if (ir->next) {

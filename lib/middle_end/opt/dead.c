@@ -158,7 +158,7 @@ static void dce_ret(struct ir_node *ir)
 {
     struct ir_ret *ret = ir->ir;
 
-    if (ret->is_void)
+    if (!ret->body)
         return;
 
     if (ret->body->type != IR_SYM)
@@ -236,7 +236,6 @@ static void dce_node(struct ir_node *ir)
         dce_bin(ir);
         break;
     case IR_RET:
-    case IR_RET_VOID:
         dce_ret(ir);
         break;
     case IR_COND:

@@ -586,10 +586,7 @@ static void visit_ret(struct ast_ret *ast)
     if (ast->op) {
         visit(ast->op);
     }
-    ir_last = ir_ret_init(
-        /*is_void=*/!ast->op,
-        /*op=*/ir_last
-    );
+    ir_last = ir_ret_init(ir_last);
     ir_insert_last();
 }
 
@@ -851,10 +848,9 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
     ir_func_add_return_type(decl->name, decl->data_type);
 
     visit(decl->body);
-    if (decl->data_type == D_T_VOID) {
-        struct ir_node *ret_body = ir_node_init(IR_RET_VOID, NULL);
-        ir_insert(ir_ret_init(true, ret_body));
-    }
+    if (decl->data_type == D_T_VOID)
+        ir_insert(ir_ret_init(NULL));
+
     struct ir_node *body = ir_first;
 
     vector_push_back(
@@ -996,7 +992,6 @@ really_inline static void link_ret(struct ir_node *stmt)
         struct ir_node *pred = vector_at(*preds, i);
         switch (pred->type) {
         case IR_RET:
-        case IR_RET_VOID:
             vector_erase(*preds, i);
             break;
         default:
@@ -1055,7 +1050,6 @@ void ir_link(struct ir_func_decl *decl)
             break;
 
         case IR_RET:
-        case IR_RET_VOID:
             link_ret(stmt);
             break;
 

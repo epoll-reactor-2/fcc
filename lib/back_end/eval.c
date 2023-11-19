@@ -452,7 +452,6 @@ static void instr_eval(struct ir_node *ir)
         eval_bin(ir->ir);
         break;
     case IR_RET:
-    case IR_RET_VOID:
         eval_ret(ir->ir);
         break;
     case IR_COND:
