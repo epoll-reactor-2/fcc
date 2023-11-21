@@ -17,9 +17,8 @@ CC          = gcc
 LD          = ld
 LIB         = libweak_compiler.so
 LDFLAGS     = -lfl
-CFLAGS      = -std=gnu99 -fPIC -Ilib
-
-CFLAGS     += -Wall -Wextra -Wshadow -Wvla -Wpointer-arith
+CFLAGS      = -std=gnu99 -fPIC -Ilib \
+              -Wall -Wextra -Wshadow -Wvla -Wpointer-arith
 
 ifeq ($(LOG), 1)
 CFLAGS     += -D USE_LOG
@@ -28,10 +27,8 @@ endif # LOG
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb
 
-
 ifeq ($(SANITIZE), 1)
-CFLAGS     +=                                                       \
-              -fanalyzer                                            \
+CFLAGS     += -fanalyzer                                            \
               -fsanitize=address -fno-omit-frame-pointer            \
               -fsanitize=undefined -fno-sanitize-recover=all        \
               -fsanitize-address-use-after-scope
@@ -72,55 +69,35 @@ $(info $(info) $(RED)                                                           
 $(info $(info) $(RED)                                                                                  $(RESET) )
 endif
 
-all: build_dir test_files $(LIB) tests
+all: dir $(LIB) tests
 
-build_dir:
+dir:
 	@if ! [[ -d build ]]; then \
 	    mkdir -p build/test_inputs; \
 		flex --outfile=build/lex.yy.c lex/grammar.lex; \
 	fi
 
-test_files: | build_dir
-	@cp -r tests/front_end/input/*  build/test_inputs; \
-	 cp -r tests/middle_end/input/* build/test_inputs; \
-	 cp -r tests/back_end/input/*   build/test_inputs
+tests: | $(LIB)
+	make -C tests CFLAGS="$(CFLAGS)" \
+	              LDFLAGS="$(LDFLAGS)" \
+	              CC_COLORED="$(CC_COLORED)" \
+	              LD_COLORED="$(LD_COLORED)"
+
+.PHONY: test
+test:
+	make -C tests run
 
 SRC  = $(shell find lib -name '*.c')
 SRC += build/lex.yy.c
+OBJ  = $(SRC:.c=.o)
 
 %.o: %.c
 	@echo [$(CC_COLORED)] $@
 	@$(CC) -c $(CFLAGS) $^ -o build/$(notdir $@)
 
-OBJ = $(SRC:.c=.o)
-
-$(LIB): $(OBJ) | build_dir
+$(LIB): $(OBJ) | dir
 	@echo [$(LD_COLORED)] $@
 	@$(LD) $(addprefix build/,$(notdir $^)) -shared -o build/$(LIB) -Lbuild $(LDFLAGS)
-
-TEST_SRC = $(shell find tests -name '*.c')
-TEST_OBJ = $(TEST_SRC:.c=.o)
-
-LDFLAGS += -lweak_compiler
-
-$(TEST_OBJ): $(TEST_SRC) | $(LIB)
-	@echo [$(CC_COLORED)] $@
-	@$(CC) -Itests -Lbuild $(CFLAGS) $(@:.o=.c) -o build/$(notdir $(@:.o=))_test $(LDFLAGS)
-
-tests: $(TEST_OBJ)
-
-.PHONY: test
-test:
-	@for file in $(shell find build -executable -name '*_test' -printf "./%f\n"); do \
-		 (cd build; LD_LIBRARY_PATH=. $$file && \
-		 ([[ $$? -eq 0 ]] && echo "OK") || \
-		 ([[ $$? -ne 0 ]] && echo "Test failed. Interrupt the rest."; kill -KILL $$$$);) \
-	 done
-
-.PHONY: clean
-clean:
-	@rm -rf build
-	@echo "Done"
 
 .PHONY: cppcheck
 cppcheck:
