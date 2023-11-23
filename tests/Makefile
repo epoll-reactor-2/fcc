@@ -6,7 +6,8 @@ override LDFLAGS += -lweak_compiler
 all: files src
 
 files:
-	@cp -r front_end/input/*  ../build/test_inputs; \
+	@mkdir -p ../build/test_inputs; \
+	 cp -r front_end/input/*  ../build/test_inputs; \
 	 cp -r middle_end/input/* ../build/test_inputs; \
 	 cp -r back_end/input/*   ../build/test_inputs
 
