@@ -67,16 +67,12 @@ all: dir $(LIB) test_src
 
 dir:
 	@if ! [[ -d build ]]; then \
-	    mkdir -p build/test_inputs; \
+		mkdir build; \
 		flex --outfile=build/lex.yy.c lex/grammar.lex; \
 	fi
 
 test_src: | $(LIB)
 	@ make -C tests
-
-.PHONY: test
-test:
-	make -C tests test
 
 SRC  = $(shell find lib -name '*.c')
 SRC += build/lex.yy.c
@@ -89,6 +85,15 @@ OBJ  = $(SRC:.c=.o)
 $(LIB): $(OBJ) | dir
 	@echo [$(LD_COLORED)] $@
 	@$(LD) $(addprefix build/,$(notdir $^)) -shared -o build/$(LIB) -Lbuild $(LDFLAGS)
+
+.PHONY: clean
+clean:
+	@rm -rf build;
+	@echo "Done"
+
+.PHONY: test
+test:
+	make -C tests test
 
 .PHONY: cppcheck
 cppcheck:
