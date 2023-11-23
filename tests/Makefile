@@ -3,7 +3,7 @@ OBJ = $(SRC:.c=.o)
 
 override LDFLAGS += -lweak_compiler
 
-all: files src run
+all: files src
 
 files:
 	@cp -r front_end/input/*  ../build/test_inputs; \
@@ -13,10 +13,11 @@ files:
 src: $(OBJ)
 
 $(OBJ): $(SRC)
-	@echo [$(CC_COLORED)] $@
-	$(CC) -I../tests -I../lib -L../build $(CFLAGS) $(@:.o=.c) -o ../build/$(notdir $(@:.o=))_test $(LDFLAGS)
+	@echo [CC] $(notdir $@)
+	@$(CC) -I../tests -I../lib -L../build $(CFLAGS) $(@:.o=.c) -o ../build/$(notdir $(@:.o=))_test $(LDFLAGS)
 
-run:
+.PHONY: test
+test:
 	@for file in $(shell find ../build -executable -name '*_test' -printf "./%f\n"); do \
 		 (cd ../build; LD_LIBRARY_PATH=. $$file && \
 		 ([[ $$? -eq 0 ]] && echo "OK") || \

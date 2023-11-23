@@ -3,12 +3,6 @@ override MAKEFLAGS += -j $(NR_CPUS)
 
 REDIRECT_STDERR := 2> /dev/null
 
-BOLD    := $(shell printf "\033[1m"  $(REDIRECT_STDERR))
-RESET   := $(shell printf $(BOLD)"\033[0m"  $(REDIRECT_STDERR))
-RED     := $(shell printf $(BOLD)"\033[31m" $(REDIRECT_STDERR))
-GREEN   := $(shell printf $(BOLD)"\033[32m" $(REDIRECT_STDERR))
-YELLOW  := $(shell printf $(BOLD)"\033[33m" $(REDIRECT_STDERR))
-
 LOG         := 0
 DEBUG_BUILD := 1
 SANITIZE    := 0
@@ -43,8 +37,8 @@ endif # !DEBUG_BUILD
 
 \t         := $(info)	$(info)
 
-CC_COLORED := "$(YELLOW)CC$(RESET)"
-LD_COLORED :=  "$(GREEN)LD$(RESET)"
+RED    := $(shell echo -e "\033[031m")
+RESET  := $(shell echo -e "\033[0m")
 
 ifneq (,$(findstring UTF, $(LANG)))
 $(info $(info) $(RED)                                                                                  $(RESET) )
@@ -69,7 +63,7 @@ $(info $(info) $(RED)                                                           
 $(info $(info) $(RED)                                                                                  $(RESET) )
 endif
 
-all: dir $(LIB) tests
+all: dir $(LIB) test_src
 
 dir:
 	@if ! [[ -d build ]]; then \
@@ -77,22 +71,19 @@ dir:
 		flex --outfile=build/lex.yy.c lex/grammar.lex; \
 	fi
 
-tests: | $(LIB)
-	make -C tests CFLAGS="$(CFLAGS)" \
-	              LDFLAGS="$(LDFLAGS)" \
-	              CC_COLORED="$(CC_COLORED)" \
-	              LD_COLORED="$(LD_COLORED)"
+test_src: | $(LIB)
+	@ make -C tests
 
 .PHONY: test
 test:
-	make -C tests run
+	make -C tests test
 
 SRC  = $(shell find lib -name '*.c')
 SRC += build/lex.yy.c
 OBJ  = $(SRC:.c=.o)
 
 %.o: %.c
-	@echo [$(CC_COLORED)] $@
+	@echo [CC] $(notdir $@)
 	@$(CC) -c $(CFLAGS) $^ -o build/$(notdir $@)
 
 $(LIB): $(OBJ) | dir
