@@ -73,7 +73,7 @@ clean:
 
 .PHONY: test
 test:
-	make -C tests test
+	@make -C tests test
 
 .PHONY: cppcheck
 cppcheck:
