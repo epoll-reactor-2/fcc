@@ -1,3 +1,6 @@
+##################################
+# Commom variables               #
+##################################
 NR_CPUS     = $(shell nproc 2> /dev/null)
 override MAKEFLAGS += -j $(NR_CPUS)
 
@@ -7,63 +10,46 @@ LOG         := 0
 DEBUG_BUILD := 1
 SANITIZE    := 0
 
-CC          = gcc
-LD          = ld
-LIB         = libweak_compiler.so
-LDFLAGS     = -lfl
-CFLAGS      = -std=gnu99 -fPIC -Ilib \
-              -Wall -Wextra -Wshadow -Wvla -Wpointer-arith
+CC           = gcc
+LD           = ld
+\t          := $(info)	$(info)
 
-ifeq ($(LOG), 1)
-CFLAGS     += -D USE_LOG
-endif # LOG
+export CC
+export LD
 
-ifeq ($(DEBUG_BUILD), 1)
-CFLAGS     += -O0 -ggdb
-
-ifeq ($(SANITIZE), 1)
-CFLAGS     += -fanalyzer                                            \
-              -fsanitize=address -fno-omit-frame-pointer            \
-              -fsanitize=undefined -fno-sanitize-recover=all        \
-              -fsanitize-address-use-after-scope
-
-ifeq ($(CC),clang)
-CFLAGS     += -fsanitize=cfi -fvisibility=default -flto
-endif # clang
-endif # SANITIZE
-else  # !DEBUG_BUILD
-CFLAGS     += -march=native -mtune=generic -O3 -D NDEBUG
-endif # !DEBUG_BUILD
-
-\t         := $(info)	$(info)
-
+##################################
+# Logo                           #
+##################################
 RED    := $(shell echo -e "\033[031m")
 RESET  := $(shell echo -e "\033[0m")
 
 ifneq (,$(findstring UTF, $(LANG)))
-$(info $(info) $(RED)                                                                                  $(RESET) )
-$(info $(info) $(RED)                                                                                  $(RESET) )
-$(info $(info) $(RED)                   ▄▀▀▄    ▄▀▀▄  ▄▀▀█▄▄▄▄  ▄▀▀█▄   ▄▀▀▄ █                         $(RESET) )
-$(info $(info) $(RED)                  █   █    ▐  █ ▐  ▄▀   ▐ ▐ ▄▀ ▀▄ █  █ ▄▀                         $(RESET) )
-$(info $(info) $(RED)                  ▐  █        █   █▄▄▄▄▄    █▄▄▄█ ▐  █▀▄                          $(RESET) )
-$(info $(info) $(RED)                    █   ▄    █    █    ▌   ▄▀   █   █   █                         $(RESET) )
-$(info $(info) $(RED)                     ▀▄▀ ▀▄ ▄▀   ▄▀▄▄▄▄   █   ▄▀  ▄▀   █                          $(RESET) )
-$(info $(info) $(RED)                           ▀     █    ▐   ▐   ▐   █    ▐                          $(RESET) )
-$(info $(info) $(RED)                                 ▐                ▐                               $(RESET) )
-$(info $(info) $(RED)                                 ▐                ▐                               $(RESET) )
-$(info $(info) $(RED)                                 ▐                ▐                               $(RESET) )
-$(info $(info) $(RED)     ▄▀▄▄▄▄   ▄▀▀▀▀▄   ▄▀▀▄ ▄▀▄  ▄▀▀▄▀▀▀▄  ▄▀▀█▀▄   ▄▀▀▀▀▄     ▄▀▀█▄▄▄▄  ▄▀▀▄▀▀▀▄ $(RESET) )
-$(info $(info) $(RED)    █ █    ▌ █      █ █  █ ▀  █ █   █   █ █   █  █ █    █     ▐  ▄▀   ▐ █   █   █ $(RESET) )
-$(info $(info) $(RED)    ▐ █      █      █ ▐  █    █ ▐  █▀▀▀▀  ▐   █  ▐ ▐    █       █▄▄▄▄▄  ▐  █▀▀█▀  $(RESET) )
-$(info $(info) $(RED)      █      ▀▄    ▄▀   █    █     █          █        █        █    ▌   ▄▀    █  $(RESET) )
-$(info $(info) $(RED)     ▄▀▄▄▄▄▀   ▀▀▀▀   ▄▀   ▄▀    ▄▀        ▄▀▀▀▀▀▄   ▄▀▄▄▄▄▄▄▀ ▄▀▄▄▄▄   █     █   $(RESET) )
-$(info $(info) $(RED)    █     ▐           █    █    █         █       █  █         █    ▐   ▐     ▐   $(RESET) )
-$(info $(info) $(RED)    ▐                 ▐    ▐    ▐         ▐       ▐  ▐         ▐                  $(RESET) )
-$(info $(info) $(RED)                                                                                  $(RESET) )
-$(info $(info) $(RED)                                                                                  $(RESET) )
+$(info $(RED)                                                                                  $(RESET) )
+$(info $(RED)                                                                                  $(RESET) )
+$(info $(RED)                   ▄▀▀▄    ▄▀▀▄  ▄▀▀█▄▄▄▄  ▄▀▀█▄   ▄▀▀▄ █                         $(RESET) )
+$(info $(RED)                  █   █    ▐  █ ▐  ▄▀   ▐ ▐ ▄▀ ▀▄ █  █ ▄▀                         $(RESET) )
+$(info $(RED)                  ▐  █        █   █▄▄▄▄▄    █▄▄▄█ ▐  █▀▄                          $(RESET) )
+$(info $(RED)                    █   ▄    █    █    ▌   ▄▀   █   █   █                         $(RESET) )
+$(info $(RED)                     ▀▄▀ ▀▄ ▄▀   ▄▀▄▄▄▄   █   ▄▀  ▄▀   █                          $(RESET) )
+$(info $(RED)                           ▀     █    ▐   ▐   ▐   █    ▐                          $(RESET) )
+$(info $(RED)                                 ▐                ▐                               $(RESET) )
+$(info $(RED)                                 ▐                ▐                               $(RESET) )
+$(info $(RED)                                 ▐                ▐                               $(RESET) )
+$(info $(RED)     ▄▀▄▄▄▄   ▄▀▀▀▀▄   ▄▀▀▄ ▄▀▄  ▄▀▀▄▀▀▀▄  ▄▀▀█▀▄   ▄▀▀▀▀▄     ▄▀▀█▄▄▄▄  ▄▀▀▄▀▀▀▄ $(RESET) )
+$(info $(RED)    █ █    ▌ █      █ █  █ ▀  █ █   █   █ █   █  █ █    █     ▐  ▄▀   ▐ █   █   █ $(RESET) )
+$(info $(RED)    ▐ █      █      █ ▐  █    █ ▐  █▀▀▀▀  ▐   █  ▐ ▐    █       █▄▄▄▄▄  ▐  █▀▀█▀  $(RESET) )
+$(info $(RED)      █      ▀▄    ▄▀   █    █     █          █        █        █    ▌   ▄▀    █  $(RESET) )
+$(info $(RED)     ▄▀▄▄▄▄▀   ▀▀▀▀   ▄▀   ▄▀    ▄▀        ▄▀▀▀▀▀▄   ▄▀▄▄▄▄▄▄▀ ▄▀▄▄▄▄   █     █   $(RESET) )
+$(info $(RED)    █     ▐           █    █    █         █       █  █         █    ▐   ▐     ▐   $(RESET) )
+$(info $(RED)    ▐                 ▐    ▐    ▐         ▐       ▐  ▐         ▐                  $(RESET) )
+$(info $(RED)                                                                                  $(RESET) )
+$(info $(RED)                                                                                  $(RESET) )
 endif
 
-all: dir $(LIB) test_src
+##################################
+# Make targets                   #
+##################################
+all: dir library test_suite
 
 dir:
 	@if ! [[ -d build ]]; then \
@@ -71,21 +57,15 @@ dir:
 		flex --outfile=build/lex.yy.c lex/grammar.lex; \
 	fi
 
-test_src: | $(LIB)
-	@ make -C tests
+library:
+	@make -C lib
 
-SRC  = $(shell find lib -name '*.c')
-SRC += build/lex.yy.c
-OBJ  = $(SRC:.c=.o)
+test_suite: | library
+	@make -C tests
 
-%.o: %.c
-	@echo [CC] $(notdir $@)
-	@$(CC) -c $(CFLAGS) $^ -o build/$(notdir $@)
-
-$(LIB): $(OBJ) | dir
-	@echo [$(LD_COLORED)] $@
-	@$(LD) $(addprefix build/,$(notdir $^)) -shared -o build/$(LIB) -Lbuild $(LDFLAGS)
-
+##################################
+# Phony targets                  #
+##################################
 .PHONY: clean
 clean:
 	@rm -rf build;
