@@ -84,6 +84,8 @@ bool ir_test(const char *path, const char *filename)
             ir_link(decl);
             ir_build_cfg(decl);
 
+            /* ir_dump(stdout, decl); */
+
             /* Wrong
                ir_opt_unreachable_code(decl); */
 
@@ -106,7 +108,7 @@ bool ir_test(const char *path, const char *filename)
         fscanf(expected_stream, "%d", &expected_code);
 
         if (exit_code != expected_code) {
-            ir_dump_unit(stdout, ir);
+            /* ir_dump_unit(stdout, ir); */
             printf("Return value mismatch: got %d, expected %d\n", exit_code, expected_code);
             ok = 0;
             goto exit;

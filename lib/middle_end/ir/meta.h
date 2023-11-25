@@ -11,14 +11,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct type {
-    enum data_type dt;
-    uint64_t       ptr_depth;
-    uint64_t       arity[16];
-    uint64_t       arity_size;
-    uint64_t       bytes;
-};
-
 enum { META_VALUE_UNKNOWN = UINT64_MAX };
 
 struct meta {
