@@ -11,6 +11,7 @@
 #include "front_end/lex/tok_type.h"
 #include "middle_end/ir/ir_ops.h"
 #include "middle_end/ir/meta.h"
+#include "middle_end/ir/type.h"
 #include "util/compiler.h"
 #include "util/vector.h"
 #include <stdbool.h>

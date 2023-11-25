@@ -7,7 +7,18 @@
 #ifndef WEAK_COMPILER_MIDDLE_END_TYPE_H
 #define WEAK_COMPILER_MIDDLE_END_TYPE_H
 
+#include "front_end/lex/data_type.h"
+#include <stdint.h>
+
 struct ir_unit;
+
+struct type {
+    enum data_type dt;
+    uint64_t       ptr_depth;
+    uint64_t       arity[16];
+    uint64_t       arity_size;
+    uint64_t       bytes;
+};
 
 /** Supply each expression with its type
     information.
