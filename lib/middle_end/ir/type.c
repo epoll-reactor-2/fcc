@@ -1,3 +1,9 @@
+/* type.c - IR pass that adds type information.
+ * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
+ *
+ * This file is distributed under the MIT license.
+ */
+
 #include "middle_end/ir/type.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/meta.h"

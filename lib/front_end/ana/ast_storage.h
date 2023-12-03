@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
-#define WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
+#ifndef WEAK_COMPILER_FRONTEND_ANA_AST_STORAGE_H
+#define WEAK_COMPILER_FRONTEND_ANA_AST_STORAGE_H
 
 #include "front_end/ast/ast.h"
 #include "front_end/lex/data_type.h"
@@ -86,4 +86,4 @@ void ast_storage_current_scope_uses(
     ast_storage_decl_array_t *out_set
 );
 
-#endif // WEAK_COMPILER_FRONTEND_ANALYSIS_AST_STORAGE_H
+#endif // WEAK_COMPILER_FRONTEND_ANA_AST_STORAGE_H

@@ -1,11 +1,11 @@
-/* analysis.h - All analyzers based on AST traversal.
+/* ana.h - All analyzers based on AST traversal.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_ANALYSIS_H
-#define WEAK_COMPILER_FRONTEND_ANALYSIS_H
+#ifndef WEAK_COMPILER_FRONTEND_ANA_H
+#define WEAK_COMPILER_FRONTEND_ANA_H
 
 struct ast_node;
 
@@ -73,4 +73,4 @@ void analysis_functions_analysis(struct ast_node *root);
     </table> */
 void analysis_type_analysis(struct ast_node *root);
 
-#endif // WEAK_COMPILER_FRONTEND_ANALYSIS_H
+#endif // WEAK_COMPILER_FRONTEND_ANA_H
