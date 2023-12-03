@@ -4,8 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/analysis/analysis.h"
-#include "front_end/analysis/ast_storage.h"
+#include "front_end/ana/ana.h"
+#include "front_end/ana/ast_storage.h"
 #include "front_end/ast/ast.h"
 #include "util/diagnostic.h"
 #include "util/unreachable.h"
