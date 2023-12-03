@@ -9,8 +9,8 @@
 
 #include <stdint.h>
 
-struct ir_node;
+struct ir_unit;
 
-int32_t eval(struct ir_node *ir);
+int32_t eval(struct ir_unit *unit);
 
 #endif // WEAK_COMPILER_BACKEND_EVAL_H

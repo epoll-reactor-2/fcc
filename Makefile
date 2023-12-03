@@ -6,16 +6,25 @@ override MAKEFLAGS += -j $(NR_CPUS)
 
 REDIRECT_STDERR := 2> /dev/null
 
-LOG         := 0
-DEBUG_BUILD := 1
-SANITIZE    := 0
-
-CC           = gcc
-LD           = ld
-\t          := $(info)	$(info)
+CC                   = gcc
+LD                   = ld
+\t                  := $(info)	$(info)
 
 export CC
 export LD
+
+DEBUG_BUILD          := 1
+SANITIZE             := 0
+
+USE_LOG              := 0
+USE_BACKEND_EVAL     := 0
+USE_BACKEND_X86_64   := 1
+
+export DEBUG_BUILD
+export SANITIZE
+export USE_LOG
+export USE_BACKEND_EVAL
+export USE_BACKEND_X86_64
 
 ##################################
 # Logo                           #

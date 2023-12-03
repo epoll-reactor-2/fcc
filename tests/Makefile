@@ -18,7 +18,16 @@ files:
 ##################################
 # Sources                        #
 ##################################
-SRC = $(shell find . -name '*.c')
+SRC = $(shell find front_end middle_end utils -name '*.c')
+
+ifeq ($(USE_BACKEND_EVAL), 1)
+SRC += back_end/eval.c
+endif # USE_BACKEND_EVAL
+
+ifeq ($(USE_BACKEND_X86_64), 1)
+SRC += back_end/x86_64.c
+endif # USE_BACKEND_EVAL
+
 OBJ = $(SRC:.c=.o)
 
 src: $(OBJ)

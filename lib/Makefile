@@ -1,9 +1,18 @@
 ##################################
 # Source files                   #
 ##################################
-SRC = $(shell find . -name '*.c') ../build/lex.yy.c
-OBJ = $(SRC:.c=.o)
+SRC = $(shell find front_end middle_end util -name '*.c') ../build/lex.yy.c
 LIB = libweak_compiler.so
+
+ifeq ($(USE_BACKEND_EVAL), 1)
+SRC += back_end/eval.c
+endif # USE_BACKEND_EVAL
+
+ifeq ($(USE_BACKEND_X86_64), 1)
+SRC += back_end/x86_64.c
+endif # USE_BACKEND_EVAL
+
+OBJ = $(SRC:.c=.o)
 
 ##################################
 # Compiler flags                 #
@@ -12,8 +21,8 @@ LDFLAGS      = -lfl
 CFLAGS       = -std=gnu99 -fPIC -I. \
                -Wall -Wextra -Wshadow -Wvla -Wpointer-arith
 
-ifeq ($(LOG), 1)
-CFLAGS     += -D USE_LOG
+ifeq ($(USE_LOG), 1)
+CFLAGS     += -D CONFIG_USE_LOG
 endif # LOG
 
 ifeq ($(DEBUG_BUILD), 1)
