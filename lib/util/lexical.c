@@ -6,6 +6,7 @@
 
 #include "util/lexical.h"
 #include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 
 void ordinal_numeral(uint64_t num, char *out)
@@ -25,4 +26,22 @@ void ordinal_numeral(uint64_t num, char *out)
         }
     }
     sprintf(out, "%zu'%s", num, postfix);
+}
+
+int istrcmp(const char *l, const char *r)
+{
+    while (*l && *r) {
+        while (isspace(*l)) ++l;
+        while (isspace(*r)) ++r;
+
+        if (*l != *r)
+            return *l - *r;
+
+        ++l; ++r;
+    }
+
+    while (isspace(*l)) ++l;
+    while (isspace(*r)) ++r;
+
+    return *l - *r;
 }

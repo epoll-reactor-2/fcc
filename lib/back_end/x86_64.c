@@ -11,6 +11,8 @@
 #include <string.h>
 #include <sys/syscall.h>
 
+static FILE *code_stream;
+
 static void report(const char *msg)
 {
     perror(msg);
@@ -21,7 +23,7 @@ fmt(1, 2) static void emit(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    vfprintf(stdout, fmt, args);
+    vfprintf(code_stream, fmt, args);
     va_end(args);
 }
 
@@ -30,20 +32,20 @@ static void emit_fn(struct ir_fn_decl *fn)
     char *name = fn->name;
     bool  main = !strcmp(name, "main");
     if (main)
-        printf("_start:\n");
+        emit("_start:\n");
     else
-        printf("%s:\n", name);
+        emit("%s:\n", name);
     /* Prologue (cdecl). Not required in _start. */
     if (!main)
-        printf(
+        emit(
             "\tpush\trbp\n"
             "\tmov\trbp, rsp\n"
         );
     /* Body. */
     /* ... */
-    /* Epilogue (cdecl). */
+    /* Epilogue (cdecl). Not required in _start. */
     if (main)
-        printf(
+        emit(
             "\tmov\trax, %d\n"
             "\tmov\trdi, %d\n"
             "\tsyscall\n",
@@ -51,9 +53,7 @@ static void emit_fn(struct ir_fn_decl *fn)
             /* TODO: Exit value. */ 0
         );
     else
-        /* If _start, not needed to emit
-           function epilogue. */
-        printf(
+        emit(
             "\tmov\trsp, rbp\n"
             "\tpop\trbp\n"
             "\tret\n"
@@ -62,15 +62,17 @@ static void emit_fn(struct ir_fn_decl *fn)
 
 static void emit_header()
 {
-    printf(
+    emit(
         "section .text\n"
         "\tglobal\t_start\n"
     );
 }
 
-void x86_64_gen(struct ir_unit *unit)
+void x86_64_gen(FILE *stream, struct ir_unit *unit)
 {
     (void) unit;
+
+    code_stream = stream;
 
     puts("");
     emit_header();

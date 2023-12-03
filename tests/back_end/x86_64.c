@@ -6,6 +6,7 @@
 #include "middle_end/ir/type.h"
 #include "middle_end/opt/opt.h"
 #include "util/diagnostic.h"
+#include "util/lexical.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
 
@@ -22,12 +23,16 @@ bool ir_test(const char *path, const char *filename)
     char   *expected         = NULL;
     char   *generated        = NULL;
     size_t  _                = 0;
+    FILE   *expected_stream  = open_memstream(&expected, &_);
+    FILE   *generated_stream = open_memstream(&generated, &_);
     struct  ir_unit    *unit = NULL;
     struct  ir_node    *it   = NULL;
 
     if (!setjmp(weak_fatal_error_buf)) {
         unit = gen_ir(path);
         ir_type_pass(unit);
+
+        extract_assertion_comment(yyin, expected_stream);
 
         /* ir_dump_unit(stdout, ir); */
 
@@ -58,7 +63,18 @@ bool ir_test(const char *path, const char *filename)
             it = it->next;
         }
 
-        x86_64_gen(unit);
+        x86_64_gen(generated_stream, unit);
+
+        fflush(expected_stream);
+        fflush(generated_stream);
+
+        int r = istrcmp(generated, expected);
+        if (r != 0) {
+            printf("Code mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
+            ok = 0;
+            goto exit;
+        }
+
         puts("Success!");
     } else {
         /// Error, will be printed in main.
@@ -67,10 +83,11 @@ bool ir_test(const char *path, const char *filename)
 
 exit:
     yylex_destroy();
+    fclose(expected_stream);
+    fclose(generated_stream);
+    free(expected);
+    free(generated);
     ir_unit_cleanup(unit);
-
-    /* Interrupt all other tests in `make test`. */
-    exit(-1);
 
     return ok;
 }

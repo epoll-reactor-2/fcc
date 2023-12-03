@@ -7,8 +7,10 @@
 #ifndef WEAK_COMPILER_BACKEND_X86_64_H
 #define WEAK_COMPILER_BACKEND_X86_64_H
 
+#include <bits/types/FILE.h>
+
 struct ir_unit;
 
-void x86_64_gen(struct ir_unit *unit);
+void x86_64_gen(FILE *stream, struct ir_unit *unit);
 
 #endif // WEAK_COMPILER_BACKEND_X86_64_H
