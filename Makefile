@@ -49,7 +49,7 @@ endif
 ##################################
 # Make targets                   #
 ##################################
-all: dir library test_suite
+all: dir library test_suite driver
 
 dir:
 	@if ! [[ -d build ]]; then \
@@ -62,6 +62,9 @@ library:
 
 test_suite: | library
 	@make -C tests
+
+driver: | library
+	@make -C compiler
 
 ##################################
 # Phony targets                  #
