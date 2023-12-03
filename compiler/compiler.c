@@ -118,14 +118,23 @@ void opt(struct ir_unit *ir)
     }
 }
 
-void evaluate(const char *filename)
+#ifdef CONFIG_USE_BACKEND_EVAL
+void run_backend(const char *filename)
 {
-    struct ir_unit *ir = gen_ir(filename);
-    opt(ir);
+    struct ir_unit *unit = gen_ir(filename);
+    opt(unit);
 
-    int r = eval(ir->fn_decls);
+    int r = eval(unit);
     printf("Exit with %d\n", r);
 }
+#endif /* CONFIG_USE_BACKEND_EVAL */
+
+#ifdef CONFIG_USE_BACKEND_X86_64
+void run_backend(const char *filename)
+{
+    (void) filename;
+}
+#endif /* CONFIG_USE_BACKEND_X86_64 */
 
 /* ==========================
    Driver code.
@@ -173,7 +182,7 @@ void parse_cmdline(int argc, char *argv[])
         exit(0);
     }
 
-    evaluate(file);
+    run_backend(file);
 }
 
 void help();

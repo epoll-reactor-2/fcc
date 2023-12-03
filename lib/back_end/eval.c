@@ -635,12 +635,12 @@ static void call_eval(struct ir_fn_call *fcall)
    Driver code.
    ========================== */
 
-int32_t eval(struct ir_node *ir)
+int32_t eval(struct ir_unit *unit)
 {
     reset();
     hashmap_reset(&funs, 512);
 
-    fun_list_init(ir);
+    fun_list_init(unit->fn_decls);
 
     struct ir_fn_call main = {
         .name = "main"

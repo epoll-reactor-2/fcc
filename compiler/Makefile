@@ -7,6 +7,14 @@ BIN     = weak_compiler
 SRC     = compiler.c
 OBJ     = $(SRC:.c=.o)
 
+ifeq ($(USE_BACKEND_EVAL), 1)
+CFLAGS += -D CONFIG_USE_BACKEND_EVAL
+endif # USE_BACKEND_EVAL
+
+ifeq ($(USE_BACKEND_X86_64), 1)
+CFLAGS += -D CONFIG_USE_BACKEND_X86_64
+endif # USE_BACKEND_X86_64
+
 ##################################
 # Targets                        #
 ##################################
