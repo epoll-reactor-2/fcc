@@ -11,6 +11,10 @@
 #include <string.h>
 #include <sys/syscall.h>
 
+/* ==========================
+   Printers.
+   ========================== */
+
 static FILE *code_stream;
 
 static void report(const char *msg)
@@ -26,6 +30,48 @@ fmt(1, 2) static void emit(const char *fmt, ...)
     vfprintf(code_stream, fmt, args);
     va_end(args);
 }
+
+/* ==========================
+   Register selection routines.
+   ========================== */
+
+static const char *cdecl_reg(int arg_idx)
+{
+    switch (arg_idx) {
+    case 0:  return "rdi";
+    case 1:  return "rsi";
+    case 2:  return "rdx";
+    case 3:  return "r10";
+    case 4:  return "r8";
+    case 5:  return "r9";
+    default: return NULL; /* Shall push. */
+    }
+}
+
+struct x86_64_reg {
+    const char *reg;
+    bool        free;
+};
+
+/* TODO: Mapping IR variables to registers/stack location. */
+static struct x86_64_reg regs[] = {
+    { "rax", 1 },
+    { "rdi", 1 },
+    { "rsi", 1 },
+    { "rdx", 1 },
+    { "r8",  1 },
+    { "r9",  1 },
+    { "r10", 1 },
+    { "r11", 1 },
+    { "r12", 1 },
+    { "r13", 1 },
+    { "r14", 1 },
+    { "r15", 1 },
+};
+
+/* ==========================
+   Code generation routines.
+   ========================== */
 
 static void emit_fn(struct ir_fn_decl *fn)
 {
@@ -68,6 +114,10 @@ static void emit_header()
     );
 }
 
+/* ==========================
+   Driver code.
+   ========================== */
+
 void x86_64_gen(FILE *stream, struct ir_unit *unit)
 {
     (void) unit;
@@ -84,3 +134,29 @@ void x86_64_gen(FILE *stream, struct ir_unit *unit)
         ir = ir->next;
     }
 }
+
+/*
+Эти портреты безлики
+Он написал их на чёрном холсте
+Безобразным движением кисти
+
+Эти картины тревожны
+И он их прятал во тьме
+Может вовсе не он был худохник
+А кто-то извне?
+
+Все узоры
+Пропитаны горем
+В болезненной форме
+В гнетущей тоске
+
+Когда дрожь пробирает по коже
+Когда мысли ничтожны
+Взгляд понурый, поникший во мгле
+Они снова берутся за краски
+
+Однотонные мрачные краски
+Краски дьявола
+Они вместе рисуют смерть
+Монохромно на чёрном холсте
+*/
