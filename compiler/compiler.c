@@ -45,7 +45,7 @@ tok_array_t *gen_tokens(const char *filename)
     else yyin = freopen(filename, "r", yyin);
     if (yyin == NULL) {
         printf("Could not open filename %s: %s\n", filename, strerror(errno));
-        return false;
+        exit(1);
     }
     yylex();
     fseek(yyin, 0, SEEK_SET);
