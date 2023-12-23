@@ -63,6 +63,8 @@
 \newcommand\kk[1]{\textcolor{RoyalBlue}{\text{\textup{\textbf{\texttt{#1}}}}}}
 \newcommand\cc[1]{\textcolor{Sepia}{\text{\textup{\textbf{\texttt{#1}}}}}}
 
+\setlength{\textwidth}{7.5in}
+\setlength{\textheight}{10in}
 
 \newcommand{\spacing}{\vskip 0.5cm}
 
@@ -75,16 +77,16 @@
 \lstset{
 	firstnumber = 0,
 	tabsize     = 4,
-	frame       = none,
+	frame       = single,
 	linewidth   = 1.2\textwidth,
 	xleftmargin = 0cm
 }
 
 \captionsetup{
-    format=plain,
-    singlelinecheck=false,
-    justification=raggedright,
-    margin={.5cm, 0cm}
+    format          = plain,
+    singlelinecheck = false,
+    justification   = raggedright,
+    margin          = {.5cm, 0cm}
 }
 
 \counterwithin{figure}{section}
@@ -190,10 +192,10 @@
 			\spacing
 			
 			\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
-	void f() {
-		 return argument + 1;
-	}
-			\end{lstlisting}
+void f() {
+	return argument + 1;
+}
+		\end{lstlisting}
 
 			\spacing
 			
@@ -205,9 +207,9 @@
 			\spacing
 			
 			\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
-	void f() {
-		 data *d;
-	}
+void f() {
+	data *d;
+}
 			\end{lstlisting}
 
 			\newpage
@@ -297,7 +299,7 @@
 		
 		\spacing
 		
-		\begin{lstlisting}[caption={Przykład użycia flex}, label={lst:flex-example}]
+		\begin{lstlisting}
 %{
 #include "portrzebny-do-analizy-plik.h"
 
@@ -395,8 +397,6 @@
 			zbiór terminalnych symboli, które mogą wystąpić bezpośrednio po danym nieterminalnym symbolu
 			w dowolnym ciągu znaków wygenerowanym przez gramatykę.
 			\\
-			
-			\newpage
 			
 			Podamy gramatykę dla przykładu powyżej (\texttt{1 + 2 * 3 + 4}). Musimy wprowadzić dwa poziomy
 			priorytetów, aby prawidłowo zachować kolejność operacji mnożenia i dodawania.
@@ -556,8 +556,6 @@ void factor() {
 		        <P> ::= <symbol> + <P>
 			\end{grammar}
 
-			\newpage
-
 		\subsection{Implementacja AST}
 
 			Zaimplementowany AST składa się ze struktury \texttt{ast_node}. Jest to główny typ
@@ -706,7 +704,7 @@ void f() {
 
 				\end{algorithmic}
 			\end{algorithm}
-			
+
 			Do analizy nieużywanych funkcji stosuje się tem sam algorytm. Jedyne, co jest wtedy zmienione --
 			sprawdzenie, czy nazwa rozpatrywanej funkcji nie jest \textbf{main}. Funkcja \textbf{main} jest
 			wywołana automatycznie.
@@ -739,7 +737,7 @@ void f() {
 				
 				Zauważmy, że notacja ta jest mocnyn narzędziem, pozwalającym opisać dość złożone systemy typów
 				dla takich języków jak \textbf{C++} i \textbf{Haskell}.
-			
+
 			\subsection{Definicja systemu}
 
 				Opiszmy teraz system typów w naszym języku
@@ -759,23 +757,17 @@ void f() {
 				\inferrule
 				  {\Gamma \vdash \diamond}
 				  {\Gamma \vdash \text{n} : int}
-				\end{mathpar}
 
-				\begin{mathpar}
 				\inferrule
 				  {\Gamma \vdash \diamond}
 				  {\Gamma \vdash \text{c} : char}
-				\end{mathpar}
 
-				\begin{mathpar}
 				\inferrule
 				  {\Gamma \vdash \diamond}
 				  {\Gamma \vdash \text{x} : float}
 				\end{mathpar}
 
 			Oznaczmy dla $\mathbb{N, R}: \oplus \in \{ =, +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
-
-				\spacing
 
 				\begin{mathpar}
 				\inferrule
@@ -970,10 +962,10 @@ void f() {
 		co przyda nam się później.
 
 		\subsection{Definicje}
-			Każdy program posiadą taką cechę jak \textbf{przepływ sterowania}, i może ona być dość
+			Każdy program posiadą taką cechę jak \textbf{przepływ sterowania}, i może ona być
 			precyzyjnie wyrażona \textbf{grafem przepływu sterowania} (Control Flow Graph). Program
 			rozpatrywany jest jako graf skierowany, posiadający wierzchołek startowy, będący pierwszą
-			instrukcją w programie. Krawędzie reprezentują przejście pomiędzy instrukcjami. Zauważmy,
+			instrukcją w programie. Krawędzie reprezentują przejścia pomiędzy instrukcjami. Zauważmy,
 			że każda instrukcja może mieć wiele krawędzi wejściowych i wyjściowych, tworząc \textbf{gałęzi}
 			w wykonaniu programu.
 			\\
@@ -996,54 +988,6 @@ void f() {
 			dodatkowo musi być spełnione
 
 			$$d, d' \in V', \ v \rightarrow v' \iff \exists \ (v', ..., v) \in G' $$
-	
-		\subsection{Constant propagation}
-		
-			Został zaimplementowany algorytm przeliczania stałych. Rozpatruje on każdy block CFG osobno,
-			co pozwala na przeprowadzenie lokalnych optymalizacji. Niniejszy algorytm nie usuwa zmiennych,
-			których nie potrzebuje po obliczeniach dlatego, że to jest obowiązek innej optymalizacji
-			(\textbf{dead code elimination}). 
-
-			\spacing
-		
-			\begin{algorithm}
-				\caption{Przeliczenie zmiennych stałych}
-				\begin{algorithmic}[1]
-
-				\Procedure{ConstProp}{AST}
-					\State Consts $\gets$ $\emptyset$
-					
-					\For{each statement S across all CFG blocks}
-						\If{new CFG block is reached}
-							\State Consts $\gets$ $\emptyset$
-							\Comment Reset optimizer state
-						\EndIf
-						\If{S is binary}
-							\State Consts $\gets$ Consts $\cup$ computed value of binary expression
-						\EndIf
-						\If{S is store}
-							\If{S stores immediate}
-								\If{Consts has value for S.Sym}
-									\State Update Consts with new value
-								\Else
-									\State Consts $\gets$ Consts $\cup$ value
-								\EndIf
-							\EndIf
-							\If{S stores symbol}
-								\If{Consts has value for S.Sym}
-									\State Update Consts with new value
-								\Else
-									\State Consts $\gets$ Consts $\backslash$ \{ value \}
-								\EndIf
-							\EndIf
-						\EndIf
-					\EndFor
-				\EndProcedure
-
-				\end{algorithmic}
-			\end{algorithm}
-		
-		\newpage
 
 		\subsection{Unreachable code elimination}
 		
@@ -1057,8 +1001,6 @@ void f() {
 
 			Algorytm polega na zlalezieniu takich \textbf{podgrafów} grafu sterowania programem, do których
 			nie prowadzi żadna z krawędzi.
-			
-			\spacing
 
 			\begin{algorithm}
 				\caption{Usuwanie kodu nieosiągalnego}
@@ -1114,7 +1056,7 @@ void f() {
 				Interpreter -- program, który produkuje dane wyjściowe zgodnie z zasadami semantycznymi, które
 				są opisane językiem. W naszym przypadku, interpreter przetwarza wygenerowany poprzednio IR.
 				$$$$
-				Dany interpreter działa używając stosu. Jest to struktura danych, pozwalająca dodawać i 
+				Niniejszy interpreter działa używając stosu. Jest to struktura danych, pozwalająca dodawać i 
 				usuwać dane tylko z górnej części stosu. Określamy operacje \textbf{push} i \textbf{pop}.
 				Stos, używany przez interpreter jednak wspiera przegląd wartości o dowolnej pozycji w stosie.
 			\end{tabularx}
@@ -1136,6 +1078,11 @@ void f() {
 		załóżmy, że wywoła ona się rekurencyjnie. Wtedy podczas pierwszego wywołania zmienna \textbf{i}
 		będzie miała adres \textbf{0x00}. Podczas drugiego wywołania \textbf{0x04}, dalej \textbf{0x08},
 		\textbf{0x0C}, ...
+		
+		\subsection{Instrukcje}
+		
+		
+
 
 		\newpage
 
