@@ -121,6 +121,10 @@ static void emit_ret(struct ir_ret *ir)
 static void emit_fn_call(struct ir_fn_call *ir)
 {
     (void) ir;
+    /* 1. If cdecl registers are busy, push them.
+       2. Move arguments according to cdecl.
+       3. Pop registers back.
+       4. Return value stored in RAX? */
 }
 
 static void emit_phi(struct ir_phi *ir)
