@@ -43,8 +43,7 @@ bool ir_test(const char *path, const char *filename)
             ir_opt_reorder(decl);
             ir_opt_arith(decl);
 
-            ir_link(decl);
-            ir_build_cfg(decl);
+            ir_cfg_build(decl);
 
             /* ir_dump(stdout, decl); */
 

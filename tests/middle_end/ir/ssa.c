@@ -44,8 +44,7 @@ bool ir_test(const char *path, const char *filename)
 
         while (it) {
             struct ir_fn_decl *decl = it->ir;
-            ir_link(decl);
-            ir_build_cfg(decl);
+            ir_cfg_build(decl);
             it = it->next;
         }
 

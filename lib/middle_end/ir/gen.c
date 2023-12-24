@@ -975,7 +975,7 @@ really_inline static void link_stmt(struct ir_node *stmt)
         vector_push_back(stmt->cfg.succs, stmt->next);
 }
 
-void ir_link(struct ir_fn_decl *decl)
+static void link(struct ir_fn_decl *decl)
 {
     struct ir_node *it       = decl->body;
     hashmap_t       stmt_map = {0};
@@ -1017,10 +1017,12 @@ void ir_link(struct ir_fn_decl *decl)
     hashmap_destroy(&stmt_map);
 }
 
-void ir_build_cfg(struct ir_fn_decl *decl)
+void ir_cfg_build(struct ir_fn_decl *decl)
 {
     struct ir_node *it     = decl->body;
     uint64_t        cfg_no = 0;
+
+    link(decl);
 
     while (it) {
         bool new = 0;

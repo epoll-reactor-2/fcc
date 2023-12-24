@@ -60,9 +60,7 @@ bool ir_test(const char *path, const char *filename)
         while (it) {
             struct ir_fn_decl *decl = it->ir;
 
-            ir_link(decl);
-            ir_build_cfg(decl);
-
+            ir_cfg_build(decl);
             ir_dominator_tree(decl);
             ir_dominance_frontier(decl);
             ir_dump_dom_tree(dom_stream, decl);
