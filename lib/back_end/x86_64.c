@@ -17,7 +17,7 @@
 
 static FILE *code_stream;
 
-static void report(const char *msg)
+unused static void report(const char *msg)
 {
     perror(msg);
     exit(1);
@@ -35,7 +35,7 @@ fmt(1, 2) static void emit(const char *fmt, ...)
    Register selection routines.
    ========================== */
 
-static const char *cdecl_reg(int arg_idx)
+unused static const char *cdecl_reg(int arg_idx)
 {
     switch (arg_idx) {
     case 0:  return "rdi";
@@ -54,7 +54,7 @@ struct x86_64_reg {
 };
 
 /* TODO: Mapping IR variables to registers/stack location. */
-static struct x86_64_reg regs[] = {
+unused static struct x86_64_reg regs[] = {
     { "rax", 1 },
     { "rdi", 1 },
     { "rsi", 1 },
@@ -75,57 +75,57 @@ static struct x86_64_reg regs[] = {
 
 static void emit_alloca(struct ir_alloca *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_alloca_array(struct ir_alloca_array *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_imm(struct ir_imm *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_sym(struct ir_sym *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_store(struct ir_store *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_bin(struct ir_bin *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_jump(struct ir_jump *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_cond(struct ir_cond *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_ret(struct ir_ret *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_fn_call(struct ir_fn_call *ir)
 {
-    
+    (void) ir;
 }
 
 static void emit_phi(struct ir_phi *ir)
 {
-    
+    (void) ir;
 }
 
 

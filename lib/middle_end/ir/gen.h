@@ -24,7 +24,6 @@ struct ir_fn_decl;
       - type_analysis  */
 wur struct ir_unit *ir_gen(struct ast_node *ast);
 
-void ir_link(struct ir_fn_decl *decl);
-void ir_build_cfg(struct ir_fn_decl *decl);
+void ir_cfg_build(struct ir_fn_decl *decl);
 
 #endif // WEAK_COMPILER_MIDDLE_END_IR_GEN_H

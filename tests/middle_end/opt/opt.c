@@ -65,12 +65,9 @@ bool ir_test(const char *path, const char *filename)
 
         while (it) {
             struct ir_fn_decl *decl = it->ir;
-            ir_link(decl);
-            ir_build_cfg(decl);
-
+            ir_cfg_build(decl);
             ir_ddg_build(decl);
             opt_fn(decl);
-            ir_build_cfg(decl);
 
             ir_dump_cfg(after_opt_stream, decl);
             ir_dump(generated_stream, decl);

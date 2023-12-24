@@ -112,8 +112,7 @@ void opt(struct ir_unit *ir)
         struct ir_fn_decl *decl = it->ir;
         ir_opt_reorder(decl);
         ir_opt_arith(decl);
-        ir_link(decl);
-        ir_build_cfg(decl);
+        ir_cfg_build(decl);
         it = it->next;
     }
 }
