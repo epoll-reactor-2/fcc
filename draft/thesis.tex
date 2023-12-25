@@ -880,7 +880,90 @@ void f() {
 			\item Nie stanowi dodatkowych zależności jako biblioteki
 			\item Ma na celu pokazanie metod na tworzenie takiego języka i operacje nad nimi
 		\end{itemize}
+
+		\subsection{Instrukcje}
+
+		Zdefiniowane w implementacji struktury dzielą się
+		na instrukcje i typy danych.
+
+		\begin{center}
+			\setlength{\tabcolsep}{0.5em}
+			\renewcommand{\arraystretch}{1.5}
+			\definecolor{instrc}{gray}{0.4}
+			\begin{tabular}{| L{0.2\linewidth} | L{0.75\linewidth} | }
+				\hline
+				\textbf{Instrukcja} & \textbf{Opis} \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_alloca}}
+					& Alokacja określonej ilości bajtów
+                     na stosie. \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_alloca\_array}}
+                	& Alokacja określonej ilości bajtów
+					  na stosie, pomnożonej przez rozmiar
+                      tablicy. \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_store}} 
+					& Zapisanie wartości do zmiennej
+                      lub do tablicy o wskazanym
+                      indeksie. \\
+				\hline
+
+				\textcolor{instrc}{\textbf{ir\_jump}}
+					& Przekazanie przepływu sterowania
+                      do instrukcji o wskazanym indeksie. \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_cond}}
+					& Instrukcja warunkowa. Wykonuje skok
+             	     (taki sam, jak \texttt{ir\_jump}),
+                      jeżeli warunek jest spełniony.
+                      Inaczej sterowanie się przekazuje
+                      do następnej instrukcji. \\
+  				\hline
+  				\textcolor{instrc}{\textbf{ir\_ret}}
+  					& Wyjście z funkcji. Może mieć lub nie
+                      mieć wartość zwracaną. \\
+      			\hline
+      			\textcolor{instrc}{\textbf{ir\_fn\_call}}
+                    & Wywołanie funkcji. \\
+                \hline
+			\end{tabular}
+		\end{center}
 		
+		\spacing
+
+		\begin{center}
+			\setlength{\tabcolsep}{0.5em}
+			\renewcommand{\arraystretch}{1.5}
+			\definecolor{instrc}{gray}{0.4}
+			\begin{tabular}{| L{0.2\linewidth} | L{0.75\linewidth} | }
+				\hline
+				\textbf{Typ} & \textbf{Opis} \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_imm}}
+					& Wartość (int, char, bool). \\
+                \hline
+				\textcolor{instrc}{\textbf{ir\_string}}
+					& Łańcuch znaków. \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_sym}}
+					& Indeks zmiennej. \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_bin}}
+					& Operacja binarna (dwuargumentowa). \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_member}}
+					& Operacja dostępu do indeksu tablicy. \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_type\_decl}}
+					& Definicja typu. \\
+				\hline
+				\textcolor{instrc}{\textbf{ir\_fn\_decl}}
+					& Definicja funkcji. \\
+				\hline
+			\end{tabular}
+		\end{center}
+
 		\subsection{Generacja grafu sterowania}
 
 		\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=0.5cm,text centered, draw=black]
@@ -1078,11 +1161,6 @@ void f() {
 		załóżmy, że wywoła ona się rekurencyjnie. Wtedy podczas pierwszego wywołania zmienna \textbf{i}
 		będzie miała adres \textbf{0x00}. Podczas drugiego wywołania \textbf{0x04}, dalej \textbf{0x08},
 		\textbf{0x0C}, ...
-		
-		\subsection{Instrukcje}
-		
-		
-
 
 		\newpage
 
