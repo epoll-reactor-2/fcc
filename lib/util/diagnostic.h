@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <setjmp.h>
 #include <stdnoreturn.h>
+#include <stdio.h>
 
 /** Jump buffer for handling errors. As warning/errors emit
     functions, can be used in normal "real-world" compiler mode
@@ -44,6 +45,7 @@ extern void *diag_warn_memstream;
 /** \brief Set source code location being analyzed. Used to display
            warns and errors. */
 void weak_set_source_filename(const char *filename);
+void weak_set_source_stream(FILE *stream);
 
 /** \brief Emit compile error according to \ref weak_diagnostic_streams rule
            and go out from executor function of any depth. */
