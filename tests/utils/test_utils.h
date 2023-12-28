@@ -210,6 +210,7 @@ tok_array_t *gen_tokens(const char *filename)
     }
     yylex();
     fseek(yyin, 0, SEEK_SET);
+    weak_set_source_stream(yyin);
 
     return lex_consumed_tokens();
 }
