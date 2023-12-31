@@ -26,7 +26,7 @@ static struct ir_node    *ir_prev;
    type.
    So there is a type of last created instruction (if any),
    and mapping between symbol index and type. */
-static enum data_type     ir_last_dt;
+static enum data_type     ir_last_type;
 static struct type        ir_type_map[65536];
 /* Used to count alloca instructions.
    Conditions:
@@ -126,7 +126,7 @@ static void reset_fn_state()
     ir_storage_init();
 
     memset(ir_type_map, 0, sizeof (ir_type_map));
-    ir_last_dt = D_T_UNKNOWN;
+    ir_last_type = D_T_UNKNOWN;
     ir_var_idx = 0;
     ir_loop_idx = 0;
     ir_block_depth = 0;
@@ -156,25 +156,25 @@ static void visit(struct ast_node *ast);
 static void visit_bool(struct ast_bool *ast)
 {
     ir_last = ir_imm_bool_init(ast->value);
-    ir_last_dt = D_T_BOOL;
+    ir_last_type = D_T_BOOL;
 }
 
 static void visit_char(struct ast_char *ast)
 {
     ir_last = ir_imm_char_init(ast->value);
-    ir_last_dt = D_T_CHAR;
+    ir_last_type = D_T_CHAR;
 }
 
 static void visit_float(struct ast_float *ast)
 {
     ir_last = ir_imm_float_init(ast->value);
-    ir_last_dt = D_T_FLOAT;
+    ir_last_type = D_T_FLOAT;
 }
 
 static void visit_num(struct ast_num *ast)
 {
     ir_last = ir_imm_int_init(ast->value);
-    ir_last_dt = D_T_INT;
+    ir_last_type = D_T_INT;
 }
 
 static void visit_string(struct ast_string *ast)
@@ -182,7 +182,7 @@ static void visit_string(struct ast_string *ast)
     /* ast->value is allocated in AST also. We duplicate to do not
        be dependent on AST cleanup. */
     ir_last = ir_string_init(ast->len, strdup(ast->value));
-    ir_last_dt = D_T_STRING;
+    ir_last_type = D_T_STRING;
 }
 
 static void emit_assign(struct ast_binary *ast)
@@ -226,9 +226,9 @@ static void emit_bin(struct ast_binary *ast)
 
     if (logical(ast->op)) {
         alloca->dt = D_T_INT; /* Or bool. */
-        ir_last_dt = D_T_INT;
+        ir_last_type = D_T_INT;
     } else
-        alloca->dt = ir_last_dt;
+        alloca->dt = ir_last_type;
 
     ir_last = ir_store_sym_init(
         alloca_idx,
@@ -291,13 +291,13 @@ static void emit_loop_flow_instrs()
 
 static struct ir_node *zero_cond_immediate()
 {
-    switch (ir_last_dt) {
+    switch (ir_last_type) {
     case D_T_INT:   return ir_imm_int_init(0);
     case D_T_FLOAT: return ir_imm_float_init(0.0);
     case D_T_CHAR:  return ir_imm_char_init(0);
     case D_T_BOOL:  return ir_imm_bool_init(0);
     default:
-        weak_unreachable("Unknown data type (numeric: %d)", ir_last_dt);
+        weak_unreachable("Unknown data type (numeric: %d)", ir_last_type);
     }
 }
 
@@ -569,7 +569,7 @@ static void visit_sym(struct ast_sym *ast)
 {
     uint64_t idx = ir_storage_get(ast->value)->sym_idx;
     ir_last = ir_sym_init(idx);
-    ir_last_dt = ir_type_map[idx].dt;
+    ir_last_type = ir_type_map[idx].dt;
 }
 
 really_inline static void visit_unary_arith(enum token_type op)
@@ -861,7 +861,7 @@ static void visit_fn_call(struct ast_fn_call *ast)
         ir_last = ir_sym_init(next_idx);
     }
 
-    ir_last_dt = ret_dt;
+    ir_last_type = ret_dt;
 }
 
 static void visit(struct ast_node *ast)
