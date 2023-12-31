@@ -200,7 +200,7 @@ void ast_do_while_cleanup(struct ast_do_while *ast)
 /**********************************************
  **          Floating point literal         ***
  **********************************************/
-struct ast_node *ast_float_init(float value, uint16_t line_no, uint16_t col_no)
+struct ast_node *ast_float_init(double value, uint16_t line_no, uint16_t col_no)
 {
     struct ast_float *ast = weak_calloc(1, sizeof (struct ast_float));
     ast->value = value;
