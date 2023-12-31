@@ -222,11 +222,11 @@ void ast_do_while_cleanup(struct ast_do_while *ast);
  **          Floating point literal         ***
  **********************************************/
 struct ast_float {
-    float value;
+    double value;
 };
 
 wur
-struct ast_node *ast_float_init(float value, uint16_t line_no, uint16_t col_no);
+struct ast_node *ast_float_init(double value, uint16_t line_no, uint16_t col_no);
 void             ast_float_cleanup(struct ast_float *ast);
 
 
