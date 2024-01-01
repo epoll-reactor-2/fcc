@@ -1,4 +1,4 @@
-/* type_analysis.h - Type checker.
+/* type_ana.c - Type checker.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

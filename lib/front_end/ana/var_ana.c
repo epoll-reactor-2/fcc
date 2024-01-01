@@ -1,4 +1,4 @@
-/* variable_use_analysis.h - Variable issues detector.
+/* var_ana.c - Variable issues detector.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
