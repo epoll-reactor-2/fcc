@@ -14,7 +14,7 @@
 void ast_storage_init(struct ast_storage *s)
 {
     s->scope_depth = 0;
-    hashmap_init(&s->scopes, 100);
+    hashmap_init(&s->scopes, 8192 * 16);
 }
 
 void ast_storage_free(struct ast_storage *s)
