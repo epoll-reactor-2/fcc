@@ -27,6 +27,9 @@
       if (limit++ >= 150)    \
           return; }
 
+/* Bigger = larger expressions. */
+#define BIN_EXPR_LEN 15
+
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
@@ -47,6 +50,11 @@ static void fprintf_n(FILE *stream, uint32_t count, char c)
    ========================== */
 
 #define __rand_array_entry(x) (x[rand() % (sizeof ((x)) / sizeof (*(x)))])
+
+struct random_type {
+    enum data_type dt;
+    char           name[32];
+};
 
 const char *ops_int[] = {
     "+",
@@ -79,11 +87,11 @@ const char *ops_bool[] = {
     "<="
 };
 
-const char *data_types[] = {
-    "int",
-    "float",
-    "char",
-    "bool"
+struct random_type data_types[] = {
+    { D_T_INT, "int" },
+    { D_T_FLOAT, "float" },
+    { D_T_CHAR, "char" },
+    { D_T_BOOL, "bool" }
 };
 
 const char letters_set[] = {
@@ -100,8 +108,8 @@ const char letters_set[] = {
 };
 
 struct var_stack_entry {
-    char type[32];
-    char name[32];
+    enum data_type dt;
+    char           name[32];
 };
 
 struct fn_entry {
@@ -143,9 +151,9 @@ bool emit_bool()
     return rand() % 2 == 0;
 }
 
-const char *emit_data_type()
+struct random_type *emit_data_type()
 {
-    return __rand_array_entry(data_types);
+    return &__rand_array_entry(data_types);
 }
 
 const char *emit_int_op()
@@ -167,7 +175,7 @@ const char *emit_bool_op()
 
 void emit_block(FILE *s);
 void emit_assign(FILE *s);
-void emit_bin(enum data_type dt, FILE *s);
+void emit_bin(FILE *s, enum data_type dt);
 
 
 
@@ -179,7 +187,7 @@ void emit_bin_int_op(FILE *s, var_stack_t *top)
         struct var_stack_entry *e =
             &vector_at(*top, rand() % top->count);
 
-        if (!strcmp(e->type, "int"))
+        if (e->dt == D_T_INT)
             fprintf(s, e->name);
         else
             fprintf(s, "%d", emit_int());
@@ -192,7 +200,7 @@ void emit_bin_int(FILE *s)
 
     emit_bin_int_op(s, top);
 
-    if (rand() % 15 > 2) {
+    if (rand() % BIN_EXPR_LEN > 2) {
         fprintf(s, " %s ", emit_int_op());
         emit_bin_int(s);
     }
@@ -208,7 +216,7 @@ void emit_bin_float_op(FILE *s, var_stack_t *top)
         struct var_stack_entry *e =
             &vector_at(*top, rand() % top->count);
 
-        if (!strcmp(e->type, "float"))
+        if (e->dt == D_T_FLOAT)
             fprintf(s, e->name);
         else
             fprintf(s, "%lf", emit_float());
@@ -221,7 +229,7 @@ void emit_bin_float(FILE *s)
 
     emit_bin_float_op(s, top);
 
-    if (rand() % 15 > 2) {
+    if (rand() % BIN_EXPR_LEN > 2) {
         fprintf(s, " %s ", emit_float_op());
         emit_bin_float(s);
     }
@@ -229,7 +237,35 @@ void emit_bin_float(FILE *s)
 
 
 
-void emit_bin(enum data_type dt, FILE *s)
+void emit_bin_char_op(FILE *s, var_stack_t *top)
+{
+    if (top->count == 0)
+        fprintf(s, "'%c'", emit_letter());
+    else {
+        struct var_stack_entry *e =
+            &vector_at(*top, rand() % top->count);
+
+        if (e->dt == D_T_CHAR)
+            fprintf(s, e->name);
+        else
+        fprintf(s, "'%c'", emit_letter());
+    }
+}
+
+void emit_bin_char(FILE *s)
+{
+    var_stack_t *top = &vector_back(var_stack);
+
+    emit_bin_char_op(s, top);
+
+    if (rand() % BIN_EXPR_LEN > 2) {
+        fprintf(s, " %s ", emit_int_op());
+        emit_bin_char(s);
+    }
+}
+
+
+void emit_bin(FILE *s, enum data_type dt)
 {
     switch (dt) {
     case D_T_INT:
@@ -238,42 +274,31 @@ void emit_bin(enum data_type dt, FILE *s)
     case D_T_FLOAT:
         emit_bin_float(s);
         break;
+    case D_T_CHAR:
+        emit_bin_char(s);
+        break;
+    case D_T_BOOL:
+        fprintf(s, "%s", rand() % 2 ? "true" : "false");
+        break;
     default:
         break;
-    }
-}
-
-void emit_expr(FILE *s, const char *type)
-{
-    if (!strcmp(type, "int")) {
-        emit_bin(D_T_INT, s);
-    }
-    else if (!strcmp(type, "bool")) {
-        fprintf(s, "%s", emit_int() % 2 == 0 ? "true" : "false");
-    }
-    else if (!strcmp(type, "float")) {
-        emit_bin(D_T_FLOAT, s);
-    }
-    else if (!strcmp(type, "char")) {
-        fprintf(s, "'x'");
     }
 }
 
 void emit_var_decl(FILE *s)
 {
     char name[32];
-    const char *type = emit_data_type();
+    struct random_type *type = emit_data_type();
 
     emit_string(name, sizeof (name));
 
-    fprintf(s, "%s %s = ", type, name);
+    fprintf(s, "%s %s = ", type->name, name);
 
-    emit_expr(s, type);
+    emit_bin(s, type->dt);
 
     fprintf(s, ";");
 
-    struct var_stack_entry e = {0};
-    strncpy(e.type, type, sizeof (e.type) - 1);
+    struct var_stack_entry e = { .dt = type->dt };
     strncpy(e.name, name, sizeof (e.name) - 1);
 
     vector_push_back(vector_back(var_stack), e);
@@ -282,11 +307,11 @@ void emit_var_decl(FILE *s)
 void emit_arr_decl(FILE *s)
 {
     char name[32];
-    const char *type = emit_data_type();
+    struct random_type *type = emit_data_type();
 
     emit_string(name, sizeof (name));
 
-    fprintf(s, "%s %s", type, name);
+    fprintf(s, "%s %s", type->name, name);
 
     uint64_t max = rand() % 10 + 1;
 
@@ -296,8 +321,7 @@ void emit_arr_decl(FILE *s)
 
     fprintf(s, ";");
 
-    struct var_stack_entry e = {0};
-    strncpy(e.type, type, sizeof (e.type) - 1);
+    struct var_stack_entry e = { .dt = type->dt };
     strncpy(e.name, name, sizeof (e.name) - 1);
 
     vector_push_back(vector_back(var_stack), e);
@@ -348,10 +372,9 @@ void emit_assign(FILE *s)
     struct var_stack_entry *e =
         &vector_at(*top, rand() % top->count);
 
-
     fprintf(s, "%s = ", e->name);
 
-    emit_expr(s, e->type);
+    emit_bin(s, e->dt);
 
     fprintf(s, ";");
 }
@@ -416,6 +439,14 @@ void emit_block_main(FILE *s)
     fprintf(s, "int main() {\n");
 
     ++nest;
+
+    vector_push_back(var_stack, e);
+    for (uint64_t i = 0; i < 100; ++i) {
+        fprintf_n(s, nest, ' ');
+        emit_var_decl(s);
+        fprintf(s, "\n");
+    }
+
     for (uint64_t i = init; i < end; ++i) {
         fprintf_n(s, nest, ' ');
         vector_push_back(var_stack, e);
@@ -427,6 +458,7 @@ void emit_block_main(FILE *s)
 
     fprintf_n(s, nest, ' ');
     fprintf(s, " return 0; }\n");
+    vector_pop_back(var_stack);
 }
 
 
