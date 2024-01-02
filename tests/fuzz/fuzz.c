@@ -13,7 +13,7 @@
 #include "front_end/ast/ast_dump.h"
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/gen.h"
-#include "middle_end/ir/dump.h"
+#include "middle_end/ir/ir_dump.h"
 #include "util/vector.h"
 #include "utils/test_utils.h"
 #include <unistd.h>

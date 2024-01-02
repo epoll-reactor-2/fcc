@@ -21,7 +21,10 @@ else  # !DEBUG_BUILD
 CFLAGS     += -march=native -mtune=generic -O3 -D NDEBUG
 endif # !DEBUG_BUILD
 
-all: files src
+FUZZER_SRC = fuzz/fuzz.c
+FUZZER_OBJ = fuzz.o
+
+all: files src $(FUZZER_OBJ)
 
 ##################################
 # Test inputs                    #
@@ -45,8 +48,6 @@ ifeq ($(USE_BACKEND_X86_64), 1)
 SRC += back_end/x86_64.c
 endif # USE_BACKEND_EVAL
 
-SRC += fuzz/fuzz.c
-
 OBJ = $(SRC:.c=.o)
 
 src: $(OBJ)
@@ -54,6 +55,10 @@ src: $(OBJ)
 $(OBJ): $(SRC)
 	@echo [CC] $(notdir $@)
 	@$(CC) $(CFLAGS) $(@:.o=.c) -o ../build/$(notdir $(@:.o=))_test $(LDFLAGS)
+
+$(FUZZER_OBJ): $(FUZZER_SRC)
+	@echo [CC] $(notdir $@)
+	@$(CC) $(CFLAGS) $^ -o ../build/fuzzer $(LDFLAGS)
 
 ##################################
 # Phony targets                  #

@@ -8,7 +8,7 @@
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/ir.h"
-#include "middle_end/ir/dump.h"
+#include "middle_end/ir/ir_dump.h"
 #include "middle_end/ir/type.h"
 #include "middle_end/opt/opt.h"
 #include "util/diagnostic.h"

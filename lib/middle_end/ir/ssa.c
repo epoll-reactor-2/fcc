@@ -5,7 +5,6 @@
  */
 
 #include "middle_end/ir/ssa.h"
-#include "middle_end/ir/dump.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/ir_ops.h"
 #include "util/compiler.h"

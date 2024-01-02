@@ -5,7 +5,7 @@
  */
 
 #include "front_end/lex/lex.h"
-#include "middle_end/ir/dump.h"
+#include "middle_end/ir/ir_dump.h"
 #include "middle_end/ir/ssa.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"

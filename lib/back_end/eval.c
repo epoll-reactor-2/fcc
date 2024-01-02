@@ -6,7 +6,7 @@
 
 #include "back_end/eval.h"
 #include "middle_end/ir/ir.h"
-#include "middle_end/ir/dump.h"
+#include "middle_end/ir/ir_dump.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"
 #include "util/unreachable.h"
