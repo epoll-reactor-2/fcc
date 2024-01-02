@@ -1,8 +1,25 @@
 ##################################
 # Compiler flags                 #
 ##################################
-CFLAGS  = -I../tests -I../lib
+CFLAGS  = -I../tests -I../lib -Werror
 LDFLAGS = -L../build -lweak_compiler -lfl
+
+ifeq ($(DEBUG_BUILD), 1)
+CFLAGS     += -O0 -ggdb
+
+ifeq ($(SANITIZE), 1)
+CFLAGS     += -fanalyzer                                            \
+              -fsanitize=address -fno-omit-frame-pointer            \
+              -fsanitize=undefined -fno-sanitize-recover=all        \
+              -fsanitize-address-use-after-scope
+
+ifeq ($(CC),clang)
+CFLAGS     += -fsanitize=cfi -fvisibility=default -flto
+endif # clang
+endif # SANITIZE
+else  # !DEBUG_BUILD
+CFLAGS     += -march=native -mtune=generic -O3 -D NDEBUG
+endif # !DEBUG_BUILD
 
 all: files src
 
@@ -27,6 +44,8 @@ endif # USE_BACKEND_EVAL
 ifeq ($(USE_BACKEND_X86_64), 1)
 SRC += back_end/x86_64.c
 endif # USE_BACKEND_EVAL
+
+SRC += fuzz/fuzz.c
 
 OBJ = $(SRC:.c=.o)
 
