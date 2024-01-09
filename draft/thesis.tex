@@ -3,30 +3,19 @@
 \usepackage[utf8]{inputenc}
 \usepackage[polish]{babel}
 \usepackage{polski}
-\usepackage[fleqn]{amsmath}  % Aligned to left equations.
 \usepackage{amssymb}
-\usepackage[a4paper, total={7.5in, 9.5in}]{geometry}
-\usepackage{indentfirst}
-\usepackage{amsfonts}
-\usepackage[dvipsnames]{xcolor}
-\usepackage{tabularx}
-
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{caption}
-\usepackage{chngcntr}
-\usepackage{cleveref}
-
+\usepackage[dvipsnames]{xcolor}
+\usepackage[fleqn]{amsmath}  % Aligned to left equations.
+\usepackage[a4paper, total={7.5in, 9.5in}]{geometry}
+\usepackage{tabularx}
 \usepackage{geometry}
-
 \usepackage{syntax}
 \usepackage{fancyhdr}
 \usepackage{mathpartir}
-
-\usepackage{array}
 \usepackage{listings}
-
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-
 \usepackage[autosize]{dot2texi}
 \usepackage{tikz}
 \usepackage{drawstack}
@@ -59,9 +48,6 @@
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{C}[1]{>{\centering  \let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft \let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-
-\newcommand\kk[1]{\textcolor{RoyalBlue}{\text{\textup{\textbf{\texttt{#1}}}}}}
-\newcommand\cc[1]{\textcolor{Sepia}{\text{\textup{\textbf{\texttt{#1}}}}}}
 
 \setlength{\textwidth}{7.5in}
 \setlength{\textheight}{10in}
@@ -1091,7 +1077,7 @@ fun main():
 		\end{tabularx}
 		\end{center}
 
-	\section{Optymalizacje kodu pośredniego}
+	\section{Optymalizacje (teoria)}
 		
 		Optymalizacja -- to zmiana kodu programu, mająca na celu polepszyć wydajność albo inne cechy
 		programu. Najważniejym z kriteria optymalizacji jest utrzymanie całej struktury działania programu,
@@ -1102,8 +1088,7 @@ fun main():
 		Istnieje wiele rodzajów optymalizacji, gdzie każda wymaga więcej lub mniej założeń i
 		matematyki. Jeżeli chodzi o matematykę, to główną rolę w optymalizacji pełni \textbf{teoria grafów}.
 		Jednym z pierwszych naukowców, kto zadecydował wprowadzić modele grafowe do kompilatorów był
-		\textbf{Robert Tarjan}. Wprowadził także on algorytm do obliczenia drzewa dominatorów (dominator tree),
-		co przyda nam się później.
+		\textbf{Robert Tarjan}. Wprowadził także on algorytm do obliczenia drzewa dominatorów (dominator tree).
 
 		\subsection{Definicje}
 			Każdy program posiadą taką cechę jak \textbf{przepływ sterowania}, i może ona być
@@ -1133,6 +1118,42 @@ fun main():
 
 			$$d, d' \in V', \ v \rightarrow v' \iff \exists \ (v', ..., v) \in G' $$
 
+			\subsection{SSA}
+				Static Assignment Form (SSA) -- ważna forma reprezentacji programu. Nazywa się
+				tak program, w którym każda zmienna jest zapisana dokładnie jeden raz. Odkrywa
+				to wiele możliwości do prowadzenia optymalizacji, na przykład jest to propagacja
+				 zmiennych stałych i alokacja rejestrów.
+
+				Konstrukcja SSA składa się z kilku etapów:
+				\begin{itemize}
+					\item Obliczenie drzewa dominatorów (dominator tree).
+					\item Obliczenie granicy dominacji (dominance frontier).
+					\item Wstawianie $\phi$-funkcji (zob. niżej).
+				\end{itemize}
+				Istnieje przynajmniej dwa algorytmy do obliczenia SSA na różne sposoby. Pierwszy
+				autorstwa \textbf{Ron Cytron} i kilku innych matematyków (An Efficient
+				Method of Computing Static Single Assignment Form). Drugi autorstwa
+				\textbf{Quan Hoang Nguyen} (Computing SSA Form with Matrices). Został
+				zaimplementowany pierwszy algorytm, skoro jest prostrzy i wymaga mniej (chociaż
+				też dużo) kultury matematycznej. Nie będziemy udowadniać tutaj całego algorytmu,
+				pokażemy tylko główne jego idee.
+				
+				\subsection{SSA: drzewo dominatorów}
+					Do obliczenia drzewa dominatorów używa się algorytm, stworzony przez dwóch
+					matematyków -- algorytm \textbf{Lengauer-Tarjan}'u. Jest on profesjonalnie
+					zbudowany i udowodniony matematycznie. Składa się on z trzech części
+					\begin{enumerate}
+						\item Przejście grafu w głąb (zwykły DFS).
+						\item Przejście wyniku DFS w odwrotnej kolejności, zatem przeliczanie
+						      półdominatorów (\textbf{semidominators}).
+				      	\item Za pomocą półdominatorów definicja dominatorów.
+					\end{enumerate}
+
+				\subsection{SSA: granica dominacji}
+				
+				\subsection{SSA: $\phi$-funkcje}
+					
+	\section{Optymalizacje (implementacja)}
 		\subsection{Unreachable code elimination}
 		
 			Usuwanie kodu nieosiągalnego polega na dwóćh krokach.
