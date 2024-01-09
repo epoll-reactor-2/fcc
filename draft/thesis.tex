@@ -733,8 +733,6 @@ void f() {
 				  {\Gamma \vdash \text{V} : T}
 				\end{mathpar}
 				
-				\spacing
-				
 				Zauważmy, że notacja ta jest mocnyn narzędziem, pozwalającym opisać dość złożone systemy typów
 				dla takich języków jak \textbf{C++} i \textbf{Haskell}.
 
@@ -880,6 +878,69 @@ void f() {
 			\item Nie stanowi dodatkowych zależności jako biblioteki
 			\item Ma na celu pokazanie metod na tworzenie takiego języka i operacje nad nimi
 		\end{itemize}
+		
+		\subsection{Algorytm}
+			Generator IR przyjmuje AST jako wejście. Stworzenie instrukcji pośrednich
+			polega na rekurencyjnym przejściu tego drzewa oraz tłumaczeniu danych o
+			programie z poziomu drzewa (w zasadzie elementów syntaksycznych) na język
+			niskiego poziomu. W zależności od węzła musi być stworzony kod, zachowujący
+			się zgodnie z oczekiwaniem użytkownika.
+			\\
+			
+			Naprzykład, pętla while (po lewej stronie) zostanie przetłumaczona na
+			kod niskiego poziomu (po prawej stronie).
+
+			\begin{center}
+			\begin{tabular}{ c c c }
+			\begin{lstlisting}[label={lst:warn-unused-var},linewidth=6.5cm]
+int main() {
+    int i = 1;
+    while (i < 10 && i != 0)
+    {
+        int j = i;
+        ++j;
+        ++i;
+    }
+    return 0;
+}			
+.
+.
+.
+.
+.
+.
+.
+			\end{lstlisting}
+			& &	
+			\begin{lstlisting}[label={lst:warn-unused-var},linewidth=8cm]
+fun main():
+       0:   int t0
+       1:   t0 = 1
+       2:   | int t1
+       3:   | int t2
+       4:   | t2 = t0 < 10
+       5:   | int t3
+       6:   | t3 = t0 != 0
+       7:   | t1 = t2 && t3
+       8:   | if t1 != 0 goto L10
+       9:   | jmp L15
+      10:   | int t4
+      11:   | t4 = t0
+      12:   | t4 = t4 + 1
+      13:   | t0 = t0 + 1
+      14:   | jmp L2
+      15:   ret 0
+			\end{lstlisting}
+			\end{tabular}
+			\end{center}
+			
+			Widać, że złożona semantycznie konstrukcja \texttt{while} została
+			przedstawiona za pomocą prostszych do wykonania operacji: stworzyć
+			zmienną o rozmiarze N bajtów, zapisać do niej wynik operacji binarnej,
+			wykonać skok do instrukcji o pewnym indeksie. Analogicznie przedstawione są
+			inne części języka (\texttt{for}, \texttt{do while}, \texttt{if}). Oczywiście,
+			wszystkie konstrukcje mogą być zagnieżdżone dowolną ilośc razy, przy tym
+			zachowawszy liniową strukturę IR.
 
 		\subsection{Instrukcje}
 
