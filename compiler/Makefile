@@ -21,5 +21,5 @@ endif # USE_BACKEND_X86_64
 all: $(OBJ)
 
 $(OBJ): $(SRC)
-	@echo [CC] $(notdir $@)
+	@echo [CC] $(@F)
 	@$(CC) $(CFLAGS) $(@:.o=.c) -o ../build/$(notdir $(@:.o=)) $(LDFLAGS)

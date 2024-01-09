@@ -53,11 +53,11 @@ OBJ = $(SRC:.c=.o)
 src: $(OBJ)
 
 $(OBJ): $(SRC)
-	@echo [CC] $(notdir $@)
+	@echo [CC] $(@F)
 	@$(CC) $(CFLAGS) $(@:.o=.c) -o ../build/$(notdir $(@:.o=))_test $(LDFLAGS)
 
 $(FUZZER_OBJ): $(FUZZER_SRC)
-	@echo [CC] $(notdir $@)
+	@echo [CC] $(@F)
 	@$(CC) $(CFLAGS) $^ -o ../build/fuzzer $(LDFLAGS)
 
 ##################################
