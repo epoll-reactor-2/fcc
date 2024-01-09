@@ -1,17 +1,14 @@
 ##################################
 # Commom variables               #
 ##################################
-NR_CPUS     = $(shell nproc 2> /dev/null)
-override MAKEFLAGS += -j $(NR_CPUS)
+NR_CPUS              = $(shell nproc 2> /dev/null)
+override MAKEFLAGS  += -j $(NR_CPUS)
 
-REDIRECT_STDERR := 2> /dev/null
+REDIRECT_STDERR     := 2> /dev/null
 
 CC                   = gcc
 LD                   = ld
 \t                  := $(info)	$(info)
-
-export CC
-export LD
 
 DEBUG_BUILD          := 1
 SANITIZE             := 0
@@ -20,11 +17,9 @@ USE_LOG              := 0
 USE_BACKEND_EVAL     := 1
 USE_BACKEND_X86_64   := 0
 
-export DEBUG_BUILD
-export SANITIZE
-export USE_LOG
-export USE_BACKEND_EVAL
-export USE_BACKEND_X86_64
+# Export all defined now variables to Makefile's
+# being child processes.
+export
 
 ##################################
 # Logo                           #

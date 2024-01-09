@@ -50,9 +50,9 @@ all: $(LIB)
 $(info CC is $(CC))
 
 %.o: %.c
-	@echo [CC] $(notdir $@)
-	@$(CC) -c $(CFLAGS) $^ -o ../build/$(notdir $@)
+	@echo [CC] $(@F)
+	@$(CC) -c $(CFLAGS) $^ -o ../build/$(@F)
 
 $(LIB): $(OBJ)
 	@echo [LD] $@
-	@$(LD) $(addprefix ../build/,$(notdir $^)) -shared -o ../build/$(LIB) -L../build $(LDFLAGS)
+	@$(LD) $(addprefix ../build/,$(^F)) -shared -o ../build/$(LIB) -L../build $(LDFLAGS)
