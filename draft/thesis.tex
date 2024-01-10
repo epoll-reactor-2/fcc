@@ -63,10 +63,32 @@
 \lstset{
 	firstnumber = 0,
 	tabsize     = 4,
-	frame       = single,
+    numbers     = left,
+	frame       = none,
 	linewidth   = 1.2\textwidth,
-	xleftmargin = 0cm
+	xleftmargin = 0.5cm
 }
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+\definecolor{codegreen}{rgb}{0.0,0.6,0.0}
+
+\lstdefinestyle{myStyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    keepspaces=true,                 
+    numbers=left,       
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+}
+
+% Use \lstset to make myStyle the global default
+\lstset{style=myStyle}
 
 \captionsetup{
     format          = plain,
@@ -177,11 +199,11 @@
 			
 			\spacing
 			
-			\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
+\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
 void f() {
 	return argument + 1;
 }
-		\end{lstlisting}
+\end{lstlisting}
 
 			\spacing
 			
@@ -192,11 +214,11 @@ void f() {
 
 			\spacing
 			
-			\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
+\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
 void f() {
 	data *d;
 }
-			\end{lstlisting}
+\end{lstlisting}
 
 			\newpage
 
@@ -285,7 +307,7 @@ void f() {
 		
 		\spacing
 		
-		\begin{lstlisting}
+\begin{lstlisting}
 %{
 #include "portrzebny-do-analizy-plik.h"
 
@@ -310,7 +332,7 @@ void f() {
                                     Zglosic blad.
                                   */ }
 %%
-		\end{lstlisting}
+\end{lstlisting}
 
 		\spacing
 		
@@ -477,13 +499,13 @@ void f() {
 			
 			\spacing
 
-			\begin{lstlisting}[label={lst:left-recursion}]
+\begin{lstlisting}[label={lst:left-recursion}]
 void factor() {
 	factor(); // Rekurencja bez zadnego warunku wyjscia
 	consume('+');
 	term();
 }
-			\end{lstlisting}
+\end{lstlisting}
 		
 		\subsection{Niejednoznaczność}
 		
@@ -550,14 +572,14 @@ void factor() {
 
 			\spacing
 
-			\begin{lstlisting}[label={lst:ast-node}]
+\begin{lstlisting}[label={lst:ast-node}]
 struct ast_node {
     enum ast_type  type;    /* Rozrozniamy typ wedlug tej flagi */
     void          *ast;     /* ast_num, ast_for, ast_while, et cetera */
     uint16_t       line_no;
     uint16_t       col_no;
 };
-			\end{lstlisting}
+\end{lstlisting}
 			
 			\spacing
 			
@@ -565,11 +587,11 @@ struct ast_node {
 
 			\spacing
 
-			\begin{lstlisting}[label={lst:ast-concrete-node}]
+\begin{lstlisting}[label={lst:ast-concrete-node}]
 struct ast_num {
     int32_t value;
 };
-			\end{lstlisting}
+\end{lstlisting}
 			
 			\spacing
 			
@@ -615,7 +637,7 @@ struct ast_num {
 			Niżej pokazany jest przykładowy wynik działania tej funkcji.
 			\\
 	
-			\begin{lstlisting}[label={lst:ast-text}]
+\begin{lstlisting}[label={lst:ast-text}]
 CompoundStmt <line:0, col:0>
   StructDecl <line:9, col:1> `custom`
     CompoundStmt <line:9, col:1>
@@ -624,7 +646,7 @@ CompoundStmt <line:0, col:0>
       VarDecl <line:12, col:5> int `c`
       ArrayDecl <line:13, col:5> char [1000] `mem`
       VarDecl <line:14, col:5> struct string `description`
-			\end{lstlisting}
+\end{lstlisting}
 	
 	\section{Analiza semantyczna}
 
@@ -643,24 +665,24 @@ CompoundStmt <line:0, col:0>
 			
 			\spacing
 
-			\begin{lstlisting}[label={lst:warn-unused-var}]
+\begin{lstlisting}[label={lst:warn-unused-var}]
 void f() {
 	int argument = 0; // Warning: unused variable `argument`
 }
-			\end{lstlisting}
+\end{lstlisting}
 
-			\begin{lstlisting}[label={lst:warn-unused-var}]
+\begin{lstlisting}[label={lst:warn-unused-var}]
 void f(int argument) { // Warning: unused variable `argument`
 
 }
-			\end{lstlisting}
+\end{lstlisting}
 			
-			\begin{lstlisting}[label={lst:warn-unused-var}]
+\begin{lstlisting}[label={lst:warn-unused-var}]
 void f() {
 	int argument = 0;
 	++argument; // Warning: variable `argument` written, but never read
 }
-			\end{lstlisting}
+\end{lstlisting}
 
 			%% (\ref{lst:warn-unused-var})
 			
@@ -878,7 +900,7 @@ void f() {
 
 			\begin{center}
 			\begin{tabular}{ c c c }
-			\begin{lstlisting}[label={lst:warn-unused-var},linewidth=6.5cm]
+\begin{lstlisting}[label={lst:warn-unused-var},linewidth=6.5cm]
 int main() {
     int i = 1;
     while (i < 10 && i != 0)
@@ -896,9 +918,9 @@ int main() {
 .
 .
 .
-			\end{lstlisting}
+\end{lstlisting}
 			& &	
-			\begin{lstlisting}[label={lst:warn-unused-var},linewidth=8cm]
+\begin{lstlisting}[label={lst:warn-unused-var},linewidth=8cm]
 fun main():
        0:   int t0
        1:   t0 = 1
@@ -916,7 +938,7 @@ fun main():
       13:   | t0 = t0 + 1
       14:   | jmp L2
       15:   ret 0
-			\end{lstlisting}
+\end{lstlisting}
 			\end{tabular}
 			\end{center}
 			
