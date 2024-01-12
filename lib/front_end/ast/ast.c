@@ -599,9 +599,7 @@ void ast_node_cleanup(struct ast_node *ast)
         ast_binary_cleanup(ast->ast);
         break;
     case AST_PREFIX_UNARY:
-        ast_unary_cleanup(ast->ast);
-        break;
-    case AST_POSTFIX_UNARY:
+    case AST_POSTFIX_UNARY: /* Fall through. */
         ast_unary_cleanup(ast->ast);
         break;
     case AST_ARRAY_ACCESS:

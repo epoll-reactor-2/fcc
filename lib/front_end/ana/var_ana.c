@@ -442,9 +442,7 @@ void visit(struct ast_node *ast)
         visit_binary(ast);
         break;
     case AST_PREFIX_UNARY:
-        visit_unary(ast);
-        break;
-    case AST_POSTFIX_UNARY:
+    case AST_POSTFIX_UNARY: /* Fall through. */
         visit_unary(ast);
         break;
     case AST_ARRAY_ACCESS:
