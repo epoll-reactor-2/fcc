@@ -39,7 +39,7 @@
 static char     stack[STACK_SIZE_BYTES];
 /* Index: sym_idx
    Value: sp */
-static uint64_t stack_map[STACK_SIZE_BYTES];
+static char     stack_map[STACK_SIZE_BYTES];
 /* Global stack pointer. Named as assembly register. */
 static uint64_t sp;
 
@@ -72,7 +72,7 @@ static inline void set(uint64_t sym_idx, struct value *v, struct type *traits)
 static inline void set_string(uint64_t sym_idx, char *imm)
 {
     uint64_t sp_ptr = stack_map[sym_idx];
-    memcpy(&stack[sp_ptr], imm, strlen(imm));
+    strcpy(&stack[sp_ptr], imm);
 }
 
 static inline struct value get(uint64_t sym_idx, struct type *traits)
@@ -604,7 +604,7 @@ static void call_eval(struct ir_fn_call *fcall)
     uint64_t        sym            = 0;
     uint64_t        bp             = sp;
     struct ir_node *save_instr_ptr = instr_ptr;
-    uint64_t        stack_map_copy[STACK_SIZE_BYTES];
+    char            stack_map_copy[STACK_SIZE_BYTES];
 
     call_stack_head(fcall->name);
     memcpy(stack_map_copy, stack_map, STACK_SIZE_BYTES);
