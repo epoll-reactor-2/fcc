@@ -26,7 +26,7 @@
 # define noinline
 # define really_inline
 # define unused
-# define fmt(x)
+# define fmt(...)
 #endif
 
 #define __weak_to_string(x) #x

@@ -93,7 +93,7 @@ static void ir_try_add_meta(struct ir_node *ir)
 static void ir_insert(struct ir_node *new_node)
 {
     __weak_debug({
-        __weak_debug_msg("Insert IR (instr_idx: %d) :", new_node->instr_idx);
+        __weak_debug_msg("Insert IR (instr_idx: %lu) :", new_node->instr_idx);
         ir_dump_node(stdout, new_node);
         puts("");
     });
@@ -433,27 +433,23 @@ static void visit_do_while(struct ast_do_while *ast)
        L4: if condition is true jump to L0 */
 
     uint64_t stmt_begin;
-    uint64_t header_idx = ir_last->instr_idx + 1;
-
-    struct ir_node *initial_stmt = ir_last;
+    uint64_t header_idx
+        = ir_last
+        ? ir_last->instr_idx + 1
+        : 0;
 
     vector_push_back(ir_loop_header_stack, header_idx);
 
     if (ir_last == NULL)
         stmt_begin = 0;
     else
-        stmt_begin = ir_last->instr_idx;
+        stmt_begin = ir_last->instr_idx + 1;
 
     if (ir_block_depth == 0)
         ++ir_loop_idx;
 
     ++ir_block_depth;
     visit(ast->body);
-
-    if (initial_stmt == NULL)
-        initial_stmt = ir_first;
-    else
-        initial_stmt = initial_stmt->next;
 
     ir_meta_is_loop = 1;
     visit(ast->condition);
@@ -465,7 +461,7 @@ static void visit_do_while(struct ast_do_while *ast)
             ir_last,
             zero_cond_immediate()
         ),
-        stmt_begin + 1
+        stmt_begin
     );
 
     ir_insert(cond);

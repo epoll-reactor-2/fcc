@@ -82,10 +82,13 @@ clean:
 test:
 	@make -C tests test
 
-.PHONY: cppcheck
-cppcheck:
-ifeq ($(CHECK_ALL),1)
-	@cppcheck -f -j$(NR_CPUS) --enable=all --language=c --std=c11 lib
-else
-	@cppcheck -f -j$(NR_CPUS) --enable=warning,performance,portability --language=c --std=c11 lib
-endif
+CPPCHECK_SUPPRESSIONS = incorrectStringBooleanError\nallocaCalled
+
+# Check out:
+# https://github.com/danmar/cppcheck/blob/main/addons/
+.PHONY: check
+check:
+	cppcheck -f -j$(NR_CPUS) --enable=warning,performance,portability \
+	--suppressions-list=<(echo -e '${CPPCHECK_SUPPRESSIONS}') \
+	--language=c --std=c11 lib \
+	-Ilib

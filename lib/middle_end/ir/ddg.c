@@ -124,10 +124,10 @@ void ir_ddg_build(struct ir_fn_decl *decl)
         it = decl->body;
 
         while (it) {
-            printf("For instr %ld, Required by = (", it->instr_idx);
+            printf("For instr %lu, Required by = (", it->instr_idx);
             vector_foreach(it->ddg_stmts, i) {
                 struct ir_node *stmt = vector_at(it->ddg_stmts, i);
-                printf("%ld ", stmt->instr_idx);
+                printf("%lu ", stmt->instr_idx);
             }
             printf(")\n");
             it = it->next;
