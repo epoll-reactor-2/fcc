@@ -26,31 +26,31 @@ static void fold_opt_reset()
 
 static void consts_mapping_add(uint64_t idx, uint64_t value)
 {
-    __weak_debug_msg("Consts mapping: put %ld:%ld\n", idx, value);
+    __weak_debug_msg("Consts mapping: put %lu:%lu\n", idx, value);
     hashmap_put(&consts_mapping, idx, value);
 }
 
 static void consts_mapping_remove(uint64_t idx)
 {
-    __weak_debug_msg("Consts mapping: remove %ld\n", idx);
+    __weak_debug_msg("Consts mapping: remove %lu\n", idx);
     hashmap_remove(&consts_mapping, idx);
 }
 
 static union ir_imm_val consts_mapping_get(uint64_t idx)
 {
     bool ok = 0;
-    int64_t got = hashmap_get(&consts_mapping, idx, &ok);
+    uint64_t got = hashmap_get(&consts_mapping, idx, &ok);
     if (!ok) {
-        weak_unreachable("Cannot get by index %ld", idx);
+        weak_unreachable("Cannot get by index %lu", idx);
     }
-    __weak_debug_msg("Consts mapping: get %ld:%ld\n", idx, got);
+    __weak_debug_msg("Consts mapping: get %lu:%lu\n", idx, got);
     return (union ir_imm_val) (int32_t) got;
 }
 
 static void consts_mapping_update(uint64_t idx, uint64_t value)
 {
     hashmap_remove(&consts_mapping, idx);
-    __weak_debug_msg("Consts mapping: update %ld:%ld\n", idx, value);
+    __weak_debug_msg("Consts mapping: update %lu:%lu\n", idx, value);
     hashmap_put(&consts_mapping, idx, value);
 }
 
@@ -58,13 +58,13 @@ static bool consts_mapping_is_const(uint64_t idx)
 {
     bool ok = 0;
     hashmap_get(&consts_mapping, idx, &ok);
-    __weak_debug_msg("Consts mapping: is const? idx:%ld -> %d\n", idx, ok);
+    __weak_debug_msg("Consts mapping: is const? idx:%lu -> %d\n", idx, ok);
     return ok;
 }
 
 static void loop_dependent_put(uint64_t sym_idx, uint64_t loop_idx)
 {
-    __weak_debug_msg("Loop dependence mapping: add idx:%ld, loop_idx:%ld\n", sym_idx, loop_idx);
+    __weak_debug_msg("Loop dependence mapping: add idx:%lu, loop_idx:%lu\n", sym_idx, loop_idx);
     hashmap_put(&loop_dependent_stmts, sym_idx, loop_idx);
 }
 
@@ -72,7 +72,7 @@ static bool loop_dependent(uint64_t sym_idx)
 {
     bool ok = 0;
     hashmap_get(&loop_dependent_stmts, sym_idx, &ok);
-    __weak_debug_msg("Loop dependence mapping: is depends on loop conditions? idx:%ld -> %d\n", sym_idx, ok);
+    __weak_debug_msg("Loop dependence mapping: is depends on loop conditions? idx:%lu -> %d\n", sym_idx, ok);
     return ok;
 }
 
@@ -192,7 +192,7 @@ static bool fold_store_mark_loop_dependent(struct ir_node *ir)
 
     if (ir->meta.sym.loop) {
         loop_dependent_put(get_store_idx(store->idx), ir->meta.sym.loop_idx);
-        __weak_debug_msg("Added loop-dependent variable (loop attr) %%%d. Return\n", store->idx);
+        __weak_debug_msg("Added loop-dependent variable (loop attr) %p. Return\n", store->idx);
         return 1;
     }
     return 0;
@@ -305,7 +305,7 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
         if (!meta->sym.noalias) {
             l = fold_node(ir->lhs);
         } else {
-            __weak_debug_msg("Found noalias attribute for %%%d\n", ir->lhs->instr_idx);
+            __weak_debug_msg("Found noalias attribute for %%%lu\n", ir->lhs->instr_idx);
         }
     } else {
         l = fold_node(ir->lhs);
@@ -328,7 +328,7 @@ static struct ir_node *fold_bin(struct ir_bin *ir)
         if (!meta->sym.noalias) {
             r = fold_node(ir->rhs);
         } else {
-            __weak_debug_msg("Found noalias attribute for %%%d\n", ir->rhs->instr_idx);
+            __weak_debug_msg("Found noalias attribute for %%%lu\n", ir->rhs->instr_idx);
         }
     } else {
         r = fold_node(ir->rhs);

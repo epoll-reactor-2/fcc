@@ -9,4 +9,9 @@ check_license_notes() {
     done
 }
 
+cppcheck() {
+    make check
+}
+
 check_license_notes
+cppcheck

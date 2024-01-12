@@ -45,6 +45,17 @@ really_inline static void replace_newline(char *buf)
     }
 }
 
+/* There is warning
+    | warning: ' ' flag used with ‘%u’ gnu_printf format [-Wformat=]
+   "| % 6lu: %s\n"
+   ^~~~~~~~~~~~~~~
+
+   After some research we know, that this issue is implementation detail
+   of printf() when printing unsigned values. This behaviour can differ
+   on Linux and other POSIX systems. I use Linux, so I don't care.
+   */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
 unused static void print_file_range(
     FILE     *stream,
     uint64_t  line_no,
@@ -69,7 +80,7 @@ unused static void print_file_range(
 
 #define DO() \
         { replace_newline(buf); \
-          uint64_t written = sprintf(report + w, "| % 6ld: %s\n", curr_line_no++, buf); \
+          uint64_t written = sprintf(report + w, "| % 6lu: %s\n", curr_line_no++, buf); \
           \
           if (line_max < strlen(buf) + 7) \
               line_max = strlen(buf) + 7; \
@@ -104,6 +115,7 @@ unused static void print_file_range(
 #undef GET
 #undef DO
 }
+#pragma GCC diagnostic pop /* -Wformat */
 
 
 

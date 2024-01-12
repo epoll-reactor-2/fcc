@@ -503,7 +503,7 @@ static uint64_t call_depth;
 static void call_stack_head(const char *fname)
 {
     printf_n(call_depth, ' ');
-    printf("call `%s` (+%ld)\n", fname, sp);
+    printf("call `%s` (+%lu)\n", fname, sp);
     call_depth += 2;
 }
 
@@ -536,7 +536,7 @@ static struct ir_fn_decl *fun_lookup(const char *name)
     bool ok = 0;
     uint64_t got = hashmap_get(&funs, hash, &ok);
     if (!ok)
-        weak_unreachable("Function lookup failed for `%s`, CRC32: %ld", name, hash);
+        weak_unreachable("Function lookup failed for `%s`, CRC32: %lu", name, hash);
 
     return (struct ir_fn_decl *) got;
 }

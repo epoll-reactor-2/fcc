@@ -57,7 +57,7 @@ static void ir_dump_alloca_array(FILE *mem, struct ir_alloca_array *ir)
     fprintf(mem, "%s t%lu[", data_type_to_string(ir->dt), ir->idx);
     for (uint64_t i = 0; i < total; ++i) {
         uint64_t e = ir->arity[i];
-        fprintf(mem, "%ld", e);
+        fprintf(mem, "%lu", e);
         if (i < total - 1) {
             fprintf(mem, " x ");
         }
@@ -114,14 +114,14 @@ static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
 
 static void ir_dump_jump(FILE *mem, struct ir_jump *ir)
 {
-    fprintf(mem, "jmp L%ld", ir->idx);
+    fprintf(mem, "jmp L%lu", ir->idx);
 }
 
 static void ir_dump_cond(FILE *mem, struct ir_cond *ir)
 {
     fprintf(mem, "if ");
     ir_dump_node(mem, ir->cond);
-    fprintf(mem, " goto L%ld", ir->goto_label);
+    fprintf(mem, " goto L%lu", ir->goto_label);
 }
 
 static void ir_dump_ret(FILE *mem, struct ir_ret *ir)
@@ -135,7 +135,7 @@ static void ir_dump_ret(FILE *mem, struct ir_ret *ir)
 
 static void ir_dump_member(FILE *mem, struct ir_member *ir)
 {
-    fprintf(mem, "%%%ld.%ld", ir->idx, ir->field_idx);
+    fprintf(mem, "%%%lu.%lu", ir->idx, ir->field_idx);
 }
 
 static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
@@ -150,6 +150,17 @@ static void ir_dump_type_decl(FILE *mem, struct ir_type_decl *ir)
     fprintf(mem, "\n}");
 }
 
+/* There is warning
+    | warning: ' ' flag used with ‘%u’ gnu_printf format [-Wformat=]
+   "| % 8lu: %s\n"
+   ^~~~~~~~~~~~~~~
+
+   After some research we know, that this issue is implementation detail
+   of printf() when printing unsigned values. This behaviour can differ
+   on Linux and other POSIX systems. I use Linux, so I don't care.
+   */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
 static void ir_dump_fn_decl(FILE *mem, struct ir_fn_decl *ir)
 {
     fprintf(mem, "fun %s(", ir->name);
@@ -167,12 +178,13 @@ static void ir_dump_fn_decl(FILE *mem, struct ir_fn_decl *ir)
         if (it->type == IR_PHI)
             fprintf(mem, "\n            ");
         else
-            fprintf(mem, "\n% 8ld:   ", it->instr_idx);
+            fprintf(mem, "\n% 8lu:   ", it->instr_idx);
         fprintf_n(mem, it->meta.block_depth * 2, ' ');
         ir_dump_node(mem, it);
         it = it->next;
     }
 }
+#pragma GCC diagnostic pop /* -Wformat */
 
 static void ir_dump_fn_call(FILE *mem, struct ir_fn_call *ir)
 {
@@ -189,14 +201,14 @@ static void ir_dump_fn_call(FILE *mem, struct ir_fn_call *ir)
 
 static void ir_dump_phi(FILE *mem, struct ir_phi *ir)
 {
-    fprintf(mem, "t%ld.%ld = φ(%ld, %ld)", ir->sym_idx, ir->ssa_idx, ir->op_1_idx, ir->op_2_idx);
+    fprintf(mem, "t%lu.%lu = φ(%lu, %lu)", ir->sym_idx, ir->ssa_idx, ir->op_1_idx, ir->op_2_idx);
 }
 
 unused static void type_dump(struct type *t)
 {
     printf("(dt=`%s`,", data_type_to_string(t->dt));
-    printf("ptr=%ld,", t->ptr_depth);
-    printf("bytes=%ld)", t->bytes);
+    printf("ptr=%lu,", t->ptr_depth);
+    printf("bytes=%lu)", t->bytes);
 }
 
 
@@ -240,7 +252,7 @@ void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
     fprintf(mem, "DF = {");
     vector_foreach(ir->df, i) {
         struct ir_node *df = vector_at(ir->df, i);
-        fprintf(mem, "%ld", df->instr_idx);
+        fprintf(mem, "%lu", df->instr_idx);
         if (i < ir->df.count - 1)
             fprintf(mem, ", ");
     }
@@ -265,7 +277,7 @@ void ir_dump_unit(FILE *mem, struct ir_unit *unit)
 really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
 {
     if (ir->type != IR_PHI)
-        fprintf(mem, "%ld:   ", ir->instr_idx);
+        fprintf(mem, "%lu:   ", ir->instr_idx);
     ir_dump_node(mem, ir);
     fprintf(mem, "\n");
     ir_dump_dominance_frontier(mem, ir);
@@ -366,7 +378,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
             if (!first)
                 fprintf(mem, "} ");
 
-            fprintf(mem, "subgraph cluster%ld {\n", cluster_no++);
+            fprintf(mem, "subgraph cluster%lu {\n", cluster_no++);
         }
 
         switch (it->type) {
@@ -383,7 +395,7 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
             ir_dump_node_dot(mem, it, vector_at(it->cfg.succs, 1));
             fprintf(mem, " [ label = \"  false\"]\n");
 
-            fprintf(mem, "} subgraph cluster%ld {\n", cluster_no++);
+            fprintf(mem, "} subgraph cluster%lu {\n", cluster_no++);
 
             ir_dump_node_dot(mem, it, vector_at(it->cfg.succs, 0));
             fprintf(mem, " [ label = \"  true\"]\n");
@@ -484,7 +496,7 @@ void ir_dump_dom_tree(FILE *mem, struct ir_fn_decl *decl)
             if (!first)
                 fprintf(mem, "} ");
 
-            fprintf(mem, "subgraph cluster%ld {\n", cluster_no++);
+            fprintf(mem, "subgraph cluster%lu {\n", cluster_no++);
         }
 
         if (it->idom)

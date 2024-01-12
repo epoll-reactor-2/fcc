@@ -25,7 +25,7 @@ void ordinal_numeral(uint64_t num, char *out)
         default: postfix = "th"; break;
         }
     }
-    sprintf(out, "%zu'%s", num, postfix);
+    sprintf(out, "%lu'%s", num, postfix);
 }
 
 int istrcmp(const char *l, const char *r)
