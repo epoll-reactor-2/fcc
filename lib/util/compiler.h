@@ -45,6 +45,6 @@
 # define __weak_debug_msg(fmt, ...)
 #endif /* CONFIG_USE_LOG */
 
-#define __weak_array_size(x) (sizeof (x) / sizeof (*x))
+#define __weak_array_size(x) (sizeof ((x)) / sizeof (*(x)))
 
 #endif // WEAK_COMPILER_UTIL_COMPILER_H

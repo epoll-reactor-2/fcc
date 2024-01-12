@@ -33,9 +33,9 @@ bool     hashmap_remove (hashmap_t *map, uint64_t key);
 bool     hashmap_has    (hashmap_t *map, uint64_t key);
 
 #define hashmap_foreach(map, k, v) \
-    for (uint64_t _i = 0, k, v;  k = (map)->buckets[_i].key, \
-                                 v = (map)->buckets[_i].val, \
-                                _i < (map)->capacity; ++_i)  \
+    for (uint64_t _i = 0, (k), (v); (k) = (map)->buckets[_i].key, \
+                                    (v) = (map)->buckets[_i].val, \
+                                     _i < (map)->capacity; ++_i)  \
                                 /*
                                             ^^^^^^^^
                                      Must be comparison with count of
