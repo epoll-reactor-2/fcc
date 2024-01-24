@@ -9,9 +9,9 @@ check_license_notes() {
     done
 }
 
-cppcheck() {
-    make check
+static_analysis() {
+    make static_analysis
 }
 
 check_license_notes
-cppcheck
+static_analysis
