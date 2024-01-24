@@ -86,8 +86,8 @@ CPPCHECK_SUPPRESSIONS = incorrectStringBooleanError\nallocaCalled
 
 # Check out:
 # https://github.com/danmar/cppcheck/blob/main/addons/
-.PHONY: check
-check:
+.PHONY: static_analysis
+static_analysis:
 	cppcheck -f -j$(NR_CPUS) --enable=warning,performance,portability \
 	--suppressions-list=<(echo -e '${CPPCHECK_SUPPRESSIONS}') \
 	--language=c --std=c11 lib \

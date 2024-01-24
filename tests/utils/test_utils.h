@@ -204,10 +204,9 @@ tok_array_t *gen_tokens(const char *filename)
 
     if (!yyin) yyin = fopen(filename, "r");
     else yyin = freopen(filename, "r", yyin);
-    if (yyin == NULL) {
-        perror("fopen()");
-        return false;
-    }
+    if (yyin == NULL)
+        weak_unreachable("Cannot open file `%s`", filename);
+
     yylex();
     fseek(yyin, 0, SEEK_SET);
     weak_set_source_stream(yyin);
