@@ -22,7 +22,7 @@ struct ir_fn_decl;
       - variable_use_analysis
       - functions_analysis
       - type_analysis  */
-wur struct ir_unit *ir_gen(struct ast_node *ast);
+wur struct ir_unit ir_gen(struct ast_node *ast);
 
 void ir_cfg_build(struct ir_fn_decl *decl);
 

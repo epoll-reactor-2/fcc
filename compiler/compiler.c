@@ -61,7 +61,7 @@ struct ast_node *gen_ast(const char *filename)
     return ast;
 }
 
-struct ir_unit *gen_ir(const char *filename)
+struct ir_unit gen_ir(const char *filename)
 {
     return ir_gen(gen_ast(filename));
 }
@@ -120,10 +120,10 @@ void opt(struct ir_unit *ir)
 #ifdef CONFIG_USE_BACKEND_EVAL
 void run_backend(const char *filename)
 {
-    struct ir_unit *unit = gen_ir(filename);
-    opt(unit);
+    struct ir_unit unit = gen_ir(filename);
+    opt(&unit);
 
-    int r = eval(unit);
+    int r = eval(&unit);
     printf("Exit with %d\n", r);
 }
 #endif /* CONFIG_USE_BACKEND_EVAL */
@@ -175,9 +175,9 @@ void parse_cmdline(int argc, char *argv[])
     }
 
     if (ir) {
-        struct ir_unit *ir = gen_ir(file);
-        dump_ir(ir);
-        ir_unit_cleanup(ir);
+        struct ir_unit unit = gen_ir(file);
+        dump_ir(&unit);
+        ir_unit_cleanup(&unit);
         exit(0);
     }
 

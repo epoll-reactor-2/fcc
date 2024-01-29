@@ -474,7 +474,7 @@ void fuzz_print_source()
         if (ch == '\n')
             printf("% 6d: ", lineno++);
     }
-    
+
     fseek(yyin, 0, SEEK_SET);
 }
 
@@ -494,11 +494,11 @@ void compile(tok_array_t *tokens)
     analysis_type_analysis(ast);
 
     tokens_cleanup(tokens);
-    struct ir_unit *unit = ir_gen(ast);
-    // ast_dump(stdout, ast);
+    struct ir_unit unit = ir_gen(ast);
     ast_node_cleanup(ast);
 
-    ir_dump_unit(stdout, unit);
+    ir_dump_unit(stdout, &unit);
+    ir_unit_cleanup(&unit);
 }
 
 void fuzz()
