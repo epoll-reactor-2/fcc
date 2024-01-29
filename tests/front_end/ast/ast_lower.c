@@ -56,6 +56,7 @@ bool lower_test(const char *path, const char *filename)
     }
 
 exit:
+    fclose(yyin);
     yylex_destroy();
     tokens_cleanup(tokens);
     fclose(ast_stream);

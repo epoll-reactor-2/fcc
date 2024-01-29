@@ -29,13 +29,13 @@ bool ir_test(const char *path, const char *filename)
 
     if (!setjmp(weak_fatal_error_buf)) {
         /* NOTE: CFG is not strictly needed there. */
-        struct ir_unit *ir = gen_ir(path);
+        struct ir_unit ir = gen_ir(path);
 
         extract_assertion_comment(yyin, expected_stream);
 
-        ir_dump_unit(generated_stream, ir);
+        ir_dump_unit(generated_stream, &ir);
         fflush(generated_stream);
-        ir_unit_cleanup(ir);
+        ir_unit_cleanup(&ir);
 
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
@@ -49,6 +49,7 @@ bool ir_test(const char *path, const char *filename)
     }
 
 exit:
+    fclose(yyin);
     yylex_destroy();
     fclose(expected_stream);
     fclose(generated_stream);

@@ -64,18 +64,16 @@ bool ir_test(const char *path, const char *filename)
     FILE   *expected_stream  = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
     FILE   *tmp_cfg          = fopen("/tmp/g.dot", "w+");
-    struct  ir_unit    *unit = NULL;
-    struct  ir_node    *it   = NULL;
 
     if (!setjmp(weak_fatal_error_buf)) {
-        unit = gen_ir(path);
-        ir_type_pass(unit);
+        struct ir_unit  unit = gen_ir(path);
+        struct ir_node *it   = unit.fn_decls;
+        ir_type_pass(&unit);
 
         extract_assertion_comment(yyin, expected_stream);
 
         /* ir_dump_unit(stdout, ir); */
 
-        it = unit->fn_decls;
         while (it) {
             struct ir_fn_decl *decl = it->ir;
             /* Reordering before building CFG links. */
@@ -102,8 +100,10 @@ bool ir_test(const char *path, const char *filename)
             it = it->next;
         }
 
-        int32_t exit_code = eval(unit);
+        int32_t exit_code = eval(&unit);
         int32_t expected_code = 0;
+
+        ir_unit_cleanup(&unit);
 
         fscanf(expected_stream, "%d", &expected_code);
 
@@ -125,7 +125,6 @@ exit:
     fclose(generated_stream);
     free(expected);
     free(generated);
-    ir_unit_cleanup(unit);
 
     return ok;
 }

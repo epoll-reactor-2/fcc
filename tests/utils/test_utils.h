@@ -9,6 +9,7 @@
 #include "front_end/ana/ana.h"
 #include "front_end/ast/ast.h"
 #include "front_end/parse/parse.h"
+#include "middle_end/ir/ir.h"
 #include "middle_end/ir/gen.h"
 #include "util/compiler.h"
 #include "util/diagnostic.h"
@@ -214,7 +215,7 @@ tok_array_t *gen_tokens(const char *filename)
     return lex_consumed_tokens();
 }
 
-struct ir_unit *gen_ir(const char *filename)
+struct ir_unit gen_ir(const char *filename)
 {
     tok_array_t *tokens = gen_tokens(filename);
 
@@ -225,7 +226,7 @@ struct ir_unit *gen_ir(const char *filename)
     analysis_functions_analysis(ast);
     analysis_type_analysis(ast);
 
-    struct ir_unit *unit = ir_gen(ast);
+    struct ir_unit unit = ir_gen(ast);
     tokens_cleanup(tokens);
     ast_node_cleanup(ast);
     return unit;

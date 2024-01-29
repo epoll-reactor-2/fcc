@@ -52,8 +52,8 @@ bool ir_test(const char *path, const char *filename)
     FILE   *cfg_stream         = fopen(cfg_path, "w");
 
     if (!setjmp(weak_fatal_error_buf)) {
-        struct ir_unit *ir = gen_ir(path);
-        struct ir_node *it = ir->fn_decls;
+        struct ir_unit  ir = gen_ir(path);
+        struct ir_node *it = ir.fn_decls;
 
         extract_assertion_comment(yyin, expected_stream);
 
@@ -72,7 +72,7 @@ bool ir_test(const char *path, const char *filename)
             it = it->next;
         }
 
-        ir_unit_cleanup(ir);
+        ir_unit_cleanup(&ir);
 
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
@@ -87,6 +87,7 @@ bool ir_test(const char *path, const char *filename)
     }
 
 exit:
+    fclose(yyin);
     yylex_destroy();
     fclose(expected_stream);
     fclose(generated_stream);

@@ -34,11 +34,10 @@ bool ir_test(const char *path, const char *filename)
     FILE   *generated_stream = open_memstream(&generated, &_);
     FILE   *cfg_stream       = fopen(cfg_path, "w");
     FILE   *dom_tree_stream  = fopen(dom_tree_path, "w");
-    struct  ir_unit      *ir = NULL;
 
     if (!setjmp(weak_fatal_error_buf)) {
-        ir = gen_ir(path);
-        struct ir_node *it = ir->fn_decls;
+        struct ir_unit  ir = gen_ir(path);
+        struct ir_node *it = ir.fn_decls;
 
         extract_assertion_comment(yyin, expected_stream);
 
@@ -48,19 +47,21 @@ bool ir_test(const char *path, const char *filename)
             it = it->next;
         }
 
-        it = ir->fn_decls;
+        it = ir.fn_decls;
         ir_compute_ssa(it);
 
         while (it) {
             struct ir_fn_decl *decl = it->ir;
             ir_dump_cfg(cfg_stream, decl);
             ir_dump_dom_tree(dom_tree_stream, decl);
-            ir_dump_unit(generated_stream, ir);
+            ir_dump_unit(generated_stream, &ir);
             fflush(cfg_stream);
             fflush(dom_tree_stream);
             fflush(generated_stream);
             it = it->next;
         }
+
+        ir_unit_cleanup(&ir);
 
         if (strcmp(expected, generated) != 0) {
             /* ir_dump_unit(stdout, ir); */
@@ -83,7 +84,6 @@ bool ir_test(const char *path, const char *filename)
     fclose(dom_tree_stream);
     free(expected);
     free(generated);
-    ir_unit_cleanup(ir);
 
     return ok;
 }

@@ -1036,7 +1036,7 @@ void ir_cfg_build(struct ir_fn_decl *decl)
     }
 }
 
-struct ir_unit *ir_gen(struct ast_node *ast)
+struct ir_unit ir_gen(struct ast_node *ast)
 {
     reset_state();
 
@@ -1058,9 +1058,5 @@ struct ir_unit *ir_gen(struct ast_node *ast)
 
     struct ir_node *decls = vector_at(ir_fn_decls, 0);
 
-    struct ir_unit *unit = weak_calloc(1, sizeof (struct ir_unit));
-
-    unit->fn_decls = decls;
-
-    return unit;
+    return (struct ir_unit) { .fn_decls = decls };
 }
