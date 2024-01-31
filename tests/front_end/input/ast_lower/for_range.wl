@@ -31,7 +31,7 @@
 //                Number <line:41, col:10> 666
 void f(int *bc) {
   //  int array[2];
-  //  for (int __i = 0; __i < __2; ++__i) {
+  //  for (int __i = 0; __i < 2; ++__i) {
   //    int *i = &array[__i];
   //    *i = 666;
   //  }
