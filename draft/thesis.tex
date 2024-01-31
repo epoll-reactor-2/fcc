@@ -647,7 +647,109 @@ CompoundStmt <line:0, col:0>
       ArrayDecl <line:13, col:5> char [1000] `mem`
       VarDecl <line:14, col:5> struct string `description`
 \end{lstlisting}
-	
+		
+		\subsection{Poniżanie poziomu abstrakcji}
+			
+			Niniejszy język zapewnia mechanizm do konwertacji konkretnych
+			węzłów AST na inne, mające więcej szczegółów, prostszych dla
+			dalszej analizy. Zadanie to polega na przejściu AST i zrobieniu
+			podmiany pętli \texttt{for} jednego rodzaju na drugą. Semantyka i
+			ciało pętli pozostaje bez zmian.
+			\\
+
+			Wzięto pod uwagę tworzenie zagnieżdżonych pętli
+			takiego rodzaju. Wtedy ukryty iterator pętli dostaje kolejny numer
+			w nazwie zmiennej. Dla pętli o głębokości 1 \texttt{__i1}, dla kolejnych
+			\texttt{__i2, __i3} i t.d..
+			\\
+			
+			Jako przykład podana pętla for \texttt{ForRangeStmt}. Dana konstrukcja i jej AST
+
+			\begin{lstlisting}[label={lst:ast-lower-before}]
+    int array[2];
+    for (int *i : array) {
+    	/* Cialo. */
+    }\end{lstlisting}
+    	
+			\begin{lstlisting}[label={lst:ast-lower-before-ast}]
+    ArrayDecl <...> int [2] `array`
+    ForRangeStmt <...>
+      ForRangeIterStmt <...>
+        VarDecl <...> int * `i`
+      ForRangeTargetStmt <...>
+        Symbol <...> `array`
+      ForRangeStmtBody <...>
+        CompoundStmt <...>\end{lstlisting}
+
+    	... przyjmie następującą postać
+
+			\begin{lstlisting}[label={lst:ast-lower-before}]
+    int array[2];
+    for (int __i = 0; __i < __2; ++__i) {
+      int *i = &array_2[__i];
+      /* Cialo. */
+    }\end{lstlisting}
+
+			\begin{lstlisting}[label={lst:ast-lower-after-ast}]
+    ArrayDecl <...> int [2] `array`
+    ForStmt <...>
+      ForStmtInit <...>
+        VarDecl <...> int `__i1`
+          Number <...> 0
+      ForStmtCondition <...>
+        BinaryOperator <...> <
+          Symbol <...> `__i1`
+          Number <...> `2`
+      ForStmtIncrement <...>
+        Prefix UnaryOperator <...> ++
+          Symbol <...> `__i1`
+      ForStmtBody <...>
+        CompoundStmt <...>
+          VarDecl <...> int * `i`
+            Prefix UnaryOperator <...> &
+              ArrayAccess <...> `array`
+                Symbol <...> `__i1`
+          BinaryOperator <...> =
+            Prefix UnaryOperator <...> *
+              Symbol <...> `i`
+            Number <...> 666\end{lstlisting}
+            
+            \newpage
+
+            Zauważmy, że często kompilatory podczas zmiany poszczególnych elementów AST
+            precyzują semantykę poprzez dodanie "ukrytych" węzłów drzewa. Tak Clang
+            dodaje szczegóły odnośnie konwersji typów. W podanym przykładzie to
+            \texttt{InitListExpr} i \texttt{ImplicitCastExpr}. Wtedy ten proces raczej
+            się nazywa dodaniem semantyki niż poniżaniem poziomu abstrakcji.
+
+            \begin{lstlisting}[label={lst:ast-lower-after-ast}]
+struct x {
+    long y;
+};
+
+int main() {
+    x xx = { 2 };
+    return xx.y;
+}
+    		\end{lstlisting}
+
+            \begin{lstlisting}[label={lst:ast-lower-after-ast}]
+clang -Xclang -ast-dump program.cpp
+
+`-FunctionDecl 0x555e6d22d9f0 <line:5:1, line:8:1> line:5:5 main 'int ()'
+  `-CompoundStmt 0x555e6d22ddf0 <col:12, line:8:1>
+    |-DeclStmt 0x555e6d22dc80 <line:6:5, col:17>
+    | `-VarDecl 0x555e6d22db50 <col:5, col:16> col:7 used xx 'x':'x' cinit
+    |   `-InitListExpr 0x555e6d22dc20 <col:12, col:16> 'x':'x'
+    |     `-ImplicitCastExpr 0x555e6d22dc68 <col:14> 'long' <IntegralCast>
+    |       `-IntegerLiteral 0x555e6d22dbb8 <col:14> 'int' 2
+    `-ReturnStmt 0x555e6d22dde0 <line:7:5, col:15>
+      `-ImplicitCastExpr 0x555e6d22dd00 <col:12, col:15> 'int' <IntegralCast>
+        `-ImplicitCastExpr 0x555e6d22dce8 <col:12, col:15> 'long' <LValueToRValue>
+          `-MemberExpr 0x555e6d22dcb8 <col:12, col:15> 'long' lvalue .y
+            `-DeclRefExpr 0x555e6d22dc98 <col:12> 'x':'x' lvalue Var 'xx' 'x':'x'
+    		\end{lstlisting}
+
 	\section{Analiza semantyczna}
 
 		Aby zapewnić poprawność napisanego kodu, stosuje się wiele rodzajów analiz. Niniejszy kompilator
@@ -1476,6 +1578,9 @@ fun main():
 
 		\bibitem{texbook}
 			https://llvm.org/docs/LangRef.html
+		
+		\bibitem{texbook}
+			https://clang.llvm.org/docs/IntroductionToTheClangAST.html
 
 		\bibitem{texbook}
 			https://github.com/libfirm/libfirm
