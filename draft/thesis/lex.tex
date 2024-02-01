@@ -82,34 +82,7 @@
 	korzysta z konstrukcji języka C. Pokażemy przykład użycia flex'u
 	
 	\spacing
-	
-\begin{lstlisting}
-%{
-#include "portrzebny-do-analizy-plik.h"
-
-/* Kod w jezyku C. */
-%}
-
-/* Opcje flex */
-%option noyywrap nounput noinput
-%option yylineno
-
-%% /* Reguly w postaci wyrazen regularnych. */
-
-/*********************************************************************/
-/* Wzorzec                   | Akcja przy znalezieniu takiego wzorcu */
-/*********************************************************************/
--?[0-9]+                       LEX_CONSUME_WORD(TOK_INTEGRAL_LITERAL)
--?[0-9]+\.[0-9]+               LEX_CONSUME_WORD(TOK_FLOATING_POINT_LITERAL)
-\"([^\"\\]*(\\.[^\"\\]*)*)\"   LEX_CONSUME_WORD(TOK_STRING_LITERAL)
-\'.\'                          LEX_CONSUME_WORD(TOK_CHAR_LITERAL)
-
-.                              { /* Znaleziony niewiadomy znak.
-                                    Zglosic blad.
-                                  */ }
-%%
-\end{lstlisting}
-
+	\lstinputlisting[label={lst:ast-clang}]{code/flex.txt}
 	\spacing
 	
 	Zauważmy, że flex próbuje szukać wzorców w tekscie dokładnie w takiej kolejności, która jest podana w

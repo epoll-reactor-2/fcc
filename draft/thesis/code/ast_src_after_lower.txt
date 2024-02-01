@@ -1,0 +1,5 @@
+	int array[2];
+	for (int __i = 0; __i < __2; ++__i) {
+	  int *i = &array_2[__i];
+	  /* Cialo. */
+	}
