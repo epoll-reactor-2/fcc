@@ -1,0 +1,404 @@
+\section{Analiza składniowa}
+	
+	\subsection{Definicja}
+
+		Mając listę składników elementarnych wejściowego programu, jesteśmy w stanie przejść do
+		następnego etapu kompilacji -- analizy składniowej. Jest to proces generacji struktury
+		drzewiastej, a mianowicie AST (Abstract Syntax Tree).
+		\spacing
+		
+		Wynikiem działania analizy składniowej zawsze jest \textbf{jedno} drzewo AST. Może zawieraić ono
+		definicje wszystkich funkcji.
+		\\
+	
+		AST może być stworzony po zdefiniowaniu gramatyki regularnej danego języka. Stosuje się
+		do tego notacja BNF (Backus–Naur form). Pełny opis gramatyki pokazany jest w końcu pracy. Pokażemy
+		tylko kilka przykładów:
+		
+		\spacing
+
+		\setlength{\grammarindent}{12em}
+
+		\begin{grammar}
+		    <program> ::= ( <function-decl> | <structure-decl> )*
+
+		    <var-decl> ::= <type> ( \tt{*} )* <id> \tt{=} <logical-or-stmt> \tt{;}
+
+		    <stmt> ::= <block-stmt>
+		    \alt <selection-stmt>
+		    \alt <iteration-stmt>
+		    \alt <jump-stmt>
+		    \alt <decl>
+		    \alt <expr>
+		    \alt <assignment-stmt>
+		    \alt <primary-stmt>
+		\end{grammar}
+		
+		\spacing
+		
+		W przypadku wyrażeń arytmetycznych, AST także jednoznacznie określa za pomocą produkcji
+		gramatyki BNF priorytet operacji
+		arytmetycznych. Naprzykład, mając wyrażenie \ \texttt{1 + 2 * 3 + 4}, drzewo syntaksyczne
+		będzie skonstruowane zgodnie z prawami arytmetyki, co pozwala nie trzymać w AST żadnych
+		informacji o nawiasach. Widać, że aby zastosować produkcję \textit{$<$additive-stmt$>$},
+		najpierw musi być zastosowana następna produkcja \textit{$<$multiplicative-stmt$>$}.
+		\\
+
+		Pomocnicza przy prowadzeniu analizy jest \textbf{tablica parsingu}. Jest to zbiór
+		konkretnych przejść pomiędzy produkcjami. Pomaga ona w zrozumieniu, jaką
+		produkcję zastosować mając dany nieterminal. Zauważmy, że w tabelę są wpisane produkcje bez
+		alternatyw, i każde przejście gramatyczne określone jednoznacznie.
+		\\
+		
+		Aby zbudować tą tablicy, możemy użyć zasady
+		\textbf{First \& Follow}. Tutaj \textbf{First} to zbiór terminalnych symboli, które mogą pojawić
+		się jako
+		pierwsze w ciągu znaków wygenerowanym przez daną nieterminalną symbol w gramatyce,
+		a \textbf{Follow} to
+		zbiór terminalnych symboli, które mogą wystąpić bezpośrednio po danym nieterminalnym symbolu
+		w dowolnym ciągu znaków wygenerowanym przez gramatykę.
+		\\
+		
+		Podamy gramatykę dla przykładu powyżej (\texttt{1 + 2 * 3 + 4}). Musimy wprowadzić dwa poziomy
+		priorytetów, aby prawidłowo zachować kolejność operacji mnożenia i dodawania.
+		\\
+
+		\begin{grammar}
+		    <additive-stmt> ::= <multiplicative-stmt>
+		    \alt <multiplicative-stmt> \tt{"+"} <additive-stmt>
+		    \alt <multiplicative-stmt> \tt{"-"} <additive-stmt>
+
+		    <multiplicative-stmt> ::= <prefix-unary-stmt>
+		    \alt <prefix-unary-stmt> \tt{"*"} <multiplicative-stmt>
+		    \alt <prefix-unary-stmt> \tt{"/"} <multiplicative-stmt>
+		    \alt <prefix-unary-stmt> \tt{"%"} <multiplicative-stmt>
+		\end{grammar}
+		
+		\spacing
+
+		\begin{center}
+			\setlength{\tabcolsep}{0.5em}
+			\renewcommand{\arraystretch}{1.5}
+			\begin{tabular}{ L{5cm} L{3cm} L{4cm} }
+					                      & \textbf{First} & \textbf{Follow} \\
+				$<$additive-stmt$>$       & 0-9            & \textbf{+}, \textbf{-} \\
+				$<$multiplicative-stmt$>$ & 0-9            & \textbf{*}, \textbf{/} \\
+				$<$prefix-unary-stmt$>$   & 0-9            & $\epsilon$ \\
+			\end{tabular}
+		\end{center}
+
+		\spacing
+
+		\begin{center}
+			\setlength{\tabcolsep}{0.5em}
+			\renewcommand{\arraystretch}{1.5}
+			\begin{tabular}{ | L{4.1cm} | L{2cm} | L{2cm} | L{2cm} | L{2cm} | L{2cm} | L{2cm} | }
+              	\hline
+              	       & 0-9    & +    & -    & *    & /    & \$ \\
+              	\hline
+          	 	$<$additive-stmt$>$
+          	 	       &        & $<$mul$>$ + $<$add$>$
+          	 	                & $<$mul$>$ - $<$add$>$
+          	 	                & & & $<$mul$>$ \\
+              	\hline
+              	$<$multiplicative-stmt$>$ 
+              		   &        & & & $<$una$>$ * $<$mul$>$
+              		                & $<$una$>$ / $<$mul$>$
+              		                & $<$una$>$ \\
+              	\hline
+              	$<$prefix-unary-stmt$>$
+              	       & 0-9 & & & & & \\
+              	\hline
+			\end{tabular}
+		\end{center}
+
+		\spacing
+
+		\begin{center}
+		\begin{tikzpicture}
+			[level distance=1.5cm]
+			\node[state] {+}
+			child {
+		  		node[state] {+}
+		  		child { node[state] {\textbf{1}} }
+		  		child {
+		  			node[state] {*}
+		  			child { node[state] {\textbf{2}} }
+	  				child {node[state] {\textbf{3}} }
+		  		}
+	  		}
+	  		child {
+	  			node[state] {\textbf{4}}
+	  		};
+		\end{tikzpicture}
+		\end{center}
+
+	\subsection{Eliminacja rekurencji lewej}
+
+		Projektując gramatykę, należy wziąć pod uwagę problem rekurencji lewej (Left recursion).
+		Są produkcje gramatyczne, nie pozwalające kodu, które je implementuje przejść do następnego
+		terminalu, stosując tą samą produkcję, co prowadzi do rekurencji nieskończonej.
+		\\
+		
+		Rekuręcja lewa może wyglądać następująco:
+
+		\begin{grammar}
+			<factor> ::= <factor> '+' <term>
+		\end{grammar}
+
+		\spacing
+
+		Kod, wykonujący tą regułe będzie miał postać:
+		
+		\spacing
+
+\begin{lstlisting}[label={lst:left-recursion}]
+void factor() {
+	factor(); // Rekurencja bez zadnego warunku wyjscia
+	consume('+');
+	term();
+}
+\end{lstlisting}
+		
+		\subsection{Niejednoznaczność}
+		
+			Projektując język, łatwo trafić na niejednoznaczne produkcje gramatyczne. One są takie, że
+			jednego tekstu wejściowego są one w stanie wyprodukować kilka różnych od siebie drzew. Popularny
+			warunek dla stworzenia niejednoznaczności to taka produkcja
+			
+			\begin{grammar}
+			    <P> ::= <P> + <P>
+				\alt <symbol>
+			\end{grammar}
+			
+			
+			Po zastosowaniu danej produkcji dla \texttt{A + B + C} możliwe jest otrzymanie dwóch drzew
+			
+			\spacing
+			\spacing
+
+			\begin{center}
+				\begin{tabular}{ L{5cm} L{5cm} }
+					\begin{tikzpicture}
+						[level distance=1.5cm]
+						\node[state] {+}
+						child {
+					  		node[state] {+}
+					  		child { node[state] {\textbf{A}} }
+					  		child { node[state] {\textbf{B}} }
+				  		}
+				  		child {
+				  			node[state] {\textbf{C}}
+				  		};
+					\end{tikzpicture}
+					&
+					\begin{tikzpicture}
+						[level distance=1.5cm]
+						\node[state] {+}
+						child {
+				  			node[state] {\textbf{A}}
+				  		}
+				  		child {
+					  		node[state] {+}
+					  		child { node[state] {\textbf{B}} }
+					  		child { node[state] {\textbf{C}} }
+				  		};
+					\end{tikzpicture}
+				\end{tabular}
+			\end{center}
+			
+			Aby rozwiązać ten problem i jednoznacznie wskazać kolejność zastosowania reguł gramatycznych,
+			możemy zamienić prawy operand na symbol, wtedy eliminuje się dwuznaczność. Pierwsza produkcja
+			poniżej jest \textbf{lewostronną}, a druga -- \textbf{prawostronną}.
+
+			\begin{grammar}
+			    <P> ::= <P> + <symbol>
+	
+			    <P> ::= <symbol> + <P>
+			\end{grammar}
+
+		\subsection{Implementacja AST}
+
+			Zaimplementowany AST składa się ze struktury \texttt{ast_node}. Jest to główny typ
+			węzła, zawierający niektóre zbędne informacje dla każdego typu węzła AST, i przechowujący
+			konkretny węzęł jako wskaźnik.
+
+			\spacing
+
+\begin{lstlisting}[label={lst:ast-node}]
+struct ast_node {
+	enum ast_type  type;    /* Rozrozniamy typ wedlug tej flagi */
+	void          *ast;     /* ast_num, ast_for, ast_while, et cetera */
+	uint16_t       line_no;
+	uint16_t       col_no;
+};
+\end{lstlisting}
+			
+			\spacing
+			
+			Konkretne węzły definiujemy w następujący sposób:
+
+			\spacing
+
+\begin{lstlisting}[label={lst:ast-concrete-node}]
+struct ast_num {
+	int32_t value;
+};
+\end{lstlisting}
+			
+			\spacing
+			
+			Taki AST stanowi strukturę drzewiastą, mającą wszystkie zalety i wady drzew jako struktur
+			danych. Mając takie drzewo, jesteśmy w stanie prowadzić zwykłe przeszukiwanie w głąb
+			i wszerz. W danym przypadku taki algorytm się nazywa \textbf{AST visitor}. Dokładnie w ten
+			sposób działa każda z przedstawionych niżej analiz semantycznych
+			oraz generacja kodu pośredniego.
+
+			\spacing
+
+			\begin{algorithm}
+				\caption{Przeszukiwanie AST}
+				\begin{algorithmic}[1]
+
+				\Procedure{DFS}{AST}
+					\For{each child node Child of AST}
+						\State DFS(Child)
+					\EndFor
+				\EndProcedure
+
+				\end{algorithmic}
+			\end{algorithm}
+
+		\subsection{Implementacja analizatora składniowego}
+			
+			W danym przypadku, analizator składniowy jest napisany ręcznie, chociaż są narzędzia od
+			projektu GNU, takie jak GNU Bison i UNIX'owe, takie jak YACC. Niniejszy analizator
+		  	jest napisany bez pomocy tych programów, aby jawnie pokazać, jak się przekładają
+		  	produkcje BNF na język C.
+		  	\\
+		  	
+		  	Aby poradzić sobie z zadaniem pisania takiego analizatora, możemy zauważyć, że
+		  	zadanie to sprowadza się do implementacji każdej produkcji gramatycznej osobno.
+	  	
+	  	\subsection{Reprezentacja wizualna AST}
+	  		
+	  		Jest pokazana też implementacja \textbf{visitor}'u, pozwalającego na przeprowadzenie AST
+			do formy tekstowej. Do tego służy funkcja \textbf{ast_dump()}. Przyjmuje ona wskaźnik do
+			węzła drewa i działa według algorytmu DFS, opisanego wyżej, przy tym pisząc tekstową formę
+			węzłów do pliku (ewentualnie, do \texttt{stdout}). Funkcjonalność ta jest bardzo ważna do
+			prowadzenia testów jednostkowych samego AST oraz analizatoru składniowego.
+			Niżej pokazany jest przykładowy wynik działania tej funkcji.
+			\\
+	
+\begin{lstlisting}[label={lst:ast-text}]
+CompoundStmt <line:0, col:0>
+  StructDecl <line:9, col:1> `custom`
+	CompoundStmt <line:9, col:1>
+	  VarDecl <line:10, col:5> int `a`
+	  VarDecl <line:11, col:5> int `b`
+	  VarDecl <line:12, col:5> int `c`
+	  ArrayDecl <line:13, col:5> char [1000] `mem`
+	  VarDecl <line:14, col:5> struct string `description`
+\end{lstlisting}
+		
+		\subsection{Poniżanie poziomu abstrakcji}
+			
+			Niniejszy język zapewnia mechanizm do konwertacji konkretnych
+			węzłów AST na inne, mające więcej szczegółów, prostszych dla
+			dalszej analizy. Zadanie to polega na przejściu AST i zrobieniu
+			podmiany pętli \texttt{for} jednego rodzaju na drugą. Semantyka i
+			ciało pętli pozostaje bez zmian.
+			\\
+
+			Wzięto pod uwagę tworzenie zagnieżdżonych pętli
+			takiego rodzaju. Wtedy ukryty iterator pętli dostaje kolejny numer
+			w nazwie zmiennej. Dla pętli o głębokości 1 \texttt{__i1}, dla kolejnych
+			\texttt{__i2, __i3} i t.d..
+			\\
+			
+			Jako przykład podana pętla for \texttt{ForRangeStmt}. Dana konstrukcja i jej AST
+
+			\begin{lstlisting}[label={lst:ast-lower-before}]
+	int array[2];
+	for (int *i : array) {
+		/* Cialo. */
+	}\end{lstlisting}
+		
+			\begin{lstlisting}[label={lst:ast-lower-before-ast}]
+	ArrayDecl <...> int [2] `array`
+	ForRangeStmt <...>
+	  ForRangeIterStmt <...>
+	    VarDecl <...> int * `i`
+	  ForRangeTargetStmt <...>
+	    Symbol <...> `array`
+	  ForRangeStmtBody <...>
+	    CompoundStmt <...>\end{lstlisting}
+
+		... przyjmie następującą postać
+
+			\begin{lstlisting}[label={lst:ast-lower-before}]
+	int array[2];
+	for (int __i = 0; __i < __2; ++__i) {
+	  int *i = &array_2[__i];
+	  /* Cialo. */
+	}\end{lstlisting}
+
+			\begin{lstlisting}[label={lst:ast-lower-after-ast}]
+	ArrayDecl <...> int [2] `array`
+	ForStmt <...>
+	  ForStmtInit <...>
+	    VarDecl <...> int `__i1`
+	      Number <...> 0
+	  ForStmtCondition <...>
+	    BinaryOperator <...> <
+	      Symbol <...> `__i1`
+	      Number <...> `2`
+	  ForStmtIncrement <...>
+	    Prefix UnaryOperator <...> ++
+	      Symbol <...> `__i1`
+	  ForStmtBody <...>
+	    CompoundStmt <...>
+	      VarDecl <...> int * `i`
+	        Prefix UnaryOperator <...> &
+	          ArrayAccess <...> `array`
+	            Symbol <...> `__i1`
+	      BinaryOperator <...> =
+	        Prefix UnaryOperator <...> *
+	          Symbol <...> `i`
+	        Number <...> 666\end{lstlisting}
+	        
+	        \newpage
+
+	        Zauważmy, że często kompilatory podczas zmiany poszczególnych elementów AST
+	        precyzują semantykę poprzez dodanie "ukrytych" węzłów drzewa. Tak Clang
+	        dodaje szczegóły odnośnie konwersji typów. W podanym przykładzie to
+	        \texttt{InitListExpr} i \texttt{ImplicitCastExpr}. Wtedy ten proces raczej
+	        się nazywa dodaniem semantyki niż poniżaniem poziomu abstrakcji.
+
+	        \begin{lstlisting}[label={lst:ast-lower-after-ast}]
+struct x {
+	long y;
+};
+
+int main() {
+	x xx = { 2 };
+	return xx.y;
+}
+			\end{lstlisting}
+
+	        \begin{lstlisting}[label={lst:ast-lower-after-ast}]
+clang -Xclang -ast-dump program.cpp
+
+`-FunctionDecl 0x555e6d22d9f0 <line:5:1, line:8:1> line:5:5 main 'int ()'
+  `-CompoundStmt 0x555e6d22ddf0 <col:12, line:8:1>
+	|-DeclStmt 0x555e6d22dc80 <line:6:5, col:17>
+	| `-VarDecl 0x555e6d22db50 <col:5, col:16> col:7 used xx 'x':'x' cinit
+	|   `-InitListExpr 0x555e6d22dc20 <col:12, col:16> 'x':'x'
+	|     `-ImplicitCastExpr 0x555e6d22dc68 <col:14> 'long' <IntegralCast>
+	|       `-IntegerLiteral 0x555e6d22dbb8 <col:14> 'int' 2
+	`-ReturnStmt 0x555e6d22dde0 <line:7:5, col:15>
+	  `-ImplicitCastExpr 0x555e6d22dd00 <col:12, col:15> 'int' <IntegralCast>
+	    `-ImplicitCastExpr 0x555e6d22dce8 <col:12, col:15> 'long' <LValueToRValue>
+	      `-MemberExpr 0x555e6d22dcb8 <col:12, col:15> 'long' lvalue .y
+	        `-DeclRefExpr 0x555e6d22dc98 <col:12> 'x':'x' lvalue Var 'xx' 'x':'x'
+			\end{lstlisting}

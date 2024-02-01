@@ -1,0 +1,148 @@
+\section{System typów}
+
+	\subsection{Opis}
+
+		Wiele zasad, dotyczących pracy z typami mogą być precyzyjnie opisane zasadami typów
+		(\textbf{Typing rules}). Jest to notacja matematyczna, stworzona przez \textbf{Per Martin-Löf}'a,
+		szwedzkiego matematyka.
+		\\
+
+		Kluczowym pojęciem w tej notacji jest \textbf{statyczne środowisko typów}
+		(\textbf{static typing environment}). Oznacza się ono symbolem $\Gamma$. Mówimy, że to
+		środowisko jest skonstruowane poprawnie pisząc $$\Gamma \vdash \diamond$$
+		
+		Mówimy, że zmienna \textbf{V} ma typ \textbf{T} w środowisku $\Gamma$ pisząc
+		$$\Gamma \vdash \text{V} : T$$
+		
+		Kreska pozioma mówi o tym, że zdanie wyżej jest konieczne, aby zaszło zdanie niżej
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash \text{V} : T}
+		\end{mathpar}
+		
+		Zauważmy, że notacja ta jest mocnyn narzędziem, pozwalającym opisać dość złożone systemy typów
+		dla takich języków jak \textbf{C++} i \textbf{Haskell}.
+
+	\subsection{Definicja systemu}
+
+		Opiszmy teraz system typów w naszym języku
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash \text{true} : bool}
+		\quad
+
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash \text{false} : bool}
+		\end{mathpar}
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash \text{n} : int}
+
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash \text{c} : char}
+
+		\inferrule
+		  {\Gamma \vdash \diamond}
+		  {\Gamma \vdash \text{x} : float}
+		\end{mathpar}
+
+	Oznaczmy dla $\mathbb{N, R}: \oplus \in \{ =, +, -, *, /, <, >, \le, \ge, ==, \neq, ||, \&\& \}$, wtedy
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash e_l : float \\ \Gamma \vdash e_r : float}
+		  {\Gamma \vdash e_l \oplus e_r : float}
+		\end{mathpar}
+
+		\spacing
+
+	Dodamy do $\oplus$ operacje tylko dla $\mathbb{N}: \oplus \ \cup \ \{ |, \&, \string^, <<, >>, \% \}$, wtedy
+
+		\spacing
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash e_l : int \\ \Gamma \vdash e_r : int}
+		  {\Gamma \vdash e_l \oplus e_r : int}
+
+		\inferrule
+		  {\Gamma \vdash e_l : int \\ \Gamma \vdash e_r : char}
+		  {\Gamma \vdash e_l \oplus e_r : char}
+		\end{mathpar}
+
+		\spacing
+
+		Wprowadźmy reguły niejawnej konwersji, które są niezbędne przy sprawdzaniu w warunku
+		logicznym wyniku operacji arytmetycznej, zwracającej typ różny od
+		\texttt{bool}. Oznaczmy reguły dla typów \texttt{int}, \texttt{char} i \texttt{float}.
+		
+		\begin{mathpar}
+		\inferrule
+			{\Gamma \vdash \text{e} : int}
+			{\Gamma \vdash \text{e} : bool}
+
+		\inferrule
+			{\Gamma \vdash \text{e} : char}
+			{\Gamma \vdash \text{e} : bool}
+
+		\inferrule
+			{\Gamma \vdash \text{e} : float}
+			{\Gamma \vdash \text{e} : bool}
+		\end{mathpar}
+
+		\spacing
+		
+		Wprowadźmy także reguły do operacji wskaźnikowych. Oznaczmy
+		$\oplus \in \{ +, - \}$ i $\tau$ jako wskaźnik dowolnego typu, wtedy
+
+		\begin{mathpar}
+		\inferrule
+			{\Gamma \vdash e_l : \tau \ * \\ \Gamma \vdash e_r : \tau \ *}
+			{\Gamma \vdash e_l \oplus e_r : \tau \ *}
+
+		\inferrule
+			{\Gamma \vdash e_l : \tau \ * \\ \Gamma \vdash e_r : int}
+			{\Gamma \vdash e_l \oplus e_r : \tau \ *}
+
+		\inferrule
+			{\Gamma \vdash e_l : int \\ \Gamma \vdash e_r : \tau \ *}
+			{\Gamma \vdash e_l \oplus e_r : \tau \ *}
+		\end{mathpar}
+
+		Dla $\oplus \in \{ ==, !=, <, >, \le, \ge \}$
+
+		\begin{mathpar}
+		\inferrule
+			{\Gamma \vdash e_l : \tau \ * \\ \Gamma \vdash e_r : \tau \ *}
+			{\Gamma \vdash e_l \oplus e_r : int}
+		\end{mathpar}
+
+		Mając taką konwersję, możemy wprowadzić reguły do konstrukcji warunkowych: 
+
+		\begin{mathpar}
+		\inferrule
+		  {\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e_1 : \tau \\ \Gamma \vdash e_2 : \tau}
+		  {\Gamma \vdash \text{if (condition) } \{ \ e_1 \ \}  \text{ else }  \{ \ e_2 \ \} : \tau}
+
+		\inferrule
+			{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
+			{\Gamma \vdash \text{while (condition) } \{ \ e \ \} : \tau}
+
+		\inferrule
+			{\Gamma \vdash \text{condition} : bool \\ \Gamma \vdash e : \tau}
+			{\Gamma \vdash \text{do } \{ \ e \ \} \text{ while (condition)} : \tau}
+
+		\inferrule
+			{\Gamma \vdash \text{init} : \tau_1 \\
+			 \Gamma \vdash \text{condition} : bool \\
+			 \Gamma \vdash \text{increment} : \tau_2 \\ \Gamma \vdash e : \tau_3}
+			{\Gamma \vdash \text{for (init; condition; increment) } \{ \ e \ \} : \tau_3}
+		\end{mathpar}

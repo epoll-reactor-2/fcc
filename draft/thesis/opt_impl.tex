@@ -1,0 +1,38 @@
+\section{Optymalizacje (implementacja)}
+	\subsection{Unreachable code elimination}
+	
+		Usuwanie kodu nieosiągalnego polega na dwóćh krokach.
+		\begin{itemize}
+			\item Obejście grafu sterowania programu (\textbf{CFG})
+			\item Usuwanie wszystkich instrukcji, do których nie ma żadnych wejściowych krawędzi.
+		\end{itemize}
+		
+		\spacing
+
+		Algorytm polega na zlalezieniu takich \textbf{podgrafów} grafu sterowania programem, do których
+		nie prowadzi żadna z krawędzi.
+
+		\begin{algorithm}
+			\caption{Usuwanie kodu nieosiągalnego}
+			\begin{algorithmic}[1]
+				\Procedure{Eliminate}{CFG}
+					\State Visited $\gets$ $\emptyset$
+					\State \Call{Traverse}{Visited, CFG, First(CFG)}
+					\State Unvisited $\gets$ CFG $\setminus$ Visited
+					\State \Call{Cut}{Unvisited, CFG}
+				\EndProcedure
+				\\
+				\Procedure{Traverse}{Visited, CFG, IR}
+					\State Visited[IR] $\gets$ 1
+					\For{each control flow successor of IR}
+						\State \Call{Traverse}{Visited, CFG, Succ(IR)}
+					\EndFor
+				\EndProcedure
+				\\
+				\Procedure{Cut}{Unvisited, CFG}
+					\For{each unvisited statement}
+						\State Remove statement from IR
+					\EndFor
+				\EndProcedure
+			\end{algorithmic}
+		\end{algorithm}

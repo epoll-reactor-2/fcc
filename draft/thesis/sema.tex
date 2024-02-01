@@ -1,0 +1,66 @@
+\section{Analiza semantyczna}
+
+	Aby zapewnić poprawność napisanego kodu, stosuje się wiele rodzajów analiz. Niniejszy kompilator
+	dysponuje trzema:
+		
+	\begin{itemize}
+		\item Analiza nieużytych zmiennych, oraz zmiennych, które są zdefiniowane, ale nie zostały użyte
+		\item Analiza poprawności typów
+		\item Analiza prawidłowego użycia funkcji
+	\end{itemize}
+	
+	\subsection{Analiza nieużywanych zmiennych}
+		
+		Podamy przykłady kodu prowadzącego do odpowiednich ostrzeżeń
+		
+		\spacing
+
+\begin{lstlisting}[label={lst:warn-unused-var}]
+void f() {
+	int argument = 0; // Warning: unused variable `argument`
+}
+\end{lstlisting}
+
+\begin{lstlisting}[label={lst:warn-unused-var}]
+void f(int argument) { // Warning: unused variable `argument`
+
+}
+\end{lstlisting}
+			
+\begin{lstlisting}[label={lst:warn-unused-var}]
+void f() {
+	int argument = 0;
+	++argument; // Warning: variable `argument` written, but never read
+}
+\end{lstlisting}
+
+	\spacing
+	
+	Rzecz polega na przejściu drzewa syntaksycznego i zwiększania liczników
+	\textbf{read_uses} i \textbf{write_uses} dla każdego węzła typu
+	\textbf{ast_sym}.
+	\\
+	
+	Algorytm operuje na blokach kodu, zawartego w \textbf{\{ ... \}}. Po przejściu każdego bloku
+	(w tym rekurencyjnie), analiza jest wykonana w następujący sposób:
+
+	\begin{algorithm}
+		\caption{Wyszukiwanie nieużywanych zmiennych}
+		\begin{algorithmic}[1]
+
+		\Procedure{Analyze}{AST}
+			\State Set $\gets$ all declarations at current scope depth
+
+			\For{each collected declaration Use in Set}
+				\If{Use is not a function \& Use.ReadUses is 0}
+					\State Emit warning
+				\EndIf
+			\EndFor
+		\EndProcedure
+
+		\end{algorithmic}
+	\end{algorithm}
+
+	Do analizy nieużywanych funkcji stosuje się tem sam algorytm. Jedyne, co jest wtedy zmienione --
+	sprawdzenie, czy nazwa rozpatrywanej funkcji nie jest \textbf{main}. Funkcja \textbf{main} jest
+	wywołana automatycznie.

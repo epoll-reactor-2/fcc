@@ -1,0 +1,164 @@
+\documentclass[leqno, 12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{polski}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{caption}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[fleqn]{amsmath}  % Aligned to left equations.
+\usepackage[a4paper, total={7.5in, 9.5in}]{geometry}
+\usepackage{tabularx}
+\usepackage{geometry}
+\usepackage{syntax}
+\usepackage{fancyhdr}
+\usepackage{mathpartir}
+\usepackage{listings}
+\usepackage[autosize]{dot2texi}
+\usepackage{tikz}
+\usepackage{drawstack}
+
+\usetikzlibrary{automata}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{chains}
+\usetikzlibrary{calc}
+
+\algnewcommand\algorithmicswitch{\textbf{switch}}
+\algnewcommand\algorithmiccase{\textbf{case}}
+\algnewcommand\algorithmicassert{\texttt{assert}}
+\algnewcommand\Assert[1]{\State \algorithmicassert(#1)}%
+% New "environments"
+\algdef{SE}[SWITCH]{Switch}{EndSwitch}[1]{\algorithmicswitch\ #1\ \algorithmicdo}{\algorithmicend\ \algorithmicswitch}%
+\algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
+\algtext*{EndSwitch}%
+\algtext*{EndCase}%
+
+\lstset{
+    xleftmargin    = .2\textwidth,
+    xrightmargin   = .2\textwidth,
+    basicstyle     = \footnotesize\ttfamily,
+    breaklines     = true,
+    linewidth      = 16cm
+}
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering  \let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft \let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\setlength{\textwidth}{7.5in}
+\setlength{\textheight}{10in}
+
+\newcommand{\spacing}{\vskip 0.5cm}
+
+\let\titleoriginal\title           % save original \title macro
+\renewcommand{\title}[1]{          % substitute for a new \title
+    \titleoriginal{#1}%            % define the real title
+    \newcommand{\thetitle}{#1}     % define \thetitle
+}
+
+\lstset{
+	firstnumber = 0,
+	tabsize     = 4,
+    numbers     = left,
+	frame       = none,
+	linewidth   = 1.2\textwidth,
+	xleftmargin = 0.5cm
+}
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+\definecolor{codegreen}{rgb}{0.0,0.6,0.0}
+
+\lstdefinestyle{myStyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    keepspaces=true,                 
+    numbers=left,       
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+}
+
+% Use \lstset to make myStyle the global default
+\lstset{style=myStyle}
+
+\captionsetup{
+    format          = plain,
+    singlelinecheck = false,
+    justification   = raggedright,
+    margin          = {.5cm, 0cm}
+}
+
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+
+\title{Kompilator języka strukturalnego}
+\author{David Korenchuk}
+\date{August, 23, 2023}
+
+\begin{document}
+    \pagestyle{fancy}
+    \lhead{\leftmark}
+    \rhead{\thetitle}
+    
+    \setlength{\parindent}{0pt}
+
+    \maketitle
+	
+	\input{intro}
+	\input{history}
+	\newpage
+	\input{theory}
+	\newpage
+	\input{lex}
+	\input{syntax}
+	\input{sema}
+	\input{types}
+	\input{ir}
+	\input{opt\_theory}
+	\input{opt\_impl}
+	\newpage
+	\input{eval}
+	\newpage
+	\input{bnf}
+	\newpage
+
+	\begin{thebibliography}{9}
+		\bibitem{texbook}
+			https://www.bates.edu/biology/files/2010/06/How-to-Write-Guide-v10-2014.pdf
+		
+		\bibitem{texbook}
+			Bauer, Friedrich Ludwig,
+			\emph{Compiler construction},
+			1974, Berlin,
+			ISBN: 3-540-06958-5
+		
+		\bibitem{texbook}
+			http://lucacardelli.name/papers/typesystems.pdf
+	
+		\bibitem{texbook}
+			https://gcc.gnu.org/onlinedocs/gccint/GIMPLE.html
+
+		\bibitem{texbook}
+			https://llvm.org/docs/LangRef.html
+		
+		\bibitem{texbook}
+			https://clang.llvm.org/docs/IntroductionToTheClangAST.html
+
+		\bibitem{texbook}
+			https://github.com/libfirm/libfirm
+	\end{thebibliography}
+	
+	\newpage
+	
+    \tableofcontents
+
+\end{document}
