@@ -290,17 +290,8 @@ struct ast_num {
 			Niżej pokazany jest przykładowy wynik działania tej funkcji.
 			\\
 	
-\begin{lstlisting}[label={lst:ast-text}]
-CompoundStmt <line:0, col:0>
-  StructDecl <line:9, col:1> `custom`
-	CompoundStmt <line:9, col:1>
-	  VarDecl <line:10, col:5> int `a`
-	  VarDecl <line:11, col:5> int `b`
-	  VarDecl <line:12, col:5> int `c`
-	  ArrayDecl <line:13, col:5> char [1000] `mem`
-	  VarDecl <line:14, col:5> struct string `description`
-\end{lstlisting}
-		
+			\lstinputlisting[label={lst:ast-example}]{code/ast\_example.txt}
+
 		\subsection{Poniżanie poziomu abstrakcji}
 			
 			Niniejszy język zapewnia mechanizm do konwertacji konkretnych
@@ -318,56 +309,14 @@ CompoundStmt <line:0, col:0>
 			
 			Jako przykład podana pętla for \texttt{ForRangeStmt}. Dana konstrukcja i jej AST
 
-			\begin{lstlisting}[label={lst:ast-lower-before}]
-	int array[2];
-	for (int *i : array) {
-		/* Cialo. */
-	}\end{lstlisting}
-		
-			\begin{lstlisting}[label={lst:ast-lower-before-ast}]
-	ArrayDecl <...> int [2] `array`
-	ForRangeStmt <...>
-	  ForRangeIterStmt <...>
-	    VarDecl <...> int * `i`
-	  ForRangeTargetStmt <...>
-	    Symbol <...> `array`
-	  ForRangeStmtBody <...>
-	    CompoundStmt <...>\end{lstlisting}
+			\lstinputlisting[label={lst:ast-code-before-lower}]{code/ast\_src\_before\_lower.txt}
+			\lstinputlisting[label={lst:ast-before-lower}]{code/ast\_before\_lower.txt}
 
-		... przyjmie następującą postać
+			... przyjmie następującą postać
 
-			\begin{lstlisting}[label={lst:ast-lower-before}]
-	int array[2];
-	for (int __i = 0; __i < __2; ++__i) {
-	  int *i = &array_2[__i];
-	  /* Cialo. */
-	}\end{lstlisting}
-
-			\begin{lstlisting}[label={lst:ast-lower-after-ast}]
-	ArrayDecl <...> int [2] `array`
-	ForStmt <...>
-	  ForStmtInit <...>
-	    VarDecl <...> int `__i1`
-	      Number <...> 0
-	  ForStmtCondition <...>
-	    BinaryOperator <...> <
-	      Symbol <...> `__i1`
-	      Number <...> `2`
-	  ForStmtIncrement <...>
-	    Prefix UnaryOperator <...> ++
-	      Symbol <...> `__i1`
-	  ForStmtBody <...>
-	    CompoundStmt <...>
-	      VarDecl <...> int * `i`
-	        Prefix UnaryOperator <...> &
-	          ArrayAccess <...> `array`
-	            Symbol <...> `__i1`
-	      BinaryOperator <...> =
-	        Prefix UnaryOperator <...> *
-	          Symbol <...> `i`
-	        Number <...> 666\end{lstlisting}
-	        
-	        \newpage
+			\lstinputlisting[label={lst:ast-code-after-lower}]{code/ast\_src\_after\_lower.txt}
+			\lstinputlisting[label={lst:ast-after-lower}]{code/ast\_after\_lower.txt}	        
+			\newpage
 
 	        Zauważmy, że często kompilatory podczas zmiany poszczególnych elementów AST
 	        precyzują semantykę poprzez dodanie "ukrytych" węzłów drzewa. Tak Clang
@@ -375,30 +324,5 @@ CompoundStmt <line:0, col:0>
 	        \texttt{InitListExpr} i \texttt{ImplicitCastExpr}. Wtedy ten proces raczej
 	        się nazywa dodaniem semantyki niż poniżaniem poziomu abstrakcji.
 
-	        \begin{lstlisting}[label={lst:ast-lower-after-ast}]
-struct x {
-	long y;
-};
-
-int main() {
-	x xx = { 2 };
-	return xx.y;
-}
-			\end{lstlisting}
-
-	        \begin{lstlisting}[label={lst:ast-lower-after-ast}]
-clang -Xclang -ast-dump program.cpp
-
-`-FunctionDecl 0x555e6d22d9f0 <line:5:1, line:8:1> line:5:5 main 'int ()'
-  `-CompoundStmt 0x555e6d22ddf0 <col:12, line:8:1>
-	|-DeclStmt 0x555e6d22dc80 <line:6:5, col:17>
-	| `-VarDecl 0x555e6d22db50 <col:5, col:16> col:7 used xx 'x':'x' cinit
-	|   `-InitListExpr 0x555e6d22dc20 <col:12, col:16> 'x':'x'
-	|     `-ImplicitCastExpr 0x555e6d22dc68 <col:14> 'long' <IntegralCast>
-	|       `-IntegerLiteral 0x555e6d22dbb8 <col:14> 'int' 2
-	`-ReturnStmt 0x555e6d22dde0 <line:7:5, col:15>
-	  `-ImplicitCastExpr 0x555e6d22dd00 <col:12, col:15> 'int' <IntegralCast>
-	    `-ImplicitCastExpr 0x555e6d22dce8 <col:12, col:15> 'long' <LValueToRValue>
-	      `-MemberExpr 0x555e6d22dcb8 <col:12, col:15> 'long' lvalue .y
-	        `-DeclRefExpr 0x555e6d22dc98 <col:12> 'x':'x' lvalue Var 'xx' 'x':'x'
-			\end{lstlisting}
+			\lstinputlisting[label={lst:ast-src-clang}]{code/ast\_src\_clang.txt}
+			\lstinputlisting[label={lst:ast-clang}]{code/ast\_clang.txt}

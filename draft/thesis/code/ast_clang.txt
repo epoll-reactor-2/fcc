@@ -1,0 +1,14 @@
+clang -Xclang -ast-dump program.cpp
+
+`-FunctionDecl 0x555e6d22d9f0 <line:5:1, line:8:1> line:5:5 main 'int ()'
+  `-CompoundStmt 0x555e6d22ddf0 <col:12, line:8:1>
+	|-DeclStmt 0x555e6d22dc80 <line:6:5, col:17>
+	| `-VarDecl 0x555e6d22db50 <col:5, col:16> col:7 used xx 'x':'x' cinit
+	|   `-InitListExpr 0x555e6d22dc20 <col:12, col:16> 'x':'x'
+	|     `-ImplicitCastExpr 0x555e6d22dc68 <col:14> 'long' <IntegralCast>
+	|       `-IntegerLiteral 0x555e6d22dbb8 <col:14> 'int' 2
+	`-ReturnStmt 0x555e6d22dde0 <line:7:5, col:15>
+	  `-ImplicitCastExpr 0x555e6d22dd00 <col:12, col:15> 'int' <IntegralCast>
+	    `-ImplicitCastExpr 0x555e6d22dce8 <col:12, col:15> 'long' <LValueToRValue>
+	      `-MemberExpr 0x555e6d22dcb8 <col:12, col:15> 'long' lvalue .y
+	        `-DeclRefExpr 0x555e6d22dc98 <col:12> 'x':'x' lvalue Var 'xx' 'x':'x'

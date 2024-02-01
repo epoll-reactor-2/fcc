@@ -1,0 +1,8 @@
+	ArrayDecl <...> int [2] `array`
+	ForRangeStmt <...>
+	  ForRangeIterStmt <...>
+	    VarDecl <...> int * `i`
+	  ForRangeTargetStmt <...>
+	    Symbol <...> `array`
+	  ForRangeStmtBody <...>
+	    CompoundStmt <...>

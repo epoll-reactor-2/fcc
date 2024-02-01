@@ -1,0 +1,4 @@
+	int array[2];
+	for (int *i : array) {
+	    /* Cialo. */
+	}

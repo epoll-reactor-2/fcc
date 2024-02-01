@@ -1,0 +1,8 @@
+struct x {
+	long y;
+};
+
+int main() {
+	x xx = { 2 };
+	return xx.y;
+}
