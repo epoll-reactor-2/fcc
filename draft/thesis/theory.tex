@@ -1,0 +1,51 @@
+\section{Teoria}
+
+	\subsection{Języki formalne}
+
+		Według teorii automatów, automat -- jest to jednostka wykonawcza. Jednostki te, zależnie od swojej
+		struktury i tego, jaki \textbf{język formalny} oni mogą obrobić, dzielą się na klasy.
+		\\
+		
+		Klasy te opisane są \textbf{hierarchią Chomsky’ego}. Mówi ona o tym, że języki formalne dzielą się na
+		4 typy:
+		\begin{itemize}
+			\item Typ 3 -- języki regularne
+			\item Typ 2 -- języki bezkontekstowe
+			\item Typ 1 -- języki kontekstowe
+			\item Typ 0 -- języki rekurencyjnie przeliczalne
+		\end{itemize}
+		
+		\spacing
+
+		Jako przykład języka typu 3 według hierarchii Chomsky'ego można podać wyrażenia regularne. Język ten
+		opisuje się automatem skończonym deterministycznym (DFA). Bardziej szczegółowo wyrażenia regularne będą
+		rozpatrzone w opisaniu analizy leksykalnej.
+		
+	\subsection{Klasyfikacja gramatyczna}
+
+		Niniejszy język nie może być odniesiony do żadnej z klas hierarchii Chomsky'ego, chociaż jest on
+		językiem regularnym. Tak jest dlatego, że można napisać gramatycznie poprawny kod, który jednak prowadzi
+		do błędów kontekstowych i logicznych. Naprzykład 
+		
+		\spacing
+		
+\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
+void f() {
+	return argument + 1;
+}
+\end{lstlisting}
+
+		\spacing
+		
+		Kolejną z przyczyn niemożliwości odniesienia naszego języka do jednej z klas hierarchii Chomsky'ego
+		jest niejednoznaczność konstrukcji językowych. Przykład niżej pokazuje, że nie można jednoznacznie
+		stwierdzić, czy \texttt{data * d} jest deklaracją zmiennej albo operatorem mnożenia dwóch zmiennych.
+		Aby móc poprawnie prowadzić analizę składniową, musimy zadbać o rozróżnienie kontekstu.
+
+		\spacing
+		
+\begin{lstlisting}[caption={}, label={lst:ambigous-production}]
+void f() {
+	data *d;
+}
+\end{lstlisting}

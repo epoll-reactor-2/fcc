@@ -1,0 +1,49 @@
+\section{Interpreter}
+
+	\begin{center}
+		\begin{tabularx}{\textwidth}{ L{9cm} L{9cm} }
+			% https://tex.stackexchange.com/questions/235000/drawing-an-activation-stack-in-latex
+			% https://lpn-doc-sphinx-primer.readthedocs.io/en/latest/extensions/tikz/tikzgoodies.html
+			\begin{tikzpicture}[x=1.05cm,y=0.7cm]
+				\small
+
+				\cell[draw=none]{Stos}
+				\cell[fill=white]{\texttt{call main()}}     \cellcomL{global=0}          \coordinate (p0)    at (currentcell.east);
+				\cell[fill=white]{\texttt{int a = 0}}       \cellcomL{global=4}          \coordinate (p4)    at (currentcell.east);
+				\cell[fill=white]{\texttt{int b = 0}}       \cellcomL{global=8}          \coordinate (p8n1)  at (currentcell.east);
+				\cell[fill=white]{\texttt{call f()}}        \cellcomL{global=8}          \coordinate (p8n2)  at (currentcell.east);
+				\cell[fill=white]{\texttt{int c = 0}}       \cellcomL{global=12,local=4} \coordinate (p12)   at (currentcell.east);
+				\cell[fill=white]{\texttt{int d = 0}}       \cellcomL{global=16,local=8} \coordinate (p16n1) at (currentcell.east);
+				\cell[fill=white]{\texttt{return from f()}} \cellcomL{global=8}          \coordinate (p16n2) at (currentcell.east);
+				\cell[fill=white]{\texttt{return b}}        \cellcomL{global=8}          \coordinate (p16n3) at (currentcell.east);
+				\stackbottom[fill=white]{}
+
+				% todo: Draw from borders.
+				\draw[->] (p16n3) to [bend right=100] (p8n1);
+			\end{tikzpicture}
+			&
+			Interpreter -- program, który produkuje dane wyjściowe zgodnie z zasadami semantycznymi, które
+			są opisane językiem. W naszym przypadku, interpreter przetwarza wygenerowany poprzednio IR.
+			$$$$
+			Niniejszy interpreter działa używając stosu. Jest to struktura danych, pozwalająca dodawać i 
+			usuwać dane tylko z górnej części stosu. Określamy operacje \textbf{push} i \textbf{pop}.
+			Stos, używany przez interpreter jednak wspiera przegląd wartości o dowolnej pozycji w stosie.
+		\end{tabularx}
+	\end{center}
+	
+	Aby zarządzać pamięcią podczas wykonania, musimy zdecydować, na jaki sposób zaimplementować
+	\textbf{adresację} zmiennych. Jest to operacja, która utożsamia nazwę zmiennej z jej adresem w pamięci.
+	Istineije dwie możliości
+	\\
+	
+	\textbf{Statyczna alokacja pamięci} -- sposób adresacji, przy którym adres każdej zmiennej określony
+	jednoznacznie. Jest użyteczna do początkowych wersji ALGOL i COBOL, które nie wspierają rekurencyjne
+	wywołania funckji.
+	\\
+	
+	\textbf{Dynamiczna alokacja pamięci} -- spobób adresacji, przy którym niemożliwe jest obliczenie
+	fizycznego adresu zmienneij, skoro stworzona ona może być w funkcji, wywołanej przez inną funkcję
+	bądź samą siebie. Naprzykład, dana funkcja \textbf{f()}, która definiuje zmienną \textbf{i}, i
+	załóżmy, że wywoła ona się rekurencyjnie. Wtedy podczas pierwszego wywołania zmienna \textbf{i}
+	będzie miała adres \textbf{0x00}. Podczas drugiego wywołania \textbf{0x04}, dalej \textbf{0x08},
+	\textbf{0x0C}, ...

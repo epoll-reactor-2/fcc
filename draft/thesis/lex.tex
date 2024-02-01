@@ -1,0 +1,122 @@
+\section{Analiza leksykalna}
+
+	Jednym ze sposobów na sprowadzanie kodu źródłowego do postaći listy tokenów jest narzędzie flex.
+	Przyjmuje ono zestaw reguł w postaći wyrażeń regularnych, według których
+	działa rozbicie tekstu wejściowego. Można jednak ominąć lex i zaimplemenetować lexer ręcznie, ale
+	ta praca nie skupia się na tym.
+
+	\subsection{Wyrażenia regularne}
+
+		Wyrażenie regularne -- łańcuch znaków, zawierający pewne polecenia do wyszukiwania tekstu.
+		\\
+
+		Mówimy, że wyrażenie regularne określone nad alfabetem $\Sigma$, jeżeli zachodzą następujące
+		warunki:
+
+		\begin{itemize}
+			\item $\emptyset$ -- wyrażenie regularne, reprezentujące pusty zbiór.
+			\item $\epsilon$ -- wyrażenie regularne, reprezentujące pusty łańcuch.
+			\item $\forall_{a \in \Sigma}$, $a$ reprezentuje jeden znak.
+			\item Warunek indukcyjny: jeżeli $R_1, R_2$ -- wyrażenia regularne, $(R_1 R_2)$
+			      stanowi konkatenację $R_1$ i $R_2$.
+	      	\item Warunek indukcyjny: jeżeli $R$ -- wyrażenie regularne, $R*$ stanowi domknięcie Kleene'ego. 
+		\end{itemize}
+
+		\spacing
+
+		W rzeczywistości, takich zasad może być więcej.
+		\\
+
+		Zazwyczaj wyrażenie regularne jest realizowane za pomocą DFA (Deterministic finite automaton,
+		Deterministyczny automat skończony).
+		Lex sprowadza podany zbiór zasad do takiego automatu.
+		\\
+
+		Podamy przykład automatu dla wyrażenia \texttt{-?[0-9]+}
+		
+		\spacing
+		\spacing
+
+		\begin{center}
+		\begin{tikzpicture}[node distance=4cm]
+			\node[state, initial, accepting] (0) {0};
+			\node[state, right of=0]         (1) {1};
+			\node[state, right of=1]         (2) {2};
+			\draw
+			(0) edge[       bend left ]             (1)
+			(0) edge[below, bend right] node{$-$}   (1)
+			(1) edge[below            ] node{$0-9$} (2)
+			(2) edge[loop below       ] node{$0-9$} (2)
+			;
+		\end{tikzpicture}
+		\end{center}
+		
+		Aby odśledzić wykonane kroki, można wypełnić tabelę przejść pomiędzy stanami. Podamy przykład dla
+		łańcucha \texttt{-22}
+
+		\spacing
+		\spacing
+
+	\begin{center}
+		\setlength{\tabcolsep}{0.5em}
+		\renewcommand{\arraystretch}{1.2}
+		\begin{tabular}{ | L{3cm} | L{4cm} | }
+			\hline
+			Biężący stan        & Akcja \\
+			\hline
+			\textbf{0}          & zaakceptować - \\
+			\hline
+			0, \textbf{1}       & zaakceptować 2 \\
+			\hline
+			0, 1, \textbf{2}    & zaakceptować 2 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	\newpage
+
+\subsection{Flex}
+
+	Flex jest narzędziem projektu GNU. Pozwala ono w wygodny sposób podać listę reguł dla analizy
+	leksykalnej (ang. Scanning). Flex jest mocno powiązany z językiem C, dlatego program w flex'u
+	korzysta z konstrukcji języka C. Pokażemy przykład użycia flex'u
+	
+	\spacing
+	
+\begin{lstlisting}
+%{
+#include "portrzebny-do-analizy-plik.h"
+
+/* Kod w jezyku C. */
+%}
+
+/* Opcje flex */
+%option noyywrap nounput noinput
+%option yylineno
+
+%% /* Reguly w postaci wyrazen regularnych. */
+
+/*********************************************************************/
+/* Wzorzec                   | Akcja przy znalezieniu takiego wzorcu */
+/*********************************************************************/
+-?[0-9]+                       LEX_CONSUME_WORD(TOK_INTEGRAL_LITERAL)
+-?[0-9]+\.[0-9]+               LEX_CONSUME_WORD(TOK_FLOATING_POINT_LITERAL)
+\"([^\"\\]*(\\.[^\"\\]*)*)\"   LEX_CONSUME_WORD(TOK_STRING_LITERAL)
+\'.\'                          LEX_CONSUME_WORD(TOK_CHAR_LITERAL)
+
+.                              { /* Znaleziony niewiadomy znak.
+                                    Zglosic blad.
+                                  */ }
+%%
+\end{lstlisting}
+
+	\spacing
+	
+	Zauważmy, że flex próbuje szukać wzorców w tekscie dokładnie w takiej kolejności, która jest podana w
+	jego kodzie. Dlatego często robią ostatnią regułe z wyrażeniem regularnym ".", który akceptuje
+	dowolny znak, i umieszczają tam komunikat o błędzie.
+	\\
+
+	W naszym przypadku, lex generuje kod, który gromadzi wszystkie znalezione lexemy do tablicy.
+
+	\newpage
