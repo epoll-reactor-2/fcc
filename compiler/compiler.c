@@ -32,10 +32,9 @@ void tokens_cleanup(tok_array_t *toks)
 }
 
 
-/* ==========================
-   Generators.
-   ========================== */
-
+/**********************************************
+ **             Generators                   **
+ **********************************************/
 tok_array_t *gen_tokens(const char *filename)
 {
     lex_reset_state();
@@ -66,10 +65,10 @@ struct ir_unit gen_ir(const char *filename)
     return ir_gen(gen_ast(filename));
 }
 
-/* ==========================
-   Stringify.
-   ========================== */
 
+/**********************************************
+ **              Stringify                   **
+ **********************************************/
 void dump_tokens(tok_array_t *toks)
 {
     printf(
@@ -100,10 +99,10 @@ void dump_ir(struct ir_unit *ir)
     ir_dump_unit(stdout, ir);
 }
 
-/* ==========================
-   Interpreter.
-   ========================== */
 
+/**********************************************
+ **             Interpreter                  **
+ **********************************************/
 void opt(struct ir_unit *ir)
 {
     struct ir_node *it = ir->fn_decls;
@@ -135,10 +134,10 @@ void run_backend(const char *filename)
 }
 #endif /* CONFIG_USE_BACKEND_X86_64 */
 
-/* ==========================
-   Driver code.
-   ========================== */
 
+/**********************************************
+ **             Driver code                  **
+ **********************************************/
 void parse_cmdline(int argc, char *argv[])
 {
     bool  tokens = 0;

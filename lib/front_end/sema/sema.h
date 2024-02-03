@@ -14,4 +14,8 @@ struct ast_node;
     1. Replace range-based for loop with usual. */
 void sema_lower(struct ast_node **ast);
 
+/** Supplement AST with implicit type
+    conversions. */
+void sema_type_implicit(struct ast_node **ast);
+
 #endif // WEAK_COMPILER_FRONTEND_SEMA_H
