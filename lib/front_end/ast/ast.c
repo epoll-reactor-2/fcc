@@ -10,7 +10,7 @@
 
 
 /**********************************************
- **              Array access               ***
+ **              Array access                **
  **********************************************/
 struct ast_node *ast_array_access_init(char *name, struct ast_node *indices, uint16_t line_no, uint16_t col_no)
 {
@@ -29,7 +29,7 @@ void ast_array_access_cleanup(struct ast_array_access *ast)
 
 
 /**********************************************
- **              Array declaration          ***
+ **              Array declaration           **
  **********************************************/
 struct ast_node *ast_array_decl_init(
     enum data_type   dt,
@@ -63,7 +63,7 @@ void ast_array_decl_cleanup(struct ast_array_decl *ast)
 
 
 /**********************************************
- **              Binary expression          ***
+ **              Binary expression           **
  **********************************************/
 struct ast_node *ast_binary_init(
     enum token_type  op,
@@ -88,7 +88,7 @@ void ast_binary_cleanup(struct ast_binary *ast)
 
 
 /**********************************************
- **              Boolean                    ***
+ **              Boolean                     **
  **********************************************/
 struct ast_node *ast_bool_init(bool value, uint16_t line_no, uint16_t col_no)
 {
@@ -104,7 +104,7 @@ void ast_bool_cleanup(struct ast_bool *ast)
 
 
 /**********************************************
- **              Break statement            ***
+ **              Break statement             **
  **********************************************/
 struct ast_node *ast_break_init(uint16_t line_no, uint16_t col_no)
 {
@@ -119,7 +119,7 @@ void ast_break_cleanup(struct ast_break *ast)
 
 
 /**********************************************
- **              Character                  ***
+ **              Character                   **
  **********************************************/
 struct ast_node *ast_char_init(char value, uint16_t line_no, uint16_t col_no)
 {
@@ -135,7 +135,7 @@ void ast_char_cleanup(struct ast_char *ast)
 
 
 /**********************************************
- **              Compound statement         ***
+ **              Compound statement          **
  **********************************************/
 struct ast_node *ast_compound_init(
     uint64_t          size,
@@ -160,7 +160,7 @@ void ast_compound_cleanup(struct ast_compound *ast)
 
 
 /**********************************************
- **              Continue statement         ***
+ **              Continue statement          **
  **********************************************/
 struct ast_node *ast_continue_init(uint16_t line_no, uint16_t col_no)
 {
@@ -175,7 +175,7 @@ void ast_continue_cleanup(struct ast_continue *ast)
 
 
 /**********************************************
- **              Do while                   ***
+ **              Do while                    **
  **********************************************/
 struct ast_node *ast_do_while_init(
     struct ast_node *body,
@@ -198,7 +198,7 @@ void ast_do_while_cleanup(struct ast_do_while *ast)
 
 
 /**********************************************
- **          Floating point literal         ***
+ **          Floating point literal          **
  **********************************************/
 struct ast_node *ast_float_init(double value, uint16_t line_no, uint16_t col_no)
 {
@@ -214,7 +214,7 @@ void ast_float_cleanup(struct ast_float *ast)
 
 
 /**********************************************
- **              For statement              ***
+ **              For statement               **
  **********************************************/
 struct ast_node *ast_for_init(
     struct ast_node *init,
@@ -243,7 +243,7 @@ void ast_for_cleanup(struct ast_for *ast)
 
 
 /**********************************************
- **           Range for statement           ***
+ **           Range for statement            **
  **********************************************/
 struct ast_node *ast_for_range_init(
     struct ast_node *iter,
@@ -269,7 +269,7 @@ void ast_for_range_cleanup(struct ast_for_range *ast)
 
 
 /**********************************************
- **              Function call              ***
+ **              Function call               **
  **********************************************/
 struct ast_node *ast_fn_call_init(
     char            *name,
@@ -292,7 +292,7 @@ void ast_fn_call_cleanup(struct ast_fn_call *ast)
 
 
 /**********************************************
- **              Function declaration       ***
+ **              Function declaration        **
  **********************************************/
 struct ast_node *ast_fn_decl_init(
     enum data_type   data_type,
@@ -322,7 +322,7 @@ void ast_fn_decl_cleanup(struct ast_fn_decl *ast)
 
 
 /**********************************************
- **              If statement               ***
+ **              If statement                **
  **********************************************/
 struct ast_node *ast_if_init(
     struct ast_node *condition,
@@ -349,7 +349,7 @@ void ast_if_cleanup(struct ast_if *ast)
 
 
 /**********************************************
- **              Structure access           ***
+ **              Structure access            **
  **********************************************/
 struct ast_node *ast_member_init(
     struct ast_node *structure,
@@ -371,7 +371,7 @@ void ast_member_cleanup(struct ast_member *ast)
 }
 
 /**********************************************
- **              Integral literal           ***
+ **              Integral literal            **
  **********************************************/
 struct ast_node *ast_num_init(int32_t value, uint16_t line_no, uint16_t col_no)
 {
@@ -387,7 +387,7 @@ void ast_num_cleanup(struct ast_num *ast)
 
 
 /**********************************************
- **              Return statement           ***
+ **              Return statement            **
  **********************************************/
 struct ast_node *ast_ret_init(struct ast_node *op, uint16_t line_no, uint16_t col_no)
 {
@@ -405,13 +405,13 @@ void ast_ret_cleanup(struct ast_ret *ast)
 
 
 /**********************************************
- **              String literal             ***
+ **              String literal              **
  **********************************************/
 struct ast_node *ast_string_init(
     uint64_t  len,
     char     *value,
     uint16_t  line_no,
-    uint16_t col_no
+    uint16_t  col_no
 ) {
     struct ast_string *ast = weak_calloc(1, sizeof (struct ast_string));
     ast->len = len;
@@ -427,7 +427,7 @@ void ast_string_cleanup(struct ast_string *ast)
 
 
 /**********************************************
- **          Structure declaration          ***
+ **          Structure declaration           **
  **********************************************/
 struct ast_node *ast_struct_decl_init(char *name, struct ast_node *decls, uint16_t line_no, uint16_t col_no)
 {
@@ -446,7 +446,7 @@ void ast_struct_decl_cleanup(struct ast_struct_decl *ast)
 
 
 /**********************************************
- **              Symbol                     ***
+ **              Symbol                      **
  **********************************************/
 struct ast_node *ast_sym_init(char *value, uint16_t line_no, uint16_t col_no)
 {
@@ -463,7 +463,7 @@ void ast_sym_cleanup(struct ast_sym *ast)
 
 
 /**********************************************
- **              Unary statement            ***
+ **              Unary statement             **
  **********************************************/
 struct ast_node *ast_unary_init(
     enum ast_type    type,
@@ -490,7 +490,7 @@ void ast_unary_cleanup(struct ast_unary *ast)
 
 
 /**********************************************
- **              Variable declaration       ***
+ **              Variable declaration        **
  **********************************************/
 struct ast_node *ast_var_decl_init(
     enum data_type   dt,
@@ -523,13 +523,13 @@ void ast_var_decl_cleanup(struct ast_var_decl *ast)
 
 
 /**********************************************
- **              While statement            ***
+ **              While statement             **
  **********************************************/
 struct ast_node *ast_while_init(
     struct ast_node *cond,
     struct ast_node *body,
     uint16_t         line_no,
-    uint16_t col_no
+    uint16_t         col_no
 ) {
     struct ast_while *ast = weak_calloc(1, sizeof (struct ast_while));
     ast->cond = cond;
@@ -546,7 +546,7 @@ void ast_while_cleanup(struct ast_while *ast)
 
 
 /**********************************************
- **              AST Node                   ***
+ **              AST Node                    **
  **********************************************/
 struct ast_node *ast_node_init(enum ast_type type, void *ast, uint16_t line_no, uint16_t col_no)
 {
@@ -557,6 +557,31 @@ struct ast_node *ast_node_init(enum ast_type type, void *ast, uint16_t line_no, 
     node->col_no = col_no;
     return node;
 }
+
+
+/**********************************************
+ **              Implicit cast               **
+ **********************************************/
+wur struct ast_node *ast_implicit_cast_init(
+    enum data_type   from,
+    enum data_type   to,
+    struct ast_node *body,
+    uint16_t         line_no,
+    uint16_t         col_no
+) {
+    struct ast_implicit_cast *ast = weak_calloc(1, sizeof (struct ast_implicit_cast));
+    ast->from = from;
+    ast->to = to;
+    ast->body = body;
+    return ast_node_init(AST_IMPLICIT_CAST, ast, line_no, col_no);
+}
+
+void ast_implicit_cast_cleanup(struct ast_implicit_cast *ast)
+{
+    ast_node_cleanup(ast->body);
+    weak_free(ast);
+}
+
 
 void ast_node_cleanup(struct ast_node *ast)
 {
@@ -634,6 +659,9 @@ void ast_node_cleanup(struct ast_node *ast)
         break;
     case AST_FUNCTION_CALL:
         ast_fn_call_cleanup(ast->ast);
+        break;
+    case AST_IMPLICIT_CAST:
+        ast_implicit_cast_cleanup(ast->ast);
         break;
     default:
         weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
