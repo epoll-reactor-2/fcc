@@ -31,7 +31,7 @@ bool ir_test(const char *path, const char *filename)
         /* NOTE: CFG is not strictly needed there. */
         struct ir_unit ir = gen_ir(path);
 
-        extract_assertion_comment(yyin, expected_stream);
+        get_init_comment(yyin, expected_stream, NULL);
 
         ir_dump_unit(generated_stream, &ir);
         fflush(generated_stream);

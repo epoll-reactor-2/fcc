@@ -32,7 +32,7 @@ bool ir_test(const char *path, const char *filename)
         unit = gen_ir(path);
         ir_type_pass(unit);
 
-        extract_assertion_comment(yyin, expected_stream);
+        get_init_comment(yyin, expected_stream, NULL);
 
         /* ir_dump_unit(stdout, ir); */
 

@@ -56,8 +56,10 @@ void tokens_cleanup(tok_array_t *toks)
    // c.
    String "A,\nb,\nc." will be issued in output stream.
 
-   NOTE: Requires opened `yyin` stream. */
-void extract_assertion_comment(FILE *in, FILE *out)
+   NOTE: Requires opened `yyin` stream.
+   NOTE: If `filename` is not null, appends
+         it to generate full compiler report. */
+void get_init_comment(FILE *in, FILE *out, const char *filename)
 {
     char   *line = NULL;
     size_t  len  = 0;
@@ -68,29 +70,8 @@ void extract_assertion_comment(FILE *in, FILE *out)
             continue;
 
         if (strncmp(line, "//", 2) == 0) {
-            char *ptr = line + 2;
-            while (*ptr != '\n' && *ptr != '\0') {
-                fputc(*ptr++, out);
-            }
-            fputc('\n', out);
-        }
-    }
-    free(line);
-    fflush(out);
-}
-
-void extract_compiler_messages(const char *filename, FILE *in, FILE *out)
-{
-    char   *line = NULL;
-    size_t  len  = 0;
-    ssize_t read = 0;
-
-    while ((read = getline(&line, &len, in)) != -1) {
-        if (read <= 3)
-            continue;
-
-        if (strncmp(line, "//", 2) == 0) {
-            fprintf(out, "%s: ", filename);
+            if (filename)
+                fprintf(out, "%s: ", filename);
 
             char *ptr = line + 2;
             while (*ptr != '\n' && *ptr != '\0') {
@@ -101,9 +82,11 @@ void extract_compiler_messages(const char *filename, FILE *in, FILE *out)
     }
     free(line);
     fflush(out);
+
+    fseek(in, 0, SEEK_SET);
 }
 
-void set_cwd(char cwd[static 512], const char *tests_dir)
+void set_cwd(char cwd[512], const char *tests_dir)
 {
     if (!getcwd(cwd, 512))
         weak_unreachable("Cannot get current dir: %s", strerror(errno));
@@ -215,11 +198,17 @@ tok_array_t *gen_tokens(const char *filename)
     return lex_consumed_tokens();
 }
 
-struct ir_unit gen_ir(const char *filename)
+struct ast_node *gen_ast(const char *filename)
 {
     tok_array_t *tokens = gen_tokens(filename);
-
     struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);
+    tokens_cleanup(tokens);
+    return ast;
+}
+
+struct ir_unit gen_ir(const char *filename)
+{
+    struct ast_node *ast = gen_ast(filename);
 
     /* Preconditions for IR generator. */
     analysis_variable_use_analysis(ast);
@@ -227,7 +216,6 @@ struct ir_unit gen_ir(const char *filename)
     analysis_type_analysis(ast);
 
     struct ir_unit unit = ir_gen(ast);
-    tokens_cleanup(tokens);
     ast_node_cleanup(ast);
     return unit;
 }
