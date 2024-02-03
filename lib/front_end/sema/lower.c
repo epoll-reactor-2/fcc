@@ -420,7 +420,7 @@ static void visit(struct ast_node **ast)
     }
 }
 
-void ast_lower(struct ast_node **ast)
+void sema_lower(struct ast_node **ast)
 {
     storage_init();
     visit(ast);

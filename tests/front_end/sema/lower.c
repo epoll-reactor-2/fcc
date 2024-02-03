@@ -1,5 +1,5 @@
-/* ast_lower.c - Test case for AST lowering.
- * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
+/* lower.c - Test case for AST lowering.
+ * Copyright (C) 2024 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
@@ -8,6 +8,7 @@
 #include "front_end/ast/ast_dump.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
+#include "front_end/sema/sema.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdbool.h>
@@ -35,7 +36,7 @@ bool lower_test(const char *path, const char *filename)
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ast_node *ast = gen_ast(path);
-        ast_lower(&ast);
+        sema_lower(&ast);
         ast_dump(dump_stream, ast);
 
         ast_node_cleanup(ast);
@@ -74,7 +75,7 @@ int main()
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
-    if (!do_on_each_file("/test_inputs/ast_lower", lower_test)) {
+    if (!do_on_each_file("/test_inputs/lower", lower_test)) {
         ret = -1;
 
         if (err_buf)
@@ -91,4 +92,3 @@ int main()
 
     return ret;
 }
-    
