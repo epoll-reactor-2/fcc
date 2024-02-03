@@ -83,7 +83,7 @@
 		Wprowadźmy reguły niejawnej konwersji, które są niezbędne przy sprawdzaniu w warunku
 		logicznym wyniku operacji arytmetycznej, zwracającej typ różny od
 		\texttt{bool}. Oznaczmy reguły dla typów \texttt{int}, \texttt{char} i \texttt{float}.
-		
+
 		\begin{mathpar}
 		\inferrule
 			{\Gamma \vdash \text{e} : int}
@@ -100,6 +100,60 @@
 
 		\spacing
 		
+		Oznaczmy konwersję każdego typu z każdym
+
+		\begin{mathpar}
+			\inferrule
+				{\Gamma \vdash \text{e} : int}
+				{\Gamma \vdash \text{e} : float}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : int}
+				{\Gamma \vdash \text{e} : char}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : int}
+				{\Gamma \vdash \text{e} : bool}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : float}
+				{\Gamma \vdash \text{e} : int}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : float}
+				{\Gamma \vdash \text{e} : char}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : float}
+				{\Gamma \vdash \text{e} : bool}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : char}
+				{\Gamma \vdash \text{e} : int}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : char}
+				{\Gamma \vdash \text{e} : float}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : char}
+				{\Gamma \vdash \text{e} : bool}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : bool}
+				{\Gamma \vdash \text{e} : float}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : bool}
+				{\Gamma \vdash \text{e} : int}
+
+			\inferrule
+				{\Gamma \vdash \text{e} : bool}
+				{\Gamma \vdash \text{e} : char}
+		\end{mathpar}
+
+		\spacing
+
 		Wprowadźmy także reguły do operacji wskaźnikowych. Oznaczmy
 		$\oplus \in \{ +, - \}$ i $\tau$ jako wskaźnik dowolnego typu, wtedy
 
