@@ -23,8 +23,6 @@ void *diag_warn_memstream = NULL;
 
 void (*sema_fn)(struct ast_node **);
 
-char current_output_dir[128];
-
 /* Parse file and compare result with expected.
    \return 1 on success, 0 on failure. */
 bool sema_test(const char *path, const char *filename)
@@ -77,8 +75,6 @@ int run(const char *dir)
     int  ret       =  0;
     char path[256] = {0};
     snprintf(path, sizeof (path) - 1, "/test_inputs/%s", dir);
-
-    cfg_dir(dir, current_output_dir);
 
     if (!do_on_each_file(path, sema_test)) {
         ret = -1;
