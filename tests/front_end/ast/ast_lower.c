@@ -33,17 +33,14 @@ bool lower_test(const char *path, const char *filename)
     FILE   *ast_stream  = open_memstream(&expected, &_);
     FILE   *dump_stream = open_memstream(&generated, &_);
 
-    tok_array_t *tokens = gen_tokens(path);
-
-    extract_assertion_comment(yyin, ast_stream);
-
     if (!setjmp(weak_fatal_error_buf)) {
-        struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);
+        struct ast_node *ast = gen_ast(path);
         ast_lower(&ast);
         ast_dump(dump_stream, ast);
 
         ast_node_cleanup(ast);
 
+        get_init_comment(yyin, ast_stream, NULL);
         if (strcmp(expected, generated) != 0) {
             printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
             ok = 0;
@@ -58,7 +55,6 @@ bool lower_test(const char *path, const char *filename)
 exit:
     fclose(yyin);
     yylex_destroy();
-    tokens_cleanup(tokens);
     fclose(ast_stream);
     fclose(dump_stream);
     free(expected);

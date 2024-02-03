@@ -39,11 +39,9 @@ bool analysis_test(const char *path, const char *filename)
     size_t  _           = 0;
     FILE   *msg_stream  = open_memstream(&msg, &_);
 
-    tok_array_t *tokens = gen_tokens(path);
+    struct ast_node *ast = gen_ast(path);
 
-    extract_compiler_messages(path, yyin, msg_stream);
-
-    struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);
+    get_init_comment(yyin, msg_stream, path);
 
     if (!setjmp(weak_fatal_error_buf)) {
         analysis_fn(ast);
@@ -77,7 +75,6 @@ bool analysis_test(const char *path, const char *filename)
 
 exit:
     ast_node_cleanup(ast);
-    tokens_cleanup(tokens);
     yylex_destroy();
     fclose(msg_stream);
     free(msg);
@@ -108,7 +105,7 @@ int main()
 
     analysis_fn = analysis_type_analysis;
     ignore_warns = 1;
-    if (!do_on_each_file("/test_inputs/type_ana", analysis_test))
+    if (!do_on_each_file("/test_inputs/type_errors", analysis_test))
         return -1;
 
     return 0;

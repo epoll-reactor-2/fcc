@@ -59,7 +59,7 @@ bool ir_test(const char *path, const char *filename)
         struct ir_unit  ir = gen_ir(path);
         struct ir_node *it = ir.fn_decls;
 
-        extract_assertion_comment(yyin, expected_stream);
+        get_init_comment(yyin, expected_stream, NULL);
 
         while (it) {
             struct ir_fn_decl *decl = it->ir;
