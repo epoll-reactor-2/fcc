@@ -1,10 +1,11 @@
-/* range.c - Range to regular for statement conversion.
- * Copyright (C) 2022 epoll-reactor <glibcxx.chrono@gmail.com>
+/* lower.c - AST abstraction level lowering.
+ * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
 #include "front_end/ast/ast.h"
+#include "front_end/sema/sema.h"
 #include "util/alloc.h"
 #include "util/hashmap.h"
 #include "util/crc32.h"

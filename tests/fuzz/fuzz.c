@@ -18,10 +18,9 @@
 #include "utils/test_utils.h"
 #include <unistd.h>
 
-/* ==========================
-   Configuration.
-   ========================== */
-
+/**********************************************
+ **              Configuration               **
+ **********************************************/
 #define COMPLEX_STMT_LIMIT   \
     { static int limit = 0;  \
       if (limit++ >= 150)    \
@@ -44,11 +43,9 @@ static void fprintf_n(FILE *stream, uint32_t count, char c)
 }
 
 
-
-/* ==========================
-   Source generator.
-   ========================== */
-
+/**********************************************
+ **           Source generator               **
+ **********************************************/
 #define __rand_array_entry(x) (x[rand() % (sizeof ((x)) / sizeof (*(x)))])
 
 struct random_type {
@@ -480,10 +477,9 @@ void fuzz_print_source()
 
 
 
-/* ==========================
-   Driver code.
-   ========================== */
-
+/**********************************************
+ **             Driver code                  **
+ **********************************************/
 void compile(tok_array_t *tokens)
 {
     struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);

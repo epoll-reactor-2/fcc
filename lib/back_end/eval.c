@@ -19,9 +19,10 @@
 
 #define STACK_SIZE_BYTES 32768
 
-/* ==========================
-   Stack routines.
-   ========================== */
+
+/**********************************************
+ **             Stack routines               **
+ **********************************************/
 
 /* sp -- stack pointer
    bp -- base pointer (callee-save) */
@@ -90,10 +91,9 @@ static inline struct value get(uint64_t sym_idx, struct type *traits)
 
 
 
-/* ==========================
-   Instructions routines.
-   ========================== */
-
+/**********************************************
+ **        Instructions routines             **
+ **********************************************/
 static void call_eval(struct ir_fn_call *call);
 static void instr_eval(struct ir_node *ir);
 
@@ -464,9 +464,9 @@ static void instr_eval(struct ir_node *ir)
 
 
 
-/* ==========================
-   Call stack.
-   ========================== */
+/**********************************************
+ **               Call stack                 **
+ **********************************************/
 
 /* Important notice about drawing stacks in LaTeX
    https://tex.stackexchange.com/questions/235000/drawing-an-activation-stack-in-latex */
@@ -514,10 +514,9 @@ static void call_stack_tail()
 
 
 
-/* ==========================
-   Functions routines.
-   ========================== */
-
+/**********************************************
+ **           Functions routines             **
+ **********************************************/
 static hashmap_t funs;
 
 static void fun_list_init(struct ir_node *ir)
@@ -631,10 +630,9 @@ static void call_eval(struct ir_fn_call *fcall)
 
 
 
-/* ==========================
-   Driver code.
-   ========================== */
-
+/**********************************************
+ **               Driver code                **
+ **********************************************/
 int32_t eval(struct ir_unit *unit)
 {
     reset();

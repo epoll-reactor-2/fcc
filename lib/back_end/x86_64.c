@@ -11,10 +11,9 @@
 #include <string.h>
 #include <sys/syscall.h>
 
-/* ==========================
-   Printers.
-   ========================== */
-
+/**********************************************
+ **                Printers                  **
+ **********************************************/
 static FILE *code_stream;
 
 unused static void report(const char *msg)
@@ -31,10 +30,9 @@ fmt(1, 2) static void emit(const char *fmt, ...)
     va_end(args);
 }
 
-/* ==========================
-   Register selection routines.
-   ========================== */
-
+/**********************************************
+ **        Register selection routines       **
+ **********************************************/
 unused static const char *cdecl_reg(int arg_idx)
 {
     switch (arg_idx) {
@@ -69,10 +67,9 @@ unused static struct x86_64_reg regs[] = {
     { "r15", 1 },
 };
 
-/* ==========================
-   Code generation routines.
-   ========================== */
-
+/**********************************************
+ **        Code generation routines          **
+ **********************************************/
 static void emit_alloca(struct ir_alloca *ir)
 {
     (void) ir;
@@ -202,10 +199,9 @@ static void emit_header()
     );
 }
 
-/* ==========================
-   Driver code.
-   ========================== */
-
+/**********************************************
+ **                Driver code               **
+ **********************************************/
 void x86_64_gen(FILE *stream, struct ir_unit *unit)
 {
     (void) unit;
