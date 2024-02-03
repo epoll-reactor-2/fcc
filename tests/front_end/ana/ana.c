@@ -93,22 +93,22 @@ int main()
 {
     analysis_fn = analysis_functions_analysis;
     ignore_warns = 1;
-    if (!do_on_each_file("/test_inputs/function_analysis", analysis_test))
+    if (!do_on_each_file("/test_inputs/fn_ana", analysis_test))
         return -1;
 
     analysis_fn = analysis_variable_use_analysis;
     ignore_warns = 1;
-    if (!do_on_each_file("/test_inputs/variable_use_analysis/errors", analysis_test))
+    if (!do_on_each_file("/test_inputs/var_ana/errors", analysis_test))
         return -1;
 
     analysis_fn = analysis_variable_use_analysis;
     ignore_warns = 0;
-    if (!do_on_each_file("/test_inputs/variable_use_analysis/warns", analysis_test))
+    if (!do_on_each_file("/test_inputs/var_ana/warns", analysis_test))
         return -1;
 
     analysis_fn = analysis_type_analysis;
     ignore_warns = 1;
-    if (!do_on_each_file("/test_inputs/type_analysis", analysis_test))
+    if (!do_on_each_file("/test_inputs/type_ana", analysis_test))
         return -1;
 
     return 0;
