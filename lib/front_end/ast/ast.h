@@ -503,11 +503,6 @@ wur struct ast_node *ast_while_init(
 );
 void ast_while_cleanup(struct ast_while *ast);
 
-/** Decrease abstraction level of AST.
-   
-    1. Replace range-based for loop with usual. */
-void ast_lower(struct ast_node **ast);
-
 
 /**********************************************
  **              Implicit cast               **
