@@ -56,7 +56,7 @@ endif
 all: dir library test_suite driver
 
 dir:
-	@if ! [[ -d build ]]; then \
+	@if ! [ -d build ]; then \
 		mkdir build; \
 		flex --outfile=build/lex.yy.c lex/grammar.lex; \
 	fi
