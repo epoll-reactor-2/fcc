@@ -8,12 +8,9 @@ variables:
 before_script:
   - apt-get update --yes
   - apt-get install --yes flex gcc cmake
-  - mkdir build
-  - cd build
 
 build_project:
   stage: build
   script:
-    - cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE ..
-    - cmake --build . --parallel
+    - make
     - make test

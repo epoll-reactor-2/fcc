@@ -67,6 +67,6 @@ $(FUZZER_OBJ): $(FUZZER_SRC)
 test:
 	@for file in $(shell find ../build -executable -name '*_test' -printf "./%f\n"); do \
 		 (cd ../build; LD_LIBRARY_PATH=. $$file && \
-		 ([[ $$? -eq 0 ]] && echo "OK") || \
-		 ([[ $$? -ne 0 ]] && echo "Test failed. Interrupt the rest."; kill -KILL $$$$);) \
+		 ([ $$? -eq 0 ] && echo "OK") || \
+		 ([ $$? -ne 0 ] && echo "Test failed. Interrupt the rest."; kill -KILL $$$$);) \
 	 done
