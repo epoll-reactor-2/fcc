@@ -457,6 +457,21 @@ static void visit_do_while(FILE *mem, struct ast_node *ast)
     ast_indent -= 2;
 }
 
+static void visit_implicit_cast(FILE *mem, struct ast_node *ast)
+{
+    struct ast_implicit_cast *stmt = ast->ast;
+
+    ast_print(mem, ast, "ImplicitCastExpr");
+    fprintf(
+        mem, "%s -> %s\n",
+        data_type_to_string(stmt->from),
+        data_type_to_string(stmt->to));
+
+    ast_indent += 2;
+    visit(mem, stmt->body);
+    ast_indent -= 2;
+}
+
 int32_t visit(FILE *mem, struct ast_node *ast)
 {
     if (mem == NULL || ast == NULL) {
@@ -538,6 +553,9 @@ int32_t visit(FILE *mem, struct ast_node *ast)
         break;
     case AST_FUNCTION_CALL:
         visit_fn_call(mem, ast);
+        break;
+    case AST_IMPLICIT_CAST:
+        visit_implicit_cast(mem, ast);
         break;
     default:
         weak_unreachable("Unknown AST type (numeric: %d).", ast->type);

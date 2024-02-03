@@ -24,7 +24,12 @@ int main()
     nums[0] = ast_num_init(1, 2, 3);
     nums[1] = ast_num_init(1, 2, 3);
     nums[2] = ast_num_init(1, 2, 3);
-    nums[3] = ast_num_init(1, 2, 3);
+    nums[3] = ast_implicit_cast_init(
+                  D_T_INT,
+                  D_T_FLOAT,
+                  ast_num_init(1, 2, 3),
+                  3, 4
+              );
     nums[4] = ast_compound_init(0, NULL, 0, 0);
 
     struct ast_node *block = ast_compound_init(5, nums, 0, 0);
@@ -37,7 +42,8 @@ int main()
         "  Number <line:2, col:3> 1\n"
         "  Number <line:2, col:3> 1\n"
         "  Number <line:2, col:3> 1\n"
-        "  Number <line:2, col:3> 1\n"
+        "  ImplicitCastExpr <line:3, col:4> int -> float\n"
+        "    Number <line:2, col:3> 1\n"
         "  CompoundStmt <line:0, col:0>\n"
     );
 
