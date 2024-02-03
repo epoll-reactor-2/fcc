@@ -1,4 +1,4 @@
-/* type_implicit.c - Adding type information to the AST.
+/* sema_type.c - Adding type information to the AST.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -6,7 +6,7 @@
 
 #include "front_end/ast/ast.h"
 #include "front_end/sema/sema.h"
-
+#include <assert.h>
 
 
 static void visit(struct ast_node **ast);
@@ -65,7 +65,7 @@ static void visit(struct ast_node **ast)
 /**********************************************
  **               Driver code                **
  **********************************************/
-void sema_type_implicit(struct ast_node **ast)
+void sema_type(struct ast_node **ast)
 {
     visit(ast);
 }

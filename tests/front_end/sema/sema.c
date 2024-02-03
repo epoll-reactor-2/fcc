@@ -1,4 +1,4 @@
-/* lower.c - Test case for AST lowering.
+/* sema.c - Test cases for semantic AST passes.
  * Copyright (C) 2024 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -21,9 +21,13 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
+void (*sema_fn)(struct ast_node **);
+
+char current_output_dir[128];
+
 /* Parse file and compare result with expected.
    \return 1 on success, 0 on failure. */
-bool lower_test(const char *path, const char *filename)
+bool sema_test(const char *path, const char *filename)
 {
     (void) filename;
 
@@ -36,9 +40,8 @@ bool lower_test(const char *path, const char *filename)
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ast_node *ast = gen_ast(path);
-        sema_lower(&ast);
+        sema_fn(&ast);
         ast_dump(dump_stream, ast);
-
         ast_node_cleanup(ast);
 
         get_init_comment(yyin, ast_stream, NULL);
@@ -64,18 +67,20 @@ exit:
     return ok;
 }
 
-int main()
+char   *err_buf      = NULL;
+char   *warn_buf     = NULL;
+size_t  err_buf_len  = 0;
+size_t  warn_buf_len = 0;
+
+int run(const char *dir)
 {
-    int     ret          = 0;
-    char   *err_buf      = NULL;
-    char   *warn_buf     = NULL;
-    size_t  err_buf_len  = 0;
-    size_t  warn_buf_len = 0;
+    int  ret       =  0;
+    char path[256] = {0};
+    snprintf(path, sizeof (path) - 1, "/test_inputs/%s", dir);
 
-    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+    cfg_dir(dir, current_output_dir);
 
-    if (!do_on_each_file("/test_inputs/lower", lower_test)) {
+    if (!do_on_each_file(path, sema_test)) {
         ret = -1;
 
         if (err_buf)
@@ -85,10 +90,26 @@ int main()
             fputs(warn_buf, stderr);
     }
 
+    return ret;
+}
+
+int main()
+{
+    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
+    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+
+    sema_fn = sema_lower;
+    if (run("sema_lower") < 0)
+        return -1;
+
+    sema_fn = sema_type;
+    if (run("sema_type") < 0)
+        return -1;
+
     fclose(diag_error_memstream);
     fclose(diag_warn_memstream);
     free(err_buf);
     free(warn_buf);
 
-    return ret;
+    return 0;
 }
