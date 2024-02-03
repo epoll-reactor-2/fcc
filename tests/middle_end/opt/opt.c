@@ -102,10 +102,10 @@ exit:
     return ok;
 }
 
-char *err_buf       = NULL;
-char *warn_buf      = NULL;
-size_t err_buf_len  = 0;
-size_t warn_buf_len = 0;
+char   *err_buf       = NULL;
+char   *warn_buf      = NULL;
+size_t  err_buf_len  = 0;
+size_t  warn_buf_len = 0;
 
 int run(const char *dir)
 {
@@ -173,5 +173,6 @@ int main()
     fclose(diag_warn_memstream);
     free(err_buf);
     free(warn_buf);
+
     return 0;
 }
