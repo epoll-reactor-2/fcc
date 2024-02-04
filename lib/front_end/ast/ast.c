@@ -563,14 +563,12 @@ struct ast_node *ast_node_init(enum ast_type type, void *ast, uint16_t line_no, 
  **              Implicit cast               **
  **********************************************/
 wur struct ast_node *ast_implicit_cast_init(
-    enum data_type   from,
     enum data_type   to,
     struct ast_node *body,
     uint16_t         line_no,
     uint16_t         col_no
 ) {
     struct ast_implicit_cast *ast = weak_calloc(1, sizeof (struct ast_implicit_cast));
-    ast->from = from;
     ast->to = to;
     ast->body = body;
     return ast_node_init(AST_IMPLICIT_CAST, ast, line_no, col_no);

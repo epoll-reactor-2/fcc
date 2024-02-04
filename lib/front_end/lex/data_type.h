@@ -10,7 +10,7 @@
 #include "util/compiler.h"
 
 enum data_type {
-    D_T_UNKNOWN,
+    D_T_UNKNOWN = 0,
     D_T_FUNC,
     D_T_STRUCT,
     D_T_VOID,
@@ -18,8 +18,11 @@ enum data_type {
     D_T_CHAR,
     D_T_STRING,
     D_T_FLOAT,
-    D_T_BOOL
+    D_T_BOOL,
+    D_T_TOTAL
 };
+
+extern int data_type_size[D_T_TOTAL];
 
 /** \return String representation of the token. Don't
             apply free() to the result.
