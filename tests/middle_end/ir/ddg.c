@@ -98,7 +98,7 @@ int run()
 {
     int ret = 0;
 
-    if (!do_on_each_file("/test_inputs/ddg", ir_test)) {
+    if (!do_on_each_file("ddg", ir_test)) {
         ret = -1;
 
         if (err_buf)

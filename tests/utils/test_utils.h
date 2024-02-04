@@ -97,19 +97,22 @@ void set_cwd(char cwd[512], const char *tests_dir)
 }
 
 bool do_on_each_file(
-    const char  *tests_dir,
+    const char  *dir,
     bool       (*callback)(
         const char */* path */,
         const char */* filename */
     )
 ) {
-    char    cwd  [ 512] = {0};
-    char    fname[1024] = {0};
-    bool    ok          =  1 ;
-    DIR    *it          = NULL;
-    struct  dirent *dir = NULL;
+    char    cwd     [ 512] = {0};
+    char    full_dir[ 512] = {0};
+    char    fname   [1024] = {0};
+    bool    ok             =  1 ;
+    DIR    *it             = NULL;
+    struct  dirent    *d   = NULL;
 
-    set_cwd(cwd, tests_dir);
+    snprintf(full_dir, sizeof (full_dir) - 1, "/inputs/%s", dir);
+
+    set_cwd(cwd, full_dir);
 
     printf("Opening working directory: %s\n", cwd);
 
@@ -117,8 +120,8 @@ bool do_on_each_file(
     if (!it)
         weak_unreachable("Cannot open current dir: %s", strerror(errno));
 
-    while ((dir = readdir(it))) {
-        switch (dir->d_type) {
+    while ((d = readdir(it))) {
+        switch (d->d_type) {
         case DT_DIR:
             continue; /* Skip. */
         case DT_REG:
@@ -128,17 +131,17 @@ bool do_on_each_file(
             weak_unreachable("File or symlink expected as test input.");
         }
 
-        if (strstr(dir->d_name, "disabled_") != NULL)
+        if (strstr(d->d_name, "disabled_") != NULL)
             continue;
 
-        printf("Testing file %s... ", dir->d_name);
+        printf("Testing file %s... ", d->d_name);
         fflush(stdout);
 
-        snprintf(fname, sizeof (fname), "%s/%s", cwd, dir->d_name);
+        snprintf(fname, sizeof (fname), "%s/%s", cwd, d->d_name);
 
         weak_set_source_filename(fname);
 
-        if (!callback(fname, dir->d_name)) {
+        if (!callback(fname, d->d_name)) {
             ok = 0;
             goto exit;
         }
@@ -166,9 +169,9 @@ void create_dir(const char *name)
 
 void cfg_dir(const char *name, char *curr_out_dir)
 {
-    snprintf(curr_out_dir, 127, "test_outputs/%s", name);
+    snprintf(curr_out_dir, 127, "outputs/%s", name);
 
-    create_dir("test_outputs");
+    create_dir("outputs");
     create_dir(curr_out_dir);
 }
 

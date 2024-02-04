@@ -106,12 +106,11 @@ size_t warn_buf_len = 0;
 
 int run()
 {
-    int   ret  = 0;
-    char *path = "/test_inputs/dom";
+    int ret = 0;
 
     cfg_dir("dom", current_output_dir);
 
-    if (!do_on_each_file(path, ir_test)) {
+    if (!do_on_each_file("dom", ir_test)) {
         ret = -1;
 
         if (err_buf)
