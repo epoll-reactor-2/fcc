@@ -73,7 +73,7 @@ int main()
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
 
-    if (!do_on_each_file("/test_inputs/parser", parse_test)) {
+    if (!do_on_each_file("parser", parse_test)) {
         ret = -1;
 
         if (err_buf)

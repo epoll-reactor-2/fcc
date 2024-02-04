@@ -109,13 +109,11 @@ size_t  warn_buf_len = 0;
 
 int run(const char *dir)
 {
-    int  ret       =  0;
-    char path[256] = {0};
-    snprintf(path, sizeof (path) - 1, "/test_inputs/%s", dir);
+    int ret = 0;
 
     cfg_dir(dir, current_output_dir);
 
-    if (!do_on_each_file(path, ir_test)) {
+    if (!do_on_each_file(dir, ir_test)) {
         ret = -1;
 
         if (err_buf)

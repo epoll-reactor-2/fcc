@@ -123,7 +123,7 @@ int main()
 
     cfg_dir("cfg", current_output_dir);
 
-    if (!do_on_each_file("/test_inputs/cfg", ir_test)) {
+    if (!do_on_each_file("cfg", ir_test)) {
         ret = -1;
 
         if (err_buf) {

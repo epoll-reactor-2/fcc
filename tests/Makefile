@@ -30,10 +30,10 @@ all: files src $(FUZZER_OBJ)
 # Test inputs                    #
 ##################################
 files:
-	@mkdir -p ../build/test_inputs; \
-	 cp -r front_end/input/*  ../build/test_inputs; \
-	 cp -r middle_end/input/* ../build/test_inputs; \
-	 cp -r back_end/input/*   ../build/test_inputs
+	@mkdir -p ../build/inputs; \
+	 cp -r front_end/input/*  ../build/inputs; \
+	 cp -r middle_end/input/* ../build/inputs; \
+	 cp -r back_end/input/*   ../build/inputs
 
 ##################################
 # Sources                        #
