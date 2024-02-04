@@ -1,3 +1,9 @@
+/* x86_64.c - Test cases for x86_64 codegen.
+ * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
+ *
+ * This file is distributed under the MIT license.
+ */
+
 #include "back_end/x86_64.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"

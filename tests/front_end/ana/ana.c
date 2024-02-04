@@ -1,4 +1,4 @@
-/* analysis.c - Test cases for all analyzers.
+/* ana.c - Test cases for all analyzers.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
