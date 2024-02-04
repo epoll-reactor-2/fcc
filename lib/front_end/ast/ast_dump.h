@@ -21,4 +21,9 @@ struct ast_node;
               - any required non-NULL AST node is NULL */
 int32_t ast_dump(FILE *mem, struct ast_node *ast);
 
+/** \copydoc ast_dump(FILE *mem, struct ast_node *ast)
+
+    \note Line numbers and columns are omitted. */
+int32_t ast_dump_omit_pos(FILE *mem, struct ast_node *ast);
+
 #endif // WEAK_COMPILER_FRONTEND_AST_AST_DUMP_H

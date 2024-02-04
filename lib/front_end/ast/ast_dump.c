@@ -11,7 +11,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-static uint32_t ast_indent = 0;
+static uint32_t ast_indent   = 0;
+static bool     ast_omit_pos = 0;
 
 static int32_t visit(FILE *mem, struct ast_node *ast);
 
@@ -37,12 +38,20 @@ static void ast_print_positioned(
 
     vfprintf(mem, fmt, list);
 
-    fprintf(
-        mem, " <line:%u, col:%u>%c",
-        ast->line_no,
-        ast->col_no,
-        new_line_wanted ? '\n' : ' '
-    );
+    if (!ast_omit_pos)
+        fprintf(
+            mem, " <line:%u, col:%u>%c",
+            ast->line_no,
+            ast->col_no,
+            new_line_wanted ? '\n' : ' '
+        );
+    else {
+        if (new_line_wanted) {
+            putc('\n', mem);
+        } else {
+            putc(' ', mem);
+        }
+    }
 }
 
 static void ast_print(FILE *mem, struct ast_node *ast, const char *fmt, ...)
@@ -566,6 +575,17 @@ int32_t visit(FILE *mem, struct ast_node *ast)
 int32_t ast_dump(FILE *mem, struct ast_node *ast)
 {
     ast_indent = 0;
+    ast_omit_pos = 0;
+
+    int32_t code = visit(mem, ast);
+    fflush(mem);
+    return code;
+}
+
+int32_t ast_dump_omit_pos(FILE *mem, struct ast_node *ast)
+{
+    ast_indent = 0;
+    ast_omit_pos = 1;
 
     int32_t code = visit(mem, ast);
     fflush(mem);
