@@ -508,13 +508,11 @@ void ast_while_cleanup(struct ast_while *ast);
  **              Implicit cast               **
  **********************************************/
 struct ast_implicit_cast {
-    enum data_type   from;
     enum data_type   to;
     struct ast_node *body;
 };
 
 wur struct ast_node *ast_implicit_cast_init(
-    enum data_type   from,
     enum data_type   to,
     struct ast_node *body,
     uint16_t         line_no,

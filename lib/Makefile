@@ -19,7 +19,7 @@ OBJ = $(SRC:.c=.o)
 ##################################
 LDFLAGS      = -lfl
 CFLAGS       = -std=gnu99 -fPIC -I. \
-               -Wall -Wextra -Wshadow -Wvla -Wpointer-arith
+               -Wall -Wextra -Wunused -Wshadow -Wvla -Wpointer-arith
 
 ifeq ($(USE_LOG), 1)
 CFLAGS     += -D CONFIG_USE_LOG

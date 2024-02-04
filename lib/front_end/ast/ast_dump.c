@@ -463,8 +463,7 @@ static void visit_implicit_cast(FILE *mem, struct ast_node *ast)
 
     ast_print(mem, ast, "ImplicitCastExpr");
     fprintf(
-        mem, "%s -> %s\n",
-        data_type_to_string(stmt->from),
+        mem, "-> %s\n",
         data_type_to_string(stmt->to));
 
     ast_indent += 2;
