@@ -1,4 +1,4 @@
-/* fold.c - Test cases for IR interpreter.
+/* eval.c - Test cases for IR interpreter.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.

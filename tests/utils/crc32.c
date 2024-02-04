@@ -1,4 +1,4 @@
-/* crc32.h - Test case for CRC-32 function.
+/* crc32.c - Test case for CRC-32 function.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
