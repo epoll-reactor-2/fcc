@@ -1,22 +1,22 @@
-//CompoundStmt <line:0, col:0>
-//  FunctionDecl <line:20, col:1>
-//    FunctionDeclRetType <line:20, col:1> int
-//    FunctionDeclName <line:20, col:1> `main`
-//    FunctionDeclArgs <line:20, col:1>
-//    FunctionDeclBody <line:20, col:1>
-//      CompoundStmt <line:20, col:12>
-//        ReturnStmt <line:21, col:5>
-//          ImplicitCastExpr <line:21, col:14> -> int
-//            BinaryOperator <line:21, col:14> +
-//              Number <line:21, col:12> 1
-//              BinaryOperator <line:21, col:20> +
-//                FloatLiteral <line:21, col:16> 1.200000
-//                ImplicitCastExpr <line:21, col:24> -> float
-//                  BinaryOperator <line:21, col:24> +
-//                    Number <line:21, col:22> 3
-//                    BinaryOperator <line:21, col:30> +
-//                      FloatLiteral <line:21, col:26> 4.500000
-//                      FloatLiteral <line:21, col:32> 6.700000
+//CompoundStmt
+//  FunctionDecl
+//    FunctionDeclRetType int
+//    FunctionDeclName `main`
+//    FunctionDeclArgs
+//    FunctionDeclBody
+//      CompoundStmt
+//        ReturnStmt
+//          ImplicitCastExpr -> int
+//            BinaryOperator +
+//              Number 1
+//              BinaryOperator +
+//                FloatLiteral 1.200000
+//                ImplicitCastExpr -> float
+//                  BinaryOperator +
+//                    Number 3
+//                    BinaryOperator +
+//                      FloatLiteral 4.500000
+//                      FloatLiteral 6.700000
 int main() {
     return 1 + 1.2 + 3 + 4.5 + 6.7;
 }

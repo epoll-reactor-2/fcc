@@ -39,7 +39,7 @@ bool sema_test(const char *path, const char *filename)
     if (!setjmp(weak_fatal_error_buf)) {
         struct ast_node *ast = gen_ast(path);
         sema_fn(&ast);
-        ast_dump(dump_stream, ast);
+        ast_dump_omit_pos(dump_stream, ast);
         ast_node_cleanup(ast);
 
         get_init_comment(yyin, ast_stream, NULL);
