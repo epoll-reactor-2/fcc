@@ -70,3 +70,17 @@ test:
 		 ([ $$? -eq 0 ] && echo "OK") || \
 		 ([ $$? -ne 0 ] && echo "Test failed. Interrupt the rest."; kill -KILL $$$$);) \
 	 done
+
+VALGRIND_CMD = valgrind --leak-check=full --tool=memcheck --log-fd=1
+
+.PHONY: valgrind
+valgrind:
+	for file in $(shell find ../build -executable -name '*_test' -printf "./%f\n"); do \
+		 log="$$file.valgrind.log.txt"; \
+		 ( \
+		 	cd ../build; \
+		 	LD_LIBRARY_PATH=. $(VALGRIND_CMD) $$file > $$log; \
+		 	([ $$? -eq 0 ] && echo "OK") || \
+		 	([ $$? -ne 0 ] && cat $$log; kill -KILL $$$$); \
+ 		); \
+	 done

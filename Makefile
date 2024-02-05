@@ -82,6 +82,10 @@ clean:
 test:
 	@make -C tests test
 
+.PHONY: valgrind
+valgrind:
+	@make -C tests valgrind
+
 CPPCHECK_SUPPRESSIONS = incorrectStringBooleanError\nallocaCalled
 
 # Check out:
