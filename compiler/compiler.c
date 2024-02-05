@@ -1,4 +1,5 @@
 #include "back_end/eval.h"
+#include "front_end/ana/ana.h"
 #include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
 #include "front_end/lex/lex.h"
@@ -33,6 +34,16 @@ void tokens_cleanup(tok_array_t *toks)
 
 
 /**********************************************
+ **              Analysis                    **
+ **********************************************/
+void analyze(struct ast_node *ast)
+{
+    analysis_variable_use_analysis(ast);
+    analysis_functions_analysis(ast);
+    analysis_type_analysis(ast);
+}
+
+/**********************************************
  **             Generators                   **
  **********************************************/
 tok_array_t *gen_tokens(const char *filename)
@@ -48,6 +59,7 @@ tok_array_t *gen_tokens(const char *filename)
     }
     yylex();
     fseek(yyin, 0, SEEK_SET);
+    weak_set_source_stream(yyin);
 
     return lex_consumed_tokens();
 }
@@ -57,6 +69,7 @@ struct ast_node *gen_ast(const char *filename)
     tok_array_t *t = gen_tokens(filename);
     struct ast_node *ast = parse(t->data, t->data + t->count);
     tokens_cleanup(t);
+    analyze(ast);
     return ast;
 }
 
@@ -189,6 +202,12 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
         help();
+
+    struct diag_config config = {
+        .ignore_warns  = 0,
+        .show_location = 1
+    };
+    weak_set_diag_config(&config);
 
     parse_cmdline(argc, argv);
 }

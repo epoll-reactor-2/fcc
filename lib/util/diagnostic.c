@@ -137,8 +137,7 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
 
     fprintf(stream, "%s: E<%u:%u>: ", active_filename, line_no, col_no);
 
-
-    char err_buf[8192] = {0};
+    char buf[8192] = {0};
 
     va_list args;
     va_start(args, fmt);
@@ -146,11 +145,11 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
     va_end(args);
 
     va_start(args, fmt);
-    vsprintf(err_buf, fmt, args);
+    vsprintf(buf, fmt, args);
     va_end(args);
 
     if (config.show_location)
-        print_file_range(active_stream, line_no, col_no, err_buf, 3);
+        print_file_range(active_stream, line_no, col_no, buf, 3);
 
     fputc('\n', stream);
     fflush(stream);
@@ -169,10 +168,19 @@ void weak_compile_warn(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
 
     fprintf(stream, "%s: W<%u:%u>: ", active_filename, line_no, col_no);
 
+    char buf[8192] = {0};
+
     va_list args;
     va_start(args, fmt);
     vfprintf(stream, fmt, args);
     va_end(args);
+
+    va_start(args, fmt);
+    vsprintf(buf, fmt, args);
+    va_end(args);
+
+    if (config.show_location)
+        print_file_range(active_stream, line_no, col_no, buf, 3);
 
     fputc('\n', stream);
     fflush(stream);
