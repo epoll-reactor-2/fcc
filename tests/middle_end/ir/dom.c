@@ -125,15 +125,7 @@ int run()
 
 int main()
 {
-    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+    cfg_dir("dom", current_output_dir);
 
-    if (run() < 0)
-        return -1;
-
-    fclose(diag_error_memstream);
-    fclose(diag_warn_memstream);
-    free(err_buf);
-    free(warn_buf);
-    return 0;
+    return do_on_each_file("dom", ir_test);
 }

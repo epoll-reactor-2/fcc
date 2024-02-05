@@ -65,33 +65,13 @@ exit:
     return ok;
 }
 
-char   *err_buf      = NULL;
-char   *warn_buf     = NULL;
-size_t  err_buf_len  = 0;
-size_t  warn_buf_len = 0;
-
 int run(const char *dir)
 {
-    int ret = 0;
-
-    if (!do_on_each_file(dir, sema_test)) {
-        ret = -1;
-
-        if (err_buf)
-            fputs(err_buf, stderr);
-
-        if (warn_buf)
-            fputs(warn_buf, stderr);
-    }
-
-    return ret;
+    return do_on_each_file(dir, sema_test);
 }
 
 int main()
 {
-    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
-
     sema_fn = sema_lower;
     if (run("sema_lower") < 0)
         return -1;
@@ -99,11 +79,6 @@ int main()
     sema_fn = sema_type;
     if (run("sema_type") < 0)
         return -1;
-
-    fclose(diag_error_memstream);
-    fclose(diag_warn_memstream);
-    free(err_buf);
-    free(warn_buf);
 
     return 0;
 }

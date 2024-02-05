@@ -106,7 +106,7 @@ bool do_on_each_file(
     char    cwd     [ 512] = {0};
     char    full_dir[ 512] = {0};
     char    fname   [1024] = {0};
-    bool    ok             =  1 ;
+    int     rc             =  0 ;
     DIR    *it             = NULL;
     struct  dirent    *d   = NULL;
 
@@ -142,7 +142,7 @@ bool do_on_each_file(
         weak_set_source_filename(fname);
 
         if (!callback(fname, d->d_name)) {
-            ok = 0;
+            rc = -1;
             goto exit;
         }
 
@@ -151,7 +151,7 @@ bool do_on_each_file(
 
 exit:
     closedir(it);
-    return ok;
+    return rc;
 }
 
 

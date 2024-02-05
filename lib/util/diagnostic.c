@@ -18,6 +18,16 @@ extern void *diag_warn_memstream;
 static const char *active_filename;
 static FILE       *active_stream;
 
+static struct diag_config config = {
+    .ignore_warns  = 1,
+    .show_location = 0
+};
+
+void weak_set_diag_config(struct diag_config *new_config)
+{
+    memcpy(&config, new_config, sizeof (config));
+}
+
 void weak_set_source_filename(const char *filename)
 {
     active_filename = filename;
@@ -139,7 +149,8 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
     vsprintf(err_buf, fmt, args);
     va_end(args);
 
-    /* print_file_range(active_stream, line_no, col_no, err_buf, 3); */
+    if (config.show_location)
+        print_file_range(active_stream, line_no, col_no, err_buf, 3);
 
     fputc('\n', stream);
     fflush(stream);
@@ -149,6 +160,9 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
 
 void weak_compile_warn(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
 {
+    if (config.ignore_warns)
+        return;
+
     FILE *stream = diag_warn_memstream != NULL
         ? diag_warn_memstream
         : stderr;

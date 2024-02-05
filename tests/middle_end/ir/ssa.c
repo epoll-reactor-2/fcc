@@ -18,7 +18,7 @@ void *diag_warn_memstream = NULL;
 
 char current_output_dir[128];
 
-bool ir_test(const char *path, const char *filename)
+bool ssa_test(const char *path, const char *filename)
 {
     bool    ok                 = 1;
     char   *expected           = NULL;
@@ -88,40 +88,8 @@ bool ir_test(const char *path, const char *filename)
     return ok;
 }
 
-char *err_buf       = NULL;
-char *warn_buf      = NULL;
-size_t err_buf_len  = 0;
-size_t warn_buf_len = 0;
-
-int run(const char *dir)
-{
-    int ret = 0;
-    cfg_dir(dir, current_output_dir);
-
-    if (!do_on_each_file("ssa", ir_test)) {
-        ret = -1;
-
-        if (err_buf)
-            fputs(err_buf, stderr);
-
-        if (warn_buf)
-            fputs(warn_buf, stderr);
-    }
-
-    return ret;
-}
-
 int main()
 {
-    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
-
-    if (run("ssa") < 0)
-        return -1;
-
-    fclose(diag_error_memstream);
-    fclose(diag_warn_memstream);
-    free(err_buf);
-    free(warn_buf);
-    return 0;
+    cfg_dir("ssa", current_output_dir);
+    return do_on_each_file("ssa", ssa_test);
 }
