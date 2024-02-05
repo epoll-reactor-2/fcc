@@ -7,10 +7,14 @@ variables:
 
 before_script:
   - apt-get update --yes
-  - apt-get install --yes flex gcc cmake
+  - apt-get install --yes flex gcc valgrind
 
 build_project:
   stage: build
   script:
     - make
     - make test
+    - make valgrind
+  artifacts:
+    paths:
+      - build/*valgrind.log.txt
