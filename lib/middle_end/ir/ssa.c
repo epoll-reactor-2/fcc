@@ -6,6 +6,7 @@
 
 #include "middle_end/ir/ssa.h"
 #include "middle_end/ir/ir.h"
+#include "middle_end/ir/gen.h"
 #include "middle_end/ir/ir_ops.h"
 #include "util/compiler.h"
 #include "util/hashmap.h"
@@ -530,6 +531,7 @@ void ir_compute_ssa(struct ir_node *decls)
         ir_dominator_tree(decl);
         ir_dominance_frontier(decl);
         phi_insert(decl, &assigns);
+        ir_cfg_build(decl);
 
         hashmap_foreach(&assigns, sym_idx, __) {
             bool visited[512] = {0};
