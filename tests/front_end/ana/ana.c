@@ -86,26 +86,31 @@ exit:
     return ok;
 }
 
+int run(const char *dir)
+{
+    return do_on_each_file(dir, analysis_test);
+}
+
 int main()
 {
     analysis_fn = analysis_functions_analysis;
     ignore_warns = 1;
-    if (!do_on_each_file("fn_ana", analysis_test))
+    if (run("fn_ana") < 0)
         return -1;
 
     analysis_fn = analysis_variable_use_analysis;
     ignore_warns = 1;
-    if (!do_on_each_file("var_ana/errors", analysis_test))
+    if (run("var_ana/errors") < 0)
         return -1;
 
     analysis_fn = analysis_variable_use_analysis;
     ignore_warns = 0;
-    if (!do_on_each_file("var_ana/warns", analysis_test))
+    if (run("var_ana/warns") < 0)
         return -1;
 
     analysis_fn = analysis_type_analysis;
     ignore_warns = 1;
-    if (!do_on_each_file("type_errors", analysis_test))
+    if (run("type_errors") < 0)
         return -1;
 
     return 0;

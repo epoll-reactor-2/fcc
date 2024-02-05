@@ -7,10 +7,16 @@
 #ifndef WEAK_COMPILER_UTIL_DIAGNOSTICS_H
 #define WEAK_COMPILER_UTIL_DIAGNOSTICS_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <setjmp.h>
 #include <stdnoreturn.h>
 #include <stdio.h>
+
+struct diag_config {
+    bool ignore_warns;
+    bool show_location;
+};
 
 /** Jump buffer for handling errors. As warning/errors emit
     functions, can be used in normal "real-world" compiler mode
@@ -41,6 +47,14 @@ extern jmp_buf weak_fatal_error_buf;
     \endcode */
 extern void *diag_error_memstream;
 extern void *diag_warn_memstream;
+
+/** Override default config.
+
+    Default config has:
+    - ignore_warns  = 1
+    - show_location = 0
+ */
+void weak_set_diag_config(struct diag_config *new_config);
 
 /** \brief Set source code location being analyzed. Used to display
            warns and errors. */

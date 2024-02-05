@@ -38,7 +38,7 @@ void ddg_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
-bool ir_test(const char *path, const char *filename)
+bool opt_test(const char *path, const char *filename)
 {
     bool    ok                   = 1;
     char   *expected             = NULL;
@@ -102,35 +102,15 @@ exit:
     return ok;
 }
 
-char   *err_buf       = NULL;
-char   *warn_buf      = NULL;
-size_t  err_buf_len  = 0;
-size_t  warn_buf_len = 0;
-
 int run(const char *dir)
 {
-    int ret = 0;
-
     cfg_dir(dir, current_output_dir);
 
-    if (!do_on_each_file(dir, ir_test)) {
-        ret = -1;
-
-        if (err_buf)
-            fputs(err_buf, stderr);
-
-        if (warn_buf)
-            fputs(warn_buf, stderr);
-    }
-
-    return ret;
+    return do_on_each_file(dir, opt_test);
 }
 
 int main()
 {
-    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
-
 #if 0
     opt_fn = ir_opt_fold;
     if (run("fold") < 0)
@@ -166,11 +146,6 @@ int main()
     if (run("data_flow") < 0)
         return -1;
 #endif
-
-    fclose(diag_error_memstream);
-    fclose(diag_warn_memstream);
-    free(err_buf);
-    free(warn_buf);
 
     return 0;
 }

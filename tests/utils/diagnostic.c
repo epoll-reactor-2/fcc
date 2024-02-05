@@ -15,6 +15,12 @@ void *diag_warn_memstream = NULL;
 
 int diagnostics_memstream_test()
 {
+    struct diag_config config = {
+        .ignore_warns  = 0,
+        .show_location = 0
+    };
+    weak_set_diag_config(&config);
+
     char   *err_buf      = NULL;
     char   *warn_buf     = NULL;
     size_t  err_buf_len  = 0;

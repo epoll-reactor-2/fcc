@@ -21,7 +21,7 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-bool ir_test(const char *path, const char *filename)
+bool x86_64_test(const char *path, const char *filename)
 {
     (void) filename;
 
@@ -99,28 +99,5 @@ exit:
 
 int main()
 {
-    int     ret          = 0;
-    char   *err_buf      = NULL;
-    char   *warn_buf     = NULL;
-    size_t  err_buf_len  = 0;
-    size_t  warn_buf_len = 0;
-
-    diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
-
-    if (!do_on_each_file("x86_64", ir_test)) {
-        ret = -1;
-
-        if (err_buf)
-            fputs(err_buf, stderr);
-
-        if (warn_buf)
-            fputs(warn_buf, stderr);
-    }
-
-    fclose(diag_error_memstream);
-    fclose(diag_warn_memstream);
-    free(err_buf);
-    free(warn_buf);
-    return ret;
+    return do_on_each_file("x86_64", x86_64_test);
 }
