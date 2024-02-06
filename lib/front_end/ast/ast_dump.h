@@ -7,10 +7,18 @@
 #ifndef WEAK_COMPILER_FRONTEND_AST_AST_DUMP_H
 #define WEAK_COMPILER_FRONTEND_AST_AST_DUMP_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 
+struct ast_dump_config {
+    bool omit_pos;
+    bool colored;
+};
+
 struct ast_node;
+
+void ast_dump_set_config(struct ast_dump_config *new);
 
 /** Write AST represented as string to given file or memory stream.
 

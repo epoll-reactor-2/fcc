@@ -54,7 +54,7 @@ extern void *diag_warn_memstream;
     - ignore_warns  = 1
     - show_location = 0
  */
-void weak_set_diag_config(struct diag_config *new_config);
+void weak_diag_set_config(struct diag_config *new_config);
 
 /** \brief Set source code location being analyzed. Used to display
            warns and errors. */

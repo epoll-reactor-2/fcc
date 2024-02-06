@@ -8,6 +8,15 @@
 #define WEAK_COMPILER_UTIL_LEXICAL_H
 
 #include <stdint.h>
+#include "util/compiler.h"
+
+unused static char color_red[]    = "\33[0;31m";
+unused static char color_green[]  = "\33[0;32m";
+unused static char color_yellow[] = "\33[0;33m";
+unused static char color_blue[]   = "\33[1;34m";
+unused static char color_purple[] = "\33[1;35m";
+unused static char color_cyan[]   = "\33[0;36m";
+unused static char color_end[]    = "\33[0m";
 
 /** Convert integer to string in format "%d'postfix'.
   

@@ -72,6 +72,12 @@ int run(const char *dir)
 
 int main()
 {
+    struct ast_dump_config config = {
+        .omit_pos = 1,
+        .colored  = 0
+    };
+    ast_dump_set_config(&config);
+
     sema_fn = sema_lower;
     if (run("sema_lower") < 0)
         return -1;
