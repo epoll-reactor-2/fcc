@@ -85,15 +85,15 @@ struct ir_unit gen_ir(const char *filename)
 void dump_tokens(tok_array_t *toks)
 {
     printf(
-        "|            |                |              \n"
-        "| Location   | Type           | Value        \n"
-        "|            |                |              \n"
-        "---------------------------------------------\n"
+        "|             |               |                 \n"
+        "| Location    | Type          | Value           \n"
+        "|             |               |                 \n"
+        "------------------------------------------------\n"
     );
     for (uint64_t i = 0; i < toks->count; ++i) {
         struct token *t = &toks->data[i];
         printf(
-            "<% 3ld:% 3ld>    %-16s %s\n",
+            "% 4ld:% 4ld     %-15s %s\n",
             t->line_no,
             t->col_no,
             tok_to_string(t->type),
