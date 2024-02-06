@@ -24,6 +24,7 @@ static const char *col_id;
 static const char *col_location;
 static const char *col_type;
 static const char *col_string;
+static const char *col_num;
 static const char *col_end;
 
 void ast_dump_set_config(struct ast_dump_config *new)
@@ -129,45 +130,24 @@ static void visit_char(FILE *mem, struct ast_node *ast)
 {
     struct ast_char *c = ast->ast;
 
-    const char *col = config.colored
-        ? color_cyan
-        : "";
-    const char *end = config.colored
-        ? color_end
-        : "";
-
     ast_print(mem, ast, "CharLiteral");
-    fprintf(mem, "%s'%c'%s\n", col, c->value, end);
+    fprintf(mem, "%s'%c'%s\n", col_id, c->value, col_end);
 }
 
 static void visit_float(FILE *mem, struct ast_node *ast)
 {
     struct ast_float *f = ast->ast;
 
-    const char *col = config.colored
-        ? color_cyan
-        : "";
-    const char *end = config.colored
-        ? color_end
-        : "";
-
     ast_print(mem, ast, "FloatLiteral");
-    fprintf(mem, "%s%f%s\n", col, f->value, end);
+    fprintf(mem, "%s%f%s\n", col_num, f->value, col_id);
 }
 
 static void visit_num(FILE *mem, struct ast_node *ast)
 {
     struct ast_num *number = ast->ast;
 
-    const char *col = config.colored
-        ? color_cyan
-        : "";
-    const char *end = config.colored
-        ? color_end
-        : "";
-
     ast_print(mem, ast, "Number");
-    fprintf(mem, "%s%d%s\n", col, number->value, end);
+    fprintf(mem, "%s%d%s\n", col_num, number->value, col_end);
 }
 
 static void visit_compound(FILE *mem, struct ast_node *ast)
@@ -634,6 +614,10 @@ static void init_colors()
 
     col_string = config.colored
         ? color_blue
+        : "";
+
+    col_num = config.colored
+        ? color_light_yellow
         : "";
 
     col_end = config.colored

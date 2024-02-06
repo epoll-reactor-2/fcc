@@ -5,6 +5,7 @@
  */
 
 #include "util/diagnostic.h"
+#include "util/lexical.h"
 #include "util/compiler.h"
 #include <stdarg.h>
 #include <stdio.h>
@@ -71,7 +72,8 @@ unused static void print_file_range(
     uint64_t  line_no,
     uint64_t  col_no,
     char     *err_buf,
-    uint64_t  range
+    uint64_t  range,
+    bool      is_error
 ) {
     fseek(stream, 0, SEEK_SET);
 
@@ -88,9 +90,12 @@ unused static void print_file_range(
     uint64_t line_max      =  0;
     uint64_t lines         =  0;
 
+    char *msg_color = is_error ? color_red : color_yellow;
+    char *line_color = color_purple;
+
 #define DO() \
         { replace_newline(buf); \
-          uint64_t written = sprintf(report + w, "| % 6lu: %s\n", curr_line_no++, buf); \
+          uint64_t written = sprintf(report + w, "%s|%s %s% 6lu:%s %s\n", msg_color, color_end, line_color, curr_line_no++, color_end, buf); \
           \
           if (line_max < strlen(buf) + 7) \
               line_max = strlen(buf) + 7; \
@@ -110,9 +115,9 @@ unused static void print_file_range(
     for (uint64_t i = line_no; i <= line_no && GET() != NULL; ++i) {
         DO()
 
-        w += sprintf(report + w, "|        %-*s^\n", (int) col_no, " ");
-        w += sprintf(report + w, "|   %s\n", err_buf);
-        w += sprintf(report + w, "|\n");
+        w += sprintf(report + w, "%s|%s        %-*s%s^%s\n", msg_color, color_end, (int) col_no, " ", msg_color, color_end);
+        w += sprintf(report + w, "%s|        %s%s\n", msg_color, err_buf, color_end);
+        w += sprintf(report + w, "%s|%s\n", msg_color, color_end);
         ++lines;
     }
 
@@ -135,21 +140,24 @@ void weak_compile_error(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
         ? diag_error_memstream
         : stderr;
 
-    fprintf(stream, "%s: E<%u:%u>: ", active_filename, line_no, col_no);
+    va_list args;
+
+    if (!config.show_location) {
+        fprintf(stream, "%s: E<%u:%u>: ", active_filename, line_no, col_no);
+
+        va_start(args, fmt);
+        vfprintf(stream, fmt, args);
+        va_end(args);
+    }
 
     char buf[8192] = {0};
-
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(stream, fmt, args);
-    va_end(args);
 
     va_start(args, fmt);
     vsprintf(buf, fmt, args);
     va_end(args);
 
     if (config.show_location)
-        print_file_range(active_stream, line_no, col_no, buf, 3);
+        print_file_range(active_stream, line_no, col_no, buf, 3, /*is_error=*/1);
 
     fputc('\n', stream);
     fflush(stream);
@@ -166,21 +174,24 @@ void weak_compile_warn(uint16_t line_no, uint16_t col_no, const char *fmt, ...)
         ? diag_warn_memstream
         : stderr;
 
-    fprintf(stream, "%s: W<%u:%u>: ", active_filename, line_no, col_no);
+    va_list args;
+
+    if (!config.show_location) {
+        fprintf(stream, "%s: W<%u:%u>: ", active_filename, line_no, col_no);
+
+        va_start(args, fmt);
+        vfprintf(stream, fmt, args);
+        va_end(args);
+    }
 
     char buf[8192] = {0};
-
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(stream, fmt, args);
-    va_end(args);
 
     va_start(args, fmt);
     vsprintf(buf, fmt, args);
     va_end(args);
 
     if (config.show_location)
-        print_file_range(active_stream, line_no, col_no, buf, 3);
+        print_file_range(active_stream, line_no, col_no, buf, 3, /*is_error=*/0);
 
     fputc('\n', stream);
     fflush(stream);
