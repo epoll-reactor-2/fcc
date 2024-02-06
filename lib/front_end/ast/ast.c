@@ -277,6 +277,9 @@ struct ast_node *ast_fn_call_init(
     uint16_t         line_no,
     uint16_t         col_no
 ) {
+    if (args->type != AST_COMPOUND_STMT)
+        weak_fatal_error("Expected compound statement as function call arguments list.");
+
     struct ast_fn_call *ast = weak_calloc(1, sizeof (struct ast_fn_call));
     ast->name = name;
     ast->args = args;
