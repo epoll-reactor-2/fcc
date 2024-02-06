@@ -13,6 +13,7 @@
 #include "middle_end/ir/gen.h"
 #include "util/compiler.h"
 #include "util/diagnostic.h"
+#include "util/lexical.h"
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
@@ -27,9 +28,6 @@
 #define ASSERT_TRUE(expr)   assert((expr));
 #define ASSERT_FALSE(expr)  assert(!(expr));
 #define ASSERT_EQ(lhs, rhs) assert((lhs) == (rhs));
-
-#define TEST_START_INFO { printf("Testing %s()... ", __FUNCTION__); fflush(stdout); }
-#define TEST_END_INFO   { printf(" Success!\n"); fflush(stdout); }
 
 #define ASSERT_STREQ(lhs, rhs) do {     \
     int32_t rc = strcmp((lhs), (rhs));  \
@@ -134,7 +132,7 @@ bool do_on_each_file(
         if (strstr(d->d_name, "disabled_") != NULL)
             continue;
 
-        printf("Testing file %s... ", d->d_name);
+        printf("* %s... ", d->d_name);
         fflush(stdout);
 
         snprintf(fname, sizeof (fname), "%s/%s", cwd, d->d_name);
@@ -144,6 +142,9 @@ bool do_on_each_file(
         if (!callback(fname, d->d_name)) {
             rc = -1;
             goto exit;
+        } else {
+            printf("%sSuccess!%s\n", color_green, color_end);
+            fflush(stdout);
         }
 
         memset(fname, 0, sizeof (fname));

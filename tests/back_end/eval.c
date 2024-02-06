@@ -113,7 +113,6 @@ bool ir_test(const char *path, const char *filename)
             ok = 0;
             goto exit;
         }
-        puts("Success!");
     } else {
         /// Error, will be printed in main.
         return 0;
