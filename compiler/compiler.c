@@ -198,16 +198,27 @@ void parse_cmdline(int argc, char *argv[])
 
 void help();
 
+void configure()
+{
+    struct diag_config diag_config = {
+        .ignore_warns  = 0,
+        .show_location = 1
+    };
+    weak_diag_set_config(&diag_config);
+
+    struct ast_dump_config ast_config = {
+        .omit_pos = 0,
+        .colored  = 1
+    };
+    ast_dump_set_config(&ast_config);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 2)
         help();
 
-    struct diag_config config = {
-        .ignore_warns  = 0,
-        .show_location = 1
-    };
-    weak_set_diag_config(&config);
+    configure();
 
     parse_cmdline(argc, argv);
 }

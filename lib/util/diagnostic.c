@@ -23,7 +23,7 @@ static struct diag_config config = {
     .show_location = 0
 };
 
-void weak_set_diag_config(struct diag_config *new_config)
+void weak_diag_set_config(struct diag_config *new_config)
 {
     memcpy(&config, new_config, sizeof (config));
 }

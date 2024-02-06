@@ -7,12 +7,29 @@
 #include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
 #include "util/unreachable.h"
+#include "util/lexical.h"
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
-static uint32_t ast_indent   = 0;
-static bool     ast_omit_pos = 0;
+static uint32_t ast_indent = 0;
+
+static struct ast_dump_config config = {
+    .colored  = 0,
+    .omit_pos = 0
+};
+
+static const char *col_id;
+static const char *col_location;
+static const char *col_type;
+static const char *col_string;
+static const char *col_end;
+
+void ast_dump_set_config(struct ast_dump_config *new)
+{
+    memcpy(&config, new, sizeof (config));
+}
 
 static int32_t visit(FILE *mem, struct ast_node *ast);
 
@@ -36,16 +53,24 @@ static void ast_print_positioned(
 ) {
     ast_print_indent(mem);
 
+    if (config.colored)
+        fputs(color_purple, mem);
+
     vfprintf(mem, fmt, list);
 
-    if (!ast_omit_pos)
+    if (config.colored)
+        fputs(color_end, mem);
+
+    if (!config.omit_pos) {
         fprintf(
-            mem, " <line:%u, col:%u>%c",
+            mem, " %s<line:%u, col:%u>%s%c",
+            col_location,
             ast->line_no,
             ast->col_no,
+            col_end,
             new_line_wanted ? '\n' : ' '
         );
-    else {
+    } else {
         if (new_line_wanted) {
             putc('\n', mem);
         } else {
@@ -104,8 +129,45 @@ static void visit_char(FILE *mem, struct ast_node *ast)
 {
     struct ast_char *c = ast->ast;
 
+    const char *col = config.colored
+        ? color_cyan
+        : "";
+    const char *end = config.colored
+        ? color_end
+        : "";
+
     ast_print(mem, ast, "CharLiteral");
-    fprintf(mem, "'%c'\n", c->value);
+    fprintf(mem, "%s'%c'%s\n", col, c->value, end);
+}
+
+static void visit_float(FILE *mem, struct ast_node *ast)
+{
+    struct ast_float *f = ast->ast;
+
+    const char *col = config.colored
+        ? color_cyan
+        : "";
+    const char *end = config.colored
+        ? color_end
+        : "";
+
+    ast_print(mem, ast, "FloatLiteral");
+    fprintf(mem, "%s%f%s\n", col, f->value, end);
+}
+
+static void visit_num(FILE *mem, struct ast_node *ast)
+{
+    struct ast_num *number = ast->ast;
+
+    const char *col = config.colored
+        ? color_cyan
+        : "";
+    const char *end = config.colored
+        ? color_end
+        : "";
+
+    ast_print(mem, ast, "Number");
+    fprintf(mem, "%s%d%s\n", col, number->value, end);
 }
 
 static void visit_compound(FILE *mem, struct ast_node *ast)
@@ -130,14 +192,6 @@ static void visit_compound(FILE *mem, struct ast_node *ast)
 static void visit_continue(FILE *mem, struct ast_node *ast)
 {
     ast_print_line(mem, ast, "ContinueStmt");
-}
-
-static void visit_float(FILE *mem, struct ast_node *ast)
-{
-    struct ast_float *f = ast->ast;
-
-    ast_print(mem, ast, "FloatLiteral");
-    fprintf(mem, "%f\n", f->value);
 }
 
 static void visit_for(FILE *mem, struct ast_node *ast)
@@ -226,14 +280,6 @@ static void visit_if(FILE *mem, struct ast_node *ast)
     ast_indent -= 2;
 }
 
-static void visit_num(FILE *mem, struct ast_node *ast)
-{
-    struct ast_num *number = ast->ast;
-
-    ast_print(mem, ast, "Number");
-    fprintf(mem, "%d\n", number->value);
-}
-
 static void visit_ret(FILE *mem, struct ast_node *ast)
 {
     struct ast_ret *ret = ast->ast;
@@ -251,7 +297,7 @@ static void visit_string(FILE *mem, struct ast_node *ast)
     struct ast_string *string = ast->ast;
 
     ast_print(mem, ast, "StringLiteral");
-    fprintf(mem, "%s\n", string->value);
+    fprintf(mem, "%s%s%s\n", col_string, string->value, col_end);
 }
 
 static void visit_sym(FILE *mem, struct ast_node *ast)
@@ -259,7 +305,7 @@ static void visit_sym(FILE *mem, struct ast_node *ast)
     struct ast_sym *sym = ast->ast;
 
     ast_print(mem, ast, "Symbol");
-    fprintf(mem, "`%s`\n", sym->value);
+    fprintf(mem, "%s`%s`%s\n", col_id, sym->value, col_end);
 }
 
 static void visit_unary(FILE *mem, struct ast_node *ast)
@@ -279,7 +325,7 @@ static void visit_struct_decl(FILE *mem, struct ast_node *ast)
     struct ast_struct_decl *decl = ast->ast;
 
     ast_print(mem, ast, "StructDecl");
-    fprintf(mem, "`%s`\n", decl->name);
+    fprintf(mem, "%s`%s`%s\n", col_id, decl->name, col_end);
 
     ast_indent += 2;
     visit(mem, decl->decls);
@@ -294,9 +340,9 @@ static void visit_var_decl(FILE *mem, struct ast_node *ast)
 
     ast_print(mem, ast, "VarDecl");
     if (dt == D_T_STRUCT) {
-        fprintf(mem, "struct %s ", decl->type_name);
+        fprintf(mem, "%sstruct %s%s ", col_type, decl->type_name, col_end);
     } else {
-        fprintf(mem, "%s ", data_type_to_string(dt));
+        fprintf(mem, "%s%s%s ", col_type, data_type_to_string(dt), col_end);
     }
 
     if (il > 0) {
@@ -304,7 +350,7 @@ static void visit_var_decl(FILE *mem, struct ast_node *ast)
         fprintf(mem, " ");
     }
 
-    fprintf(mem, "`%s`\n", decl->name);
+    fprintf(mem, "%s`%s`%s\n", col_id, decl->name, col_end);
 
     if (decl->body) {
         ast_indent += 2;
@@ -322,9 +368,9 @@ static void visit_array_decl(FILE *mem, struct ast_node *ast)
     ast_print(mem, ast, "ArrayDecl");
 
     if (dt == D_T_STRUCT) {
-        fprintf(mem, "struct %s ", decl->type_name);
+        fprintf(mem, "%sstruct %s%s ", col_type, decl->type_name, col_end);
     } else {
-        fprintf(mem, "%s ", data_type_to_string(dt));
+        fprintf(mem, "%s%s%s ", col_type, data_type_to_string(dt), col_end);
     }
 
     if (il > 0) {
@@ -337,7 +383,7 @@ static void visit_array_decl(FILE *mem, struct ast_node *ast)
     for (uint64_t i = 0; i < dimensions->size; ++i)
         fprintf(mem, "[%d]", ( (struct ast_num *)(dimensions->stmts[i]->ast) )->value);
 
-    fprintf(mem, " `%s`\n", decl->name);
+    fprintf(mem, " %s`%s`%s\n", col_id, decl->name, col_end);
 
     if (decl->body) {
         ast_indent += 2;
@@ -351,7 +397,7 @@ static void visit_array_access(FILE *mem, struct ast_node *ast)
     struct ast_array_access *stmt = ast->ast;
 
     ast_print(mem, ast, "ArrayAccess");
-    fprintf(mem, "`%s`\n", stmt->name);
+    fprintf(mem, "%s`%s`%s\n", col_id, stmt->name, col_end);
 
     struct ast_compound *indices = stmt->indices->ast;
 
@@ -383,10 +429,10 @@ static void visit_fn_decl(FILE *mem, struct ast_node *ast)
 
     ast_indent += 2;
     ast_print(mem, ast, is_proto ? "FunctionProtoRetType" : "FunctionDeclRetType");
-    fprintf(mem, "%s\n", data_type_to_string(decl->data_type));
+    fprintf(mem, "%s%s%s\n", col_type, data_type_to_string(decl->data_type), col_end);
 
     ast_print(mem, ast, is_proto ? "FunctionProtoName" : "FunctionDeclName");
-    fprintf(mem, "`%s`\n", decl->name);
+    fprintf(mem, "%s`%s`%s\n", col_id, decl->name, col_end);
 
     ast_print_line(mem, ast, is_proto ? "FunctionProtoArgs" : "FunctionDeclArgs");
 
@@ -413,7 +459,7 @@ static void visit_fn_call(FILE *mem, struct ast_node *ast)
     struct ast_fn_call *stmt = ast->ast;
 
     ast_print(mem, ast, "FunctionCall");
-    fprintf(mem, "`%s`\n", stmt->name);
+    fprintf(mem, "%s`%s`%s\n", col_id, stmt->name, col_end);
 
     ast_indent += 2;
     ast_print_line(mem, ast, "FunctionCallArgs");
@@ -472,8 +518,8 @@ static void visit_implicit_cast(FILE *mem, struct ast_node *ast)
 
     ast_print(mem, ast, "ImplicitCastExpr");
     fprintf(
-        mem, "-> %s\n",
-        data_type_to_string(stmt->to));
+        mem, "-> %s%s%s\n",
+        col_type, data_type_to_string(stmt->to), col_end);
 
     ast_indent += 2;
     visit(mem, stmt->body);
@@ -572,11 +618,34 @@ int32_t visit(FILE *mem, struct ast_node *ast)
     return 0;
 }
 
+static void init_colors()
+{
+    col_id = config.colored
+        ? color_cyan
+        : "";
+
+    col_location = config.colored
+        ? color_yellow
+        : "";
+
+    col_type = config.colored
+        ? color_green
+        : "";
+
+    col_string = config.colored
+        ? color_blue
+        : "";
+
+    col_end = config.colored
+        ? color_end
+        : "";
+}
+
 int32_t ast_dump(FILE *mem, struct ast_node *ast)
 {
     ast_indent = 0;
-    ast_omit_pos = 0;
 
+    init_colors();
     int32_t code = visit(mem, ast);
     fflush(mem);
     return code;
@@ -585,8 +654,8 @@ int32_t ast_dump(FILE *mem, struct ast_node *ast)
 int32_t ast_dump_omit_pos(FILE *mem, struct ast_node *ast)
 {
     ast_indent = 0;
-    ast_omit_pos = 1;
 
+    init_colors();
     int32_t code = visit(mem, ast);
     fflush(mem);
     return code;
