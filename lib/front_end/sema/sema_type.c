@@ -5,13 +5,27 @@
  */
 
 #include "front_end/ast/ast.h"
+#include "front_end/ana/fn_storage.h"
 #include "front_end/sema/sema.h"
 #include "util/unreachable.h"
+#include "builtins.h"
 #include <assert.h>
 #include <stdio.h>
 
 static enum data_type fn_ret_type;
 static enum data_type last_type;
+
+static fn_storage_t fn_storage;
+
+static void init()
+{
+    fn_storage_init(&fn_storage);
+}
+
+static void reset()
+{
+    fn_storage_free(&fn_storage);
+}
 
 /*
     What to cast?
@@ -169,6 +183,38 @@ static void visit_return(struct ast_node **ast)
     }
 }
 
+static void visit_fn_call(struct ast_node *ast)
+{
+    struct ast_fn_call  *stmt = ast->ast;
+    struct builtin_fn   *fn   = fn_storage_lookup(&fn_storage, stmt->name);
+    struct ast_compound *args = stmt->args->ast;
+
+    if (args->size != fn->args_cnt)
+        weak_fatal_error(
+            "Mismatch between args count of stored function and "
+            "call to it. Please run ana/fn_ana.c."
+        );
+
+    for (uint64_t i = 0; i < fn->args_cnt; ++i) {
+        visit(&args->stmts[i]);
+        enum data_type l = last_type;
+        enum data_type r = fn->args[i];
+
+        if (l == r)
+            continue;
+
+        struct ast_node **a = &args->stmts[i];
+        *a = ast_implicit_cast_init(
+            r, /* We cast to declared function return ty.e */
+            (*a),
+            (*a)->line_no,
+            (*a)->col_no
+        );
+    }
+
+    last_type = fn->rt;
+}
+
 /**********************************************
  **          Tree traversal only             **
  **********************************************/
@@ -208,6 +254,8 @@ static void visit_fn_decl(struct ast_node *ast)
 {
     struct ast_fn_decl *decl = ast->ast;
     fn_ret_type = decl->data_type;
+
+    fn_storage_push(&fn_storage, decl->name, decl);
 
     struct ast_compound *args = decl->args->ast;
     if (args && args->size > 0)
@@ -267,6 +315,8 @@ static void visit(struct ast_node **ast)
     case AST_RETURN_STMT:
         visit_return(ast);
         break;
+    case AST_FUNCTION_CALL:
+        visit_fn_call(*ast);
     /* Ignore. */
     default:
         break;
@@ -278,5 +328,7 @@ static void visit(struct ast_node **ast)
  **********************************************/
 void sema_type(struct ast_node **ast)
 {
+    init();
     visit(ast);
+    reset();
 }
