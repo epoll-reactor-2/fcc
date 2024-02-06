@@ -84,7 +84,6 @@ bool opt_test(const char *path, const char *filename)
             goto exit;
         }
         ir_unit_cleanup(&ir);
-        printf("Success!\n");
     } else {
         /* Error, will be printed in main. */
         ok = 0;

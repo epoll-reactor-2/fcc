@@ -47,9 +47,7 @@ bool analysis_test(const char *path, const char *filename)
         analysis_fn(ast);
         /// Normal code.
         if (!ignore_warns) {
-            if (strcmp(warn_buf, msg) == 0) {
-                printf("Success!\n");
-            } else {
+            if (strcmp(warn_buf, msg) != 0) {
                 printf("generated warning:\n%s", warn_buf);
                 printf("expected warning:\n%s", msg);
                 ok = false;
@@ -58,9 +56,7 @@ bool analysis_test(const char *path, const char *filename)
         }
     } else {
         /* Code with fatal errors. */
-        if (strcmp(err_buf, msg) == 0) {
-            printf("Success!\n");
-        } else {
+        if (strcmp(err_buf, msg) != 0) {
             printf("generated error:\n%s", err_buf);
             printf("expected error:\n%s", msg);
             ok = false;

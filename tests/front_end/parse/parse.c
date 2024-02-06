@@ -45,7 +45,6 @@ bool parse_test(const char *path, const char *filename)
             ok = 0;
             goto exit;
         }
-        printf("Success!\n");
     } else {
         /* Error, will be printed in main. */
         ok = 0;
