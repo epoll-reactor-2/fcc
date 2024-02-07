@@ -69,13 +69,14 @@ struct ast_node *gen_ast(const char *filename)
     tok_array_t *t = gen_tokens(filename);
     struct ast_node *ast = parse(t->data, t->data + t->count);
     tokens_cleanup(t);
-    analyze(ast);
     return ast;
 }
 
 struct ir_unit gen_ir(const char *filename)
 {
-    return ir_gen(gen_ast(filename));
+    struct ast_node *ast = gen_ast(filename);
+    analyze(ast);
+    return ir_gen(ast);
 }
 
 
