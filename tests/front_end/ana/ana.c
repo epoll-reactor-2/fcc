@@ -89,22 +89,22 @@ int run(const char *dir)
 
 int main()
 {
-    analysis_fn = analysis_functions_analysis;
+    analysis_fn = ana_fn;
     ignore_warns = 1;
     if (run("fn_ana") < 0)
         return -1;
 
-    analysis_fn = analysis_variable_use_analysis;
+    analysis_fn = ana_var_usage;
     ignore_warns = 1;
     if (run("var_ana/errors") < 0)
         return -1;
 
-    analysis_fn = analysis_variable_use_analysis;
+    analysis_fn = ana_var_usage;
     ignore_warns = 0;
     if (run("var_ana/warns") < 0)
         return -1;
 
-    analysis_fn = analysis_type_analysis;
+    analysis_fn = ana_type;
     ignore_warns = 1;
     if (run("type_errors") < 0)
         return -1;

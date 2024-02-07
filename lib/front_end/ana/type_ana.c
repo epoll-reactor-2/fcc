@@ -545,7 +545,7 @@ void visit(struct ast_node *ast)
     }
 }
 
-void analysis_type_analysis(struct ast_node *root)
+void ana_type(struct ast_node *root)
 {
     init();
     visit(root);

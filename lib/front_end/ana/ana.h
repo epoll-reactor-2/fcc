@@ -15,7 +15,7 @@ struct ast_node;
       - Function is unused.
       - Variable is unused.
       - Variable is written, but not read. */
-void analysis_variable_use_analysis(struct ast_node *root);
+void ana_var_usage(struct ast_node *root);
 
 /** \brief Function analyzer.
    
@@ -37,7 +37,7 @@ void analysis_variable_use_analysis(struct ast_node *root);
         <td>Function argument is of type in signature.</td>
       </tr>
     </table> */
-void analysis_functions_analysis(struct ast_node *root);
+void ana_fn(struct ast_node *root);
 
 /** \brief Type checker.
    
@@ -71,6 +71,6 @@ void analysis_functions_analysis(struct ast_node *root);
         <td>Integer as array index.</td>
       </tr>
     </table> */
-void analysis_type_analysis(struct ast_node *root);
+void ana_type(struct ast_node *root);
 
 #endif // WEAK_COMPILER_FRONTEND_ANA_H

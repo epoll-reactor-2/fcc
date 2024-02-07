@@ -480,7 +480,7 @@ void visit(struct ast_node *ast)
     }
 }
 
-void analysis_variable_use_analysis(struct ast_node *root)
+void ana_var_usage(struct ast_node *root)
 {
     init();
     visit(root);

@@ -215,9 +215,9 @@ struct ir_unit gen_ir(const char *filename)
     struct ast_node *ast = gen_ast(filename);
 
     /* Preconditions for IR generator. */
-    analysis_variable_use_analysis(ast);
-    analysis_functions_analysis(ast);
-    analysis_type_analysis(ast);
+    ana_var_usage(ast);
+    ana_fn(ast);
+    ana_type(ast);
 
     struct ir_unit unit = ir_gen(ast);
     ast_node_cleanup(ast);
