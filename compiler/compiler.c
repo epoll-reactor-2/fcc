@@ -38,9 +38,9 @@ void tokens_cleanup(tok_array_t *toks)
  **********************************************/
 void analyze(struct ast_node *ast)
 {
-    analysis_variable_use_analysis(ast);
-    analysis_functions_analysis(ast);
-    analysis_type_analysis(ast);
+    ana_var_usage(ast);
+    ana_fn(ast);
+    ana_type(ast);
 }
 
 /**********************************************

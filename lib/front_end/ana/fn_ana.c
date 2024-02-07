@@ -183,7 +183,7 @@ void visit(struct ast_node *ast)
     }
 }
 
-void analysis_functions_analysis(struct ast_node *root)
+void ana_fn(struct ast_node *root)
 {
     init();
     visit(root);

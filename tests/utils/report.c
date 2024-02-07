@@ -89,7 +89,7 @@ int main()
 {
     configure();
 
-    analysis_fn = analysis_functions_analysis;
+    analysis_fn = ana_fn;
     create_warn_dump = 0;
     create_err_dump = 1;
     if (run("fn_ana") < 0)
@@ -97,19 +97,19 @@ int main()
 
     create_warn_dump = 0;
     create_err_dump = 1;
-    analysis_fn = analysis_variable_use_analysis;
+    analysis_fn = ana_var_usage;
     if (run("var_ana/errors") < 0)
         return -1;
 
     create_warn_dump = 1;
     create_err_dump = 0;
-    analysis_fn = analysis_variable_use_analysis;
+    analysis_fn = ana_var_usage;
     if (run("var_ana/warns") < 0)
         return -1;
 
     create_warn_dump = 0;
     create_err_dump = 1;
-    analysis_fn = analysis_type_analysis;
+    analysis_fn = ana_type;
     if (run("type_errors") < 0)
         return -1;
 

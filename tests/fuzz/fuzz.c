@@ -485,9 +485,9 @@ void compile(tok_array_t *tokens)
     struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);
 
     /* Preconditions for IR generator. */
-    analysis_variable_use_analysis(ast);
-    analysis_functions_analysis(ast);
-    analysis_type_analysis(ast);
+    ana_var_usage(ast);
+    ana_fn(ast);
+    ana_type(ast);
 
     tokens_cleanup(tokens);
     struct ir_unit unit = ir_gen(ast);
