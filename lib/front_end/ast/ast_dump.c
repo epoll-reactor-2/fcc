@@ -634,13 +634,3 @@ int32_t ast_dump(FILE *mem, struct ast_node *ast)
     fflush(mem);
     return code;
 }
-
-int32_t ast_dump_omit_pos(FILE *mem, struct ast_node *ast)
-{
-    ast_indent = 0;
-
-    init_colors();
-    int32_t code = visit(mem, ast);
-    fflush(mem);
-    return code;
-}
