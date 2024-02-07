@@ -148,16 +148,26 @@ void run_backend(const char *filename)
 #endif /* CONFIG_USE_BACKEND_X86_64 */
 
 
+void configure_ast(bool simple)
+{
+    struct ast_dump_config ast_config = {
+        .omit_pos = simple,
+        .colored  = 1
+    };
+    ast_dump_set_config(&ast_config);
+}
+
 /**********************************************
  **             Driver code                  **
  **********************************************/
 void parse_cmdline(int argc, char *argv[])
 {
-    bool  tokens = 0;
-    bool  ast    = 0;
-    bool  ir     = 0;
-    int   file_i = 0;
-    char *file   = NULL;
+    bool  tokens     = 0;
+    bool  ast        = 0;
+    bool  ast_simple = 0;
+    bool  ir         = 0;
+    int   file_i     = 0;
+    char *file       = NULL;
 
     /* This simple algorithm allows us to have
        command line args of type:
@@ -165,10 +175,11 @@ void parse_cmdline(int argc, char *argv[])
          1) <filename> --args...
          2) --args...  <filename> */
     for (int i = 1; i < argc; ++i)
-        if      (!strcmp(argv[i], "--dump-tokens")) tokens = 1;
-        else if (!strcmp(argv[i], "--dump-ast"))    ast    = 1;
-        else if (!strcmp(argv[i], "--dump-ir"))     ir     = 1;
-        else                                        file_i = i;
+        if      (!strcmp(argv[i], "--dump-tokens"))     tokens     = 1;
+        else if (!strcmp(argv[i], "--dump-ast"))        ast        = 1;
+        else if (!strcmp(argv[i], "--dump-ast-simple")) ast_simple = 1;
+        else if (!strcmp(argv[i], "--dump-ir"))         ir         = 1;
+        else                                            file_i     = i;
 
     file = argv[file_i];
 
@@ -179,7 +190,11 @@ void parse_cmdline(int argc, char *argv[])
         exit(0);
     }
 
+    if (ast_simple)
+        ast = 1;
+
     if (ast) {
+        configure_ast(/*simple=*/ast_simple);
         struct ast_node *ast = gen_ast(file);
         dump_ast(ast);
         ast_node_cleanup(ast);
@@ -198,19 +213,13 @@ void parse_cmdline(int argc, char *argv[])
 
 void help();
 
-void configure()
+void configure_diag()
 {
     struct diag_config diag_config = {
         .ignore_warns  = 0,
         .show_location = 1
     };
     weak_diag_set_config(&diag_config);
-
-    struct ast_dump_config ast_config = {
-        .omit_pos = 0,
-        .colored  = 1
-    };
-    ast_dump_set_config(&ast_config);
 }
 
 int main(int argc, char *argv[])
@@ -218,7 +227,7 @@ int main(int argc, char *argv[])
     if (argc < 2)
         help();
 
-    configure();
+    configure_diag();
 
     parse_cmdline(argc, argv);
 }
@@ -230,6 +239,7 @@ void help()
         "\n"
         "\t--dump-tokens\n"
         "\t--dump-ast\n"
+        "\t--dump-ast-simple\n"
         "\t--dump-ir\n"
     );
     exit(0);
