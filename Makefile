@@ -1,5 +1,5 @@
 ##################################
-# Commom variables               #
+# Common variables               #
 ##################################
 NR_CPUS              = $(shell nproc 2> /dev/null)
 override MAKEFLAGS  += -j $(NR_CPUS)

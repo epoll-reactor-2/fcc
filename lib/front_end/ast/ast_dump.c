@@ -46,11 +46,11 @@ static void ast_print_indent(FILE *stream)
 }
 
 static void ast_print_positioned(
-    FILE       *mem,
+    FILE            *mem,
     struct ast_node *ast,
-    bool        new_line_wanted,
-    const char *fmt,
-    va_list     list
+    bool             new_line_wanted,
+    const char      *fmt,
+    va_list          list
 ) {
     ast_print_indent(mem);
 
