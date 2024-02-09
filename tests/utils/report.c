@@ -43,8 +43,6 @@ bool analysis_test(const char *path, const char *filename)
         char out[512] = {0};
         snprintf(out, 511, "%s/%s.log", cwd, filename);
         diag_warn_memstream = fopen(out, "w");
-
-        printf("Warn stream: %p\n", diag_warn_memstream);
     }
 
     struct ast_node *ast = gen_ast(path);
