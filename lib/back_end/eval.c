@@ -193,20 +193,26 @@ static void eval_floats(enum token_type op, float l, float r)
 {
     last.dt = D_T_FLOAT;
 
+    float f = 0.0;
+
     switch (op) {
-    case TOK_EQ:      last.dt = D_T_INT; last.__int = l == r; break;
-    case TOK_NEQ:     last.dt = D_T_INT; last.__int = l != r; break;
-    case TOK_GT:      last.dt = D_T_INT; last.__int = l  > r; break;
-    case TOK_LT:      last.dt = D_T_INT; last.__int = l  < r; break;
-    case TOK_GE:      last.dt = D_T_INT; last.__int = l >= r; break;
-    case TOK_LE:      last.dt = D_T_INT; last.__int = l <= r; break;
-    case TOK_PLUS:    last.__float = l  + r; break;
-    case TOK_MINUS:   last.__float = l  - r; break;
-    case TOK_STAR:    last.__float = l  * r; break;
-    case TOK_SLASH:   last.__float = l  / r; break;
+    /* Logical operations. */
+    case TOK_EQ:      f = l == r; last.dt = D_T_INT; break;
+    case TOK_NEQ:     f = l != r; last.dt = D_T_INT; break;
+    case TOK_GT:      f = l  > r; last.dt = D_T_INT; break;
+    case TOK_LT:      f = l  < r; last.dt = D_T_INT; break;
+    case TOK_GE:      f = l >= r; last.dt = D_T_INT; break;
+    case TOK_LE:      f = l <= r; last.dt = D_T_INT; break;
+    /* Arithmetic operations. */
+    case TOK_PLUS:    f = l  + r; break;
+    case TOK_MINUS:   f = l  - r; break;
+    case TOK_STAR:    f = l  * r; break;
+    case TOK_SLASH:   f = l  / r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
+
+    last.__float = f;
 }
 
 static void eval_ints(
@@ -216,28 +222,32 @@ static void eval_ints(
 ) {
     last.dt = D_T_INT;
 
+    int i = 0;
+
     switch (op) {
-    case TOK_AND:     last.__int = l && r; break;
-    case TOK_OR:      last.__int = l || r; break;
-    case TOK_XOR:     last.__int = l  ^ r; break;
-    case TOK_BIT_AND: last.__int = l  & r; break;
-    case TOK_BIT_OR:  last.__int = l  | r; break;
-    case TOK_EQ:      last.__int = l == r; break;
-    case TOK_NEQ:     last.__int = l != r; break;
-    case TOK_GT:      last.__int = l  > r; break;
-    case TOK_LT:      last.__int = l  < r; break;
-    case TOK_GE:      last.__int = l >= r; break;
-    case TOK_LE:      last.__int = l <= r; break;
-    case TOK_SHL:     last.__int = l << r; break;
-    case TOK_SHR:     last.__int = l >> r; break;
-    case TOK_PLUS:    last.__int = l  + r; break;
-    case TOK_MINUS:   last.__int = l  - r; break;
-    case TOK_STAR:    last.__int = l  * r; break;
-    case TOK_SLASH:   last.__int = l  / r; break;
-    case TOK_MOD:     last.__int = l  % r; break;
+    case TOK_AND:     i = l && r; break;
+    case TOK_OR:      i = l || r; break;
+    case TOK_XOR:     i = l  ^ r; break;
+    case TOK_BIT_AND: i = l  & r; break;
+    case TOK_BIT_OR:  i = l  | r; break;
+    case TOK_EQ:      i = l == r; break;
+    case TOK_NEQ:     i = l != r; break;
+    case TOK_GT:      i = l  > r; break;
+    case TOK_LT:      i = l  < r; break;
+    case TOK_GE:      i = l >= r; break;
+    case TOK_LE:      i = l <= r; break;
+    case TOK_SHL:     i = l << r; break;
+    case TOK_SHR:     i = l >> r; break;
+    case TOK_PLUS:    i = l  + r; break;
+    case TOK_MINUS:   i = l  - r; break;
+    case TOK_STAR:    i = l  * r; break;
+    case TOK_SLASH:   i = l  / r; break;
+    case TOK_MOD:     i = l  % r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
+
+    last.__int = i;
 }
 
 static void eval_chars(
@@ -247,28 +257,34 @@ static void eval_chars(
 ) {
     last.dt = D_T_CHAR;
 
+    char c = '\0';
+
     switch (op) {
-    case TOK_AND:     last.dt = D_T_INT; last.__char = l && r; break;
-    case TOK_OR:      last.dt = D_T_INT; last.__char = l || r; break;
-    case TOK_XOR:     last.__char = l  ^ r; break;
-    case TOK_BIT_AND: last.__char = l  & r; break;
-    case TOK_BIT_OR:  last.__char = l  | r; break;
-    case TOK_EQ:      last.dt = D_T_INT; last.__char = l == r; break;
-    case TOK_NEQ:     last.dt = D_T_INT; last.__char = l != r; break;
-    case TOK_GT:      last.dt = D_T_INT; last.__char = l  > r; break;
-    case TOK_LT:      last.dt = D_T_INT; last.__char = l  < r; break;
-    case TOK_GE:      last.dt = D_T_INT; last.__char = l >= r; break;
-    case TOK_LE:      last.dt = D_T_INT; last.__char = l <= r; break;
-    case TOK_SHL:     last.__char = l << r; break;
-    case TOK_SHR:     last.__char = l >> r; break;
-    case TOK_PLUS:    last.__char = l  + r; break;
-    case TOK_MINUS:   last.__char = l  - r; break;
-    case TOK_STAR:    last.__char = l  * r; break;
-    case TOK_SLASH:   last.__char = l  / r; break;
-    case TOK_MOD:     last.__char = l  % r; break;
+    /* Logical operations. */
+    case TOK_EQ:      c = l == r; last.dt = D_T_INT; break;
+    case TOK_NEQ:     c = l != r; last.dt = D_T_INT; break;
+    case TOK_GT:      c = l  > r; last.dt = D_T_INT; break;
+    case TOK_LT:      c = l  < r; last.dt = D_T_INT; break;
+    case TOK_GE:      c = l >= r; last.dt = D_T_INT; break;
+    case TOK_LE:      c = l <= r; last.dt = D_T_INT; break;
+    case TOK_AND:     c = l && r; last.dt = D_T_INT; break;
+    case TOK_OR:      c = l || r; last.dt = D_T_INT; break;
+    /* Arithmetic operations. */
+    case TOK_XOR:     c = l  ^ r; break;
+    case TOK_BIT_AND: c = l  & r; break;
+    case TOK_BIT_OR:  c = l  | r; break;
+    case TOK_SHL:     c = l << r; break;
+    case TOK_SHR:     c = l >> r; break;
+    case TOK_PLUS:    c = l  + r; break;
+    case TOK_MINUS:   c = l  - r; break;
+    case TOK_STAR:    c = l  * r; break;
+    case TOK_SLASH:   c = l  / r; break;
+    case TOK_MOD:     c = l  % r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
+
+    last.__char = c;
 }
 
 
