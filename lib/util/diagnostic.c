@@ -88,7 +88,6 @@ unused static void print_file_range(
     char     report[65536] = {0};
     uint64_t w             =  0;
     uint64_t line_max      =  0;
-    uint64_t lines         =  0;
 
     char *msg_color = is_error ? color_red : color_yellow;
     char *line_color = color_purple;
@@ -100,8 +99,7 @@ unused static void print_file_range(
           if (line_max < strlen(buf) + 7) \
               line_max = strlen(buf) + 7; \
           \
-          w += written; \
-          ++lines; }
+          w += written; }
 
 #define GET() fgets(buf, sizeof (buf), stream)
 
@@ -118,7 +116,6 @@ unused static void print_file_range(
         w += sprintf(report + w, "%s|%s        %-*s%s^%s\n", msg_color, color_end, (int) col_no, " ", msg_color, color_end);
         w += sprintf(report + w, "%s|        %s%s\n", msg_color, err_buf, color_end);
         w += sprintf(report + w, "%s|%s\n", msg_color, color_end);
-        ++lines;
     }
 
     /* After. */

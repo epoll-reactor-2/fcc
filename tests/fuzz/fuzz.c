@@ -185,7 +185,7 @@ void emit_bin_int_op(FILE *s, var_stack_t *top)
             &vector_at(*top, rand() % top->count);
 
         if (e->dt == D_T_INT)
-            fprintf(s, e->name);
+            fprintf(s, "%s", e->name);
         else
             fprintf(s, "%d", emit_int());
     }
@@ -214,7 +214,7 @@ void emit_bin_float_op(FILE *s, var_stack_t *top)
             &vector_at(*top, rand() % top->count);
 
         if (e->dt == D_T_FLOAT)
-            fprintf(s, e->name);
+            fprintf(s, "%s", e->name);
         else
             fprintf(s, "%lf", emit_float());
     }
@@ -243,7 +243,7 @@ void emit_bin_char_op(FILE *s, var_stack_t *top)
             &vector_at(*top, rand() % top->count);
 
         if (e->dt == D_T_CHAR)
-            fprintf(s, e->name);
+            fprintf(s, "%s", e->name);
         else
         fprintf(s, "'%c'", emit_letter());
     }
@@ -313,7 +313,7 @@ void emit_arr_decl(FILE *s)
     uint64_t max = rand() % 10 + 1;
 
     for (uint64_t i = 0; i < max; ++i) {
-        fprintf(s, "[%ld]", rand() % 100 + 1);
+        fprintf(s, "[%d]", rand() % 100 + 1);
     }
 
     fprintf(s, ";");
@@ -461,7 +461,7 @@ void emit_block_main(FILE *s)
 
 void fuzz_print_source()
 {
-    char ch = 0;
+    int ch = 0;
     int lineno = 2;
 
     printf("% 6d: ", 1);
