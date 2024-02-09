@@ -94,7 +94,7 @@ void dump_tokens(tok_array_t *toks)
     for (uint64_t i = 0; i < toks->count; ++i) {
         struct token *t = &toks->data[i];
         printf(
-            "% 4ld:% 4ld     %-15s %s\n",
+            "% 4hd:% 4hd     %-15s %s\n",
             t->line_no,
             t->col_no,
             tok_to_string(t->type),
