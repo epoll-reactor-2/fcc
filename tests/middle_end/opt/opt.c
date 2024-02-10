@@ -38,12 +38,12 @@ void ddg_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
-bool opt_test(const char *path, const char *filename)
+int opt_test(const char *path, const char *filename)
 {
-    bool    ok                   = 1;
+    int     rc                   =  0;
     char   *expected             = NULL;
     char   *generated            = NULL;
-    size_t  _                    = 0;
+    size_t  _                    =  0;
     char    before_opt_path[256] = {0};
     char     after_opt_path[256] = {0};
 
@@ -80,13 +80,13 @@ bool opt_test(const char *path, const char *filename)
             ir_dump_unit(stdout, &ir);
             ir_unit_cleanup(&ir);
            printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
-            ok = 0;
+            rc = -1;
             goto exit;
         }
         ir_unit_cleanup(&ir);
     } else {
         /* Error, will be printed in main. */
-        ok = 0;
+        rc = -1;
     }
 
 exit:
@@ -98,7 +98,7 @@ exit:
     free(expected);
     free(generated);
  
-    return ok;
+    return rc;
 }
 
 int run(const char *dir)

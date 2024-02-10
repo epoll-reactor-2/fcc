@@ -36,11 +36,11 @@ void ddg_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
-bool ir_test(const char *path, const char *filename)
+int ddg_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    bool    ok               = 1;
+    int     rc               = 0;
     char   *expected         = NULL;
     char   *generated        = NULL;
     size_t  _                = 0;
@@ -69,12 +69,12 @@ bool ir_test(const char *path, const char *filename)
 
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
-            ok = 0;
+            rc = -1;
             goto exit;
         }
     } else {
         /* Error, will be printed in main. */
-        ok = 0;
+        rc = -1;
     }
 
 exit:
@@ -85,10 +85,10 @@ exit:
     free(expected);
     free(generated);
 
-    return ok;
+    return rc;
 }
 
 int main()
 {
-    return do_on_each_file("ddg", ir_test);
+    return do_on_each_file("ddg", ddg_test);
 }

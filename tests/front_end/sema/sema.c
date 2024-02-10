@@ -23,13 +23,11 @@ void *diag_warn_memstream = NULL;
 
 void (*sema_fn)(struct ast_node **);
 
-/* Parse file and compare result with expected.
-   \return 1 on success, 0 on failure. */
-bool sema_test(const char *path, const char *filename)
+int sema_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    bool    ok          = 1;
+    int     rc          = 0;
     char   *expected    = NULL;
     char   *generated   = NULL;
     size_t  _           = 0;
@@ -45,12 +43,12 @@ bool sema_test(const char *path, const char *filename)
         get_init_comment(yyin, ast_stream, NULL);
         if (strcmp(expected, generated) != 0) {
             printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            ok = 0;
+            rc = -1;
             goto exit;
         }
     } else {
         /* Error, will be printed in main. */
-        ok = 0;
+        rc = -1;
     }
 
 exit:
@@ -61,7 +59,7 @@ exit:
     free(expected);
     free(generated);
 
-    return ok;
+    return rc;
 }
 
 int run(const char *dir)

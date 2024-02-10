@@ -53,11 +53,11 @@ void cfg_edges_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
-bool ir_test(const char *path, const char *filename)
+int ir_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    bool    ok               = 1;
+    int     rc               = 0;
     char   *expected         = NULL;
     char   *generated        = NULL;
     size_t  _                = 0;
@@ -108,14 +108,13 @@ bool ir_test(const char *path, const char *filename)
         fscanf(expected_stream, "%d", &expected_code);
 
         if (exit_code != expected_code) {
-            /* ir_dump_unit(stdout, ir); */
             printf("Return value mismatch: got %d, expected %d\n", exit_code, expected_code);
-            ok = 0;
+            rc = -1;
             goto exit;
         }
     } else {
-        /// Error, will be printed in main.
-        return 0;
+        /* Error, will be printed in main. */
+        return -1;
     }
 
 exit:
@@ -125,7 +124,7 @@ exit:
     free(expected);
     free(generated);
 
-    return ok;
+    return rc;
 }
 
 int main()

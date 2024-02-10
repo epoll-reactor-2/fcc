@@ -21,11 +21,11 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-bool x86_64_test(const char *path, const char *filename)
+int x86_64_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    bool    ok               = 1;
+    int     rc               = 0;
     char   *expected         = NULL;
     char   *generated        = NULL;
     size_t  _                = 0;
@@ -76,12 +76,12 @@ bool x86_64_test(const char *path, const char *filename)
         int r = istrcmp(generated, expected);
         if (r != 0) {
             printf("Code mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            ok = 0;
+            rc = -1;
             goto exit;
         }
     } else {
-        /// Error, will be printed in main.
-        return 0;
+        /* Error, will be printed in main. */
+        return -1;
     }
 
 exit:
@@ -91,7 +91,7 @@ exit:
     free(expected);
     free(generated);
 
-    return ok;
+    return rc;
 }
 
 int main()

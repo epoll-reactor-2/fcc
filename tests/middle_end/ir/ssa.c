@@ -18,9 +18,9 @@ void *diag_warn_memstream = NULL;
 
 char current_output_dir[128];
 
-bool ssa_test(const char *path, const char *filename)
+int ssa_test(const char *path, const char *filename)
 {
-    bool    ok                 = 1;
+    int     rc                 =  0;
     char   *expected           = NULL;
     char   *generated          = NULL;
     size_t  _                  =  0;
@@ -67,12 +67,12 @@ bool ssa_test(const char *path, const char *filename)
             /* ir_dump_unit(stdout, ir); */
             // printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
             // fflush(stdout);
-            // ok = 0;
+            // rc = -1;
             // goto exit;
         }
     } else {
         /* Error, will be printed in main. */
-        ok = 0;
+        rc = -1;
     }
 
 /* exit: */
@@ -84,7 +84,7 @@ bool ssa_test(const char *path, const char *filename)
     free(expected);
     free(generated);
 
-    return ok;
+    return rc;
 }
 
 int main()

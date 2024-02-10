@@ -28,15 +28,15 @@ char   *warn_buf     = NULL;
 size_t  err_buf_len  = 0;
 size_t  warn_buf_len = 0;
 
-bool analysis_test(const char *path, const char *filename)
+int ana_test(const char *path, const char *filename)
 {
     (void) filename;
 
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
-    diag_warn_memstream = open_memstream(&warn_buf, &warn_buf_len);
+    diag_warn_memstream  = open_memstream(&warn_buf, &warn_buf_len);
 
     /// Static due to the `longjmp()` semantics [-Werror=clobbered].
-    static bool ok      = 1;
+    static int rc       = 0;
     char   *msg         = NULL;
     size_t  _           = 0;
     FILE   *msg_stream  = open_memstream(&msg, &_);
@@ -47,13 +47,13 @@ bool analysis_test(const char *path, const char *filename)
 
     if (!setjmp(weak_fatal_error_buf)) {
         analysis_fn(ast);
-        ast_dump(stdout, ast);
-        /// Normal code.
+        /* Normal code. */
         if (!ignore_warns) {
             if (strcmp(warn_buf, msg) != 0) {
+                ast_dump(stdout, ast);
                 printf("generated warning:\n%s", warn_buf);
                 printf("expected warning:\n%s", msg);
-                ok = false;
+                rc = -1;
                 goto exit;
             }
         }
@@ -62,14 +62,14 @@ bool analysis_test(const char *path, const char *filename)
         if (strcmp(err_buf, msg) != 0) {
             printf("generated error:\n%s", err_buf);
             printf("expected error:\n%s", msg);
-            ok = false;
+            rc = -1;
             goto exit;
         }
     }
 
     if (ignore_warns && !err_buf) {
         fprintf(stderr, "Expected compile error\n");
-        ok = false;
+        rc = -1;
     }
 
 exit:
@@ -82,23 +82,33 @@ exit:
     free(err_buf);
     free(warn_buf);
 
-    return ok;
+    return rc;
 }
 
 void ana_types(struct ast_node *root)
 {
-    
     sema_type(&root);
     ana_type(root);
 }
 
+void configure()
+{
+    struct diag_config config = {
+        .ignore_warns  = 0,
+        .show_location = 0
+    };
+    weak_diag_set_config(&config);
+}
+
 int run(const char *dir)
 {
-    return do_on_each_file(dir, analysis_test);
+    return do_on_each_file(dir, ana_test);
 }
 
 int main()
 {
+    configure();
+
     analysis_fn = ana_fn;
     ignore_warns = 1;
     if (run("fn_ana") < 0)
