@@ -212,7 +212,10 @@ static void eval_floats(enum token_type op, float l, float r)
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
 
-    last.__float = f;
+    if (last.dt == D_T_FLOAT)
+        last.__float = f;
+    else
+        last.__int = (int) f;
 }
 
 static void eval_ints(
@@ -284,7 +287,10 @@ static void eval_chars(
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
 
-    last.__char = c;
+    if (last.dt == D_T_CHAR)
+        last.__char = c;
+    else
+        last.__int = (int) c;
 }
 
 

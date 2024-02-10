@@ -17,7 +17,7 @@ extern int yylex_destroy();
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-char cwd[512] = {0};
+char cwd[384] = {0};
 bool create_warn_dump = 0;
 bool create_err_dump = 0;
 
