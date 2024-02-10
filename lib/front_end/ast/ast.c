@@ -664,8 +664,10 @@ void ast_node_cleanup(struct ast_node *ast)
     case AST_IMPLICIT_CAST:
         ast_implicit_cast_cleanup(ast->ast);
         break;
-    default:
-        weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
+    default: {
+        enum ast_type t = ast->type;
+        weak_unreachable("Unknown AST type (%d, %s).", t, ast_type_to_string(t));
+    }
     }
     weak_free(ast);
 }

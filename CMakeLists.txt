@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(weak_compiler C)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -fPIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wshadow -Wvla -Wpointer-arith -Wframe-larger-than=32768")
 
@@ -40,13 +40,13 @@ if(FLEX_FOUND)
 endif()
 
 file(GLOB BACK_END_INPUTS tests/back_end/input/*)
-file(COPY ${BACK_END_INPUTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test_inputs)
+file(COPY ${BACK_END_INPUTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/inputs)
 
 file(GLOB MIDDLE_END_INPUTS tests/middle_end/input/*)
-file(COPY ${MIDDLE_END_INPUTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test_inputs)
+file(COPY ${MIDDLE_END_INPUTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/inputs)
 
 file(GLOB FRONT_END_INPUTS tests/front_end/input/*)
-file(COPY ${FRONT_END_INPUTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test_inputs)
+file(COPY ${FRONT_END_INPUTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/inputs)
 
 # Collect source files
 file(GLOB_RECURSE LIB_SRC "lib/*.c")

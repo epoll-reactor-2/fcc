@@ -37,6 +37,14 @@ static void visit_float () { last_indir_lvl = 0; last_dt = D_T_FLOAT; }
 static void visit_string() { last_indir_lvl = 0; last_dt = D_T_STRING; }
 static void visit_bool  () { last_indir_lvl = 0; last_dt = D_T_BOOL; }
 
+static void visit_implicit_cast(struct ast_node *ast)
+{
+    struct ast_implicit_cast *cast = ast->ast;
+
+    last_dt = cast->to;
+    visit(cast->body);
+}
+
 static bool correct_bin_ops(enum token_type op, enum data_type t)
 {
     bool are_correct = false;
@@ -540,8 +548,13 @@ void visit(struct ast_node *ast)
     case AST_FUNCTION_CALL:
         visit_fn_call(ast);
         break;
-    default:
-        weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
+    case AST_IMPLICIT_CAST:
+        visit_implicit_cast(ast);
+        break;
+    default: {
+        enum ast_type t = ast->type;
+        weak_unreachable("Unknown AST type (%d, %s).", t, ast_type_to_string(t));
+    }
     }
 }
 
