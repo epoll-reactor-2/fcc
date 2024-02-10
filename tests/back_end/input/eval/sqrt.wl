@@ -5,7 +5,7 @@ float __fabs(float x) {
     } else {
         return x;
     }
-    return -999999.999999;
+    return -9999999999.9999;
 }
 
 float __sqrt(float x) {
