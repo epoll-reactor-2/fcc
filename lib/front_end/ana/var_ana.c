@@ -475,8 +475,10 @@ void visit(struct ast_node *ast)
     case AST_FUNCTION_CALL:
         visit_fn_call(ast);
         break;
-    default:
-        weak_unreachable("Unknown AST type (numeric: %d).", ast->type);
+    default: {
+        enum ast_type t = ast->type;
+        weak_unreachable("Unknown AST type (%d, %s).", t, ast_type_to_string(t));
+    }
     }
 }
 

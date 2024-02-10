@@ -33,6 +33,7 @@ const char *ast_type_to_string(enum ast_type t) {
     case AST_COMPOUND_STMT:          return "AST_COMPOUND_STMT";
     case AST_FUNCTION_DECL:          return "AST_FUNCTION_DECL";
     case AST_FUNCTION_CALL:          return "AST_FUNCTION_CALL";
+    case AST_IMPLICIT_CAST:          return "AST_IMPLICIT_CAST";
     default:                         weak_unreachable("Should not reach there.");
     }
 }

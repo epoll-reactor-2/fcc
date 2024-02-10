@@ -31,18 +31,17 @@ bool x86_64_test(const char *path, const char *filename)
     size_t  _                = 0;
     FILE   *expected_stream  = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
-    struct  ir_unit    *unit = NULL;
     struct  ir_node    *it   = NULL;
 
     if (!setjmp(weak_fatal_error_buf)) {
-        unit = gen_ir(path);
-        ir_type_pass(unit);
+        struct ir_unit unit = gen_ir(path);
+        ir_type_pass(&unit);
 
         get_init_comment(yyin, expected_stream, NULL);
 
         /* ir_dump_unit(stdout, ir); */
 
-        it = unit->fn_decls;
+        it = unit.fn_decls;
         while (it) {
             struct ir_fn_decl *decl = it->ir;
             /* Reordering before building CFG links. */
@@ -68,7 +67,8 @@ bool x86_64_test(const char *path, const char *filename)
             it = it->next;
         }
 
-        x86_64_gen(generated_stream, unit);
+        x86_64_gen(generated_stream, &unit);
+        ir_unit_cleanup(&unit);
 
         fflush(expected_stream);
         fflush(generated_stream);
@@ -90,7 +90,6 @@ exit:
     fclose(generated_stream);
     free(expected);
     free(generated);
-    ir_unit_cleanup(unit);
 
     return ok;
 }

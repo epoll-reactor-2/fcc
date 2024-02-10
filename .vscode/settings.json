@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "ast.h": "c",
+        "ast_dump.h": "c",
+        "ana.h": "c"
+    }
+}

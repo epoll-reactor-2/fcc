@@ -6,8 +6,10 @@
 
 #include "front_end/ana/ana.h"
 #include "front_end/ast/ast.h"
+#include "front_end/ast/ast_dump.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
+#include "front_end/sema/sema.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
@@ -45,6 +47,7 @@ bool analysis_test(const char *path, const char *filename)
 
     if (!setjmp(weak_fatal_error_buf)) {
         analysis_fn(ast);
+        ast_dump(stdout, ast);
         /// Normal code.
         if (!ignore_warns) {
             if (strcmp(warn_buf, msg) != 0) {
@@ -80,6 +83,13 @@ exit:
     free(warn_buf);
 
     return ok;
+}
+
+void ana_types(struct ast_node *root)
+{
+    
+    sema_type(&root);
+    ana_type(root);
 }
 
 int run(const char *dir)

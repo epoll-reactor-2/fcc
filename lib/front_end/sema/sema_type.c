@@ -189,6 +189,9 @@ static void visit_fn_call(struct ast_node *ast)
     struct builtin_fn   *fn   = fn_storage_lookup(&fn_storage, stmt->name);
     struct ast_compound *args = stmt->args->ast;
 
+    if (!fn)
+        weak_fatal_error("`%s` function lookup failed", stmt->name);
+
     if (args->size != fn->args_cnt)
         weak_fatal_error(
             "Mismatch between args count of stored function and "
@@ -261,7 +264,8 @@ static void visit_fn_decl(struct ast_node *ast)
     if (args && args->size > 0)
         visit(&decl->args);
 
-    visit(&decl->body);
+    if (decl->body)
+        visit(&decl->body);
 }
 
 static void visit_decl(struct ast_node *ast)

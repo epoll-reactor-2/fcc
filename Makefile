@@ -24,8 +24,8 @@ export
 ##################################
 # Logo                           #
 ##################################
-RED    := $(shell echo -e "\033[031m")
-RESET  := $(shell echo -e "\033[0m")
+RED    := $(shell echo "\033[031m")
+RESET  := $(shell echo "\033[0m")
 
 ifneq (,$(findstring UTF, $(LANG)))
 $(info $(RED)                                                                                  $(RESET) )
@@ -53,7 +53,7 @@ endif
 ##################################
 # Make targets                   #
 ##################################
-all: dir library test_suite driver
+all: dir library test_suite
 
 dir:
 	@if ! [ -d build ]; then \
