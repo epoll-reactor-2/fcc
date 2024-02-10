@@ -56,6 +56,16 @@ really_inline static void replace_newline(char *buf)
     }
 }
 
+static void flush(char *buf, bool is_error)
+{
+    FILE *out_stream = is_error
+        ? diag_error_memstream
+        : diag_warn_memstream;
+
+    fputs(buf, out_stream);
+    fflush(out_stream);
+}
+
 /* There is warning
     | warning: ' ' flag used with ‘%u’ gnu_printf format [-Wformat=]
    "| % 6lu: %s\n"
@@ -80,10 +90,10 @@ unused static void print_file_range(
     uint64_t curr_line_no =  1;
     char     buf[4096]    = {0};
 
-    for (uint64_t i = 1; i < line_no - range && fgets(buf, sizeof (buf), stream) != NULL; ++i)
+    for (uint64_t i = 1; i < line_no - range && fgets(buf, sizeof (buf), active_stream) != NULL; ++i)
         ++curr_line_no;
 
-    puts("");
+    fputs("", stream);
 
     char     report[65536] = {0};
     uint64_t w             =  0;
@@ -122,7 +132,7 @@ unused static void print_file_range(
     for (uint64_t i = line_no + 1; i <= line_no + range && GET() != NULL; ++i)
         DO()
 
-    puts(report);
+    flush(report, is_error);
 
 #undef GET
 #undef DO

@@ -1,5 +1,5 @@
 /* report.c - Example usage of generating report about codebase compilation.
- * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
+ * Copyright (C) 2024 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
@@ -75,7 +75,7 @@ void configure()
 {
     struct diag_config config = {
         .ignore_warns  = 0,
-        .show_location = 0
+        .show_location = 1
     };
     weak_diag_set_config(&config);
 
