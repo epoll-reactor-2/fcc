@@ -31,7 +31,7 @@ void(*analysis_fn)(struct ast_node *) = NULL;
    file1: E<N, N>: ...
    file1: W<N, N>: ...
    file2: W<N, N>: ...  */
-bool analysis_test(const char *path, const char *filename)
+int generate_report(const char *path, const char *filename)
 {
     if (create_err_dump) {
         char out[512] = {0};
@@ -50,7 +50,6 @@ bool analysis_test(const char *path, const char *filename)
     if (!setjmp(weak_fatal_error_buf))
         analysis_fn(ast);
 
-exit:
     ast_node_cleanup(ast);
     yylex_destroy();
 
@@ -60,15 +59,15 @@ exit:
     if (create_warn_dump)
         fclose(diag_warn_memstream);
 
-    return 1;
+    return 0;
 }
 
 int run(const char *dir)
 {
-    snprintf(cwd, 511, "dumps/%s", dir);
+    snprintf(cwd, sizeof (cwd) - 1, "dumps/%s", dir);
     create_dir(cwd);
 
-    return do_on_each_file(dir, analysis_test);
+    return do_on_each_file(dir, generate_report);
 }
 
 void configure()

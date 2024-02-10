@@ -94,9 +94,9 @@ void set_cwd(char cwd[512], const char *tests_dir)
     snprintf(cwd + cwd_len, 512 - cwd_len, "%s", tests_dir);
 }
 
-bool do_on_each_file(
+int do_on_each_file(
     const char  *dir,
-    bool       (*callback)(
+    int        (*callback)(
         const char */* path */,
         const char */* filename */
     )
@@ -139,7 +139,7 @@ bool do_on_each_file(
 
         weak_set_source_filename(fname);
 
-        if (!callback(fname, d->d_name)) {
+        if (callback(fname, d->d_name) < 0) {
             rc = -1;
             goto exit;
         } else {

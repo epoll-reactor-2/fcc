@@ -22,11 +22,11 @@ void *diag_warn_memstream = NULL;
 
 /* Parse file and compare result with expected.
    \return true on success, false on failure. */
-bool parse_test(const char *path, const char *filename)
+int parse_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    bool    ok          = 1;
+    int     rc          = 0;
     char   *expected    = NULL;
     char   *generated   = NULL;
     size_t  _           = 0;
@@ -42,12 +42,12 @@ bool parse_test(const char *path, const char *filename)
         get_init_comment(yyin, ast_stream, NULL);
         if (strcmp(expected, generated) != 0) {
             printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            ok = 0;
+            rc = -1;
             goto exit;
         }
     } else {
         /* Error, will be printed in main. */
-        ok = 0;
+        rc = -1;
     }
 
 exit:
@@ -58,7 +58,7 @@ exit:
     free(expected);
     free(generated);
 
-    return ok;
+    return rc;
 }
 
 int main()

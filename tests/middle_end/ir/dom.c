@@ -34,9 +34,9 @@ void idom_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
-bool ir_test(const char *path, const char *filename)
+int dom_test(const char *path, const char *filename)
 {
-    bool    ok                 = 1;
+    int     rc                 =  0;
     char   *expected           = NULL;
     char   *generated          = NULL;
     size_t  _                  =  0;
@@ -77,12 +77,12 @@ bool ir_test(const char *path, const char *filename)
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
             fflush(stdout);
-            ok = 0;
+            rc = -1;
             goto exit;
         }
     } else {
         /* Error, will be printed in main. */
-        ok = 0;
+        rc = -1;
     }
 
 exit:
@@ -95,36 +95,12 @@ exit:
     free(expected);
     free(generated);
 
-    return ok;
-}
-
-char *err_buf       = NULL;
-char *warn_buf      = NULL;
-size_t err_buf_len  = 0;
-size_t warn_buf_len = 0;
-
-int run()
-{
-    int ret = 0;
-
-    cfg_dir("dom", current_output_dir);
-
-    if (!do_on_each_file("dom", ir_test)) {
-        ret = -1;
-
-        if (err_buf)
-            fputs(err_buf, stderr);
-
-        if (warn_buf)
-            fputs(warn_buf, stderr);
-    }
-
-    return ret;
+    return rc;
 }
 
 int main()
 {
     cfg_dir("dom", current_output_dir);
 
-    return do_on_each_file("dom", ir_test);
+    return do_on_each_file("dom", dom_test);
 }

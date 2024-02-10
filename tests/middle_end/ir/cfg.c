@@ -51,11 +51,11 @@ void cfg_edges_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
-bool ir_test(const char *path, const char *filename)
+int cfg_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    bool    ok               = 1;
+    int     rc               = 0;
     char   *expected         = NULL;
     char   *generated        = NULL;
     size_t  _                = 0;
@@ -89,11 +89,12 @@ bool ir_test(const char *path, const char *filename)
     
         if (strcmp(expected, generated) != 0) {
             printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            ok = 0;
+            rc = -1;
             goto exit;
-        }    } else {
+        }
+    } else {
         /* Error, will be printed in main. */
-        return 0;
+        return -1;
     }
 
 exit:
@@ -105,12 +106,12 @@ exit:
     free(expected);
     free(generated);
 
-    return ok;
+    return rc;
 }
 
 int main()
 {
     cfg_dir("cfg", current_output_dir);
 
-    return do_on_each_file("cfg", ir_test);
+    return do_on_each_file("cfg", cfg_test);
 }
