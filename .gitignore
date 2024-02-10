@@ -1,6 +1,7 @@
 build
 PVS-*
 .gdb_*
+.idea*
 
 **/*.swp
 
