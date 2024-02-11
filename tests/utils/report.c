@@ -12,8 +12,6 @@
 #include "utils/test_utils.h"
 #include <stdio.h>
 
-extern int yylex_destroy();
-
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
@@ -51,7 +49,6 @@ int generate_report(const char *path, const char *filename)
         analysis_fn(ast);
 
     ast_node_cleanup(ast);
-    yylex_destroy();
 
     if (create_err_dump)
         fclose(diag_error_memstream);

@@ -90,11 +90,10 @@ int opt_test(const char *path, const char *filename)
     }
 
 exit:
-    yylex_destroy();
     fclose(expected_stream);
     fclose(generated_stream);
     fclose(before_opt_stream);
-    fclose( after_opt_stream);
+    fclose(after_opt_stream);
     free(expected);
     free(generated);
  

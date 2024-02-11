@@ -16,8 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern int yylex_destroy();
-
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
@@ -52,8 +50,6 @@ int sema_test(const char *path, const char *filename)
     }
 
 exit:
-    fclose(yyin);
-    yylex_destroy();
     fclose(ast_stream);
     fclose(dump_stream);
     free(expected);
