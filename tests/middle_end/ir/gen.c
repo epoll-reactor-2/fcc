@@ -14,7 +14,7 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-int dom_test(const char *path, const char *filename)
+int gen_test(const char *path, const char *filename)
 {
     (void) filename;
 
@@ -56,5 +56,5 @@ exit:
 
 int main()
 {
-    return do_on_each_file("ir_gen", dom_test);
+    return do_on_each_file("ir_gen", gen_test);
 }
