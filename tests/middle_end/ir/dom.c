@@ -4,7 +4,6 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/lex/lex.h"
 #include "middle_end/ir/ir_dump.h"
 #include "middle_end/ir/ssa.h"
 #include "util/diagnostic.h"
@@ -32,14 +31,10 @@ void idom_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
-int dom_test(const char *path, const char *filename)
+void __dom_test(const char *path, const char *filename, FILE *out_stream)
 {
-    int     rc                 =  0;
-    char   *expected           = NULL;
-    char   *generated          = NULL;
-    size_t  _                  =  0;
-    FILE   *expected_stream    = open_memstream(&expected, &_);
-    FILE   *generated_stream   = open_memstream(&generated, &_);
+    (void) filename;
+
     char    dom_path[256]      = {0};
     char    cfg_path[256]      = {0};
 
@@ -49,49 +44,33 @@ int dom_test(const char *path, const char *filename)
     FILE   *dom_stream         = fopen(dom_path, "w");
     FILE   *cfg_stream         = fopen(cfg_path, "w");
 
-    if (!setjmp(weak_fatal_error_buf)) {
-        struct ir_unit  ir = gen_ir(path);
-        struct ir_node *it = ir.fn_decls;
+    struct ir_unit  ir = gen_ir(path);
+    struct ir_node *it = ir.fn_decls;
 
-        get_init_comment(yyin, expected_stream, NULL);
+    while (it) {
+        struct ir_fn_decl *decl = it->ir;
 
-        while (it) {
-            struct ir_fn_decl *decl = it->ir;
-
-            ir_cfg_build(decl);
-            ir_dominator_tree(decl);
-            ir_dominance_frontier(decl);
-            ir_dump_dom_tree(dom_stream, decl);
-            ir_dump_cfg(cfg_stream, decl);
-            ir_dump(generated_stream, decl);
-            fprintf(generated_stream, "--------\n");
-            idom_dump(generated_stream, decl);
-            fflush(generated_stream);
-            it = it->next;
-        }
-
-        ir_unit_cleanup(&ir);
-
-        if (strcmp(expected, generated) != 0) {
-            printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            fflush(stdout);
-            rc = -1;
-            goto exit;
-        }
-    } else {
-        /* Error, will be printed in main. */
-        rc = -1;
+        ir_cfg_build(decl);
+        ir_dominator_tree(decl);
+        ir_dominance_frontier(decl);
+        ir_dump_dom_tree(dom_stream, decl);
+        ir_dump_cfg(cfg_stream, decl);
+        ir_dump(out_stream, decl);
+        fprintf(out_stream, "--------\n");
+        idom_dump(out_stream, decl);
+        it = it->next;
     }
 
-exit:
-    fclose(expected_stream);
-    fclose(generated_stream);
+    ir_unit_cleanup(&ir);
     fclose(cfg_stream);
     fclose(dom_stream);
-    free(expected);
-    free(generated);
+}
 
-    return rc;
+int dom_test(const char *path, const char *filename)
+{
+    (void) filename;
+
+    return compare_with_comment(path, filename, __dom_test);
 }
 
 int main()

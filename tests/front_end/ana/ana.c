@@ -33,7 +33,7 @@ int ana_test(const char *path, const char *filename)
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream  = open_memstream(&warn_buf, &warn_buf_len);
 
-    /// Static due to the `longjmp()` semantics [-Werror=clobbered].
+    /* Static due to the `longjmp()` semantics [-Werror=clobbered]. */
     static int rc       = 0;
     char   *msg         = NULL;
     size_t  _           = 0;

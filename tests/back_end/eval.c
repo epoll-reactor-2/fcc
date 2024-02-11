@@ -18,113 +18,40 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void cfg_edge_vector_dump(FILE *stream, ir_vector_t *v)
-{
-    vector_foreach(*v, i) {
-        struct ir_node *p = vector_at(*v, i);
-        fprintf(stream, "%ld", p->instr_idx);
-        if (i < v->count - 1)
-            fprintf(stream, ", ");
-    }
-}
-
-void cfg_edges_dump(FILE *stream, struct ir_fn_decl *decl)
-{
-    struct ir_node *it = decl->body;
-
-    while (it) {
-        fprintf(stream, "% 3ld: cfg = %ld", it->instr_idx, it->cfg_block_no);
-
-        if (it->cfg.preds.count > 0) {
-            fprintf(stream, ", prev = (");
-            cfg_edge_vector_dump(stream, &it->cfg.preds);
-            fprintf(stream, ")");
-        }
-        if (it->cfg.succs.count > 0) {
-            fprintf(stream, ", next = (");
-            cfg_edge_vector_dump(stream, &it->cfg.succs);
-            fprintf(stream, ")");
-        }
-
-        fputc('\n', stream);
-        it = it->next;
-    }
-}
-
-int ir_test(const char *path, const char *filename)
+void __eval_test(const char *path, const char *filename, FILE *out_stream)
 {
     (void) filename;
 
-    int     rc               = 0;
-    char   *expected         = NULL;
-    char   *generated        = NULL;
-    size_t  _                = 0;
-    FILE   *expected_stream  = open_memstream(&expected, &_);
-    FILE   *generated_stream = open_memstream(&generated, &_);
-    FILE   *tmp_cfg          = fopen("/tmp/g.dot", "w+");
+    struct ir_unit  ir = gen_ir(path);
+    struct ir_node *it = ir.fn_decls;
+    ir_type_pass(&ir);
 
-    if (!setjmp(weak_fatal_error_buf)) {
-        struct ir_unit  unit = gen_ir(path);
-        struct ir_node *it   = unit.fn_decls;
-        ir_type_pass(&unit);
+    while (it) {
+        struct ir_fn_decl *decl = it->ir;
+        /* Reordering before building CFG links. */
+        ir_opt_reorder(decl);
+        ir_opt_arith(decl);
+        ir_cfg_build(decl);
 
-        get_init_comment(yyin, expected_stream, NULL);
-
-        /* ir_dump_unit(stdout, ir); */
-
-        while (it) {
-            struct ir_fn_decl *decl = it->ir;
-            /* Reordering before building CFG links. */
-            ir_opt_reorder(decl);
-            ir_opt_arith(decl);
-
-            ir_cfg_build(decl);
-
-            /* ir_dump(stdout, decl); */
-
-            /* Wrong
-               ir_opt_unreachable_code(decl); */
-
-            /* There is some trouble with
-               data flow of input function
-               parameters.
-
-               ir_opt_data_flow(decl); */
-
-            /* ir_dump_cfg(tmp_cfg, decl); */
-            /* ir_dump(stdout, decl); */
-            /* cfg_edges_dump(stdout, decl); */
-            fflush(tmp_cfg);
-            it = it->next;
-        }
-
-        int32_t exit_code = eval(&unit);
-        int32_t expected_code = 0;
-
-        ir_unit_cleanup(&unit);
-
-        fscanf(expected_stream, "%d", &expected_code);
-
-        if (exit_code != expected_code) {
-            printf("Return value mismatch: got %d, expected %d\n", exit_code, expected_code);
-            rc = -1;
-            goto exit;
-        }
-    } else {
-        /* Error, will be printed in main. */
-        return -1;
+        /* Wrong
+            ir_opt_unreachable_code(decl); */
+        it = it->next;
     }
 
-exit:
-    fclose(expected_stream);
-    fclose(generated_stream);
-    free(expected);
-    free(generated);
+    int32_t exit_code = eval(&ir);
+    fprintf(out_stream, "%d\n", exit_code);
 
-    return rc;
+    ir_unit_cleanup(&ir);
+}
+
+int eval_test(const char *path, const char *filename)
+{
+    (void) filename;
+
+    return compare_with_comment(path, filename, __eval_test);
 }
 
 int main()
 {
-    return do_on_each_file("eval", ir_test);
+    return do_on_each_file("eval", eval_test);
 }
