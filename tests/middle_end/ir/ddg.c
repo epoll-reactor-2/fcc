@@ -13,8 +13,6 @@
 #include "utils/test_utils.h"
 #include <stdio.h>
 
-extern int yylex_destroy();
-
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
@@ -78,8 +76,6 @@ int ddg_test(const char *path, const char *filename)
     }
 
 exit:
-    fclose(yyin);
-    yylex_destroy();
     fclose(expected_stream);
     fclose(generated_stream);
     free(expected);

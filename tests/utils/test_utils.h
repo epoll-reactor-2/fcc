@@ -37,6 +37,10 @@
     }                                   \
 } while(0);
 
+extern FILE *yyin;
+extern int yylex();
+extern int yylex_destroy();
+
 void tokens_cleanup(tok_array_t *toks)
 {
     for (uint64_t i = 0; i < toks->count; ++i) {
@@ -94,6 +98,8 @@ void set_cwd(char cwd[512], const char *tests_dir)
     snprintf(cwd + cwd_len, 512 - cwd_len, "%s", tests_dir);
 }
 
+/* NOTE: `yylex` is opened in gen_tokens() and closed after `callback`
+         call. User should not touch this stream in their tests. */
 int do_on_each_file(
     const char  *dir,
     int        (*callback)(
@@ -141,11 +147,16 @@ int do_on_each_file(
 
         if (callback(fname, d->d_name) < 0) {
             rc = -1;
+            yylex_destroy();
+            fclose(yyin);
             goto exit;
         } else {
             printf("%sSuccess!%s\n", color_green, color_end);
             fflush(stdout);
         }
+
+        fclose(yyin);
+        yylex_destroy();
 
         memset(fname, 0, sizeof (fname));
     }
@@ -177,11 +188,6 @@ void cfg_dir(const char *name, char *curr_out_dir)
 }
 
 
-
-
-extern FILE *yyin;
-extern int yylex();
-extern int yylex_destroy();
 
 /* Depends on flex output state, `lex_consumed_tokens` should
    return tokens for current file opened by lex. */
