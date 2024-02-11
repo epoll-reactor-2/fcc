@@ -5,7 +5,6 @@
  */
 
 #include "front_end/lex/lex.h"
-#include "front_end/parse/parse.h"
 #include "middle_end/ir/ddg.h"
 #include "middle_end/ir/ir_dump.h"
 #include "middle_end/ir/ir.h"
@@ -34,54 +33,32 @@ void ddg_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
+void __ddg_test(const char *path, const char *filename, FILE *out_stream)
+{
+    (void) filename;
+
+    struct ir_unit  ir = gen_ir(path);
+    struct ir_node *it = ir.fn_decls;
+
+    while (it) {
+        struct ir_fn_decl *decl = it->ir;
+
+        ir_ddg_build(decl);
+        ir_cfg_build(decl);
+        ir_dump(out_stream, decl);
+        fprintf(out_stream, "--------\n");
+        ddg_dump(out_stream, decl);
+        it = it->next;
+    }
+
+    ir_unit_cleanup(&ir);
+}
+
 int ddg_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    int     rc               = 0;
-    char   *expected         = NULL;
-    char   *generated        = NULL;
-    size_t  _                = 0;
-    FILE   * expected_stream = open_memstream(&expected, &_);
-    FILE   *generated_stream = open_memstream(&generated, &_);
-
-    if (!setjmp(weak_fatal_error_buf)) {
-        struct ir_unit  ir = gen_ir(path);
-        struct ir_node *it = ir.fn_decls;
-
-        get_init_comment(yyin, expected_stream, NULL);
-
-        while (it) {
-            struct ir_fn_decl *decl = it->ir;
-
-            ir_ddg_build(decl);
-            ir_cfg_build(decl);
-            ir_dump(generated_stream, decl);
-            fprintf(generated_stream, "--------\n");
-            ddg_dump(generated_stream, decl);
-            it = it->next;
-        }
-
-        fflush(generated_stream);
-        ir_unit_cleanup(&ir);
-
-        if (strcmp(expected, generated) != 0) {
-            printf("IR mismatch:\n%s\ngenerated\n%s\nexpected\n", generated, expected);
-            rc = -1;
-            goto exit;
-        }
-    } else {
-        /* Error, will be printed in main. */
-        rc = -1;
-    }
-
-exit:
-    fclose(expected_stream);
-    fclose(generated_stream);
-    free(expected);
-    free(generated);
-
-    return rc;
+    return compare_with_comment(path, filename, __ddg_test);
 }
 
 int main()

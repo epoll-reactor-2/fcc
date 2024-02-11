@@ -4,8 +4,6 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/lex/lex.h"
-#include "front_end/parse/parse.h"
 #include "middle_end/ir/ir_dump.h"
 #include "util/diagnostic.h"
 #include "utils/test_utils.h"
@@ -49,60 +47,40 @@ void cfg_edges_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
+void __cfg_test(const char *path, const char *filename, FILE *out_stream)
+{
+    (void) filename;
+
+    char  cfg_path[256] = {0};
+    FILE *cfg_stream    = NULL;
+
+    snprintf(cfg_path, 255, "%s/%s_cfg.dot", current_output_dir, filename);
+
+    cfg_stream = fopen(cfg_path, "w");
+
+    struct ir_unit ir = gen_ir(path);
+    struct ir_node *it = ir.fn_decls;
+
+    while (it) {
+        struct ir_fn_decl *decl = it->ir;
+        ir_cfg_build(decl);
+
+        ir_dump(out_stream, decl);
+        ir_dump_cfg(cfg_stream, decl);
+        fprintf(out_stream, "--------\n");
+        cfg_edges_dump(out_stream, decl);
+        it = it->next;
+    }
+
+    ir_unit_cleanup(&ir);
+    fclose(cfg_stream);
+}
+
 int cfg_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    int     rc               = 0;
-    char   *expected         = NULL;
-    char   *generated        = NULL;
-    size_t  _                = 0;
-    FILE   *expected_stream  = open_memstream(&expected, &_);
-    FILE   *generated_stream = open_memstream(&generated, &_);
-    char    cfg_path[256]    = {0};
-
-    snprintf(cfg_path, 255, "%s/%s_cfg.dot", current_output_dir, filename);
-
-    FILE   *cfg_stream       = fopen(cfg_path, "w");
-
-    if (!setjmp(weak_fatal_error_buf)) {
-        struct ir_unit  ir = gen_ir(path);
-        struct ir_node *it = ir.fn_decls;
-
-        get_init_comment(yyin, expected_stream, NULL);
-
-        while (it) {
-            struct ir_fn_decl *decl = it->ir;
-            ir_cfg_build(decl);
-
-            ir_dump(generated_stream, decl);
-            ir_dump_cfg(cfg_stream, decl);
-            fprintf(generated_stream, "--------\n");
-            cfg_edges_dump(generated_stream, decl);
-            it = it->next;
-        }
-
-        fflush(generated_stream);
-        ir_unit_cleanup(&ir);
-    
-        if (strcmp(expected, generated) != 0) {
-            printf("IR mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            rc = -1;
-            goto exit;
-        }
-    } else {
-        /* Error, will be printed in main. */
-        return -1;
-    }
-
-exit:
-    fclose(expected_stream);
-    fclose(generated_stream);
-    fclose(cfg_stream);
-    free(expected);
-    free(generated);
-
-    return rc;
+    return compare_with_comment(path, filename, __cfg_test);
 }
 
 int main()

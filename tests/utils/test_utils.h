@@ -67,6 +67,8 @@ void get_init_comment(FILE *in, FILE *out, const char *filename)
     size_t  len  = 0;
     ssize_t read = 0;
 
+    fseek(in, 0, SEEK_SET);
+
     while ((read = getline(&line, &len, in)) != -1) {
         if (read <= 3)
             continue;
@@ -84,8 +86,6 @@ void get_init_comment(FILE *in, FILE *out, const char *filename)
     }
     free(line);
     fflush(out);
-
-    fseek(in, 0, SEEK_SET);
 }
 
 void set_cwd(char cwd[512], const char *tests_dir)
@@ -96,6 +96,52 @@ void set_cwd(char cwd[512], const char *tests_dir)
     size_t cwd_len = strlen(cwd);
 
     snprintf(cwd + cwd_len, 512 - cwd_len, "%s", tests_dir);
+}
+
+int compare_with_comment(
+    const char *path,
+    const char *filename,
+    void (*fn)(
+        const char * /* path */,
+        const char * /* filename */,
+        FILE       * /* out_stream */
+    )
+) {
+    int     rc               = 0;
+    char   *expected         = NULL;
+    char   *generated        = NULL;
+    size_t  _                = 0;
+    FILE   *expected_stream  = open_memstream(&expected, &_);
+    FILE   *generated_stream = open_memstream(&generated, &_);
+
+    if (!setjmp(weak_fatal_error_buf)) {
+        fn(path, filename, generated_stream);
+
+        get_init_comment(yyin, expected_stream, NULL);
+
+        fflush(generated_stream);
+
+        if (strcmp(expected, generated) != 0) {
+            printf(
+                "%sMismatch:%s\n%s\ngot,\n%s\nexpected\n",
+                color_red, color_end,
+                generated, expected
+            );
+            rc = -1;
+            goto exit;
+        }
+    } else {
+        /* Error, will be printed in main. */
+        return -1;
+    }
+
+exit:
+    fclose(expected_stream);
+    fclose(generated_stream);
+    free(expected);
+    free(generated);
+
+    return rc;
 }
 
 /* NOTE: `yylex` is opened in gen_tokens() and closed after `callback`
