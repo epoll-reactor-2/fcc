@@ -95,7 +95,7 @@ unused static void print_file_range(
 
     fputs("", stream);
 
-    char     report[65536] = {0};
+    char     report[16384] = {0};
     uint64_t w             =  0;
     uint64_t line_max      =  0;
 
