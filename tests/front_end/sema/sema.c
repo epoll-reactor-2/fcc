@@ -21,41 +21,21 @@ void *diag_warn_memstream = NULL;
 
 void (*sema_fn)(struct ast_node **);
 
+void __sema_test(const char *path, const char *filename, FILE *out_stream)
+{
+    (void) filename;
+
+    struct ast_node *ast = gen_ast(path);
+    sema_fn(&ast);
+    ast_dump(out_stream, ast);
+    ast_node_cleanup(ast);
+}
+
 int sema_test(const char *path, const char *filename)
 {
     (void) filename;
 
-    int     rc          = 0;
-    char   *expected    = NULL;
-    char   *generated   = NULL;
-    size_t  _           = 0;
-    FILE   *ast_stream  = open_memstream(&expected, &_);
-    FILE   *dump_stream = open_memstream(&generated, &_);
-
-    if (!setjmp(weak_fatal_error_buf)) {
-        struct ast_node *ast = gen_ast(path);
-        sema_fn(&ast);
-        ast_dump(dump_stream, ast);
-        ast_node_cleanup(ast);
-
-        get_init_comment(yyin, ast_stream, NULL);
-        if (strcmp(expected, generated) != 0) {
-            printf("AST's mismatch:\n%s\ngot,\n%s\nexpected\n", generated, expected);
-            rc = -1;
-            goto exit;
-        }
-    } else {
-        /* Error, will be printed in main. */
-        rc = -1;
-    }
-
-exit:
-    fclose(ast_stream);
-    fclose(dump_stream);
-    free(expected);
-    free(generated);
-
-    return rc;
+    return compare_with_comment(path, filename, __sema_test);
 }
 
 int run(const char *dir)
@@ -78,6 +58,4 @@ int main()
     sema_fn = sema_type;
     if (run("sema_type") < 0)
         return -1;
-
-    return 0;
 }
