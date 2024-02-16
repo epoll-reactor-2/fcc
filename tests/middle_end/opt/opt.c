@@ -36,8 +36,6 @@ void ddg_dump(FILE *stream, struct ir_fn_decl *decl)
 
 void __opt_test(const char *path, const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     char    before_opt_path[256] = {0};
     char     after_opt_path[256] = {0};
 
@@ -69,8 +67,6 @@ void __opt_test(const char *path, const char *filename, FILE *out_stream)
 
 int opt_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __opt_test);
 }
 

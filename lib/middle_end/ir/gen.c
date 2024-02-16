@@ -247,17 +247,15 @@ static void visit_binary(struct ast_binary *ast)
         emit_bin(ast);
 }
 
-static void visit_break(struct ast_break *ast)
+static void visit_break(unused struct ast_break *ast)
 {
-    (void) ast;
     struct ir_node *ir = ir_jump_init(0);
     vector_push_back(ir_break_stack, ir);
     ir_insert(ir);
 }
 
-static void visit_continue(struct ast_continue *ast)
+static void visit_continue(unused struct ast_continue *ast)
 {
-    (void) ast;
     struct ir_node *ir = ir_jump_init(vector_back(ir_loop_header_stack));
     ir_insert(ir);
 }

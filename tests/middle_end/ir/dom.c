@@ -31,8 +31,6 @@ void idom_dump(FILE *stream, struct ir_fn_decl *decl)
 
 void __dom_test(const char *path, const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     char    dom_path[256]      = {0};
     char    cfg_path[256]      = {0};
 
@@ -66,8 +64,6 @@ void __dom_test(const char *path, const char *filename, FILE *out_stream)
 
 int dom_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __dom_test);
 }
 

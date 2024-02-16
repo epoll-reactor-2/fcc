@@ -15,8 +15,6 @@ char current_output_dir[128];
 
 void __ssa_test(const char *path, const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     char    dom_path[256]      = {0};
     char    cfg_path[256]      = {0};
 
@@ -56,8 +54,6 @@ void __ssa_test(const char *path, const char *filename, FILE *out_stream)
 
 int ssa_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __ssa_test);
 }
 

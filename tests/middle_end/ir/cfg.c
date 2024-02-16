@@ -48,8 +48,6 @@ void cfg_edges_dump(FILE *stream, struct ir_fn_decl *decl)
 
 void __cfg_test(const char *path, const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     char  cfg_path[256] = {0};
     FILE *cfg_stream    = NULL;
 
@@ -77,8 +75,6 @@ void __cfg_test(const char *path, const char *filename, FILE *out_stream)
 
 int cfg_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __cfg_test);
 }
 

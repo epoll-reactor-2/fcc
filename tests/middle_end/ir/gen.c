@@ -10,10 +10,8 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void __gen_test(const char *path, const char *filename, FILE *out_stream)
+void __gen_test(const char *path, unused const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     struct ir_unit ir = gen_ir(path);
     ir_dump_unit(out_stream, &ir);
     ir_unit_cleanup(&ir);
@@ -21,8 +19,6 @@ void __gen_test(const char *path, const char *filename, FILE *out_stream)
 
 int gen_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __gen_test);
 }
 

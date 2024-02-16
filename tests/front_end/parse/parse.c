@@ -10,10 +10,8 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void __parse_test(const char *path, const char *filename, FILE *out_stream)
+void __parse_test(const char *path, unused const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     struct ast_node *ast = gen_ast(path);
     ast_dump(out_stream, ast);
     ast_node_cleanup(ast);
@@ -21,8 +19,6 @@ void __parse_test(const char *path, const char *filename, FILE *out_stream)
 
 int parse_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __parse_test);
 }
 
