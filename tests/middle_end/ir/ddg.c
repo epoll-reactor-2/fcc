@@ -4,13 +4,9 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/lex/lex.h"
 #include "middle_end/ir/ddg.h"
 #include "middle_end/ir/ir_dump.h"
-#include "middle_end/ir/ir.h"
-#include "util/diagnostic.h"
 #include "utils/test_utils.h"
-#include <stdio.h>
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;

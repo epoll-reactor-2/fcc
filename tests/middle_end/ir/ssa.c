@@ -6,9 +6,7 @@
 
 #include "middle_end/ir/ir_dump.h"
 #include "middle_end/ir/ssa.h"
-#include "util/diagnostic.h"
 #include "utils/test_utils.h"
-#include <stdio.h>
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;

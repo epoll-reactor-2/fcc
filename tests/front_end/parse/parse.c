@@ -4,14 +4,8 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
-#include "front_end/parse/parse.h"
 #include "utils/test_utils.h"
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
