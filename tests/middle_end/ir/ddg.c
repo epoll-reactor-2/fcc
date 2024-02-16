@@ -29,10 +29,8 @@ void ddg_dump(FILE *stream, struct ir_fn_decl *decl)
     }
 }
 
-void __ddg_test(const char *path, const char *filename, FILE *out_stream)
+void __ddg_test(const char *path, unused const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     struct ir_unit  ir = gen_ir(path);
     struct ir_node *it = ir.fn_decls;
 
@@ -52,8 +50,6 @@ void __ddg_test(const char *path, const char *filename, FILE *out_stream)
 
 int ddg_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __ddg_test);
 }
 

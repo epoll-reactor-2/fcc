@@ -142,10 +142,8 @@ void run_backend(const char *filename)
 #endif /* CONFIG_USE_BACKEND_EVAL */
 
 #ifdef CONFIG_USE_BACKEND_X86_64
-void run_backend(const char *filename)
-{
-    (void) filename;
-}
+void run_backend(unused const char *filename)
+{}
 #endif /* CONFIG_USE_BACKEND_X86_64 */
 
 

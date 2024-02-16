@@ -12,10 +12,8 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void __eval_test(const char *path, const char *filename, FILE *out_stream)
+void __eval_test(const char *path, unused const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     struct ir_unit  ir = gen_ir(path);
     struct ir_node *it = ir.fn_decls;
     ir_type_pass(&ir);
@@ -40,8 +38,6 @@ void __eval_test(const char *path, const char *filename, FILE *out_stream)
 
 int eval_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __eval_test);
 }
 

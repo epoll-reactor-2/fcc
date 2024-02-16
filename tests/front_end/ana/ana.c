@@ -26,10 +26,8 @@ char   *warn_buf     = NULL;
 size_t  err_buf_len  = 0;
 size_t  warn_buf_len = 0;
 
-int ana_test(const char *path, const char *filename)
+int ana_test(const char *path, unused const char *filename)
 {
-    (void) filename;
-
     diag_error_memstream = open_memstream(&err_buf, &err_buf_len);
     diag_warn_memstream  = open_memstream(&warn_buf, &warn_buf_len);
 

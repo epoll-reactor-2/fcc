@@ -13,10 +13,8 @@ void *diag_warn_memstream = NULL;
 
 void (*sema_fn)(struct ast_node **);
 
-void __sema_test(const char *path, const char *filename, FILE *out_stream)
+void __sema_test(const char *path, unused const char *filename, FILE *out_stream)
 {
-    (void) filename;
-
     struct ast_node *ast = gen_ast(path);
     sema_fn(&ast);
     ast_dump(out_stream, ast);
@@ -25,8 +23,6 @@ void __sema_test(const char *path, const char *filename, FILE *out_stream)
 
 int sema_test(const char *path, const char *filename)
 {
-    (void) filename;
-
     return compare_with_comment(path, filename, __sema_test);
 }
 

@@ -19,10 +19,8 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-int x86_64_test(const char *path, const char *filename)
+int x86_64_test(const char *path, unused const char *filename)
 {
-    (void) filename;
-
     int     rc               = 0;
     char   *expected         = NULL;
     char   *generated        = NULL;

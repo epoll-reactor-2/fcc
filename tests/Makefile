@@ -1,8 +1,9 @@
 ##################################
 # Compiler flags                 #
 ##################################
-CFLAGS  = -I../tests -I../lib -Werror
-LDFLAGS = -L../build -lweak_compiler -lfl
+CFLAGS  += -Wall -Werror -Wextra -Wunused
+CFLAGS  += -I../tests -I../lib -Werror
+LDFLAGS += -L../build -lweak_compiler -lfl
 
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb
