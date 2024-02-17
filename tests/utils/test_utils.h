@@ -193,8 +193,8 @@ int do_on_each_file(
 
         if (callback(fname, d->d_name) < 0) {
             rc = -1;
-            yylex_destroy();
             fclose(yyin);
+            yylex_destroy();
             goto exit;
         } else {
             printf("%sSuccess!%s\n", color_green, color_end);

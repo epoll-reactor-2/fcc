@@ -10,6 +10,10 @@
 #include "util/unreachable.h"
 #include <assert.h>
 
+/**********************************************
+ **          To-string converters            **
+ **********************************************/
+
 const char *ir_type_to_string(enum ir_type t)
 {
     switch (t) {
@@ -38,6 +42,10 @@ static void fprintf_n(FILE *stream, uint32_t count, char c)
         fputc(i % 2 != 0 ? c : '|', stream);
     }
 }
+
+/**********************************************
+ **                Visitors                  **
+ **********************************************/
 
 static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
 {
@@ -274,7 +282,11 @@ void ir_dump_unit(FILE *mem, struct ir_unit *unit)
     }
 }
 
-really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
+/**********************************************
+ **               Graphviz                   **
+ **********************************************/
+
+static void graphviz_single_node(FILE *mem, struct ir_node *ir)
 {
     if (ir->type != IR_PHI)
         fprintf(mem, "%lu:   ", ir->instr_idx);
@@ -283,30 +295,55 @@ really_inline static void dump_one_dot(FILE *mem, struct ir_node *ir)
     ir_dump_dominance_frontier(mem, ir);
 }
 
-static void ir_dump_node_dot(FILE *mem, struct ir_node *curr, struct ir_node *next)
+static void graphviz_node(FILE *mem, struct ir_node *curr, struct ir_node *next)
 {
     fprintf(mem, "    \"");
-    dump_one_dot(mem, curr);
+    graphviz_single_node(mem, curr);
     fprintf(mem, "\" -> \"");
-    dump_one_dot(mem, next);
+    graphviz_single_node(mem, next);
     fprintf(mem, "\"\n");
 }
 
-static void ir_dump_node_ddg(FILE *mem, struct ir_node *ir)
+static void graphviz_ddg(FILE *mem, struct ir_node *ir)
 {
     vector_foreach(ir->ddg_stmts, i) {
         struct ir_node *dependence = vector_at(ir->ddg_stmts, i);
-        ir_dump_node_dot(mem, ir, dependence);
+        graphviz_node(mem, ir, dependence);
         fprintf(mem, " [style = dotted]\n");
     }
 }
 
-really_inline static void ir_mark(bool *visited, struct ir_node *ir)
+static void graphviz_subgraph_header(FILE *mem, uint64_t cfg_block_no, uint64_t *cluster_no)
+{
+    fprintf(mem,
+        "subgraph cluster%lu {\n"
+        "    label=\"CFG #%lu\";\n",
+        (*cluster_no)++,
+        cfg_block_no
+    );
+}
+
+static void graphviz_header(FILE *mem)
+{
+    fprintf(
+        mem,
+        "digraph {\n"
+        "    compound=true;\n"
+        "    node [shape=box,color=black];\n"
+        "    graph [shape=box,style=filled,color=lightgrey];\n"
+    );
+}
+
+static void mark_visited(bool *visited, struct ir_node *ir)
 {
     visited[ir->instr_idx] = 1;
 }
 
-static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
+/**********************************************
+ **          Graphviz (IR graph)             **
+ **********************************************/
+
+static void graphviz_traverse_ir(FILE *mem, bool *visited, struct ir_node *ir)
 {
     if (visited[ir->instr_idx]) return;
 
@@ -322,33 +359,33 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     case IR_FN_CALL:
     case IR_PHI:
     case IR_JUMP: {
-        ir_mark(visited, ir);
+        mark_visited(visited, ir);
 
-        ir_dump_node_dot(mem, ir, ir->next);
-        ir_dump_traverse(mem, visited, ir->next);
+        graphviz_node(mem, ir, ir->next);
+        graphviz_traverse_ir(mem, visited, ir->next);
         break;
     }
     case IR_COND: {
-        ir_mark(visited, ir);
+        mark_visited(visited, ir);
 
-        ir_dump_node_dot(mem, ir, ir->next);
-        ir_dump_node_dot(mem, ir, vector_at(ir->cfg.succs, 0));
+        graphviz_node(mem, ir, ir->next);
+        graphviz_node(mem, ir, vector_at(ir->cfg.succs, 0));
         fprintf(mem, " [ label = \"  true\"]\n");
 
-        ir_dump_node_dot(mem, ir, vector_at(ir->cfg.succs, 1));
+        graphviz_node(mem, ir, vector_at(ir->cfg.succs, 1));
         fprintf(mem, " [ label = \"  false\"]\n");
 
-        ir_dump_traverse(mem, visited, ir->next);
-        ir_dump_traverse(mem, visited, vector_at(ir->cfg.succs, 0));
-        ir_dump_traverse(mem, visited, vector_at(ir->cfg.succs, 1));
+        graphviz_traverse_ir(mem, visited, ir->next);
+        graphviz_traverse_ir(mem, visited, vector_at(ir->cfg.succs, 0));
+        graphviz_traverse_ir(mem, visited, vector_at(ir->cfg.succs, 1));
         break;
     }
     case IR_RET: {
-        ir_mark(visited, ir);
+        mark_visited(visited, ir);
 
         if (ir->next) {
-            ir_dump_node_dot(mem, ir, ir->next);
-            ir_dump_traverse(mem, visited, ir->next);
+            graphviz_node(mem, ir, ir->next);
+            graphviz_traverse_ir(mem, visited, ir->next);
         }
         break;
     }
@@ -357,14 +394,28 @@ static void ir_dump_traverse(FILE *mem, bool *visited, struct ir_node *ir)
     }
 }
 
-static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
+void ir_dump_graph_dot(FILE *mem, struct ir_fn_decl *decl)
+{
+    bool visited[8192] = {0};
+
+    graphviz_header(mem);
+    graphviz_traverse_ir(mem, visited, decl->body);
+
+    fprintf(mem, "}\n");
+}
+
+/**********************************************
+ **             Graphviz (CFG)               **
+ **********************************************/
+
+static void graphviz_traverse_cfg(FILE *mem, struct ir_node *ir)
 {
     struct ir_node *it = ir;
     uint64_t cfg_no = 0;
     uint64_t cluster_no = 0;
 
     fprintf(mem, "start -> \"");
-    dump_one_dot(mem, it);
+    graphviz_single_node(mem, it);
     fprintf(mem, "\"");
 
     while (it) {
@@ -378,13 +429,13 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
             if (!first)
                 fprintf(mem, "} ");
 
-            fprintf(mem, "subgraph cluster%lu {\n", cluster_no++);
+            graphviz_subgraph_header(mem, it->cfg_block_no, &cluster_no);
         }
 
         switch (it->type) {
         case IR_JUMP: {
             struct ir_jump *jump = it->ir;
-            ir_dump_node_dot(mem, it, jump->target);
+            graphviz_node(mem, it, jump->target);
             break;
         }
         case IR_COND: {
@@ -392,12 +443,13 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
                 "Conditional statement requires two \
                 successors");
 
-            ir_dump_node_dot(mem, it, vector_at(it->cfg.succs, 1));
+            graphviz_node(mem, it, vector_at(it->cfg.succs, 1));
             fprintf(mem, " [ label = \"  false\"]\n");
 
-            fprintf(mem, "} subgraph cluster%lu {\n", cluster_no++);
+            fprintf(mem, "} ");
+            graphviz_subgraph_header(mem, it->cfg_block_no, &cluster_no);
 
-            ir_dump_node_dot(mem, it, vector_at(it->cfg.succs, 0));
+            graphviz_node(mem, it, vector_at(it->cfg.succs, 0));
             fprintf(mem, " [ label = \"  true\"]\n");
 
             /* This is reorder trick for dot language.
@@ -413,23 +465,24 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
         }
         case IR_RET: {
             fprintf(mem, "    \"");
-            dump_one_dot(mem, it);
+            graphviz_single_node(mem, it);
             fprintf(mem, "\" -> exit\n");
             break;
         }
         default: {
             if (it->next)
-                ir_dump_node_dot(mem, it, it->next);
+                graphviz_node(mem, it, it->next);
             break;
         }
         } /* switch */
 
-        ir_dump_node_ddg(mem, it);
+        graphviz_ddg(mem, it);
 
         cfg_no = it->cfg_block_no;
         it = it->next;
     }
 
+    /* Don't forget about shapes of these nodes. */
     fprintf(
         mem,
         "}\n"
@@ -438,32 +491,10 @@ static void ir_dump_cfg_traverse(FILE *mem, struct ir_node *ir)
     );
 }
 
-void ir_dump_graph_dot(FILE *mem, struct ir_fn_decl *decl)
-{
-    fprintf(
-        mem,
-        "digraph {\n"
-        "    node [shape=box];\n"
-    );
-
-    bool visited[8192] = {0};
-
-    ir_dump_traverse(mem, visited, decl->body);
-
-    fprintf(mem, "}\n");
-}
-
 void ir_dump_cfg(FILE *mem, struct ir_fn_decl *decl)
 {
-    fprintf(
-        mem,
-        "digraph {\n"
-        "    compound=true;\n"
-        "    node [shape=box,color=black];\n"
-        "    graph [shape=box,style=filled,color=lightgrey];\n"
-    );
-
-    ir_dump_cfg_traverse(mem, decl->body);
+    graphviz_header(mem);
+    graphviz_traverse_cfg(mem, decl->body);
 
     /* Wierd specific of algorithm above forces
        us to paste extra `}`, but this makes code much
@@ -471,19 +502,17 @@ void ir_dump_cfg(FILE *mem, struct ir_fn_decl *decl)
     fprintf(mem, "}\n");
 }
 
+/**********************************************
+ **       Graphviz (dominator tree)          **
+ **********************************************/
+
 void ir_dump_dom_tree(FILE *mem, struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
     uint64_t cfg_no = 0;
     uint64_t cluster_no = 0;
 
-    fprintf(
-        mem,
-        "digraph {\n"
-        "    compound=true;\n"
-        "    node [shape=box,color=black];\n"
-        "    graph [shape=box,style=filled,color=lightgrey];\n"
-    );
+    graphviz_header(mem);
 
     while (it) {
         bool should_split = 0;
@@ -496,20 +525,15 @@ void ir_dump_dom_tree(FILE *mem, struct ir_fn_decl *decl)
             if (!first)
                 fprintf(mem, "} ");
 
-            fprintf(mem, "subgraph cluster%lu {\n", cluster_no++);
+            graphviz_subgraph_header(mem, it->cfg_block_no, &cluster_no);
         }
 
         if (it->idom)
-            ir_dump_node_dot(mem, it->idom, it);
+            graphviz_node(mem, it->idom, it);
 
         cfg_no = it->cfg_block_no;
         it = it->next;
     }
 
-    fprintf(
-        mem,
-        "}\n"
-    );
-
-    fprintf(mem, "}\n");
+    fprintf(mem, "}}\n");
 }
