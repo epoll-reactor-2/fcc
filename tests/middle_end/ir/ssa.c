@@ -60,6 +60,6 @@ int ssa_test(const char *path, const char *filename)
 int main()
 {
     cfg_dir("ssa", current_output_dir);
-    /* return do_on_each_file("ssa", ssa_test); */
+    do_on_each_file("ssa", ssa_test);
     return 0;
 }
