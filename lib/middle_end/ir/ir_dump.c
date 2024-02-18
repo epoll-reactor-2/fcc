@@ -235,10 +235,8 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_RET:          ir_dump_ret(mem, ir->ir); break;
     case IR_MEMBER:       ir_dump_member(mem, ir->ir); break;
     case IR_TYPE_DECL:    ir_dump_type_decl(mem, ir->ir); break;
-    case IR_FN_DECL:
-        ir_dump_fn_decl(mem, ir->ir); break;
-    case IR_FN_CALL:
-        ir_dump_fn_call(mem, ir->ir); break;
+    case IR_FN_DECL:      ir_dump_fn_decl(mem, ir->ir); break;
+    case IR_FN_CALL:      ir_dump_fn_call(mem, ir->ir); break;
     case IR_PHI:          ir_dump_phi(mem, ir->ir); break;
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
