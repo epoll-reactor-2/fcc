@@ -165,7 +165,7 @@ void parse_cmdline(int argc, char *argv[])
     bool  ast        = 0;
     bool  ast_simple = 0;
     bool  ir         = 0;
-    int   file_i     = 0;
+    int   file_i     = -1;
     char *file       = NULL;
 
     /* This simple algorithm allows us to have
@@ -179,6 +179,11 @@ void parse_cmdline(int argc, char *argv[])
         else if (!strcmp(argv[i], "--dump-ast-simple")) ast_simple = 1;
         else if (!strcmp(argv[i], "--dump-ir"))         ir         = 1;
         else                                            file_i     = i;
+
+    if (file_i == -1) {
+        puts("No input file was given.");
+        return;
+    }
 
     file = argv[file_i];
 
