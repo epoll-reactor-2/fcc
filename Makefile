@@ -53,7 +53,7 @@ endif
 ##################################
 # Make targets                   #
 ##################################
-all: dir library test_suite
+all: dir library test_suite driver
 
 dir:
 	@if ! [ -d build ]; then \
