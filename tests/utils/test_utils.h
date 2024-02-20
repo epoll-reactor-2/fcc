@@ -8,6 +8,8 @@
 #include "front_end/lex/lex.h"
 #include "front_end/ana/ana.h"
 #include "front_end/ast/ast.h"
+#include "front_end/ast/ast_dump.h"
+#include "front_end/sema/sema.h"
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/gen.h"
@@ -266,8 +268,10 @@ struct ir_unit gen_ir(const char *filename)
 {
     struct ast_node *ast = gen_ast(filename);
 
+    ast_dump(stdout, ast);
     /* Preconditions for IR generator. */
     ana_var_usage(ast);
+    sema_type(&ast);
     ana_fn(ast);
     ana_type(ast);
 

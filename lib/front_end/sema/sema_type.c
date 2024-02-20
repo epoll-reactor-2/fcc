@@ -218,6 +218,15 @@ static void visit_fn_call(struct ast_node *ast)
     last_type = fn->rt;
 }
 
+static void visit_array_access(struct ast_node **ast)
+{
+    struct ast_array_access *access = (*ast)->ast;
+
+    (void) access;
+    /* TODO: Finish type casts for it. Uncomment
+             string.wl file for eval tests. */
+}
+
 /**********************************************
  **          Tree traversal only             **
  **********************************************/
@@ -321,6 +330,10 @@ static void visit(struct ast_node **ast)
         break;
     case AST_FUNCTION_CALL:
         visit_fn_call(*ast);
+        break;
+    case AST_ARRAY_ACCESS:
+        visit_array_access(ast);
+        break;
     /* Ignore. */
     default:
         break;
