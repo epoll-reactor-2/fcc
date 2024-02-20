@@ -77,23 +77,48 @@
 				\textbf{większy} lub \textbf{mniejszy} węzeł rozumiemy relację odnośnie kolei przejścia
 				węzłów w głąb (DFS). Kolejność DFS dla podanego niżej grafu: \textbf{2, 1, 4, 3}.
 
+				\spacing
+			
 				\begin{center}
-				\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.5cm]
+				\begin{tabular}{ R{9cm} L{9cm} }
+					\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.5cm]
 
-				  \node (1) {1};
-				  \node (2) [right of=1] {2};
-				  \node (3) [below of=2] {3};
-				  \node (4) [below of=1] {4};
+					  \node (1) {1};
+					  \node (2) [right of=1] {2};
+					  \node (3) [below of=2] {3};
+					  \node (4) [below of=1] {4};
 
-				  \path[every node/.style={font=\sffamily\small}]
-					(2) edge node [left] {} (1)
-					(2) edge node [right] {} (3)
-					(2) edge node [right] {} (4);
+					  \path[every node/.style={font=\sffamily\small}]
+						(2) edge node [left] {} (1)
+						(2) edge node [right] {} (3)
+						(2) edge node [right] {} (4);
 
-					\draw [arrow, bend left=45] (2.south) to (3.east);
-					\draw [arrow              ] (4.north) to (1.south);
-				\end{tikzpicture}
+						\draw [arrow, bend left=45] (2.south) to (3.east);
+						\draw [arrow              ] (4.north) to (1.south);
+					\end{tikzpicture}
+				&
+					\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.5cm]
+
+					  \node (1) [] {2};
+					  \node (2) [below of=1] {1};
+					  \node (3) [below of=1, left of=1] {3};
+					  \node (4) [below of=1, right of=1] {4};
+					  
+					  \draw [arrow] (1) to (2);
+					  \draw [arrow] (1) to (3);
+					  \draw [arrow] (1) to (4);
+					\end{tikzpicture}
+				\end{tabular}
 				\end{center}
+				
+				% Wierd as fuck.
+				\begin{tabular}{ R{9cm} L{9cm} }
+					Graf \ \ \ \ \ \ \ \ \ \ \ \ & \ \ \ \ \ Jego drzewo dominatorów
+				\end{tabular}
+
+				\spacing
+
+				Tak się formalnie określa półdominator:
 
 				\begin{equation*}
 				\begin{split}
@@ -104,6 +129,7 @@
 							         & \}
 				\end{split}
 				\end{equation*}
+				
 			\subsection{SSA: granica dominacji}
 			
 			\subsection{SSA: $\phi$-funkcje}
