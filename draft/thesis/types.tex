@@ -25,7 +25,7 @@
 		Zauważmy, że notacja ta jest mocnyn narzędziem, pozwalającym opisać dość złożone systemy typów
 		dla takich języków jak \textbf{C++} i \textbf{Haskell}.
 
-	\subsection{Definicja systemu}
+	\subsection{Definicja}
 
 		Opiszmy teraz system typów w naszym języku
 
@@ -200,3 +200,13 @@
 			 \Gamma \vdash \text{increment} : \tau_2 \\ \Gamma \vdash e : \tau_3}
 			{\Gamma \vdash \text{for (init; condition; increment) } \{ \ e \ \} : \tau_3}
 		\end{mathpar}
+
+	\subsection{Implementacja}
+		
+		Implementacja systemu typów w niniejszym języku polega na dwóch krokach
+		
+		\begin{itemize}
+			\item Dodanie konwersji nejawnych. Implementuje to funkcja \texttt{sema\_type()}.
+			\item Sprawdzenie, czy po dodaniu konwersji wszystkie operacje na typach zgodne z
+			      definicją.
+		\end{itemize}
