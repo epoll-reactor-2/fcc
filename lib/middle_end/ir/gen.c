@@ -185,6 +185,11 @@ static void visit_string(struct ast_string *ast)
     ir_last_type = D_T_STRING;
 }
 
+static void visit_cast(struct ast_implicit_cast *ast)
+{
+    visit(ast->body);
+}
+
 static void emit_assign(struct ast_binary *ast)
 {
     visit(ast->lhs);
@@ -888,6 +893,7 @@ static void visit(struct ast_node *ast)
     case AST_COMPOUND_STMT:   visit_compound(ptr); break;
     case AST_FUNCTION_DECL:   visit_fn_decl(ptr); break;
     case AST_FUNCTION_CALL:   visit_fn_call(ptr); break;
+    case AST_IMPLICIT_CAST:   visit_cast(ptr); break;
     default:
         weak_unreachable("Wrong AST type (numeric: %d).", ast->type);
     }

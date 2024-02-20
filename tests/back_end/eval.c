@@ -30,6 +30,8 @@ void __eval_test(const char *path, unused const char *filename, FILE *out_stream
         it = it->next;
     }
 
+    ir_dump_unit(stdout, &ir);
+
     int32_t exit_code = eval(&ir);
     fprintf(out_stream, "%d\n", exit_code);
 

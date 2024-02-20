@@ -132,6 +132,12 @@ static void visit_fn_call(struct ast_node *ast)
         visit(call_args->stmts[i]);
 }
 
+static void visit_cast(struct ast_node *ast)
+{
+    struct ast_implicit_cast *cast = ast->ast;
+    visit(cast->body);
+}
+
 void visit(struct ast_node *ast)
 {
     assert(ast);
@@ -177,6 +183,9 @@ void visit(struct ast_node *ast)
         break;
     case AST_FUNCTION_CALL:
         visit_fn_call(ast);
+        break;
+    case AST_IMPLICIT_CAST:
+        visit_cast(ast);
         break;
     default: {
         enum ast_type t = ast->type;
