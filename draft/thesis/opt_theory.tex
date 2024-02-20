@@ -70,6 +70,40 @@
 			      	\item Za pomocą półdominatorów definicja dominatorów.
 				\end{enumerate}
 
+				\spacing
+
+				Półdominator węzła \textit{w} -- taki węzeł, który jest połączony z \textit{w} i
+				każdy węzeł po drodze do \textit{w} jest \textbf{większy} od \textit{w}. Pod słowem
+				\textbf{większy} lub \textbf{mniejszy} węzeł rozumiemy relację odnośnie kolei przejścia
+				węzłów w głąb (DFS). Kolejność DFS dla podanego niżej grafu: \textbf{2, 1, 4, 3}.
+
+				\begin{center}
+				\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.5cm]
+
+				  \node (1) {1};
+				  \node (2) [right of=1] {2};
+				  \node (3) [below of=2] {3};
+				  \node (4) [below of=1] {4};
+
+				  \path[every node/.style={font=\sffamily\small}]
+					(2) edge node [left] {} (1)
+					(2) edge node [right] {} (3)
+					(2) edge node [right] {} (4);
+
+					\draw [arrow, bend left=45] (2.south) to (3.east);
+					\draw [arrow              ] (4.north) to (1.south);
+				\end{tikzpicture}
+				\end{center}
+
+				\begin{equation*}
+				\begin{split}
+					semidom(w) = min(& \{ \\
+								     & \ \ \ \ v \ | \ (v, w) \ \in \ E \ \ \&\& \ \ v \ < \ w \\
+							         & \} \ \cup \ \{ \\
+							         & \ \ \ \ sdom(u) \ | \ u \ > \ w \ \ \&\& \ \ E \ is \ edge \ (v, w) \\
+							         & \}
+				\end{split}
+				\end{equation*}
 			\subsection{SSA: granica dominacji}
 			
 			\subsection{SSA: $\phi$-funkcje}
