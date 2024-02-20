@@ -38,98 +38,24 @@
 		dodatkowo musi być spełnione
 
 		$$d, d' \in V', \ v \rightarrow v' \iff \exists \ (v', ..., v) \in G' $$
+		
+		Kilka ważnych oznaczeń
+		
+	    \begin{center}
+		    \setlength{\tabcolsep}{0.5em}
+		    \renewcommand{\arraystretch}{1.5}
+		    \definecolor{instrc}{gray}{0.4}
+		    \begin{tabular}{| L{0.2\linewidth} | L{0.75\linewidth} | }
+			    \hline
+			    $X \rightsquigarrow Y$ & X jest dominatorem Y \\
+			    \hline
+			    $X \not{\rightsquigarrow Y}$ & X \textbf{nie} jest dominatorem Y \\
+			    \hline
+			    $Pred(X)$ & Poprzednik X \\
+			    \hline
+			    $Succ(X)$ & Następca X \\
+			    \hline
+		    \end{tabular}
+	    \end{center}
 
-		\subsection{SSA}
-			Static Assignment Form (SSA) -- ważna forma reprezentacji programu. Nazywa się
-			tak program, w którym każda zmienna jest zapisana dokładnie jeden raz. Odkrywa
-			to wiele możliwości do prowadzenia optymalizacji, na przykład jest to propagacja
-			 zmiennych stałych i alokacja rejestrów.
-
-			Konstrukcja SSA składa się z kilku etapów:
-			\begin{itemize}
-				\item Obliczenie drzewa dominatorów (dominator tree).
-				\item Obliczenie granicy dominacji (dominance frontier).
-				\item Wstawianie $\phi$-funkcji (zob. niżej).
-			\end{itemize}
-			Istnieje przynajmniej dwa algorytmy do obliczenia SSA na różne sposoby. Pierwszy
-			autorstwa \textbf{Ron Cytron} i kilku innych matematyków (An Efficient
-			Method of Computing Static Single Assignment Form). Drugi autorstwa
-			\textbf{Quan Hoang Nguyen} (Computing SSA Form with Matrices). Został
-			zaimplementowany pierwszy algorytm, skoro jest prostrzy i wymaga mniej (chociaż
-			też dużo) kultury matematycznej. Nie będziemy udowadniać tutaj całego algorytmu,
-			pokażemy tylko główne jego idee.
-			
-			\subsection{SSA: drzewo dominatorów}
-				Do obliczenia drzewa dominatorów używa się algorytm, stworzony przez dwóch
-				matematyków -- algorytm \textbf{Lengauer-Tarjan}'u. Jest on profesjonalnie
-				zbudowany i udowodniony matematycznie. Składa się on z trzech części
-				\begin{enumerate}
-					\item Przejście grafu w głąb (zwykły DFS).
-					\item Przejście wyniku DFS w odwrotnej kolejności, zatem przeliczanie
-					      półdominatorów (\textbf{semidominators}).
-			      	\item Za pomocą półdominatorów definicja dominatorów.
-				\end{enumerate}
-
-				\spacing
-
-				Półdominator węzła \textit{w} -- taki węzeł, który jest połączony z \textit{w} i
-				każdy węzeł po drodze do \textit{w} jest \textbf{większy} od \textit{w}. Pod słowem
-				\textbf{większy} lub \textbf{mniejszy} węzeł rozumiemy relację odnośnie kolei przejścia
-				węzłów w głąb (DFS). Kolejność DFS dla podanego niżej grafu: \textbf{2, 1, 4, 3}.
-
-				\spacing
-			
-				\begin{center}
-				\begin{tabular}{ R{9cm} L{9cm} }
-					\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.5cm]
-
-					  \node (1) {1};
-					  \node (2) [right of=1] {2};
-					  \node (3) [below of=2] {3};
-					  \node (4) [below of=1] {4};
-
-					  \path[every node/.style={font=\sffamily\small}]
-						(2) edge node [left] {} (1)
-						(2) edge node [right] {} (3)
-						(2) edge node [right] {} (4);
-
-						\draw [arrow, bend left=45] (2.south) to (3.east);
-						\draw [arrow              ] (4.north) to (1.south);
-					\end{tikzpicture}
-				&
-					\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.5cm]
-
-					  \node (1) [] {2};
-					  \node (2) [below of=1] {1};
-					  \node (3) [below of=1, left of=1] {3};
-					  \node (4) [below of=1, right of=1] {4};
-					  
-					  \draw [arrow] (1) to (2);
-					  \draw [arrow] (1) to (3);
-					  \draw [arrow] (1) to (4);
-					\end{tikzpicture}
-				\end{tabular}
-				\end{center}
-				
-				% Wierd as fuck.
-				\begin{tabular}{ R{9cm} L{9cm} }
-					Graf \ \ \ \ \ \ \ \ \ \ \ \ & \ \ \ \ \ Jego drzewo dominatorów
-				\end{tabular}
-
-				\spacing
-
-				Tak się formalnie określa półdominator:
-
-				\begin{equation*}
-				\begin{split}
-					semidom(w) = min(& \{ \\
-								     & \ \ \ \ v \ | \ (v, w) \ \in \ E \ \ \&\& \ \ v \ < \ w \\
-							         & \} \ \cup \ \{ \\
-							         & \ \ \ \ sdom(u) \ | \ u \ > \ w \ \ \&\& \ \ E \ is \ edge \ (v, w) \\
-							         & \}
-				\end{split}
-				\end{equation*}
-				
-			\subsection{SSA: granica dominacji}
-			
-			\subsection{SSA: $\phi$-funkcje}
+		\input{ssa}
