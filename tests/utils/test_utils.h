@@ -268,7 +268,6 @@ struct ir_unit gen_ir(const char *filename)
 {
     struct ast_node *ast = gen_ast(filename);
 
-    ast_dump(stdout, ast);
     /* Preconditions for IR generator. */
     ana_var_usage(ast);
     sema_type(&ast);
