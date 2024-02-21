@@ -19,9 +19,6 @@
 		że każda instrukcja może mieć wiele krawędzi wejściowych i wyjściowych, tworząc \textbf{gałęzi}
 		w wykonaniu programu.
 		\\
-		
-		Oznaczmy kilka ważnych pojęć.
-		\\
 
 		Niech $G = (V, E, s)$ -- graf skierowany.
 		$V$ -- zbiór wierzchołków. $E$ -- zbiór krawędzi. $s$ -- węzęł początkowy.
@@ -38,8 +35,9 @@
 		dodatkowo musi być spełnione
 
 		$$d, d' \in V', \ v \rightarrow v' \iff \exists \ (v', ..., v) \in G' $$
-		
-		Kilka ważnych oznaczeń
+		\\
+
+		Zanotujmy używane dalej kwantyfikatory.
 		
 	    \begin{center}
 		    \setlength{\tabcolsep}{0.5em}
@@ -47,9 +45,9 @@
 		    \definecolor{instrc}{gray}{0.4}
 		    \begin{tabular}{| L{0.2\linewidth} | L{0.75\linewidth} | }
 			    \hline
-			    $X \rightsquigarrow Y$ & X jest dominatorem Y \\
+			    $X \gg Y$ & X jest dominatorem Y \\
 			    \hline
-			    $X \not{\rightsquigarrow Y}$ & X \textbf{nie} jest dominatorem Y \\
+			    $X \not{\gg} Y$ & X \textbf{nie} jest dominatorem Y \\
 			    \hline
 			    $Pred(X)$ & Poprzednik X \\
 			    \hline
