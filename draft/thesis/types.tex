@@ -84,18 +84,18 @@
 		logicznym wyniku operacji arytmetycznej, zwracającej typ różny od
 		\texttt{bool}. Oznaczmy reguły dla typów \texttt{int}, \texttt{char} i \texttt{float}.
 
+        \newcommand{\cast}[2]{
+            \inferrule
+                {\Gamma \vdash \text{e} : #1}
+                {\Gamma \vdash \text{e} : #2}
+				% Newline necessary
+
+        }
+
 		\begin{mathpar}
-		\inferrule
-			{\Gamma \vdash \text{e} : int}
-			{\Gamma \vdash \text{e} : bool}
-
-		\inferrule
-			{\Gamma \vdash \text{e} : char}
-			{\Gamma \vdash \text{e} : bool}
-
-		\inferrule
-			{\Gamma \vdash \text{e} : float}
-			{\Gamma \vdash \text{e} : bool}
+			\cast{int}{bool}
+			\cast{char}{bool}
+			\cast{float}{bool}
 		\end{mathpar}
 
 		\spacing
@@ -103,53 +103,18 @@
 		Oznaczmy konwersję każdego typu z każdym
 
 		\begin{mathpar}
-			\inferrule
-				{\Gamma \vdash \text{e} : int}
-				{\Gamma \vdash \text{e} : float}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : int}
-				{\Gamma \vdash \text{e} : char}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : int}
-				{\Gamma \vdash \text{e} : bool}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : float}
-				{\Gamma \vdash \text{e} : int}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : float}
-				{\Gamma \vdash \text{e} : char}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : float}
-				{\Gamma \vdash \text{e} : bool}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : char}
-				{\Gamma \vdash \text{e} : int}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : char}
-				{\Gamma \vdash \text{e} : float}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : char}
-				{\Gamma \vdash \text{e} : bool}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : bool}
-				{\Gamma \vdash \text{e} : float}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : bool}
-				{\Gamma \vdash \text{e} : int}
-
-			\inferrule
-				{\Gamma \vdash \text{e} : bool}
-				{\Gamma \vdash \text{e} : char}
+			\cast{int}{float}
+			\cast{int}{char}
+			\cast{int}{bool}
+			\cast{float}{int}
+			\cast{float}{char}
+			\cast{float}{bool}
+			\cast{char}{int}
+			\cast{char}{float}
+			\cast{char}{bool}
+			\cast{bool}{float}
+			\cast{bool}{int}
+			\cast{bool}{char}
 		\end{mathpar}
 
 		\spacing
