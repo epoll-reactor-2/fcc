@@ -5,7 +5,7 @@
  */
 
 #include "middle_end/ir/ir_dump.h"
-#include "middle_end/ir/ssa.h"
+#include "middle_end/ir/dom.h"
 #include "utils/test_utils.h"
 
 void *diag_error_memstream = NULL;
