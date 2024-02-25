@@ -25,6 +25,8 @@ __weak_malloc  wur void *weak_malloc(size_t size);
 __weak_calloc  wur void *weak_calloc(size_t nmemb, size_t size);
 __weak_realloc wur void *weak_realloc(void *addr, size_t size);
 
+#define weak_new(type) weak_calloc(1, sizeof (type))
+
 /** Used to reduce #include <stdlib.h> bloat. */
 void weak_free(void *addr);
 

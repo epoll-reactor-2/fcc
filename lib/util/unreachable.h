@@ -16,6 +16,12 @@
     __builtin_trap();                         \
 } while (0);
 
+#define weak_fatal_errno(fmt, ...) do {       \
+    printf("Fatal error ocurred at %s@%d: " fmt ": %s\n", __FILE__, __LINE__, ##__VA_ARGS__, strerror((errno))); \
+    fflush(stdout);                           \
+    __builtin_trap();                         \
+} while (0);
+
 #define weak_unreachable(fmt, ...) do {       \
     printf("Unreachable point reached at %s@%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__);  \
     fflush(stdout);                           \
