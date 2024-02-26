@@ -6,7 +6,7 @@
 
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/ir_dump.h"
-#include "middle_end/ir/ir_dump_bin.h"
+#include "middle_end/ir/ir_bin.h"
 #include "utils/test_utils.h"
 #include <stdio.h>
 
@@ -19,7 +19,7 @@ int dump(const char *path, unused const char *filename)
     snprintf(out_path, 255, "binary_dumps/%sir", filename);
 
     struct ir_unit ir = gen_ir(path);
-    ir_dump_binary(&ir, out_path);
+    ir_write_binary(&ir, out_path);
     ir_unit_cleanup(&ir);
 
     struct ir_unit new_ir = ir_read_binary(out_path);

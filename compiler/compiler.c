@@ -7,7 +7,7 @@
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/gen.h"
 #include "middle_end/ir/ir_dump.h"
-#include "middle_end/ir/ir_dump_bin.h"
+#include "middle_end/ir/ir_bin.h"
 #include "middle_end/ir/type.h"
 #include "middle_end/opt/opt.h"
 #include "util/diagnostic.h"
