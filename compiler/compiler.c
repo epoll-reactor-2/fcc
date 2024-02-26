@@ -7,6 +7,7 @@
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/gen.h"
 #include "middle_end/ir/ir_dump.h"
+#include "middle_end/ir/ir_dump_bin.h"
 #include "middle_end/ir/type.h"
 #include "middle_end/opt/opt.h"
 #include "util/diagnostic.h"
@@ -161,12 +162,13 @@ void configure_ast(bool simple)
  **********************************************/
 void parse_cmdline(int argc, char *argv[])
 {
-    bool  tokens     = 0;
-    bool  ast        = 0;
-    bool  ast_simple = 0;
-    bool  ir         = 0;
-    int   file_i     = -1;
-    char *file       = NULL;
+    bool  tokens      = 0;
+    bool  ast         = 0;
+    bool  ast_simple  = 0;
+    bool  ir          = 0;
+    bool  read_bin_ir = 0;
+    int   file_i      = -1;
+    char *file        = NULL;
 
     /* This simple algorithm allows us to have
        command line args of type:
@@ -174,11 +176,12 @@ void parse_cmdline(int argc, char *argv[])
          1) <filename> --args...
          2) --args...  <filename> */
     for (int i = 1; i < argc; ++i)
-        if      (!strcmp(argv[i], "--dump-tokens"))     tokens     = 1;
-        else if (!strcmp(argv[i], "--dump-ast"))        ast        = 1;
-        else if (!strcmp(argv[i], "--dump-ast-simple")) ast_simple = 1;
-        else if (!strcmp(argv[i], "--dump-ir"))         ir         = 1;
-        else                                            file_i     = i;
+        if      (!strcmp(argv[i], "--dump-tokens"))     tokens      = 1;
+        else if (!strcmp(argv[i], "--dump-ast"))        ast         = 1;
+        else if (!strcmp(argv[i], "--dump-ast-simple")) ast_simple  = 1;
+        else if (!strcmp(argv[i], "--dump-ir"))         ir          = 1;
+        else if (!strcmp(argv[i], "--read-ir"))         read_bin_ir = 1;
+        else                                            file_i      = i;
 
     if (file_i == -1) {
         puts("No input file was given.");
@@ -207,6 +210,13 @@ void parse_cmdline(int argc, char *argv[])
 
     if (ir) {
         struct ir_unit unit = gen_ir(file);
+        dump_ir(&unit);
+        ir_unit_cleanup(&unit);
+        exit(0);
+    }
+
+    if (read_bin_ir) {
+        struct ir_unit unit = ir_read_binary(file);
         dump_ir(&unit);
         ir_unit_cleanup(&unit);
         exit(0);
@@ -245,6 +255,7 @@ void help()
         "\t--dump-ast\n"
         "\t--dump-ast-simple\n"
         "\t--dump-ir\n"
+        "\t--read-ir\n"
     );
     exit(0);
 }
