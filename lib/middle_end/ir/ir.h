@@ -220,12 +220,10 @@ struct ir_cond {
 };
 
 struct ir_ret {
+    bool is_void;
     /** Accepted values:
         - symbol (variable index),
-        - immediate value.
-
-        Can be NULL. It means, this is return
-        statement in void function. */
+        - immediate value. */
     struct ir_node *body;
 };
 

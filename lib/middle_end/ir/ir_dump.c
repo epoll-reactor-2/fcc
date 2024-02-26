@@ -31,6 +31,7 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_FN_DECL:      return "IR_FN_DECL";
     case IR_FN_CALL:      return "IR_FN_CALL";
     case IR_PHI:          return "IR_PHI";
+    case IR_STRING:       return "IR_STRING";
     default:
         weak_unreachable("Unknown IR type (numeric: %d).", t);
     }

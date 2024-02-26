@@ -185,6 +185,7 @@ struct ir_node *ir_ret_init(struct ir_node *body)
         ));
     struct ir_ret *ir = weak_calloc(1, sizeof (struct ir_ret));
     ir->body = body;
+    ir->is_void = ir->body == NULL;
     /* Return operand is inline instruction. */
     ++ir_instr_idx;
     return ir_node_init(IR_RET, ir);

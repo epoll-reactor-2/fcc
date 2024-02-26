@@ -12,7 +12,7 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-#if 1
+#if 0
 #define DUMP(x, bytes) \
     { for (uint64_t i = 0; i < bytes; ++i) { \
         printf("%X ", ((char *)(x))[i]); \
@@ -66,8 +66,6 @@ struct ir_node *read_node(FILE *mem);
 void dump_alloca(FILE *mem, struct ir_node *ir)
 {
     struct ir_alloca *alloca = ir->ir;
-    puts("dump_alloca");
-
     ir_fwrite_ptr(alloca);
 }
 
@@ -84,13 +82,15 @@ void read_alloca(unused FILE *mem, struct ir_node *ir)
 void dump_alloca_array(FILE *mem, struct ir_node *ir)
 {
     struct ir_alloca_array *alloca = ir->ir;
-    puts("dump_alloca_array");
-
     ir_fwrite_ptr(alloca);
 }
 
 void read_alloca_array(unused FILE *mem, unused struct ir_node *ir)
-{}
+{
+    struct ir_alloca_array *alloca = weak_new(struct ir_alloca_array);
+    ir->ir = alloca;
+    ir_fread_ptr(alloca);
+}
 
 /**********************************************
  **               Immediate                  **
@@ -117,10 +117,25 @@ void read_imm(unused FILE *mem, unused struct ir_node *ir)
  **                 String                   **
  **********************************************/
 void dump_string(unused FILE *mem, unused struct ir_node *ir)
-{}
+{
+    struct ir_string *s = ir->ir;
+    puts("dump_string");
+
+    ir_fwrite(s->len);
+    ir_fwrite_bytes(s->imm, s->len);
+}
 
 void read_string(unused FILE *mem, unused struct ir_node *ir)
-{}
+{
+    puts("read_imm");
+
+    struct ir_string *s = weak_new(struct ir_string);
+    ir->ir = s;
+
+    ir_fread(s->len);
+    s->imm = weak_calloc(1, s->len);
+    ir_fread_bytes(s->imm, s->len);
+}
 
 /**********************************************
  **                 Symbol                   **
@@ -198,7 +213,6 @@ void dump_jump(FILE *mem, struct ir_node *ir)
     puts("dump_jump");
 
     ir_fwrite(jump->idx);
-    dump_node(mem, jump->target);
 }
 
 void read_jump(unused FILE *mem, unused struct ir_node *ir)
@@ -209,7 +223,6 @@ void read_jump(unused FILE *mem, unused struct ir_node *ir)
     ir->ir = jump;
 
     ir_fread(jump->idx);
-    jump->target = read_node(mem);
 }
 
 /**********************************************
@@ -244,7 +257,9 @@ void dump_ret(FILE *mem, struct ir_node *ir)
 
     struct ir_ret *ret = ir->ir;
 
-    dump_node(mem, ret->body);
+    ir_fwrite(ret->is_void);
+    if (!ret->is_void)
+        dump_node(mem, ret->body);
 }
 
 void read_ret(unused FILE *mem, unused struct ir_node *ir)
@@ -254,7 +269,9 @@ void read_ret(unused FILE *mem, unused struct ir_node *ir)
     struct ir_ret *ret = weak_new(struct ir_ret);
     ir->ir = ret;
 
-    ret->body = read_node(mem);
+    ir_fread(ret->is_void);
+    if (!ret->is_void)
+        ret->body = read_node(mem);
 }
 
 /**********************************************
@@ -279,10 +296,62 @@ void read_type_decl(unused FILE *mem, unused struct ir_node *ir)
  **                  Call                    **
  **********************************************/
 void dump_fn_call(unused FILE *mem, unused struct ir_node *ir)
-{}
+{
+    struct ir_fn_call *call = ir->ir;
+    puts("dump_fn_call");
+
+    uint64_t len = strlen(call->name);
+    ir_fwrite(len);
+    ir_fwrite_bytes(call->name, len);
+
+    uint64_t args = 0;
+    struct ir_node *it = call->args;
+    while (it) {
+        ++args;
+        it = it->next;
+    }
+    ir_fwrite(args);
+
+    it = call->args;
+    while (it) {
+        dump_node(mem, it);
+        it = it->next;
+    }
+}
 
 void read_fn_call(unused FILE *mem, unused struct ir_node *ir)
-{}
+{
+    puts("read_fn_call");
+
+    struct ir_fn_call *call = weak_new(struct ir_fn_call);
+    ir->ir = call;
+
+    uint64_t len = 0;
+    ir_fread(len);
+    call->name = weak_calloc(1, len);
+    ir_fread_bytes(call->name, len);
+
+    uint64_t args_num = 0;
+    ir_fread(args_num);
+
+    if (args_num == 0)
+        return;
+
+    ir_vector_t args = {0};
+
+    for (uint64_t i = 0; i < args_num; ++i) {
+        vector_push_back(args, read_node(mem));
+    }
+
+    call->args = args.data[0];
+
+    vector_foreach(args, i) {
+        if (i >= args.count - 1)
+            break;
+        vector_at(args, i)->next =
+        vector_at(args, i + 1);
+    }
+}
 
 /**********************************************
  **                  Phi                     **
@@ -335,17 +404,31 @@ void dump_fn_decl_args(FILE *mem, struct ir_fn_decl *decl)
     }
 }
 
-void read_fn_decl_args(FILE *mem)
+void read_fn_decl_args(FILE *mem, struct ir_fn_decl *decl)
 {
     uint64_t num = 0;
-    struct ir_node *ir = NULL;
 
     ir_fread(num);
     printf("Num args: %lu\n", num);
+
+    ir_vector_t args = {0};
     for (uint64_t i = 0; i < num; ++i) {
-        ir = read_node(mem);
+        struct ir_node *ir = weak_new(struct ir_node);
+        read_alloca(mem, ir);
+        vector_push_back(args, ir);
     }
-    (void) ir;
+
+    if (num == 0)
+        return;
+
+    decl->args = args.data[0];
+
+    vector_foreach(args, i) {
+        if (i >= args.count - 1)
+            break;
+        vector_at(args, i)->next =
+        vector_at(args, i + 1);
+    }
 }
 
 /**********************************************
@@ -375,8 +458,12 @@ void read_fn_decl_body(FILE *mem, struct ir_fn_decl *decl)
 
     ir_fread(num);
     printf("Num stmts: %lu\n", num);
-    for (uint64_t i = 0; i < num; ++i)
+    for (uint64_t i = 0; i < num; ++i) {
+        printf("\n==============\n");
+        printf("Stmt %lu", i);
+        printf("\n==============\n");
         vector_push_back(stmts, read_node(mem));
+    }
 
     vector_foreach(stmts, i) {
         if (i >= stmts.count - 1)
@@ -410,7 +497,7 @@ void read_fn_decl(FILE *mem, unused struct ir_node *ir)
 {
     ir->ir = weak_new(struct ir_fn_decl);
     read_fn_decl_header(mem, ir->ir);
-    read_fn_decl_args(mem);
+    read_fn_decl_args(mem, ir->ir);
     read_fn_decl_body(mem, ir->ir);
 }
 
@@ -522,7 +609,7 @@ void dump_binary(struct ir_unit *ir, const char *filename)
 {
     char out_path[256] = {0};
 
-    snprintf(out_path, 255, "binary_dumps/%s.wir", filename);
+    snprintf(out_path, 255, "binary_dumps/%sir", filename);
 
     FILE *s = fopen(out_path, "wb");
     dump_unit(s, ir);
