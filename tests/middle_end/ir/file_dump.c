@@ -478,6 +478,7 @@ void read_fn_decl_body(FILE *mem, struct ir_fn_decl *decl)
         .ir   = decl
     };
 
+    ir_cfg_build(decl);
     ir_dump_node(stdout, &node);
     puts("");
 }
@@ -504,17 +505,26 @@ void read_fn_decl(FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                  Node                    **
  **********************************************/
-void dump_node(FILE *mem, struct ir_node *ir)
+void dump_node_meta(FILE *mem, struct ir_node *ir)
 {
-    if (!ir) {
-        /* TODO: Write NULL. */
-        return;
-    }
-
-    printf("IR write type: %s\n", ir_type_to_string(ir->type));
-
     ir_fwrite(ir->type);
     ir_fwrite(ir->instr_idx);
+    ir_fwrite(ir->cfg_block_no);
+    ir_fwrite(ir->meta);
+}
+
+void read_node_meta(FILE *mem, struct ir_node *ir)
+{
+    ir_fread(ir->type);
+    ir_fread(ir->instr_idx);
+    ir_fread(ir->cfg_block_no);
+    ir_fread(ir->meta);
+}
+
+void dump_node(FILE *mem, struct ir_node *ir)
+{
+    /* printf("IR write type: %s\n", ir_type_to_string(ir->type)); */
+    dump_node_meta(mem, ir);
 
     switch (ir->type) {
     case IR_ALLOCA:       dump_alloca(mem, ir); break;
@@ -541,9 +551,8 @@ struct ir_node *read_node(FILE *mem)
 {
     struct ir_node *ir = weak_new(struct ir_node);
 
-    ir_fread(ir->type);
-    ir_fread(ir->instr_idx);
-    printf("IR read type: %s\n", ir_type_to_string(ir->type));
+    read_node_meta(mem, ir);
+    /* printf("IR read type: %s\n", ir_type_to_string(ir->type)); */
 
     switch (ir->type) {
     case IR_ALLOCA:       read_alloca(mem, ir); break;
