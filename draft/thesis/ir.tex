@@ -230,3 +230,45 @@ fun main():
 
 	\end{tabularx}
 	\end{center}
+
+\subsection{Przechowywanie IR na dysku}
+	Istnieje możliwość zpaisania wygenerowanego IR na dysku w postaći binarnej. Ma to na celu
+	przyśpieszyć kompilację w przypadku, gdy program składa się z kilku plików. Wtedy możemy
+	zmusić do kompilacji wiele rdzeni CPU. Mimo tego, zapisanie binarnych plików z IR odgrywa
+	ważną rolę w trakcie \textbf{LTO} (Link Time Optimization). Wtedy kompilator ma prawo
+	wykonać różne optymalizacje w programie, rozrzuconym po plikach. Naprzykład, mamy program
+	w pliku \texttt{program_a.wl}
+
+	\begin{lstlisting}[label={lst:warn-unused-var}]
+int get_1() {
+return 1;
+}
+	\end{lstlisting}
+
+	oraz program w pliku \texttt{program_b.wl}
+
+	\begin{lstlisting}[label={lst:lto-1}]
+int get_2() {
+return 1 + get_1();
+}
+	\end{lstlisting}
+	
+	Optymalizator bez LTO nie uzna, że tutaj są jakiekolwiek możliwości na optymalizacje. Jednak,
+	używając LTO, widzimy, że można wstawić \texttt{1} zamiast \texttt{get\_1()}, a zatem wykonać
+	dodawanie, otrzymawszy
+
+	\begin{lstlisting}[label={lst:lto-2}]
+int get_2() {
+return 2;
+}
+	\end{lstlisting}
+	
+	Optymalizacje z użyciem LTO działają na zasadzie łączenia wszystkich plików w jedną wspólną
+	strukturę. Mając więcej kontekstu odnośnie funkcji, zmiennych globalnych, odkrywają się
+	możliwości do przyśpieszenia kodu. LTO używa \textbf{Constant propagation} i
+	\textbf{Dead code elimination}.
+	\\
+
+	Przykład IR w binarnej formie
+
+	\lstinputlisting[label={lst:lst:ir-bin}]{code/ir\_bin.txt}
