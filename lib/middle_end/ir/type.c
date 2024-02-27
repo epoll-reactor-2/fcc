@@ -18,7 +18,7 @@ static hashmap_t   fn_map;
 
 
 
-static uint64_t dt_size(enum data_type dt)
+uint64_t ir_type_size(enum data_type dt)
 {
     switch (dt) {
     case D_T_BOOL:  return 1;
@@ -50,7 +50,7 @@ static void fn_type_save(struct ir_fn_decl *decl)
 
     t->dt = decl->ret_type;
     t->ptr_depth = decl->ptr_depth;
-    t->bytes = t->ptr_depth > 0 ? 8 : dt_size(t->dt);
+    t->bytes = t->ptr_depth > 0 ? 8 : ir_type_size(t->dt);
 
     hashmap_put(&fn_map, crc32_string(decl->name), (uint64_t) t);
 }
@@ -95,7 +95,7 @@ static uint64_t alloca_size(struct ir_alloca *alloca)
     if (alloca->ptr_depth > 0)
         return 8;
 
-    return dt_size(alloca->dt);
+    return ir_type_size(alloca->dt);
 }
 
 static uint64_t alloca_array_size(struct ir_alloca_array *alloca)
@@ -104,7 +104,7 @@ static uint64_t alloca_array_size(struct ir_alloca_array *alloca)
 
     for (uint64_t i = 0; i < alloca->arity_size; ++i)
         siz *= alloca->arity[i];
-    siz *= dt_size(alloca->dt);
+    siz *= ir_type_size(alloca->dt);
 
     return siz;
 }
@@ -147,7 +147,7 @@ static void type_pass_imm(struct ir_imm *i)
         .dt         = dt,
         .ptr_depth  = 0,
         .arity_size = 0,
-        .bytes      = dt_size(dt)
+        .bytes      = ir_type_size(dt)
     };
 
     memset(&i->type_info.arity, 0, sizeof (i->type_info.arity));
