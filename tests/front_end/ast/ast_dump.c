@@ -21,12 +21,12 @@ int main()
     FILE *stream = open_memstream(&buf, &size);
 
     struct ast_node **nums = weak_calloc(5, sizeof(struct ast_node *));
-    nums[0] = ast_num_init(1, 2, 3);
-    nums[1] = ast_num_init(1, 2, 3);
-    nums[2] = ast_num_init(1, 2, 3);
+    nums[0] = ast_int_init(1, 2, 3);
+    nums[1] = ast_int_init(1, 2, 3);
+    nums[2] = ast_int_init(1, 2, 3);
     nums[3] = ast_implicit_cast_init(
                   D_T_FLOAT,
-                  ast_num_init(1, 2, 3),
+                  ast_int_init(1, 2, 3),
                   3, 4
               );
     nums[4] = ast_compound_init(0, NULL, 0, 0);

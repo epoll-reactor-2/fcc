@@ -1347,7 +1347,7 @@ static struct ast_node *parse_constant()
 
     switch (t->type) {
     case TOK_INTEGRAL_LITERAL:
-        return ast_num_init(atoi(t->data), t->line_no, t->col_no);
+        return ast_int_init(atoi(t->data), t->line_no, t->col_no);
     case TOK_FLOATING_POINT_LITERAL:
         return ast_float_init(atof(t->data), t->line_no, t->col_no);
     case TOK_STRING_LITERAL:

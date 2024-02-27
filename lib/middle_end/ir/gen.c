@@ -59,12 +59,12 @@ static hashmap_t          ir_fn_return_types;
 static ir_vector_t        ir_break_stack;
 static vector_t(uint64_t) ir_loop_header_stack;
 
-static void ir_fn_add_return_type(const char *name, enum data_type dt)
+static void store_return_type(const char *name, enum data_type dt)
 {
     hashmap_put(&ir_fn_return_types, crc32_string(name), (uint64_t) dt);
 }
 
-static enum data_type ir_fn_return_type(const char *name)
+static enum data_type load_return_type(const char *name)
 {
     bool ok = 0;
     uint64_t name_hash = crc32_string(name);
@@ -75,7 +75,7 @@ static enum data_type ir_fn_return_type(const char *name)
     return (enum data_type) got;
 }
 
-static void ir_try_add_meta(struct ir_node *ir)
+static void try_add_meta(struct ir_node *ir)
 {
     ir->meta.kind = IR_META_SYM;
     ir->meta.block_depth = ir_block_depth;
@@ -89,8 +89,8 @@ static void ir_try_add_meta(struct ir_node *ir)
 
 /* Note: This function does not set previous pointers
          in IR list. Back edges always represents control flow
-         and set up in `ir_link()`. */
-static void ir_insert(struct ir_node *new_node)
+         and set up in `link()`. */
+static void insert(struct ir_node *new_node)
 {
     __weak_debug({
         __weak_debug_msg("Insert IR (instr_idx: %lu) :", new_node->instr_idx);
@@ -98,7 +98,7 @@ static void ir_insert(struct ir_node *new_node)
         puts("");
     });
 
-    ir_try_add_meta(new_node);
+    try_add_meta(new_node);
 
     if (ir_save_first) {
         ir_first = new_node;
@@ -116,9 +116,9 @@ static void ir_insert(struct ir_node *new_node)
     ir_prev = new_node;
 }
 
-really_inline static void ir_insert_last()
+really_inline static void insert_last()
 {
-    ir_insert(ir_last);
+    insert(ir_last);
 }
 
 static void reset_fn_state()
@@ -153,29 +153,17 @@ static void visit(struct ast_node *ast);
 
 /* Primitives. They are not pushed to ir_stmts, because
    they are immediate values. */
-static void visit_bool(struct ast_bool *ast)
-{
-    ir_last = ir_imm_bool_init(ast->value);
-    ir_last_type = D_T_BOOL;
+#define __visit_primitive(lo, hi) \
+static void visit_##lo(struct ast_##lo *ast) \
+{ \
+    ir_last = ir_imm_##lo##_init(ast->value); \
+    ir_last_type = D_T_##hi; \
 }
-
-static void visit_char(struct ast_char *ast)
-{
-    ir_last = ir_imm_char_init(ast->value);
-    ir_last_type = D_T_CHAR;
-}
-
-static void visit_float(struct ast_float *ast)
-{
-    ir_last = ir_imm_float_init(ast->value);
-    ir_last_type = D_T_FLOAT;
-}
-
-static void visit_num(struct ast_num *ast)
-{
-    ir_last = ir_imm_int_init(ast->value);
-    ir_last_type = D_T_INT;
-}
+__visit_primitive(bool,  BOOL )
+__visit_primitive(char,  CHAR )
+__visit_primitive(float, FLOAT)
+__visit_primitive(int,   INT  )
+#undef __visit_primitive
 
 static void visit_string(struct ast_string *ast)
 {
@@ -198,7 +186,7 @@ static void emit_assign(struct ast_binary *ast)
     struct ir_node *rhs = ir_last;
 
     ir_last = ir_store_init(lhs, rhs);
-    ir_insert_last();
+    insert_last();
 }
 
 static bool logical(enum token_type t)
@@ -222,7 +210,7 @@ static void emit_bin(struct ast_binary *ast)
     struct ir_alloca *alloca = ir_last->ir;
     uint64_t alloca_idx = alloca->idx;
 
-    ir_insert_last();
+    insert_last();
 
     visit(ast->lhs);
     struct ir_node *lhs = ir_last;
@@ -239,7 +227,7 @@ static void emit_bin(struct ast_binary *ast)
         alloca_idx,
         ir_bin_init(ast->op, lhs, rhs)
     );
-    ir_insert_last();
+    insert_last();
     ir_last = ir_sym_init(alloca_idx);
 }
 
@@ -256,13 +244,13 @@ static void visit_break(unused struct ast_break *ast)
 {
     struct ir_node *ir = ir_jump_init(0);
     vector_push_back(ir_break_stack, ir);
-    ir_insert(ir);
+    insert(ir);
 }
 
 static void visit_continue(unused struct ast_continue *ast)
 {
     struct ir_node *ir = ir_jump_init(vector_back(ir_loop_header_stack));
-    ir_insert(ir);
+    insert(ir);
 }
 
 /* To emit correct `break`, we just attach it to the next
@@ -348,8 +336,8 @@ static void visit_for(struct ast_for *ast)
         exit_jmp_ptr             = exit_jmp->ir;
         struct ir_cond *cond_ptr = cond->ir;
 
-        ir_insert(cond);
-        ir_insert(exit_jmp);
+        insert(cond);
+        insert(exit_jmp);
 
         cond_ptr->goto_label = ir_last->instr_idx + 1;
     } else {
@@ -373,7 +361,7 @@ static void visit_for(struct ast_for *ast)
     if (ast->condition)
         exit_jmp_ptr->idx = ir_last->instr_idx + 1;
 
-    ir_insert_last();
+    insert_last();
     --ir_block_depth;
 
     emit_loop_flow_instrs();
@@ -409,15 +397,15 @@ static void visit_while(struct ast_while *ast)
     struct ir_node *exit_jmp      = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *exit_jmp_ptr  = exit_jmp->ir;
 
-    ir_insert(cond);
-    ir_insert(exit_jmp);
+    insert(cond);
+    insert(exit_jmp);
 
     cond_ptr->goto_label = exit_jmp->instr_idx + 1;
 
     visit(ast->body);
 
     struct ir_node *next_iter_jmp = ir_jump_init(next_iter_idx);
-    ir_insert(next_iter_jmp);
+    insert(next_iter_jmp);
     --ir_block_depth;
 
     exit_jmp_ptr->idx = next_iter_jmp->instr_idx + 1;
@@ -467,7 +455,7 @@ static void visit_do_while(struct ast_do_while *ast)
         stmt_begin
     );
 
-    ir_insert(cond);
+    insert(cond);
     --ir_block_depth;
 
     emit_loop_flow_instrs();
@@ -517,8 +505,8 @@ static void visit_if(struct ast_if *ast)
 
     /* Body starts after exit jump. */
     cond_ptr->goto_label = exit_jmp->instr_idx + 1;
-    ir_insert(cond);
-    ir_insert(exit_jmp);
+    insert(cond);
+    insert(exit_jmp);
 
     struct ir_node *initial_stmt = ir_last;
 
@@ -539,7 +527,7 @@ static void visit_if(struct ast_if *ast)
     struct ir_node *else_jmp = ir_jump_init(/*Not used for now.*/-1);
     struct ir_jump *else_jmp_ptr = else_jmp->ir;
     /* Index of this jump will be changed through pointer. */
-    ir_insert(else_jmp);
+    insert(else_jmp);
 
     initial_stmt = ir_last;
 
@@ -561,7 +549,7 @@ static void visit_ret(struct ast_ret *ast)
         visit(ast->op);
     }
     ir_last = ir_ret_init(ir_last);
-    ir_insert_last();
+    insert_last();
 }
 
 static void visit_sym(struct ast_sym *ast)
@@ -581,7 +569,7 @@ really_inline static void visit_unary_arith(enum token_type op)
             : TOK_MINUS, ir_last, ir_imm_int_init(1)
     );
     ir_last = ir_store_sym_init(sym->idx, ir_last);
-    ir_insert_last();
+    insert_last();
 }
 
 really_inline static void visit_unary_pointer(enum token_type op, bool immediate)
@@ -604,16 +592,14 @@ really_inline static void visit_unary_pointer(enum token_type op, bool immediate
             ir_type_map[sym->idx].ptr_depth > 0,
             next_idx
         );
-        ir_insert_last();
+        insert_last();
         ir_last = ir_store_sym_init(next_idx, sym_node);
-        ir_insert_last();
+        insert_last();
         ir_last = ir_sym_init(next_idx);
     }
 
     struct ir_sym *new_s = ir_last->ir;
-
     ir_type_map[new_s->idx] = ir_type_map[sym->idx];
-
     new_s->deref   = op == TOK_STAR;
     new_s->addr_of = op == TOK_BIT_AND;
 }
@@ -645,7 +631,8 @@ static void visit_unary(struct ast_unary *ast)
     }
 }
 
-static void visit_struct_decl(struct ast_struct_decl *ast) { (void) ast; }
+static void visit_struct_decl(unused struct ast_struct_decl *ast)
+{}
 
 static void emit_var(struct ast_var_decl *ast)
 {
@@ -655,13 +642,13 @@ static void emit_var(struct ast_var_decl *ast)
     ir_type_map[next_idx].ptr_depth = ast->ptr_depth;
 
     /* Used as function argument or as function body statement. */
-    ir_insert_last();
+    insert_last();
     ir_storage_push(ast->name, next_idx, ast->dt, ast->ptr_depth, ir_last);
 
     if (ast->body) {
         visit(ast->body);
         ir_last = ir_store_sym_init(next_idx, ir_last);
-        ir_insert_last();
+        insert_last();
     }
 }
 
@@ -672,12 +659,12 @@ static void emit_var_string(struct ast_var_decl *ast)
     uint64_t           mem_siz  = string->len + 1; /* We add '\0'. */
 
     ir_last = ir_alloca_array_init(D_T_CHAR, &mem_siz, 1, next_idx);
-    ir_insert_last();
+    insert_last();
     ir_storage_push(ast->name, next_idx, ast->dt, ast->ptr_depth, ir_last);
 
     visit(ast->body);
     ir_last = ir_store_init(ir_sym_init(next_idx), ir_last);
-    ir_insert_last();
+    insert_last();
 }
 
 static void visit_var_decl(struct ast_var_decl *ast)
@@ -729,12 +716,12 @@ static void visit_array_decl(struct ast_array_decl *ast)
         weak_unreachable("Something funny happened.");
 
     for (uint64_t i = 0; i < enclosure->size; ++i) {
-        struct ast_num *num = enclosure->stmts[i]->ast;
+        struct ast_int *num = enclosure->stmts[i]->ast;
         lvls[i] = num->value;
     }
 
     ir_last = ir_alloca_array_init(ast->dt, lvls, enclosure->size, next_idx);
-    ir_insert_last();
+    insert_last();
 
     ir_storage_push(ast->name, next_idx, ast->dt, ast->ptr_depth, ir_last);
 }
@@ -756,7 +743,7 @@ static void visit_array_access(struct ast_array_access *ast)
         ir_last = ir_alloca_init(record->dt, /*ptr=*/1, next_idx);
         ir_type_map[next_idx].dt = record->dt;
         ir_type_map[next_idx].ptr_depth = record->ptr_depth;
-        ir_insert_last();
+        insert_last();
         ir_last = ir_store_init(
             ir_sym_init(next_idx),
             ir_bin_init(
@@ -765,12 +752,13 @@ static void visit_array_access(struct ast_array_access *ast)
                 idx
             )
         );
-        ir_insert_last();
+        insert_last();
         ir_last = ir_sym_ptr_init(next_idx);
     }
 }
 
-static void visit_member(struct ast_member *ast) { (void) ast; }
+static void visit_member(unused struct ast_member *ast)
+{}
 
 static void visit_compound(struct ast_compound *ast)
 {
@@ -800,24 +788,24 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
 
     ir_reset_state();
 
-    ir_fn_add_return_type(decl->name, decl->data_type);
+    store_return_type(decl->name, decl->data_type);
 
     visit(decl->body);
     if (decl->data_type == D_T_VOID)
-        ir_insert(ir_ret_init(NULL));
+        insert(ir_ret_init(NULL));
 
     struct ir_node *body = ir_first;
 
     vector_push_back(
         ir_fn_decls,
         ir_fn_decl_init(
-        decl->data_type,
-        decl->ptr_depth,
-        /* Duplicate to not be depended on AST string values (after free). */
-        strdup(decl->name),
-        args,
-        body
-    )
+            decl->data_type,
+            decl->ptr_depth,
+            /* Duplicate to not be depended on AST string values (after free). */
+            strdup(decl->name),
+            args,
+            body
+        )
     );
 
     ir_storage_reset();
@@ -841,22 +829,22 @@ static void visit_fn_call(struct ast_fn_call *ast)
         }
     }
 
-    enum data_type ret_dt = ir_fn_return_type(ast->name);
+    enum data_type ret_dt = load_return_type(ast->name);
     /* Duplicate to not be depended on AST string values (after free). */
     char *fcall_name = strdup(ast->name);
 
     if (ir_is_global_scope) {
         ir_last = ir_fn_call_init(fcall_name, args_start);
-        ir_insert(ir_last);
+        insert(ir_last);
     } else {
         uint64_t next_idx = ir_var_idx++;
         ir_last = ir_alloca_init(ret_dt, /*ptr=*/0, next_idx);
         ir_type_map[next_idx].dt = ret_dt;
-        ir_insert_last();
+        insert_last();
 
         ir_last = ir_fn_call_init(fcall_name, args_start);
         ir_last = ir_store_sym_init(next_idx, ir_last);
-        ir_insert_last();
+        insert_last();
         ir_last = ir_sym_init(next_idx);
     }
 
@@ -870,7 +858,7 @@ static void visit(struct ast_node *ast)
     void *ptr = ast->ast;
     switch (ast->type) {
     case AST_CHAR_LITERAL:    visit_char(ptr); break;
-    case AST_INTEGER_LITERAL: visit_num(ptr); break;
+    case AST_INTEGER_LITERAL: visit_int(ptr); break;
     case AST_FLOATING_POINT_LITERAL: visit_float(ptr); break;
     case AST_STRING_LITERAL:  visit_string(ptr); break;
     case AST_BOOLEAN_LITERAL: visit_bool(ptr); break;

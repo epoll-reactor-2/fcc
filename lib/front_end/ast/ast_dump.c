@@ -144,7 +144,7 @@ static void visit_float(FILE *mem, struct ast_node *ast)
 
 static void visit_num(FILE *mem, struct ast_node *ast)
 {
-    struct ast_num *number = ast->ast;
+    struct ast_int *number = ast->ast;
 
     ast_print(mem, ast, "Number");
     fprintf(mem, "%s%d%s\n", col_num, number->value, col_end);
@@ -361,7 +361,7 @@ static void visit_array_decl(FILE *mem, struct ast_node *ast)
     struct ast_compound *dimensions = decl->arity->ast;
 
     for (uint64_t i = 0; i < dimensions->size; ++i)
-        fprintf(mem, "[%d]", ( (struct ast_num *)(dimensions->stmts[i]->ast) )->value);
+        fprintf(mem, "[%d]", ( (struct ast_int *)(dimensions->stmts[i]->ast) )->value);
 
     fprintf(mem, " %s`%s`%s\n", col_id, decl->name, col_end);
 

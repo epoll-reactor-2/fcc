@@ -376,14 +376,14 @@ void ast_member_cleanup(struct ast_member *ast)
 /**********************************************
  **              Integral literal            **
  **********************************************/
-struct ast_node *ast_num_init(int32_t value, uint16_t line_no, uint16_t col_no)
+struct ast_node *ast_int_init(int32_t value, uint16_t line_no, uint16_t col_no)
 {
-    struct ast_num *ast = weak_calloc(1, sizeof (struct ast_num));
+    struct ast_int *ast = weak_calloc(1, sizeof (struct ast_int));
     ast->value = value;
     return ast_node_init(AST_INTEGER_LITERAL, ast, line_no, col_no);
 }
 
-void ast_num_cleanup(struct ast_num *ast)
+void ast_int_cleanup(struct ast_int *ast)
 {
     weak_free(ast);
 }
@@ -592,7 +592,7 @@ void ast_node_cleanup(struct ast_node *ast)
         ast_char_cleanup(ast->ast);
         break;
     case AST_INTEGER_LITERAL:
-        ast_num_cleanup(ast->ast);
+        ast_int_cleanup(ast->ast);
         break;
     case AST_FLOATING_POINT_LITERAL:
         ast_float_cleanup(ast->ast);
