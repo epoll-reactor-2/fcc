@@ -221,7 +221,7 @@ static void visit_array_decl(struct ast_node *ast)
     /* Required to be compound. */
     struct ast_compound *dimensions = decl->arity->ast;
     for (uint64_t i = 0; i < dimensions->size; ++i) {
-        int32_t num = ( (struct ast_num *) (dimensions->stmts[i]->ast) )->value;
+        int32_t num = ( (struct ast_int *) (dimensions->stmts[i]->ast) )->value;
         if (num == 0)
             weak_compile_error(
                 ast->line_no,
@@ -257,8 +257,8 @@ static void out_of_range_analysis(struct ast_node *decl_indices_ast, struct ast_
         if (call_indices->stmts[i]->type != AST_INTEGER_LITERAL)
             continue;
         struct ast_node *index_ast = call_indices->stmts[i];
-        struct ast_num *num = index_ast->ast;
-        struct ast_num *decl_index_ast = decl_indices->stmts[i]->ast;
+        struct ast_int *num = index_ast->ast;
+        struct ast_int *decl_index_ast = decl_indices->stmts[i]->ast;
         int32_t index = num->value;
         int32_t decl_index = decl_index_ast->value;
 

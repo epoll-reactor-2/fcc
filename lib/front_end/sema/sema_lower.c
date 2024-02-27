@@ -111,7 +111,7 @@ static void storage_put_array_decl(struct ast_node *ast)
         ast,
         decl->name,
         decl->dt,
-        ((struct ast_num *) list->stmts[list->size - 1]->ast)
+        ((struct ast_int *) list->stmts[list->size - 1]->ast)
             ->value
     );
 }
@@ -170,8 +170,8 @@ static bool verify_iterated_array(
         assert(iterated_list->stmts[i]->type == AST_INTEGER_LITERAL);
         assert(  target_list->stmts[i]->type == AST_INTEGER_LITERAL);
 
-        struct ast_num *iterated_idx = iterated_list->stmts[i]->ast;
-        struct ast_num   *target_idx =   target_list->stmts[i]->ast;
+        struct ast_int *iterated_idx = iterated_list->stmts[i]->ast;
+        struct ast_int   *target_idx =   target_list->stmts[i]->ast;
 
         int32_t it_v = iterated_idx->value;
         int32_t ta_v =   target_idx->value;
@@ -287,7 +287,7 @@ really_inline static struct ast_node *make_iter_index(
         strdup(__i),
         /*type_name*/NULL,
         /*ptr_depth=*/0,
-        ast_num_init(0, line_no, col_no),
+        ast_int_init(0, line_no, col_no),
         line_no, col_no
     );
 }
@@ -382,7 +382,7 @@ static void visit_for_range(struct ast_node **ast)
         ast_binary_init(
             TOK_LT,
             ast_sym_init(strdup(__i), 0, 0),
-            ast_num_init(decl->top_arity, 0, 0),
+            ast_int_init(decl->top_arity, 0, 0),
             0, 0
         ),
         ast_unary_init(

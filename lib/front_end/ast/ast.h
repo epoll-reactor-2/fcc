@@ -83,7 +83,7 @@ struct ast_array_decl {
         and size for each dimension, e.g.,
         for array[1][2][3], arity equal to { 1, 2, 3 }.
 
-        Represented as ast_compound of ast_num's. */
+        Represented as ast_compound of ast_int's. */
     struct ast_node *arity;
 
     /** Depth of pointer, like for
@@ -354,13 +354,13 @@ void ast_member_cleanup(struct ast_member *ast);
 /**********************************************
  **              Integral literal            **
  **********************************************/
-struct ast_num {
+struct ast_int {
     int32_t value;
 };
 
 wur
-struct ast_node *ast_num_init(int32_t value, uint16_t line_no, uint16_t col_no);
-void             ast_num_cleanup(struct ast_num *ast);
+struct ast_node *ast_int_init(int32_t value, uint16_t line_no, uint16_t col_no);
+void             ast_int_cleanup(struct ast_int *ast);
 
 
 /**********************************************

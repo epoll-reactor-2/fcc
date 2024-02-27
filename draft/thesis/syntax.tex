@@ -228,7 +228,7 @@ void factor() {
 \begin{lstlisting}[label={lst:ast-node}]
 struct ast_node {
 	enum ast_type  type;    /* Rozrozniamy typ wedlug tej flagi */
-	void          *ast;     /* ast_num, ast_for, ast_while, et cetera */
+	void          *ast;     /* ast_int, ast_for, ast_while, et cetera */
 	uint16_t       line_no;
 	uint16_t       col_no;
 };
@@ -241,7 +241,7 @@ struct ast_node {
 			\spacing
 
 \begin{lstlisting}[label={lst:ast-concrete-node}]
-struct ast_num {
+struct ast_int {
 	int32_t value;
 };
 \end{lstlisting}
