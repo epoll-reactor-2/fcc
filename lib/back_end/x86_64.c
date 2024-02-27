@@ -46,25 +46,21 @@ unused static const char *cdecl_reg(int arg_idx)
     }
 }
 
+static const char *ptr_suffix(uint64_t size)
+{
+    switch (size) {
+    case 1: return "byte";
+    case 2: return "word";
+    case 4: return "dword";
+    case 8: return "qword";
+    default:
+        weak_fatal_error("Invalid size: %ld", size);
+    }
+}
+
 struct x86_64_reg {
     const char *reg;
     bool        free;
-};
-
-/* TODO: Mapping IR variables to registers/stack location. */
-unused static struct x86_64_reg regs[] = {
-    { "rax", 1 },
-    { "rdi", 1 },
-    { "rsi", 1 },
-    { "rdx", 1 },
-    { "r8",  1 },
-    { "r9",  1 },
-    { "r10", 1 },
-    { "r11", 1 },
-    { "r12", 1 },
-    { "r13", 1 },
-    { "r14", 1 },
-    { "r15", 1 },
 };
 
 /**********************************************
@@ -93,6 +89,8 @@ static void emit_sym(struct ir_sym *ir)
 static void emit_store(struct ir_store *ir)
 {
     (void) ir;
+    /* Calculate everything using EAX/RAX, store by
+       stack offset or register (variable map => stack offset). */
 }
 
 static void emit_bin(struct ir_bin *ir)
@@ -150,12 +148,101 @@ static void emit_instr(struct ir_node *ir)
     }
 }
 
+static const char *cdecl_regs[] = {
+    "rax",
+    "rdi",
+    "rsi",
+    "rdx",
+    "r10",
+    "r8",
+    "r9",
+    NULL
+};
+
+/*
+#include <stdint.h>
+
+int f(char a1, signed a2, int a3, int a4, int a5,
+      int  a6, int    a7, int a8, int a9, int a10, int a11) {
+    return a3 + a4 + a6 + a7 + a11;
+}
+
+f(char, int, int, int, int, int, int, int, int, int, int):
+        push    rbp
+        mov     rbp, rsp
+        mov     al, dil
+        mov     edi, dword ptr [rbp + 48]
+        mov     edi, dword ptr [rbp + 40]
+        mov     edi, dword ptr [rbp + 32]
+        mov     edi, dword ptr [rbp + 24]
+        mov     edi, dword ptr [rbp + 16]
+        mov     byte ptr [rbp - 1], al
+        mov     dword ptr [rbp - 8], esi
+        mov     dword ptr [rbp - 12], edx
+        mov     dword ptr [rbp - 16], ecx
+        mov     dword ptr [rbp - 20], r8d
+        mov     dword ptr [rbp - 24], r9d
+        mov     eax, dword ptr [rbp - 12]
+        add     eax, dword ptr [rbp - 16]
+        add     eax, dword ptr [rbp - 24]
+        add     eax, dword ptr [rbp + 16]
+        add     eax, dword ptr [rbp + 48]
+        pop     rbp
+        ret
+*/
+
+static void emit_fn_args(struct ir_fn_decl *decl)
+{
+    struct ir_node *it         = decl->args;
+    /* TODO: Should be global for function (args, body). */
+    uint64_t        stack_off  = 0;
+    uint64_t        arg_num    = 0;
+    uint64_t        total_regs = __weak_array_size(cdecl_regs);
+
+    while (it) {
+        struct ir_alloca *alloca = it->ir;
+
+        uint64_t    size = ir_type_size(alloca->dt);
+        const char *reg  = cdecl_regs[arg_num++];
+
+        if (arg_num < total_regs)
+            emit(
+                "\tmov\t[rbp - %ld], %s\n",
+                stack_off,
+                reg
+            );
+        else
+            /* Take rest of args from stack. */
+            // emit("\tpush...\n");
+            ;
+        stack_off += size;
+        it = it->next;
+    }
+}
+
 static void emit_fn_body(struct ir_node *ir)
 {
     while (ir) {
         emit_instr(ir);
         ir = ir->next;
     }
+}
+
+static void emit_prologue()
+{
+    emit(
+        "\tpush\trbp\n"
+        "\tmov\trbp, rsp\n"
+    );
+}
+
+static void emit_epilogue()
+{
+    emit(
+        "\tmov\trsp, rbp\n"
+        "\tpop\trbp\n"
+        "\tret\n"
+    );
 }
 
 static void emit_fn(struct ir_fn_decl *fn)
@@ -168,10 +255,8 @@ static void emit_fn(struct ir_fn_decl *fn)
         emit("%s:\n", name);
     /* Prologue (cdecl). Not required in _start. */
     if (!main)
-        emit(
-            "\tpush\trbp\n"
-            "\tmov\trbp, rsp\n"
-        );
+        emit_prologue();
+    emit_fn_args(fn);
     /* Body. */
     emit_fn_body(fn->body);
     /* Epilogue (cdecl). Not required in _start. */
@@ -184,11 +269,7 @@ static void emit_fn(struct ir_fn_decl *fn)
             /* TODO: Exit value. */ 0
         );
     else
-        emit(
-            "\tmov\trsp, rbp\n"
-            "\tpop\trbp\n"
-            "\tret\n"
-        );
+        emit_epilogue();
 }
 
 static void emit_header()

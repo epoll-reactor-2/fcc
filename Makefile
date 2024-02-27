@@ -14,8 +14,8 @@ DEBUG_BUILD          := 1
 SANITIZE             := 0
 
 USE_LOG              := 0
-USE_BACKEND_EVAL     := 1
-USE_BACKEND_X86_64   := 0
+USE_BACKEND_EVAL     := 0
+USE_BACKEND_X86_64   := 1
 
 # Export all defined now variables to Makefile's
 # being child processes.

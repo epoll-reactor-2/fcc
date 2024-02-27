@@ -30,4 +30,6 @@ struct type {
     - ir_member (TODO: implement) */
 void ir_type_pass(struct ir_unit *unit);
 
+uint64_t ir_type_size(enum data_type dt);
+
 #endif // WEAK_COMPILER_MIDDLE_END_TYPE_H
