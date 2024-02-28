@@ -15,7 +15,7 @@ SANITIZE             := 0
 
 USE_LOG              := 0
 USE_BACKEND_EVAL     := 0
-USE_BACKEND_X86_64   := 1
+USE_BACKEND_RISC_V   := 1
 
 # Export all defined now variables to Makefile's
 # being child processes.
