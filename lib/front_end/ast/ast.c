@@ -94,7 +94,7 @@ struct ast_node *ast_bool_init(bool value, uint16_t line_no, uint16_t col_no)
 {
     struct ast_bool *ast = weak_calloc(1, sizeof (struct ast_bool));
     ast->value = value;
-    return ast_node_init(AST_BOOLEAN_LITERAL, ast, line_no, col_no);
+    return ast_node_init(AST_BOOL, ast, line_no, col_no);
 }
 
 void ast_bool_cleanup(struct ast_bool *ast)
@@ -125,7 +125,7 @@ struct ast_node *ast_char_init(char value, uint16_t line_no, uint16_t col_no)
 {
     struct ast_char *ast = weak_calloc(1, sizeof (struct ast_char));
     ast->value = value;
-    return ast_node_init(AST_CHAR_LITERAL, ast, line_no, col_no);
+    return ast_node_init(AST_CHAR, ast, line_no, col_no);
 }
 
 void ast_char_cleanup(struct ast_char *ast)
@@ -204,7 +204,7 @@ struct ast_node *ast_float_init(double value, uint16_t line_no, uint16_t col_no)
 {
     struct ast_float *ast = weak_calloc(1, sizeof (struct ast_float));
     ast->value = value;
-    return ast_node_init(AST_FLOATING_POINT_LITERAL, ast, line_no, col_no);
+    return ast_node_init(AST_FLOAT, ast, line_no, col_no);
 }
 
 void ast_float_cleanup(struct ast_float *ast)
@@ -380,7 +380,7 @@ struct ast_node *ast_int_init(int32_t value, uint16_t line_no, uint16_t col_no)
 {
     struct ast_int *ast = weak_calloc(1, sizeof (struct ast_int));
     ast->value = value;
-    return ast_node_init(AST_INTEGER_LITERAL, ast, line_no, col_no);
+    return ast_node_init(AST_INT, ast, line_no, col_no);
 }
 
 void ast_int_cleanup(struct ast_int *ast)
@@ -419,7 +419,7 @@ struct ast_node *ast_string_init(
     struct ast_string *ast = weak_calloc(1, sizeof (struct ast_string));
     ast->len = len;
     ast->value = value;
-    return ast_node_init(AST_STRING_LITERAL, ast, line_no, col_no);
+    return ast_node_init(AST_STRING, ast, line_no, col_no);
 }
 
 void ast_string_cleanup(struct ast_string *ast)
@@ -588,19 +588,19 @@ void ast_node_cleanup(struct ast_node *ast)
 {
     if (!ast) return;
     switch (ast->type) {
-    case AST_CHAR_LITERAL:
+    case AST_CHAR:
         ast_char_cleanup(ast->ast);
         break;
-    case AST_INTEGER_LITERAL:
+    case AST_INT:
         ast_int_cleanup(ast->ast);
         break;
-    case AST_FLOATING_POINT_LITERAL:
+    case AST_FLOAT:
         ast_float_cleanup(ast->ast);
         break;
-    case AST_STRING_LITERAL:
+    case AST_STRING:
         ast_string_cleanup(ast->ast);
         break;
-    case AST_BOOLEAN_LITERAL:
+    case AST_BOOL:
         ast_bool_cleanup(ast->ast);
         break;
     case AST_SYMBOL:

@@ -9,16 +9,16 @@
 
 enum ast_type {
     /** Literals. */
-    AST_CHAR_LITERAL,
-    AST_INTEGER_LITERAL,
-    AST_FLOATING_POINT_LITERAL,
-    AST_STRING_LITERAL,
-    AST_BOOLEAN_LITERAL,
+    AST_CHAR,
+    AST_INT,
+    AST_FLOAT,
+    AST_STRING,
+    AST_BOOL,
 
     /** Variable reference. */
     AST_SYMBOL,
 
-    // Declarations.
+    /** Declarations. */
     AST_VAR_DECL,
     AST_ARRAY_DECL,
     AST_STRUCT_DECL,

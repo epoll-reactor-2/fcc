@@ -73,8 +73,8 @@ extern void lex_consume_token(struct token *tok);
 \/\*.*\*\/             /* Requirement [2.3.2] */
 [[:space:]]            /* Ignore whitespace. */
 
--?[0-9]+               LEX_CONSUME_WORD(TOK_INTEGRAL_LITERAL)
--?[0-9]+\.[0-9]+       LEX_CONSUME_WORD(TOK_FLOATING_POINT_LITERAL)
+-?[0-9]+               LEX_CONSUME_WORD(TOK_INT_LITERAL)
+-?[0-9]+\.[0-9]+       LEX_CONSUME_WORD(TOK_FLOAT_LITERAL)
 \"(([^\"\\]|\\.)*)\"   LEX_CONSUME_QUOTED_LITERAL(TOK_STRING_LITERAL)
 \'.\'                  LEX_CONSUME_QUOTED_LITERAL(TOK_CHAR_LITERAL)
 

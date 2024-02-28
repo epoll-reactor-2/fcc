@@ -420,11 +420,11 @@ void visit(struct ast_node *ast)
     assert(ast);
 
     switch (ast->type) {
-    case AST_CHAR_LITERAL: /* Unused. */
-    case AST_INTEGER_LITERAL: /* Unused. */
-    case AST_FLOATING_POINT_LITERAL: /* Unused. */
-    case AST_STRING_LITERAL: /* Unused. */
-    case AST_BOOLEAN_LITERAL: /* Unused. */
+    case AST_CHAR: /* Unused. */
+    case AST_INT: /* Unused. */
+    case AST_FLOAT: /* Unused. */
+    case AST_STRING: /* Unused. */
+    case AST_BOOL: /* Unused. */
     case AST_STRUCT_DECL: /* Unused. */
     case AST_BREAK_STMT: /* Unused. */
     case AST_CONTINUE_STMT: /* Unused. */

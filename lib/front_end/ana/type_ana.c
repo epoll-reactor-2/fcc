@@ -254,7 +254,7 @@ static void out_of_range_analysis(struct ast_node *decl_indices_ast, struct ast_
     }
 
     for (uint64_t i = 0; i < MIN(call_indices->size, decl_indices->size); ++i) {
-        if (call_indices->stmts[i]->type != AST_INTEGER_LITERAL)
+        if (call_indices->stmts[i]->type != AST_INT)
             continue;
         struct ast_node *index_ast = call_indices->stmts[i];
         struct ast_int *num = index_ast->ast;
@@ -490,19 +490,19 @@ void visit(struct ast_node *ast)
     case AST_BREAK_STMT: /* Unused. */
     case AST_CONTINUE_STMT: /* Unused. */
         break;
-    case AST_CHAR_LITERAL:
+    case AST_CHAR:
         visit_char();
         break;
-    case AST_INTEGER_LITERAL:
+    case AST_INT:
         visit_num();
         break;
-    case AST_FLOATING_POINT_LITERAL:
+    case AST_FLOAT:
         visit_float();
         break;
-    case AST_STRING_LITERAL:
+    case AST_STRING:
         visit_string();
         break;
-    case AST_BOOLEAN_LITERAL:
+    case AST_BOOL:
         visit_bool();
         break;
     case AST_SYMBOL:
