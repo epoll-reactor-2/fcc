@@ -47,6 +47,7 @@ endif # USE_BACKEND_EVAL
 
 ifeq ($(USE_BACKEND_RISC_V), 1)
 SRC += back_end/risc_v.c
+SRC += back_end/risc_v_instr.c
 endif # USE_BACKEND_RISC_V
 
 OBJ = $(SRC:.c=.o)

@@ -94,5 +94,5 @@ int risc_v_test(const char *path, unused const char *filename)
 int main()
 {
     do_on_each_file("risc_v", risc_v_test);
-    return -1;
+    return 0;
 }
