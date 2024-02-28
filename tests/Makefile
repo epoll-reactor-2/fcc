@@ -50,6 +50,8 @@ SRC += back_end/risc_v.c
 SRC += back_end/risc_v_instr.c
 endif # USE_BACKEND_RISC_V
 
+SRC += back_end/elf.c
+
 OBJ = $(SRC:.c=.o)
 
 src: $(OBJ)

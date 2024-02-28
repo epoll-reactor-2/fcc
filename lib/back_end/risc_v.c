@@ -1,5 +1,5 @@
 /* risc_v.c - RISC-V code generator.
- * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
+ * Copyright (C) 2024 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
