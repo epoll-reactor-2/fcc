@@ -30,8 +30,8 @@ enum token_type {
 
     /** Literals. */
     TOK_CHAR_LITERAL,
-    TOK_INTEGRAL_LITERAL,
-    TOK_FLOATING_POINT_LITERAL,
+    TOK_INT_LITERAL,
+    TOK_FLOAT_LITERAL,
     TOK_STRING_LITERAL,
     TOK_SYMBOL,
 

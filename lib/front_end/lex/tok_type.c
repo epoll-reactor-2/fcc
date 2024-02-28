@@ -27,8 +27,8 @@ const char *tok_to_string(enum token_type t)
     case TOK_VOID:                   return "void";
     case TOK_WHILE:                  return "while";
     case TOK_CHAR_LITERAL:           return "char literal";
-    case TOK_INTEGRAL_LITERAL:       return "int literal";
-    case TOK_FLOATING_POINT_LITERAL: return "float literal";
+    case TOK_INT_LITERAL:            return "int literal";
+    case TOK_FLOAT_LITERAL:          return "float literal";
     case TOK_STRING_LITERAL:         return "string literal";
     case TOK_SYMBOL:                 return "symbol";
     case TOK_ASSIGN:                 return "=";

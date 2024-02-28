@@ -290,19 +290,19 @@ static void visit(struct ast_node **ast)
 
     switch ((*ast)->type) {
     /* Literals. */
-    case AST_CHAR_LITERAL:
+    case AST_CHAR:
         visit_char();
         break;
-    case AST_INTEGER_LITERAL:
+    case AST_INT:
         visit_num();
         break;
-    case AST_FLOATING_POINT_LITERAL:
+    case AST_FLOAT:
         visit_float();
         break;
-    case AST_STRING_LITERAL:
+    case AST_STRING:
         visit_string();
         break;
-    case AST_BOOLEAN_LITERAL:
+    case AST_BOOL:
         visit_bool();
         break;
     /* Only for full tree traversal. */

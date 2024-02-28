@@ -672,7 +672,7 @@ static void visit_var_decl(struct ast_var_decl *ast)
     bool string = 1;
     string &= ast->ptr_depth == 1;
     string &= ast->dt == D_T_CHAR;
-    string &= ast->body && ast->body->type == AST_STRING_LITERAL;
+    string &= ast->body && ast->body->type == AST_STRING;
 
     if (string)
         emit_var_string(ast);
@@ -857,11 +857,11 @@ static void visit(struct ast_node *ast)
 
     void *ptr = ast->ast;
     switch (ast->type) {
-    case AST_CHAR_LITERAL:    visit_char(ptr); break;
-    case AST_INTEGER_LITERAL: visit_int(ptr); break;
-    case AST_FLOATING_POINT_LITERAL: visit_float(ptr); break;
-    case AST_STRING_LITERAL:  visit_string(ptr); break;
-    case AST_BOOLEAN_LITERAL: visit_bool(ptr); break;
+    case AST_CHAR:            visit_char(ptr); break;
+    case AST_INT:             visit_int(ptr); break;
+    case AST_FLOAT:           visit_float(ptr); break;
+    case AST_STRING:          visit_string(ptr); break;
+    case AST_BOOL:            visit_bool(ptr); break;
     case AST_SYMBOL:          visit_sym(ptr); break;
     case AST_VAR_DECL:        visit_var_decl(ptr); break;
     case AST_ARRAY_DECL:      visit_array_decl(ptr); break;

@@ -513,19 +513,19 @@ int32_t visit(FILE *mem, struct ast_node *ast)
     }
 
     switch (ast->type) {
-    case AST_CHAR_LITERAL:
+    case AST_CHAR:
         visit_char(mem, ast);
         break;
-    case AST_INTEGER_LITERAL:
+    case AST_INT:
         visit_num(mem, ast);
         break;
-    case AST_FLOATING_POINT_LITERAL:
+    case AST_FLOAT:
         visit_float(mem, ast);
         break;
-    case AST_STRING_LITERAL:
+    case AST_STRING:
         visit_string(mem, ast);
         break;
-    case AST_BOOLEAN_LITERAL:
+    case AST_BOOL:
         visit_bool(mem, ast);
         break;
     case AST_SYMBOL:

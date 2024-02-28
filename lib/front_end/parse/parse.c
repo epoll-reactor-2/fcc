@@ -237,7 +237,7 @@ static struct ast_node *parse_array_decl_without_initializer()
     while (tok_is(peek_current(), '[')) {
         require_char('[');
         struct ast_node *constant = parse_constant();
-        if (constant->type != AST_INTEGER_LITERAL)
+        if (constant->type != AST_INT)
             weak_compile_error(
                 constant->line_no,
                 constant->col_no,
@@ -313,8 +313,6 @@ static struct ast_node *parse_decl_without_initializer()
     case TOK_CHAR:
     case TOK_BOOL: /* Fall through. */
         if (is_array)
-            /* TODO: parse_array_decl_without_initializer().
-                     parse_array_decl() can have initializer now. */
             return parse_array_decl_without_initializer();
         else
             return parse_var_decl_without_initializer();
@@ -1145,7 +1143,7 @@ static struct ast_node *parse_struct_var_decl()
         require_char('[');
         struct ast_node *constant = parse_constant();
 
-        if (constant->type != AST_INTEGER_LITERAL)
+        if (constant->type != AST_INT)
             weak_compile_error(
                 constant->line_no,
                 constant->col_no,
@@ -1346,9 +1344,9 @@ static struct ast_node *parse_constant()
     struct token *t = peek_next();
 
     switch (t->type) {
-    case TOK_INTEGRAL_LITERAL:
+    case TOK_INT_LITERAL:
         return ast_int_init(atoi(t->data), t->line_no, t->col_no);
-    case TOK_FLOATING_POINT_LITERAL:
+    case TOK_FLOAT_LITERAL:
         return ast_float_init(atof(t->data), t->line_no, t->col_no);
     case TOK_STRING_LITERAL:
         return ast_string_init(strlen(t->data), strdup(t->data), t->line_no, t->col_no);
