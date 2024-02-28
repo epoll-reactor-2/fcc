@@ -74,9 +74,8 @@ int risc_v_test(const char *path, unused const char *filename)
         fflush(code_stream);
 
         system("cat /tmp/__code.S");
-        system("nasm -f elf64 /tmp/__code.S -o /tmp/__code.o");
-        system("ld /tmp/__code.o -o /tmp/__code");
-        system("strace /tmp/__code");
+        system("riscv64-linux-gnu-gcc -nostartfiles /tmp/__code.S -o /tmp/__code.riscv");
+        system("qemu-riscv64 -L /usr/riscv64-linux-gnu /tmp/__code.riscv");
 
     } else {
         /* Error, will be printed in main. */
