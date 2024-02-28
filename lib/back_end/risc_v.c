@@ -11,93 +11,6 @@
 #include <string.h>
 #include <sys/syscall.h>
 
-/**********************************************
- **         Instruction encoding             **
- **********************************************/
-/* R type */
-#define riscv_R_add                51 /* 0b110011 + (0 << 12) */
-#define riscv_R_sub        1073741875 /* 0b110011 + (0 << 12) + (0x20 << 25) */
-#define riscv_R_xor             16435 /* 0b110011 + (4 << 12) */
-#define riscv_R_or              24627 /* 0b110011 + (6 << 12) */
-#define riscv_R_and             28723 /* 0b110011 + (7 << 12) */
-#define riscv_R_sll              4147 /* 0b110011 + (1 << 12) */
-#define riscv_R_srl             20531 /* 0b110011 + (5 << 12) */
-#define riscv_R_sra        1073762355 /* 0b110011 + (5 << 12) + (0x20 << 25) */
-#define riscv_R_slt              8243 /* 0b110011 + (2 << 12) */
-#define riscv_R_sltu            12339 /* 0b110011 + (3 << 12) */
-/* I type */
-#define riscv_I_addi               19 /* 0b0010011 */
-#define riscv_I_xori            16403 /* 0b0010011 + (4 << 12) */
-#define riscv_I_ori             24595 /* 0b0010011 + (6 << 12) */
-#define riscv_I_andi            28691 /* 0b0010011 + (7 << 12) */
-#define riscv_I_slli             4115 /* 0b0010011 + (1 << 12) */
-#define riscv_I_srli            20499 /* 0b0010011 + (5 << 12) */
-#define riscv_I_srai       1073762323 /* 0b0010011 + (5 << 12) + (0x20 << 25) */
-#define riscv_I_slti             8211 /* 0b0010011 + (2 << 12) */
-#define riscv_I_sltiu           12307 /* 0b0010011 + (3 << 12) */
-/* Load/store */
-#define riscv_I_lb                  3 /* 0b11 */
-#define riscv_I_lh               4099 /* 0b11 + (1 << 12) */
-#define riscv_I_lw               8195 /* 0b11 + (2 << 12) */
-#define riscv_I_lbu             16387 /* 0b11 + (4 << 12) */
-#define riscv_I_lhu             20483 /* 0b11 + (5 << 12) */
-#define riscv_S_sb                 35 /* 0b0100011 */
-#define riscv_S_sh               4131 /* 0b0100011 + (1 << 12) */
-#define riscv_S_sw               8227 /* 0b0100011 + (2 << 12) */
-/* Branches */
-#define riscv_B_beq                99 /* 0b1100011 */
-#define riscv_B_bne              4195 /* 0b1100011 + (1 << 12) */
-#define riscv_B_blt             16483 /* 0b1100011 + (4 << 12) */
-#define riscv_B_bge             20579 /* 0b1100011 + (5 << 12) */
-#define riscv_B_bltu            24675 /* 0b1100011 + (6 << 12) */
-#define riscv_B_bgeu            28771 /* 0b1100011 + (7 << 12) */
-/* Jumps */
-#define riscv_jal                 111 /* 0b1101111 */
-#define riscv_jalr                103 /* 0b1100111 */
-/* Misc */
-#define riscv_lui                  55 /* 0b0110111 */
-#define riscv_auipc                23 /* 0b0010111 */
-#define riscv_ecall               115 /* 0b1110011 */
-#define riscv_ebreak          1048691 /* 0b1110011 + (1 << 20) */
-/* M */
-#define riscv_m_mul          33554483 /* 0b0110011 + (1 << 25) */
-#define riscv_m_div          33570867 /* 0b0110011 + (1 << 25) + (4 << 12) */
-#define riscv_m_mod          33579059 /* 0b0110011 + (1 << 25) + (6 << 12) */
-
-/* registers */
-#define riscv_reg_zero    0
-#define riscv_reg_ra      1
-#define riscv_reg_sp      2
-#define riscv_reg_gp      3
-#define riscv_reg_tp      4
-#define riscv_reg_t0      5
-#define riscv_reg_t1      6
-#define riscv_reg_t2      7
-#define riscv_reg_s0      8
-#define riscv_reg_s1      9
-#define riscv_reg_a0     10
-#define riscv_reg_a1     11
-#define riscv_reg_a2     12
-#define riscv_reg_a3     13
-#define riscv_reg_a4     14
-#define riscv_reg_a5     15
-#define riscv_reg_a6     16
-#define riscv_reg_a7     17
-#define riscv_reg_s2     18
-#define riscv_reg_s3     19
-#define riscv_reg_s4     20
-#define riscv_reg_s5     21
-#define riscv_reg_s6     22
-#define riscv_reg_s7     23
-#define riscv_reg_s8     24
-#define riscv_reg_s9     25
-#define riscv_reg_s10    26
-#define riscv_reg_s11    27
-#define riscv_reg_t3     28
-#define riscv_reg_t4     29
-#define riscv_reg_t5     30
-#define riscv_reg_t6     31
-
 int risc_v_extract_bits(int imm, int i_start, int i_end, int d_start, int d_end)
 {
     int v;
@@ -168,10 +81,10 @@ int risc_v_encode_B(int op, int rs1, int rs2, int imm)
     if (imm < 0)
         sign = 1;
 
-    return op + (rs1 << 15) + (rs2 << 20) +
+    return op + (sign << 31) + (rs1 << 15) + (rs2 << 20) +
            risc_v_extract_bits(imm, 11, 11,  7,  7) +
            risc_v_extract_bits(imm,  1,  4,  8, 11) +
-           risc_v_extract_bits(imm,  5, 10, 25, 30) + (sign << 31);
+           risc_v_extract_bits(imm,  5, 10, 25, 30);
 }
 
 int risc_v_encode_J(int op, int rd, int imm)
@@ -183,70 +96,70 @@ int risc_v_encode_J(int op, int rd, int imm)
         imm = -imm;
         imm = (1 << 21) - imm;
     }
-    return op + (rd << 7) +
+    return op + (sign << 31) + (rd << 7) +
            risc_v_extract_bits(imm,  1, 10, 21, 30) +
            risc_v_extract_bits(imm, 11, 11, 20, 20) +
-           risc_v_extract_bits(imm, 12, 19, 12, 19) + (sign << 31);
+           risc_v_extract_bits(imm, 12, 19, 12, 19);
 }
 
 int risc_v_encode_U(int op,  int rd,  int imm) { return op + (rd << 7) + risc_v_extract_bits(imm, 12, 31, 12, 31); }
 
-#define RISC_V_OPCODE(x, t) \
-    int risc_v_##x(int rd, int l, int r) { return risc_v_encode_##t(riscv_##t##_##x, rd, l, r); }
+#define risc_v_opcode(x, t) \
+    int risc_v_##x(int rd, int l, int r) { return risc_v_encode_##t(risc_v_##t##_##x, rd, l, r); }
 
-#define RISC_V_R_OPCODE(x) RISC_V_OPCODE(x, R)
-#define RISC_V_I_OPCODE(x) RISC_V_OPCODE(x, I)
-#define RISC_V_S_OPCODE(x) RISC_V_OPCODE(x, S)
-#define RISC_V_B_OPCODE(x) RISC_V_OPCODE(x, B)
+#define risc_v_r_opcode(x) risc_v_opcode(x, R)
+#define risc_v_i_opcode(x) risc_v_opcode(x, I)
+#define risc_v_s_opcode(x) risc_v_opcode(x, S)
+#define risc_v_b_opcode(x) risc_v_opcode(x, B)
 
-RISC_V_R_OPCODE(add)
-RISC_V_R_OPCODE(sub)
-RISC_V_R_OPCODE(or)
-RISC_V_R_OPCODE(xor)
-RISC_V_R_OPCODE(and)
-RISC_V_R_OPCODE(sll)
-RISC_V_R_OPCODE(srl)
-RISC_V_R_OPCODE(sra)
-RISC_V_R_OPCODE(slt)
-RISC_V_R_OPCODE(sltu)
+risc_v_r_opcode(add)
+risc_v_r_opcode(sub)
+risc_v_r_opcode(or)
+risc_v_r_opcode(xor)
+risc_v_r_opcode(and)
+risc_v_r_opcode(sll)
+risc_v_r_opcode(srl)
+risc_v_r_opcode(sra)
+risc_v_r_opcode(slt)
+risc_v_r_opcode(sltu)
 
-RISC_V_I_OPCODE(addi)
-RISC_V_I_OPCODE(xori)
-RISC_V_I_OPCODE(ori)
-RISC_V_I_OPCODE(andi)
-RISC_V_I_OPCODE(slli)
-RISC_V_I_OPCODE(srli)
-RISC_V_I_OPCODE(srai)
-RISC_V_I_OPCODE(slti)
-RISC_V_I_OPCODE(sltiu)
-RISC_V_I_OPCODE(lb)
-RISC_V_I_OPCODE(lh)
-RISC_V_I_OPCODE(lw)
-RISC_V_I_OPCODE(lbu)
-RISC_V_I_OPCODE(lhu)
+risc_v_i_opcode(addi)
+risc_v_i_opcode(xori)
+risc_v_i_opcode(ori)
+risc_v_i_opcode(andi)
+risc_v_i_opcode(slli)
+risc_v_i_opcode(srli)
+risc_v_i_opcode(srai)
+risc_v_i_opcode(slti)
+risc_v_i_opcode(sltiu)
+risc_v_i_opcode(lb)
+risc_v_i_opcode(lh)
+risc_v_i_opcode(lw)
+risc_v_i_opcode(lbu)
+risc_v_i_opcode(lhu)
 
-RISC_V_S_OPCODE(sb)
-RISC_V_S_OPCODE(sh)
-RISC_V_S_OPCODE(sw)
+risc_v_s_opcode(sb)
+risc_v_s_opcode(sh)
+risc_v_s_opcode(sw)
 
-RISC_V_B_OPCODE(beq)
-RISC_V_B_OPCODE(bne)
-RISC_V_B_OPCODE(blt)
-RISC_V_B_OPCODE(bge)
-RISC_V_B_OPCODE(bltu)
-RISC_V_B_OPCODE(bgeu)
+risc_v_b_opcode(beq)
+risc_v_b_opcode(bne)
+risc_v_b_opcode(blt)
+risc_v_b_opcode(bge)
+risc_v_b_opcode(bltu)
+risc_v_b_opcode(bgeu)
 
 /* Rest. */
-int risc_v_jal     (int rd,           int imm) { return risc_v_encode_J(riscv_jal, rd, imm); }
-int risc_v_jalr    (int rd,  int rs1, int imm) { return risc_v_encode_I(riscv_jalr, rd, rs1, imm); }
-int risc_v_lui     (int rd,           int imm) { return risc_v_encode_U(riscv_lui, rd, imm); }
-int risc_v_auipc   (int rd,           int imm) { return risc_v_encode_U(riscv_auipc, rd, imm); }
-int risc_v_ecall   (                         ) { return risc_v_encode_I(riscv_ecall,  riscv_reg_zero, riscv_reg_zero, 0); }
-int risc_v_ebreak  (                         ) { return risc_v_encode_I(riscv_ebreak, riscv_reg_zero, riscv_reg_zero, 1); }
-int risc_v_nop     (                         ) { return risc_v_addi(riscv_reg_zero, riscv_reg_zero, 0); }
-int risc_v_mul     (int rd, int rs1, int rs2 ) { return risc_v_encode_R(riscv_m_mul, rd, rs1, rs2); }
-int risc_v_div     (int rd, int rs1, int rs2 ) { return risc_v_encode_R(riscv_m_div, rd, rs1, rs2); }
-int risc_v_mod     (int rd, int rs1, int rs2 ) { return risc_v_encode_R(riscv_m_mod, rd, rs1, rs2); }
+int risc_v_jal     (int rd,          int imm) { return risc_v_encode_J(risc_v_I_jal, rd, imm); }
+int risc_v_jalr    (int rd, int rs1, int imm) { return risc_v_encode_I(risc_v_I_jalr, rd, rs1, imm); }
+int risc_v_lui     (int rd,          int imm) { return risc_v_encode_U(risc_v_I_lui, rd, imm); }
+int risc_v_auipc   (int rd,          int imm) { return risc_v_encode_U(risc_v_I_auipc, rd, imm); }
+int risc_v_ecall   (                        ) { return risc_v_encode_I(risc_v_I_ecall,  risc_v_reg_zero, risc_v_reg_zero, 0); }
+int risc_v_ebreak  (                        ) { return risc_v_encode_I(risc_v_I_ebreak, risc_v_reg_zero, risc_v_reg_zero, 1); }
+int risc_v_nop     (                        ) { return risc_v_addi(risc_v_reg_zero, risc_v_reg_zero, 0); }
+int risc_v_mul     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_mul, rd, rs1, rs2); }
+int risc_v_div     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_div, rd, rs1, rs2); }
+int risc_v_mod     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_mod, rd, rs1, rs2); }
 
 /**********************************************
  **                Printers                  **
