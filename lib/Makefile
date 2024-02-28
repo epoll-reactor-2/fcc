@@ -12,6 +12,8 @@ ifeq ($(USE_BACKEND_RISC_V), 1)
 SRC += back_end/risc_v.c
 endif # USE_BACKEND_EVAL
 
+SRC += back_end/elf.c
+
 OBJ = $(SRC:.c=.o)
 
 ##################################
