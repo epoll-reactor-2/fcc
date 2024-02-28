@@ -11,9 +11,9 @@ ifeq ($(USE_BACKEND_EVAL), 1)
 CFLAGS += -D CONFIG_USE_BACKEND_EVAL
 endif # USE_BACKEND_EVAL
 
-ifeq ($(USE_BACKEND_X86_64), 1)
-CFLAGS += -D CONFIG_USE_BACKEND_X86_64
-endif # USE_BACKEND_X86_64
+ifeq ($(USE_BACKEND_RISC_V), 1)
+CFLAGS += -D CONFIG_USE_BACKEND_RISC_V
+endif # USE_BACKEND_RISC_V
 
 ##################################
 # Targets                        #

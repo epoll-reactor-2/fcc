@@ -142,10 +142,10 @@ void run_backend(const char *filename)
 }
 #endif /* CONFIG_USE_BACKEND_EVAL */
 
-#ifdef CONFIG_USE_BACKEND_X86_64
+#ifdef CONFIG_USE_BACKEND_RISC_V
 void run_backend(unused const char *filename)
 {}
-#endif /* CONFIG_USE_BACKEND_X86_64 */
+#endif /* CONFIG_USE_BACKEND_RISC_V */
 
 
 void configure_ast(bool simple)

@@ -45,9 +45,9 @@ ifeq ($(USE_BACKEND_EVAL), 1)
 SRC += back_end/eval.c
 endif # USE_BACKEND_EVAL
 
-ifeq ($(USE_BACKEND_X86_64), 1)
-SRC += back_end/x86_64.c
-endif # USE_BACKEND_EVAL
+ifeq ($(USE_BACKEND_RISC_V), 1)
+SRC += back_end/risc_v.c
+endif # USE_BACKEND_RISC_V
 
 OBJ = $(SRC:.c=.o)
 

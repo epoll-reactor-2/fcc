@@ -1,10 +1,10 @@
-/* x86_64.c - Test cases for x86_64 codegen.
+/* risc_v.c - Test cases for RISC-V codegen.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "back_end/x86_64.h"
+#include "back_end/risc_v.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/ir.h"
@@ -21,7 +21,7 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-int x86_64_test(const char *path, unused const char *filename)
+int risc_v_test(const char *path, unused const char *filename)
 {
     char   *expected         = NULL;
     char   *generated        = NULL;
@@ -50,7 +50,8 @@ int x86_64_test(const char *path, unused const char *filename)
 
             ir_cfg_build(decl);
 
-            /* ir_dump(stdout, decl); */
+            puts("");
+            ir_dump(stdout, decl);
 
             /* Wrong
                ir_opt_unreachable_code(decl); */
@@ -67,7 +68,7 @@ int x86_64_test(const char *path, unused const char *filename)
             it = it->next;
         }
 
-        x86_64_gen(code_stream, &unit);
+        risc_v_gen(code_stream, &unit);
         ir_unit_cleanup(&unit);
 
         fflush(code_stream);
@@ -93,6 +94,6 @@ int x86_64_test(const char *path, unused const char *filename)
 
 int main()
 {
-    do_on_each_file("x86_64", x86_64_test);
+    do_on_each_file("risc_v", risc_v_test);
     return -1;
 }
