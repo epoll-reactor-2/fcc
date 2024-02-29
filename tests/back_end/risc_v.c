@@ -5,6 +5,7 @@
  */
 
 #include "back_end/risc_v.h"
+#include "back_end/elf.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
 #include "middle_end/ir/ir.h"
@@ -68,15 +69,22 @@ int risc_v_test(const char *path, unused const char *filename)
             it = it->next;
         }
 
-        risc_v_gen(code_stream, &unit);
-        ir_unit_cleanup(&unit);
+        struct codegen_output codegen_ctx = {0};
+
+        elf_init("__code.o", ARCH_RISC_V);
+        risc_v_gen(&codegen_ctx, &unit);
+        vector_foreach(codegen_ctx.fns, i) {
+            instr_vector_t *instrs = &vector_at(codegen_ctx.fns, i);
+            uint8_t        *code   = (uint8_t *) instrs->data;
+            uint64_t        code_size = instrs->count * sizeof (uint32_t);
+            printf("Instrs: %ld, bytes to put: %ld\n", instrs->count, code_size);
+            elf_put_code(code, code_size);
+        }
+        /* TODO: Strings, other sections must be written to ELF file. */
+        elf_exit();
 
         fflush(code_stream);
-
-        system("cat __code.S");
-        system("riscv64-linux-gnu-gcc -nostartfiles __code.S -o __code.riscv");
-        system("qemu-riscv64 -L /usr/riscv64-linux-gnu __code.riscv");
-
+        ir_unit_cleanup(&unit);
     } else {
         /* Error, will be printed in main. */
         return -1;

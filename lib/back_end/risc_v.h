@@ -8,6 +8,8 @@
 #define WEAK_COMPILER_BACKEND_RISC_V_H
 
 #include <stdio.h>
+#include <stdint.h>
+#include "util/vector.h"
 
 /**********************************************
  **         Instruction encoding             **
@@ -97,11 +99,17 @@
 #define risc_v_reg_t6     31
 
 /**********************************************
- **         Instruction encoding             **
+ **            Code generator                **
  **********************************************/
 
 struct ir_unit;
 
-void risc_v_gen(FILE *stream, struct ir_unit *unit);
+typedef vector_t(uint32_t) instr_vector_t;
+
+struct codegen_output {
+    vector_t(instr_vector_t) fns;
+};
+
+void risc_v_gen(struct codegen_output *output, struct ir_unit *unit);
 
 #endif // WEAK_COMPILER_BACKEND_RISC_V_H
