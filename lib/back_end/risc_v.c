@@ -163,27 +163,30 @@ int risc_v_mod     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_
 int risc_v_ret     (                        ) { return risc_v_jalr(risc_v_reg_zero, risc_v_reg_ra, 0); }
 
 /**********************************************
- **                Printers                  **
+ **        Code generation routines          **
  **********************************************/
-static FILE *code_stream;
 
-unused static void report(const char *msg)
+/* TODO: This must be common for each architecture. */
+static struct codegen_output *codegen_output;
+
+static void put_fn()
 {
-    perror(msg);
-    exit(1);
+    instr_vector_t i = {0};
+    vector_push_back(codegen_output->fns, i);
 }
 
-fmt(1, 2) unused static void emit(const char *fmt, ...)
+static void put_code(int code)
 {
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(code_stream, fmt, args);
-    va_end(args);
+    vector_push_back(
+        vector_back(codegen_output->fns),
+        code
+    );
 }
 
 /**********************************************
- **        Code generation routines          **
+ **              IR traversal                **
  **********************************************/
+
 static void emit_alloca(unused struct ir_alloca *ir) {}
 static void emit_alloca_array(unused struct ir_alloca_array *ir) {}
 static void emit_imm(unused struct ir_imm *ir) {}
@@ -235,22 +238,21 @@ static void emit_fn_body(struct ir_fn_decl *fn)
 
 static void emit_fn(unused struct ir_fn_decl *fn)
 {
+    put_fn();
     emit_fn_args(fn);
     emit_fn_body(fn);
+    put_code(risc_v_ret());
 }
 
 /**********************************************
  **                Driver code               **
  **********************************************/
-void risc_v_gen(FILE *stream, struct ir_unit *unit)
+void risc_v_gen(struct codegen_output *output, struct ir_unit *unit)
 {
-    (void) unit;
-
-    code_stream = stream;
+    codegen_output = output;
 
     struct ir_node *ir = unit->fn_decls;
     while (ir) {
-        puts("");
         emit_fn(ir->ir);
         ir = ir->next;
     }

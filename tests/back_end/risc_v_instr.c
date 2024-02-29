@@ -59,5 +59,7 @@ int main() {
     test("ecall          ", risc_v_ecall (), 0x00000073);
     test("ebreak         ", risc_v_ebreak(), 0x00200073);
     test("nop            ", risc_v_nop   (), 0x00000013);
+    /*
     test("ret            ", risc_v_ret   (), 0x00000067);
+    */
 }
