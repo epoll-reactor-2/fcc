@@ -28,6 +28,7 @@ int risc_v_sltu  (int rd, int rs1, int rs2);
 int risc_v_ecall ();
 int risc_v_ebreak();
 int risc_v_nop   ();
+int risc_v_ret   ();
 
 void test(const char *name, int code, int expect)
 {
@@ -58,4 +59,5 @@ int main() {
     test("ecall          ", risc_v_ecall (), 0x00000073);
     test("ebreak         ", risc_v_ebreak(), 0x00200073);
     test("nop            ", risc_v_nop   (), 0x00000013);
+    test("ret            ", risc_v_ret   (), 0x00000067);
 }
