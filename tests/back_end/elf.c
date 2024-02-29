@@ -8,6 +8,7 @@
 #include "util/unreachable.h"
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
@@ -34,4 +35,6 @@ int main()
     };
     elf_put_code(code, sizeof (code));
     elf_exit();
+
+    system("riscv64-linux-gnu-readelf -a __elf.o");
 }

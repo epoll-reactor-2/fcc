@@ -66,9 +66,9 @@ void elf_init(const char *filename, unused enum arch arch)
     }
     /* Another byte for ELF version... */
     emit(0x14, "\x01");
-    /* Address of program entry point. */
-    /* Little endian for some reason. */
-    emit(0x18, "\x00\x10\x40");
+    /* Address of program entry point.
+       Virtual address to which the system first transfers control, thus starting the process. */
+    emit(0x18, "\x10\x40");
 
     /* !!!
        All things below are hard-coded.
@@ -76,7 +76,7 @@ void elf_init(const char *filename, unused enum arch arch)
 
     /* Program header table start. It follows */
     /* This header immediatly. */
-    emit(0x20, "\x40\x00");
+    emit(0x20, "\x40");
     /* Start of section header table. */
     /* Hardcoded for now 4192 (0x1060). */
     emit(0x28, "\x60\x10");
@@ -87,15 +87,29 @@ void elf_init(const char *filename, unused enum arch arch)
     /* Program header table size. Idk. 64. */
     emit(0x36, "\x38");
     /* Number of entries in program header table. */
-    emit(0x38, "\x04");
+    emit(0x38, "\x02"); /* TODO: Important! */
     /* Section header table size. Idk. */
     emit(0x3A, "\x40");
     /* Number of entries in section header table. */
-    emit(0x3C, "\x01");
+    emit(0x3C, "\x02");
     /* Index of the section header table entry that contains the section names.  */
     emit(0x3E, "\x04");
-    /* End of header. Actually size. */
-    emit(0x40, "\x40");
+    /* End of header. */
+
+    uint64_t phdr_siz = 0x38;
+    uint64_t phdr_off = 0x40;
+    /* Prgoram header starts from 0x40.
+
+       Example two headers with random data. */
+    for (uint64_t i = 0; i < 2; ++i) {
+        /* Type of the segment. */
+        emit(phdr_off + 0x00, "\x01");
+        /* Flags (RW) */
+        emit(phdr_off + 0x04, "\x06");
+        /* Virtual address of the segment in memory */
+        emit(phdr_off + 0x10, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
+        phdr_off += phdr_siz;
+    }
 
     /* Code should be placed from address 0x401000. */
 
