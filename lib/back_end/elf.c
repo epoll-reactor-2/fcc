@@ -16,15 +16,16 @@
 #include <sys/mman.h>
 
 static char *map;
+static int fd;
 
 static void emit(uint64_t addr, const char *bytes)
 {
     strcpy(&map[addr], bytes);
 }
 
-void elf_gen(const char *filename, unused enum arch arch)
+void elf_init(const char *filename, unused enum arch arch)
 {
-    int fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, 0666);
+    fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, 0666);
 
     if (ftruncate(fd, 0x401500) < 0)
         weak_fatal_errno("ftruncate()");
@@ -98,9 +99,24 @@ void elf_gen(const char *filename, unused enum arch arch)
 
     /* Code should be placed from address 0x401000. */
 
+    /*
+        riscv64-linux-gnu-objdump: warning: __elf.o has a corrupt string table index - ignoring
+
+        __elf.o:     file format elf64-littleriscv
+    */
+}
+
+void elf_exit()
+{
     if (munmap(map, 0x401500) < 0)
         weak_fatal_errno("munmap()");
 
     if (close(fd) < 0)
         weak_fatal_errno("close()");
+}
+
+void elf_put_code(uint8_t *code, uint64_t size)
+{
+    void *start = map + 0x401000;
+    memcpy(start, code, size);
 }

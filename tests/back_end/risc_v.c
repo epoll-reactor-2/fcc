@@ -28,7 +28,7 @@ int risc_v_test(const char *path, unused const char *filename)
     size_t  _                = 0;
     FILE   *expected_stream  = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
-    FILE   *code_stream      = fopen("/tmp/__code.S", "w");
+    FILE   *code_stream      = fopen("__code.S", "w");
     struct  ir_node    *it   = NULL;
 
     ftruncate(fileno(code_stream), 0);
@@ -73,9 +73,9 @@ int risc_v_test(const char *path, unused const char *filename)
 
         fflush(code_stream);
 
-        system("cat /tmp/__code.S");
-        system("riscv64-linux-gnu-gcc -nostartfiles /tmp/__code.S -o /tmp/__code.riscv");
-        system("qemu-riscv64 -L /usr/riscv64-linux-gnu /tmp/__code.riscv");
+        system("cat __code.S");
+        system("riscv64-linux-gnu-gcc -nostartfiles __code.S -o __code.riscv");
+        system("qemu-riscv64 -L /usr/riscv64-linux-gnu __code.riscv");
 
     } else {
         /* Error, will be printed in main. */

@@ -222,16 +222,21 @@ static void emit_instr(struct ir_node *ir)
     }
 }
 
-unused static void emit_fn_args(unused struct ir_fn_decl *decl) {}
-unused static void emit_fn_body(struct ir_node *ir)
+static void emit_fn_args(unused struct ir_fn_decl *fn) {}
+static void emit_fn_body(struct ir_fn_decl *fn)
 {
-    while (ir) {
-        emit_instr(ir);
-        ir = ir->next;
+    struct ir_node *it = fn->body;
+    while (it) {
+        emit_instr(it);
+        it = it->next;
     }
 }
 
-static void emit_fn(unused struct ir_fn_decl *fn) {}
+static void emit_fn(unused struct ir_fn_decl *fn)
+{
+    emit_fn_args(fn);
+    emit_fn_body(fn);
+}
 
 /**********************************************
  **                Driver code               **
