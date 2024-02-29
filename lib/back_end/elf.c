@@ -91,7 +91,7 @@ void elf_init(const char *filename, unused enum arch arch)
     /* Section header table size. Idk. */
     emit(0x3A, "\x40");
     /* Number of entries in section header table. */
-    emit(0x3C, "\x05");
+    emit(0x3C, "\x01");
     /* Index of the section header table entry that contains the section names.  */
     emit(0x3E, "\x04");
     /* End of header. Actually size. */
@@ -104,6 +104,13 @@ void elf_init(const char *filename, unused enum arch arch)
 
         __elf.o:     file format elf64-littleriscv
     */
+
+    uint64_t section_off = 0x1060;
+
+    /* An offset to a string in the .shstrtab section that represents the name of this section. */
+    emit(section_off + 0x00, "\x00");
+    /* Type of this header. */
+    emit(section_off + 0x04, "\x03");
 }
 
 void elf_exit()

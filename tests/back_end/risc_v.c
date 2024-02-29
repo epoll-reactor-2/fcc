@@ -29,10 +29,7 @@ int risc_v_test(const char *path, unused const char *filename)
     size_t  _                = 0;
     FILE   *expected_stream  = open_memstream(&expected, &_);
     FILE   *generated_stream = open_memstream(&generated, &_);
-    FILE   *code_stream      = fopen("__code.S", "w");
     struct  ir_node    *it   = NULL;
-
-    ftruncate(fileno(code_stream), 0);
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ir_unit unit = gen_ir(path);
@@ -82,15 +79,12 @@ int risc_v_test(const char *path, unused const char *filename)
         }
         /* TODO: Strings, other sections must be written to ELF file. */
         elf_exit();
-
-        fflush(code_stream);
         ir_unit_cleanup(&unit);
     } else {
         /* Error, will be printed in main. */
         return -1;
     }
 
-    fclose(code_stream);
     fclose(expected_stream);
     fclose(generated_stream);
     free(expected);
