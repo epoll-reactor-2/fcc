@@ -16,26 +16,24 @@ void *diag_warn_memstream = NULL;
 int main()
 {
     struct elf_entry elf = {
-        .arch     = ARCH_RISC_V,
+        .arch     = ARCH_X86_64,
         .filename = "__elf.o"
     };
     struct elf_phdr phdr = {
-        .flags  = 7,
-        .vaddr  = 0xEEEE,
-        .memsz  = 2,
-        .filesz = 3
+        .type   = 1,
+        .flags  = 6,
+        .vaddr  = 0,
+        .memsz  = 0,
+        .filesz = 0
     };
     vector_push_back(elf.phdr, phdr);
-    phdr.vaddr = 0xFFFF;
-    vector_push_back(elf.phdr, phdr);
-    phdr.vaddr = 0x1234;
     vector_push_back(elf.phdr, phdr);
 
     struct elf_shdr shdr = {
-        .type   = 0x02,
-        .addr   = 0x7000
+        .type   = 0x00,
+        .addr   = 0x00,
+        .link   = 0x00
     };
-    vector_push_back(elf.shdr, shdr);
     vector_push_back(elf.shdr, shdr);
 
     elf_init(&elf);
