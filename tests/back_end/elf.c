@@ -19,22 +19,6 @@ int main()
         .arch     = ARCH_X86_64,
         .filename = "__elf.o"
     };
-    struct elf_phdr phdr = {
-        .type   = 1,
-        .flags  = 6,
-        .vaddr  = 0,
-        .memsz  = 0,
-        .filesz = 0
-    };
-    vector_push_back(elf.phdr, phdr);
-    vector_push_back(elf.phdr, phdr);
-
-    struct elf_shdr shdr = {
-        .type   = 0x00,
-        .addr   = 0x00,
-        .link   = 0x00
-    };
-    vector_push_back(elf.shdr, shdr);
 
     elf_init(&elf);
 
@@ -48,13 +32,18 @@ int main()
     0x0141    addi    sp,sp,16
     0x8082    ret
     */
-    uint8_t code[] = {
+    unused uint8_t risc_v_code[] = {
         0x11, 0x41, 0xe4, 0x22,
         0x80, 0x00, 0x47, 0x81,
         0x85, 0x3e, 0x64, 0x22,
         0x01, 0x41, 0x80, 0x82
     };
-    elf_put_code(code, sizeof (code));
+    unused uint8_t x86_64_code[] = {
+        0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00, /* mov $0x3c, %rax */
+        0x48, 0x31, 0xff,                         /* xor %rdi, %rdi */
+        0x0f, 0x05                                /* syscall */
+    };
+    elf_put_code(x86_64_code, sizeof (x86_64_code));
     elf_exit();
 
     system("riscv64-linux-gnu-readelf -a __elf.o");
