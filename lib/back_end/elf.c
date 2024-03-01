@@ -108,71 +108,45 @@ void elf_init(struct elf_entry *e)
     if ((void *) map == MAP_FAILED)
         weak_fatal_errno("mmap()");
 
-    /* ELF header */
-    emit_byte(0x00, 0x7f);
-    emit(0x01, "ELF");
-    /* 0x1 for 32 bit, */
-    /* 0x2 for 64 bit */
-    emit_byte(0x04, 0x02);
-    /* 0x1 for little endian, */
-    /* 0x2 for big endian */
-    emit_byte(0x05, 0x01);
-    /* ELF version. Always 1. */
-    emit_byte(0x06, 0x01);
-    /* System ABI. I set for System V. */
-    emit_byte(0x07, 0x00);
-    /* ABI version. */
-    emit_byte(0x08, 0x00);
-    /* Padding byte. Unused. */
-    emit_byte(0x09, 0x00);
-    /* Object file type. 2 is executable. */
-    emit_byte(0x10, 0x02);
-    /* ISA. */
-    switch (e->arch) {
-    case ARCH_X86_64:
-        emit_byte(0x12, 0x3E);
-        break;
-    case ARCH_RISC_V:
-        emit_byte(0x12, 0xF3);
-        break;
-    default:
-        weak_unreachable("Fatal arch enum: %d", e->arch);
-    }
-    /* Another byte for ELF version... */
-    emit_byte(0x14, 0x01);
-    /* Address of program entry point.
-       Virtual address to which the system first transfers control, thus starting the process. */
-    emit_long(0x18, 0x401000);
-    /* Program header table start. It follows */
-    /* This header immediatly. */
-    emit_byte(0x20, 0x40);
+    struct elf_fhdr fhdr = {
+        /* ELF header */
+        .ident = "\x7F\x45\x4C\x46\x02\x01\x01",
+        /* Object file type. */
+        .type = ET_EXEC,
+        /* ISA. */
+        .machine = e->arch,
+        /* Another byte for ELF version... */
+        .version = 1,
+        /* Address of program entry point.
+           Virtual address to which the system first transfers control, thus starting the process. */
+        .entry = 0x40100,
+        /* Program header table start. It follows
+           this header immediatly. */
+        .phoff = 0x40,
+        /* Points to the start of the section header table. */
+        .shoff = 0x1060,
+        /* Some other flags. */
+        .flags = 0x00,
+        /* Size of this header. Normally is 64 bytes. */
+        .ehsize = 0x40,
+        /* Size of a program header table entry. */
+        .phentsize = 0x38,
+        /* Number of entries in the program header table. */
+        .phnum = e->phdr.count,
+        /* Section header table size. Idk. */
+        .shentsize = 0x40,
+        /* Number of entries in the section header table. */
+        .shnum = e->shdr.count,
+        /* Index of the section header table entry that contains the section names. */
+        .shstrndx = 0x04
+    };
 
-    /* !!!
-       All things below are hard-coded.
-       !!! */
+    emit_bytes(0x00, &fhdr);
 
-    /* Some flags. Idk. */
-    emit_byte(0x30, 0x00);
-    /* Size of the header. Normally is 64 bytes. */
-    emit_byte(0x34, 0x40);
-    /* End of header. */
-
-    /* Number of entries in program header table. */
-    emit_bytes(0x38, &e->phdr.count);
     vector_foreach(e->phdr, i) {
         emit_phdr(i, &vector_at(e->phdr, i));
     }
 
-    /* Start of section header table. */
-    /* Hardcoded for now 4192 (0x1060). */
-    emit_short(0x28, 0x1060);
-    /* Section header table size. Idk. */
-    emit_byte(0x3A, 0x40);
-    /* Index of the section header table entry that contains the section names.  */
-    emit_byte(0x3E, 0x04);
-
-    /* Number of entries in section header table. */
-    emit_bytes(0x3C, &e->shdr.count);
     vector_foreach(e->shdr, i) {
         emit_shdr(i, &vector_at(e->shdr, i));
     }
