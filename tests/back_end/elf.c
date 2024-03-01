@@ -31,6 +31,13 @@ int main()
     phdr.vaddr = 0x1234;
     vector_push_back(elf.phdr, phdr);
 
+    struct elf_shdr shdr = {
+        .type   = 0x02,
+        .addr   = 0x7000
+    };
+    vector_push_back(elf.shdr, shdr);
+    vector_push_back(elf.shdr, shdr);
+
     elf_init(&elf);
 
     /*

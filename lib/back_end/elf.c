@@ -39,22 +39,18 @@ static void emit_phdr(uint64_t idx, struct elf_phdr *phdr)
     emit_bytes(phdr_off + 0x10, &phdr->vaddr);
 }
 
-static void emit_shdr(unused struct elf_shdr *shdr)
+static void emit_shdr(uint64_t idx, struct elf_shdr *shdr)
 {
-    /* Start of section header table. */
-    /* Hardcoded for now 4192 (0x1060). */
-    emit(0x28, "\x60\x10");
-    /* Section header table size. Idk. */
-    emit(0x3A, "\x40");
-    /* Index of the section header table entry that contains the section names.  */
-    emit(0x3E, "\x04");
-
-    uint64_t section_off = 0x1060;
+    uint64_t shdr_siz = 0x40;
+    uint64_t shdr_off = 0x1060 + (shdr_siz * idx);
 
     /* An offset to a string in the .shstrtab section that represents the name of this section. */
-    emit(section_off + 0x00, "\x00");
+    emit(shdr_off + 0x00, "\x00\x70");
     /* Type of this header. */
-    emit(section_off + 0x04, "\x03");
+    emit_bytes(shdr_off + 0x04, &shdr->type);
+    /* Virtual address of the section in memory, for sections that are loaded. */
+    emit_bytes(shdr_off + 0x10, &shdr->addr);
+    emit_bytes(shdr_off + 0x28, &idx);
 }
 
 void elf_init(struct elf_entry *e)
@@ -123,10 +119,18 @@ void elf_init(struct elf_entry *e)
         emit_phdr(i, &vector_at(e->phdr, i));
     }
 
+    /* Start of section header table. */
+    /* Hardcoded for now 4192 (0x1060). */
+    emit(0x28, "\x60\x10");
+    /* Section header table size. Idk. */
+    emit(0x3A, "\x40");
+    /* Index of the section header table entry that contains the section names.  */
+    emit(0x3E, "\x04");
+
     /* Number of entries in section header table. */
     emit_bytes(0x3C, &e->shdr.count);
     vector_foreach(e->shdr, i) {
-        emit_shdr(&vector_at(e->shdr, i));
+        emit_shdr(i, &vector_at(e->shdr, i));
     }
 
     /* Code should be placed from address 0x401000. */
