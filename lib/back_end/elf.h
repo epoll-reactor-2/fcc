@@ -10,9 +10,31 @@
 #include <stdint.h>
 #include "util/vector.h"
 
-enum arch {
-    ARCH_RISC_V,
-    ARCH_X86_64
+#define ARCH_RISC_V 0xF3
+#define ARCH_X86_64 0x3E
+
+#define EI_NIDENT   16
+
+#define ET_NONE     0x00
+#define ET_REL      0x01
+#define ET_EXEC     0x02
+#define ET_DYN      0x03
+
+struct elf_fhdr {
+    uint8_t ident[EI_NIDENT];
+    uint16_t type;
+    uint16_t machine;
+    uint32_t version;
+    uint64_t entry;
+    uint64_t phoff;
+    uint64_t shoff;
+    uint32_t flags;
+    uint16_t ehsize;
+    uint16_t phentsize;
+    uint16_t phnum;
+    uint16_t shentsize;
+    uint16_t shnum;
+    uint16_t shstrndx;
 };
 
 struct elf_phdr {
@@ -41,7 +63,7 @@ struct elf_shdr {
 
 struct elf_entry {
     const char               *filename;
-    enum arch                 arch;
+    int                       arch;
     vector_t(struct elf_phdr) phdr;
     vector_t(struct elf_shdr) shdr;
 };
