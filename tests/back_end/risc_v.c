@@ -68,7 +68,11 @@ int risc_v_test(const char *path, unused const char *filename)
 
         struct codegen_output codegen_ctx = {0};
 
-        elf_init("__code.o", ARCH_RISC_V);
+        struct elf_entry elf = {
+            .arch     = ARCH_RISC_V,
+            .filename = "__elf.o"
+        };
+        elf_init(&elf);
         risc_v_gen(&codegen_ctx, &unit);
         vector_foreach(codegen_ctx.fns, i) {
             instr_vector_t *instrs = &vector_at(codegen_ctx.fns, i);
