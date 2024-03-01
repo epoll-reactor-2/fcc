@@ -70,7 +70,7 @@ int risc_v_test(const char *path, unused const char *filename)
 
         struct elf_entry elf = {
             .arch     = ARCH_RISC_V,
-            .filename = "__elf.o"
+            .filename = "__risc_v_gen.o"
         };
         elf_init(&elf);
         risc_v_gen(&codegen_ctx, &unit);
