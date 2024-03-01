@@ -6,6 +6,7 @@
 
 #include "back_end/elf.h"
 #include "util/compiler.h"
+#include "util/vector.h"
 #include "util/unreachable.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -108,6 +109,26 @@ void elf_init(struct elf_entry *e)
     if ((void *) map == MAP_FAILED)
         weak_fatal_errno("mmap()");
 
+    vector_t(struct elf_phdr) phdrs = {0};
+    vector_t(struct elf_shdr) shdrs = {0};
+
+    struct elf_phdr phdr = {
+        .type   = 0x01,
+        .flags  = 6,
+        .vaddr  = 0,
+        .memsz  = 0,
+        .filesz = 0
+    };
+    vector_push_back(phdrs, phdr);
+    vector_push_back(phdrs, phdr);
+
+    struct elf_shdr shdr = {
+        .type   = SHT_PROGBITS,
+        .addr   = 0x00,
+        .link   = 0x00
+    };
+    vector_push_back(shdrs, shdr);
+
     struct elf_fhdr fhdr = {
         /* ELF header */
         .ident = "\x7F\x45\x4C\x46\x02\x01\x01",
@@ -132,24 +153,27 @@ void elf_init(struct elf_entry *e)
         /* Size of a program header table entry. */
         .phentsize = 0x38,
         /* Number of entries in the program header table. */
-        .phnum = e->phdr.count,
+        .phnum = phdrs.count,
         /* Section header table size. Idk. */
         .shentsize = 0x40,
         /* Number of entries in the section header table. */
-        .shnum = e->shdr.count,
+        .shnum = shdrs.count,
         /* Index of the section header table entry that contains the section names. */
-        .shstrndx = 0x04
+        .shstrndx = 0x00
     };
 
     emit_bytes(0x00, &fhdr);
 
-    vector_foreach(e->phdr, i) {
-        emit_phdr(i, &vector_at(e->phdr, i));
+    vector_foreach(phdrs, i) {
+        emit_phdr(i, &vector_at(phdrs, i));
     }
 
-    vector_foreach(e->shdr, i) {
-        emit_shdr(i, &vector_at(e->shdr, i));
+    vector_foreach(shdrs, i) {
+        emit_shdr(i, &vector_at(shdrs, i));
     }
+
+    vector_free(phdrs);
+    vector_free(shdrs);
 
     /* Code should be placed from address 0x401000. */
 }
