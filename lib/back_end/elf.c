@@ -19,6 +19,12 @@
 static char *map;
 static int fd;
 
+static int init_size  = 0x8000;
+static int sh_off     = 0x1060;
+static int text_off   = 0x6000;
+static int strtab_off = 0x3000;
+static int entry_addr = 0x401000;
+
 #define emit(addr, byte_string) \
     { strcpy(&map[addr], byte_string); }
 
@@ -74,10 +80,10 @@ static void emit_phdr(uint64_t idx, struct elf_phdr *phdr)
 static void emit_shdr(uint64_t idx, struct elf_shdr *shdr)
 {
     uint64_t shdr_siz = 0x40;
-    uint64_t shdr_off = 0x1060 + (shdr_siz * idx);
+    uint64_t shdr_off = sh_off + (shdr_siz * idx);
 
     /* An offset to a string in the .shstrtab section that represents the name of this section. */
-    emit(shdr_off + 0x00, "\x00\x70");
+    emit_bytes(shdr_off + 0x00, &shdr->name_ptr);
     /* Type of this header. */
     emit_bytes(shdr_off + 0x04, &shdr->type);
     /* Virtual address of the section in memory, for sections that are loaded. */
@@ -102,10 +108,10 @@ void elf_init(struct elf_entry *e)
 {
     fd = open(e->filename, O_CREAT | O_TRUNC | O_RDWR, 0666);
 
-    if (ftruncate(fd, 0x401500) < 0)
+    if (ftruncate(fd, init_size) < 0)
         weak_fatal_errno("ftruncate()");
 
-    map = (char *) mmap(NULL, 0x401500, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
+    map = (char *) mmap(NULL, init_size, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
     if ((void *) map == MAP_FAILED)
         weak_fatal_errno("mmap()");
 
@@ -120,14 +126,29 @@ void elf_init(struct elf_entry *e)
         .filesz = 0
     };
     vector_push_back(phdrs, phdr);
-    vector_push_back(phdrs, phdr);
 
-    struct elf_shdr shdr = {
-        .type   = SHT_PROGBITS,
-        .addr   = 0x00,
-        .link   = 0x00
+    struct elf_shdr progbits_shdr = {
+        .name_ptr = 0x00,
+        .type     = SHT_PROGBITS,
+        .addr     = entry_addr,
+        .off      = text_off,
+        .size     = 0xFFF,
+        .link     = 0x00
     };
-    vector_push_back(shdrs, shdr);
+    vector_push_back(shdrs, progbits_shdr);
+
+    struct elf_shdr strtab_shdr = {
+        .name_ptr = 0x06,
+        .type     = SHT_STRTAB,
+        .addr     = 0x00,
+        .off      = strtab_off,
+        .size     = 0x100,
+        .link     = 0x00
+    };
+    vector_push_back(shdrs, strtab_shdr);
+
+    emit(strtab_off + 0x00, ".text");
+    emit(strtab_off + 0x06, ".shstrtab");
 
     struct elf_fhdr fhdr = {
         /* ELF header */
@@ -140,12 +161,12 @@ void elf_init(struct elf_entry *e)
         .version = 1,
         /* Address of program entry point.
            Virtual address to which the system first transfers control, thus starting the process. */
-        .entry = 0x40100,
+        .entry = entry_addr,
         /* Program header table start. It follows
            this header immediatly. */
         .phoff = 0x40,
         /* Points to the start of the section header table. */
-        .shoff = 0x1060,
+        .shoff = sh_off,
         /* Some other flags. */
         .flags = 0x00,
         /* Size of this header. Normally is 64 bytes. */
@@ -159,7 +180,7 @@ void elf_init(struct elf_entry *e)
         /* Number of entries in the section header table. */
         .shnum = shdrs.count,
         /* Index of the section header table entry that contains the section names. */
-        .shstrndx = 0x00
+        .shstrndx = 0x01
     };
 
     emit_bytes(0x00, &fhdr);
@@ -180,7 +201,7 @@ void elf_init(struct elf_entry *e)
 
 void elf_exit()
 {
-    if (munmap(map, 0x401500) < 0)
+    if (munmap(map, init_size) < 0)
         weak_fatal_errno("munmap()");
 
     if (close(fd) < 0)
@@ -189,6 +210,6 @@ void elf_exit()
 
 void elf_put_code(uint8_t *code, uint64_t size)
 {
-    void *start = map + 0x401000;
+    void *start = map + text_off;
     memcpy(start, code, size);
 }
