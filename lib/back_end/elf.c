@@ -19,11 +19,13 @@
 static char *map;
 static int fd;
 
-static int init_size  = 0x8000;
-static int sh_off     = 0x1060;
-static int text_off   = 0x6000;
-static int strtab_off = 0x3000;
-static int entry_addr = 0x401000;
+static int init_size    = 0x8000;
+static int sh_off       = 0x1060;
+static int text_off     = 0x6000;
+static int strtab_off   = 0x3000;
+static int shstrtab_off = 0x3500;
+static int symtab_off   = 0x4000;
+static int entry_addr   = 0x401000;
 
 #define emit(addr, byte_string) \
     { strcpy(&map[addr], byte_string); }
@@ -119,7 +121,7 @@ void elf_init(struct elf_entry *e)
     vector_push_back(shdrs, progbits_shdr);
 
     struct elf_shdr strtab_shdr = {
-        .name_ptr = 0x06,
+        .name_ptr = strlen(".text") + 1,
         .type     = SHT_STRTAB,
         .addr     = 0x00,
         .off      = strtab_off,
@@ -128,9 +130,47 @@ void elf_init(struct elf_entry *e)
     };
     vector_push_back(shdrs, strtab_shdr);
 
+    struct elf_shdr shstrtab_shdr = {
+        .name_ptr = strlen(".text")   + 1 +
+                    strlen(".strtab") + 1,
+        .type     = SHT_STRTAB,
+        .addr     = 0x00,
+        .off      = shstrtab_off,
+        .size     = 0x100,
+        .link     = 0x00
+    };
+    vector_push_back(shdrs, shstrtab_shdr);
+
+    struct elf_shdr symtab_shdr = {
+        .name_ptr = strlen(".text")     + 1 +
+                    strlen(".strtab")   + 1 +
+                    strlen(".shstrtab") + 1,
+        .type     = SHT_SYMTAB,
+        .addr     = 0x00,
+        .off      = symtab_off,
+        .size     = 1 * sizeof (struct elf_sym),
+        .info     = 0x01,
+        .link     = 0x01
+    };
+    vector_push_back(shdrs, symtab_shdr);
+
     char *s = &map[strtab_off];
     s = emit_section(s, ".text");
+    s = emit_section(s, ".strtab");
     s = emit_section(s, ".shstrtab");
+    s = emit_section(s, ".symtab");
+
+    struct elf_sym sym = {
+        /* Name ptr should point to .strtab entry.
+
+           TODO: Nice API for adding symbols. */
+        .name = strlen(".text") + 1,
+        .size = 10,
+        /* TODO: size is written instead of value.
+                 Wrong ABI? */
+        .value = 0xFF
+    };
+    emit_bytes(symtab_off, &sym);
 
     struct elf_fhdr fhdr = {
         .ident     = "\x7F\x45\x4C\x46\x02\x01\x01",
