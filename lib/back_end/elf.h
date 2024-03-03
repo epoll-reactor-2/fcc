@@ -142,6 +142,26 @@ struct elf_shdr {
     uint64_t entsize;
 };
 
+struct elf_sym {
+    /* An offset to a string in the .shstrtab section
+       that represents the name of this section. */
+    uint64_t name;
+    /* The symbol's type and binding attributes. */
+    uint8_t  info;
+    /* A symbol's visibility. */
+    uint8_t  other;
+    /* Every symbol table entry is defined in relation to
+       some section. This member holds the relevant section
+       header table index. */
+    uint16_t shndx;
+    /* The value of the associated symbol. The value can be
+       an absolute value or an address, depending on the
+       context. */
+    uint64_t value;
+    /* Unused now. */
+    uint64_t size;
+};
+
 struct elf_entry {
     const char *filename;
     int         arch;
