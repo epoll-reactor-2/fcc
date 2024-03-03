@@ -10,7 +10,12 @@
 #include <stdint.h>
 
 /* All this code (as whole project) written for fun.
-   Be a normal person. Use libelf. */
+   Be a normal person. Use libelf.
+
+   Notice: defined below structures matches alignment and
+           field sizes in ELF header. User can copy whole
+           structure into a file.
+*/
 
 #define ARCH_RISC_V         0xF3
 #define ARCH_X86_64         0x3E
@@ -60,43 +65,80 @@
 #define SHF_EXCLUDE           (1U << 31)
 
 struct elf_fhdr {
+    /* ELF magic header */
     uint8_t ident[EI_NIDENT];
+    /* Object file type. */
     uint16_t type;
+    /* ISA. */
     uint16_t machine;
+    /* Another byte for ELF version... */
     uint32_t version;
+    /* Address of program entry point.
+       Virtual address to which the system first transfers control,
+       thus starting the process. */
     uint64_t entry;
+    /* Program header table start. It follows
+        this header immediatly. */
     uint64_t phoff;
+    /* Points to the start of the section header table. */
     uint64_t shoff;
+    /* Some other flags. */
     uint32_t flags;
+    /* Size of this header. Normally is 64 bytes. */
     uint16_t ehsize;
+    /* Size of a program header table entry. */
     uint16_t phentsize;
+    /* Number of entries in the program header table. */
     uint16_t phnum;
+    /* Section header table size. */
     uint16_t shentsize;
+    /* Number of entries in the section header table. */
     uint16_t shnum;
+    /* Index of the section header table entry that contains the section names. */
     uint16_t shstrndx;
 };
 
 struct elf_phdr {
+    /* Type of the segment. */
     uint32_t type;
+    /* Flags (R, W or X) */
     uint32_t flags;
+    /* Offset to a segment in file. */
     uint64_t off;
+    /* Virtual address of the segment in memory. */
     uint64_t vaddr;
+    /* Unused, I guess. */
     uint64_t paddr;
-    uint32_t filesz;
-    uint32_t memsz;
-    uint32_t align;
+    /* Size in bytes of the segment in the file image. May be 0. */
+    uint64_t filesz;
+    /* Size in bytes of the segment in memory. May be 0. */
+    uint64_t memsz;
+    /* Unused now. */
+    uint64_t align;
 };
 
 struct elf_shdr {
-    uint64_t name_ptr;
-    uint64_t type;
+    /* An offset to a string in the .shstrtab section
+       that represents the name of this section. */
+    uint32_t name_ptr;
+    /* Type of this header. */
+    uint32_t type;
+    /* Section attributes. */
     uint64_t flags;
+    /* Virtual address of the section in memory, for sections that are loaded. */
     uint64_t addr;
+    /* Offset of the section in the file image. */
     uint64_t off;
+    /* Size in bytes of the section in the file image. May be 0. */
     uint64_t size;
-    uint64_t link;
-    uint64_t info;
+    /* Contains the section index of an associated section. */
+    uint32_t link;
+    /* Contains extra information about the section. */
+    uint32_t info;
+    /* Contains the required alignment of the section. This field must be a power of two. */
     uint64_t addralign;
+    /* Contains the size, in bytes, of each entry, for sections that
+       contain fixed-size entries. Otherwise, this field contains zero. */
     uint64_t entsize;
 };
 
