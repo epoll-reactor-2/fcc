@@ -62,19 +62,10 @@ static int entry_addr = 0x401000;
 
 static void emit_phdr(uint64_t idx, struct elf_phdr *phdr)
 {
-    /* Program header table size. Idk. 64. */
-    emit_byte(0x36, 0x38);
     uint64_t phdr_siz = 0x38;
     uint64_t phdr_off = 0x40 + (phdr_siz * idx);
 
-    /* Type of the segment. */
-    emit_bytes(phdr_off + 0x00, &phdr->type);
-    /* Flags (RW) */
-    emit_bytes(phdr_off + 0x04, &phdr->flags);
-    /* Virtual address of the segment in memory */
-    emit_bytes(phdr_off + 0x10, &phdr->vaddr);
-    emit_bytes(phdr_off + 0x20, &phdr->filesz);
-    emit_bytes(phdr_off + 0x28, &phdr->memsz);
+    emit_bytes(phdr_off, phdr);
 }
 
 static void emit_shdr(uint64_t idx, struct elf_shdr *shdr)
@@ -82,25 +73,7 @@ static void emit_shdr(uint64_t idx, struct elf_shdr *shdr)
     uint64_t shdr_siz = 0x40;
     uint64_t shdr_off = sh_off + (shdr_siz * idx);
 
-    /* An offset to a string in the .shstrtab section that represents the name of this section. */
-    emit_bytes(shdr_off + 0x00, &shdr->name_ptr);
-    /* Type of this header. */
-    emit_bytes(shdr_off + 0x04, &shdr->type);
-    /* Virtual address of the section in memory, for sections that are loaded. */
-    emit_bytes(shdr_off + 0x10, &shdr->addr);
-    /* Offset of the section in the file image. */
-    emit_bytes(shdr_off + 0x18, &shdr->off);
-    /* Size in bytes of the section in the file image. May be 0. */
-    emit_bytes(shdr_off + 0x20, &shdr->size);
-    /* Contains the section index of an associated section. */
-    emit_bytes(shdr_off + 0x28, &shdr->link);
-    /* Contains extra information about the section. */
-    emit_bytes(shdr_off + 0x2C, &shdr->info);
-    /* Contains the required alignment of the section. This field must be a power of two. */
-    emit_bytes(shdr_off + 0x30, &shdr->addralign);
-    /* Contains the size, in bytes, of each entry, for sections that
-       contain fixed-size entries. Otherwise, this field contains zero. */
-    emit_bytes(shdr_off + 0x38, &shdr->entsize);
+    emit_bytes(shdr_off, shdr);
 }
 
 /* https://github.com/jserv/amacc/blob/master/amacc.c */
@@ -151,36 +124,20 @@ void elf_init(struct elf_entry *e)
     emit(strtab_off + 0x06, ".shstrtab");
 
     struct elf_fhdr fhdr = {
-        /* ELF header */
-        .ident = "\x7F\x45\x4C\x46\x02\x01\x01",
-        /* Object file type. */
-        .type = ET_EXEC,
-        /* ISA. */
-        .machine = e->arch,
-        /* Another byte for ELF version... */
-        .version = 1,
-        /* Address of program entry point.
-           Virtual address to which the system first transfers control, thus starting the process. */
-        .entry = entry_addr,
-        /* Program header table start. It follows
-           this header immediatly. */
-        .phoff = 0x40,
-        /* Points to the start of the section header table. */
-        .shoff = sh_off,
-        /* Some other flags. */
-        .flags = 0x00,
-        /* Size of this header. Normally is 64 bytes. */
-        .ehsize = 0x40,
-        /* Size of a program header table entry. */
+        .ident     = "\x7F\x45\x4C\x46\x02\x01\x01",
+        .type      = ET_EXEC,
+        .machine   = e->arch,
+        .version   = 1,
+        .entry     = entry_addr,
+        .phoff     = 0x40,
+        .shoff     = sh_off,
+        .flags     = 0x00,
+        .ehsize    = 0x40,
         .phentsize = 0x38,
-        /* Number of entries in the program header table. */
-        .phnum = phdrs.count,
-        /* Section header table size. Idk. */
+        .phnum     = phdrs.count,
         .shentsize = 0x40,
-        /* Number of entries in the section header table. */
-        .shnum = shdrs.count,
-        /* Index of the section header table entry that contains the section names. */
-        .shstrndx = 0x01
+        .shnum     = shdrs.count,
+        .shstrndx  = 0x01
     };
 
     emit_bytes(0x00, &fhdr);
