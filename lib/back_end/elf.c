@@ -62,7 +62,7 @@ static int entry_addr   = 0x401000;
       map[(addr) + 6] = bytes[6]; \
       map[(addr) + 7] = bytes[7]; }
 
-static char *emit_section(char *start, const char *section)
+static char *emit_symbol(char *start, const char *section)
 {
     uint64_t len = strlen(section);
     strcpy(start, section);
@@ -86,6 +86,124 @@ static void emit_shdr(uint64_t idx, struct elf_shdr *shdr)
     emit_bytes(shdr_off, shdr);
 }
 
+static uint16_t emit_phdrs()
+{
+    uint16_t phnum = 0;
+
+    struct elf_phdr phdr = {
+        .type   = 0x01,
+        .flags  = 6,
+        .vaddr  = 0,
+        .memsz  = 0,
+        .filesz = 0
+    };
+    emit_phdr(phnum++, &phdr);
+
+    return phnum;
+}
+
+static uint16_t emit_shdrs()
+{
+    /* Number of symtab entries. */
+    unused uint16_t symtab_total = 1;
+    uint16_t shnum = 0;
+
+    struct elf_shdr progbits_shdr = {
+        .name_ptr = 0x00,
+        .type     = SHT_PROGBITS,
+        .addr     = entry_addr,
+        .off      = text_off,
+        .size     = 0xFFF,
+        .link     = 0x00
+    };
+    emit_shdr(shnum++, &progbits_shdr);
+
+    struct elf_shdr strtab_shdr = {
+        .name_ptr = strlen(".text") + 1,
+        .type     = SHT_STRTAB,
+        .addr     = 0x00,
+        .off      = strtab_off,
+        .size     = 0x100,
+        .link     = 0x00
+    };
+    emit_shdr(shnum++, &strtab_shdr);
+
+    struct elf_shdr shstrtab_shdr = {
+        .name_ptr = strlen(".text")   + 1 +
+                    strlen(".strtab") + 1,
+        .type     = SHT_STRTAB,
+        .addr     = 0x00,
+        .off      = shstrtab_off,
+        .size     = 0x100,
+        .link     = 0x00
+    };
+    emit_shdr(shnum++, &shstrtab_shdr);
+
+    /* Unused in single binary. Useful for relocatable objects. */
+    /*
+    struct elf_shdr symtab_shdr = {
+        .name_ptr = strlen(".text")     + 1 +
+                    strlen(".strtab")   + 1 +
+                    strlen(".shstrtab") + 1,
+        .type     = SHT_SYMTAB,
+        .addr     = 0x00,
+        .off      = symtab_off,
+        .size     = symtab_total * sizeof (struct elf_sym),
+        .info     = 0x01,
+        .link     = 0x01
+    };
+    emit_shdr(shnum++, &symtab_shdr);
+    */
+
+    return shnum;
+}
+
+unused static void emit_symtab()
+{
+    struct elf_sym sym = {
+        /* Name ptr should point to .strtab entry.
+
+           TODO: Nice API for adding symbols. */
+        .name = strlen(".text") + 1,
+        .size = 10,
+        /* TODO: size is written instead of value.
+                 Wrong ABI? */
+        .value = 0xFF
+    };
+    emit_bytes(symtab_off, &sym);
+}
+
+static void emit_elf(int arch)
+{
+    char *s = &map[strtab_off];
+    s = emit_symbol(s, ".text");
+    s = emit_symbol(s, ".strtab");
+    s = emit_symbol(s, ".shstrtab");
+    s = emit_symbol(s, ".symtab");
+
+    /* Unused in single binary. Useful for relocatable objects. */
+    /* emit_symtab(); */
+
+    struct elf_fhdr fhdr = {
+        .ident     = "\x7F\x45\x4C\x46\x02\x01\x01",
+        .type      = ET_EXEC,
+        .machine   = arch,
+        .version   = 1,
+        .entry     = entry_addr,
+        .phoff     = 0x40,
+        .shoff     = sh_off,
+        .flags     = 0x00,
+        .ehsize    = 0x40,
+        .phentsize = 0x38,
+        .phnum     = emit_phdrs(),
+        .shentsize = 0x40,
+        .shnum     = emit_shdrs(),
+        .shstrndx  = 0x01
+    };
+
+    emit_bytes(0x00, &fhdr);
+}
+
 /* https://github.com/jserv/amacc/blob/master/amacc.c */
 void elf_init(struct elf_entry *e)
 {
@@ -98,111 +216,7 @@ void elf_init(struct elf_entry *e)
     if ((void *) map == MAP_FAILED)
         weak_fatal_errno("mmap()");
 
-    vector_t(struct elf_phdr) phdrs = {0};
-    vector_t(struct elf_shdr) shdrs = {0};
-
-    struct elf_phdr phdr = {
-        .type   = 0x01,
-        .flags  = 6,
-        .vaddr  = 0,
-        .memsz  = 0,
-        .filesz = 0
-    };
-    vector_push_back(phdrs, phdr);
-
-    struct elf_shdr progbits_shdr = {
-        .name_ptr = 0x00,
-        .type     = SHT_PROGBITS,
-        .addr     = entry_addr,
-        .off      = text_off,
-        .size     = 0xFFF,
-        .link     = 0x00
-    };
-    vector_push_back(shdrs, progbits_shdr);
-
-    struct elf_shdr strtab_shdr = {
-        .name_ptr = strlen(".text") + 1,
-        .type     = SHT_STRTAB,
-        .addr     = 0x00,
-        .off      = strtab_off,
-        .size     = 0x100,
-        .link     = 0x00
-    };
-    vector_push_back(shdrs, strtab_shdr);
-
-    struct elf_shdr shstrtab_shdr = {
-        .name_ptr = strlen(".text")   + 1 +
-                    strlen(".strtab") + 1,
-        .type     = SHT_STRTAB,
-        .addr     = 0x00,
-        .off      = shstrtab_off,
-        .size     = 0x100,
-        .link     = 0x00
-    };
-    vector_push_back(shdrs, shstrtab_shdr);
-
-    struct elf_shdr symtab_shdr = {
-        .name_ptr = strlen(".text")     + 1 +
-                    strlen(".strtab")   + 1 +
-                    strlen(".shstrtab") + 1,
-        .type     = SHT_SYMTAB,
-        .addr     = 0x00,
-        .off      = symtab_off,
-        .size     = 1 * sizeof (struct elf_sym),
-        .info     = 0x01,
-        .link     = 0x01
-    };
-    vector_push_back(shdrs, symtab_shdr);
-
-    char *s = &map[strtab_off];
-    s = emit_section(s, ".text");
-    s = emit_section(s, ".strtab");
-    s = emit_section(s, ".shstrtab");
-    s = emit_section(s, ".symtab");
-
-    struct elf_sym sym = {
-        /* Name ptr should point to .strtab entry.
-
-           TODO: Nice API for adding symbols. */
-        .name = strlen(".text") + 1,
-        .size = 10,
-        /* TODO: size is written instead of value.
-                 Wrong ABI? */
-        .value = 0xFF
-    };
-    emit_bytes(symtab_off, &sym);
-
-    struct elf_fhdr fhdr = {
-        .ident     = "\x7F\x45\x4C\x46\x02\x01\x01",
-        .type      = ET_EXEC,
-        .machine   = e->arch,
-        .version   = 1,
-        .entry     = entry_addr,
-        .phoff     = 0x40,
-        .shoff     = sh_off,
-        .flags     = 0x00,
-        .ehsize    = 0x40,
-        .phentsize = 0x38,
-        .phnum     = phdrs.count,
-        .shentsize = 0x40,
-        .shnum     = shdrs.count,
-        .shstrndx  = 0x01
-    };
-
-    emit_bytes(0x00, &fhdr);
-
-    vector_foreach(phdrs, i) {
-        emit_phdr(i, &vector_at(phdrs, i));
-    }
-
-    vector_foreach(shdrs, i) {
-        emit_shdr(i, &vector_at(shdrs, i));
-    }
-
-    vector_free(phdrs);
-    vector_free(shdrs);
-
-    /* Code should be placed from address 0x401000. */
+    emit_elf(e->arch);
 }
 
 void elf_exit()
