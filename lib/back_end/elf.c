@@ -60,6 +60,14 @@ static int entry_addr = 0x401000;
       map[(addr) + 6] = bytes[6]; \
       map[(addr) + 7] = bytes[7]; }
 
+static char *emit_section(char *start, const char *section)
+{
+    uint64_t len = strlen(section);
+    strcpy(start, section);
+    start[len] = 0;
+    return start + len + /* NULL byte. */1;
+}
+
 static void emit_phdr(uint64_t idx, struct elf_phdr *phdr)
 {
     uint64_t phdr_siz = 0x38;
@@ -120,8 +128,9 @@ void elf_init(struct elf_entry *e)
     };
     vector_push_back(shdrs, strtab_shdr);
 
-    emit(strtab_off + 0x00, ".text");
-    emit(strtab_off + 0x06, ".shstrtab");
+    char *s = &map[strtab_off];
+    s = emit_section(s, ".text");
+    s = emit_section(s, ".shstrtab");
 
     struct elf_fhdr fhdr = {
         .ident     = "\x7F\x45\x4C\x46\x02\x01\x01",
