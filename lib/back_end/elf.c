@@ -27,6 +27,9 @@ static int shstrtab_off = 0x3500;
 static int symtab_off   = 0x4000;
 static int entry_addr   = 0x401000;
 
+static int arch         = 0x00;
+static int text_siz     = 0x00;
+
 #define emit(addr, byte_string) \
     { strcpy(&map[addr], byte_string); }
 
@@ -93,9 +96,10 @@ static uint16_t emit_phdrs()
     struct elf_phdr phdr = {
         .type   = 0x01,
         .flags  = 6,
-        .vaddr  = 0,
-        .memsz  = 0,
-        .filesz = 0
+        .vaddr  = entry_addr,
+        .paddr  = entry_addr,
+        .memsz  = 0xFE,
+        .filesz = 0xFF
     };
     emit_phdr(phnum++, &phdr);
 
@@ -107,19 +111,30 @@ static uint16_t emit_shdrs()
     /* Number of symtab entries. */
     unused uint16_t symtab_total = 1;
     uint16_t shnum = 0;
+    /* 1 is because first NULL byte for NULL section. */
+    uint32_t strtab_start = 0x01;
+
+    /* ELF requires sentinel section of type NULL. */
+    /* TODO: This still named .text as points to the 0x00 offset
+             in string section. */
+    struct elf_shdr null_shdr = {
+        0
+    };
+    emit_shdr(shnum++, &null_shdr);
 
     struct elf_shdr progbits_shdr = {
-        .name_ptr = 0x00,
+        .name_ptr = strtab_start,
         .type     = SHT_PROGBITS,
         .addr     = entry_addr,
         .off      = text_off,
-        .size     = 0xFFF,
+        .size     = text_siz,
         .link     = 0x00
     };
     emit_shdr(shnum++, &progbits_shdr);
+    strtab_start += strlen(".text") + 1;
 
     struct elf_shdr strtab_shdr = {
-        .name_ptr = strlen(".text") + 1,
+        .name_ptr = strtab_start,
         .type     = SHT_STRTAB,
         .addr     = 0x00,
         .off      = strtab_off,
@@ -127,10 +142,10 @@ static uint16_t emit_shdrs()
         .link     = 0x00
     };
     emit_shdr(shnum++, &strtab_shdr);
+    strtab_start += strlen(".strtab") + 1;
 
     struct elf_shdr shstrtab_shdr = {
-        .name_ptr = strlen(".text")   + 1 +
-                    strlen(".strtab") + 1,
+        .name_ptr = strtab_start,
         .type     = SHT_STRTAB,
         .addr     = 0x00,
         .off      = shstrtab_off,
@@ -138,13 +153,12 @@ static uint16_t emit_shdrs()
         .link     = 0x00
     };
     emit_shdr(shnum++, &shstrtab_shdr);
+    strtab_start += strlen(".shstrtab") + 1;
 
     /* Unused in single binary. Useful for relocatable objects. */
     /*
     struct elf_shdr symtab_shdr = {
-        .name_ptr = strlen(".text")     + 1 +
-                    strlen(".strtab")   + 1 +
-                    strlen(".shstrtab") + 1,
+        .name_ptr = strtab_start,
         .type     = SHT_SYMTAB,
         .addr     = 0x00,
         .off      = symtab_off,
@@ -173,9 +187,10 @@ unused static void emit_symtab()
     emit_bytes(symtab_off, &sym);
 }
 
-static void emit_elf(int arch)
+static void emit_elf()
 {
-    char *s = &map[strtab_off];
+    /* +1 is due to first NULL byte for NULL section. */
+    char *s = &map[strtab_off + 1];
     s = emit_symbol(s, ".text");
     s = emit_symbol(s, ".strtab");
     s = emit_symbol(s, ".shstrtab");
@@ -198,13 +213,17 @@ static void emit_elf(int arch)
         .phnum     = emit_phdrs(),
         .shentsize = 0x40,
         .shnum     = emit_shdrs(),
-        .shstrndx  = 0x01
+        .shstrndx  = 0x02
     };
 
     emit_bytes(0x00, &fhdr);
 }
 
-/* https://github.com/jserv/amacc/blob/master/amacc.c */
+/* https://github.com/jserv/amacc/blob/master/amacc.c
+   
+   NOTE: Headers are emitted in `elf_put_code` call,
+         when size of each section is known, depending
+         on how much code we put. */
 void elf_init(struct elf_entry *e)
 {
     fd = open(e->filename, O_CREAT | O_TRUNC | O_RDWR, 0666);
@@ -216,7 +235,7 @@ void elf_init(struct elf_entry *e)
     if ((void *) map == MAP_FAILED)
         weak_fatal_errno("mmap()");
 
-    emit_elf(e->arch);
+    arch = e->arch;
 }
 
 void elf_exit()
@@ -232,4 +251,7 @@ void elf_put_code(uint8_t *code, uint64_t size)
 {
     void *start = map + text_off;
     memcpy(start, code, size);
+
+    text_siz = size;
+    emit_elf();
 }
