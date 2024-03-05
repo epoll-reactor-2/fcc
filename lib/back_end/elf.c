@@ -22,13 +22,14 @@ static int fd;
 static int init_size    = 0x8000;
 static int sh_off       = 0x1060;
 static int text_off     = 0x6000;
-static int strtab_off   = 0x3000;
-static int shstrtab_off = 0x3500;
-static int symtab_off   = 0x4000;
+static int strtab_off   = 0x1000;
+static int shstrtab_off = 0x1500;
+static int symtab_off   = 0x2000;
 static int entry_addr   = 0x401000;
 
 static int arch         = 0x00;
 static int text_siz     = 0x00;
+static int syms_cnt     = 0x00;
 
 #define emit(addr, byte_string) \
     { strcpy(&map[addr], byte_string); }
@@ -156,35 +157,47 @@ static uint16_t emit_shdrs()
     strtab_start += strlen(".shstrtab") + 1;
 
     /* Unused in single binary. Useful for relocatable objects. */
-    /*
+    
     struct elf_shdr symtab_shdr = {
         .name_ptr = strtab_start,
         .type     = SHT_SYMTAB,
         .addr     = 0x00,
         .off      = symtab_off,
-        .size     = symtab_total * sizeof (struct elf_sym),
-        .info     = 0x01,
-        .link     = 0x01
+        .size     = syms_cnt * sizeof (struct elf_sym),
+        .info     = 0x02,
+        .entsize  = 24, /* Some standard value. */
+        .link     = 0x02
     };
     emit_shdr(shnum++, &symtab_shdr);
-    */
 
     return shnum;
 }
 
-unused static void emit_symtab()
+unused static char *emit_symtab_entry(char *s, const char *name)
 {
-    struct elf_sym sym = {
-        /* Name ptr should point to .strtab entry.
+    uint64_t __strtab_off = 1 +
+        strlen(".text") + 1 +
+        strlen(".strtab") + 1 +
+        strlen(".shstrtab") + 1 +
+        strlen(".symtab") + 1;
 
-           TODO: Nice API for adding symbols. */
-        .name = strlen(".text") + 1,
-        .size = 10,
-        /* TODO: size is written instead of value.
-                 Wrong ABI? */
-        .value = 0xFF
+    static uint64_t str_it = 0;
+    static uint64_t sym_it = 0;
+    s = emit_symbol(s, name);
+
+    /* TODO: Wrong elf_sym binary layout? */
+    struct elf_sym sym = {
+        .name  = __strtab_off + str_it,
+        .size  = 0,
+        .value = 0
     };
-    emit_bytes(symtab_off, &sym);
+    emit_bytes(symtab_off + sym_it, &sym);
+
+    str_it += strlen(name) + 1;
+    sym_it += sizeof (sym);
+
+    ++syms_cnt;
+    return s;
 }
 
 static void emit_elf()
@@ -196,8 +209,8 @@ static void emit_elf()
     s = emit_symbol(s, ".shstrtab");
     s = emit_symbol(s, ".symtab");
 
-    /* Unused in single binary. Useful for relocatable objects. */
-    /* emit_symtab(); */
+    s = emit_symtab_entry(s, "_start");
+    s = emit_symtab_entry(s, "_start");
 
     struct elf_fhdr fhdr = {
         .ident     = "\x7F\x45\x4C\x46\x02\x01\x01",
