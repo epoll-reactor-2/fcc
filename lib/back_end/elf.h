@@ -153,7 +153,7 @@ struct elf_sym {
     /* Every symbol table entry is defined in relation to
        some section. This member holds the relevant section
        header table index. */
-    uint16_t shndx;
+    uint64_t shndx;
     /* The value of the associated symbol. The value can be
        an absolute value or an address, depending on the
        context. */
