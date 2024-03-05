@@ -147,6 +147,12 @@ struct packed elf_sym {
     /* An offset to a string in the .shstrtab section
        that represents the name of this section. */
     uint64_t name;
+    /* The value of the associated symbol. The value can be
+       an absolute value or an address, depending on the
+       context. */
+    uint64_t value;
+    /* Unused now. */
+    uint64_t size;
     /* The symbol's type and binding attributes. */
     uint8_t  info;
     /* A symbol's visibility. */
@@ -155,12 +161,6 @@ struct packed elf_sym {
        some section. This member holds the relevant section
        header table index. */
     uint64_t shndx;
-    /* The value of the associated symbol. The value can be
-       an absolute value or an address, depending on the
-       context. */
-    uint64_t value;
-    /* Unused now. */
-    uint64_t size;
 };
 
 struct elf_entry {

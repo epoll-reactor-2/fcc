@@ -19,17 +19,20 @@
 static char *map;
 static int fd;
 
-static int init_size    = 0x8000;
-static int sh_off       = 0x1060;
-static int text_off     = 0x6000;
-static int strtab_off   = 0x1000;
-static int shstrtab_off = 0x1500;
-static int symtab_off   = 0x2000;
-static int entry_addr   = 0x401000;
+static int init_size      = 0x8000;
+static int strtab_off     = 0x1000;
+static int shstrtab_off   = 0x1500;
+static int symtab_off     = 0x2000;
+static int sh_off         = 0x4000;
+static int text_off       = 0x6000;
+static int entry_addr     = 0x401000;
+/* How much bytes occupy one symtab entry. */
+static int symtab_entsize = 24;
 
 static int arch         = 0x00;
 static int text_siz     = 0x00;
 static int syms_cnt     = 0x00;
+static int strtab_siz   = 0x00;
 
 #define emit(addr, byte_string) \
     { strcpy(&map[addr], byte_string); }
@@ -42,6 +45,7 @@ static char *emit_symbol(char *start, const char *section)
     uint64_t len = strlen(section);
     strcpy(start, section);
     start[len] = 0;
+    strtab_siz += len + 1;
     return start + len + /* NULL byte. */1;
 }
 
@@ -108,9 +112,9 @@ static uint16_t emit_shdrs()
     struct elf_shdr strtab_shdr = {
         .name_ptr = strtab_start,
         .type     = SHT_STRTAB,
-        .addr     = 0x00,
+        .addr     = strtab_off,
         .off      = strtab_off,
-        .size     = 0x100,
+        .size     = strtab_siz + /* Some extra byte. Idk. */ 1,
         .link     = 0x00
     };
     emit_shdr(shnum++, &strtab_shdr);
@@ -119,7 +123,7 @@ static uint16_t emit_shdrs()
     struct elf_shdr shstrtab_shdr = {
         .name_ptr = strtab_start,
         .type     = SHT_STRTAB,
-        .addr     = 0x00,
+        .addr     = shstrtab_off,
         .off      = shstrtab_off,
         .size     = 0x100,
         .link     = 0x00
@@ -128,15 +132,15 @@ static uint16_t emit_shdrs()
     strtab_start += strlen(".shstrtab") + 1;
 
     /* Unused in single binary. Useful for relocatable objects. */
-    
+
     struct elf_shdr symtab_shdr = {
         .name_ptr = strtab_start,
         .type     = SHT_SYMTAB,
-        .addr     = 0x00,
+        .addr     = symtab_off,
         .off      = symtab_off,
-        .size     = syms_cnt * sizeof (struct elf_sym),
-        .info     = 0x02,
-        .entsize  = 24, /* Some standard value. */
+        .size     = syms_cnt * symtab_entsize,
+        .info     = syms_cnt,
+        .entsize  = symtab_entsize,
         .link     = 0x02
     };
     emit_shdr(shnum++, &symtab_shdr);
@@ -146,11 +150,11 @@ static uint16_t emit_shdrs()
 
 unused static char *emit_symtab_entry(char *s, const char *name)
 {
-    uint64_t __strtab_off = 1 +
-        strlen(".text") + 1 +
-        strlen(".strtab") + 1 +
+    uint64_t __strtab_off   = 1 +
+        strlen(".text")     + 1 +
+        strlen(".strtab")   + 1 +
         strlen(".shstrtab") + 1 +
-        strlen(".symtab") + 1;
+        strlen(".symtab")   + 1;
 
     static uint64_t str_it = 0;
     static uint64_t sym_it = 0;
@@ -159,20 +163,15 @@ unused static char *emit_symtab_entry(char *s, const char *name)
     /* TODO: Wrong elf_sym binary layout? */
     struct elf_sym sym = {
         .name  = __strtab_off + str_it,
-        .size  = 0,
-        .value = 0
+        .size  = 0xAA,
+        .value = entry_addr,
+        .shndx = 1,
+        .info  = 3
     };
-    printf("emit_symtab_entry: %lx\n", symtab_off + sym_it);
-    printf("off name:  %ld\n", offsetof(struct elf_sym, name)); // 0
-    printf("off info:  %ld\n", offsetof(struct elf_sym, info)); // 8
-    printf("off other: %ld\n", offsetof(struct elf_sym, other)); // 9
-    printf("off shndx: %ld\n", offsetof(struct elf_sym, shndx)); // 10
-    printf("off value: %ld\n", offsetof(struct elf_sym, value)); // 18
-    printf("off size:  %ld\n", offsetof(struct elf_sym, size)); // 26
     emit_bytes(symtab_off + sym_it, &sym);
 
-    str_it += strlen(name) + 1;
-    sym_it += sizeof (sym);
+    str_it += strlen(name) + /* NULL */ 1;
+    sym_it += symtab_entsize;
 
     ++syms_cnt;
     return s;
@@ -187,8 +186,11 @@ static void emit_elf()
     s = emit_symbol(s, ".shstrtab");
     s = emit_symbol(s, ".symtab");
 
-    s = emit_symtab_entry(s, "_start");
-    s = emit_symtab_entry(s, "_start");
+    for (int i = 0; i < 11; ++i) {
+        char buf[32] = {0};
+        sprintf(buf, "__example_sym_%d", i);
+        s = emit_symtab_entry(s, buf);
+    }
 
     struct elf_fhdr fhdr = {
         .ident     = "\x7F\x45\x4C\x46\x02\x01\x01",
