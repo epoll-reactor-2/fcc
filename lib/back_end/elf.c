@@ -70,7 +70,7 @@ static uint16_t emit_phdrs()
         .flags  = 6,
         .vaddr  = entry_addr,
         .paddr  = entry_addr,
-        .memsz  = 0xFE,
+        .memsz  = 0xFF,
         .filesz = 0xFF
     };
     emit_phdr(phnum++, &phdr);
@@ -162,6 +162,13 @@ unused static char *emit_symtab_entry(char *s, const char *name)
         .size  = 0,
         .value = 0
     };
+    printf("emit_symtab_entry: %lx\n", symtab_off + sym_it);
+    printf("off name:  %ld\n", offsetof(struct elf_sym, name)); // 0
+    printf("off info:  %ld\n", offsetof(struct elf_sym, info)); // 8
+    printf("off other: %ld\n", offsetof(struct elf_sym, other)); // 9
+    printf("off shndx: %ld\n", offsetof(struct elf_sym, shndx)); // 10
+    printf("off value: %ld\n", offsetof(struct elf_sym, value)); // 18
+    printf("off size:  %ld\n", offsetof(struct elf_sym, size)); // 26
     emit_bytes(symtab_off + sym_it, &sym);
 
     str_it += strlen(name) + 1;

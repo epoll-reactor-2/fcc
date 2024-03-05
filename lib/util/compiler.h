@@ -19,6 +19,7 @@
 # define really_inline          inline __attribute__ ((always_inline))
 # define unused                 __attribute__ ((unused))
 # define fmt(...)               __attribute__ ((format (printf, ##__VA_ARGS__)))
+# define packed            __attribute__((packed))
 #else
 # define likely(x)
 # define unlikely(x)
@@ -27,6 +28,7 @@
 # define really_inline
 # define unused
 # define fmt(...)
+# define packed
 #endif
 
 #define __weak_to_string(x) #x

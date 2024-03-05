@@ -8,6 +8,7 @@
 #define WEAK_COMPILER_BACKEND_ELF_H
 
 #include <stdint.h>
+#include "util/compiler.h"
 
 /* All this code (as whole project) written for fun.
    Be a normal person. Use libelf.
@@ -64,7 +65,7 @@
 #define SHF_ORDERED           (1  << 30)
 #define SHF_EXCLUDE           (1U << 31)
 
-struct elf_fhdr {
+struct packed elf_fhdr {
     /* ELF magic header */
     uint8_t ident[EI_NIDENT];
     /* Object file type. */
@@ -98,7 +99,7 @@ struct elf_fhdr {
     uint16_t shstrndx;
 };
 
-struct elf_phdr {
+struct packed elf_phdr {
     /* Type of the segment. */
     uint32_t type;
     /* Flags (R, W or X) */
@@ -117,7 +118,7 @@ struct elf_phdr {
     uint64_t align;
 };
 
-struct elf_shdr {
+struct packed elf_shdr {
     /* An offset to a string in the .shstrtab section
        that represents the name of this section. */
     uint32_t name_ptr;
@@ -142,7 +143,7 @@ struct elf_shdr {
     uint64_t entsize;
 };
 
-struct elf_sym {
+struct packed elf_sym {
     /* An offset to a string in the .shstrtab section
        that represents the name of this section. */
     uint64_t name;
