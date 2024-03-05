@@ -150,6 +150,8 @@ static uint16_t emit_shdrs()
     return shnum;
 }
 
+/* If name is NULL, sentinel .symtab entry is emitted.
+   Required by ELF. */
 unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *name)
 {
     uint64_t __strtab_off   = 1 +
@@ -160,24 +162,32 @@ unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *n
 
     static uint64_t str_it = 0;
     static uint64_t sym_it = 0;
-    s = emit_symbol(s, name);
+
+    bool sentinel = name == NULL;
+
+    if (!sentinel)
+        s = emit_symbol(s, name);
 
     /* TODO: Wrong elf_sym binary layout? */
     struct elf_sym sym = {
-        .name  = __strtab_off + str_it,
+        .name  = sentinel ? 0 : __strtab_off + str_it,
         /* Probably unused. */
-        .size  = 0x1,
-        .value = addr_from,
-        .shndx = 1,
-        .info  = 4
+        .size  = sentinel ? 0 : 0x0,
+        .value = sentinel ? 0 : addr_from,
+        .shndx = sentinel ? 0 : 1,
+        .info  = sentinel ? 0 : 4
     };
     emit_bytes(symtab_off + sym_it, &sym);
-    /* TODO: Index to some section. */
-    uint8_t byte = 0x01;
-    /* TODO: Figure out why -18. */
-    emit_bytes(symtab_off + sym_it + symtab_entsize - 18, &byte);
 
-    str_it += strlen(name) + /* NULL */ 1;
+    if (!sentinel) {
+        /* TODO: Index to some section. */
+        uint8_t byte = 0x01;
+        /* TODO: Figure out why -18. */
+        emit_bytes(symtab_off + sym_it + symtab_entsize - 18, &byte);
+
+        str_it += strlen(name) + /* NULL */ 1;
+    }
+
     sym_it += symtab_entsize;
 
     ++syms_cnt;
@@ -221,45 +231,8 @@ static void elf_put_code()
     s = emit_symbol(s, ".shstrtab");
     s = emit_symbol(s, ".symtab");
 
-    /* For some reason, first emitted to .symtab entry is not
-       displayed in ELF dump.
-
-        Symbol table '.symtab' contains 6 entries:
-        Num:    Value          Size Type    Bind   Vis      Ndx Name
-            0: 000000000040100a     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_6 <<< NO LABEL!
-            1: 0000000000401008     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_5
-            2: 0000000000401006     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_4
-            3: 0000000000401004     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_3
-            4: 0000000000401002     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_2
-            5: 0000000000401000     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_1
-
-        No version information found in this file.
-
-        __elf.o:     file format elf64-littleriscv
-
-
-        Disassembly of section .text:
-
-        0000000000401000 <__example_sym_1>:
-        401000:	1141                	addi	sp,sp,-16
-
-        0000000000401002 <__example_sym_2>:
-        401002:	e422                	sd	s0,8(sp)
-
-        0000000000401004 <__example_sym_3>:
-        401004:	4781                	li	a5,0
-
-        0000000000401006 <__example_sym_4>:
-        401006:	853e                	mv	a0,a5
-
-        0000000000401008 <__example_sym_5>:
-        401008:	6422                	ld	s0,8(sp)
-        40100a:	0141                	addi	sp,sp,16
-        40100c:	8082                	ret
-        40100e:	0000                	unimp
-        401010:	0000                	unimp
-            ...
-*/
+    /* Sentinel NULL entry is necessary. */
+    s = emit_symtab_entry(s, entry_addr, NULL);
     hashmap_foreach(&codegen_output->fn_offsets, k, v) {
         const char *name = (const char *) k;
         uint64_t    off  = v;

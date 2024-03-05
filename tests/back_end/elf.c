@@ -30,21 +30,26 @@ int main()
         0x3e, 0x85, 0x22, 0x64,
         0x41, 0x01, 0x82, 0x80,
     };
+    /*
+    48 c7 c03 c00 00  mov $0x3c, %rax
+    48 31 ff          xor %rdi, %rdi
+    0f 05             syscall
+    */
     unused uint8_t x86_64_code[] = {
-        0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00, /* mov $0x3c, %rax */
-        0x48, 0x31, 0xff,                         /* xor %rdi, %rdi */
-        0x0f, 0x05                                /* syscall */
+        0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00,
+        0x48, 0x31, 0xff,
+        0x0f, 0x05
     };
 
     struct codegen_output cg = {0};
 
     hashmap_init(&cg.fn_offsets, 512);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_6", 0x0A);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_5", 0x08);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_4", 0x06);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_3", 0x04);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_2", 0x02);
     hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_1", 0x00);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_2", 0x02);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_3", 0x04);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_4", 0x06);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_5", 0x08);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_6", 0x0A);
  
     for (uint64_t i = 0; i < sizeof (risc_v_code); ++i) {
         vector_push_back(cg.instrs, risc_v_code[i]);
