@@ -37,35 +37,6 @@ static int syms_cnt     = 0x00;
 #define emit_bytes(addr, data) \
     { memcpy(&map[(addr)], (data), sizeof (*(data))); }
 
-#define emit_byte(addr, i) \
-    { map[(addr)] = i; }
-
-#define emit_short(addr, i) \
-    { uint16_t _ = (i); \
-      char *bytes = (char *) &_; \
-      map[(addr) + 0] = bytes[0]; \
-      map[(addr) + 1] = bytes[1]; }
-
-#define emit_int(addr, i) \
-    { uint32_t _ = (i); \
-      char *bytes = (char *) &_; \
-      map[(addr) + 0] = bytes[0]; \
-      map[(addr) + 1] = bytes[1]; \
-      map[(addr) + 2] = bytes[2]; \
-      map[(addr) + 3] = bytes[3]; }
-
-#define emit_long(addr, i) \
-    { uint64_t _ = (i); \
-      char *bytes = (char *) &_; \
-      map[(addr) + 0] = bytes[0]; \
-      map[(addr) + 1] = bytes[1]; \
-      map[(addr) + 2] = bytes[2]; \
-      map[(addr) + 3] = bytes[3]; \
-      map[(addr) + 4] = bytes[4]; \
-      map[(addr) + 5] = bytes[5]; \
-      map[(addr) + 6] = bytes[6]; \
-      map[(addr) + 7] = bytes[7]; }
-
 static char *emit_symbol(char *start, const char *section)
 {
     uint64_t len = strlen(section);
