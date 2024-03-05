@@ -148,7 +148,7 @@ static uint16_t emit_shdrs()
     return shnum;
 }
 
-unused static char *emit_symtab_entry(char *s, const char *name)
+unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *name)
 {
     uint64_t __strtab_off   = 1 +
         strlen(".text")     + 1 +
@@ -163,12 +163,17 @@ unused static char *emit_symtab_entry(char *s, const char *name)
     /* TODO: Wrong elf_sym binary layout? */
     struct elf_sym sym = {
         .name  = __strtab_off + str_it,
-        .size  = 0xAA,
-        .value = entry_addr,
+        /* Probably unused. */
+        .size  = 0x4,
+        .value = addr_from,
         .shndx = 1,
         .info  = 3
     };
     emit_bytes(symtab_off + sym_it, &sym);
+    /* TODO: Index to some section. */
+    uint8_t byte = 0x01;
+    /* TODO: Figure out why -18. */
+    emit_bytes(symtab_off + sym_it + symtab_entsize - 18, &byte);
 
     str_it += strlen(name) + /* NULL */ 1;
     sym_it += symtab_entsize;
@@ -189,7 +194,7 @@ static void emit_elf()
     for (int i = 0; i < 11; ++i) {
         char buf[32] = {0};
         sprintf(buf, "__example_sym_%d", i);
-        s = emit_symtab_entry(s, buf);
+        s = emit_symtab_entry(s, entry_addr, buf);
     }
 
     struct elf_fhdr fhdr = {
