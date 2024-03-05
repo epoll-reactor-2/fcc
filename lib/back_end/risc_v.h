@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include "back_end/elf.h"
+#include "util/hashmap.h"
 #include "util/vector.h"
 
 /**********************************************
@@ -103,12 +105,6 @@
  **********************************************/
 
 struct ir_unit;
-
-typedef vector_t(uint32_t) instr_vector_t;
-
-struct codegen_output {
-    vector_t(instr_vector_t) fns;
-};
 
 void risc_v_gen(struct codegen_output *output, struct ir_unit *unit);
 

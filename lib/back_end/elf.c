@@ -34,6 +34,8 @@ static int text_siz     = 0x00;
 static int syms_cnt     = 0x00;
 static int strtab_siz   = 0x00;
 
+struct codegen_output *codegen_output;
+
 #define emit(addr, byte_string) \
     { strcpy(&map[addr], byte_string); }
 
@@ -164,10 +166,10 @@ unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *n
     struct elf_sym sym = {
         .name  = __strtab_off + str_it,
         /* Probably unused. */
-        .size  = 0x4,
+        .size  = 0x1,
         .value = addr_from,
         .shndx = 1,
-        .info  = 3
+        .info  = 4
     };
     emit_bytes(symtab_off + sym_it, &sym);
     /* TODO: Index to some section. */
@@ -184,19 +186,6 @@ unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *n
 
 static void emit_elf()
 {
-    /* +1 is due to first NULL byte for NULL section. */
-    char *s = &map[strtab_off + 1];
-    s = emit_symbol(s, ".text");
-    s = emit_symbol(s, ".strtab");
-    s = emit_symbol(s, ".shstrtab");
-    s = emit_symbol(s, ".symtab");
-
-    for (int i = 0; i < 11; ++i) {
-        char buf[32] = {0};
-        sprintf(buf, "__example_sym_%d", i);
-        s = emit_symtab_entry(s, entry_addr, buf);
-    }
-
     struct elf_fhdr fhdr = {
         .ident     = "\x7F\x45\x4C\x46\x02\x01\x01",
         .type      = ET_EXEC,
@@ -217,6 +206,70 @@ static void emit_elf()
     emit_bytes(0x00, &fhdr);
 }
 
+static void elf_put_code()
+{
+    void *start = map + text_off;
+    memcpy(start,
+        codegen_output->instrs.data,
+        codegen_output->instrs.size
+    );
+
+    /* +1 is due to first NULL byte for NULL section. */
+    char *s = &map[strtab_off + 1];
+    s = emit_symbol(s, ".text");
+    s = emit_symbol(s, ".strtab");
+    s = emit_symbol(s, ".shstrtab");
+    s = emit_symbol(s, ".symtab");
+
+    /* For some reason, first emitted to .symtab entry is not
+       displayed in ELF dump.
+
+        Symbol table '.symtab' contains 6 entries:
+        Num:    Value          Size Type    Bind   Vis      Ndx Name
+            0: 000000000040100a     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_6 <<< NO LABEL!
+            1: 0000000000401008     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_5
+            2: 0000000000401006     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_4
+            3: 0000000000401004     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_3
+            4: 0000000000401002     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_2
+            5: 0000000000401000     1 NOTYPE  LOCAL  DEFAULT    1 __example_sym_1
+
+        No version information found in this file.
+
+        __elf.o:     file format elf64-littleriscv
+
+
+        Disassembly of section .text:
+
+        0000000000401000 <__example_sym_1>:
+        401000:	1141                	addi	sp,sp,-16
+
+        0000000000401002 <__example_sym_2>:
+        401002:	e422                	sd	s0,8(sp)
+
+        0000000000401004 <__example_sym_3>:
+        401004:	4781                	li	a5,0
+
+        0000000000401006 <__example_sym_4>:
+        401006:	853e                	mv	a0,a5
+
+        0000000000401008 <__example_sym_5>:
+        401008:	6422                	ld	s0,8(sp)
+        40100a:	0141                	addi	sp,sp,16
+        40100c:	8082                	ret
+        40100e:	0000                	unimp
+        401010:	0000                	unimp
+            ...
+*/
+    hashmap_foreach(&codegen_output->fn_offsets, k, v) {
+        const char *name = (const char *) k;
+        uint64_t    off  = v;
+
+        s = emit_symtab_entry(s, entry_addr + off, name);
+    }
+
+    text_siz = codegen_output->instrs.size;
+}
+
 /* https://github.com/jserv/amacc/blob/master/amacc.c
    
    NOTE: Headers are emitted in `elf_put_code` call,
@@ -234,6 +287,10 @@ void elf_init(struct elf_entry *e)
         weak_fatal_errno("mmap()");
 
     arch = e->arch;
+    codegen_output = &e->output;
+
+    elf_put_code();
+    emit_elf();
 }
 
 void elf_exit()
@@ -245,11 +302,11 @@ void elf_exit()
         weak_fatal_errno("close()");
 }
 
-void elf_put_code(uint8_t *code, uint64_t size)
-{
-    void *start = map + text_off;
-    memcpy(start, code, size);
+// void elf_put_code(uint8_t *code, uint64_t size)
+// {
+//     void *start = map + text_off;
+//     memcpy(start, code, size);
 
-    text_siz = size;
-    emit_elf();
-}
+//     text_siz = size;
+//     emit_elf();
+// }

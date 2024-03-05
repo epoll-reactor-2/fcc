@@ -15,13 +15,6 @@ void *diag_warn_memstream = NULL;
 
 int main()
 {
-    struct elf_entry elf = {
-        .arch     = ARCH_RISC_V,
-        .filename = "__elf.o"
-    };
-
-    elf_init(&elf);
-
     /*
     0x1141    addi    sp,sp,-16
     0xe422    sd      s0,8(sp)
@@ -42,7 +35,28 @@ int main()
         0x48, 0x31, 0xff,                         /* xor %rdi, %rdi */
         0x0f, 0x05                                /* syscall */
     };
-    elf_put_code(risc_v_code, sizeof (risc_v_code));
+
+    struct codegen_output cg = {0};
+
+    hashmap_init(&cg.fn_offsets, 512);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_6", 0x0A);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_5", 0x08);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_4", 0x06);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_3", 0x04);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_2", 0x02);
+    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_1", 0x00);
+ 
+    for (uint64_t i = 0; i < sizeof (risc_v_code); ++i) {
+        vector_push_back(cg.instrs, risc_v_code[i]);
+    }
+
+    struct elf_entry elf = {
+        .arch     = ARCH_RISC_V,
+        .filename = "__elf.o",
+        .output   = cg
+    };
+
+    elf_init(&elf);
     elf_exit();
 
     system("riscv64-linux-gnu-readelf -a __elf.o");
