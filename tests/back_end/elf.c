@@ -51,24 +51,24 @@ int main()
         0x0f, 0x05
     };
 
-    struct codegen_output cg = {0};
+    struct codegen_output output = {0};
 
-    hashmap_init(&cg.fn_offsets, 512);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_1", 0x00);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_2", 0x02);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_3", 0x04);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_4", 0x06);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_5", 0x08);
-    hashmap_put(&cg.fn_offsets, (uint64_t) "__example_sym_6", 0x0A);
+    hashmap_init(&output.fn_offsets, 512);
+    hashmap_put (&output.fn_offsets, (uint64_t) "__example_sym_1", 0x00);
+    hashmap_put (&output.fn_offsets, (uint64_t) "__example_sym_2", 0x02);
+    hashmap_put (&output.fn_offsets, (uint64_t) "__example_sym_3", 0x04);
+    hashmap_put (&output.fn_offsets, (uint64_t) "__example_sym_4", 0x06);
+    hashmap_put (&output.fn_offsets, (uint64_t) "__example_sym_5", 0x08);
+    hashmap_put (&output.fn_offsets, (uint64_t) "__example_sym_6", 0x0A);
  
     for (uint64_t i = 0; i < sizeof (risc_v_code); ++i) {
-        vector_push_back(cg.instrs, risc_v_code[i]);
+        vector_push_back(output.instrs, risc_v_code[i]);
     }
 
     struct elf_entry elf = {
         .arch     = ARCH_RISC_V,
         .filename = "__elf.o",
-        .output   = cg
+        .output   = output
     };
 
     elf_init(&elf);
