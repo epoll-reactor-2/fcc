@@ -22,6 +22,8 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
+char current_output_dir[128];
+
 int risc_v_test(const char *path, unused const char *filename)
 {
     char   *expected         = NULL;
@@ -32,7 +34,7 @@ int risc_v_test(const char *path, unused const char *filename)
     struct  ir_node    *it   = NULL;
     char    out_path[256]    = {0};
 
-    snprintf(out_path, 255, "__risc_v_%s.o", filename);
+    snprintf(out_path, 255, "%s/%s.o", current_output_dir, filename);
 
     if (!setjmp(weak_fatal_error_buf)) {
         struct ir_unit unit = gen_ir(path);
@@ -98,6 +100,7 @@ int risc_v_test(const char *path, unused const char *filename)
 
 int main()
 {
+    cfg_dir("risc_v", current_output_dir);
     do_on_each_file("risc_v", risc_v_test);
     return 0;
 }
