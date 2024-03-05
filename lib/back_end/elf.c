@@ -86,8 +86,6 @@ static uint16_t emit_phdrs()
 
 static uint16_t emit_shdrs()
 {
-    /* Number of symtab entries. */
-    unused uint16_t symtab_total = 1;
     uint16_t shnum = 0;
     /* 1 is because first NULL byte for NULL section. */
     uint32_t strtab_start = 0x01;
@@ -133,8 +131,6 @@ static uint16_t emit_shdrs()
     emit_shdr(shnum++, &shstrtab_shdr);
     strtab_start += strlen(".shstrtab") + 1;
 
-    /* Unused in single binary. Useful for relocatable objects. */
-
     struct elf_shdr symtab_shdr = {
         .name_ptr = strtab_start,
         .type     = SHT_SYMTAB,
@@ -152,6 +148,10 @@ static uint16_t emit_shdrs()
 
 /* If name is NULL, sentinel .symtab entry is emitted.
    Required by ELF. */
+
+/* NOTE: ELF generator designed to be called once during codegen.
+         Probably, make global state or tests, that will start process
+         from scratch. */
 unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *name)
 {
     uint64_t __strtab_off   = 1 +
@@ -168,7 +168,6 @@ unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *n
     if (!sentinel)
         s = emit_symbol(s, name);
 
-    /* TODO: Wrong elf_sym binary layout? */
     struct elf_sym sym = {
         .name  = sentinel ? 0 : __strtab_off + str_it,
         /* Probably unused. */
@@ -243,11 +242,7 @@ static void elf_put_code()
     text_siz = codegen_output->instrs.size;
 }
 
-/* https://github.com/jserv/amacc/blob/master/amacc.c
-   
-   NOTE: Headers are emitted in `elf_put_code` call,
-         when size of each section is known, depending
-         on how much code we put. */
+/* https://github.com/jserv/amacc/blob/master/amacc.c */
 void elf_init(struct elf_entry *e)
 {
     fd = open(e->filename, O_CREAT | O_TRUNC | O_RDWR, 0666);
@@ -274,12 +269,3 @@ void elf_exit()
     if (close(fd) < 0)
         weak_fatal_errno("close()");
 }
-
-// void elf_put_code(uint8_t *code, uint64_t size)
-// {
-//     void *start = map + text_off;
-//     memcpy(start, code, size);
-
-//     text_siz = size;
-//     emit_elf();
-// }
