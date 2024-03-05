@@ -9,6 +9,8 @@
 
 #include <stdint.h>
 #include "util/compiler.h"
+#include "util/hashmap.h"
+#include "util/vector.h"
 
 /* All this code (as whole project) written for fun.
    Be a normal person. Use libelf.
@@ -163,13 +165,22 @@ struct packed elf_sym {
     uint64_t shndx;
 };
 
+typedef vector_t(uint8_t) instr_vector_t;
+
+struct codegen_output {
+    hashmap_t         fn_offsets;
+    instr_vector_t    instrs;
+};
+
 struct elf_entry {
     const char *filename;
     int         arch;
+    struct codegen_output
+                output;
 };
 
 void elf_init(struct elf_entry *e);
 void elf_exit();
-void elf_put_code(uint8_t *code, uint64_t size);
+// void elf_put_code(uint8_t *code, uint64_t size);
 
 #endif // WEAK_COMPILER_BACKEND_ELF_H
