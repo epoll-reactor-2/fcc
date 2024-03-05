@@ -5,10 +5,13 @@
  */
 
 #include "back_end/elf.h"
+#include "back_end/risc_v.h"
 #include "util/unreachable.h"
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+
+int risc_v_xor   (int rd, int rs1, int rs2);
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
@@ -24,11 +27,18 @@ int main()
     0x0141    addi    sp,sp,16
     0x8082    ret
     */
+
+    int32_t c = risc_v_xor(risc_v_reg_s4, risc_v_reg_s6, risc_v_reg_s2);
+    uint8_t *__c = (uint8_t *) &c;
     unused uint8_t risc_v_code[] = {
         0x41, 0x11, 0x22, 0xe4,
         0x81, 0x47,
         0x3e, 0x85, 0x22, 0x64,
         0x41, 0x01, 0x82, 0x80,
+        __c[0],
+        __c[1],
+        __c[2],
+        __c[3],
     };
     /*
     48 c7 c03 c00 00  mov $0x3c, %rax
