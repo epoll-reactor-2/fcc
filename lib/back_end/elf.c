@@ -25,7 +25,7 @@ static int shstrtab_off   = 0x1500;
 static int symtab_off     = 0x2000;
 static int sh_off         = 0x4000;
 static int text_off       = 0x6000;
-static int entry_addr     = 0x401000;
+static int entry_addr     = 0x0100;
 /* How much bytes occupy one symtab entry. */
 static int symtab_entsize = 24;
 
@@ -75,7 +75,7 @@ static uint16_t emit_phdrs()
         .type   = 0x01,
         .flags  = 6,
         .vaddr  = entry_addr,
-        .paddr  = entry_addr,
+        .paddr  = text_off,
         .memsz  = 0xFF,
         .filesz = 0xFF
     };
@@ -243,6 +243,13 @@ static void elf_put_code()
     text_siz = codegen_output->instrs.count;
 }
 
+static void elf_reset()
+{
+    syms_cnt = 0;
+    text_siz = 0;
+    strtab_siz = 0;
+}
+
 /* https://github.com/jserv/amacc/blob/master/amacc.c */
 void elf_init(struct elf_entry *e)
 {
@@ -258,6 +265,7 @@ void elf_init(struct elf_entry *e)
     arch = e->arch;
     codegen_output = &e->output;
 
+    elf_reset();
     elf_put_code();
     emit_elf();
 }
