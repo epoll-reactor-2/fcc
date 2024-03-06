@@ -76,8 +76,8 @@ static uint16_t emit_phdrs()
         .flags  = 6,
         .vaddr  = entry_addr,
         .paddr  = text_off,
-        .memsz  = 0xFF,
-        .filesz = 0xFF
+        .memsz  = 4096,
+        .filesz = 4096
     };
     emit_phdr(phnum++, &phdr);
 
