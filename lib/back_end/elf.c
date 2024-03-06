@@ -148,20 +148,18 @@ static uint16_t emit_shdrs()
 
 /* If name is NULL, sentinel .symtab entry is emitted.
    Required by ELF. */
-
-/* NOTE: ELF generator designed to be called once during codegen.
-         Probably, make global state or tests, that will start process
-         from scratch. */
-unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *name)
-{
+unused static char *emit_symtab_entry(
+    uint64_t   *str_it,
+    uint64_t   *sym_it,
+    char       *s,
+    uint64_t    addr_from,
+    const char *name
+) {
     uint64_t __strtab_off   = 1 +
         strlen(".text")     + 1 +
         strlen(".strtab")   + 1 +
         strlen(".shstrtab") + 1 +
         strlen(".symtab")   + 1;
-
-    static uint64_t str_it = 0;
-    static uint64_t sym_it = 0;
 
     bool sentinel = name == NULL;
 
@@ -169,25 +167,25 @@ unused static char *emit_symtab_entry(char *s, uint64_t addr_from, const char *n
         s = emit_symbol(s, name);
 
     struct elf_sym sym = {
-        .name  = sentinel ? 0 : __strtab_off + str_it,
+        .name  = sentinel ? 0 : __strtab_off + *str_it,
         /* Probably unused. */
         .size  = sentinel ? 0 : 0x0,
         .value = sentinel ? 0 : addr_from,
         .shndx = sentinel ? 0 : 1,
         .info  = sentinel ? 0 : 4
     };
-    emit_bytes(symtab_off + sym_it, &sym);
+    emit_bytes(symtab_off + *sym_it, &sym);
 
     if (!sentinel) {
         /* TODO: Index to some section. */
         uint8_t byte = 0x01;
         /* TODO: Figure out why -18. */
-        emit_bytes(symtab_off + sym_it + symtab_entsize - 18, &byte);
+        emit_bytes(symtab_off + *sym_it + symtab_entsize - 18, &byte);
 
-        str_it += strlen(name) + /* NULL */ 1;
+        *str_it += strlen(name) + /* NULL */ 1;
     }
 
-    sym_it += symtab_entsize;
+    *sym_it += symtab_entsize;
 
     ++syms_cnt;
     return s;
@@ -230,13 +228,16 @@ static void elf_put_code()
     s = emit_symbol(s, ".shstrtab");
     s = emit_symbol(s, ".symtab");
 
+    uint64_t str_it = 0;
+    uint64_t sym_it = 0;
+
     /* Sentinel NULL entry is necessary. */
-    s = emit_symtab_entry(s, entry_addr, NULL);
+    s = emit_symtab_entry(&str_it, &sym_it, s, entry_addr, NULL);
     hashmap_foreach(&codegen_output->fn_offsets, k, v) {
         const char *name = (const char *) k;
         uint64_t    off  = v;
 
-        s = emit_symtab_entry(s, entry_addr + off, name);
+        s = emit_symtab_entry(&str_it, &sym_it, s, entry_addr + off, name);
     }
 
     text_siz = codegen_output->instrs.size;
