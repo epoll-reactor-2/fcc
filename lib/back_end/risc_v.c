@@ -170,11 +170,6 @@ int risc_v_ret     (                        ) { return risc_v_jalr(risc_v_reg_ze
 static struct codegen_output *codegen_output;
 static uint64_t emitted_bytes;
 
-static void put_fn_name(const char *name)
-{
-    hashmap_put(&codegen_output->fn_offsets, (uint64_t) name, 0x00);
-}
-
 static void put_code(int code)
 {
     uint8_t *slice = (uint8_t *) &code;
@@ -247,7 +242,7 @@ static void emit_fn(unused struct ir_fn_decl *fn)
     emit_fn_body(fn);
     /* Test code. */
     put_code(risc_v_addi(risc_v_reg_a0, risc_v_reg_a2, -255));
-    put_code(risc_v_jalr(risc_v_reg_sp, risc_v_reg_t0, 10));
+    put_code(risc_v_jalr(risc_v_reg_sp, risc_v_reg_t0, 0));
     put_code(risc_v_ret());
 }
 
@@ -257,6 +252,7 @@ static void emit_fn(unused struct ir_fn_decl *fn)
 void risc_v_gen(struct codegen_output *output, struct ir_unit *unit)
 {
     codegen_output = output;
+    emitted_bytes = 0;
 
     struct ir_node *ir = unit->fn_decls;
     while (ir) {
