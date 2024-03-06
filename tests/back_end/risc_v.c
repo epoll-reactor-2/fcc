@@ -84,6 +84,9 @@ int risc_v_test(const char *path, unused const char *filename)
         elf_init(&elf);
         elf_exit();
 
+        hashmap_destroy(&output.fn_offsets);
+        vector_free(output.instrs);
+
         ir_unit_cleanup(&unit);
     } else {
         /* Error, will be printed in main. */

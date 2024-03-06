@@ -240,7 +240,7 @@ static void elf_put_code()
         s = emit_symtab_entry(&str_it, &sym_it, s, entry_addr + off, name);
     }
 
-    text_siz = codegen_output->instrs.size;
+    text_siz = codegen_output->instrs.count;
 }
 
 /* https://github.com/jserv/amacc/blob/master/amacc.c */
