@@ -47,7 +47,7 @@
 #define SHT_PREINIT_ARRAY     16
 #define SHT_GROUP             17
 #define SHT_SYMTAB_SHNDX      18
-#define  SHT_NUM              19
+#define SHT_NUM               19
 #define SHT_LOOS              0x60000000
 
 #define SHF_WRITE             (1  <<  0)
