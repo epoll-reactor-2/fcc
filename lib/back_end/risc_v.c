@@ -218,25 +218,37 @@ static void put_code(int code)
  **              IR traversal                **
  **********************************************/
 
+static void emit_instr(struct ir_node *ir);
 static void emit_alloca(unused struct ir_alloca *ir) {}
 static void emit_alloca_array(unused struct ir_alloca_array *ir) {}
 static void emit_imm(unused struct ir_imm *ir) {}
 static void emit_sym(unused struct ir_sym *ir) {}
 static void emit_store(struct ir_store *ir)
 {
-    (void) ir;
-    /* Calculate everything using EAX/RAX, store by
-       stack offset or register (variable map => stack offset). */
+    emit_instr(ir->body);
+    emit_instr(ir->idx);
 }
 
 static void emit_bin(unused struct ir_bin *ir) {}
 static void emit_jump(unused struct ir_jump *ir) {}
 static void emit_cond(unused struct ir_cond *ir) {}
 static void emit_ret(unused struct ir_ret *ir) {}
-static void emit_fn_call(unused struct ir_fn_call *ir) {}
 static void emit_phi(unused struct ir_phi *ir) {}
 
-
+static void emit_fn_call(struct ir_fn_call *ir)
+{
+    printf("Got sym `%s`: %lx\n", ir->name, get_sym(ir->name));
+    // put_code(risc_v_jal(risc_v_reg_ra, get_sym(ir->name)));
+    /* For some reason, jal 0 gives start of symbol offst
+    
+        118:	0000016f          	jal	sp,118 <f_1>
+        128:	0000016f          	jal	sp,128 <f_2>
+        138:	0000016f          	jal	sp,138 <main>
+        13c:	0000016f          	jal	sp,13c <main+0x4>
+        140:	0000016f          	jal	sp,140 <main+0x8>
+    */
+    put_code(risc_v_jal(risc_v_reg_sp, 0));
+}
 
 static void emit_instr(struct ir_node *ir)
 {

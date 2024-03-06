@@ -88,6 +88,12 @@ int risc_v_test(const char *path, unused const char *filename)
         vector_free(output.instrs);
 
         ir_unit_cleanup(&unit);
+
+        char buf[512] = {0};
+        snprintf(buf, 511, "riscv64-linux-gnu-readelf -a %s", out_path);
+        system(buf);
+        snprintf(buf, 511, "riscv64-linux-gnu-objdump -D %s", out_path);
+        system(buf);
     } else {
         /* Error, will be printed in main. */
         return -1;
