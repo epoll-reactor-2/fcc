@@ -176,6 +176,8 @@ static hashmap_t fn_addr_map;
     Used in ELF generator. */
 static struct    codegen_output *codegen_output;
 static uint64_t  emitted_bytes;
+/* How far we advanced from function begin. */
+static uint64_t  fn_off;
 
 static void put_sym(const char *sym)
 {
@@ -212,11 +214,14 @@ static void put_code(int code)
     vector_push_back(codegen_output->instrs, slice[3]);
 
     emitted_bytes += 4;
+    fn_off += 4;
 }
 
 /**********************************************
  **              IR traversal                **
  **********************************************/
+
+static char *current_fn;
 
 static void emit_instr(struct ir_node *ir);
 static void emit_alloca(unused struct ir_alloca *ir) {}
@@ -237,17 +242,12 @@ static void emit_phi(unused struct ir_phi *ir) {}
 
 static void emit_fn_call(struct ir_fn_call *ir)
 {
-    printf("Got sym `%s`: %lx\n", ir->name, get_sym(ir->name));
-    // put_code(risc_v_jal(risc_v_reg_ra, get_sym(ir->name)));
-    /* For some reason, jal 0 gives start of symbol offst
-    
-        118:	0000016f          	jal	sp,118 <f_1>
-        128:	0000016f          	jal	sp,128 <f_2>
-        138:	0000016f          	jal	sp,138 <main>
-        13c:	0000016f          	jal	sp,13c <main+0x4>
-        140:	0000016f          	jal	sp,140 <main+0x8>
-    */
-    put_code(risc_v_jal(risc_v_reg_sp, 0));
+    /* jal operates on relative offset. So if we
+       refer to a defined above function, we use negative offset. */
+    int off = get_sym(ir->name) - get_sym(current_fn);
+    /* Take local function offset into account. */
+    off -= fn_off;
+    put_code(risc_v_jal(risc_v_reg_sp, off));
 }
 
 static void emit_instr(struct ir_node *ir)
@@ -281,12 +281,13 @@ static void emit_fn_body(struct ir_fn_decl *fn)
 
 static void emit_fn(unused struct ir_fn_decl *fn)
 {
+    current_fn = fn->name;
+    fn_off = 0;
     put_sym(fn->name);
 
     emit_fn_args(fn);
     emit_fn_body(fn);
     /* Test code. */
-    put_code(risc_v_addi(risc_v_reg_a0, risc_v_reg_a2, -255));
     put_code(risc_v_jalr(risc_v_reg_sp, risc_v_reg_t0, 0));
     put_code(risc_v_ret());
 }
