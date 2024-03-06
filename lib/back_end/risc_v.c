@@ -6,6 +6,7 @@
 
 #include "back_end/risc_v.h"
 #include "middle_end/ir/ir.h"
+#include "util/crc32.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -166,9 +167,41 @@ int risc_v_ret     (                        ) { return risc_v_jalr(risc_v_reg_ze
  **        Code generation routines          **
  **********************************************/
 
-/* TODO: This must be common for each architecture. */
-static struct codegen_output *codegen_output;
-static uint64_t emitted_bytes;
+/* CRC-32 hash <=> symbol offset mapping.
+   \
+    Used in RISC-V generator to make calls. */
+static hashmap_t fn_addr_map;
+/* fn_offsets: String pointer value <=> symbol offset mapping.
+   \
+    Used in ELF generator. */
+static struct    codegen_output *codegen_output;
+static uint64_t  emitted_bytes;
+
+static void put_sym(const char *sym)
+{
+    uint64_t hash = crc32_string(sym);
+    hashmap_put(&codegen_output->fn_offsets, (uint64_t) sym, emitted_bytes);
+    hashmap_put(&fn_addr_map, hash, emitted_bytes);
+}
+
+static uint64_t get_sym(const char *sym)
+{
+    uint64_t hash = crc32_string(sym);
+    bool ok = 0;
+    uint64_t off = hashmap_get(&fn_addr_map, hash, &ok);
+    if (!ok)
+        weak_fatal_error("Cannot get offset for `%s`", sym);
+    return off;
+}
+
+static void replace_code(uint64_t at, int code)
+{
+    uint8_t *slice = (uint8_t *) &code;
+    vector_at(codegen_output->instrs, at + 0) = slice[0];
+    vector_at(codegen_output->instrs, at + 1) = slice[1];
+    vector_at(codegen_output->instrs, at + 2) = slice[2];
+    vector_at(codegen_output->instrs, at + 3) = slice[3];
+}
 
 static void put_code(int code)
 {
@@ -236,7 +269,7 @@ static void emit_fn_body(struct ir_fn_decl *fn)
 
 static void emit_fn(unused struct ir_fn_decl *fn)
 {
-    hashmap_put(&codegen_output->fn_offsets, (uint64_t) fn->name, emitted_bytes);
+    put_sym(fn->name);
 
     emit_fn_args(fn);
     emit_fn_body(fn);
@@ -249,16 +282,50 @@ static void emit_fn(unused struct ir_fn_decl *fn)
 /**********************************************
  **                Driver code               **
  **********************************************/
+static uint64_t _entry_main_call_addr = 0x00;
+
+static void emit_entry_fn()
+{
+    put_sym("_start");
+    _entry_main_call_addr = emitted_bytes;
+    /* We don't know where `main` is located at this
+       point of codegen. Now we occupy space with some
+       senseless instruction.
+
+       Will be replaced with
+       \
+        jal ra, <main_offset> */
+    put_code(0);
+    /* Call main and exit. */
+    put_code(risc_v_addi(risc_v_reg_a7, risc_v_reg_zero, __NR_exit));
+    put_code(risc_v_ecall());
+}
+
+/**********************************************
+ **                Driver code               **
+ **********************************************/
 void risc_v_gen(struct codegen_output *output, struct ir_unit *unit)
 {
     codegen_output = output;
     emitted_bytes = 0;
+
+    hashmap_init(&fn_addr_map, 512);
+
+    emit_entry_fn();
 
     struct ir_node *ir = unit->fn_decls;
     while (ir) {
         emit_fn(ir->ir);
         ir = ir->next;
     }
+
+    /* Replace previosly emitted 0x00 instruction in place
+       of `main` call, because only now we know where `main`
+       is located. */
+    replace_code(
+        _entry_main_call_addr,
+        risc_v_jal(risc_v_reg_ra, get_sym("main"))
+    );
 }
 
 /*
