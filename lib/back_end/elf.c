@@ -73,11 +73,13 @@ static uint16_t emit_phdrs()
 
     struct elf_phdr phdr = {
         .type   = 0x01,
-        .flags  = 6,
-        .vaddr  = entry_addr,
+        .flags  = 7,
+        .off    = text_off,
+        .vaddr  = text_off,
         .paddr  = text_off,
-        .memsz  = 4096,
-        .filesz = 4096
+        .memsz  = text_siz,
+        .filesz = text_siz,
+        .align  = 4
     };
     emit_phdr(phnum++, &phdr);
 
