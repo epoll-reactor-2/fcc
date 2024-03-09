@@ -19,6 +19,10 @@
 static char *map;
 static int fd;
 
+static int phdr_off       = 0x0040;
+static int sh_size        = 0x0040;
+static int phdr_size      = 0x0038;
+
 static int init_size      = 0x8000;
 static int strtab_off     = 0x1000;
 static int shstrtab_off   = 0x1500;
@@ -30,9 +34,9 @@ static int entry_addr     = 0x0100;
 static int symtab_entsize = 24;
 
 static int arch         = 0x00;
-static int text_siz     = 0x00;
+static int text_size    = 0x00;
 static int syms_cnt     = 0x00;
-static int strtab_siz   = 0x00;
+static int strtab_size  = 0x00;
 
 struct codegen_output *codegen_output;
 
@@ -47,22 +51,20 @@ static char *emit_symbol(char *start, const char *section)
     uint64_t len = strlen(section);
     strcpy(start, section);
     start[len] = 0;
-    strtab_siz += len + 1;
+    strtab_size += len + 1;
     return start + len + /* NULL byte. */1;
 }
 
 static void emit_phdr(uint64_t idx, struct elf_phdr *phdr)
 {
-    uint64_t phdr_siz = 0x38;
-    uint64_t phdr_off = 0x40 + (phdr_siz * idx);
+    uint64_t off = phdr_off + (phdr_size * idx);
 
-    emit_bytes(phdr_off, phdr);
+    emit_bytes(off, phdr);
 }
 
 static void emit_shdr(uint64_t idx, struct elf_shdr *shdr)
 {
-    uint64_t shdr_siz = 0x40;
-    uint64_t shdr_off = sh_off + (shdr_siz * idx);
+    uint64_t shdr_off = sh_off + (sh_size * idx);
 
     emit_bytes(shdr_off, shdr);
 }
@@ -74,12 +76,12 @@ static uint16_t emit_phdrs()
     struct elf_phdr phdr = {
         .type   = 0x01,
         .flags  = 7,
-        .off    = text_off,
-        .vaddr  = text_off,
-        .paddr  = text_off,
-        .memsz  = text_siz,
-        .filesz = text_siz,
-        .align  = 4
+        .off    = 0,
+        .vaddr  = entry_addr,
+        .paddr  = entry_addr,
+        .memsz  = text_size,
+        .filesz = text_size,
+        .align  = 0x1000
     };
     emit_phdr(phnum++, &phdr);
 
@@ -93,8 +95,6 @@ static uint16_t emit_shdrs()
     uint32_t strtab_start = 0x01;
 
     /* ELF requires sentinel section of type NULL. */
-    /* TODO: This still named .text as points to the 0x00 offset
-             in string section. */
     struct elf_shdr null_shdr = {
         0
     };
@@ -105,7 +105,8 @@ static uint16_t emit_shdrs()
         .type     = SHT_PROGBITS,
         .addr     = entry_addr,
         .off      = text_off,
-        .size     = text_siz,
+        .size     = text_size,
+        .flags    = SHF_ALLOC | SHF_EXECINSTR,
         .link     = 0x00
     };
     emit_shdr(shnum++, &progbits_shdr);
@@ -116,7 +117,7 @@ static uint16_t emit_shdrs()
         .type     = SHT_STRTAB,
         .addr     = strtab_off,
         .off      = strtab_off,
-        .size     = strtab_siz + /* Some extra byte. Idk. */ 1,
+        .size     = strtab_size + /* NULL entry. */ 1,
         .link     = 0x00
     };
     emit_shdr(shnum++, &strtab_shdr);
@@ -201,13 +202,13 @@ static void emit_elf()
         .machine   = arch,
         .version   = 1,
         .entry     = entry_addr,
-        .phoff     = 0x40,
+        .phoff     = phdr_off,
         .shoff     = sh_off,
         .flags     = 0x00,
         .ehsize    = 0x40,
-        .phentsize = 0x38,
+        .phentsize = phdr_size,
         .phnum     = emit_phdrs(),
-        .shentsize = 0x40,
+        .shentsize = sh_size,
         .shnum     = emit_shdrs(),
         .shstrndx  = 0x02
     };
@@ -242,14 +243,14 @@ static void elf_put_code()
         s = emit_symtab_entry(&str_it, &sym_it, s, entry_addr + off, name);
     }
 
-    text_siz = codegen_output->instrs.count;
+    text_size = codegen_output->instrs.count;
 }
 
 static void elf_reset()
 {
     syms_cnt = 0;
-    text_siz = 0;
-    strtab_siz = 0;
+    text_size = 0;
+    strtab_size = 0;
 }
 
 /* https://github.com/jserv/amacc/blob/master/amacc.c */
