@@ -40,6 +40,10 @@ static int strtab_size  = 0x00;
 
 struct codegen_output *codegen_output;
 
+#define ELF64_ST_BIND(info)          ((info) >> 4)
+#define ELF64_ST_TYPE(info)          ((info) & 0xf)
+#define ELF64_ST_INFO(bind, type)    (((bind)<<4)+((type)&0xf))
+
 #define emit(addr, byte_string) \
     { strcpy(&map[addr], byte_string); }
 
@@ -175,15 +179,21 @@ unused static char *emit_symtab_entry(
         .size  = sentinel ? 0 : 0x0,
         .value = sentinel ? 0 : addr_from,
         .shndx = sentinel ? 0 : 1,
-        .info  = sentinel ? 0 : 4
+        .info  = sentinel ? 0 : 0
     };
     emit_bytes(symtab_off + *sym_it, &sym);
 
+    /* This thing is wierd as fuck. I don't get `info`
+       field at proper layout when I follow official ELF manual,
+       so I've found `ndx` and `type` fields by cherry-pick method. */
     if (!sentinel) {
         /* TODO: Index to some section. */
         uint8_t byte = 0x01;
-        /* TODO: Figure out why -18. */
-        emit_bytes(symtab_off + *sym_it + symtab_entsize - 18, &byte);
+        /* TODO: Figure out why ndx is on -18. */
+        emit_bytes(symtab_off + *sym_it + 6, &byte);
+        byte = ELF64_ST_INFO(2, 2);
+        /* TODO: Figure out why type is on -20. */
+        emit_bytes(symtab_off + *sym_it + 4, &byte);
 
         *str_it += strlen(name) + /* NULL */ 1;
     }
