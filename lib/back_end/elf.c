@@ -29,7 +29,7 @@ static int shstrtab_off   = 0x1500;
 static int symtab_off     = 0x2000;
 static int sh_off         = 0x4000;
 static int text_off       = 0x6000;
-static int entry_addr     = 0x0100;
+static int entry_addr     = 0x41000;
 /* How much bytes occupy one symtab entry. */
 static int symtab_entsize = 24;
 
