@@ -32,7 +32,7 @@
         {
             "label": "make test",
             "type": "shell",
-            "command": "(cd build; LD_LIBRARY_PATH=. ./elf_test) && ./scripts/deploy_riscv.sh",
+            "command": "(cd build; LD_LIBRARY_PATH=. ./elf_test && LD_LIBRARY_PATH=. ./risc_v_test) && ./scripts/deploy_riscv.sh",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"

@@ -287,8 +287,7 @@ static void emit_fn(unused struct ir_fn_decl *fn)
 
     emit_fn_args(fn);
     emit_fn_body(fn);
-    /* Test code. */
-    put_code(risc_v_jalr(risc_v_reg_sp, risc_v_reg_t0, 0));
+
     put_code(risc_v_ret());
 }
 
@@ -309,8 +308,10 @@ static void emit_entry_fn()
        \
         jal ra, <main_offset> */
     put_code(0);
-    /* Call main and exit. */
-    put_code(risc_v_addi(risc_v_reg_a7, risc_v_reg_zero, __NR_exit));
+    /* Exit with 123 for now. */
+    put_code(risc_v_addi(risc_v_reg_a0, risc_v_reg_zero, 123));
+    /* 93 is __NR_exit? */
+    put_code(risc_v_addi(risc_v_reg_a7, risc_v_reg_zero, 93));
     put_code(risc_v_ecall());
 }
 
