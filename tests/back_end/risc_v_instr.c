@@ -4,31 +4,13 @@
  * This file is distributed under the MIT license.
  */
 
-#include "back_end/risc_v.h"
+#include "back_end/risc_v_encode.h"
 #include "util/lexical.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
-
-/* Defined in shared library. In general, not required to be
-   public. */
-int risc_v_srl   (int rd, int rs1, int imm);
-int risc_v_add   (int rd, int rs1, int rs2);
-int risc_v_sub   (int rd, int rs1, int rs2);
-int risc_v_or    (int rd, int rs1, int rs2);
-int risc_v_xor   (int rd, int rs1, int rs2);
-int risc_v_and   (int rd, int rs1, int rs2);
-int risc_v_sll   (int rd, int rs1, int rs2);
-int risc_v_srl   (int rd, int rs1, int rs2);
-int risc_v_sra   (int rd, int rs1, int rs2);
-int risc_v_slt   (int rd, int rs1, int rs2);
-int risc_v_sltu  (int rd, int rs1, int rs2);
-int risc_v_ecall ();
-int risc_v_ebreak();
-int risc_v_nop   ();
-int risc_v_ret   ();
 
 void test(const char *name, int code, int expect)
 {

@@ -1,3 +1,12 @@
+/* risc_v_encode.h - RISC-V instruction encoder.
+ * Copyright (C) 2024 epoll-reactor <glibcxx.chrono@gmail.com>
+ *
+ * This file is distributed under the MIT license.
+ */
+
+#ifndef WEAK_COMPILER_BACKEND_RISC_V_ENCODE_H
+#define WEAK_COMPILER_BACKEND_RISC_V_ENCODE_H
+
 #include "back_end/risc_v.h"
 
 int risc_v_extract_bits(int imm, int i_start, int i_end, int d_start, int d_end)
@@ -150,3 +159,5 @@ int risc_v_mul     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_
 int risc_v_div     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_div, rd, rs1, rs2); }
 int risc_v_mod     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_mod, rd, rs1, rs2); }
 int risc_v_ret     (                        ) { return risc_v_jalr(risc_v_reg_zero, risc_v_reg_ra, 0); }
+
+#endif // WEAK_COMPILER_BACKEND_RISC_V_ENCODE_H
