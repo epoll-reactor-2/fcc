@@ -77,15 +77,17 @@ static uint16_t emit_phdrs()
 {
     uint16_t phnum = 0;
 
+    /* TODO: Find out what is Section to Segment mapping. Map
+             all needed things. */
     struct elf_phdr phdr = {
         .type   = 0x01,
         .flags  = 7,
-        .off    = 0,
+        .off    = text_off,
         .vaddr  = entry_addr,
         .paddr  = entry_addr,
         .memsz  = text_size,
         .filesz = text_size,
-        .align  = 0x1000
+        .align  = 0x1
     };
     emit_phdr(phnum++, &phdr);
 
