@@ -44,6 +44,8 @@ int run(const char *out_path)
     system(buf);
     snprintf(buf, 511, "riscv64-linux-gnu-objdump -D %s", out_path);
     system(buf);
+    snprintf(buf, 511, "chmod +x %s", out_path);
+    system(buf);
     snprintf(buf, 511, "qemu-riscv64 %s", out_path);
 
     return WEXITSTATUS(system(buf));
