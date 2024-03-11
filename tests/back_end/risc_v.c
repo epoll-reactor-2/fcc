@@ -40,15 +40,20 @@ void do_opt(struct ir_unit *unit)
 int run(const char *out_path)
 {
     char buf[512] = {0};
-    snprintf(buf, 511, "riscv64-linux-gnu-readelf -a %s", out_path);
-    system(buf);
-    snprintf(buf, 511, "riscv64-linux-gnu-objdump -D %s", out_path);
-    system(buf);
-    snprintf(buf, 511, "chmod +x %s", out_path);
-    system(buf);
-    snprintf(buf, 511, "qemu-riscv64 %s", out_path);
+    int code = 0;
 
-    return WEXITSTATUS(system(buf));
+#define __run(fmt, ...) \
+    { snprintf(buf, sizeof (buf) - 1, fmt, ##__VA_ARGS__); \
+      code = system(buf); }
+
+    __run("riscv64-linux-gnu-readelf -a %s", out_path);
+    __run("riscv64-linux-gnu-objdump -D %s", out_path);
+    __run("chmod +x %s", out_path);
+    __run("qemu-riscv64 %s", out_path);
+
+    return WEXITSTATUS(code);
+
+#undef __run_cmd
 }
 
 int gen(struct ir_unit *unit, const char *filename)
