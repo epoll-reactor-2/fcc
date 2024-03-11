@@ -51,7 +51,7 @@ static uint64_t get_sym(const char *sym)
     return off;
 }
 
-static void replace_code(uint64_t at, int code)
+static void replace(uint64_t at, int code)
 {
     uint8_t *slice = (uint8_t *) &code;
     vector_at(codegen_output->instrs, at + 0) = slice[0];
@@ -60,7 +60,7 @@ static void replace_code(uint64_t at, int code)
     vector_at(codegen_output->instrs, at + 3) = slice[3];
 }
 
-static void put_code(int code)
+static void put(int code)
 {
     uint8_t *slice = (uint8_t *) &code;
     vector_push_back(codegen_output->instrs, slice[0]);
@@ -88,7 +88,7 @@ static void emit_imm(struct ir_imm *ir)
     case IMM_BOOL:  break;
     case IMM_CHAR:  break;
     case IMM_FLOAT: break;
-    case IMM_INT:   put_code(risc_v_li(risc_v_accum_reg, ir->imm.__int)); break;
+    case IMM_INT:   put(risc_v_li(risc_v_accum_reg, ir->imm.__int)); break;
     default:
         weak_fatal_error("Unknown immediate type: %d", ir->type);
     }
@@ -105,17 +105,17 @@ static void emit_store(struct ir_store *ir)
 /* TODO: Wrong computation, obviously. */
 static void emit_bin(unused struct ir_bin *ir)
 {
-    risc_v_accum_reg = risc_v_reg_a1;
+    risc_v_accum_reg = risc_v_reg_t0; 
     emit_instr(ir->lhs);
 
-    risc_v_accum_reg = risc_v_reg_a2;
+    risc_v_accum_reg = risc_v_reg_t1;
     emit_instr(ir->rhs);
 
     switch (ir->op) {
-    case TOK_PLUS:  put_code(risc_v_add(risc_v_reg_a1, risc_v_reg_a1, risc_v_reg_a2)); break;
-    case TOK_MINUS: put_code(risc_v_sub(risc_v_reg_a1, risc_v_reg_a1, risc_v_reg_a2)); break;
-    case TOK_STAR:  put_code(risc_v_mul(risc_v_reg_a1, risc_v_reg_a1, risc_v_reg_a2)); break;
-    case TOK_SLASH: put_code(risc_v_div(risc_v_reg_a1, risc_v_reg_a1, risc_v_reg_a2)); break;
+    case TOK_PLUS:  put(risc_v_add(risc_v_reg_t0, risc_v_reg_t0, risc_v_reg_t1)); break;
+    case TOK_MINUS: put(risc_v_sub(risc_v_reg_t0, risc_v_reg_t0, risc_v_reg_t1)); break;
+    case TOK_STAR:  put(risc_v_mul(risc_v_reg_t0, risc_v_reg_t0, risc_v_reg_t1)); break;
+    case TOK_SLASH: put(risc_v_div(risc_v_reg_t0, risc_v_reg_t0, risc_v_reg_t1)); break;
     default:
         weak_fatal_error("Unknown binary operator: %d\n", ir->op);
     }
@@ -133,7 +133,7 @@ static void emit_fn_call(struct ir_fn_call *ir)
     int off = get_sym(ir->name) - get_sym(current_fn);
     /* Take local function offset into account. */
     off -= fn_off;
-    put_code(risc_v_jal(risc_v_reg_sp, off));
+    put(risc_v_jal(risc_v_reg_sp, off));
 }
 
 static void emit_instr(struct ir_node *ir)
@@ -157,17 +157,17 @@ static void emit_instr(struct ir_node *ir)
 
 static void emit_prologue()
 {
-    put_code(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, -16));
-    put_code(risc_v_sd(risc_v_reg_sp, risc_v_reg_sp, 0));
-    put_code(risc_v_sd(risc_v_reg_sp, risc_v_reg_ra, 8));
+    put(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, -16));
+    put(risc_v_sd(risc_v_reg_sp, risc_v_reg_sp, 0));
+    put(risc_v_sd(risc_v_reg_sp, risc_v_reg_ra, 8));
 }
 /* TODO: Follow some convention about return values. Most compilers
          stores return value in `a0` or `a5`. */
 static void emit_epilogue()
 {
-    put_code(risc_v_ld(risc_v_reg_ra, risc_v_reg_sp, 8));
-    put_code(risc_v_ld(risc_v_reg_sp, risc_v_reg_sp, 0));
-    put_code(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, 16));
+    put(risc_v_ld(risc_v_reg_ra, risc_v_reg_sp, 8));
+    put(risc_v_ld(risc_v_reg_sp, risc_v_reg_sp, 0));
+    put(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, 16));
 }
 
 static void emit_fn_args(unused struct ir_fn_decl *fn) {}
@@ -193,7 +193,7 @@ static void emit_fn(unused struct ir_fn_decl *fn)
 
     emit_epilogue();
 
-    put_code(risc_v_ret());
+    put(risc_v_ret());
 }
 
 /**********************************************
@@ -212,11 +212,13 @@ static void emit_entry_fn()
        Will be replaced with
        \
         jal ra, <main_offset> */
-    put_code(0);
+    put(0);
     /* Ensure `a0` first parameter is occupied by some
        computation result */
-    put_code(risc_v_li(risc_v_reg_a7, __NR_exit));
-    put_code(risc_v_ecall());
+    put(risc_v_xor(risc_v_reg_a0, risc_v_reg_a0,risc_v_reg_a0));
+    put(risc_v_add(risc_v_reg_a0, risc_v_reg_a0, risc_v_reg_t0));
+    put(risc_v_li(risc_v_reg_a7, __NR_exit));
+    put(risc_v_ecall());
 }
 
 /**********************************************
@@ -240,7 +242,7 @@ void risc_v_gen(struct codegen_output *output, struct ir_unit *unit)
     /* Replace previosly emitted 0x00 instruction in place
        of `main` call, because only now we know where `main`
        is located. */
-    replace_code(
+    replace(
         _entry_main_call_addr,
         risc_v_jal(risc_v_reg_ra, get_sym("main"))
     );
