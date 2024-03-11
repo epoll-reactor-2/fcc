@@ -159,5 +159,6 @@ int risc_v_mul     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_
 int risc_v_div     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_div, rd, rs1, rs2); }
 int risc_v_mod     (int rd, int rs1, int rs2) { return risc_v_encode_R(risc_v_M_mod, rd, rs1, rs2); }
 int risc_v_ret     (                        ) { return risc_v_jalr(risc_v_reg_zero, risc_v_reg_ra, 0); }
+int risc_v_li      (int rd,          int imm) { return risc_v_addi(rd, risc_v_reg_zero, imm); }
 
 #endif // WEAK_COMPILER_BACKEND_RISC_V_ENCODE_H
