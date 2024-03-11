@@ -32,6 +32,8 @@ static uint64_t  emitted_bytes;
 /* How far we advanced from function begin. */
 static uint64_t  fn_off;
 
+static int risc_v_accum_reg = risc_v_reg_a0;
+
 static void put_sym(const char *sym)
 {
     uint64_t hash = crc32_string(sym);
@@ -79,7 +81,19 @@ static char *current_fn;
 static void emit_instr(struct ir_node *ir);
 static void emit_alloca(unused struct ir_alloca *ir) {}
 static void emit_alloca_array(unused struct ir_alloca_array *ir) {}
-static void emit_imm(unused struct ir_imm *ir) {}
+
+static void emit_imm(struct ir_imm *ir)
+{
+    switch (ir->type) {
+    case IMM_BOOL:  break;
+    case IMM_CHAR:  break;
+    case IMM_FLOAT: break;
+    case IMM_INT:   put_code(risc_v_li(risc_v_accum_reg, ir->imm.__int)); break;
+    default:
+        weak_fatal_error("Unknown immediate type: %d", ir->type);
+    }
+}
+
 static void emit_sym(unused struct ir_sym *ir) {}
 static void emit_store(struct ir_store *ir)
 {
@@ -87,7 +101,26 @@ static void emit_store(struct ir_store *ir)
     emit_instr(ir->idx);
 }
 
-static void emit_bin(unused struct ir_bin *ir) {}
+/* NOTE: Accumulator-based codegen. */
+/* TODO: Wrong computation, obviously. */
+static void emit_bin(unused struct ir_bin *ir)
+{
+    risc_v_accum_reg = risc_v_reg_a1;
+    emit_instr(ir->lhs);
+
+    risc_v_accum_reg = risc_v_reg_a2;
+    emit_instr(ir->rhs);
+
+    switch (ir->op) {
+    case TOK_PLUS:  put_code(risc_v_add(risc_v_reg_a1, risc_v_reg_a1, risc_v_reg_a2)); break;
+    case TOK_MINUS: put_code(risc_v_sub(risc_v_reg_a1, risc_v_reg_a1, risc_v_reg_a2)); break;
+    case TOK_STAR:  put_code(risc_v_mul(risc_v_reg_a1, risc_v_reg_a1, risc_v_reg_a2)); break;
+    case TOK_SLASH: put_code(risc_v_div(risc_v_reg_a1, risc_v_reg_a1, risc_v_reg_a2)); break;
+    default:
+        weak_fatal_error("Unknown binary operator: %d\n", ir->op);
+    }
+}
+
 static void emit_jump(unused struct ir_jump *ir) {}
 static void emit_cond(unused struct ir_cond *ir) {}
 static void emit_ret(unused struct ir_ret *ir) {}
@@ -180,8 +213,8 @@ static void emit_entry_fn()
        \
         jal ra, <main_offset> */
     put_code(0);
-    /* Exit with 123 for now. */
-    put_code(risc_v_li(risc_v_reg_a0, 123));
+    /* Ensure `a0` first parameter is occupied by some
+       computation result */
     put_code(risc_v_li(risc_v_reg_a7, __NR_exit));
     put_code(risc_v_ecall());
 }
