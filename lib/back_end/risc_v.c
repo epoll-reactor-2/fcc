@@ -122,6 +122,21 @@ static void emit_instr(struct ir_node *ir)
     }
 }
 
+static void emit_prologue()
+{
+    put_code(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, -16));
+    put_code(risc_v_sd(risc_v_reg_sp, risc_v_reg_sp, 0));
+    put_code(risc_v_sd(risc_v_reg_sp, risc_v_reg_ra, 8));
+}
+/* TODO: Follow some convention about return values. Most compilers
+         stores return value in `a0` or `a5`. */
+static void emit_epilogue()
+{
+    put_code(risc_v_ld(risc_v_reg_ra, risc_v_reg_sp, 8));
+    put_code(risc_v_ld(risc_v_reg_sp, risc_v_reg_sp, 0));
+    put_code(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, 16));
+}
+
 static void emit_fn_args(unused struct ir_fn_decl *fn) {}
 static void emit_fn_body(struct ir_fn_decl *fn)
 {
@@ -138,8 +153,12 @@ static void emit_fn(unused struct ir_fn_decl *fn)
     fn_off = 0;
     put_sym(fn->name);
 
+    emit_prologue();
+
     emit_fn_args(fn);
     emit_fn_body(fn);
+
+    emit_epilogue();
 
     put_code(risc_v_ret());
 }
