@@ -136,6 +136,7 @@ risc_v_i_opcode(lw)
 risc_v_i_opcode(ld)
 risc_v_i_opcode(lbu)
 risc_v_i_opcode(lhu)
+risc_v_i_opcode(jalr)
 
 risc_v_s_opcode(sb)
 risc_v_s_opcode(sh)
@@ -151,7 +152,6 @@ risc_v_b_opcode(bgeu)
 
 /* Rest. */
 int risc_v_jal     (int rd,          int imm) { return risc_v_encode_J(risc_v_I_jal, rd, imm); }
-int risc_v_jalr    (int rd, int rs1, int imm) { return risc_v_encode_I(risc_v_I_jalr, rd, rs1, imm); }
 int risc_v_lui     (int rd,          int imm) { return risc_v_encode_U(risc_v_I_lui, rd, imm); }
 int risc_v_auipc   (int rd,          int imm) { return risc_v_encode_U(risc_v_I_auipc, rd, imm); }
 int risc_v_ecall   (                        ) { return risc_v_encode_I(risc_v_I_ecall,  risc_v_reg_zero, risc_v_reg_zero, 0); }

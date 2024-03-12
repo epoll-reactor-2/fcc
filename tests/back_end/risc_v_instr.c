@@ -27,10 +27,14 @@ void test(const char *name, int code, int expect)
 
 /* https://luplab.gitlab.io/rvcodecjs/#q=srli+s1,+s1,+1&abi=false&isa=AUTO */
 int main() {
+    test("jalr s1, s1, s2", risc_v_jalr  (risc_v_reg_s1, risc_v_reg_s1, 0), 0x000484e7);
     test("srl  s1, s1, s2", risc_v_srl   (risc_v_reg_s1, risc_v_reg_s1, risc_v_reg_s2), 0x0124d4b3);
     test("add  s1, s1, s2", risc_v_add   (risc_v_reg_s1, risc_v_reg_s1, risc_v_reg_s2), 0x012484b3);
     test("sub  s5, s4, s2", risc_v_sub   (risc_v_reg_s5, risc_v_reg_s4, risc_v_reg_s2), 0x412a0ab3);
     test("or   s4, s6, s2", risc_v_or    (risc_v_reg_s4, risc_v_reg_s6, risc_v_reg_s2), 0x012b6a33);
+    test("mul  s4, s6, s2", risc_v_mul   (risc_v_reg_s4, risc_v_reg_s6, risc_v_reg_s2), 0x032b0a33);
+    test("div  s4, s6, s2", risc_v_div   (risc_v_reg_s4, risc_v_reg_s6, risc_v_reg_s2), 0x032b4a33);
+    test("mod  s4, s6, s2", risc_v_mod   (risc_v_reg_s4, risc_v_reg_s6, risc_v_reg_s2), 0x032b6a33);
     test("xor  s4, s6, s2", risc_v_xor   (risc_v_reg_s4, risc_v_reg_s6, risc_v_reg_s2), 0x012b4a33);
     test("and  s1, s1, s2", risc_v_and   (risc_v_reg_s1, risc_v_reg_s1, risc_v_reg_s2), 0x0124f4b3);
     test("sll  s1, s1, s2", risc_v_sll   (risc_v_reg_s1, risc_v_reg_s1, risc_v_reg_s2), 0x012494b3);
