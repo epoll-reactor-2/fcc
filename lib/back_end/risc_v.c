@@ -155,9 +155,36 @@ static void emit_instr(struct ir_node *ir)
     }
 }
 
+static uint64_t _stack_bytes_used = 0x00;
+
+/* We want to know how much space on stack we will
+   need. `sp`, `ra` registers pushed and all declared
+   variables inside a function body.
+
+   TODO: Function arguments >= 5 or 6 also goes to stack. */
+static void calculate_stack_usage(struct ir_fn_decl *fn)
+{
+    _stack_bytes_used = 0x00;
+    _stack_bytes_used += 8; /* sp */
+    _stack_bytes_used += 8; /* ra */
+
+    struct ir_node *it = fn->body;
+
+    while (it) {
+        if (it->type == IR_ALLOCA) {
+            struct ir_alloca *a = it->ir;
+            _stack_bytes_used += data_type_size[a->dt];
+        }
+
+        /* TODO: IR_ALLOCA_ARRAY */
+
+        it = it->next;
+    }
+}
+
 static void emit_prologue()
 {
-    put(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, -16));
+    put(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, -_stack_bytes_used));
     put(risc_v_sd(risc_v_reg_sp, risc_v_reg_sp, 0));
     put(risc_v_sd(risc_v_reg_sp, risc_v_reg_ra, 8));
 }
@@ -167,7 +194,7 @@ static void emit_epilogue()
 {
     put(risc_v_ld(risc_v_reg_ra, risc_v_reg_sp, 8));
     put(risc_v_ld(risc_v_reg_sp, risc_v_reg_sp, 0));
-    put(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, 16));
+    put(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, _stack_bytes_used));
 }
 
 static void emit_fn_args(unused struct ir_fn_decl *fn) {}
@@ -186,6 +213,7 @@ static void emit_fn(unused struct ir_fn_decl *fn)
     fn_off = 0;
     put_sym(fn->name);
 
+    calculate_stack_usage(fn);
     emit_prologue();
 
     emit_fn_args(fn);
