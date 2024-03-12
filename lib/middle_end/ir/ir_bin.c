@@ -57,19 +57,19 @@
 /**********************************************
  **            Dump functions                **
  **********************************************/
-void write_node(FILE *mem, struct ir_node *ir);
-struct ir_node *read_node(FILE *mem);
+static void write_node(FILE *mem, struct ir_node *ir);
+static struct ir_node *read_node(FILE *mem);
 
 /**********************************************
  **                 Alloca                   **
  **********************************************/
-void write_alloca(FILE *mem, struct ir_node *ir)
+static void write_alloca(FILE *mem, struct ir_node *ir)
 {
     struct ir_alloca *alloca = ir->ir;
     ir_fwrite_ptr(alloca);
 }
 
-void read_alloca(unused FILE *mem, struct ir_node *ir)
+static void read_alloca(unused FILE *mem, struct ir_node *ir)
 {
     struct ir_alloca *alloca = weak_new(struct ir_alloca);
     ir->ir = alloca;
@@ -79,13 +79,13 @@ void read_alloca(unused FILE *mem, struct ir_node *ir)
 /**********************************************
  **               Alloca array               **
  **********************************************/
-void write_alloca_array(FILE *mem, struct ir_node *ir)
+static void write_alloca_array(FILE *mem, struct ir_node *ir)
 {
     struct ir_alloca_array *alloca = ir->ir;
     ir_fwrite_ptr(alloca);
 }
 
-void read_alloca_array(unused FILE *mem, unused struct ir_node *ir)
+static void read_alloca_array(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_alloca_array *alloca = weak_new(struct ir_alloca_array);
     ir->ir = alloca;
@@ -95,13 +95,13 @@ void read_alloca_array(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **               Immediate                  **
  **********************************************/
-void write_imm(FILE *mem, struct ir_node *ir)
+static void write_imm(FILE *mem, struct ir_node *ir)
 {
     struct ir_imm *imm = ir->ir;
     ir_fwrite_ptr(imm);
 }
 
-void read_imm(unused FILE *mem, unused struct ir_node *ir)
+static void read_imm(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_imm *imm = weak_new(struct ir_imm);
     ir->ir = imm;
@@ -112,14 +112,14 @@ void read_imm(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                 String                   **
  **********************************************/
-void write_string(unused FILE *mem, unused struct ir_node *ir)
+static void write_string(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_string *s = ir->ir;
     ir_fwrite(s->len);
     ir_fwrite_bytes(s->imm, s->len);
 }
 
-void read_string(unused FILE *mem, unused struct ir_node *ir)
+static void read_string(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_string *s = weak_new(struct ir_string);
     ir->ir = s;
@@ -132,13 +132,13 @@ void read_string(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                 Symbol                   **
  **********************************************/
-void write_sym(FILE *mem, struct ir_node *ir)
+static void write_sym(FILE *mem, struct ir_node *ir)
 {
     struct ir_sym *sym = ir->ir;
     ir_fwrite_ptr(sym);
 }
 
-void read_sym(unused FILE *mem, unused struct ir_node *ir)
+static void read_sym(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_sym *sym = weak_new(struct ir_sym);
     ir->ir = sym;
@@ -149,14 +149,14 @@ void read_sym(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                 Store                    **
  **********************************************/
-void write_store(FILE *mem, struct ir_node *ir)
+static void write_store(FILE *mem, struct ir_node *ir)
 {
     struct ir_store *store = ir->ir;
     write_node(mem, store->idx);
     write_node(mem, store->body);
 }
 
-void read_store(unused FILE *mem, unused struct ir_node *ir)
+static void read_store(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_store *store = weak_new(struct ir_store);
     ir->ir = store;
@@ -168,7 +168,7 @@ void read_store(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                Binary                    **
  **********************************************/
-void write_bin(FILE *mem, struct ir_node *ir)
+static void write_bin(FILE *mem, struct ir_node *ir)
 {
     struct ir_bin *bin = ir->ir;
     ir_fwrite(bin->op);
@@ -176,7 +176,7 @@ void write_bin(FILE *mem, struct ir_node *ir)
     write_node(mem, bin->rhs);
 }
 
-void read_bin(unused FILE *mem, unused struct ir_node *ir)
+static void read_bin(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_bin *bin = weak_new(struct ir_bin);
     ir->ir = bin;
@@ -189,13 +189,13 @@ void read_bin(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                 Jump                     **
  **********************************************/
-void write_jump(FILE *mem, struct ir_node *ir)
+static void write_jump(FILE *mem, struct ir_node *ir)
 {
     struct ir_jump *jump = ir->ir;
     ir_fwrite(jump->idx);
 }
 
-void read_jump(unused FILE *mem, unused struct ir_node *ir)
+static void read_jump(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_jump *jump = weak_new(struct ir_jump);
     ir->ir = jump;
@@ -206,14 +206,14 @@ void read_jump(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **              Conditional                 **
  **********************************************/
-void write_cond(FILE *mem, struct ir_node *ir)
+static void write_cond(FILE *mem, struct ir_node *ir)
 {
     struct ir_cond *cond = ir->ir;
     write_node(mem, cond->cond);
     ir_fwrite(cond->goto_label);
 }
 
-void read_cond(unused FILE *mem, unused struct ir_node *ir)
+static void read_cond(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_cond *cond = weak_new(struct ir_cond);
     ir->ir = cond;
@@ -225,7 +225,7 @@ void read_cond(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                Return                    **
  **********************************************/
-void write_ret(FILE *mem, struct ir_node *ir)
+static void write_ret(FILE *mem, struct ir_node *ir)
 {
     struct ir_ret *ret = ir->ir;
 
@@ -234,7 +234,7 @@ void write_ret(FILE *mem, struct ir_node *ir)
         write_node(mem, ret->body);
 }
 
-void read_ret(unused FILE *mem, unused struct ir_node *ir)
+static void read_ret(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_ret *ret = weak_new(struct ir_ret);
     ir->ir = ret;
@@ -247,25 +247,25 @@ void read_ret(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                Member                    **
  **********************************************/
-void write_member(unused FILE *mem, unused struct ir_node *ir)
+static void write_member(unused FILE *mem, unused struct ir_node *ir)
 {}
 
-void read_member(unused FILE *mem, unused struct ir_node *ir)
+static void read_member(unused FILE *mem, unused struct ir_node *ir)
 {}
 
 /**********************************************
  **              Type declarator             **
  **********************************************/
-void write_type_decl(unused FILE *mem, unused struct ir_node *ir)
+static void write_type_decl(unused FILE *mem, unused struct ir_node *ir)
 {}
 
-void read_type_decl(unused FILE *mem, unused struct ir_node *ir)
+static void read_type_decl(unused FILE *mem, unused struct ir_node *ir)
 {}
 
 /**********************************************
  **                  Call                    **
  **********************************************/
-void write_fn_call(unused FILE *mem, unused struct ir_node *ir)
+static void write_fn_call(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_fn_call *call = ir->ir;
 
@@ -288,7 +288,7 @@ void write_fn_call(unused FILE *mem, unused struct ir_node *ir)
     }
 }
 
-void read_fn_call(unused FILE *mem, unused struct ir_node *ir)
+static void read_fn_call(unused FILE *mem, unused struct ir_node *ir)
 {
     struct ir_fn_call *call = weak_new(struct ir_fn_call);
     ir->ir = call;
@@ -323,16 +323,16 @@ void read_fn_call(unused FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                  Phi                     **
  **********************************************/
-void write_phi(unused FILE *mem, unused struct ir_node *ir)
+static void write_phi(unused FILE *mem, unused struct ir_node *ir)
 {}
 
-void read_phi(unused FILE *mem, unused struct ir_node *ir)
+static void read_phi(unused FILE *mem, unused struct ir_node *ir)
 {}
 
 /**********************************************
  **      Function declarator (header)        **
  **********************************************/
-void write_fn_decl_header(FILE *mem, struct ir_fn_decl *decl)
+static void write_fn_decl_header(FILE *mem, struct ir_fn_decl *decl)
 {
     uint64_t len = strlen(decl->name);
     ir_fwrite(len);
@@ -341,7 +341,7 @@ void write_fn_decl_header(FILE *mem, struct ir_fn_decl *decl)
     ir_fwrite(decl->ptr_depth);
 }
 
-void read_fn_decl_header(FILE *mem, struct ir_fn_decl *decl)
+static void read_fn_decl_header(FILE *mem, struct ir_fn_decl *decl)
 {
     uint64_t len = 0;
     ir_fread(len);
@@ -354,7 +354,7 @@ void read_fn_decl_header(FILE *mem, struct ir_fn_decl *decl)
 /**********************************************
  **       Function declarator (args)         **
  **********************************************/
-void write_fn_decl_args(FILE *mem, struct ir_fn_decl *decl)
+static void write_fn_decl_args(FILE *mem, struct ir_fn_decl *decl)
 {
     uint64_t num = 0;
     struct ir_node *it = decl->args;
@@ -371,7 +371,7 @@ void write_fn_decl_args(FILE *mem, struct ir_fn_decl *decl)
     }
 }
 
-void read_fn_decl_args(FILE *mem, struct ir_fn_decl *decl)
+static void read_fn_decl_args(FILE *mem, struct ir_fn_decl *decl)
 {
     uint64_t num = 0;
 
@@ -400,7 +400,7 @@ void read_fn_decl_args(FILE *mem, struct ir_fn_decl *decl)
 /**********************************************
  **      Function declarator (body)          **
  **********************************************/
-void write_fn_decl_body(FILE *mem, struct ir_fn_decl *decl)
+static void write_fn_decl_body(FILE *mem, struct ir_fn_decl *decl)
 {
     uint64_t num = 0;
     struct ir_node *it = decl->body;
@@ -417,7 +417,7 @@ void write_fn_decl_body(FILE *mem, struct ir_fn_decl *decl)
     }
 }
 
-void read_fn_decl_body(FILE *mem, struct ir_fn_decl *decl)
+static void read_fn_decl_body(FILE *mem, struct ir_fn_decl *decl)
 {
     uint64_t num = 0;
     ir_vector_t stmts = {0};
@@ -440,7 +440,7 @@ void read_fn_decl_body(FILE *mem, struct ir_fn_decl *decl)
 /**********************************************
  **          Function declarator             **
  **********************************************/
-void write_fn_decl(FILE *mem, struct ir_node *ir)
+static void write_fn_decl(FILE *mem, struct ir_node *ir)
 {
     struct ir_fn_decl *decl = ir->ir;
     write_fn_decl_header(mem, decl);
@@ -448,7 +448,7 @@ void write_fn_decl(FILE *mem, struct ir_node *ir)
     write_fn_decl_body(mem, decl);
 }
 
-void read_fn_decl(FILE *mem, unused struct ir_node *ir)
+static void read_fn_decl(FILE *mem, unused struct ir_node *ir)
 {
     ir->ir = weak_new(struct ir_fn_decl);
     read_fn_decl_header(mem, ir->ir);
@@ -459,7 +459,7 @@ void read_fn_decl(FILE *mem, unused struct ir_node *ir)
 /**********************************************
  **                  Node                    **
  **********************************************/
-void write_node_meta(FILE *mem, struct ir_node *ir)
+static void write_node_meta(FILE *mem, struct ir_node *ir)
 {
     ir_fwrite(ir->type);
     ir_fwrite(ir->instr_idx);
@@ -467,7 +467,7 @@ void write_node_meta(FILE *mem, struct ir_node *ir)
     ir_fwrite(ir->meta);
 }
 
-void read_node_meta(FILE *mem, struct ir_node *ir)
+static void read_node_meta(FILE *mem, struct ir_node *ir)
 {
     ir_fread(ir->type);
     ir_fread(ir->instr_idx);
@@ -475,7 +475,7 @@ void read_node_meta(FILE *mem, struct ir_node *ir)
     ir_fread(ir->meta);
 }
 
-void write_node(FILE *mem, struct ir_node *ir)
+static void write_node(FILE *mem, struct ir_node *ir)
 {
     /* printf("IR write type: %s\n", ir_type_to_string(ir->type)); */
     write_node_meta(mem, ir);
@@ -501,7 +501,7 @@ void write_node(FILE *mem, struct ir_node *ir)
     }
 }
 
-struct ir_node *read_node(FILE *mem)
+static struct ir_node *read_node(FILE *mem)
 {
     struct ir_node *ir = weak_new(struct ir_node);
 
@@ -534,7 +534,7 @@ struct ir_node *read_node(FILE *mem)
 /**********************************************
  **                  Unit                    **
  **********************************************/
-void write_unit(FILE *mem, struct ir_unit *ir)
+static void write_unit(FILE *mem, struct ir_unit *ir)
 {
     struct ir_node *it = ir->fn_decls;
     uint64_t num_fns = 0;
@@ -552,7 +552,7 @@ void write_unit(FILE *mem, struct ir_unit *ir)
     }
 }
 
-struct ir_unit read_unit(FILE *mem)
+static struct ir_unit read_unit(FILE *mem)
 {
     uint64_t num_fns = 0;
     struct ir_unit unit = {
