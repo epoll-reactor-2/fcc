@@ -94,12 +94,16 @@ static uint16_t emit_phdrs()
     return phnum;
 }
 
+/* 1 is because first NULL byte for NULL section. */
+#define SYMTAB_NULL_END          1
+#define SYMTAB_TEXT_SYM_END     (SYMTAB_NULL_END         + sizeof (".text"))
+#define SYMTAB_STRTAB_SYM_END   (SYMTAB_TEXT_SYM_END     + sizeof (".strtab"))
+#define SYMTAB_SHSTRTAB_SYM_END (SYMTAB_STRTAB_SYM_END   + sizeof (".shstrtab"))
+#define SYMTAB_SYMTAB_SYM_END   (SYMTAB_SHSTRTAB_SYM_END + sizeof (".symtab"))
+
 static uint16_t emit_shdrs()
 {
     uint16_t shnum = 0;
-    /* 1 is because first NULL byte for NULL section. */
-    uint32_t strtab_start = 0x01;
-
     /* ELF requires sentinel section of type NULL. */
     struct elf_shdr null_shdr = {
         0
@@ -107,7 +111,7 @@ static uint16_t emit_shdrs()
     emit_shdr(shnum++, &null_shdr);
 
     struct elf_shdr progbits_shdr = {
-        .name_ptr = strtab_start,
+        .name_ptr = SYMTAB_NULL_END,
         .type     = SHT_PROGBITS,
         .addr     = entry_addr,
         .off      = text_off,
@@ -116,10 +120,9 @@ static uint16_t emit_shdrs()
         .link     = 0x00
     };
     emit_shdr(shnum++, &progbits_shdr);
-    strtab_start += strlen(".text") + 1;
 
     struct elf_shdr strtab_shdr = {
-        .name_ptr = strtab_start,
+        .name_ptr = SYMTAB_TEXT_SYM_END,
         .type     = SHT_STRTAB,
         .addr     = strtab_off,
         .off      = strtab_off,
@@ -127,10 +130,9 @@ static uint16_t emit_shdrs()
         .link     = 0x00
     };
     emit_shdr(shnum++, &strtab_shdr);
-    strtab_start += strlen(".strtab") + 1;
 
     struct elf_shdr shstrtab_shdr = {
-        .name_ptr = strtab_start,
+        .name_ptr = SYMTAB_STRTAB_SYM_END,
         .type     = SHT_STRTAB,
         .addr     = shstrtab_off,
         .off      = shstrtab_off,
@@ -138,10 +140,9 @@ static uint16_t emit_shdrs()
         .link     = 0x00
     };
     emit_shdr(shnum++, &shstrtab_shdr);
-    strtab_start += strlen(".shstrtab") + 1;
 
     struct elf_shdr symtab_shdr = {
-        .name_ptr = strtab_start,
+        .name_ptr = SYMTAB_SHSTRTAB_SYM_END,
         .type     = SHT_SYMTAB,
         .addr     = symtab_off,
         .off      = symtab_off,
@@ -164,19 +165,22 @@ unused static char *emit_symtab_entry(
     uint64_t    addr_from,
     const char *name
 ) {
-    uint64_t __strtab_off   = 1 +
-        strlen(".text")     + 1 +
-        strlen(".strtab")   + 1 +
-        strlen(".shstrtab") + 1 +
-        strlen(".symtab")   + 1;
-
     bool sentinel = name == NULL;
 
     if (!sentinel)
         s = emit_symbol(s, name);
 
+    /* SYMTAB_SYMTAB_SYM_END points to the end of section names
+       strings,
+
+       .text
+       .strtab
+       ...
+       .symtab
+       \
+        From there we can put function symbols and rest. */
     struct elf_sym sym = {
-        .name  = sentinel ? 0 : __strtab_off + *str_it,
+        .name  = sentinel ? 0 : SYMTAB_SYMTAB_SYM_END + *str_it,
         /* Probably unused. */
         .size  = sentinel ? 0 : 0x0,
         .value = sentinel ? 0 : addr_from,
