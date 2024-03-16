@@ -24,6 +24,10 @@
    \
     Used in RISC-V generator to make calls. */
 static hashmap_t fn_addr_map;
+/* IR index <=> stack offset mapping.
+   \
+    Used to refer variables on stack. */
+static hashmap_t var_map;
 /* fn_offsets: String pointer value <=> symbol offset mapping.
    \
     Used in ELF generator. */
@@ -32,7 +36,7 @@ static uint64_t  emitted_bytes;
 /* How far we advanced from function begin. */
 static uint64_t  fn_off;
 
-static int risc_v_accum_reg = risc_v_reg_a0;
+static int risc_v_accum_reg = risc_v_reg_t0;
 
 static void put_sym(const char *sym)
 {
@@ -94,11 +98,49 @@ static void emit_imm(struct ir_imm *ir)
     }
 }
 
-static void emit_sym(unused struct ir_sym *ir) {}
+static void emit_sym(unused struct ir_sym *ir)
+{
+    bool ok = 0;
+    uint64_t off = hashmap_get(&var_map, ir->idx, &ok);
+    if (!ok)
+        weak_fatal_error("Failed to get stack offset for %%%lu\n", ir->idx);
+
+    switch (ir->type_info.dt) {
+    case D_T_INT: put(risc_v_lw(risc_v_accum_reg, risc_v_reg_sp, -off)); break;
+    default:
+        break;
+    }
+}
+
+/*  li    t0, 123
+    addi  t1, sp, 25
+    sw    t0, 0(t1) */
 static void emit_store(struct ir_store *ir)
 {
-    emit_instr(ir->body);
-    emit_instr(ir->idx);
+    if (ir->idx->type != IR_SYM)
+        weak_fatal_error("TODO: Implement arrays");
+
+    struct ir_sym *sym = ir->idx->ir;
+    bool ok = 0;
+    uint64_t off = hashmap_get(&var_map, sym->idx, &ok);
+    if (!ok)
+        weak_fatal_error("Failed to get stack offset for %%%lu\n", sym->idx);
+
+    if (ir->body->type == IR_IMM) {
+        struct ir_imm *imm = ir->body->ir;
+        int i = imm->imm.__int;
+        put(risc_v_lui(risc_v_accum_reg, risc_v_hi(i)));
+        put(risc_v_addi(risc_v_accum_reg, risc_v_accum_reg, risc_v_lo(i)));
+    }
+
+    if (ir->body->type == IR_FN_CALL) {
+        emit_instr(ir->body);
+        put(risc_v_sw(risc_v_reg_sp, risc_v_accum_reg, -off));
+    }
+
+    if (ir->body->type == IR_BIN) {
+        emit_instr(ir->body);
+    }
 }
 
 /* NOTE: Accumulator-based codegen. */
@@ -123,7 +165,13 @@ static void emit_bin(unused struct ir_bin *ir)
 
 static void emit_jump(unused struct ir_jump *ir) {}
 static void emit_cond(unused struct ir_cond *ir) {}
-static void emit_ret(unused struct ir_ret *ir) {}
+
+static void emit_ret(struct ir_ret *ir)
+{
+    if (ir->body)
+        emit_instr(ir->body);
+}
+
 static void emit_phi(unused struct ir_phi *ir) {}
 
 static void emit_fn_call(struct ir_fn_call *ir)
@@ -173,6 +221,7 @@ static void calculate_stack_usage(struct ir_fn_decl *fn)
     while (it) {
         if (it->type == IR_ALLOCA) {
             struct ir_alloca *a = it->ir;
+            hashmap_put(&var_map, a->idx, _stack_bytes_used);
             _stack_bytes_used += data_type_size[a->dt];
         }
 
@@ -231,6 +280,8 @@ static uint64_t _entry_main_call_addr = 0x00;
 
 static void emit_entry_fn()
 {
+    hashmap_init(&var_map, 512);
+
     put_sym("_start");
     _entry_main_call_addr = emitted_bytes;
     /* We don't know where `main` is located at this
@@ -274,6 +325,9 @@ void risc_v_gen(struct codegen_output *output, struct ir_unit *unit)
         _entry_main_call_addr,
         risc_v_jal(risc_v_reg_ra, get_sym("main"))
     );
+
+    hashmap_destroy(&fn_addr_map);
+    hashmap_destroy(&var_map);
 }
 
 /*
