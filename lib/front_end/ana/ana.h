@@ -73,4 +73,7 @@ void ana_fn(struct ast_node *root);
     </table> */
 void ana_type(struct ast_node *root);
 
+/** \brief Experiments on dead code detection. */
+void ana_dead(struct ast_node *root);
+
 #endif // WEAK_COMPILER_FRONTEND_ANA_H
