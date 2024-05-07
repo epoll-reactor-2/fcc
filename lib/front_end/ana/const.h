@@ -8,6 +8,7 @@
 #define WEAK_COMPILER_FRONTEND_CONST_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 struct ast_node;
 /* This file should be used by dead_ana.c. This
@@ -23,5 +24,7 @@ void const_end_scope();
 void const_try_store(struct ast_node *ast);
 
 bool is_const_evaluable(struct ast_node *ast);
+
+void const_statistics(FILE *stream);
 
 #endif /* WEAK_COMPILER_FRONTEND_CONST_H */

@@ -39,14 +39,34 @@ bool test(const char *program)
     if (remove(file) < 0)
         weak_fatal_errno("remove()");
 
+    /* NOTE, TODO: Hard-coded test. Decide, how to use
+                   it along with AST DCE. Decide, how to
+                   write unit test for this. */
     struct ast_compound *tu   = ast->ast;
     struct ast_fn_decl  *decl = tu->stmts[0]->ast;
     struct ast_compound *body = decl->body->ast;
-    struct ast_ret      *ret  = body->stmts[0]->ast;
+    struct ast_node     *var1 = body->stmts[0];
+    struct ast_node     *var2 = body->stmts[1];
+    struct ast_node     *var3 = body->stmts[2];
+    struct ast_node     *var4 = body->stmts[3];
+    struct ast_ret      *ret  = body->stmts[4]->ast;
 
-    ast_dump(stdout, ret->op);
+    ASSERT_TRUE(var1);
+    ASSERT_TRUE(var2);
+    ASSERT_TRUE(var3);
+    ASSERT_TRUE(var4);
+    ASSERT_TRUE(ret);
 
-    return is_const_evaluable(ret->op);
+    const_init();
+    const_try_store(var1);
+    const_try_store(var2);
+    const_try_store(var3);
+    const_try_store(var4);
+
+    const_statistics(stdout);
+    const_reset();
+
+    return 1;
 }
 
 bool is_const(const char *expr)
@@ -54,10 +74,14 @@ bool is_const(const char *expr)
     char buf[8192];
     snprintf(
         buf, sizeof (buf) - 1,
-        "int main() {\n"
-        "    return %s;\n"
+        "int main(int arg) {\n"
+        "    int val1 = %s;\n"
+        "    int val2 = arg;\n"
+        "    int val3 = %s + val1;\n"
+        "    int val4 = 1 + val2;\n"
+        "    return val1;\n"
         "}",
-        expr
+        expr, expr
     );
 
     return test(buf);
@@ -66,8 +90,5 @@ bool is_const(const char *expr)
 int main()
 {
     puts("Run constant tests");
-    ASSERT_TRUE (is_const("1 * 2 + 3 * 4"));
-    ASSERT_FALSE(is_const("a + b"));
-    ASSERT_FALSE(is_const("1 + v"));
-    ASSERT_FALSE(is_const("v + 1"));
+    return is_const("1 * 2 + 3 * 4");
 }

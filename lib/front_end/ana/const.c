@@ -9,7 +9,6 @@
 #include "front_end/ast/ast.h"
 #include "util/unreachable.h"
 
-/* TODO: Const symbols mapping. */
 static struct ast_storage storage;
 
 void const_init()
@@ -39,10 +38,8 @@ void const_try_store(struct ast_node *ast)
 
     struct ast_var_decl *var = ast->ast;
 
-    if (is_const_evaluable(var->body)) {
-        /* Add. */
+    if (is_const_evaluable(var->body))
         ast_storage_push(&storage, var->name, ast);
-    }
 }
 
 static bool numeric(enum ast_type t)
@@ -63,10 +60,6 @@ static bool is_const_evaluable_bin(struct ast_binary *bin)
     if (numeric(bin->lhs->type) &&
         numeric(bin->rhs->type))
         return 1;
-
-    if ((bin->lhs->type != AST_BINARY && !numeric(bin->lhs->type)) ||
-        (bin->rhs->type != AST_BINARY && !numeric(bin->rhs->type)))
-        return 0;
 
     return is_const_evaluable(bin->lhs) &&
            is_const_evaluable(bin->rhs);    
@@ -92,5 +85,14 @@ bool is_const_evaluable(struct ast_node *ast)
         return is_const_evaluable_sym(ast->ast);
     default:
         weak_unreachable("Unknown AST type (%d, %s).", t, ast_type_to_string(t));
+    }
+}
+
+void const_statistics(FILE *stream)
+{
+    hashmap_foreach(&storage.scopes, k, v) {
+        struct ast_storage_decl *decl = (struct ast_storage_decl *) v;
+
+        fprintf(stream, "const: `%s`\n", decl->name);
     }
 }
