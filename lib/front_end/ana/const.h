@@ -10,15 +10,17 @@
 #include <stdbool.h>
 
 struct ast_node;
-struct ast_var_decl;
 /* This file should be used by dead_ana.c. This
    encapsulates checks for AST node constant property. */
 void const_init();
 /* Clear the mapping for current translation unit. */
 void const_reset();
+void const_start_scope();
+void const_end_scope();
+
 /* Try to evaluate declaration body and add to const
    mapping. */
-void const_try_store(struct ast_var_decl *decl);
+void const_try_store(struct ast_node *ast);
 
 bool is_const_evaluable(struct ast_node *ast);
 

@@ -5,21 +5,44 @@
  */
 
 #include "front_end/ana/const.h"
+#include "front_end/ana/ast_storage.h"
 #include "front_end/ast/ast.h"
 #include "util/unreachable.h"
 
 /* TODO: Const symbols mapping. */
+static struct ast_storage storage;
 
 void const_init()
-{}
+{
+    ast_storage_init(&storage);
+}
 
 void const_reset()
-{}
-
-void const_try_store(struct ast_var_decl *decl)
 {
-    if (is_const_evaluable(decl->body))
-        /* Add. */{}
+    ast_storage_init(&storage);
+}
+
+void const_start_scope()
+{
+    ast_storage_start_scope(&storage);
+}
+
+void const_end_scope()
+{
+    ast_storage_end_scope(&storage);
+}
+
+void const_try_store(struct ast_node *ast)
+{
+    if (ast->type != AST_VAR_DECL)
+        return;
+
+    struct ast_var_decl *var = ast->ast;
+
+    if (is_const_evaluable(var->body)) {
+        /* Add. */
+        ast_storage_push(&storage, var->name, ast);
+    }
 }
 
 static bool numeric(enum ast_type t)
@@ -49,6 +72,11 @@ static bool is_const_evaluable_bin(struct ast_binary *bin)
            is_const_evaluable(bin->rhs);    
 }
 
+static bool is_const_evaluable_sym(struct ast_sym *sym)
+{
+    return ast_storage_lookup(&storage, sym->value);
+}
+
 bool is_const_evaluable(struct ast_node *ast)
 {
     enum ast_type t = ast->type;
@@ -61,8 +89,7 @@ bool is_const_evaluable(struct ast_node *ast)
     case AST_BINARY:
         return is_const_evaluable_bin(ast->ast);
     case AST_SYMBOL:
-        /* TODO: Map symbols to its const property. */
-        return 0;
+        return is_const_evaluable_sym(ast->ast);
     default:
         weak_unreachable("Unknown AST type (%d, %s).", t, ast_type_to_string(t));
     }

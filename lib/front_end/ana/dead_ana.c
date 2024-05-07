@@ -8,17 +8,21 @@
 
 #include "front_end/ana/ana.h"
 #include "front_end/ast/ast.h"
-#include "front_end/ana/ast_storage.h"
+#include "front_end/ana/const.h"
 #include "front_end/ast/ast_dump.h"
 #include "util/diagnostic.h"
 #include "util/unreachable.h"
 #include <assert.h>
 
 static void init()
-{}
+{
+    const_init();
+}
 
 static void reset()
-{}
+{
+    const_reset();
+}
 
 /**********************************************
  **           Tree traversal                 **
@@ -28,8 +32,10 @@ static void visit(struct ast_node *ast);
 
 static void visit_compound(struct ast_compound *stmt)
 {
+    const_start_scope();
     for (uint64_t i = 0; i < stmt->size; ++i)
         visit(stmt->stmts[i]);
+    const_end_scope();
 }
 
 static void visit_fn_decl(struct ast_fn_decl *decl)
@@ -38,6 +44,11 @@ static void visit_fn_decl(struct ast_fn_decl *decl)
     for (uint64_t i = 0; i < args->size; ++i)
         visit(args->stmts[i]);
     visit(decl->body);
+}
+
+static void visit_var_decl(struct ast_node *ast)
+{
+    const_try_store(ast);
 }
 
 /**********************************************
@@ -139,7 +150,6 @@ void visit(struct ast_node *ast)
     case AST_STRUCT_DECL: /* Unused. */
     case AST_BREAK_STMT: /* Unused. */
     case AST_CONTINUE_STMT: /* Unused. */
-    case AST_VAR_DECL: /* Unused. */
     case AST_SYMBOL: /* Unused. */
     case AST_ARRAY_DECL: /* Unused. */
     case AST_BINARY: /* Unused. */
@@ -147,6 +157,9 @@ void visit(struct ast_node *ast)
     case AST_POSTFIX_UNARY: /* Unused. */
     case AST_ARRAY_ACCESS: /* Unused. */
     case AST_MEMBER: /* Unused. */
+        break;
+    case AST_VAR_DECL:
+        visit_var_decl(ast);
         break;
     case AST_COMPOUND_STMT:
         visit_compound(ast->ast);
