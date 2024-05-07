@@ -7,6 +7,8 @@
 #ifndef WEAK_COMPILER_FRONTEND_ANA_H
 #define WEAK_COMPILER_FRONTEND_ANA_H
 
+#include <stdbool.h>
+
 struct ast_node;
 
 /** \brief Variable usage analyzer.

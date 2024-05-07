@@ -273,7 +273,7 @@ struct ir_unit gen_ir(const char *filename)
     sema_type(&ast);
     ana_fn(ast);
     ana_type(ast);
-
+    
     struct ir_unit unit = ir_gen(ast);
     ast_node_cleanup(ast);
     return unit;

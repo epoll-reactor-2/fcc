@@ -76,60 +76,6 @@ static void const_eval_int(struct ast_node *ast)
     }
 }
 
-static bool numeric(enum ast_type t)
-{
-    switch (t) {
-    case AST_BOOL:
-    case AST_CHAR:
-    case AST_INT:
-    case AST_FLOAT:
-        return 1;
-    default:
-        return 0;
-    }
-}
-
-static bool const_evaluable_bin(struct ast_binary *bin)
-{
-    if (numeric(bin->lhs->type) &&
-        numeric(bin->rhs->type))
-        return 1;
-
-    if (!numeric(bin->lhs->type) ||
-        !numeric(bin->rhs->type))
-        return 0;
-
-    return const_evaluable_bin(bin->lhs->ast) &&
-           const_evaluable_bin(bin->rhs->ast);    
-}
-
-static int const_eval_bin_int(struct ast_binary *bin)
-{
-    struct ast_int *__l_int = bin->lhs->ast;
-    int             __l_val = __l_int->value;
-
-    if (bin->rhs->type == AST_INT) {
-        struct ast_int *__r_int = bin->rhs->ast;
-        int             __r_val = __r_int->value;
-
-        switch (bin->op) {
-        case TOK_PLUS:  return __l_val + __r_val;
-        case TOK_MINUS: return __l_val - __r_val;
-        case TOK_STAR:  return __l_val * __r_val;
-        default:
-            break;
-        }
-    }
-
-    switch (bin->op) {
-    case TOK_PLUS:  return __l_val + const_eval_bin_int(bin->rhs->ast);
-    case TOK_MINUS: return __l_val - const_eval_bin_int(bin->rhs->ast);
-    case TOK_STAR:  return __l_val * const_eval_bin_int(bin->rhs->ast);
-    default:
-        weak_unreachable("Unknown op `%s`.", tok_to_string(bin->op));
-    }
-}
-
 static void const_eval_bin(struct ast_node *ast)
 {
     struct ast_binary *bin = ast->ast;
@@ -137,18 +83,12 @@ static void const_eval_bin(struct ast_node *ast)
     if (bin->lhs->type != bin->rhs->type)
         return;
 
-    if (!const_evaluable_bin(bin)) {
-        printf("%d:%d not const\n", ast->line_no, ast->col_no);
-        return;
-    } else {
-        printf("%d:%d is const\n", ast->line_no, ast->col_no);        
-    }
+    /* if (!is_const_evaluable_bin(bin))
+        return; */
 
     enum ast_type t = bin->lhs->type;
     switch (t) {
     case AST_INT:
-        int result = const_eval_bin_int(bin);
-        printf("Evaluate %d\n", result);
         break;
     case AST_FLOAT:
         /* TODO: float. */

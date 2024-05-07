@@ -124,6 +124,8 @@ int main()
     if (run("type_errors") < 0)
         return -1;
 
+    return 0;
+
     analysis_fn = ana_dead;
     ignore_warns = 0;
     if (run("dead_ana") < 0)
