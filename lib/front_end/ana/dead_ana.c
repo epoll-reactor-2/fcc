@@ -94,9 +94,6 @@ static void const_eval_bin(struct ast_node *ast)
     if (bin->lhs->type != bin->rhs->type)
         return;
 
-    /* if (!is_const_evaluable_bin(bin))
-        return; */
-
     enum ast_type t = bin->lhs->type;
     switch (t) {
     case AST_INT:
@@ -112,6 +109,11 @@ static void const_eval_bin(struct ast_node *ast)
 static void const_eval(struct ast_node *ast)
 {
     enum ast_type t = ast->type;
+
+    if (!is_const_evaluable(ast))
+        return;
+
+    printf("Statement on %d:%d is const-evaluable.\n", ast->line_no, ast->col_no);
 
     switch (t) {
     case AST_INT:

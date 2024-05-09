@@ -1,5 +1,5 @@
 //a
-int main() {
+int main(int param) {
 	while (1) {
 		
 	}
@@ -26,9 +26,9 @@ int main() {
 	while (i + i) {
 		
 	}
-	while (i + 1) {
+	while (i + param) {
 		
 	}
-	
+
 	return 0;
 }

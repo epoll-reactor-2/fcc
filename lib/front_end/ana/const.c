@@ -38,6 +38,10 @@ void const_try_store(struct ast_node *ast)
 
     struct ast_var_decl *var = ast->ast;
 
+    if (!var->body)
+        /* Parameter without body. */
+        return;
+
     if (is_const_evaluable(var->body))
         ast_storage_push(&storage, var->name, ast);
 }
