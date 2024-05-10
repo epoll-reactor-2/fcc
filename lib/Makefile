@@ -1,7 +1,7 @@
 ##################################
 # Source files                   #
 ##################################
-SRC = $(shell find front_end middle_end util -name '*.c') ../build/lex.yy.c
+SRC = $(shell find front_end middle_end util -name '*.c')
 LIB = libweak_compiler.so
 
 ifeq ($(USE_BACKEND_EVAL), 1)
@@ -44,6 +44,10 @@ else  # !DEBUG_BUILD
 CFLAGS     += -march=native -mtune=generic -O3 -D NDEBUG
 endif # !DEBUG_BUILD
 
+ifeq ($(COV),1)
+COV_CFLAGS  += -fprofile-arcs -ftest-coverage --coverage -fPIC
+endif # cov
+
 ##################################
 # Library targets                #
 ##################################
@@ -51,10 +55,14 @@ all: $(LIB)
 
 $(info CC is $(CC))
 
-%.o: %.c
+../build/lex.yy.o: ../build/lex.yy.c
 	@echo [CC] $(@F)
 	@$(CC) -c $(CFLAGS) $^ -o ../build/$(@F)
 
-$(LIB): $(OBJ)
+%.o: %.c
+	@echo [CC] $(@F)
+	@$(CC) -c $(CFLAGS) $(COV_CFLAGS) $^ -o ../build/$(@F)
+
+$(LIB): $(OBJ) ../build/lex.yy.o
 	@echo [LD] $@
-	@$(LD) $(addprefix ../build/,$(^F)) -shared -o ../build/$(LIB) -L../build $(LDFLAGS)
+	@$(CC) $(addprefix ../build/,$(^F)) $(COV_CFLAGS) -shared -o ../build/$(LIB) -L../build $(LDFLAGS)

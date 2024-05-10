@@ -5,5 +5,6 @@ PVS-*
 .vscode/
 
 **/*.swp
-
+coverage_output
+out
 TODO

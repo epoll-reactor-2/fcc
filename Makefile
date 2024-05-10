@@ -96,3 +96,14 @@ static_analysis:
 	--suppressions-list=<(echo -e '${CPPCHECK_SUPPRESSIONS}') \
 	--language=c --std=c11 lib \
 	-Ilib
+
+# Usage:
+# $ make COV=1
+# $ make cov
+.PHONY: cov
+cov:
+	lcov --zerocounters --directory $$PWD
+	lcov --capture --initial --directory $$PWD --output-file coverage_output
+	make test
+	lcov --no-checksum --directory $$PWD --capture --output-file coverage_output
+	genhtml --branch-coverage --highlight --legend --output-directory build/coverage coverage_output
