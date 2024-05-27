@@ -7,30 +7,29 @@
 
 	\subsection{Wyrażenia regularne}
 
-		Wyrażenie regularne -- łańcuch znaków, zawierający pewne polecenia do wyszukiwania tekstu.
-		\\
-
-		Mówimy, że wyrażenie regularne określone nad alfabetem $\Sigma$, jeżeli zachodzą następujące
-		warunki:
-
+		Wyrażeniem regularnym nad alfabetem $\sum$ nazywamy ciąg znaków
+		$\emptyset, \epsilon, +, *, ), ($ wraz z alfabetem $\sum$. Symbole $a_i$ z alfabetu $\sum$ mają
+		postać:
+		
 		\begin{itemize}
-			\item $\emptyset$ -- wyrażenie regularne, reprezentujące pusty zbiór.
-			\item $\epsilon$ -- wyrażenie regularne, reprezentujące pusty łańcuch.
-			\item $\forall_{a \in \Sigma}$, $a$ reprezentuje jeden znak.
-			\item Warunek indukcyjny: jeżeli $R_1, R_2$ -- wyrażenia regularne, $(R_1 R_2)$
-			      stanowi konkatenację $R_1$ i $R_2$.
-	      	\item Warunek indukcyjny: jeżeli $R$ -- wyrażenie regularne, $R*$ stanowi domknięcie Kleene'ego. 
+		    \item $\emptyset, \epsilon$ są wyrażeniami regularnymi.
+		    \item Wszystkie $a_i \in \sum$ są wyrażeniami regularnymi.
+		    \item Jeśli $a_1$, $a_2$ są wyrażeniami regularnymi, to są nimi również
+		    \begin{itemize}
+		        \item $a_1^*$ -- domknięcie Kleene'go.
+		        \item $a_1a_2$ -- konkatenacja.
+		        \item $a_1 + a_2$ -- suma.
+		        \item $(a_1)$ -- grupowanie.
+		    \end{itemize}
 		\end{itemize}
-
-		\spacing
-
-		W rzeczywistości, takich zasad może być więcej.
-		\\
-
-		Zazwyczaj wyrażenie regularne jest realizowane za pomocą DFA (Deterministic finite automaton,
-		Deterministyczny automat skończony).
-		Lex sprowadza podany zbiór zasad do takiego automatu.
-		\\
+		
+		Każde wyrażenie regularne definiuje się przez automat skończony deterministyczny. \\
+		Każde wyrażenie regularne \textbf{akceptuje} pewnien język formalny. Pod akcętpacją
+		mamy na uwadze sekwencję przejść pomiędzy stanami automatu skończonego, która prowadzi
+		do stanu końcowego. \\
+		
+		Zauważmy, że w praktyce stosuje się nieco innych, poszerzonych wyrażen regularnych. Ich notacja różni się
+		od notacji matematycznej. Dalej omówione są wyrażenia regularne, zgodne z POSIX. \\
 
 		Podamy przykład automatu dla wyrażenia \texttt{-?[0-9]+}
 		
