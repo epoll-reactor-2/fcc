@@ -107,3 +107,7 @@ cov:
 	make test
 	lcov --no-checksum --directory $$PWD --capture --output-file coverage_output
 	genhtml --branch-coverage --highlight --legend --output-directory build/coverage coverage_output
+
+.PHONY: cyclomatic_complexity
+cyclomatic_complexity:
+	pmccabe -v -c `find lib -name '*.c'` | sort -k1,1n --numeric-sort
