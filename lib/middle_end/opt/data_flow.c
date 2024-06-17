@@ -1,4 +1,4 @@
-/* data_flow.c - Data flow elimination.
+/* data_flow.c - Data flow analysis.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -7,13 +7,13 @@
 #include "middle_end/opt/opt.h"
 #include "middle_end/ir/ir.h"
 
-really_inline static void mark_visited(bool *visited, struct ir_node *ir)
+static void mark_visited(bool *visited, struct ir_node *ir)
 {
     visited[ir->instr_idx] = 1;
 }
 
 /* dd -- Data dependency. */
-really_inline static void traverse_dd_chain(bool *visited, struct ir_node *it)
+static void traverse_dd_chain(bool *visited, struct ir_node *it)
 {
     ir_vector_t *ddgs = &it->ddg_stmts;
     vector_foreach(*ddgs, i) {
@@ -25,11 +25,12 @@ really_inline static void traverse_dd_chain(bool *visited, struct ir_node *it)
 
 /* Walk over loop and mark statements above and below
    in bounds of loop (up to most outer) as needed. */
-really_inline static void extend_loop(bool *visited, struct ir_node *ir)
+static void extend_loop(bool *visited, struct ir_node *ir)
 {
     struct ir_node *it = ir;
     uint64_t loop_idx = ir->meta.global_loop_idx;
 
+    /* Traverse loop upwards. */
     while (it &&
            it->cfg.preds.count > 0 &&
            it->meta.global_loop_idx == loop_idx &&
@@ -42,6 +43,7 @@ really_inline static void extend_loop(bool *visited, struct ir_node *ir)
 
     it = ir;
 
+    /* Traverse loop downwards. */
     while (it &&
            it->next &&
            it->meta.global_loop_idx == loop_idx &&
