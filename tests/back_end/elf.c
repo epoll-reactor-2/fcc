@@ -7,9 +7,12 @@
 #include "back_end/elf.h"
 #include "back_end/risc_v.h"
 #include "util/unreachable.h"
+#include "utils/test_utils.h"
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+
+char current_output_dir[128];
 
 int risc_v_xor   (int rd, int rs1, int rs2);
 
@@ -18,6 +21,11 @@ void *diag_warn_memstream = NULL;
 
 int main()
 {
+    cfg_dir("elf", current_output_dir);
+    char elf_path[256] = {0};
+    char cmd[512] = {0};
+    snprintf(elf_path, sizeof (elf_path) - 1, "%s/__elf.o", current_output_dir);
+
     /*
     0x1141    addi    sp,sp,-16
     0xe422    sd      s0,8(sp)
@@ -67,13 +75,16 @@ int main()
 
     struct elf_entry elf = {
         .arch     = ARCH_RISC_V,
-        .filename = "__elf.o",
+        .filename = elf_path,
         .output   = output
     };
 
     elf_init(&elf);
     elf_exit();
 
-    system("riscv64-linux-gnu-readelf -a __elf.o");
-    system("riscv64-linux-gnu-objdump -D __elf.o");
+    snprintf(cmd, sizeof (cmd) - 1, "riscv64-linux-gnu-readelf -a %s", elf_path);
+    system(cmd);
+
+    snprintf(cmd, sizeof (cmd) - 1, "riscv64-linux-gnu-objdump -D %s", elf_path);
+    system(cmd);
 }
