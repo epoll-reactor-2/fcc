@@ -95,6 +95,8 @@ bool is_const_evaluable(struct ast_node *ast)
 void const_statistics(FILE *stream)
 {
     hashmap_foreach(&storage.scopes, k, v) {
+        (void) k;
+
         struct ast_storage_decl *decl = (struct ast_storage_decl *) v;
 
         fprintf(stream, "const: `%s`\n", decl->name);

@@ -102,19 +102,23 @@ static void add_use(struct ast_node *ast, bool is_write)
         ? ast_storage_add_write_use
         : ast_storage_add_read_use;
 
-    if (ast->type == AST_FUNCTION_CALL) {
+    switch (ast->type) {
+    case AST_FUNCTION_CALL: {
         struct ast_fn_call *stmt = ast->ast;
         usage_add_fun(&storage, stmt->name);
+        break;
     }
-    if (ast->type == AST_SYMBOL) {
+    case AST_SYMBOL: {
         struct ast_sym *sym = ast->ast;
         usage_add_fun(&storage, sym->value);
+        break;
     }
-    if (ast->type == AST_ARRAY_ACCESS) {
+    case AST_ARRAY_ACCESS: {
         struct ast_array_access *access = ast->ast;
         usage_add_fun(&storage, access->name);
+        break;
     }
-    if (ast->type == AST_MEMBER) {
+    case AST_MEMBER: {
         struct ast_member *member = ast->ast;
         if (member->structure->type == AST_SYMBOL) {
             struct ast_sym *sym = member->structure->ast;
@@ -122,6 +126,9 @@ static void add_use(struct ast_node *ast, bool is_write)
         }
         /* Otherwise it can be unary statement like
            *(var).member. */
+    }
+    default:
+        break;
     }
 }
 
