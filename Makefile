@@ -3,7 +3,7 @@
 ##################################
 
 # This is to use Bash-specific things like process substitution <().
-SHELL                = /bin/bash
+SHELL                = /bin/zsh
 NR_CPUS              = $(shell nproc 2> /dev/null)
 override MAKEFLAGS  += -j $(NR_CPUS)
 
@@ -100,16 +100,19 @@ static_analysis:
 	--language=c --std=c11 lib \
 	-Ilib
 
+COVERAGE_FILE = build/coverage.info
+COVERAGE_DIR = build/coverage
+
 # Usage:
 # $ make COV=1
 # $ make cov
 .PHONY: cov
 cov:
 	lcov --zerocounters --directory $$PWD
-	lcov --capture --initial --directory $$PWD --output-file coverage_output
+	lcov --capture --initial --directory $$PWD --output-file $(COVERAGE_FILE)
 	make test
-	lcov --no-checksum --directory $$PWD --capture --output-file coverage_output
-	genhtml --branch-coverage --highlight --legend --output-directory build/coverage coverage_output
+	lcov --no-checksum --directory $$PWD --capture --output-file $(COVERAGE_FILE)
+	genhtml --branch-coverage --highlight --legend --output-directory $(COVERAGE_DIR) $(COVERAGE_FILE)
 
 .PHONY: cyclomatic_complexity
 cyclomatic_complexity:
