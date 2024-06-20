@@ -1,6 +1,9 @@
 ##################################
 # Common variables               #
 ##################################
+
+# This is to use Bash-specific things like process substitution <().
+SHELL                = /bin/bash
 NR_CPUS              = $(shell nproc 2> /dev/null)
 override MAKEFLAGS  += -j $(NR_CPUS)
 
