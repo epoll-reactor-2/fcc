@@ -3,7 +3,7 @@
 ##################################
 CFLAGS  += -Wall -Werror -Wextra -Wunused
 CFLAGS  += -I../tests -I../lib -Werror
-LDFLAGS += -L../build -lweak_compiler -lfl
+LDFLAGS += -L../build/lib -lweak_compiler -lfl
 
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS     += -O0 -ggdb
@@ -58,19 +58,19 @@ src: $(OBJ)
 
 $(OBJ): $(SRC)
 	@echo [CC] $(@F)
-	@$(CC) $(CFLAGS) $(@:.o=.c) -o ../build/$(notdir $(@:.o=))_test $(LDFLAGS)
+	@$(CC) $(CFLAGS) $(@:.o=.c) -o ../build/bin/$(notdir $(@:.o=))_test $(LDFLAGS)
 
 $(FUZZER_OBJ): $(FUZZER_SRC)
 	@echo [CC] $(@F)
-	@$(CC) $(CFLAGS) $^ -o ../build/fuzzer $(LDFLAGS)
+	@$(CC) $(CFLAGS) $^ -o ../build/bin/fuzzer $(LDFLAGS)
 
 ##################################
 # Phony targets                  #
 ##################################
 .PHONY: test
 test:
-	@for file in $(shell find ../build -executable -name '*_test' -printf "./%f\n"); do \
-		 (cd ../build; LD_LIBRARY_PATH=. $$file && \
+	@for file in $(shell find ../build/bin -executable -name '*_test' -printf "./%f\n"); do \
+		 (cd ../build; LD_LIBRARY_PATH=./lib ./bin/$$file && \
 		 ([ $$? -eq 0 ] && echo "OK") || \
 		 ([ $$? -ne 0 ] && echo "Test failed. Interrupt the rest."; kill -KILL $$$$);) \
 	 done
@@ -78,12 +78,21 @@ test:
 .PHONY: valgrind
 valgrind:
 	@mkdir -p ../build/valgrind
-	@for file in $(shell find ../build -executable -name '*_test' -printf "./%f\n"); do \
+	for file in $(shell find ../build/bin -executable -name '*_test' -printf "%f\n"); do \
 		 log="$$file.valgrind.log.txt"; \
 		 ( \
 		 	cd ../build; \
-		 	LD_LIBRARY_PATH=. valgrind --leak-check=full --tool=memcheck --log-fd=1 $$file > valgrind/$$log; \
+		 	export LD_LIBRARY_PATH=./lib; \
+		 	valgrind --leak-check=full --tool=memcheck --log-fd=1 bin/$$file > valgrind/$$log; \
 		 	([ $$? -eq 0 ] && echo $$file " OK") || \
 		 	([ $$? -ne 0 ] && cat $$log; kill -KILL $$$$); \
  		); \
 	 done
+
+.PHONY: fuzz
+fuzz:
+	( \
+		cd ../build; \
+		export LD_LIBRARY_PATH=./lib; \
+		while :; do ./bin/fuzzer; done \
+	)

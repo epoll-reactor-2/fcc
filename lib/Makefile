@@ -55,14 +55,14 @@ all: $(LIB)
 
 $(info CC is $(CC))
 
-../build/lex.yy.o: ../build/lex.yy.c
+../build/obj/lex.yy.o: ../build/src/lex.yy.c
 	@echo [CC] $(@F)
-	@$(CC) -c $(CFLAGS) $^ -o ../build/$(@F)
+	@$(CC) -c $(CFLAGS) $^ -o ../build/obj/$(@F)
 
 %.o: %.c
 	@echo [CC] $(@F)
-	@$(CC) -c $(CFLAGS) $(COV_CFLAGS) $^ -o ../build/$(@F)
+	@$(CC) -c $(CFLAGS) $(COV_CFLAGS) $^ -o ../build/obj/$(@F)
 
-$(LIB): $(OBJ) ../build/lex.yy.o
+$(LIB): $(OBJ) ../build/obj/lex.yy.o
 	@echo [LD] $@
-	@$(CC) $(addprefix ../build/,$(^F)) $(COV_CFLAGS) -shared -o ../build/$(LIB) -L../build $(LDFLAGS)
+	@$(CC) $(addprefix ../build/obj/,$(^F)) $(COV_CFLAGS) -shared -o ../build/lib/$(LIB) -L../build $(LDFLAGS)
