@@ -18,7 +18,7 @@ static inline uint64_t hash(uint64_t key, uint64_t capacity)
 
 void hashmap_init(hashmap_t *map, uint64_t size)
 {
-    map->buckets = (hashmap_bucket_t *) weak_calloc(sizeof (hashmap_bucket_t), size);
+    map->buckets = (hashmap_bucket_t *) weak_calloc(size, sizeof (hashmap_bucket_t));
     map->capacity = size;
     map->size = 0;
 }
@@ -44,7 +44,7 @@ static void hashmap_resize(hashmap_t *map)
     hashmap_bucket_t *old_buckets = map->buckets;
 
     map->capacity *= 2;
-    map->buckets = (hashmap_bucket_t *) weak_calloc(sizeof (hashmap_bucket_t), map->capacity);
+    map->buckets = (hashmap_bucket_t *) weak_calloc(map->capacity, sizeof (hashmap_bucket_t));
 
     for (uint64_t i = 0; i < map->capacity; i++) {
         map->buckets[i].key = 0;
