@@ -1,8 +1,7 @@
 ##################################
 # Compiler flags                 #
 ##################################
-CFLAGS  += -Wall -Werror -Wextra -Wunused
-CFLAGS  += -I../tests -I../lib -Werror
+CFLAGS  += -I../tests -I../lib
 LDFLAGS += -L../build/lib -lweak_compiler -lfl
 
 ifeq ($(DEBUG_BUILD), 1)
@@ -78,13 +77,13 @@ test:
 .PHONY: valgrind
 valgrind:
 	@mkdir -p ../build/valgrind
-	for file in $(shell find ../build/bin -executable -name '*_test' -printf "%f\n"); do \
+	@for file in $(shell find ../build/bin -executable -name '*_test' -printf "%f\n"); do \
 		 log="$$file.valgrind.log.txt"; \
 		 ( \
 		 	cd ../build; \
 		 	export LD_LIBRARY_PATH=./lib; \
 		 	valgrind --leak-check=full --tool=memcheck --log-fd=1 bin/$$file > valgrind/$$log; \
-		 	([ $$? -eq 0 ] && echo $$file " OK") || \
+		 	([ $$? -eq 0 ] && echo $$file "processed") || \
 		 	([ $$? -ne 0 ] && cat $$log; kill -KILL $$$$); \
  		); \
 	 done

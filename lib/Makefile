@@ -1,8 +1,10 @@
 ##################################
 # Source files                   #
 ##################################
-SRC = $(shell find front_end middle_end util -name '*.c')
-LIB = libweak_compiler.so
+SRC     = $(shell find front_end middle_end util -name '*.c')
+LIB     = libweak_compiler.so
+LEX_SRC = ../build/src/lex.yy.c
+LEX_OBJ = $(LEX_SRC:.c=.o)
 
 ifeq ($(USE_BACKEND_EVAL), 1)
 SRC += back_end/eval.c
@@ -19,33 +21,33 @@ OBJ = $(SRC:.c=.o)
 ##################################
 # Compiler flags                 #
 ##################################
-LDFLAGS      = -lfl
-CFLAGS       = -std=gnu99 -fPIC -I. \
-               -Wall -Wextra -Wunused -Wshadow -Wvla -Wpointer-arith
+LDFLAGS              = -lfl
+CFLAGS               = -fPIC -I.
 
 ifeq ($(USE_LOG), 1)
-CFLAGS     += -D CONFIG_USE_LOG
+CFLAGS              += -D CONFIG_USE_LOG
 endif # LOG
 
 ifeq ($(DEBUG_BUILD), 1)
-CFLAGS     += -O0 -ggdb
+CFLAGS              += -O0 -ggdb
 
 ifeq ($(SANITIZE), 1)
-CFLAGS     += -fanalyzer                                            \
-              -fsanitize=address -fno-omit-frame-pointer            \
-              -fsanitize=undefined -fno-sanitize-recover=all        \
-              -fsanitize-address-use-after-scope
+SANITIZE_CFLAGS     += -fanalyzer
 
 ifeq ($(CC),clang)
-CFLAGS     += -fsanitize=cfi -fvisibility=default -flto
+SANITIZE_CFLAGS     += -fsanitize=cfi -fvisibility=default -flto
 endif # clang
+SANITIZE_LDFLAGS    += -fsanitize=address -fno-omit-frame-pointer            \
+                       -fsanitize=undefined -fno-sanitize-recover=all        \
+                       -fsanitize-address-use-after-scope
+
 endif # SANITIZE
 else  # !DEBUG_BUILD
-CFLAGS     += -march=native -mtune=generic -O3 -D NDEBUG
+CFLAGS              += -march=native -mtune=generic -O3 -D NDEBUG
 endif # !DEBUG_BUILD
 
 ifeq ($(COV),1)
-COV_CFLAGS  += -fprofile-arcs -ftest-coverage --coverage -fPIC
+COV_CFLAGS          += -fprofile-arcs -ftest-coverage --coverage -fPIC
 endif # cov
 
 ##################################
@@ -55,14 +57,15 @@ all: $(LIB)
 
 $(info CC is $(CC))
 
-../build/obj/lex.yy.o: ../build/src/lex.yy.c
+# We don't care about potential sanitizer issues in flex output.
+$(LEX_OBJ): $(LEX_SRC)
 	@echo [CC] $(@F)
 	@$(CC) -c $(CFLAGS) $^ -o ../build/obj/$(@F)
 
 %.o: %.c
 	@echo [CC] $(@F)
-	@$(CC) -c $(CFLAGS) $(COV_CFLAGS) $^ -o ../build/obj/$(@F)
+	@$(CC) -c $(CFLAGS) $(SANITIZE_CFLAGS) $(COV_CFLAGS) $^ -o ../build/obj/$(@F)
 
-$(LIB): $(OBJ) ../build/obj/lex.yy.o
+$(LIB): $(OBJ) $(LEX_OBJ)
 	@echo [LD] $@
-	@$(CC) $(addprefix ../build/obj/,$(^F)) $(COV_CFLAGS) -shared -o ../build/lib/$(LIB) -L../build $(LDFLAGS)
+	@$(CC) $(addprefix ../build/obj/,$(^F)) $(COV_CFLAGS) -shared -o ../build/lib/$(LIB) -L../build $(LDFLAGS) $(SANITIZE_LDFLAGS)

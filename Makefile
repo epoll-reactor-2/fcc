@@ -108,7 +108,7 @@ static_analysis:
 	-Ilib
 
 COVERAGE_FILE = build/coverage.info
-COVERAGE_DIR = build/coverage
+COVERAGE_DIR  = build/coverage
 
 # Usage:
 # $ make COV=1
