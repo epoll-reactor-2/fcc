@@ -13,10 +13,12 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
+char current_output_dir[128];
+
 int dump(const char *path, unused const char *filename)
 {
     char out_path[256] = {0};
-    snprintf(out_path, 255, "binary_dumps/%sir", filename);
+    snprintf(out_path, 255, "%s/%sir", current_output_dir, filename);
 
     struct ir_unit ir = gen_ir(path);
     ir_write_binary(&ir, out_path);
@@ -32,7 +34,7 @@ int dump(const char *path, unused const char *filename)
 
 void configure()
 {
-    create_dir("binary_dumps");
+    cfg_dir("binary_dumps", current_output_dir);
 }
 
 int run()
