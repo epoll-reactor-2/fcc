@@ -5,7 +5,7 @@
  */
 
 #include "front_end/ast/ast.h"
-#include "front_end/ana/fn_storage.h"
+#include "front_end/anal/fn_storage.h"
 #include "front_end/sema/sema.h"
 #include "util/unreachable.h"
 #include "builtins.h"
@@ -195,7 +195,7 @@ static void visit_fn_call(struct ast_node *ast)
     if (args->size != fn->args_cnt)
         weak_fatal_error(
             "Mismatch between args count of stored function and "
-            "call to it. Please run ana/fn_ana.c."
+            "call to it. Please run anal/fn_anal.c."
         );
 
     for (uint64_t i = 0; i < fn->args_cnt; ++i) {

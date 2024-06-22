@@ -6,7 +6,7 @@
 
 #undef NDEBUG
 #include "front_end/lex/lex.h"
-#include "front_end/ana/ana.h"
+#include "front_end/anal/anal.h"
 #include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
 #include "front_end/sema/sema.h"
@@ -170,7 +170,7 @@ int do_on_each_file(
 
     it = opendir(cwd);
     if (!it)
-        weak_unreachable("Cannot open current dir: %s", strerror(errno));
+        weak_unreachable("Cannot open `%s`: %s", cwd, strerror(errno));
 
     while ((d = readdir(it))) {
         switch (d->d_type) {

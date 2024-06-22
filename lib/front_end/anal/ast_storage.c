@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/ana/ast_storage.h"
+#include "front_end/anal/ast_storage.h"
 #include "util/alloc.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"

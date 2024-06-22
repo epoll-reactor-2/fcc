@@ -1,10 +1,10 @@
-/* ana.c - Test cases for all analyzers.
+/* anal.c - Test cases for all analyzers.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/ana/ana.h"
+#include "front_end/anal/anal.h"
 #include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
 #include "front_end/lex/lex.h"
@@ -106,17 +106,17 @@ int main()
 
     analysis_fn = ana_fn;
     ignore_warns = 1;
-    if (run("fn_ana") < 0)
+    if (run("fn_anal") < 0)
         return -1;
 
     analysis_fn = ana_var_usage;
     ignore_warns = 1;
-    if (run("var_ana/errors") < 0)
+    if (run("var_anal/errors") < 0)
         return -1;
 
     analysis_fn = ana_var_usage;
     ignore_warns = 0;
-    if (run("var_ana/warns") < 0)
+    if (run("var_anal/warns") < 0)
         return -1;
 
     analysis_fn = ana_type;
@@ -128,7 +128,7 @@ int main()
 
     analysis_fn = ana_dead;
     ignore_warns = 0;
-    if (run("dead_ana") < 0)
+    if (run("dead_anal") < 0)
         return -1;
 
     return 0;

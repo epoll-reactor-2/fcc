@@ -1,4 +1,4 @@
-/* dead_ana.c - Experiments on dead code detection.
+/* dead_anal.c - Experiments on dead code detection.
  * Copyright (C) 2024 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
@@ -6,9 +6,9 @@
 
 /* TODO: Design algorithm, evaluate all expressions. */
 
-#include "front_end/ana/ana.h"
+#include "front_end/anal/anal.h"
 #include "front_end/ast/ast.h"
-#include "front_end/ana/const.h"
+#include "front_end/anal/const.h"
 #include "front_end/ast/ast_dump.h"
 #include "util/diagnostic.h"
 #include "util/unreachable.h"

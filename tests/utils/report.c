@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/ana/ana.h"
+#include "front_end/anal/anal.h"
 #include "front_end/ast/ast.h"
 #include "front_end/lex/lex.h"
 #include "front_end/parse/parse.h"
@@ -76,7 +76,7 @@ void configure()
     weak_diag_set_config(&config);
 
     create_dir("dumps");
-    create_dir("dumps/var_ana");
+    create_dir("dumps/var_anal");
 }
 
 int main()
@@ -86,19 +86,19 @@ int main()
     analysis_fn = ana_fn;
     create_warn_dump = 0;
     create_err_dump = 1;
-    if (run("fn_ana") < 0)
+    if (run("fn_anal") < 0)
         return -1;
 
     create_warn_dump = 0;
     create_err_dump = 1;
     analysis_fn = ana_var_usage;
-    if (run("var_ana/errors") < 0)
+    if (run("var_anal/errors") < 0)
         return -1;
 
     create_warn_dump = 1;
     create_err_dump = 0;
     analysis_fn = ana_var_usage;
-    if (run("var_ana/warns") < 0)
+    if (run("var_anal/warns") < 0)
         return -1;
 
     create_warn_dump = 0;

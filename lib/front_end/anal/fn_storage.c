@@ -4,7 +4,7 @@
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/ana/fn_storage.h"
+#include "front_end/anal/fn_storage.h"
 #include "front_end/ast/ast.h"
 #include "util/alloc.h"
 #include "util/crc32.h"

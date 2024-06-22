@@ -1,5 +1,5 @@
 #include "back_end/eval.h"
-#include "front_end/ana/ana.h"
+#include "front_end/anal/anal.h"
 #include "front_end/ast/ast.h"
 #include "front_end/ast/ast_dump.h"
 #include "front_end/lex/lex.h"

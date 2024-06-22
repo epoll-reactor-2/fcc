@@ -1,11 +1,11 @@
-/* ana.h - All analyzers based on AST traversal.
+/* anal.h - All analyzers based on AST traversal.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#ifndef WEAK_COMPILER_FRONTEND_ANA_H
-#define WEAK_COMPILER_FRONTEND_ANA_H
+#ifndef WEAK_COMPILER_FRONTEND_ANAL_H
+#define WEAK_COMPILER_FRONTEND_ANAL_H
 
 #include <stdbool.h>
 
@@ -78,4 +78,4 @@ void ana_type(struct ast_node *root);
 /** \brief Experiments on dead code detection. */
 void ana_dead(struct ast_node *root);
 
-#endif // WEAK_COMPILER_FRONTEND_ANA_H
+#endif // WEAK_COMPILER_FRONTEND_ANAL_H

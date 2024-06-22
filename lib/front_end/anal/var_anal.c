@@ -1,11 +1,11 @@
-/* var_ana.c - Variable issues detector.
+/* var_anal.c - Variable issues detector.
  * Copyright (C) 2023 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
-#include "front_end/ana/ana.h"
-#include "front_end/ana/ast_storage.h"
+#include "front_end/anal/anal.h"
+#include "front_end/anal/ast_storage.h"
 #include "front_end/ast/ast.h"
 #include "util/diagnostic.h"
 #include "util/unreachable.h"
