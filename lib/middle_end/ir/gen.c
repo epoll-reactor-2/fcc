@@ -703,9 +703,7 @@ static void visit_array_decl(struct ast_array_decl *ast)
 
     assert(enclosure->size <= 16 && "Maximum array depth limited to 16.");
 
-    uint64_t *lvls = alloca(enclosure->size * sizeof (uint64_t));
-    if (!lvls)
-        fcc_unreachable("Something funny happened.");
+    uint64_t lvls[enclosure->size * sizeof (uint64_t)];
 
     for (uint64_t i = 0; i < enclosure->size; ++i) {
         struct ast_int *num = enclosure->stmts[i]->ast;

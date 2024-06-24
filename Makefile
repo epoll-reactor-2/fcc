@@ -96,16 +96,22 @@ valgrind:
 fuzz:
 	@make -C tests fuzz
 
-CPPCHECK_SUPPRESSIONS = incorrectStringBooleanError\nallocaCalled
+CPPCHECK_GENERIC_OPTIONS := -f -j$(NR_CPUS) --inline-suppr --std=c99 -q -Ilib
+CPPCHECK_SUPPRESS_OPTIONS :=  \
+	--suppress=missingIncludeSystem \
+	--suppress=constParameterPointer --suppress=constVariablePointer --suppress=constParameterCallback \
+	--suppress=constVariable --suppress=variableScope --suppress=knownConditionTrueFalse \
+	--suppress=unusedStructMember --suppress=uselessAssignmentArg --suppress=unreadVariable --suppress=syntaxError \
+	--suppress=normalCheckLevelMaxBranches
 
-# Check out:
-# https://github.com/danmar/cppcheck/blob/main/addons/
-.PHONY: static_analysis
-static_analysis:
-	cppcheck -f -j$(NR_CPUS) --enable=warning,performance,portability \
-	--suppressions-list=<(echo -e '${CPPCHECK_SUPPRESSIONS}') \
-	--language=c --std=c11 lib \
-	-Ilib
+.PHONY: cppcheck
+cppcheck:
+	$(info $(RED) Running Cppcheck analysis$(RESET))
+ifeq ($(CPPCHECK_ALL),1)
+	@cppcheck $(CPPCHECK_GENERIC_OPTIONS) $(CPPCHECK_SUPPRESS_OPTIONS) --enable=all --inconclusive lib
+else
+	@cppcheck $(CPPCHECK_GENERIC_OPTIONS) $(CPPCHECK_SUPPRESS_OPTIONS) --enable=warning,performance,portability lib
+endif
 
 COVERAGE_FILE = build/coverage.info
 COVERAGE_DIR  = build/coverage
