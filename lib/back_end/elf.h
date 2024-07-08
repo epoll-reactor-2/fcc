@@ -167,6 +167,14 @@ struct packed elf_sym {
 
 typedef vector_t(uint8_t) instr_vector_t;
 
+/* TODO: Make some comfortable API to initialize all
+         needed sections:
+         .text
+         .symtab
+         .rodata
+         .init_array
+         .fini_array
+         ... */
 struct codegen_output {
     hashmap_t         fn_offsets;
     instr_vector_t    instrs;
