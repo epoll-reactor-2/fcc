@@ -57,6 +57,14 @@ struct ir_cfg {
     ir_vector_t     preds;
 };
 
+enum {
+    /** Special value used to indicate that `claimed_reg`
+        is not suitable for given IR node.
+
+        TODO: Specify where is used. */
+    IR_NO_CLAIMED_REG = 0xFFFF
+};
+
 /** This IR node designed to be able to represent
     Control Flow Graph (CFG). Each concrete IR node has
     pointer to the next statement in execution flow,
@@ -105,6 +113,8 @@ struct ir_node {
         If type is IR_META_UNKNOWN, there is no metadata for given
         node. */
     struct meta         meta;
+    /** Used by register allocator. */
+    int                 claimed_reg;
 };
 
 /** All information contained about processed file.
