@@ -14,8 +14,8 @@
  **********************************************/
 
  #define REG_ALLOC_MAX_VARS 512
- #define REG_ALLOC_MAX_REGS   7   /**< TODO: Hardware-specific.
-                                             Pass as input parameter. */
+ #define REG_ALLOC_MAX_REGS   7 /**< TODO: Hardware-specific.
+                                           Pass as input parameter. */
 
 struct interference_graph {
     int graph[REG_ALLOC_MAX_VARS][REG_ALLOC_MAX_VARS];
@@ -96,15 +96,15 @@ static void reg_alloc(struct interference_graph *g, struct reg_allocator *alloca
  **        Allocator initialization          **
  **********************************************/
 
-static void reg_alloc_store_op_idx(struct ir_node *ir, int *arg1, int *arg2)
+static void reg_alloc_store_op_idx(struct ir_node *ir, int *lhs, int *rhs)
 {
-    *arg1 = -1;
-    *arg2 = -1;
+    *lhs = -1;
+    *rhs = -1;
 
     switch (ir->type) {
     case IR_SYM: {
         struct ir_sym *sym = ir->ir;
-        *arg1 = sym->idx;
+        *lhs = sym->idx;
         break;
     }
     case IR_BIN: {
@@ -112,18 +112,54 @@ static void reg_alloc_store_op_idx(struct ir_node *ir, int *arg1, int *arg2)
 
         if (bin->lhs->type == IR_SYM) {
             struct ir_sym *sym = bin->lhs->ir;
-            *arg1 = sym->idx;
+            *lhs = sym->idx;
         }
 
         if (bin->rhs->type == IR_SYM) {
             struct ir_sym *sym = bin->rhs->ir;
-            *arg2 = sym->idx;
+            *rhs = sym->idx;
         }
 
         break;
     }
     default:
         break;
+    }
+}
+
+static void reg_alloc_live_range_store(struct live_range_info *info, struct ir_node *ir)
+{
+    struct ir_store *store = ir->ir;
+    assert(store->idx->type == IR_SYM);
+
+    struct ir_sym *sym = store->idx->ir;
+    int            res = sym->idx;
+    int            i   = ir->instr_idx; /* Usage place in code. */
+    int            lhs = 0;
+    int            rhs = 0;
+
+    reg_alloc_store_op_idx(store->body, &lhs, &rhs);
+
+    /* Result. */
+    if (info->ranges[res].start == -1) {
+        info->ranges[res].start = i;
+    }
+    info->ranges[res].end = i;
+
+    /* Left argument. */
+    if (lhs != -1) {
+        if (info->ranges[lhs].start == -1) {
+            info->ranges[lhs].start = i;
+        }
+        info->ranges[lhs].end = i;
+    }
+
+    /* Right argument. */
+    if (rhs != -1) {
+        if (info->ranges[rhs].start == -1) {
+            info->ranges[rhs].start = i;
+        }
+        info->ranges[rhs].end = i;
     }
 }
 
@@ -136,44 +172,9 @@ static void reg_alloc_live_ranges(struct live_range_info *info, struct ir_node *
 
     while (ir) {
         switch (ir->type) {
-        case IR_STORE: {
-            struct ir_store *store = ir->ir;
-            assert(store->idx->type == IR_SYM);
-
-            struct ir_sym *sym = store->idx->ir;
-            int res = sym->idx;
-            /* NOTE: Maybe not this. */
-            int i = ir->instr_idx;
-
-            /* Result. */
-            if (info->ranges[res].start == -1) {
-                info->ranges[res].start = i;
-            }
-            info->ranges[res].end = i;
-
-            int arg1 = 0;
-            int arg2 = 0;
-
-            reg_alloc_store_op_idx(store->body, &arg1, &arg2);
-
-            /* Left argument. */
-            if (arg1 != -1) {
-                if (info->ranges[arg1].start == -1) {
-                    info->ranges[arg1].start = i;
-                }
-                info->ranges[arg1].end = i;
-            }
-
-            /* Right argument. */
-            if (arg2 != -1) {
-                if (info->ranges[arg2].start == -1) {
-                    info->ranges[arg2].start = i;
-                }
-                info->ranges[arg2].end = i;
-            }
-
+        case IR_STORE:
+            reg_alloc_live_range_store(info, ir);
             break;
-        }
         default:
             break;
         }
@@ -188,7 +189,7 @@ static void reg_alloc_live_ranges(struct live_range_info *info, struct ir_node *
  **       Register -> IR assignment          **
  **********************************************/
 
-static void reg_alloc_assign_node(struct ir_node *ir, struct reg_allocator *allocator)
+static void reg_alloc_assign_claimed_reg(struct ir_node *ir, struct reg_allocator *allocator)
 {
     switch (ir->type) {
     case IR_SYM: {
@@ -205,20 +206,20 @@ static void reg_alloc_assign_node(struct ir_node *ir, struct reg_allocator *allo
     }
     case IR_STORE: {
         struct ir_store *store = ir->ir;
-        reg_alloc_assign_node(store->idx, allocator);
-        reg_alloc_assign_node(store->body, allocator);
+        reg_alloc_assign_claimed_reg(store->idx, allocator);
+        reg_alloc_assign_claimed_reg(store->body, allocator);
         break;
     }
     case IR_BIN: {
         struct ir_bin *bin = ir->ir;
-        reg_alloc_assign_node(bin->lhs, allocator);
-        reg_alloc_assign_node(bin->rhs, allocator);
+        reg_alloc_assign_claimed_reg(bin->lhs, allocator);
+        reg_alloc_assign_claimed_reg(bin->rhs, allocator);
         break;
     }
     case IR_RET: {
         struct ir_ret *ret = ir->ir;
         if (ret->body)
-            reg_alloc_assign_node(ret->body, allocator);
+            reg_alloc_assign_claimed_reg(ret->body, allocator);
         break;
     }
     default:
@@ -226,10 +227,10 @@ static void reg_alloc_assign_node(struct ir_node *ir, struct reg_allocator *allo
     }
 }
 
-static void reg_alloc_assign_regs(struct ir_node *it, struct reg_allocator *allocator)
+static void reg_alloc_assign_claimed_regs(struct ir_node *it, struct reg_allocator *allocator)
 {
     while (it) {
-        reg_alloc_assign_node(it, allocator);
+        reg_alloc_assign_claimed_reg(it, allocator);
         it = it->next;
     }
 }
@@ -248,7 +249,7 @@ static void reg_alloc_fn(struct ir_fn_decl *ir)
     reg_alloc_live_ranges(&live_range_info, ir->body);
     reg_alloc_build_graph(&graph, &live_range_info);
     reg_alloc(&graph, &allocator);
-    reg_alloc_assign_regs(ir->body, &allocator);
+    reg_alloc_assign_claimed_regs(ir->body, &allocator);
 }
 
 void ir_reg_alloc(struct ir_node *functions)
