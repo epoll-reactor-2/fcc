@@ -48,15 +48,20 @@ static void fprintf_n(FILE *stream, uint32_t count, char c)
  **                Visitors                  **
  **********************************************/
 
-static void ir_dump_alloca(FILE *mem, struct ir_alloca *ir)
+static void ir_dump_alloca(FILE *mem, struct ir_node *ir)
 {
+    struct ir_alloca *alloca = ir->ir;
+
     fprintf(
-        mem,
-        "%s %st%lu",
-        data_type_to_string(ir->dt),
-        ir->ptr_depth ? "* " : "",
-        ir->idx
+        mem, "%s %s",
+        data_type_to_string(alloca->dt),
+        alloca->ptr_depth ? "* " : ""
     );
+
+    if (ir->claimed_reg != IR_NO_CLAIMED_REG)
+        fprintf(mem, "#reg%d", ir->claimed_reg);
+    else
+        fprintf(mem, "t%lu", alloca->idx);
 }
 
 static void ir_dump_alloca_array(FILE *mem, struct ir_alloca_array *ir)
@@ -91,18 +96,23 @@ static void ir_dump_string(FILE *mem, struct ir_string *ir)
     fprintf(mem, "\"%s\"", ir->imm);
 }
 
-static void ir_dump_sym(FILE *mem, struct ir_sym *ir)
+static void ir_dump_sym(FILE *mem, struct ir_node *ir)
 {
-    if (ir->deref)
+    struct ir_sym *sym = ir->ir;
+
+    if (sym->deref)
         fprintf(mem, "*");
 
-    if (ir->addr_of)
+    if (sym->addr_of)
         fprintf(mem, "&");
 
-    fprintf(mem, "t%lu", ir->idx);
+    if (ir->claimed_reg != IR_NO_CLAIMED_REG)
+        fprintf(mem, "#reg%d", ir->claimed_reg);
+    else
+        fprintf(mem, "t%lu", sym->idx);
 
-    if (ir->ssa_idx != UINT64_MAX)
-        fprintf(mem, ".%lu", ir->ssa_idx);
+    if (sym->ssa_idx != UINT64_MAX)
+        fprintf(mem, ".%lu", sym->ssa_idx);
 }
 
 static void ir_dump_store(FILE *mem, struct ir_store *ir)
@@ -175,7 +185,7 @@ static void ir_dump_fn_decl(FILE *mem, struct ir_fn_decl *ir)
     fprintf(mem, "fun %s(", ir->name);
     struct ir_node *it = ir->args;
     while (it) {
-        ir_dump_alloca(mem, it->ir);
+        ir_dump_alloca(mem, it);
         if (it->next != NULL)
             fprintf(mem, ", ");
         it = it->next;
@@ -224,11 +234,11 @@ unused static void type_dump(struct type *t)
 void ir_dump_node(FILE *mem, struct ir_node *ir)
 {
     switch (ir->type) {
-    case IR_ALLOCA:       ir_dump_alloca(mem, ir->ir); break;
+    case IR_ALLOCA:       ir_dump_alloca(mem, ir); break;
     case IR_ALLOCA_ARRAY: ir_dump_alloca_array(mem, ir->ir); break;
     case IR_IMM:          ir_dump_imm(mem, ir->ir); break;
     case IR_STRING:       ir_dump_string(mem, ir->ir); break;
-    case IR_SYM:          ir_dump_sym(mem, ir->ir); break;
+    case IR_SYM:          ir_dump_sym(mem, ir); break;
     case IR_STORE:        ir_dump_store(mem, ir->ir); break;
     case IR_BIN:          ir_dump_bin(mem, ir->ir); break;
     case IR_JUMP:         ir_dump_jump(mem, ir->ir); break;
@@ -249,21 +259,6 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
        if (ir->meta.kind & IR_META_TYPE) {
         type_dump(&ir->meta.type);
     } */
-}
-
-void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
-{
-    if (ir->df.count == 0)
-        return;
-
-    fprintf(mem, "DF = {");
-    vector_foreach(ir->df, i) {
-        struct ir_node *df = vector_at(ir->df, i);
-        fprintf(mem, "%lu", df->instr_idx);
-        if (i < ir->df.count - 1)
-            fprintf(mem, ", ");
-    }
-    fprintf(mem, "}\n");
 }
 
 void ir_dump(FILE *mem, struct ir_fn_decl *decl)
@@ -498,6 +493,25 @@ void ir_dump_cfg(FILE *mem, struct ir_fn_decl *decl)
     /* Wierd specific of algorithm above forces
        us to paste extra `}`, but this makes code much
        simpler. */
+    fprintf(mem, "}\n");
+}
+
+/**********************************************
+ **           Dominance frontier             **
+ **********************************************/
+
+void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir)
+{
+    if (ir->df.count == 0)
+        return;
+
+    fprintf(mem, "DF = {");
+    vector_foreach(ir->df, i) {
+        struct ir_node *df = vector_at(ir->df, i);
+        fprintf(mem, "%lu", df->instr_idx);
+        if (i < ir->df.count - 1)
+            fprintf(mem, ", ");
+    }
     fprintf(mem, "}\n");
 }
 

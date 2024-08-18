@@ -187,17 +187,48 @@ static void reg_alloc_live_ranges(struct live_range_info *info, struct ir_node *
  **       Register -> IR assignment          **
  **********************************************/
 
+static void reg_alloc_assign_node(struct ir_node *ir, struct reg_allocator *allocator)
+{
+    switch (ir->type) {
+    case IR_SYM: {
+        struct ir_sym *sym = ir->ir;
+            if (!allocator->spill[sym->idx])
+                ir->claimed_reg = allocator->color[sym->idx];
+        break;
+    }
+    case IR_ALLOCA: {
+        struct ir_alloca *alloca = ir->ir;
+            if (!allocator->spill[alloca->idx])
+                ir->claimed_reg = allocator->color[alloca->idx];
+        break;
+    }
+    case IR_STORE: {
+        struct ir_store *store = ir->ir;
+        reg_alloc_assign_node(store->idx, allocator);
+        reg_alloc_assign_node(store->body, allocator);
+        break;
+    }
+    case IR_BIN: {
+        struct ir_bin *bin = ir->ir;
+        reg_alloc_assign_node(bin->lhs, allocator);
+        reg_alloc_assign_node(bin->rhs, allocator);
+        break;
+    }
+    case IR_RET: {
+        struct ir_ret *ret = ir->ir;
+        if (ret->body)
+            reg_alloc_assign_node(ret->body, allocator);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 static void reg_alloc_assign_regs(struct ir_node *it, struct reg_allocator *allocator)
 {
     while (it) {
-        if (it->type == IR_STORE) {
-            struct ir_store *store = it->ir;
-            struct ir_sym   *sym   = store->idx->ir;
-
-            if (!allocator->spill[sym->idx])
-                it->claimed_reg = allocator->color[sym->idx];
-        }
-
+        reg_alloc_assign_node(it, allocator);
         it = it->next;
     }
 }

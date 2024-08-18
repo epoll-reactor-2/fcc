@@ -465,6 +465,7 @@ static void write_node_meta(FILE *mem, struct ir_node *ir)
     ir_fwrite(ir->instr_idx);
     ir_fwrite(ir->cfg_block_no);
     ir_fwrite(ir->meta);
+    ir_fwrite(ir->claimed_reg);
 }
 
 static void read_node_meta(FILE *mem, struct ir_node *ir)
@@ -473,6 +474,7 @@ static void read_node_meta(FILE *mem, struct ir_node *ir)
     ir_fread(ir->instr_idx);
     ir_fread(ir->cfg_block_no);
     ir_fread(ir->meta);
+    ir_fread(ir->claimed_reg);
 }
 
 static void write_node(FILE *mem, struct ir_node *ir)

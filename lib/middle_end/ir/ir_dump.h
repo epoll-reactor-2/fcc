@@ -29,7 +29,14 @@ void ir_dump_dom_tree(FILE *mem, struct ir_fn_decl *decl);
 
 /** Print IR node to given stream.
    
-    \param ir      Pointer to IR the statement. */
+    \param ir      Pointer to IR the statement.
+
+    \note          Please note that IR is printed with
+                   respect to `claimed_reg` field. If it
+                   is set to `IR_NO_CLAIMED_REG`, then
+                   usual variable names `t0` are printed.
+                   Otherwise '#reg0' is printed and represents
+                   mapping to physical register. */
 void ir_dump_node(FILE *mem, struct ir_node *ir);
 
 /** Print dominance frontier for given node. */
@@ -41,10 +48,10 @@ void ir_dump_dominance_frontier(FILE *mem, struct ir_node *ir);
    
     \param ir      Pointer to the function IR.
    
-    \note  In purpose of optimization and getting rid of
-           dynamic allocation, limit of dumped function is
-           set to 8192. Anyway, after that value generated
-           graph image will be completely messy. */
+    \note          In purpose of optimization and getting rid of
+                   dynamic allocation, limit of dumped function is
+                   set to 8192. Anyway, after that value generated
+                   graph image will be completely messy. */
 void ir_dump_graph_dot(FILE *mem, struct ir_fn_decl *decl);
 
 void ir_dump_cfg(FILE *mem, struct ir_fn_decl *decl);
