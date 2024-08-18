@@ -110,9 +110,18 @@ static void cut(bool *visited, struct ir_node *ir)
     }
 }
 
-void ir_opt_data_flow(struct ir_fn_decl *ir)
+static void ir_opt_data_flow_fn_decl(struct ir_fn_decl *ir)
 {
     bool visited[8192] = {0};
     traverse(visited, ir->body);
     cut(visited, ir->body);
+}
+
+void ir_opt_data_flow(struct ir_unit *ir)
+{
+    struct ir_node *it = ir->fn_decls;
+    while (it) {
+        ir_opt_data_flow_fn_decl(it->ir);
+        it = it->next;
+    }
 }

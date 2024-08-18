@@ -89,7 +89,7 @@ static void cut(bool *visited, uint64_t siz, struct ir_node *ir)
 }
 
 /* Traverse CFG and remove all unvisited nodes. */
-void ir_opt_unreachable_code(struct ir_fn_decl *decl)
+void ir_opt_unreachable_code_fn_decl(struct ir_fn_decl *decl)
 {
     bool visited[8192] = {0};
     /* How many nodes potentially were visited. */
@@ -97,4 +97,13 @@ void ir_opt_unreachable_code(struct ir_fn_decl *decl)
 
     traverse(visited, &max_id, decl->body);
     cut(visited, max_id, decl->body);
+}
+
+void ir_opt_unreachable_code(struct ir_unit *ir)
+{
+    struct ir_node *it = ir->fn_decls;
+    while (it) {
+        ir_opt_unreachable_code_fn_decl(it->ir);
+        it = it->next;
+    }
 }

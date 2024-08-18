@@ -8,13 +8,14 @@
 #define WEAK_COMPILER_MIDDLE_END_OPT_H
 
 struct ir_fn_decl;
+struct ir_unit;
 
 /** Invariant code motion.
    
     This is based on dominator tree analysis (probably).
    
     \pre Computed dominator tree. */
-void ir_opt_motion(struct ir_fn_decl *ir);
+void ir_opt_motion(struct ir_unit *ir);
 
 /** Constant and expressions folding.
    
@@ -22,7 +23,7 @@ void ir_opt_motion(struct ir_fn_decl *ir);
           fold optimization much easier to understand
           and will separate folding from unused instructions
           analysis. */
-void ir_opt_fold(struct ir_fn_decl *ir);
+void ir_opt_fold(struct ir_unit *ir);
 
 /** Arithmetic optimizations.
    
@@ -68,13 +69,13 @@ void ir_opt_fold(struct ir_fn_decl *ir);
            - A * B = B * A
            - A & B = B & A
            - A | B = B | A */
-void ir_opt_arith(struct ir_fn_decl *ir);
+void ir_opt_arith(struct ir_unit *ir);
 
 #if 0
-void ir_opt_dead_code_elimination(struct ir_func_decl *ir);
+void ir_opt_dead_code_elimination(struct ir_unit *ir);
 #endif
 
-void ir_opt_unreachable_code(struct ir_fn_decl *ir);
+void ir_opt_unreachable_code(struct ir_unit *ir);
 
 /** Instruction reordering.
    
@@ -82,7 +83,7 @@ void ir_opt_unreachable_code(struct ir_fn_decl *ir);
     in one place. Makes no really difference in case
     of interpreter, but in a real backend (ARM, x86_64)
     we can subtract stack pointer once in a function. */
-void ir_opt_reorder(struct ir_fn_decl *ir);
+void ir_opt_reorder(struct ir_unit *ir);
 
 /** Data flow analysis.
    
@@ -90,6 +91,6 @@ void ir_opt_reorder(struct ir_fn_decl *ir);
     a return value. There are two conditions
       - All variable operations used to compute return values are left.
       - All loops (including nested) used to compute return values are left. */
-void ir_opt_data_flow(struct ir_fn_decl *ir);
+void ir_opt_data_flow(struct ir_unit *ir);
 
 #endif // WEAK_COMPILER_MIDDLE_END_OPT_H

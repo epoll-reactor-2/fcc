@@ -120,12 +120,13 @@ void dump_ir(struct ir_unit *ir)
  **********************************************/
 void opt(struct ir_unit *ir)
 {
-    struct ir_node *it = ir->fn_decls;
     ir_type_pass(ir);
+    ir_opt_reorder(ir);
+    ir_opt_arith(ir);
+
+    struct ir_node *it = ir->fn_decls;
     while (it) {
         struct ir_fn_decl *decl = it->ir;
-        ir_opt_reorder(decl);
-        ir_opt_arith(decl);
         ir_cfg_build(decl);
         it = it->next;
     }

@@ -97,7 +97,7 @@ really_inline static bool initial_move(struct ir_node **ir)
    alloca instructions together. This purpose of this
    optimization is easily determine, how many stack
    storage we must allocate for given function. */
-void ir_opt_reorder(struct ir_fn_decl *decl)
+static void ir_opt_reorder_fn_decl(struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
 
@@ -128,4 +128,13 @@ void ir_opt_reorder(struct ir_fn_decl *decl)
     }
 
     vector_free(stmts);
+}
+
+void ir_opt_reorder(struct ir_unit *ir)
+{
+    struct ir_node *it = ir->fn_decls;
+    while (it) {
+        ir_opt_reorder_fn_decl(it->ir);
+        it = it->next;
+    }
 }

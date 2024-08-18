@@ -12,7 +12,7 @@
 void *diag_error_memstream = NULL;
 void *diag_warn_memstream = NULL;
 
-void (*opt_fn)(struct ir_fn_decl *);
+void (*opt_fn)(struct ir_unit *);
 
 char current_output_dir[128];
 
@@ -52,7 +52,16 @@ void __opt_test(const char *path, const char *filename, FILE *out_stream)
         struct ir_fn_decl *decl = it->ir;
         ir_cfg_build(decl);
         ir_ddg_build(decl);
-        opt_fn(decl);
+
+        it = it->next;
+    }
+
+    opt_fn(&ir);
+
+    it = ir.fn_decls;
+
+    while (it) {
+        struct ir_fn_decl *decl = it->ir;
 
         ir_dump_cfg(after_opt_stream, decl);
         ir_dump(out_stream, decl);

@@ -224,11 +224,20 @@ static struct ir_node *opt_arith_node(struct ir_node *ir)
           - A & B = B & A
           - A | B = B | A */
 
-void ir_opt_arith(struct ir_fn_decl *decl)
+static void ir_opt_arith_fn_decl(struct ir_fn_decl *decl)
 {
     struct ir_node *it = decl->body;
     while (it) {
         opt_arith_node(it);
+        it = it->next;
+    }
+}
+
+void ir_opt_arith(struct ir_unit *ir)
+{
+    struct ir_node *it = ir->fn_decls;
+    while (it) {
+        ir_opt_arith_fn_decl(it->ir);
         it = it->next;
     }
 }
