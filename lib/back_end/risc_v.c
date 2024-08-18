@@ -7,7 +7,9 @@
 #include "back_end/risc_v.h"
 #include "back_end/risc_v_encode.h"
 #include "middle_end/ir/ir.h"
+#include "util/compiler.h"
 #include "util/crc32.h"
+#include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,6 +79,27 @@ static void put(int code)
 }
 
 /**********************************************
+ **          Register allocation             **
+ **********************************************/
+
+static int allocatable_regs[] = {
+    risc_v_reg_t0,
+    risc_v_reg_t1,
+    risc_v_reg_t2,
+    risc_v_reg_t3,
+    risc_v_reg_t4,
+    risc_v_reg_t5,
+    risc_v_reg_t6
+};
+
+really_inline static int free_reg(struct ir_node *ir)
+{
+    assert(ir->claimed_reg != IR_NO_CLAIMED_REG);
+
+    return allocatable_regs[ir->claimed_reg];
+}
+
+/**********************************************
  **              IR traversal                **
  **********************************************/
 
@@ -98,18 +121,22 @@ static void emit_imm(struct ir_imm *ir)
     }
 }
 
-static void emit_sym(unused struct ir_sym *ir)
+static void emit_sym(struct ir_node *ir)
 {
-    bool ok = 0;
-    uint64_t off = hashmap_get(&var_map, ir->idx, &ok);
-    if (!ok)
-        weak_fatal_error("Failed to get stack offset for %%%lu\n", ir->idx);
+    struct ir_sym *sym = ir->ir;
 
-    switch (ir->type_info.dt) {
-    case D_T_INT: put(risc_v_lw(risc_v_accum_reg, risc_v_reg_sp, -off)); break;
+    bool ok = 0;
+    uint64_t off = hashmap_get(&var_map, sym->idx, &ok);
+    if (!ok)
+        weak_fatal_error("Failed to get stack offset for %%%lu\n", sym->idx);
+
+    switch (sym->type_info.dt) {
+    case D_T_INT: put(risc_v_lw(free_reg(ir), risc_v_reg_sp, -off)); break;
     default:
         break;
     }
+
+    risc_v_accum_reg = free_reg(ir);
 }
 
 /*  li    t0, 123
@@ -129,8 +156,8 @@ static void emit_store(struct ir_store *ir)
     if (ir->body->type == IR_IMM) {
         struct ir_imm *imm = ir->body->ir;
         int i = imm->imm.__int;
-        put(risc_v_lui(risc_v_accum_reg, risc_v_hi(i)));
-        put(risc_v_addi(risc_v_accum_reg, risc_v_accum_reg, risc_v_lo(i)));
+        put(risc_v_lui(free_reg(ir->idx), risc_v_hi(i)));
+        put(risc_v_addi(free_reg(ir->idx), risc_v_accum_reg, risc_v_lo(i)));
     }
 
     if (ir->body->type == IR_FN_CALL) {
@@ -143,21 +170,20 @@ static void emit_store(struct ir_store *ir)
     }
 }
 
-/* NOTE: Accumulator-based codegen. */
-/* TODO: Wrong computation, obviously. */
+/* TODO: Correct register allocation use. */
 static void emit_bin(unused struct ir_bin *ir)
 {
-    risc_v_accum_reg = risc_v_reg_t0; 
     emit_instr(ir->lhs);
+    int lhs_reg = risc_v_accum_reg;
 
-    risc_v_accum_reg = risc_v_reg_t1;
     emit_instr(ir->rhs);
+    int rhs_reg = risc_v_accum_reg;
 
     switch (ir->op) {
-    case TOK_PLUS:  put(risc_v_add(risc_v_reg_t0, risc_v_reg_t0, risc_v_reg_t1)); break;
-    case TOK_MINUS: put(risc_v_sub(risc_v_reg_t0, risc_v_reg_t0, risc_v_reg_t1)); break;
-    case TOK_STAR:  put(risc_v_mul(risc_v_reg_t0, risc_v_reg_t0, risc_v_reg_t1)); break;
-    case TOK_SLASH: put(risc_v_div(risc_v_reg_t0, risc_v_reg_t0, risc_v_reg_t1)); break;
+    case TOK_MINUS: put(risc_v_sub(lhs_reg, lhs_reg, rhs_reg)); break;
+    case TOK_PLUS:  put(risc_v_add(lhs_reg, lhs_reg, rhs_reg)); break;
+    case TOK_STAR:  put(risc_v_mul(lhs_reg, lhs_reg, rhs_reg)); break;
+    case TOK_SLASH: put(risc_v_div(lhs_reg, lhs_reg, rhs_reg)); break;
     default:
         weak_fatal_error("Unknown binary operator: %d\n", ir->op);
     }
@@ -190,7 +216,7 @@ static void emit_instr(struct ir_node *ir)
     case IR_ALLOCA:       emit_alloca(ir->ir); break;
     case IR_ALLOCA_ARRAY: emit_alloca_array(ir->ir); break;
     case IR_IMM:          emit_imm(ir->ir); break;
-    case IR_SYM:          emit_sym(ir->ir); break;
+    case IR_SYM:          emit_sym(ir); break;
     case IR_STORE:        emit_store(ir->ir); break;
     case IR_BIN:          emit_bin(ir->ir); break;
     case IR_JUMP:         emit_jump(ir->ir); break;

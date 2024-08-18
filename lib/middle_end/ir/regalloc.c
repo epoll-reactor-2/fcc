@@ -14,7 +14,8 @@
  **********************************************/
 
  #define REG_ALLOC_MAX_VARS 512
- #define REG_ALLOC_MAX_REGS   8   /**< TODO: Hardware-specific? */
+ #define REG_ALLOC_MAX_REGS   7   /**< TODO: Hardware-specific.
+                                             Pass as input parameter. */
 
 struct interference_graph {
     int graph[REG_ALLOC_MAX_VARS][REG_ALLOC_MAX_VARS];
@@ -192,14 +193,14 @@ static void reg_alloc_assign_node(struct ir_node *ir, struct reg_allocator *allo
     switch (ir->type) {
     case IR_SYM: {
         struct ir_sym *sym = ir->ir;
-            if (!allocator->spill[sym->idx])
-                ir->claimed_reg = allocator->color[sym->idx];
+        if (!allocator->spill[sym->idx])
+            ir->claimed_reg = allocator->color[sym->idx];
         break;
     }
     case IR_ALLOCA: {
         struct ir_alloca *alloca = ir->ir;
-            if (!allocator->spill[alloca->idx])
-                ir->claimed_reg = allocator->color[alloca->idx];
+        if (!allocator->spill[alloca->idx])
+            ir->claimed_reg = allocator->color[alloca->idx];
         break;
     }
     case IR_STORE: {
@@ -255,9 +256,7 @@ void ir_reg_alloc(struct ir_node *functions)
     struct ir_node *it = functions;
     while (it) {
         struct ir_fn_decl *decl = it->ir;
-
         reg_alloc_fn(decl);
-
         it = it->next;
     }
 }
