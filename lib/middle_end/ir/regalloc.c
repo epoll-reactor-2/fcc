@@ -13,13 +13,16 @@
  **       Graph-coloring allocator           **
  **********************************************/
 
- #define REG_ALLOC_MAX_VARS 512
- #define REG_ALLOC_MAX_REGS   7 /**< TODO: Hardware-specific.
-                                           Pass as input parameter. */
+/* This sets theoretically possible size of registers and
+   variables for static arrays. */
+#define REG_ALLOC_VARS_LIMIT 512
+#define REG_ALLOC_REGS_LIMIT  32
+
+static uint64_t reg_alloc_max_regs =  -1;
 
 struct interference_graph {
-    int graph[REG_ALLOC_MAX_VARS][REG_ALLOC_MAX_VARS];
-    int degree[REG_ALLOC_MAX_VARS];
+    int graph[REG_ALLOC_VARS_LIMIT][REG_ALLOC_VARS_LIMIT];
+    int degree[REG_ALLOC_VARS_LIMIT];
 };
 
 struct live_range {
@@ -28,13 +31,13 @@ struct live_range {
 };
 
 struct live_range_info {
-    struct live_range ranges[REG_ALLOC_MAX_VARS];
+    struct live_range ranges[REG_ALLOC_VARS_LIMIT];
     int               count;
 };
 
 struct reg_allocator {
-    int  color[REG_ALLOC_MAX_VARS];
-    bool spill[REG_ALLOC_MAX_VARS];
+    int  color[REG_ALLOC_VARS_LIMIT];
+    bool spill[REG_ALLOC_VARS_LIMIT];
 };
 
 static void reg_alloc_add_edge(struct interference_graph *g, int u, int v)
@@ -60,25 +63,25 @@ static void reg_alloc_build_graph(struct interference_graph *g, struct live_rang
 
 static void reg_alloc(struct interference_graph *g, struct reg_allocator *allocator)
 {
-    for (uint64_t i = 0; i < REG_ALLOC_MAX_VARS; ++i) {
+    for (uint64_t i = 0; i < REG_ALLOC_VARS_LIMIT; ++i) {
         allocator->color[i] = -1;
         allocator->spill[i] =  0;
     }
 
-    bool available[REG_ALLOC_MAX_REGS] = {0};
+    bool available[REG_ALLOC_REGS_LIMIT] = {0};
 
-    for (uint64_t i = 0; i < REG_ALLOC_MAX_VARS; ++i) {
-        for (uint64_t j = 0; j < REG_ALLOC_MAX_REGS; ++j) {
+    for (uint64_t i = 0; i < REG_ALLOC_VARS_LIMIT; ++i) {
+        for (uint64_t j = 0; j < reg_alloc_max_regs; ++j) {
             available[j] = 1;
         }
 
-        for (uint64_t j = 0; j < REG_ALLOC_MAX_VARS; ++j) {
+        for (uint64_t j = 0; j < REG_ALLOC_VARS_LIMIT; ++j) {
             if (g->graph[i][j] && allocator->color[j] != -1)
                 available[allocator->color[j]] = 0;
         }
 
         int reg = -1;
-        for (uint64_t j = 0; j < REG_ALLOC_MAX_REGS; ++j) {
+        for (uint64_t j = 0; j < reg_alloc_max_regs; ++j) {
             if (available[j]) {
                 reg = j;
                 break;
@@ -165,7 +168,7 @@ static void reg_alloc_live_range_store(struct live_range_info *info, struct ir_n
 
 static void reg_alloc_live_ranges(struct live_range_info *info, struct ir_node *ir)
 {
-    for (uint64_t i = 0; i < REG_ALLOC_MAX_VARS; ++i) {
+    for (uint64_t i = 0; i < REG_ALLOC_VARS_LIMIT; ++i) {
         info->ranges[i].start = -1;
         info->ranges[i].end   = -1;
     }
@@ -182,7 +185,7 @@ static void reg_alloc_live_ranges(struct live_range_info *info, struct ir_node *
         ir = ir->next;
     }
 
-    info->count = REG_ALLOC_MAX_VARS;
+    info->count = REG_ALLOC_VARS_LIMIT;
 }
 
 /**********************************************
@@ -252,9 +255,11 @@ static void reg_alloc_fn(struct ir_fn_decl *ir)
     reg_alloc_assign_claimed_regs(ir->body, &allocator);
 }
 
-void ir_reg_alloc(struct ir_node *functions)
+void ir_reg_alloc(struct ir_unit *unit, uint64_t hardware_regs)
 {
-    struct ir_node *it = functions;
+    reg_alloc_max_regs = hardware_regs;
+
+    struct ir_node *it = unit->fn_decls;
     while (it) {
         struct ir_fn_decl *decl = it->ir;
         reg_alloc_fn(decl);

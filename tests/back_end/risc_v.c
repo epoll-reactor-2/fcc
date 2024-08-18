@@ -11,7 +11,6 @@
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/ir_dump.h"
 #include "middle_end/ir/type.h"
-#include "middle_end/ir/regalloc.h"
 #include "middle_end/opt/opt.h"
 #include "util/diagnostic.h"
 #include "util/lexical.h"
@@ -30,7 +29,6 @@ void do_opt(struct ir_unit *unit)
 {
     ir_opt_reorder(unit);
     ir_opt_arith(unit);
-    ir_reg_alloc(unit->fn_decls);
     ir_dump_unit(stdout, unit);
 
     struct ir_node *it = unit->fn_decls;
@@ -90,7 +88,6 @@ void __risc_v_test(const char *path, const char *filename, FILE *out_stream)
 
     ir_type_pass(&ir);
     do_opt(&ir);
-    ir_reg_alloc(ir.fn_decls);
     int code = gen(&ir, filename);
     ir_unit_cleanup(&ir);
 

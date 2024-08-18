@@ -7,6 +7,8 @@
 #include "back_end/risc_v.h"
 #include "back_end/risc_v_encode.h"
 #include "middle_end/ir/ir.h"
+#include "middle_end/ir/ir_dump.h"
+#include "middle_end/ir/regalloc.h"
 #include "util/compiler.h"
 #include "util/crc32.h"
 #include <assert.h>
@@ -92,7 +94,7 @@ static int allocatable_regs[] = {
     risc_v_reg_t6
 };
 
-really_inline static int free_reg(struct ir_node *ir)
+really_inline static int reg_alloc_reg(struct ir_node *ir)
 {
     assert(ir->claimed_reg != IR_NO_CLAIMED_REG);
 
@@ -131,12 +133,12 @@ static void emit_sym(struct ir_node *ir)
         weak_fatal_error("Failed to get stack offset for %%%lu\n", sym->idx);
 
     switch (sym->type_info.dt) {
-    case D_T_INT: put(risc_v_lw(free_reg(ir), risc_v_reg_sp, -off)); break;
+    case D_T_INT: put(risc_v_lw(reg_alloc_reg(ir), risc_v_reg_sp, -off)); break;
     default:
         break;
     }
 
-    risc_v_accum_reg = free_reg(ir);
+    risc_v_accum_reg = reg_alloc_reg(ir);
 }
 
 /*  li    t0, 123
@@ -156,8 +158,8 @@ static void emit_store(struct ir_store *ir)
     if (ir->body->type == IR_IMM) {
         struct ir_imm *imm = ir->body->ir;
         int i = imm->imm.__int;
-        put(risc_v_lui(free_reg(ir->idx), risc_v_hi(i)));
-        put(risc_v_addi(free_reg(ir->idx), risc_v_accum_reg, risc_v_lo(i)));
+        put(risc_v_lui(reg_alloc_reg(ir->idx), risc_v_hi(i)));
+        put(risc_v_addi(reg_alloc_reg(ir->idx), risc_v_accum_reg, risc_v_lo(i)));
     }
 
     if (ir->body->type == IR_FN_CALL) {
@@ -334,6 +336,8 @@ void risc_v_gen(struct codegen_output *output, struct ir_unit *unit)
     codegen_output = output;
     emitted_bytes = 0;
 
+    ir_reg_alloc(unit, __weak_array_size(allocatable_regs));
+    ir_dump_unit(stdout, unit);
     hashmap_init(&fn_addr_map, 512);
 
     emit_entry_fn();

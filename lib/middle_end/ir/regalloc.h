@@ -7,8 +7,15 @@
 #ifndef WEAK_COMPILER_MIDDLE_REGALLOC_H
 #define WEAK_COMPILER_MIDDLE_REGALLOC_H
 
-struct ir_node;
+#include <stdint.h>
 
-void ir_reg_alloc(struct ir_node *functions);
+struct ir_unit;
+
+/** Perform register allocation.
+
+    Graph-coloring algorithm is used.
+
+    \param virtual_regs   Number of avaialble hardware registers. */
+void ir_reg_alloc(struct ir_unit *unit, uint64_t hardware_regs);
 
 #endif // WEAK_COMPILER_MIDDLE_REGALLOC_H
