@@ -174,13 +174,8 @@ static void reg_alloc_live_ranges(struct live_range_info *info, struct ir_node *
     }
 
     while (ir) {
-        switch (ir->type) {
-        case IR_STORE:
+        if (ir->type == IR_STORE)
             reg_alloc_live_range_store(info, ir);
-            break;
-        default:
-            break;
-        }
 
         ir = ir->next;
     }
@@ -217,6 +212,11 @@ static void reg_alloc_assign_claimed_reg(struct ir_node *ir, struct reg_allocato
         struct ir_bin *bin = ir->ir;
         reg_alloc_assign_claimed_reg(bin->lhs, allocator);
         reg_alloc_assign_claimed_reg(bin->rhs, allocator);
+        break;
+    }
+    case IR_COND: {
+        struct ir_cond *cond = ir->ir;
+        reg_alloc_assign_claimed_reg(cond->cond, allocator);
         break;
     }
     case IR_RET: {
