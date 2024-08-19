@@ -28,8 +28,7 @@ char current_output_dir[128];
 void do_opt(struct ir_unit *unit)
 {
     ir_opt_reorder(unit);
-    ir_opt_arith(unit);
-    ir_dump_unit(stdout, unit);
+    /* ir_opt_arith(unit); */
 
     struct ir_node *it = unit->fn_decls;
     while (it) {
@@ -101,7 +100,6 @@ int risc_v_test(const char *path, const char *filename)
 
 int main()
 {
-    return 0;
     cfg_dir("risc_v", current_output_dir);
     return do_on_each_file("risc_v", risc_v_test);
 }

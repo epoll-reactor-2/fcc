@@ -84,21 +84,46 @@ static void put(int code)
  **          Register allocation             **
  **********************************************/
 
-static int allocatable_regs[] = {
-    risc_v_reg_t0,
-    risc_v_reg_t1,
-    risc_v_reg_t2,
-    risc_v_reg_t3,
-    risc_v_reg_t4,
-    risc_v_reg_t5,
-    risc_v_reg_t6
+struct reg {
+    int  num;
+    bool free;
 };
+
+static struct reg allocatable_regs[] = {
+    { risc_v_reg_t0, 1 },
+    { risc_v_reg_t1, 1 },
+    { risc_v_reg_t2, 1 },
+    { risc_v_reg_t3, 1 },
+    { risc_v_reg_t4, 1 },
+    { risc_v_reg_t5, 1 },
+    { risc_v_reg_t6, 1 }
+};
+
+static int last_free_reg = -1;
 
 really_inline static int reg_alloc_reg(struct ir_node *ir)
 {
     assert(ir->claimed_reg != IR_NO_CLAIMED_REG);
 
-    return allocatable_regs[ir->claimed_reg];
+    return allocatable_regs[ir->claimed_reg].num;
+}
+
+really_inline static int allocate_free_reg()
+{
+    for (uint64_t i = 0; i < __weak_array_size(allocatable_regs); ++i)
+        if (allocatable_regs[i].free) {
+            last_free_reg = allocatable_regs[i].num;
+            allocatable_regs[i].free = 0;
+            return last_free_reg;
+        }
+
+    weak_fatal_error("No free registers");
+}
+
+really_inline static int free_reg(int num)
+{
+    allocatable_regs[num].free = 1;
+    last_free_reg = -1;
 }
 
 /**********************************************
@@ -117,7 +142,7 @@ static void emit_imm(struct ir_imm *ir)
     case IMM_BOOL:  break;
     case IMM_CHAR:  break;
     case IMM_FLOAT: break;
-    case IMM_INT:   put(risc_v_li(risc_v_accum_reg, ir->imm.__int)); break;
+    case IMM_INT:   put(risc_v_li(allocate_free_reg(), ir->imm.__int)); break;
     default:
         weak_fatal_error("Unknown immediate type: %d", ir->type);
     }
@@ -176,11 +201,12 @@ static void emit_store(struct ir_store *ir)
 static void emit_bin(unused struct ir_bin *ir)
 {
     emit_instr(ir->lhs);
-    int lhs_reg = risc_v_accum_reg;
+    int lhs_reg = last_free_reg;
 
     emit_instr(ir->rhs);
-    int rhs_reg = risc_v_accum_reg;
+    int rhs_reg = last_free_reg;
 
+    /* This accumulates result in left register. */
     switch (ir->op) {
     case TOK_MINUS: put(risc_v_sub(lhs_reg, lhs_reg, rhs_reg)); break;
     case TOK_PLUS:  put(risc_v_add(lhs_reg, lhs_reg, rhs_reg)); break;
@@ -189,6 +215,9 @@ static void emit_bin(unused struct ir_bin *ir)
     default:
         weak_fatal_error("Unknown binary operator: %d\n", ir->op);
     }
+
+    free_reg(lhs_reg);
+    free_reg(rhs_reg);
 }
 
 static void emit_jump(unused struct ir_jump *ir) {}
