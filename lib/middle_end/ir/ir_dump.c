@@ -22,6 +22,8 @@ const char *ir_type_to_string(enum ir_type t)
     case IR_IMM:          return "IR_IMM";
     case IR_SYM:          return "IR_SYM";
     case IR_STORE:        return "IR_STORE";
+    case IR_PUSH:         return "IR_PUSH";
+    case IR_POP:          return "IR_POP";
     case IR_BIN:          return "IR_BIN";
     case IR_JUMP:         return "IR_JUMP";
     case IR_COND:         return "IR_COND";
@@ -120,6 +122,16 @@ static void ir_dump_store(FILE *mem, struct ir_store *ir)
     ir_dump_node(mem, ir->idx);
     fprintf(mem, " = ");
     ir_dump_node(mem, ir->body);
+}
+
+static void ir_dump_push(FILE *mem, struct ir_push *ir)
+{
+    fprintf(mem, "push #reg%d", ir->reg);
+}
+
+static void ir_dump_pop(FILE *mem, struct ir_push *ir)
+{
+    fprintf(mem, "pop #reg%d", ir->reg);
 }
 
 static void ir_dump_bin(FILE *mem, struct ir_bin *ir)
@@ -240,6 +252,8 @@ void ir_dump_node(FILE *mem, struct ir_node *ir)
     case IR_STRING:       ir_dump_string(mem, ir->ir); break;
     case IR_SYM:          ir_dump_sym(mem, ir); break;
     case IR_STORE:        ir_dump_store(mem, ir->ir); break;
+    case IR_PUSH:         ir_dump_push(mem, ir->ir); break;
+    case IR_POP:          ir_dump_pop(mem, ir->ir); break;
     case IR_BIN:          ir_dump_bin(mem, ir->ir); break;
     case IR_JUMP:         ir_dump_jump(mem, ir->ir); break;
     case IR_COND:         ir_dump_cond(mem, ir->ir); break;

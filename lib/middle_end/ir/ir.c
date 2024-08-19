@@ -129,14 +129,37 @@ struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body)
     struct ir_store *ir = weak_calloc(1, sizeof (struct ir_store));
     ir->idx = idx;
     ir->body = body;
+
     if (body->type != IR_FN_CALL)
         ++ir_instr_idx;
-    return ir_node_init(IR_STORE, ir);
+
+    struct ir_node *node = ir_node_init(IR_STORE, ir);
+
+    if (body->type == IR_BIN) {
+        struct ir_bin *bin = body->ir;
+        bin->parent = node;
+    }
+
+    return node;
 }
 
 struct ir_node *ir_store_sym_init(uint64_t idx, struct ir_node *body)
 {
     return ir_store_init(ir_sym_init(idx), body);
+}
+
+struct ir_node *ir_push_init(int reg)
+{
+    struct ir_push *push = weak_calloc(1, sizeof (struct ir_push));
+    push->reg = reg;
+    return ir_node_init(IR_PUSH, push);
+}
+
+struct ir_node *ir_pop_init(int reg)
+{
+    struct ir_pop *pop = weak_calloc(1, sizeof (struct ir_pop));
+    pop->reg = reg;
+    return ir_node_init(IR_POP, pop);
 }
 
 struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs)
@@ -354,6 +377,8 @@ void ir_node_cleanup(struct ir_node *ir)
     case IR_IMM:
     case IR_SYM:
     case IR_JUMP:
+    case IR_PUSH:
+    case IR_POP:
     case IR_MEMBER:
     case IR_PHI: /* Fall through. */
         /* Nothing to clean except ir->ir itself. */

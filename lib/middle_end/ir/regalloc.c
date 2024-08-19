@@ -8,6 +8,7 @@
 #include "middle_end/ir/ir.h"
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 
 /**********************************************
  **       Graph-coloring allocator           **
@@ -38,6 +39,7 @@ struct live_range_info {
 struct reg_allocator {
     int  color[REG_ALLOC_VARS_LIMIT];
     bool spill[REG_ALLOC_VARS_LIMIT];
+    int  reg_free[REG_ALLOC_REGS_LIMIT];
 };
 
 static void reg_alloc_add_edge(struct interference_graph *g, int u, int v)
@@ -187,6 +189,77 @@ static void reg_alloc_live_ranges(struct live_range_info *info, struct ir_node *
  **       Register -> IR assignment          **
  **********************************************/
 
+static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
+{
+    struct ir_node *prev = curr->prev;
+
+    prev->next = new;
+    new->prev = prev;
+    new->next = curr;
+    curr->prev = new;
+
+    memcpy(&new->meta, &curr->meta, sizeof (struct meta));
+}
+
+static int select_spill_reg(struct reg_allocator *allocator)
+{
+    for (int i = 0; i < reg_alloc_max_regs; i++) {
+        if (!allocator->reg_free[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/** @{                */
+/**    push regN      */
+/**    regN = 0       */
+/**    pop regN       */
+/**                   */
+/** TODO: Update      */
+/**       store index */
+static void put_spill(struct ir_node *ir, struct reg_allocator *allocator, int reg)
+{
+    ir_insert_before(ir, ir_push_init(reg));
+    /* TODO: Correct mark spill. */
+    allocator->reg_free[reg] = 1;
+}
+
+static void put_reload(struct ir_node *ir, struct reg_allocator *allocator, int reg)
+{
+    ir_insert_before(ir, ir_pop_init(reg));
+    /* TODO: Correct mark spill. */
+    allocator->reg_free[reg] = 0;
+}
+/** @} */
+
+static void handle_spill(struct ir_node *parent, struct ir_node *ir, struct reg_allocator *allocator)
+{
+    if (ir->type != IR_SYM)
+        return;
+
+    if (ir->claimed_reg != IR_NO_CLAIMED_REG)
+        return;
+
+    struct ir_sym *sym = ir->ir;
+    if (allocator->spill[sym->idx]) {
+        int reg_to_spill = select_spill_reg(allocator);
+
+        if (reg_to_spill == -1)
+            return;
+
+        put_spill(parent, allocator, reg_to_spill);
+
+        allocator->spill[sym->idx] = reg_to_spill;
+        allocator->color[sym->idx] = reg_to_spill;
+        allocator->reg_free[reg_to_spill] = 1;
+
+        put_reload(parent->next, allocator, reg_to_spill);
+
+        parent->claimed_reg = reg_to_spill;
+    }
+}
+
 static void reg_alloc_assign_claimed_reg(struct ir_node *ir, struct reg_allocator *allocator)
 {
     switch (ir->type) {
@@ -206,17 +279,24 @@ static void reg_alloc_assign_claimed_reg(struct ir_node *ir, struct reg_allocato
         struct ir_store *store = ir->ir;
         reg_alloc_assign_claimed_reg(store->idx, allocator);
         reg_alloc_assign_claimed_reg(store->body, allocator);
+
+        handle_spill(ir, store->idx, allocator);
         break;
     }
     case IR_BIN: {
         struct ir_bin *bin = ir->ir;
         reg_alloc_assign_claimed_reg(bin->lhs, allocator);
         reg_alloc_assign_claimed_reg(bin->rhs, allocator);
+
+        handle_spill(bin->parent, bin->lhs, allocator);
+        handle_spill(bin->parent, bin->rhs, allocator);
         break;
     }
     case IR_COND: {
         struct ir_cond *cond = ir->ir;
         reg_alloc_assign_claimed_reg(cond->cond, allocator);
+
+        handle_spill(ir, cond->cond, allocator);
         break;
     }
     case IR_RET: {

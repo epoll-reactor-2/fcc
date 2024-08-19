@@ -30,6 +30,10 @@ enum ir_type {
         \note Unary operators such as ++ and -- are transformed
               to binary operator. */
     IR_BIN,
+    /** Push to RAM. */
+    IR_PUSH,
+    /** Pop from RAM. */
+    IR_POP,
     /** Unconditional jump. */
     IR_JUMP,
     /** Conditional jump. */
@@ -206,6 +210,15 @@ struct ir_bin {
     enum token_type  op;
     struct ir_node  *lhs;
     struct ir_node  *rhs;
+    struct ir_node  *parent;
+};
+
+struct ir_push {
+    int reg;
+};
+
+struct ir_pop {
+    int reg;
 };
 
 struct ir_jump {
@@ -311,6 +324,9 @@ wur struct ir_node *ir_sym_ptr_init(uint64_t idx);
 
 wur struct ir_node *ir_store_init(struct ir_node *idx, struct ir_node *body);
 wur struct ir_node *ir_store_sym_init(uint64_t idx, struct ir_node *body);
+
+wur struct ir_node *ir_push_init(int reg);
+wur struct ir_node *ir_pop_init(int reg);
 
 wur struct ir_node *ir_bin_init(enum token_type op, struct ir_node *lhs, struct ir_node *rhs);
 wur struct ir_node *ir_jump_init(uint64_t idx);

@@ -17,6 +17,7 @@ void __reg_alloc_test(const char *path, unused const char *filename, FILE *out_s
     struct ir_unit ir = gen_ir(path);
     ir_opt_reorder(&ir);
     ir_reg_alloc(&ir, /*hardware_regs=*/8);
+    ir_dump_unit(stdout, &ir);
     ir_dump_unit(out_stream, &ir);
     ir_unit_cleanup(&ir);
 }
