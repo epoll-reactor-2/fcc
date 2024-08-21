@@ -233,8 +233,14 @@ static void put_reload(struct ir_node *ir, struct reg_allocator *allocator, int 
 }
 /** @} */
 
-static void handle_spill(struct ir_node *parent, struct ir_node *ir, struct reg_allocator *allocator)
-{
+/* TODO: Insert push and pop before and after live range bounds? */
+/* TODO: What if one variable has two non-intersecting lifetimes? */
+static void handle_spill(
+    struct ir_node         *parent,
+    struct ir_node         *ir,
+    struct reg_allocator   *allocator,
+    struct live_range_info *live_range
+) {
     if (ir->type != IR_SYM)
         return;
 
@@ -252,7 +258,6 @@ static void handle_spill(struct ir_node *parent, struct ir_node *ir, struct reg_
 
         allocator->spill[sym->idx] = reg_to_spill;
         allocator->color[sym->idx] = reg_to_spill;
-        allocator->reg_free[reg_to_spill] = 1;
 
         put_reload(parent->next, allocator, reg_to_spill);
 
@@ -260,8 +265,11 @@ static void handle_spill(struct ir_node *parent, struct ir_node *ir, struct reg_
     }
 }
 
-static void reg_alloc_assign_claimed_reg(struct ir_node *ir, struct reg_allocator *allocator)
-{
+static void reg_alloc_assign_claimed_reg(
+    struct ir_node         *ir,
+    struct reg_allocator   *allocator,
+    struct live_range_info *live_range
+) {
     switch (ir->type) {
     case IR_SYM: {
         struct ir_sym *sym = ir->ir;
@@ -277,32 +285,32 @@ static void reg_alloc_assign_claimed_reg(struct ir_node *ir, struct reg_allocato
     }
     case IR_STORE: {
         struct ir_store *store = ir->ir;
-        reg_alloc_assign_claimed_reg(store->idx, allocator);
-        reg_alloc_assign_claimed_reg(store->body, allocator);
+        reg_alloc_assign_claimed_reg(store->idx, allocator, live_range);
+        reg_alloc_assign_claimed_reg(store->body, allocator, live_range);
 
-        handle_spill(ir, store->idx, allocator);
+        handle_spill(ir, store->idx, allocator, live_range);
         break;
     }
     case IR_BIN: {
         struct ir_bin *bin = ir->ir;
-        reg_alloc_assign_claimed_reg(bin->lhs, allocator);
-        reg_alloc_assign_claimed_reg(bin->rhs, allocator);
+        reg_alloc_assign_claimed_reg(bin->lhs, allocator, live_range);
+        reg_alloc_assign_claimed_reg(bin->rhs, allocator, live_range);
 
-        handle_spill(bin->parent, bin->lhs, allocator);
-        handle_spill(bin->parent, bin->rhs, allocator);
+        handle_spill(bin->parent, bin->lhs, allocator, live_range);
+        handle_spill(bin->parent, bin->rhs, allocator, live_range);
         break;
     }
     case IR_COND: {
         struct ir_cond *cond = ir->ir;
-        reg_alloc_assign_claimed_reg(cond->cond, allocator);
+        reg_alloc_assign_claimed_reg(cond->cond, allocator, live_range);
 
-        handle_spill(ir, cond->cond, allocator);
+        handle_spill(ir, cond->cond, allocator, live_range);
         break;
     }
     case IR_RET: {
         struct ir_ret *ret = ir->ir;
         if (ret->body)
-            reg_alloc_assign_claimed_reg(ret->body, allocator);
+            reg_alloc_assign_claimed_reg(ret->body, allocator, live_range);
         break;
     }
     default:
@@ -310,10 +318,13 @@ static void reg_alloc_assign_claimed_reg(struct ir_node *ir, struct reg_allocato
     }
 }
 
-static void reg_alloc_assign_claimed_regs(struct ir_node *it, struct reg_allocator *allocator)
-{
+static void reg_alloc_assign_claimed_regs(
+    struct ir_node         *it,
+    struct reg_allocator   *allocator,
+    struct live_range_info *live_range
+) {
     while (it) {
-        reg_alloc_assign_claimed_reg(it, allocator);
+        reg_alloc_assign_claimed_reg(it, allocator, live_range);
         it = it->next;
     }
 }
@@ -321,6 +332,22 @@ static void reg_alloc_assign_claimed_regs(struct ir_node *it, struct reg_allocat
 /**********************************************
  **                Traversal                 **
  **********************************************/
+
+static void reg_alloc_dump_lifetimes(struct live_range_info *live_range)
+{
+    for (uint64_t i = 0; i < live_range->count; ++i) {
+        if (live_range->ranges[i].start == -1 ||
+            live_range->ranges[i].end   == -1 )
+            break;
+
+        printf(
+            "Lifetime for t%-2lu = { %-2d - %-2d }\n",
+            i,
+            live_range->ranges[i].start,
+            live_range->ranges[i].end
+        );
+    }
+}
 
 static void reg_alloc_fn(struct ir_fn_decl *ir)
 {
@@ -332,7 +359,8 @@ static void reg_alloc_fn(struct ir_fn_decl *ir)
     reg_alloc_live_ranges(&live_range_info, ir->body);
     reg_alloc_build_graph(&graph, &live_range_info);
     reg_alloc(&graph, &allocator);
-    reg_alloc_assign_claimed_regs(ir->body, &allocator);
+    reg_alloc_assign_claimed_regs(ir->body, &allocator, &live_range_info);
+    reg_alloc_dump_lifetimes(&live_range_info);
 }
 
 void ir_reg_alloc(struct ir_unit *unit, uint64_t hardware_regs)
