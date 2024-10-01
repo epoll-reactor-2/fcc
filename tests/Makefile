@@ -31,25 +31,25 @@ all: files src $(FUZZER_OBJ)
 ##################################
 files:
 	@mkdir -p ../build/inputs; \
-	 cp -r front_end/input/*  ../build/inputs; \
-	 cp -r middle_end/input/* ../build/inputs; \
-	 cp -r back_end/input/*   ../build/inputs
+	 cp -r back_end/input/*  ../build/inputs;
+	 cp -r front_end/input/*  ../build/inputs;
 
 ##################################
 # Sources                        #
 ##################################
-SRC = $(shell find front_end middle_end utils -name '*.c')
+SRC = $(shell find front_end utils -name '*.c')
 
 ifeq ($(USE_BACKEND_EVAL), 1)
 SRC += back_end/eval.c
+else
+SRC += back_end/back_end.c
+SRC += back_end/emit.c
 endif # USE_BACKEND_EVAL
 
 ifeq ($(USE_BACKEND_RISC_V), 1)
-SRC += back_end/risc_v.c
 SRC += back_end/risc_v_instr.c
 endif # USE_BACKEND_RISC_V
 
-SRC += back_end/elf.c
 
 OBJ = $(SRC:.c=.o)
 

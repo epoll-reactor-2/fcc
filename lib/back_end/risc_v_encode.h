@@ -8,6 +8,7 @@
 #define WEAK_COMPILER_BACKEND_RISC_V_ENCODE_H
 
 #include "back_end/risc_v.h"
+#include "util/unreachable.h"
 
 int risc_v_extract_bits(int imm, int i_start, int i_end, int d_start, int d_end)
 {

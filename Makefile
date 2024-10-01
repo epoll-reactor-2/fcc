@@ -19,10 +19,7 @@ SANITIZE             := 0
 USE_LOG              := 0
 USE_BACKEND_EVAL     := 0
 USE_BACKEND_RISC_V   := 1
-
-# Export all defined now variables to Makefile's
-# being child processes.
-export
+USE_BACKEND_X86_64   := 0
 
 ##################################
 # Logo                           #
@@ -52,6 +49,22 @@ $(info $(RED)    ▐                 ▐    ▐    ▐         ▐       ▐  �
 $(info $(RED)                                                                                  $(RESET) )
 $(info $(RED)                                                                                  $(RESET) )
 endif
+
+##################################
+# Compiler flags                 #
+##################################
+
+ifeq ($(USE_BACKEND_RISC_V), 1)
+CFLAGS += -D CONFIG_USE_BACKEND_RISC_V
+endif # USE_BACKEND_RISC_V
+
+ifeq ($(USE_BACKEND_X86_64), 1)
+CFLAGS += -D CONFIG_USE_BACKEND_X86_64
+endif # USE_BACKEND_RISC_V
+
+# Export all defined now variables to Makefile's
+# being child processes.
+export
 
 ##################################
 # Make targets                   #

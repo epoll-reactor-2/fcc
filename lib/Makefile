@@ -6,23 +6,28 @@ LIB     = libweak_compiler.so
 LEX_SRC = ../build/src/lex.yy.c
 LEX_OBJ = $(LEX_SRC:.c=.o)
 
-ifeq ($(USE_BACKEND_EVAL), 1)
-SRC += back_end/eval.c
-endif # USE_BACKEND_EVAL
-
 ifeq ($(USE_BACKEND_RISC_V), 1)
 SRC += back_end/risc_v.c
-endif # USE_BACKEND_EVAL
+endif
 
+ifeq ($(USE_BACKEND_X86_64), 1)
+endif
+
+ifeq ($(USE_BACKEND_EVAL), 1)
+SRC += back_end/eval.c
+else
+SRC += back_end/back_end.c
 SRC += back_end/elf.c
+SRC += back_end/emit.c
+endif
 
 OBJ = $(SRC:.c=.o)
 
 ##################################
 # Compiler flags                 #
 ##################################
-LDFLAGS              = -lfl
-CFLAGS               = -fPIC -I.
+LDFLAGS             += -lfl
+CFLAGS              += -fPIC -I.
 
 ifeq ($(USE_LOG), 1)
 CFLAGS              += -D CONFIG_USE_LOG
@@ -68,4 +73,4 @@ $(LEX_OBJ): $(LEX_SRC)
 
 $(LIB): $(OBJ) $(LEX_OBJ)
 	@echo [LD] $@
-	@$(CC) $(addprefix ../build/obj/,$(^F)) $(COV_CFLAGS) -shared -o ../build/lib/$(LIB) -L../build $(LDFLAGS) $(SANITIZE_LDFLAGS)
+	$(CC) $(addprefix ../build/obj/,$(^F)) $(COV_CFLAGS) -shared -o ../build/lib/$(LIB) -L../build $(LDFLAGS) $(SANITIZE_LDFLAGS)

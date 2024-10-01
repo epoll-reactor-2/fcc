@@ -20,8 +20,11 @@
            structure into a file.
 */
 
-#define ARCH_RISC_V         0xF3
-#define ARCH_X86_64         0x3E
+#if defined CONFIG_USE_BACKEND_RISC_V
+#define ELF_TARGET_ARCH     0xF3
+#elif defined CONFIG_USE_BACKEND_X86_64
+#define ELF_TARGET_ARCH     0x3E
+#endif
 
 #define EI_NIDENT             16
 
@@ -66,6 +69,51 @@
 #define SHF_GNU_RETAIN        (1  << 21)
 #define SHF_ORDERED           (1  << 30)
 #define SHF_EXCLUDE           (1U << 31)
+
+/* Symbol bind. */
+#define STB_LOCAL             0
+#define STB_GLOBAL            1
+#define STB_WEAK              2
+#define STB_LOOS             10
+#define STB_HIOS             12
+#define STB_LOPROC           13
+#define STB_HIPROC           15
+
+/* Symbol type. */
+#define STT_NOTYPE            0
+#define STT_OBJECT            1
+#define STT_FUNC              2
+#define STT_SECTION           3
+#define STT_FILE              4
+#define STT_COMMON            5
+#define STT_LOOS             10
+#define STT_HIOS             12
+#define STT_LOPROC           13
+#define STT_SPARC_REGISTER   13
+#define STT_HIPROC           15
+
+/* Symbol visibility. */
+#define STV_DEFAULT           0
+#define STV_INTERNAL          1
+#define STV_HIDDEN            2
+#define STV_PROTECTED         3
+
+#define PT_NULL               0
+#define PT_LOAD               1
+#define PT_DYNAMIC            2
+#define PT_INTERP             3
+#define PT_NOTE               4
+#define PT_SHLIB              5
+#define PT_PHDR               6
+#define PT_TLS                7
+#define PT_LOOS               0x60000000
+#define PT_HIOS               0x6fffffff
+#define PT_LOPROC             0x70000000
+#define PT_HIPROC             0x7fffffff
+
+#define PF_X                  0x1
+#define PF_W                  0x2
+#define PF_R                  0x4
 
 struct packed elf_fhdr {
     /* ELF magic header */
@@ -148,13 +196,7 @@ struct packed elf_shdr {
 struct packed elf_sym {
     /* An offset to a string in the .shstrtab section
        that represents the name of this section. */
-    uint64_t name;
-    /* The value of the associated symbol. The value can be
-       an absolute value or an address, depending on the
-       context. */
-    uint64_t value;
-    /* Unused now. */
-    uint64_t size;
+    uint32_t name;
     /* The symbol's type and binding attributes. */
     uint8_t  info;
     /* A symbol's visibility. */
@@ -162,33 +204,61 @@ struct packed elf_sym {
     /* Every symbol table entry is defined in relation to
        some section. This member holds the relevant section
        header table index. */
-    uint64_t shndx;
+    uint16_t shndx;
+    /* The value of the associated symbol. The value can be
+       an absolute value or an address, depending on the
+       context. */
+    uint64_t value;
+    /* Unused now. */
+    uint64_t size;
 };
 
 typedef vector_t(uint8_t) instr_vector_t;
 
-/* TODO: Make some comfortable API to initialize all
-         needed sections:
-         .text
-         .symtab
-         .rodata
-         .init_array
-         .fini_array
-         ... */
+struct elf_section {
+    char           name[128];
+    uint64_t       size;
+    instr_vector_t instrs;
+};
+
+struct elf_symtab_entry {
+    char           name[128];
+    uint64_t       off;
+};
+
+typedef vector_t(struct elf_symtab_entry) symtab_vector_t;
+typedef vector_t(struct elf_section) section_vector_t;
+
 struct codegen_output {
-    hashmap_t         fn_offsets;
-    instr_vector_t    instrs;
+    hashmap_t             fn_offsets;
+    instr_vector_t        instrs;
+    section_vector_t      sections;
+    symtab_vector_t       symtab;
 };
 
 struct elf_entry {
     const char *filename;
-    int         arch;
     struct codegen_output
                 output;
 };
 
+void elf_init_section(
+    struct codegen_output *output,
+    const char            *section,
+    uint64_t               size
+);
+
+void elf_init_symtab(
+    struct codegen_output *output,
+    uint64_t               syms_cnt
+);
+
+instr_vector_t *elf_lookup_section(
+    struct codegen_output *output,
+    const char            *section
+);
+
 void elf_init(struct elf_entry *e);
-void elf_exit();
-// void elf_put_code(uint8_t *code, uint64_t size);
+void elf_exit(struct elf_entry *e);
 
 #endif // WEAK_COMPILER_BACKEND_ELF_H

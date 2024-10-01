@@ -1,416 +1,433 @@
-/* risc_v.c - RISC-V code generator.
+/* risc_v.c - RISC-V encoding.
  * Copyright (C) 2024 epoll-reactor <glibcxx.chrono@gmail.com>
  *
  * This file is distributed under the MIT license.
  */
 
+#include "back_end/back_end.h"
 #include "back_end/risc_v.h"
-#include "back_end/risc_v_encode.h"
-#include "middle_end/ir/ir.h"
-#include "middle_end/ir/ir_dump.h"
-#include "middle_end/ir/regalloc.h"
-#include "util/compiler.h"
-#include "util/crc32.h"
-#include <assert.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <asm-generic/unistd.h>
-
-/* Please note that RISC-V interpreter in Linux wants
-   from us an asm-generic interface. */
-
-/**********************************************
- **        Code generation routines          **
- **********************************************/
-
-/* CRC-32 hash <=> symbol offset mapping.
-   \
-    Used in RISC-V generator to make calls. */
-static hashmap_t fn_addr_map;
-/* IR index <=> stack offset mapping.
-   \
-    Used to refer variables on stack. */
-static hashmap_t var_map;
-/* fn_offsets: String pointer value <=> symbol offset mapping.
-   \
-    Used in ELF generator. */
-static struct    codegen_output *codegen_output;
-static uint64_t  emitted_bytes;
-/* How far we advanced from function begin. */
-static uint64_t  fn_off;
-
-static int risc_v_accum_reg = risc_v_reg_t0;
-
-static void put_sym(const char *sym)
-{
-    uint64_t hash = crc32_string(sym);
-    hashmap_put(&codegen_output->fn_offsets, (uint64_t) sym, emitted_bytes);
-    hashmap_put(&fn_addr_map, hash, emitted_bytes);
-}
-
-static uint64_t get_sym(const char *sym)
-{
-    uint64_t hash = crc32_string(sym);
-    bool ok = 0;
-    uint64_t off = hashmap_get(&fn_addr_map, hash, &ok);
-    if (!ok)
-        weak_fatal_error("Cannot get offset for `%s`", sym);
-    return off;
-}
-
-static void replace(uint64_t at, int code)
-{
-    uint8_t *slice = (uint8_t *) &code;
-    vector_at(codegen_output->instrs, at + 0) = slice[0];
-    vector_at(codegen_output->instrs, at + 1) = slice[1];
-    vector_at(codegen_output->instrs, at + 2) = slice[2];
-    vector_at(codegen_output->instrs, at + 3) = slice[3];
-}
-
-static void put(int code)
-{
-    uint8_t *slice = (uint8_t *) &code;
-    vector_push_back(codegen_output->instrs, slice[0]);
-    vector_push_back(codegen_output->instrs, slice[1]);
-    vector_push_back(codegen_output->instrs, slice[2]);
-    vector_push_back(codegen_output->instrs, slice[3]);
-
-    emitted_bytes += 4;
-    fn_off += 4;
-}
 
 /**********************************************
  **          Register allocation             **
  **********************************************/
 
-struct reg {
-    int  num;
-    bool free;
-};
+#define MAX_REGISTERS  32
+#define FREE_REG_START  5  // Start from `t0` (register 5)
+#define FREE_REG_END   31  // End at `t6` (register 31)
 
-static struct reg allocatable_regs[] = {
-    { risc_v_reg_t0, 1 },
-    { risc_v_reg_t1, 1 },
-    { risc_v_reg_t2, 1 },
-    { risc_v_reg_t3, 1 },
-    { risc_v_reg_t4, 1 },
-    { risc_v_reg_t5, 1 },
-    { risc_v_reg_t6, 1 }
-};
+static int reg_lru[MAX_REGISTERS] = {0};
 
-static int last_free_reg = -1;
-
-really_inline static int reg_alloc_reg(struct ir_node *ir)
+__attribute__ ((constructor)) static void init_lru()
 {
-    assert(ir->claimed_reg != IR_NO_CLAIMED_REG);
-
-    return allocatable_regs[ir->claimed_reg].num;
+    int idx = 0;
+    for (int i = FREE_REG_START; i <= FREE_REG_END; i++) {
+        reg_lru[idx++] = i;
+    }
 }
 
-really_inline static int allocate_free_reg()
+static void update_lru(int reg)
 {
-    for (uint64_t i = 0; i < __weak_array_size(allocatable_regs); ++i)
-        if (allocatable_regs[i].free) {
-            last_free_reg = allocatable_regs[i].num;
-            allocatable_regs[i].free = 0;
-            return last_free_reg;
+    int i;
+    for (i = 0; i < MAX_REGISTERS; i++) {
+        if (reg_lru[i] == reg) {
+            break;
         }
-
-    weak_fatal_error("No free registers");
-}
-
-really_inline static int free_reg(int num)
-{
-    allocatable_regs[num].free = 1;
-    last_free_reg = -1;
-}
-
-/**********************************************
- **              IR traversal                **
- **********************************************/
-
-static char *current_fn;
-
-static void emit_instr(struct ir_node *ir);
-static void emit_alloca(unused struct ir_alloca *ir) {}
-static void emit_alloca_array(unused struct ir_alloca_array *ir) {}
-
-static void emit_imm(struct ir_imm *ir)
-{
-    switch (ir->type) {
-    case IMM_BOOL:  break;
-    case IMM_CHAR:  break;
-    case IMM_FLOAT: break;
-    case IMM_INT:   put(risc_v_li(allocate_free_reg(), ir->imm.__int)); break;
-    default:
-        weak_fatal_error("Unknown immediate type: %d", ir->type);
     }
-}
-
-static void emit_sym(struct ir_node *ir)
-{
-    struct ir_sym *sym = ir->ir;
-
-    bool ok = 0;
-    uint64_t off = hashmap_get(&var_map, sym->idx, &ok);
-    if (!ok)
-        weak_fatal_error("Failed to get stack offset for %%%lu\n", sym->idx);
-
-    switch (sym->type_info.dt) {
-    case D_T_INT: put(risc_v_lw(reg_alloc_reg(ir), risc_v_reg_sp, -off)); break;
-    default:
-        break;
+    /* Shift elements to the left */
+    for (int j = i; j < MAX_REGISTERS - 1; j++) {
+        reg_lru[j] = reg_lru[j + 1];
     }
-
-    risc_v_accum_reg = reg_alloc_reg(ir);
+    /* Place the used register at the end */
+    reg_lru[MAX_REGISTERS - 1] = reg;
 }
 
-/*  li    t0, 123
-    addi  t1, sp, 25
-    sw    t0, 0(t1) */
-static void emit_store(struct ir_store *ir)
+static int allocate_register()
 {
-    if (ir->idx->type != IR_SYM)
-        weak_fatal_error("TODO: Implement arrays");
-
-    struct ir_sym *sym = ir->idx->ir;
-    bool ok = 0;
-    uint64_t off = hashmap_get(&var_map, sym->idx, &ok);
-    if (!ok)
-        weak_fatal_error("Failed to get stack offset for %%%lu\n", sym->idx);
-
-    if (ir->body->type == IR_IMM) {
-        struct ir_imm *imm = ir->body->ir;
-        int i = imm->imm.__int;
-        put(risc_v_lui(reg_alloc_reg(ir->idx), risc_v_hi(i)));
-        put(risc_v_addi(reg_alloc_reg(ir->idx), risc_v_accum_reg, risc_v_lo(i)));
-    }
-
-    if (ir->body->type == IR_FN_CALL) {
-        emit_instr(ir->body);
-        put(risc_v_sw(risc_v_reg_sp, risc_v_accum_reg, -off));
-    }
-
-    if (ir->body->type == IR_BIN) {
-        emit_instr(ir->body);
-    }
-}
-
-/* TODO: Correct register allocation use. */
-static void emit_bin(unused struct ir_bin *ir)
-{
-    emit_instr(ir->lhs);
-    int lhs_reg = last_free_reg;
-
-    emit_instr(ir->rhs);
-    int rhs_reg = last_free_reg;
-
-    /* This accumulates result in left register. */
-    switch (ir->op) {
-    case TOK_MINUS: put(risc_v_sub(lhs_reg, lhs_reg, rhs_reg)); break;
-    case TOK_PLUS:  put(risc_v_add(lhs_reg, lhs_reg, rhs_reg)); break;
-    case TOK_STAR:  put(risc_v_mul(lhs_reg, lhs_reg, rhs_reg)); break;
-    case TOK_SLASH: put(risc_v_div(lhs_reg, lhs_reg, rhs_reg)); break;
-    default:
-        weak_fatal_error("Unknown binary operator: %d\n", ir->op);
-    }
-
-    free_reg(lhs_reg);
-    free_reg(rhs_reg);
-}
-
-static void emit_jump(unused struct ir_jump *ir) {}
-static void emit_cond(unused struct ir_cond *ir) {}
-
-static void emit_ret(struct ir_ret *ir)
-{
-    if (ir->body)
-        emit_instr(ir->body);
-}
-
-static void emit_phi(unused struct ir_phi *ir) {}
-
-static void emit_fn_call(struct ir_fn_call *ir)
-{
-    /* jal operates on relative offset. So if we
-       refer to a defined above function, we use negative offset. */
-    int off = get_sym(ir->name) - get_sym(current_fn);
-    /* Take local function offset into account. */
-    off -= fn_off;
-    put(risc_v_jal(risc_v_reg_sp, off));
-}
-
-static void emit_instr(struct ir_node *ir)
-{
-    switch (ir->type) {
-    case IR_ALLOCA:       emit_alloca(ir->ir); break;
-    case IR_ALLOCA_ARRAY: emit_alloca_array(ir->ir); break;
-    case IR_IMM:          emit_imm(ir->ir); break;
-    case IR_SYM:          emit_sym(ir); break;
-    case IR_STORE:        emit_store(ir->ir); break;
-    case IR_BIN:          emit_bin(ir->ir); break;
-    case IR_JUMP:         emit_jump(ir->ir); break;
-    case IR_COND:         emit_cond(ir->ir); break;
-    case IR_RET:          emit_ret(ir->ir); break;
-    case IR_FN_CALL:      emit_fn_call(ir->ir); break;
-    case IR_PHI:          emit_phi(ir->ir); break;
-    default:
-        weak_unreachable("Unknown IR type (numeric: %d).", ir->type);
-    }
-}
-
-static uint64_t _stack_bytes_used = 0x00;
-
-/* We want to know how much space on stack we will
-   need. `sp`, `ra` registers pushed and all declared
-   variables inside a function body.
-
-   TODO: Function arguments >= 5 or 6 also goes to stack. */
-static void calculate_stack_usage(struct ir_fn_decl *fn)
-{
-    _stack_bytes_used = 0x00;
-    _stack_bytes_used += 8; /* sp */
-    _stack_bytes_used += 8; /* ra */
-
-    struct ir_node *it = fn->body;
-
-    while (it) {
-        if (it->type == IR_ALLOCA) {
-            struct ir_alloca *a = it->ir;
-            hashmap_put(&var_map, a->idx, _stack_bytes_used);
-            _stack_bytes_used += data_type_size[a->dt];
+    for (int i = FREE_REG_START; i <= FREE_REG_END; i++) {
+        /* Reclaim the least recently used register */
+        if (reg_lru[0] == i) {
+            int reg = reg_lru[0];
+            update_lru(reg);
+            return reg;
         }
-
-        /* TODO: IR_ALLOCA_ARRAY */
-
-        it = it->next;
     }
-}
-
-static void emit_prologue()
-{
-    put(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, -_stack_bytes_used));
-    put(risc_v_sd(risc_v_reg_sp, risc_v_reg_sp, 0));
-    put(risc_v_sd(risc_v_reg_sp, risc_v_reg_ra, 8));
-}
-/* TODO: Follow some convention about return values. Most compilers
-         stores return value in `a0` or `a5`. */
-static void emit_epilogue()
-{
-    put(risc_v_ld(risc_v_reg_ra, risc_v_reg_sp, 8));
-    put(risc_v_ld(risc_v_reg_sp, risc_v_reg_sp, 0));
-    put(risc_v_addi(risc_v_reg_sp, risc_v_reg_sp, _stack_bytes_used));
-}
-
-static void emit_fn_args(unused struct ir_fn_decl *fn) {}
-static void emit_fn_body(struct ir_fn_decl *fn)
-{
-    struct ir_node *it = fn->body;
-    while (it) {
-        emit_instr(it);
-        it = it->next;
-    }
-}
-
-static void emit_fn(unused struct ir_fn_decl *fn)
-{
-    current_fn = fn->name;
-    fn_off = 0;
-    put_sym(fn->name);
-
-    calculate_stack_usage(fn);
-    emit_prologue();
-
-    emit_fn_args(fn);
-    emit_fn_body(fn);
-
-    emit_epilogue();
-
-    put(risc_v_ret());
+    return -1;
 }
 
 /**********************************************
- **                Driver code               **
+ **            RISC-V encoding               **
  **********************************************/
-static uint64_t _entry_main_call_addr = 0x00;
 
-static void emit_entry_fn()
+static void write_uint32_le_m(void *addr, uint32_t v)
 {
-    hashmap_init(&var_map, 512);
-
-    put_sym("_start");
-    _entry_main_call_addr = emitted_bytes;
-    /* We don't know where `main` is located at this
-       point of codegen. Now we occupy space with some
-       senseless instruction.
-
-       Will be replaced with
-       \
-        jal ra, <main_offset> */
-    put(0);
-    /* Ensure `a0` first parameter is occupied by some
-       computation result */
-    put(risc_v_xor(risc_v_reg_a0, risc_v_reg_a0,risc_v_reg_a0));
-    put(risc_v_add(risc_v_reg_a0, risc_v_reg_a0, risc_v_reg_t0));
-    put(risc_v_li(risc_v_reg_a7, __NR_exit));
-    put(risc_v_ecall());
+    uint8_t *mem = (uint8_t *) addr;
+    mem[0] = (v      ) & 0xFF;
+    mem[1] = (v >>  8) & 0xFF;
+    mem[2] = (v >> 16) & 0xFF;
+    mem[3] = (v >> 24) & 0xFF;
 }
 
-/**********************************************
- **                Driver code               **
- **********************************************/
-void risc_v_gen(struct codegen_output *output, struct ir_unit *unit)
+static bool risc_v_is_valid_imm(int32_t imm)
 {
-    codegen_output = output;
-    emitted_bytes = 0;
+    return (((int32_t) (((uint32_t) imm) << 20)) >> 20) == imm;
+}
 
-    ir_reg_alloc(unit, __weak_array_size(allocatable_regs));
-    ir_dump_unit(stdout, unit);
-    hashmap_init(&fn_addr_map, 512);
+static void risc_v_20_imm_op(uint32_t op, int32_t reg, int32_t imm)
+{
+    uint8_t code[4] = {0};
+    write_uint32_le_m(code, op | (reg << 7) | (imm & 0xFFFFF000));
+    put(code, 4);
+}
 
-    emit_entry_fn();
+static void risc_v_jal(int reg, int off)
+{
+    union {
+        uint8_t  code[4];
+        uint32_t instr;
+    } u;
 
-    struct ir_node *ir = unit->fn_decls;
-    while (ir) {
-        emit_fn(ir->ir);
-        ir = ir->next;
-    }
+    u.instr = risc_v_I_jal
+            | ( (uint32_t) reg <<  7)
+            | (((uint32_t)(off >>  1) & 0x3FF) << 21)
+            | (((uint32_t)(off >> 11) & 0x1  ) << 20)
+            | (((uint32_t)(off >> 12) & 0xFF ) << 12)
+            | (((uint32_t)(off >> 20) & 0x1  ) << 31);
+    put(u.code, 4);
+}
 
-    /* Replace previosly emitted 0x00 instruction in place
-       of `main` call, because only now we know where `main`
-       is located. */
-    replace(
-        _entry_main_call_addr,
-        risc_v_jal(risc_v_reg_ra, get_sym("main"))
+/* Load [31:12] bits of the register from 20-bit imm, signextend & zero lower bits */
+static void risc_v_lui(int32_t reg, int32_t imm)
+{
+    risc_v_20_imm_op(0x37, reg, imm);
+}
+
+/* Load PC + [31:12] imm to register */
+static void risc_v_auipc(int32_t reg, int32_t imm)
+{
+    risc_v_20_imm_op(0x17, reg, imm);
+}
+
+static void risc_v_r_op(int op, int rds, int r1, int r2)
+{
+    uint8_t code[4] = {0};
+    write_uint32_le_m(code, op | (rds << 7) | (r1 << 15) | (r2 << 20));
+    put(code, 4);
+}
+
+/* I-type operation (sign-extended 12-bit immediate) */
+static void risc_v_i_op_internal(int op, int rds, int r, uint32_t imm)
+{
+    uint8_t code[4];
+    write_uint32_le_m(code, op | (rds << 7) | (r << 15) | (((uint32_t) imm) << 20));
+    put(code, 4);
+}
+
+static void risc_v_s_op_internal(int op, int reg, int addr, int off)
+{
+    uint8_t code[4];
+    write_uint32_le_m(
+        code, op
+            | ((off  & 0x1F)    <<  7)
+            | ( addr            << 15)
+            | ( reg             << 20)
+            | ( ((uint32_t) off >>  5) << 25)
     );
-
-    hashmap_destroy(&fn_addr_map);
-    hashmap_destroy(&var_map);
+    put(code, 4);
 }
 
-/*
-Эти портреты безлики
-Он написал их на чёрном холсте
-Безобразным движением кисти
+static void risc_v_s_op(int op, int reg, int addr, int off)
+{
+    if (risc_v_is_valid_imm(off)) {
+        risc_v_s_op_internal(op, reg, addr, off);
+    } else {
+        /* TODO: Claim regs. */
+    }
+}
 
-Эти картины тревожны
-И он их прятал во тьме
-Может вовсе не он был художник
-А кто-то извне?
+/* Set native register reg to sign-extended 32-bit imm */
+static void risc_v_native_setreg32s(int reg, int imm)
+{
+    if (!risc_v_is_valid_imm(imm)) {
+        /* Upper 20 bits aren't sign-extension. */
+        if (imm & 0x800)
+            /* Lower 12-bit part will sign-extend and subtract 0x1000 from LUI value */
+            imm += 0x1000;
+        risc_v_lui(reg, imm);
+        if ((imm & 0xFFF) != 0) {
+            risc_v_i_op_internal(risc_v_I_addi, reg, reg, imm & 0xFFF);
+        }
+    } else {
+        risc_v_i_op_internal(risc_v_I_addi, reg, risc_v_reg_zero, imm & 0xFFF);
+    }
+}
 
-Все узоры
-Пропитаны горем
-В болезненной форме
-В гнетущей тоске
+static void risc_v_native_setreg32(int reg, int imm)
+{
+    risc_v_native_setreg32s(reg, imm);
+}
 
-Когда дрожь пробирает по коже
-Когда мысли ничтожны
-Взгляд понурый, поникший во мгле
-Они снова берутся за краски
+static int risc_v_i_to_r(int op)
+{
+    return op | 0x20;
+}
 
-Однотонные мрачные краски
-Краски дьявола
-Они вместе рисуют смерть
-Монохромно на чёрном холсте
-*/
+static int risc_v_is_load_op(int op)
+{
+    return (op & 0xFF) == 0x03;
+}
+
+static int64_t sign_extend(uint64_t val, uint8_t bits)
+{
+    return ((int64_t)(val << (64 - bits))) >> (64 - bits);
+}
+
+static void risc_v_i_op(int op, int rds, int r, int32_t imm)
+{
+    if (risc_v_is_valid_imm(imm)) {
+        risc_v_i_op_internal(op, rds, r, imm);
+    } else if (!risc_v_is_load_op(op)) {
+        if ((op == risc_v_I_addi || op == risc_v_I_addiw) && risc_v_is_valid_imm(imm >> 1)) {
+            /* Lower to two consequent addi. */
+            risc_v_i_op_internal(op, rds, r, imm >> 1);
+            risc_v_i_op_internal(op, rds, rds, imm - (imm >> 1));
+        } else {
+            fflush(stdout);
+            /* Reclaim register, load 32-bit imm, use in R-type op. */
+            int rtmp = allocate_register();
+            if (rtmp == -1) {
+                printf("No regs\n");
+                fflush(stdout);
+                abort();
+            }
+            printf("1 Allocated %d\n", rtmp);
+            fflush(stdout);
+            risc_v_native_setreg32(rtmp, imm);
+            risc_v_r_op(risc_v_i_to_r(op), rds, r, rtmp);
+            update_lru(rtmp);
+        }
+    } else {
+        int32_t imm_lo = sign_extend(imm, 12);
+        printf("%x sign extend %x\n", imm, imm_lo);
+        int rtmp = allocate_register();
+        if (rtmp == -1) {
+            printf("No regs\n");
+            fflush(stdout);
+            abort();
+        }
+        printf("2 Allocated %d\n", rtmp);
+        fflush(stdout);
+
+        risc_v_lui(rtmp, imm - imm_lo);
+        printf("lui %d, %x\n", rtmp, imm - imm_lo);
+
+        risc_v_r_op(risc_v_R_add, rtmp, rtmp, r);
+        printf("add %d, %d, %d\n", rtmp, rtmp, r);
+
+        risc_v_i_op_internal(op, rds, rtmp, imm_lo);
+        printf("lb %d, %d, %x\n", rds, rtmp, imm_lo);
+
+        update_lru(rtmp);
+    }
+}
+
+/**********************************************
+ **         Generic instructions             **
+ **********************************************/
+
+void back_end_native_add(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_R_add, dst, reg1, reg2);
+}
+
+void back_end_native_addi(int dst, int reg1, int imm)
+{
+    risc_v_i_op(risc_v_I_addi, dst, reg1, imm);
+}
+
+void back_end_native_addiw(int dst, int reg1, int imm)
+{
+    risc_v_i_op(risc_v_I_addiw, dst, reg1, imm);
+}
+
+void back_end_native_sub(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_R_sub, dst, reg1, reg2);
+}
+
+void back_end_native_div(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_M_div, dst, reg1, reg2);
+}
+
+void back_end_native_mul(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_M_mul, dst, reg1, reg2);
+}
+
+void back_end_native_xor(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_R_xor, dst, reg1, reg2);
+}
+
+void back_end_native_and(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_R_and, dst, reg1, reg2);
+}
+
+void back_end_native_or(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_R_or, dst, reg1, reg2);
+}
+
+void back_end_native_sra(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_R_sra, dst, reg1, reg2);
+}
+
+void back_end_native_srl(int dst, int reg1, int reg2)
+{
+    risc_v_r_op(risc_v_R_srl, dst, reg1, reg2);
+}
+
+void back_end_native_li(int dst, int imm)
+{
+    back_end_native_addi(dst, risc_v_reg_zero, imm);
+}
+
+void back_end_native_lb(int dst, int addr, int off)
+{
+     risc_v_i_op(risc_v_I_lb, dst, addr, off);
+}
+
+void back_end_native_lbu(int dst, int addr, int off)
+{
+     risc_v_i_op(risc_v_I_lbu, dst, addr, off);
+}
+
+void back_end_native_lh(int dst, int addr, int off)
+{
+     risc_v_i_op(risc_v_I_lh, dst, addr, off);
+}
+
+void back_end_native_lhu(int dst, int addr, int off)
+{
+     risc_v_i_op(risc_v_I_lhu, dst, addr, off);
+}
+
+void back_end_native_lw(int dst, int addr, int off)
+{
+     risc_v_i_op(risc_v_I_lw, dst, addr, off);
+}
+
+void back_end_native_lwu(int dst, int addr, int off)
+{
+     risc_v_i_op(risc_v_I_lwu, dst, addr, off);
+}
+
+void back_end_native_ld(int dst, int addr, int off)
+{
+     risc_v_i_op(risc_v_I_ld, dst, addr, off);
+}
+
+void back_end_native_sb(int dst, int addr, int off)
+{
+    risc_v_s_op(risc_v_S_sb, dst, addr, off);
+}
+
+void back_end_native_sh(int dst, int addr, int off)
+{
+    risc_v_s_op(risc_v_S_sh, dst, addr, off);
+}
+
+void back_end_native_sw(int dst, int addr, int off)
+{
+    risc_v_s_op(risc_v_S_sw, dst, addr, off);
+}
+
+void back_end_native_sd(int dst, int addr, int off)
+{
+    risc_v_s_op(risc_v_S_sd, dst, addr, off);
+}
+
+void back_end_native_ret()
+{
+    risc_v_i_op(risc_v_I_jalr, risc_v_reg_zero, risc_v_reg_ra, 0);
+}
+
+void back_end_native_call(int off)
+{
+    risc_v_jal(risc_v_reg_ra, off);
+}
+
+void back_end_native_jmp_reg(int reg)
+{
+    risc_v_i_op(risc_v_I_jalr, risc_v_reg_zero, reg, 0);
+}
+
+void back_end_native_syscall_0(int syscall)
+{
+    back_end_native_li(risc_v_reg_a7, syscall);
+
+    uint8_t code[4] = { risc_v_I_ecall, 0x00, 0x00, 0x00 };
+    put(code, 4);
+}
+
+void back_end_native_syscall_1(int syscall, int _1)
+{
+    back_end_native_li(risc_v_reg_a0, _1);
+    back_end_native_syscall_0(syscall);
+}
+
+void back_end_native_syscall_2(int syscall, int _1, int _2)
+{
+    back_end_native_li(risc_v_reg_a1, _2);
+    back_end_native_syscall_1(syscall, _1);
+}
+
+void back_end_native_syscall_3(int syscall, int _1, int _2, int _3)
+{
+    back_end_native_li(risc_v_reg_a2, _3);
+    back_end_native_syscall_2(syscall, _1, _2);
+}
+
+void back_end_native_syscall_4(int syscall, int _1, int _2, int _3, int _4)
+{
+    back_end_native_li(risc_v_reg_a3, _4);
+    back_end_native_syscall_3(syscall, _1, _2, _3);
+}
+
+void back_end_native_syscall_5(int syscall, int _1, int _2, int _3, int _4, int _5)
+{
+    back_end_native_li(risc_v_reg_a4, _5);
+    back_end_native_syscall_4(syscall, _1, _2, _3, _4);
+}
+
+void back_end_native_syscall_6(int syscall, int _1, int _2, int _3, int _4, int _5, int _6)
+{
+    back_end_native_li(risc_v_reg_a5, _6);
+    back_end_native_syscall_5(syscall, _1, _2, _3, _4, _5);
+}
+
+static int align_to_16_bytes(int num)
+{
+    return (num + 15) & ~15;
+}
+
+void back_end_native_prologue(int stack_usage)
+{
+    int extra_stack_usage = align_to_16_bytes(stack_usage);
+
+    back_end_native_addi(risc_v_reg_sp, risc_v_reg_sp, -(extra_stack_usage + 16));
+    back_end_native_sd(risc_v_reg_ra, risc_v_reg_sp,    (extra_stack_usage +  8));
+    back_end_native_sd(risc_v_reg_s0, risc_v_reg_sp,    (extra_stack_usage +  0));
+    back_end_native_addi(risc_v_reg_s0, risc_v_reg_sp,  (extra_stack_usage + 16));
+}
+
+void back_end_native_epilogue(int stack_usage)
+{
+    int extra_stack_usage = align_to_16_bytes(stack_usage);
+
+    back_end_native_ld(risc_v_reg_ra, risc_v_reg_sp,   (extra_stack_usage +  8));
+    back_end_native_ld(risc_v_reg_s0, risc_v_reg_sp,   (extra_stack_usage +  0));
+    back_end_native_addi(risc_v_reg_sp, risc_v_reg_sp, (extra_stack_usage + 16));
+}

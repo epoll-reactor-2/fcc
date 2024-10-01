@@ -27,9 +27,9 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#define ASSERT_TRUE(expr)   assert((expr));
-#define ASSERT_FALSE(expr)  assert(!(expr));
-#define ASSERT_EQ(lhs, rhs) assert((lhs) == (rhs));
+#define ASSERT_TRUE(expr)   { fflush(stdout); fflush(stderr); assert((expr)); }
+#define ASSERT_FALSE(expr)  { fflush(stdout); fflush(stderr); assert(!(expr)); }
+#define ASSERT_EQ(lhs, rhs) { fflush(stdout); fflush(stderr); assert((lhs) == (rhs)); }
 
 #define ASSERT_STREQ(lhs, rhs) do {     \
     int32_t rc = strcmp((lhs), (rhs));  \
@@ -39,19 +39,19 @@
     }                                   \
 } while(0);
 
+#if defined CONFIG_USE_BACKEND_RISC_V
+#define __target_readelf "riscv64-linux-gnu-readelf"
+#define __target_objdump "riscv64-linux-gnu-objdump"
+#define __target_exec    "qemu-riscv64 "
+#elif defined CONFIG_USE_BACKEND_X86_64
+#define __target_readelf "readelf"
+#define __target_objdump "objdump"
+#define __target_exec    "./"
+#endif /* CONFIG_USE_BACKEND_* */
+
 extern FILE *yyin;
 extern int yylex();
 extern int yylex_destroy();
-
-void tokens_cleanup(tok_array_t *toks)
-{
-    for (uint64_t i = 0; i < toks->count; ++i) {
-        struct token *t = &toks->data[i];
-        if (t->data)
-            free(t->data);
-    }
-    vector_free(*toks);
-}
 
 /* Get string represented as comment placed in the very
    beginning of file. For example,
@@ -72,7 +72,7 @@ void get_init_comment(FILE *in, FILE *out, const char *filename)
     fseek(in, 0, SEEK_SET);
 
     while ((read = getline(&line, &len, in)) != -1) {
-        if (read <= 3)
+        if (read <= 2)
             continue;
 
         if (strncmp(line, "//", 2) == 0) {
@@ -125,7 +125,7 @@ int compare_with_comment(
 
         if (strcmp(expected, generated) != 0) {
             printf(
-                "%sMismatch:%s\n%s\ngot,\n%s\nexpected\n",
+                "%sMismatch:%s\n`%s`\ngot,\n`%s`\nexpected\n",
                 color_red, color_end,
                 generated, expected
             );
@@ -205,8 +205,6 @@ int do_on_each_file(
 
         fclose(yyin);
         yylex_destroy();
-
-        memset(fname, 0, sizeof (fname));
     }
 
 exit:
@@ -241,7 +239,6 @@ void cfg_dir(const char *name, char *curr_out_dir)
    return tokens for current file opened by lex. */
 tok_array_t *gen_tokens(const char *filename)
 {
-    lex_reset_state();
     lex_init_state();
 
     if (!yyin) yyin = fopen(filename, "r");
@@ -260,7 +257,7 @@ struct ast_node *gen_ast(const char *filename)
 {
     tok_array_t *tokens = gen_tokens(filename);
     struct ast_node *ast = parse(tokens->data, tokens->data + tokens->count);
-    tokens_cleanup(tokens);
+    lex_reset_state();
     return ast;
 }
 

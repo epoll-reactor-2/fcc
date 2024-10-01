@@ -3,6 +3,7 @@ PVS-*
 .gdb_*
 .idea*
 .vscode/
+.config/
 
 **/*.swp
 coverage_output
