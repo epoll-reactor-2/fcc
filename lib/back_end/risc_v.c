@@ -234,6 +234,11 @@ static void risc_v_i_op(int op, int rds, int r, int32_t imm)
  **         Generic instructions             **
  **********************************************/
 
+int back_end_return_reg()
+{
+    return risc_v_reg_a0;
+}
+
 void back_end_native_add(int dst, int reg1, int reg2)
 {
     risc_v_r_op(risc_v_R_add, dst, reg1, reg2);

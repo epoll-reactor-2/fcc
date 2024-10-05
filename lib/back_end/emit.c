@@ -64,12 +64,54 @@ static void visit_alloca(struct ir_alloca *ir)
     stack_off += size;
 }
 
+struct tmp_reg {
+    int reg;
+    int busy;
+};
+
+static struct tmp_reg __tmp_reg_1 = { .reg = risc_v_reg_t0, /* busy */ 0 };
+static struct tmp_reg __tmp_reg_2 = { .reg = risc_v_reg_t1, /* busy */ 0 };
+
+static struct tmp_reg *__tmp_reg_active;
+
+static struct tmp_reg *select_tmp_reg()
+{
+         if (!__tmp_reg_1.busy) { __tmp_reg_active = &__tmp_reg_1; }
+    else if (!__tmp_reg_2.busy) { __tmp_reg_active = &__tmp_reg_2; }
+    else
+        weak_fatal_error("No free registers.");
+
+    return __tmp_reg_active;
+}
+
+static void visit_imm(struct ir_imm *ir)
+{
+    switch (ir->type) {
+    case IMM_INT:
+        back_end_native_li(select_tmp_reg()->reg, ir->imm.__int);
+        break;
+    case IMM_BOOL:
+    case IMM_FLOAT:
+    case IMM_CHAR:
+    default:
+        break;
+    }
+}
+
+static void visit_ret(unused struct ir_ret *ir)
+{
+    if (ir->body)
+        visit(ir->body);
+
+    back_end_native_addi(back_end_return_reg(), __tmp_reg_active->reg, 0);
+}
+
 static void visit(struct ir_node *ir)
 {
     switch (ir->type) {
     case IR_ALLOCA:       visit_alloca(ir->ir); break;
     case IR_ALLOCA_ARRAY: /* _alloca_array(ir->ir); */ break;
-    case IR_IMM:          /* _imm(ir->ir); */ break;
+    case IR_IMM:          visit_imm(ir->ir); break;
     case IR_STRING:       /* _string(ir->ir); */ break;
     case IR_SYM:          /* _sym(ir); */ break;
     case IR_STORE:        /* _store(ir->ir); */ break;
@@ -78,7 +120,7 @@ static void visit(struct ir_node *ir)
     case IR_BIN:          /* _bin(ir->ir); */ break;
     case IR_JUMP:         /* _jump(ir->ir); */ break;
     case IR_COND:         /* _cond(ir->ir); */ break;
-    case IR_RET:          /* _ret(ir->ir); */ break;
+    case IR_RET:          visit_ret(ir->ir); break;
     case IR_MEMBER:       /* _member(ir->ir); */ break;
     case IR_TYPE_DECL:    /* _type_decl(ir->ir); */ break;
     case IR_FN_DECL:      /* _fn_decl(ir->ir); */ break;
@@ -91,7 +133,8 @@ static void visit(struct ir_node *ir)
 
 static void visit_fn_main(unused struct ir_fn_decl *ast)
 {
-    back_end_native_syscall_1(__NR_exit, 42);
+    // back_end_native_addi(risc_v_reg_a0, __tmp_reg_active);
+    back_end_native_syscall_0(__NR_exit);
 }
 
 static void visit_fn_usual(unused struct ir_fn_decl *ir)

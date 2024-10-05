@@ -53,12 +53,12 @@
 //    208c:	01010113          	addi	sp,sp,16
 //	...
 int f_1() { return 1; }
-int f_2() { return 1; }
-int f_3() { return 1; }
+int f_2() { return 2; }
+int f_3() { return 3; }
 
 int main()
 {
     return 0;
 }
 
-int f_4() { return 1; }
+int f_4() { return f_3(); }

@@ -23,6 +23,8 @@ void back_end_seek_set(uint64_t seek);
 
 void put(uint8_t *code, uint64_t size);
 
+int  back_end_return_reg();
+
 void back_end_native_add    (int dst, int reg1, int reg2);
 void back_end_native_addi   (int dst, int reg1, int imm);
 void back_end_native_addiw  (int dst, int reg1, int imm);
