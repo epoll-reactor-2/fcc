@@ -1,3 +1,8 @@
+#include <stddef.h>
+
+void *diag_error_memstream = NULL;
+void *diag_warn_memstream = NULL;
+
 int main() {}
 // /* fuzz.c - Fuzz test.
  // * Copyright (C) 2024 epoll-reactor <glibcxx.chrono@gmail.com>
