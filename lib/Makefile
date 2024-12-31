@@ -73,4 +73,4 @@ $(LEX_OBJ): $(LEX_SRC)
 
 $(LIB): $(OBJ) $(LEX_OBJ)
 	@echo [LD] $@
-	$(CC) $(addprefix ../build/obj/,$(^F)) $(COV_CFLAGS) -shared -o ../build/lib/$(LIB) -L../build $(LDFLAGS) $(SANITIZE_LDFLAGS)
+	@$(CC) $(addprefix ../build/obj/,$(^F)) $(COV_CFLAGS) -shared -o ../build/lib/$(LIB) -L../build $(LDFLAGS) $(SANITIZE_LDFLAGS)
