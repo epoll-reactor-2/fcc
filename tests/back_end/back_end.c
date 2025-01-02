@@ -19,6 +19,7 @@ void run(const char *path)
 {
     system_run("%s -a %s", __target_readelf, path);
     system_run("%s -D %s", __target_objdump, path);
+    system_run("chmod +x %s", path);
 
     int code = system_run("%s %s", __target_exec, path);
 
