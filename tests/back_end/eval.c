@@ -18,11 +18,11 @@ void __eval_test(const char *path, unused const char *filename, FILE *out_stream
     struct ir_node *it = ir.fn_decls;
     ir_type_pass(&ir);
 
+    ir_opt_reorder(&ir);
+    ir_opt_arith(&ir);
     while (it) {
         struct ir_fn_decl *decl = it->ir;
         /* Reordering before building CFG links. */
-        ir_opt_reorder(decl);
-        ir_opt_arith(decl);
         ir_cfg_build(decl);
 
         /* Wrong
