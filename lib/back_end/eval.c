@@ -5,8 +5,10 @@
  */
 
 #include "back_end/eval.h"
+#include "front_end/lex/data_type.h"
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/ir_dump.h"
+#include "util/compiler.h"
 #include "util/crc32.h"
 #include "util/hashmap.h"
 #include "util/unreachable.h"
@@ -37,7 +39,7 @@
          values.
 
          Stack contains `struct value`. */
-static char     stack[STACK_SIZE_BYTES];
+static struct value stack[STACK_SIZE_BYTES];
 /* Index: sym_idx
    Value: sp */
 static char     stack_map[STACK_SIZE_BYTES];
@@ -178,8 +180,6 @@ static void eval_sym(struct ir_node *sym)
 
 static void eval_bools(enum token_type op, bool l, bool r)
 {
-    last.dt = D_T_BOOL;
-
     switch (op) {
     case TOK_BIT_AND: last.__bool = l & r; break;
     case TOK_BIT_OR:  last.__bool = l | r; break;
@@ -187,35 +187,33 @@ static void eval_bools(enum token_type op, bool l, bool r)
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
+
+    last.dt = D_T_BOOL;
 }
 
 static void eval_floats(enum token_type op, float l, float r)
 {
-    last.dt = D_T_FLOAT;
-
-    float f = 0.0;
+    struct value v = {0};
 
     switch (op) {
     /* Logical operations. */
-    case TOK_EQ:      f = l == r; last.dt = D_T_INT; break;
-    case TOK_NEQ:     f = l != r; last.dt = D_T_INT; break;
-    case TOK_GT:      f = l  > r; last.dt = D_T_INT; break;
-    case TOK_LT:      f = l  < r; last.dt = D_T_INT; break;
-    case TOK_GE:      f = l >= r; last.dt = D_T_INT; break;
-    case TOK_LE:      f = l <= r; last.dt = D_T_INT; break;
+    case TOK_EQ:      v.__int = l == r; last.dt = D_T_INT; break;
+    case TOK_NEQ:     v.__int = l != r; last.dt = D_T_INT; break;
+    case TOK_GT:      v.__int = l  > r; last.dt = D_T_INT; break;
+    case TOK_LT:      v.__int = l  < r; last.dt = D_T_INT; break;
+    case TOK_GE:      v.__int = l >= r; last.dt = D_T_INT; break;
+    case TOK_LE:      v.__int = l <= r; last.dt = D_T_INT; break;
     /* Arithmetic operations. */
-    case TOK_PLUS:    f = l  + r; break;
-    case TOK_MINUS:   f = l  - r; break;
-    case TOK_STAR:    f = l  * r; break;
-    case TOK_SLASH:   f = l  / r; break;
+    case TOK_PLUS:    v.__float = l  + r; break;
+    case TOK_MINUS:   v.__float = l  - r; break;
+    case TOK_STAR:    v.__float = l  * r; break;
+    case TOK_SLASH:   v.__float = l  / r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
 
-    if (last.dt == D_T_FLOAT)
-        last.__float = f;
-    else
-        last.__int = (int) f;
+    last = v;
+    last.dt = D_T_FLOAT;
 }
 
 static void eval_ints(
@@ -223,8 +221,6 @@ static void eval_ints(
     int32_t          l,
     int32_t          r
 ) {
-    last.dt = D_T_INT;
-
     int i = 0;
 
     switch (op) {
@@ -251,52 +247,49 @@ static void eval_ints(
     }
 
     last.__int = i;
+    last.dt = D_T_INT;
 }
 
 static void eval_chars(
     enum token_type  op,
-    int32_t          l,
-    int32_t          r
+    char             l,
+    char             r
 ) {
-    last.dt = D_T_CHAR;
-
-    char c = '\0';
+    struct value v = {0};
 
     switch (op) {
     /* Logical operations. */
-    case TOK_EQ:      c = l == r; last.dt = D_T_INT; break;
-    case TOK_NEQ:     c = l != r; last.dt = D_T_INT; break;
-    case TOK_GT:      c = l  > r; last.dt = D_T_INT; break;
-    case TOK_LT:      c = l  < r; last.dt = D_T_INT; break;
-    case TOK_GE:      c = l >= r; last.dt = D_T_INT; break;
-    case TOK_LE:      c = l <= r; last.dt = D_T_INT; break;
-    case TOK_AND:     c = l && r; last.dt = D_T_INT; break;
-    case TOK_OR:      c = l || r; last.dt = D_T_INT; break;
+    case TOK_EQ:      v.__int = l == r; last.dt = D_T_INT; break;
+    case TOK_NEQ:     v.__int = l != r; last.dt = D_T_INT; break;
+    case TOK_GT:      v.__int = l  > r; last.dt = D_T_INT; break;
+    case TOK_LT:      v.__int = l  < r; last.dt = D_T_INT; break;
+    case TOK_GE:      v.__int = l >= r; last.dt = D_T_INT; break;
+    case TOK_LE:      v.__int = l <= r; last.dt = D_T_INT; break;
+    case TOK_AND:     v.__int = l && r; last.dt = D_T_INT; break;
+    case TOK_OR:      v.__int = l || r; last.dt = D_T_INT; break;
     /* Arithmetic operations. */
-    case TOK_XOR:     c = l  ^ r; break;
-    case TOK_BIT_AND: c = l  & r; break;
-    case TOK_BIT_OR:  c = l  | r; break;
-    case TOK_SHL:     c = l << r; break;
-    case TOK_SHR:     c = l >> r; break;
-    case TOK_PLUS:    c = l  + r; break;
-    case TOK_MINUS:   c = l  - r; break;
-    case TOK_STAR:    c = l  * r; break;
-    case TOK_SLASH:   c = l  / r; break;
-    case TOK_MOD:     c = l  % r; break;
+    case TOK_XOR:     v.__char = l  ^ r; break;
+    case TOK_BIT_AND: v.__char = l  & r; break;
+    case TOK_BIT_OR:  v.__char = l  | r; break;
+    case TOK_SHL:     v.__char = l << r; break;
+    case TOK_SHR:     v.__char = l >> r; break;
+    case TOK_PLUS:    v.__char = l  + r; break;
+    case TOK_MINUS:   v.__char = l  - r; break;
+    case TOK_STAR:    v.__char = l  * r; break;
+    case TOK_SLASH:   v.__char = l  / r; break;
+    case TOK_MOD:     v.__char = l  % r; break;
     default:
         weak_unreachable("Unknown token type `%s`.", tok_to_string(op));
     }
 
-    if (last.dt == D_T_CHAR)
-        last.__char = c;
-    else
-        last.__int = (int) c;
+    last = v;
+    last.dt = D_T_CHAR;
 }
 
 
 static void compute(enum token_type op, struct value *l, struct value *r)
 {
-    if (l->dt != r->dt)
+    if (unlikely(l->dt != r->dt))
         weak_unreachable("dt(L) = %s, dt(R) = %s", data_type_to_string(l->dt), data_type_to_string(r->dt));
 
     switch (l->dt) {
@@ -487,56 +480,6 @@ static void instr_eval(struct ir_node *ir)
 
 
 /**********************************************
- **               Call stack                 **
- **********************************************/
-
-/* Important notice about drawing stacks in LaTeX
-   https://tex.stackexchange.com/questions/235000/drawing-an-activation-stack-in-latex */
-
-static void printf_n(uint32_t count, char c)
-{
-    for (uint32_t i = 0; i < count; ++i) {
-        putc(i % 2 != 0 ? c : '|', stdout);
-    }
-}
-
-struct call_stack_entry {
-    const char *name;
-    uint64_t    sp;
-};
-
-typedef vector_t(struct call_stack_entry) call_stack_t;
-
-static uint64_t call_depth;
-
-/* TODO: Builtin function that prints stacktrace at
-         the moment.
-
-         strace();
-         ` prints
-         `
-         call `main` (+0)
-           call `fact` (+24)
-             call `fact` (+144)
-               call `fact` (+264)
-                 call `fact` (+384)
-                  call `fact` (+504)
-*/
-static void call_stack_head(const char *fname)
-{
-    printf_n(call_depth, ' ');
-    printf("call `%s` (+%lu)\n", fname, sp);
-    call_depth += 2;
-}
-
-static void call_stack_tail()
-{
-    call_depth -= 2;
-}
-
-
-
-/**********************************************
  **           Functions routines             **
  **********************************************/
 static hashmap_t funs;
@@ -625,10 +568,9 @@ static void call_eval(struct ir_fn_call *fcall)
     uint64_t        sym            = 0;
     uint64_t        bp             = sp;
     struct ir_node *save_instr_ptr = instr_ptr;
-    char            stack_map_copy[STACK_SIZE_BYTES];
+    char            stack_map_copy[STACK_SIZE_BYTES] = {0};
 
-    call_stack_head(fcall->name);
-    memcpy(stack_map_copy, stack_map, STACK_SIZE_BYTES);
+   memcpy(stack_map_copy, stack_map, STACK_SIZE_BYTES); 
 
     struct ir_node *arg = fcall->args;
     while (arg) {
@@ -645,8 +587,7 @@ static void call_eval(struct ir_fn_call *fcall)
     /* Epilogue @{ */
     sp = bp;
     instr_ptr = save_instr_ptr;
-    memcpy(stack_map, stack_map_copy, STACK_SIZE_BYTES);
-    call_stack_tail();
+   memcpy(stack_map, stack_map_copy, STACK_SIZE_BYTES); 
     /* }@ */
 }
 
