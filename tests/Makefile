@@ -32,12 +32,13 @@ all: files src $(FUZZER_OBJ)
 files:
 	@mkdir -p ../build/inputs; \
 	 cp -r back_end/input/*  ../build/inputs;
+	 cp -r middle_end/input/*  ../build/inputs;
 	 cp -r front_end/input/*  ../build/inputs;
 
 ##################################
 # Sources                        #
 ##################################
-SRC = $(shell find front_end utils -name '*.c')
+SRC = $(shell find front_end middle_end utils -name '*.c')
 
 ifeq ($(USE_BACKEND_EVAL), 1)
 SRC += back_end/eval.c
