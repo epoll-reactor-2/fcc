@@ -19,6 +19,7 @@
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -34,6 +35,16 @@
 #define ASSERT_STREQ(lhs, rhs) do {     \
     int32_t rc = strcmp((lhs), (rhs));  \
     if (rc != 0) {                      \
+        int diff_fd_1 = open("/tmp/fcc_diff_1", O_CREAT | O_TRUNC | O_RDWR, 0644); \
+        int diff_fd_2 = open("/tmp/fcc_diff_2", O_CREAT | O_TRUNC | O_RDWR, 0644); \
+        printf("FD 1: %d\n", diff_fd_1); \
+        printf("FD 2: %d\n", diff_fd_2); \
+        write(diff_fd_1, lhs, strlen(lhs)); \
+        write(diff_fd_2, rhs, strlen(rhs)); \
+        sync(); \
+        close(diff_fd_1); \
+        close(diff_fd_2); \
+        system("diff /tmp/fcc_diff_1 /tmp/fcc_diff_2"); \
         fprintf(stderr, "%s@%d: Strings mismatch:\n\t`%s` and\n\t`%s`\n", __FILE__, __LINE__, (lhs), (rhs)); \
         return rc;                      \
     }                                   \
@@ -123,15 +134,7 @@ int compare_with_comment(
 
         fflush(generated_stream);
 
-        if (strcmp(expected, generated) != 0) {
-            printf(
-                "%sMismatch:%s\n`%s`\ngot,\n`%s`\nexpected\n",
-                color_red, color_end,
-                generated, expected
-            );
-            rc = -1;
-            goto exit;
-        }
+        ASSERT_STREQ(expected, generated);
     } else {
         /* Error, will be printed in main. */
         return -1;
