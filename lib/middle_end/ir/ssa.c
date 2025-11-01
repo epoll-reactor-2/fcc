@@ -11,6 +11,7 @@
 #include "middle_end/ir/ir_ops.h"
 #include "util/compiler.h"
 #include "util/hashmap.h"
+#include "util/vector.h"
 #include <assert.h>
 #include <math.h>
 #include <string.h>
@@ -84,7 +85,10 @@ static void ir_insert_before(struct ir_node *curr, struct ir_node *new)
 }
 
 /* This function implements algorithm given in
-   https://c9x.me/compile/bib/ssa.pdf */
+   https://c9x.me/compile/bib/ssa.pdf
+
+   TODO: Fix placement order. Now it pushed to the start
+         of some block. */
 static void phi_insert(
     struct ir_fn_decl *decl,
     /* Key:   sym_idx
@@ -169,7 +173,7 @@ typedef vector_t(uint64_t) ssa_stack_t;
 
 static uint64_t ssa_idx;
 
-really_inline static void ssa_rename_sym(struct ir_node *sym_ir, uint64_t sym_idx, ssa_stack_t *stack)
+static void ssa_rename_sym(struct ir_node *sym_ir, uint64_t sym_idx, ssa_stack_t *stack)
 {
     if (sym_ir->type != IR_SYM)
         return;
@@ -210,13 +214,6 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
     }
     case IR_STORE: {
         struct ir_store *store = ir->ir;
-        if (store->idx->type == IR_SYM) {
-            struct ir_sym *sym = store->idx->ir;
-            if (sym->idx == sym_idx) {
-                sym->ssa_idx = ssa_idx;
-                vector_push_back(*stack, ssa_idx++);
-            }
-        }
 
         switch (store->body->type) {
         case IR_BIN: {
@@ -230,6 +227,15 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
         }
         default:
             break;
+        }
+
+        if (store->idx->type == IR_SYM) {
+            struct ir_sym *sym = store->idx->ir;
+
+            if (sym->idx == sym_idx) {
+                sym->ssa_idx = ssa_idx;
+                vector_push_back(*stack, ssa_idx++);
+            }
         }
         break;
     }

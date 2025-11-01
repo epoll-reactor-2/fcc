@@ -80,7 +80,7 @@ struct edge least_semidom(uint64_t u)
 }
 
 /* Topological sort. */
-void dfs(uint64_t u)
+static void dfs(uint64_t u)
 {
     visit_time[u] = ++dfs_index;
     inverse_visit_time[dfs_index] = u;
@@ -103,7 +103,7 @@ void dfs(uint64_t u)
 
     If v < u then v visited before u.
     If v < u then v is ancestor of u in DFS tree. */
-void dom_tree()
+static void dom_tree()
 {
     /* Step 1 already executed by performing DFS. */
 
@@ -253,6 +253,7 @@ bool ir_dominated_by(struct ir_node *node, struct ir_node *dom)
         node = node->idom;
         if (node == dom) return 1;
     }
+
     return 0;
 }
 
@@ -264,5 +265,6 @@ bool ir_dominates(struct ir_node *dom, struct ir_node *node)
         node = node->idom;
         if (node && node == dom) return 1;
     }
+
     return 0;
 }
