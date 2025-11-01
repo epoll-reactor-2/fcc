@@ -37,15 +37,17 @@
     if (rc != 0) {                      \
         int diff_fd_1 = open("/tmp/fcc_diff_1", O_CREAT | O_TRUNC | O_RDWR, 0644); \
         int diff_fd_2 = open("/tmp/fcc_diff_2", O_CREAT | O_TRUNC | O_RDWR, 0644); \
-        printf("FD 1: %d\n", diff_fd_1); \
-        printf("FD 2: %d\n", diff_fd_2); \
+        puts(""); \
+        printf("LHS: %s\n", lhs); \
+        printf("RHS: %s\n", rhs); \
         write(diff_fd_1, lhs, strlen(lhs)); \
         write(diff_fd_2, rhs, strlen(rhs)); \
         sync(); \
         close(diff_fd_1); \
         close(diff_fd_2); \
-        system("diff /tmp/fcc_diff_1 /tmp/fcc_diff_2"); \
-        fprintf(stderr, "%s@%d: Strings mismatch:\n\t`%s` and\n\t`%s`\n", __FILE__, __LINE__, (lhs), (rhs)); \
+        fprintf(stderr, "Strings mismatch:\n"); \
+        system("diff --color=always /tmp/fcc_diff_1 /tmp/fcc_diff_2"); \
+        exit(1); \
         return rc;                      \
     }                                   \
 } while(0);
@@ -273,7 +275,7 @@ struct ir_unit gen_ir(const char *filename)
     sema_type(&ast);
     ana_fn(ast);
     ana_type(ast);
-    
+
     struct ir_unit unit = ir_gen(ast);
     ast_node_cleanup(ast);
     return unit;
