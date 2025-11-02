@@ -10,14 +10,15 @@
 //       5:   | jmp L11
 //       6:   | int t2
 //       7:   | t2.0 = t0.0
-//       8:   | t2.1 = t2.1 + 1
-//       9:   | t0.1 = t0.1 + 1    // FIX: t0.1 = t0.0 + 1
+//       8:   | t2.1 = t2.0 + 1
+//       9:   | t0.1 = t0.0 + 1
 //      10:   | jmp L2
 //      11:   ret 0
 int main() {
+    int j = 0;
     for (int i = 0; i < 10; ++i) {
-        int j = i;
+        j = i;
         ++j;
     }
-    return 0;
+    return j;
 }

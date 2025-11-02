@@ -9,11 +9,9 @@
 #include "middle_end/ir/dom.h"
 #include "middle_end/ir/gen.h"
 #include "middle_end/ir/ir_ops.h"
-#include "util/compiler.h"
 #include "util/hashmap.h"
 #include "util/vector.h"
 #include <assert.h>
-#include <math.h>
 #include <string.h>
 
 static void assigns_collect(struct ir_fn_decl *decl, hashmap_t *out)
@@ -169,24 +167,74 @@ static void phi_insert(
     hashmap_destroy(&dom_fron_plus);
 }
 
+/* TODO: Replace stack with map (sym_idx, ssa_idx)? */
 typedef vector_t(uint64_t) ssa_stack_t;
 
 static uint64_t ssa_idx;
 
-static void ssa_rename_sym(struct ir_node *sym_ir, uint64_t sym_idx, ssa_stack_t *stack)
+static void ssa_rename_sym(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
 {
-    if (sym_ir->type != IR_SYM)
+    if (ir->type != IR_SYM)
         return;
 
-    struct ir_sym *sym = sym_ir->ir;
+    struct ir_sym *sym = ir->ir;
     if (sym->idx == sym_idx)
         sym->ssa_idx = vector_back(*stack);
 }
 
-static void ssa_rename_bin(struct ir_bin *bin, uint64_t sym_idx, ssa_stack_t *stack)
+static void ssa_rename_bin(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
 {
+    struct ir_bin *bin = ir->ir;
     ssa_rename_sym(bin->lhs, sym_idx, stack);
     ssa_rename_sym(bin->rhs, sym_idx, stack);
+}
+
+static void ssa_rename_cond(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
+{
+    struct ir_cond *cond = ir->ir;
+    ssa_rename_bin(cond->cond, sym_idx, stack);
+}
+
+static void ssa_rename_phi(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
+{
+    struct ir_phi *phi = ir->ir;
+    if (phi->sym_idx == sym_idx) {
+        phi->ssa_idx = ssa_idx;
+        vector_push_back(*stack, ssa_idx++);
+    }
+}
+
+static void ssa_rename_store(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
+{
+    struct ir_store *store = ir->ir;
+
+    switch (store->body->type) {
+    case IR_BIN:
+        ssa_rename_bin(store->body, sym_idx, stack);
+        break;
+    case IR_SYM:
+        ssa_rename_sym(store->body, sym_idx, stack);
+        break;
+    default:
+        break;
+    }
+
+    if (store->idx->type == IR_SYM) {
+        struct ir_sym *sym = store->idx->ir;
+
+        if (sym->idx == sym_idx) {
+            sym->ssa_idx = ssa_idx;
+            vector_push_back(*stack, ssa_idx++);
+        }
+    }
+}
+
+static void ssa_rename_ret(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
+{
+    struct ir_ret *ret = ir->ir;
+    if (ret->body &&
+        ret->body->type == IR_SYM)
+        ssa_rename_sym(ret->body, sym_idx, stack);
 }
 
 static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack, bool *visited)
@@ -197,54 +245,18 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
     visited[ir->instr_idx] = 1;
 
     switch (ir->type) {
-    case IR_PHI: {
-        struct ir_phi *phi = ir->ir;
-        if (phi->sym_idx == sym_idx) {
-            phi->ssa_idx = ssa_idx;
-            vector_push_back(*stack, ssa_idx++);
-        }
+    case IR_PHI:
+        ssa_rename_phi(ir, sym_idx, stack);
         break;
-    }
-    case IR_COND: {
-        struct ir_cond *cond = ir->ir;
-        struct ir_bin  *body = cond->cond->ir;
-
-        ssa_rename_bin(body, sym_idx, stack);
+    case IR_COND:
+        ssa_rename_cond(ir, sym_idx, stack);
         break;
-    }
-    case IR_STORE: {
-        struct ir_store *store = ir->ir;
-
-        switch (store->body->type) {
-        case IR_BIN: {
-            struct ir_bin *body = store->body->ir;
-            ssa_rename_bin(body, sym_idx, stack);
-            break;
-        }
-        case IR_SYM: {
-            ssa_rename_sym(store->body, sym_idx, stack);
-            break;
-        }
-        default:
-            break;
-        }
-
-        if (store->idx->type == IR_SYM) {
-            struct ir_sym *sym = store->idx->ir;
-
-            if (sym->idx == sym_idx) {
-                sym->ssa_idx = ssa_idx;
-                vector_push_back(*stack, ssa_idx++);
-            }
-        }
+    case IR_STORE:
+        ssa_rename_store(ir, sym_idx, stack);
         break;
-    }
-    case IR_RET: {
-        struct ir_ret *ret = ir->ir;
-        if (ret->body &&
-            ret->body->type == IR_SYM)
-            ssa_rename_sym(ret->body, sym_idx, stack);
-    }
+    case IR_RET:
+        ssa_rename_ret(ir, sym_idx, stack);
+        break;
     default:
         break;
     }
@@ -265,7 +277,7 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
         }
     }
 
-    /* 2. call recursive for dominator tree children. */
+    /* 2. Call recursive for dominator tree children. */
     vector_foreach(ir->idom_back, i) {
         struct ir_node *submissive = vector_at(ir->idom_back, i);
         ssa_rename(submissive, sym_idx, stack, visited);
