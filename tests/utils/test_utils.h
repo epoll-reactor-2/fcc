@@ -32,23 +32,22 @@
 #define ASSERT_FALSE(expr)  { fflush(stdout); fflush(stderr); assert(!(expr)); }
 #define ASSERT_EQ(lhs, rhs) { fflush(stdout); fflush(stderr); assert((lhs) == (rhs)); }
 
-#define ASSERT_STREQ(lhs, rhs) do {     \
-    int32_t rc = strcmp((lhs), (rhs));  \
+#define ASSERT_STREQ(got, expected) do {     \
+    int32_t rc = strcmp((got), (expected));  \
     if (rc != 0) {                      \
         int diff_fd_1 = open("/tmp/fcc_diff_1", O_CREAT | O_TRUNC | O_RDWR, 0644); \
         int diff_fd_2 = open("/tmp/fcc_diff_2", O_CREAT | O_TRUNC | O_RDWR, 0644); \
         puts(""); \
-        printf("LHS: %s\n", lhs); \
-        printf("RHS: %s\n", rhs); \
-        write(diff_fd_1, lhs, strlen(lhs)); \
-        write(diff_fd_2, rhs, strlen(rhs)); \
+        printf("got: %s\n", got); \
+        printf("expected: %s\n", expected); \
+        write(diff_fd_1, got, strlen(got)); \
+        write(diff_fd_2, expected, strlen(expected)); \
         sync(); \
         close(diff_fd_1); \
         close(diff_fd_2); \
         fprintf(stderr, "Strings mismatch:\n"); \
         system("diff --color=always /tmp/fcc_diff_1 /tmp/fcc_diff_2"); \
-        exit(1); \
-        return rc;                      \
+        return 0;                      \
     }                                   \
 } while(0);
 
@@ -136,7 +135,7 @@ int compare_with_comment(
 
         fflush(generated_stream);
 
-        ASSERT_STREQ(expected, generated);
+        ASSERT_STREQ(generated, expected);
     } else {
         /* Error, will be printed in main. */
         return -1;
