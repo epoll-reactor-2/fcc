@@ -8,10 +8,13 @@
 #include "middle_end/ir/ir.h"
 #include "middle_end/ir/dom.h"
 #include "middle_end/ir/gen.h"
+#include "middle_end/ir/ir_dump.h"
 #include "middle_end/ir/ir_ops.h"
+#include "util/alloc.h"
 #include "util/hashmap.h"
 #include "util/vector.h"
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
 
 static void assigns_collect(struct ir_fn_decl *decl, hashmap_t *out)
@@ -147,7 +150,6 @@ static void phi_insert(
                     );
 
                     ir_insert_before(y, phi);
-                    /* printf("Insert phi before %ld\n", y->instr_idx); */
                     memcpy(&phi->meta, &y->meta, sizeof (struct meta));
                     hashmap_put(&dom_fron_plus, y_addr, 1);
 
@@ -168,9 +170,45 @@ static void phi_insert(
 }
 
 /* TODO: Replace stack with map (sym_idx, ssa_idx)? */
-typedef vector_t(uint64_t) ssa_stack_t;
+typedef hashmap_t ssa_stack_t;
+typedef vector_t(uint64_t) ssa_list_t;
 
 static uint64_t ssa_idx;
+
+ssa_list_t *ssa_stack_get_list(ssa_stack_t *stack, uint64_t sym_idx)
+{
+    bool ok = 0;
+    ssa_list_t *list = (ssa_list_t *) hashmap_get(stack, sym_idx, &ok);
+    if (!ok) {
+        printf("No symbol %lu!\n", sym_idx);
+        return NULL;
+    }
+
+    return list;
+}
+
+ssa_list_t *ssa_stack_put(ssa_stack_t *stack, uint64_t sym_idx)
+{
+    ssa_list_t *list = (ssa_list_t *) weak_calloc(1, sizeof (*list));
+
+    hashmap_put(stack, sym_idx, (uint64_t) list);
+
+    return list;
+}
+
+void ssa_stack_dump(ssa_stack_t *stack)
+{
+    return;
+    printf("\nSSA stuck dump:\n");
+    hashmap_foreach(stack, sym_idx, ptr) {
+        ssa_list_t *list = (ssa_list_t *) ptr;
+        printf("  symbol %lu: ( ", sym_idx);
+        vector_foreach(*list, i) {
+            printf("%lu ", vector_at(*list, i));
+        }
+        printf(")\n");
+    }
+}
 
 static void ssa_rename_sym(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
 {
@@ -178,8 +216,13 @@ static void ssa_rename_sym(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *st
         return;
 
     struct ir_sym *sym = ir->ir;
-    if (sym->idx == sym_idx)
-        sym->ssa_idx = vector_back(*stack);
+    if (sym->idx == sym_idx) {
+        ssa_list_t *list = ssa_stack_get_list(stack, sym_idx);
+        sym->ssa_idx = vector_back(*list);
+        ssa_idx = sym->ssa_idx;
+    }
+
+    ssa_stack_dump(stack);
 }
 
 static void ssa_rename_bin(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
@@ -199,8 +242,10 @@ static void ssa_rename_phi(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *st
 {
     struct ir_phi *phi = ir->ir;
     if (phi->sym_idx == sym_idx) {
-        phi->ssa_idx = ssa_idx;
-        vector_push_back(*stack, ssa_idx++);
+        phi->ssa_idx = ++ssa_idx;
+        ssa_list_t *list = ssa_stack_put(stack, sym_idx);
+        vector_push_back(*list, phi->ssa_idx);
+        ssa_stack_dump(stack);
     }
 }
 
@@ -223,10 +268,13 @@ static void ssa_rename_store(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *
         struct ir_sym *sym = store->idx->ir;
 
         if (sym->idx == sym_idx) {
-            sym->ssa_idx = ssa_idx;
-            vector_push_back(*stack, ssa_idx++);
+            sym->ssa_idx = ++ssa_idx;
+            ssa_list_t *list = ssa_stack_put(stack, sym_idx);
+            vector_push_back(*list, sym->ssa_idx);
         }
     }
+
+    ssa_stack_dump(stack);
 }
 
 static void ssa_rename_ret(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack)
@@ -235,6 +283,8 @@ static void ssa_rename_ret(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *st
     if (ret->body &&
         ret->body->type == IR_SYM)
         ssa_rename_sym(ret->body, sym_idx, stack);
+
+    ssa_stack_dump(stack);
 }
 
 static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack, bool *visited)
@@ -243,6 +293,10 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
         return;
 
     visited[ir->instr_idx] = 1;
+
+    printf("visit ");
+    ir_dump_node(stdout, ir);
+    printf("\n");
 
     switch (ir->type) {
     case IR_PHI:
@@ -268,16 +322,37 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
             /* ... */
             struct ir_phi *phi = it->ir;
             if (phi->sym_idx == sym_idx &&
-                stack->count > 0) {
+                stack->size > 0) {
                 /* TODO: Store variable list assigned in
                          each related block in phi node.
                          Then rename operands of phi. */
-                phi->ssa_idx = vector_back(*stack);
+                ssa_list_t *list = ssa_stack_get_list(stack, sym_idx);
+                phi->ssa_idx = vector_back(*list);
             }
         }
     }
 
-    /* 2. Call recursive for dominator tree children. */
+    /* 2. Call recursive for dominator tree children.
+     *
+     * Incorrect visit order and this phi indexing:
+     *
+     * rename symbol 0
+     * visit int t0
+     * visit t0 = 0
+     * visit int t1
+     * visit t1 = 0
+     * visit int t2
+     * visit t2 = t1 < 10
+     * visit if t2 != 0 goto L8
+     * visit jmp L12
+     * visit ret t0
+     * visit t0 = t1
+     * visit t0 = t0 + 1
+     * visit t1 = t1 + 1
+     * visit jmp L4
+     * visit t0.1 = φ(4, 3)
+     * visit t1.0 = φ(4, 3)
+     * visit t2.0 = φ(4, 3) */
     vector_foreach(ir->idom_back, i) {
         struct ir_node *submissive = vector_at(ir->idom_back, i);
         ssa_rename(submissive, sym_idx, stack, visited);
@@ -289,8 +364,10 @@ static void ssa_rename(struct ir_node *ir, uint64_t sym_idx, ssa_stack_t *stack,
         if (store->idx->type != IR_SYM)
             return;
         struct ir_sym *sym = store->idx->ir;
-        if (sym->idx == sym_idx)
-            vector_pop_back(*stack);
+        if (sym->idx == sym_idx) {
+            ssa_list_t *list = ssa_stack_get_list(stack, sym_idx);
+            vector_pop_back(*list);
+        }
     }
 }
 
@@ -304,6 +381,7 @@ void ir_compute_ssa(struct ir_node *decls)
         hashmap_t assigns        = {0};
         /* Value: sym_idx */
         ssa_stack_t ssa_stack    = {0};
+        hashmap_init(&ssa_stack, 256);
 
         assigns_collect(decl, &assigns);
 
@@ -315,9 +393,8 @@ void ir_compute_ssa(struct ir_node *decls)
         hashmap_foreach(&assigns, sym_idx, __) {
             bool visited[512] = {0};
 
-            (void) __;
-            vector_free(ssa_stack);
             ssa_idx = 0;
+            printf("rename symbol %lu\n", sym_idx);
             ssa_rename(decl->body, sym_idx, &ssa_stack, visited);
         }
 

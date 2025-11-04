@@ -300,6 +300,7 @@ struct ir_phi {
     uint64_t         ssa_idx;
     uint64_t         op_1_idx;
     uint64_t         op_2_idx;
+    int              args[128];
 };
 
 void ir_reset_state();
